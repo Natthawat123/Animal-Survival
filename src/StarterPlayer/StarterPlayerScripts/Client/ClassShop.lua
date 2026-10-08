@@ -1,8 +1,10 @@
 --[[
-	ClassShop — ร้านคลาสแบบ 99 Nights
-	  ซ้าย  : รายการคลาส (รูปวงกลม ดาว ชื่อ ราคา/สต็อก/เลเวล) + รีโรลสต็อค + อัตราต่อรอง + เพชร
-	  กลาง  : หุ่นแต่งชุดคลาสบนเวทีในเต็นท์ Classes (กล้องย้ายไปที่เวที) + ข้อกำหนดเลเวลถัดไป + ปุ่มสวมใส่/ซื้อ/ถอด
-	  ขวา   : เครื่องมือเริ่มต้น + ทักษะเลเวล 1-3 (ล็อก = ข้ามด้วยเพชร)
+	ClassShop — ร้านคลาส (แบบ 99 Nights) เวอร์ชันออกแบบใหม่
+	  ซ้าย  : รายการคลาส — รูปตัวละครวงกลม (กรอบสีตามดาว) ชื่อ ดาว สายของคลาส ราคา/สต็อก/เลเวล
+	          + เพชรของเรา + เวลารีสต็อก + รีโรลสต็อค + อัตราต่อรอง
+	  กลาง  : ตัวละครคลาสจริง (R15 + ของในแคตตาล็อก) ยืนบนเวทีในเต็นท์ Classes + แถบความคืบหน้าเลเวลถัดไป + ปุ่ม
+	  ขวา   : เครื่องมือเริ่มต้น + การ์ดทักษะ 3 ขั้น (ชื่อทักษะ + คำอธิบาย / ล็อก = ข้ามด้วยเพชร)
+	ทุกอย่างอยู่ในกรอบ 16:9 กลางจอ (UIAspectRatioConstraint) จะได้ไม่เพี้ยนตามขนาดจอ
 ]]
 
 local Players = game:GetService("Players")
@@ -23,24 +25,19 @@ local player = Players.LocalPlayer
 local C = Color3.fromRGB
 local profile
 local selected = "Survivor"
+local shownTools -- คลาสที่วาดไอคอนเครื่องมือไว้แล้ว (กันวาดซ้ำทุกครั้งที่รีเฟรช)
 local ui = {}
-local stage = { Model = nil, Conn = nil }
+local stage = {}
 
+local GOLD_A, GOLD_B = C(255, 240, 140), C(244, 170, 36)
+local GREEN, RED, BLUE, GRAY = C(76, 200, 64), C(222, 64, 64), C(58, 160, 240), C(96, 96, 104)
+local LEVEL_COLOR = { C(90, 200, 90), C(70, 150, 245), C(180, 90, 245) }
 local ITEM_EMOJI = {
 	Torch = "🔥", Bandage = "🩹", Medkit = "⛑", Berries = "🍇", Coal = "⚫", LogWall = "🧱", Bow = "🏹",
 	OldAxe = "🪓", StoneAxe = "🪓", IronAxe = "🪓", Spear = "🔱", Wood = "🪵", Stone = "🪨",
 }
 
----------------------------------------------------------------- ตัวช่วย UI (ตัวหนังสือหนา ขอบดำ แบบเกมการ์ตูน)
-local function stroke(obj, thickness, color)
-	local s = Instance.new("UIStroke")
-	s.Thickness = thickness or 2
-	s.Color = color or C(0, 0, 0)
-	s.ApplyStrokeMode = (obj:IsA("TextLabel") or obj:IsA("TextButton")) and Enum.ApplyStrokeMode.Contextual or Enum.ApplyStrokeMode.Border
-	s.Parent = obj
-	return s
-end
-
+---------------------------------------------------------------- ตัวช่วย UI
 local function corner(obj, r)
 	local c = Instance.new("UICorner")
 	c.CornerRadius = typeof(r) == "UDim" and r or UDim.new(0, r or 10)
@@ -48,39 +45,14 @@ local function corner(obj, r)
 	return c
 end
 
-local function frame(parent, props)
-	local f = Instance.new("Frame")
-	f.BorderSizePixel = 0
-	f.BackgroundColor3 = C(16, 14, 14)
-	f.BackgroundTransparency = 0.3
-	for k, v in pairs(props or {}) do
-		f[k] = v
-	end
-	f.Parent = parent
-	return f
-end
-
-local function text(parent, props, maxSize)
-	props = props or {}
-	local thickness = props.StrokeThickness or 2
-	props.StrokeThickness = nil
-	local t = Instance.new("TextLabel")
-	t.BackgroundTransparency = 1
-	t.Font = Enum.Font.GothamBlack
-	t.TextColor3 = C(255, 255, 255)
-	t.TextScaled = true
-	for k, v in pairs(props or {}) do
-		t[k] = v
-	end
-	t.Parent = parent
-	local lim = Instance.new("UITextSizeConstraint")
-	lim.MaxTextSize = maxSize or 40
-	lim.MinTextSize = 8
-	lim.Parent = t
-	if thickness > 0 then
-		stroke(t, thickness)
-	end
-	return t
+local function border(obj, color, thickness, transparency)
+	local s = Instance.new("UIStroke")
+	s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	s.Color = color or C(0, 0, 0)
+	s.Thickness = thickness or 2
+	s.Transparency = transparency or 0
+	s.Parent = obj
+	return s
 end
 
 local function gradient(obj, a, b, rot)
@@ -91,7 +63,42 @@ local function gradient(obj, a, b, rot)
 	return g
 end
 
--- ปุ่มสีสด ขอบดำ ตัวหนังสือขาวขอบดำ
+local function frame(parent, props)
+	local f = Instance.new("Frame")
+	f.BorderSizePixel = 0
+	f.BackgroundColor3 = C(20, 18, 24)
+	f.BackgroundTransparency = 0.08
+	for k, v in pairs(props or {}) do
+		f[k] = v
+	end
+	f.Parent = parent
+	return f
+end
+
+-- ตัวหนังสือหนา ขอบดำ ปรับขนาดอัตโนมัติ
+local function text(parent, props, maxSize, strokeThickness)
+	local t = Instance.new("TextLabel")
+	t.BackgroundTransparency = 1
+	t.Font = Enum.Font.GothamBlack
+	t.TextColor3 = C(255, 255, 255)
+	t.TextScaled = true
+	for k, v in pairs(props or {}) do
+		t[k] = v
+	end
+	t.Parent = parent
+	local lim = Instance.new("UITextSizeConstraint")
+	lim.MaxTextSize = maxSize or 32
+	lim.MinTextSize = 7
+	lim.Parent = t
+	if (strokeThickness or 2) > 0 then
+		local s = Instance.new("UIStroke")
+		s.Thickness = strokeThickness or 2
+		s.Color = C(0, 0, 0)
+		s.Parent = t
+	end
+	return t
+end
+
 local function button(parent, props, color, onClick, maxSize)
 	local b = Instance.new("TextButton")
 	b.AutoButtonColor = true
@@ -104,13 +111,9 @@ local function button(parent, props, color, onClick, maxSize)
 		b[k] = v
 	end
 	b.Parent = parent
-	corner(b, 8)
-	gradient(b, C(255, 255, 255), C(170, 170, 170), 90)
-	local s = Instance.new("UIStroke")
-	s.Thickness = 2.5
-	s.Color = color:Lerp(C(0, 0, 0), 0.55)
-	s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	s.Parent = b
+	corner(b, 10)
+	gradient(b, C(255, 255, 255), C(175, 175, 175), 90)
+	border(b, C(0, 0, 0), 2.5, 0.1)
 	local ts = Instance.new("UIStroke")
 	ts.Thickness = 2
 	ts.Color = C(0, 0, 0)
@@ -118,12 +121,11 @@ local function button(parent, props, color, onClick, maxSize)
 	ts.Parent = b
 	local lim = Instance.new("UITextSizeConstraint")
 	lim.MaxTextSize = maxSize or 30
+	lim.MinTextSize = 7
 	lim.Parent = b
 	local pad = Instance.new("UIPadding")
-	pad.PaddingLeft = UDim.new(0.06, 0)
-	pad.PaddingRight = UDim.new(0.06, 0)
-	pad.PaddingTop = UDim.new(0.12, 0)
-	pad.PaddingBottom = UDim.new(0.12, 0)
+	pad.PaddingLeft, pad.PaddingRight = UDim.new(0.06, 0), UDim.new(0.06, 0)
+	pad.PaddingTop, pad.PaddingBottom = UDim.new(0.16, 0), UDim.new(0.16, 0)
 	pad.Parent = b
 	if onClick then
 		b.Activated:Connect(onClick)
@@ -131,8 +133,29 @@ local function button(parent, props, color, onClick, maxSize)
 	return b
 end
 
-local GREEN, RED, BLUE, PURPLE, GRAY = C(70, 200, 60), C(220, 60, 60), C(60, 170, 240), C(170, 70, 230), C(110, 110, 116)
+local function setButton(b, txt, color, enabled)
+	b.Text = txt
+	b.BackgroundColor3 = color
+	b.AutoButtonColor = enabled ~= false
+end
 
+-- แผงหลัก: พื้นเข้ม ขอบดำหนา ไล่แสงด้านบน + เส้นขอบในบางๆ
+local function panel(parent, pos, size)
+	local p = frame(parent, { Position = pos, Size = size, BackgroundColor3 = C(24, 22, 28), BackgroundTransparency = 0.06 })
+	corner(p, 18)
+	border(p, C(0, 0, 0), 3, 0.15)
+	gradient(p, C(255, 255, 255), C(185, 185, 195), 90)
+	local inner = frame(p, { Position = UDim2.new(0, 4, 0, 4), Size = UDim2.new(1, -8, 1, -8), BackgroundTransparency = 1 })
+	corner(inner, 15)
+	border(inner, C(255, 255, 255), 1.5, 0.88)
+	return p
+end
+
+local function stars(n)
+	return string.rep("★", n)
+end
+
+---------------------------------------------------------------- ข้อมูล
 local function data()
 	return profile or { Diamonds = player:GetAttribute("Diamonds") or 0, Owned = { Survivor = true }, ClassLevel = {}, ClassStats = {}, StockDay = 0, StockRoll = 0 }
 end
@@ -153,77 +176,97 @@ local function levelOf(id)
 	return (d.ClassLevel and d.ClassLevel[id]) or 1
 end
 
-local function stars(n)
-	return string.rep("★", n)
+local function gems()
+	return player:GetAttribute("Diamonds") or data().Diamonds or 0
 end
 
----------------------------------------------------------------- เวทีโชว์หุ่น (กล้องในเต็นท์)
+---------------------------------------------------------------- เวทีโชว์ตัวละคร (กล้องในเต็นท์)
 local function findStage()
 	local lobby = Workspace:FindFirstChild("Lobby")
 	return lobby and lobby:FindFirstChild("ClassStage", true)
 end
 
-local function showOnStage(id)
-	if stage.Model then
-		stage.Model:Destroy()
-		stage.Model = nil
-	end
-	local st = findStage()
-	if not st then
-		ui.CenterView.Visible = true
-		ClassAvatars.Viewport(ui.CenterView, id, false)
-		return
-	end
-	ui.CenterView.Visible = false
-	local m = ClassAvatars.Build(id)
-	m.Parent = Workspace
-	stage.Model = m
-	stage.Base = st.CFrame * CFrame.new(0, st.Size.Y / 2, 0)
-	m:PivotTo(stage.Base) -- หุ่นหัน -Z ของเวที (ฝั่งกล้อง)
-	-- เสียงเอฟเฟกต์ประกายตอนเปลี่ยนคลาส
+local function sparkle(cf, color)
 	local fx = Instance.new("Part")
-	fx.Anchored, fx.CanCollide, fx.CanQuery, fx.Transparency = true, false, false, 1
+	fx.Anchored, fx.CanCollide, fx.CanQuery, fx.CanTouch, fx.Transparency = true, false, false, false, 1
 	fx.Size = Vector3.new(1, 1, 1)
-	fx.CFrame = stage.Base * CFrame.new(0, 3, 0)
-	fx.Parent = m
+	fx.CFrame = cf
+	fx.Parent = Workspace
 	local e = Instance.new("ParticleEmitter")
 	e.Texture = "rbxasset://textures/particles/sparkles_main.dds"
 	e.Rate = 0
 	e.Lifetime = NumberRange.new(0.6, 1.2)
-	e.Speed = NumberRange.new(4, 9)
+	e.Speed = NumberRange.new(4, 10)
 	e.SpreadAngle = Vector2.new(180, 180)
 	e.LightEmission = 1
-	e.Size = NumberSequence.new(0.5, 0)
-	e.Color = ColorSequence.new(Classes.StarColor[Classes.Data[id].Stars])
+	e.Size = NumberSequence.new(0.6, 0)
+	e.Color = ColorSequence.new(color)
 	e.Parent = fx
-	e:Emit(40)
+	e:Emit(45)
+	task.delay(2, function()
+		fx:Destroy()
+	end)
+end
+
+function ClassShop.IsOpen()
+	return ui.Root ~= nil and ui.Root.Visible
+end
+
+local function showOnStage(id)
+	local token = {}
+	stage.Token = token
+	task.spawn(function()
+		local st = findStage()
+		local model = ClassAvatars.Build(id, 6)
+		if stage.Token ~= token or not ClassShop.IsOpen() then
+			model:Destroy()
+			return
+		end
+		if stage.Model then
+			stage.Model:Destroy()
+			stage.Model = nil
+		end
+		if not st then
+			model:Destroy()
+			ui.CenterView.Visible = true
+			ClassAvatars.Viewport(ui.CenterView, id, false)
+			return
+		end
+		ui.CenterView.Visible = false
+		stage.Model = model
+		stage.Base = st.CFrame * CFrame.new(0, st.Size.Y / 2, 0)
+		model:PivotTo(stage.Base)
+		model.Parent = Workspace
+		ClassAvatars.PlayIdle(model)
+		sparkle(stage.Base * CFrame.new(0, 3, 0), Classes.StarColor[Classes.Data[id].Stars])
+	end)
 end
 
 local function cameraToStage()
 	local st = findStage()
-	local cam = Workspace.CurrentCamera
 	if not st then
 		return
 	end
-	stage.PrevType = cam.CameraType
+	local cam = Workspace.CurrentCamera
 	stage.PrevFov = cam.FieldOfView
 	cam.CameraType = Enum.CameraType.Scriptable
 	cam.FieldOfView = 40
 	local base = st.CFrame * CFrame.new(0, st.Size.Y / 2, 0)
-	cam.CFrame = CFrame.lookAt((base * CFrame.new(0, 6, -22)).Position, (base * CFrame.new(0, 1.3, 0)).Position)
+	cam.CFrame = CFrame.lookAt((base * CFrame.new(0, 3.2, -16)).Position, (base * CFrame.new(0, 1.75, 0)).Position)
 	if stage.Conn then
 		stage.Conn:Disconnect()
 	end
 	local t0 = os.clock()
 	stage.Conn = RunService.RenderStepped:Connect(function()
-		if stage.Model and stage.Base then
+		if stage.Model and stage.Base and stage.Model.Parent then
 			local t = os.clock() - t0
-			stage.Model:PivotTo(stage.Base * CFrame.Angles(0, math.sin(t * 0.8) * 0.35, 0) * CFrame.new(0, math.sin(t * 2) * 0.05, 0))
+			stage.Model:PivotTo(stage.Base * CFrame.Angles(0, math.sin(t * 0.6) * 0.4, 0) * CFrame.new(0, math.abs(math.sin(t * 1.6)) * 0.06, 0))
 		end
 	end)
 end
 
 local function restoreCamera()
+	stage.Token = nil
 	if stage.Conn then
 		stage.Conn:Disconnect()
 		stage.Conn = nil
@@ -237,238 +280,192 @@ local function restoreCamera()
 	cam.FieldOfView = stage.PrevFov or 70
 end
 
----------------------------------------------------------------- สร้าง UI
+---------------------------------------------------------------- การ์ดคลาส (ซ้าย)
+local function cardHeight()
+	return math.clamp(math.floor(Workspace.CurrentCamera.ViewportSize.Y * 0.105), 72, 132)
+end
+
+function ClassShop.MakeCard(id, order)
+	local c = Classes.Data[id]
+	local rare = Classes.StarColor[c.Stars]
+	local card = Instance.new("TextButton")
+	card.Text = ""
+	card.AutoButtonColor = false
+	card.BackgroundColor3 = C(36, 34, 42)
+	card.Size = UDim2.new(1, -10, 0, cardHeight())
+	card.LayoutOrder = order
+	card.Parent = ui.List
+	corner(card, 12)
+	local stroke = border(card, C(0, 0, 0), 2, 0.2)
+	gradient(card, C(255, 255, 255), C(200, 200, 210), 90)
+	local accent = frame(card, { Size = UDim2.new(0, 6, 1, -16), Position = UDim2.new(0, 6, 0, 8), BackgroundColor3 = rare, BackgroundTransparency = 0 })
+	corner(accent, 3)
+	-- รูปวงกลม (CanvasGroup ตัดขอบให้กลมจริง)
+	local holder = Instance.new("CanvasGroup")
+	holder.BackgroundColor3 = C(70, 70, 80)
+	holder.Size = UDim2.fromScale(0.84, 0.84)
+	holder.Position = UDim2.new(0, 18, 0.08, 0)
+	holder.Parent = card
+	local ar = Instance.new("UIAspectRatioConstraint")
+	ar.AspectRatio = 1
+	ar.Parent = holder
+	corner(holder, UDim.new(0.5, 0))
+	border(holder, rare, 3, 0)
+	gradient(holder, rare:Lerp(C(255, 255, 255), 0.4), rare:Lerp(C(0, 0, 0), 0.55), 90)
+	local vp = Instance.new("ViewportFrame")
+	vp.BackgroundTransparency = 1
+	vp.Size = UDim2.fromScale(1, 1)
+	vp.Parent = holder
+	task.spawn(ClassAvatars.Viewport, vp, id, true, 20)
+	-- ตัวหนังสือ
+	text(card, { Position = UDim2.new(0.31, 0, 0.07, 0), Size = UDim2.new(0.66, 0, 0.32, 0), Text = c.Thai, TextXAlignment = Enum.TextXAlignment.Left }, 30)
+	text(card, { Position = UDim2.new(0.31, 0, 0.42, 0), Size = UDim2.new(0.3, 0, 0.22, 0), Text = stars(c.Stars), TextColor3 = C(255, 205, 50), TextXAlignment = Enum.TextXAlignment.Left }, 24)
+	text(card, { Position = UDim2.new(0.31, 0, 0.68, 0), Size = UDim2.new(0.3, 0, 0.22, 0), Text = c.Role, TextColor3 = rare:Lerp(C(255, 255, 255), 0.35), TextXAlignment = Enum.TextXAlignment.Left }, 20)
+	local tag = text(card, { Position = UDim2.new(0.62, 0, 0.4, 0), Size = UDim2.new(0.35, 0, 0.2, 0), Text = "", TextXAlignment = Enum.TextXAlignment.Right }, 20)
+	local btn = button(card, { Position = UDim2.new(0.62, 0, 0.62, 0), Size = UDim2.new(0.35, 0, 0.3, 0), Text = "" }, BLUE, nil, 22)
+	local function pick()
+		if selected ~= id then
+			selected = id
+			ClassShop.Refresh()
+			showOnStage(id)
+		end
+	end
+	card.Activated:Connect(pick)
+	btn.Activated:Connect(pick)
+	ui.Cards[id] = { Card = card, Stroke = stroke, Tag = tag, Button = btn }
+end
+
+---------------------------------------------------------------- สร้าง UI ทั้งหมด
 function ClassShop.Build(gui)
 	local root = frame(gui, { Name = "ClassShop", Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Visible = false })
 	ui.Root = root
+	-- กรอบ 16:9 กลางจอ
+	local canvas = frame(root, { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1 })
+	local ar = Instance.new("UIAspectRatioConstraint")
+	ar.AspectRatio = 16 / 9
+	ar.Parent = canvas
 
-	-------------------------------------------------- ซ้าย: รายการคลาส
-	local left = frame(root, { Position = UDim2.fromScale(0.015, 0.11), Size = UDim2.fromScale(0.27, 0.83), BackgroundColor3 = C(14, 12, 10), BackgroundTransparency = 0.28 })
-	corner(left, 22)
-	local ls = Instance.new("UIStroke")
-	ls.Color, ls.Thickness, ls.Transparency, ls.Parent = C(70, 60, 48), 2, 0.3, left
-	local title = text(root, { Position = UDim2.fromScale(0.015, 0.035), Size = UDim2.fromScale(0.27, 0.095), Text = "คลาส", TextColor3 = C(255, 255, 255), StrokeThickness = 3 }, 80)
-	gradient(title, C(255, 244, 150), C(242, 176, 40), 90)
-	ui.Restock = text(left, { Position = UDim2.fromScale(0.04, 0.03), Size = UDim2.fromScale(0.92, 0.06), Text = "- อัปเดตใน -" }, 30)
+	-------------------------------------------------- ซ้าย
+	local left = panel(canvas, UDim2.fromScale(0.012, 0.03), UDim2.fromScale(0.285, 0.94))
+	local title = text(left, { Position = UDim2.fromScale(0.06, 0.018), Size = UDim2.fromScale(0.45, 0.085), Text = "คลาส", TextXAlignment = Enum.TextXAlignment.Left }, 72, 3)
+	gradient(title, GOLD_A, GOLD_B, 90)
+	local gemPill = frame(left, { Position = UDim2.fromScale(0.55, 0.03), Size = UDim2.fromScale(0.4, 0.062), BackgroundColor3 = C(10, 10, 14), BackgroundTransparency = 0.15 })
+	corner(gemPill, UDim.new(0.5, 0))
+	border(gemPill, C(110, 200, 255), 2, 0.2)
+	ui.Gems = text(gemPill, { Size = UDim2.fromScale(0.9, 0.8), Position = UDim2.fromScale(0.05, 0.1), Text = "💎 0" }, 28)
+	local restock = frame(left, { Position = UDim2.fromScale(0.06, 0.108), Size = UDim2.fromScale(0.88, 0.045), BackgroundColor3 = C(0, 0, 0), BackgroundTransparency = 0.55 })
+	corner(restock, UDim.new(0.5, 0))
+	ui.Restock = text(restock, { Size = UDim2.fromScale(0.94, 0.8), Position = UDim2.fromScale(0.03, 0.1), Text = "", TextColor3 = C(210, 214, 225) }, 20, 1.5)
 	local list = Instance.new("ScrollingFrame")
-	list.Position = UDim2.fromScale(0.08, 0.11)
-	list.Size = UDim2.fromScale(0.88, 0.74)
+	list.Position = UDim2.fromScale(0.04, 0.168)
+	list.Size = UDim2.fromScale(0.94, 0.7)
 	list.BackgroundTransparency = 1
 	list.BorderSizePixel = 0
-	list.ScrollBarThickness = 8
-	list.ScrollBarImageColor3 = C(90, 80, 70)
+	list.ScrollBarThickness = 6
+	list.ScrollBarImageColor3 = C(150, 150, 160)
 	list.AutomaticCanvasSize = Enum.AutomaticSize.Y
 	list.CanvasSize = UDim2.new()
 	list.Parent = left
 	local layout = Instance.new("UIListLayout")
-	layout.Padding = UDim.new(0, 8)
+	layout.Padding = UDim.new(0, 7)
 	layout.SortOrder = Enum.SortOrder.LayoutOrder
+	layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	layout.Parent = list
+	local lpad = Instance.new("UIPadding")
+	lpad.PaddingTop = UDim.new(0, 4)
+	lpad.PaddingBottom = UDim.new(0, 4)
+	lpad.Parent = list
 	ui.List = list
 	ui.Cards = {}
 	for i, id in ipairs(Classes.Order) do
 		ClassShop.MakeCard(id, i)
 	end
-	button(left, { Position = UDim2.fromScale(0.27, 0.87), Size = UDim2.fromScale(0.48, 0.11), Text = "รีโรลสต็อค 💎" .. Classes.RerollPrice }, C(110, 210, 50), function()
+	button(left, { Position = UDim2.fromScale(0.05, 0.887), Size = UDim2.fromScale(0.58, 0.08), Text = "🎲 รีโรลสต็อค  💎" .. Classes.RerollPrice }, GREEN, function()
 		Remotes.Get("RerollStock"):FireServer()
-	end, 34)
-	button(left, { Position = UDim2.fromScale(0.78, 0.9), Size = UDim2.fromScale(0.17, 0.06), Text = "อัตราต่อรอง" }, C(40, 38, 40), function()
+	end, 28)
+	button(left, { Position = UDim2.fromScale(0.66, 0.887), Size = UDim2.fromScale(0.29, 0.08), Text = "อัตราต่อรอง" }, GRAY, function()
 		ui.Odds.Visible = not ui.Odds.Visible
-	end, 14)
-	-- กล่องอัตราต่อรอง
-	local odds = frame(root, { Position = UDim2.fromScale(0.29, 0.6), Size = UDim2.fromScale(0.16, 0.3), BackgroundColor3 = C(14, 12, 10), BackgroundTransparency = 0.1, Visible = false, ZIndex = 5 })
-	corner(odds, 12)
-	text(odds, { Position = UDim2.fromScale(0.05, 0.02), Size = UDim2.fromScale(0.9, 0.16), Text = "โอกาสมีของในสต็อค", ZIndex = 6 }, 20)
+	end, 20)
+	local odds = panel(canvas, UDim2.fromScale(0.305, 0.6), UDim2.fromScale(0.16, 0.32))
+	odds.Visible = false
+	odds.ZIndex = 5
+	text(odds, { Position = UDim2.fromScale(0.06, 0.04), Size = UDim2.fromScale(0.88, 0.14), Text = "โอกาสติดสต็อคต่อวัน" }, 22)
 	for s = 1, 5 do
 		text(odds, {
-			Position = UDim2.fromScale(0.08, 0.04 + s * 0.15), Size = UDim2.fromScale(0.84, 0.13), ZIndex = 6, TextXAlignment = Enum.TextXAlignment.Left,
+			Position = UDim2.fromScale(0.1, 0.06 + s * 0.15), Size = UDim2.fromScale(0.8, 0.12), TextXAlignment = Enum.TextXAlignment.Left,
 			Text = string.format("%s  %d%%", stars(s), math.floor(Classes.StockOdds[s] * 100)), TextColor3 = Classes.StarColor[s],
-		}, 20)
+		}, 22)
 	end
 	ui.Odds = odds
 
-	-- เพชรมุมซ้ายล่าง
-	local gem = text(root, { Position = UDim2.fromScale(0.004, 0.9), Size = UDim2.fromScale(0.07, 0.09), Text = "💎", StrokeThickness = 0 }, 90)
-	local _ = gem
-	ui.Gems = text(root, { Position = UDim2.fromScale(0.01, 0.925), Size = UDim2.fromScale(0.06, 0.05), Text = "0", Rotation = -8, StrokeThickness = 3 }, 40)
-
-	-------------------------------------------------- กลาง: ชื่อคลาส + ข้อกำหนด + ปุ่ม
-	ui.Name = text(root, { Position = UDim2.fromScale(0.33, 0.08), Size = UDim2.fromScale(0.34, 0.08), Text = "", StrokeThickness = 3 }, 70)
-	gradient(ui.Name, C(150, 255, 240), C(40, 200, 220), 90)
-	ui.Level = text(root, { Position = UDim2.fromScale(0.38, 0.16), Size = UDim2.fromScale(0.24, 0.06), Text = "- เลเวล 1 -" }, 50)
-	ui.Stars = text(root, { Position = UDim2.fromScale(0.4, 0.215), Size = UDim2.fromScale(0.2, 0.04), Text = "", TextColor3 = C(255, 200, 40) }, 36)
+	-------------------------------------------------- กลาง
+	ui.Name = text(canvas, { Position = UDim2.fromScale(0.32, 0.03), Size = UDim2.fromScale(0.36, 0.085), Text = "" }, 80, 3)
+	gradient(ui.Name, C(170, 255, 245), C(40, 200, 225), 90)
+	ui.Sub = text(canvas, { Position = UDim2.fromScale(0.34, 0.118), Size = UDim2.fromScale(0.32, 0.045), Text = "", RichText = true }, 30)
 	ui.CenterView = Instance.new("ViewportFrame")
-	ui.CenterView.Position = UDim2.fromScale(0.39, 0.26)
-	ui.CenterView.Size = UDim2.fromScale(0.22, 0.34)
+	ui.CenterView.Position = UDim2.fromScale(0.39, 0.18)
+	ui.CenterView.Size = UDim2.fromScale(0.22, 0.46)
 	ui.CenterView.BackgroundTransparency = 1
 	ui.CenterView.Visible = false
-	ui.CenterView.Parent = root
-	local req = frame(root, { Position = UDim2.fromScale(0.36, 0.585), Size = UDim2.fromScale(0.28, 0.05), BackgroundColor3 = C(30, 26, 22), BackgroundTransparency = 0.35 })
-	corner(req, 8)
-	local rs = Instance.new("UIStroke")
-	rs.Color, rs.Thickness, rs.Parent = C(220, 220, 220), 1.5, req
-	ui.ReqTitle = text(req, { Size = UDim2.fromScale(1, 1), Text = "", TextColor3 = C(110, 220, 255) }, 30)
-	ui.Req1 = text(root, { Position = UDim2.fromScale(0.36, 0.64), Size = UDim2.fromScale(0.28, 0.045), Text = "" }, 30)
-	ui.Req2 = text(root, { Position = UDim2.fromScale(0.36, 0.688), Size = UDim2.fromScale(0.28, 0.045), Text = "" }, 30)
-	ui.Main = button(root, { Position = UDim2.fromScale(0.4, 0.745), Size = UDim2.fromScale(0.2, 0.08), Text = "" }, RED, function()
+	ui.CenterView.Parent = canvas
+	local prog = panel(canvas, UDim2.fromScale(0.345, 0.665), UDim2.fromScale(0.31, 0.165))
+	ui.ProgTitle = text(prog, { Position = UDim2.fromScale(0.05, 0.06), Size = UDim2.fromScale(0.9, 0.24), Text = "", TextColor3 = C(130, 225, 255) }, 26)
+	ui.Bars = {}
+	for i = 1, 2 do
+		local y = 0.36 + (i - 1) * 0.3
+		local lbl = text(prog, { Position = UDim2.fromScale(0.05, y), Size = UDim2.fromScale(0.3, 0.24), Text = "", TextXAlignment = Enum.TextXAlignment.Left }, 22)
+		local track = frame(prog, { Position = UDim2.fromScale(0.36, y + 0.03), Size = UDim2.fromScale(0.59, 0.18), BackgroundColor3 = C(0, 0, 0), BackgroundTransparency = 0.35 })
+		corner(track, UDim.new(0.5, 0))
+		border(track, C(0, 0, 0), 1.5, 0)
+		local fill = frame(track, { Size = UDim2.fromScale(0, 1), BackgroundColor3 = C(110, 225, 90), BackgroundTransparency = 0 })
+		corner(fill, UDim.new(0.5, 0))
+		gradient(fill, C(255, 255, 255), C(170, 170, 170), 90)
+		local num = text(track, { Size = UDim2.fromScale(1, 1), Text = "" }, 18, 1.5)
+		ui.Bars[i] = { Label = lbl, Track = track, Fill = fill, Num = num }
+	end
+	ui.Info = text(prog, { Position = UDim2.fromScale(0.05, 0.36), Size = UDim2.fromScale(0.9, 0.56), Text = "", TextWrapped = true, Visible = false }, 24)
+	ui.Main = button(canvas, { Position = UDim2.fromScale(0.345, 0.845), Size = UDim2.fromScale(0.215, 0.095), Text = "" }, GREEN, function()
 		ClassShop.MainAction()
-	end, 46)
-	button(root, { Position = UDim2.fromScale(0.42, 0.84), Size = UDim2.fromScale(0.16, 0.06), Text = "ปิด" }, RED, function()
+	end, 40)
+	button(canvas, { Position = UDim2.fromScale(0.57, 0.845), Size = UDim2.fromScale(0.085, 0.095), Text = "ปิด" }, RED, function()
 		ClassShop.Close()
 	end, 32)
 
-	-------------------------------------------------- ขวา: เครื่องมือเริ่มต้น + ทักษะ
-	local right = frame(root, { Position = UDim2.fromScale(0.715, 0.11), Size = UDim2.fromScale(0.27, 0.83), BackgroundColor3 = C(14, 12, 10), BackgroundTransparency = 0.28 })
-	corner(right, 22)
-	local rs2 = Instance.new("UIStroke")
-	rs2.Color, rs2.Thickness, rs2.Transparency, rs2.Parent = C(70, 60, 48), 2, 0.3, right
-	local toolsTitle = text(right, { Position = UDim2.fromScale(0.05, 0.03), Size = UDim2.fromScale(0.9, 0.075), Text = "เครื่องมือเริ่มต้น:" }, 44)
-	gradient(toolsTitle, C(255, 244, 150), C(242, 176, 40), 90)
-	ui.Tools = frame(right, { Position = UDim2.fromScale(0.05, 0.11), Size = UDim2.fromScale(0.9, 0.15), BackgroundTransparency = 1 })
+	-------------------------------------------------- ขวา
+	local right = panel(canvas, UDim2.fromScale(0.703, 0.03), UDim2.fromScale(0.285, 0.94))
+	local toolsTitle = text(right, { Position = UDim2.fromScale(0.06, 0.02), Size = UDim2.fromScale(0.88, 0.06), Text = "เครื่องมือเริ่มต้น" }, 40, 3)
+	gradient(toolsTitle, GOLD_A, GOLD_B, 90)
+	ui.Tools = frame(right, { Position = UDim2.fromScale(0.05, 0.09), Size = UDim2.fromScale(0.9, 0.17), BackgroundTransparency = 1 })
 	local tl = Instance.new("UIListLayout")
 	tl.FillDirection = Enum.FillDirection.Horizontal
 	tl.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	tl.Padding = UDim.new(0.03, 0)
+	tl.Padding = UDim.new(0.04, 0)
 	tl.Parent = ui.Tools
-	local skillTitle = text(right, { Position = UDim2.fromScale(0.25, 0.265), Size = UDim2.fromScale(0.5, 0.065), Text = "ทักษะ:" }, 44)
-	gradient(skillTitle, C(200, 240, 255), C(120, 190, 255), 90)
+	local skillTitle = text(right, { Position = UDim2.fromScale(0.06, 0.285), Size = UDim2.fromScale(0.88, 0.06), Text = "ทักษะ" }, 40, 3)
+	gradient(skillTitle, C(220, 245, 255), C(110, 185, 255), 90)
 	ui.Skills = {}
 	for lv = 1, 3 do
-		local box = frame(right, { Position = UDim2.fromScale(0.04, 0.34 + (lv - 1) * 0.215), Size = UDim2.fromScale(0.92, 0.195), BackgroundColor3 = C(20, 18, 18), BackgroundTransparency = 0.25 })
+		local box = frame(right, { Position = UDim2.fromScale(0.05, 0.36 + (lv - 1) * 0.205), Size = UDim2.fromScale(0.9, 0.19), BackgroundColor3 = C(40, 38, 46), BackgroundTransparency = 0 })
 		corner(box, 12)
-		local bs = Instance.new("UIStroke")
-		bs.Color, bs.Thickness, bs.Transparency, bs.Parent = C(70, 66, 60), 1.5, 0.2, box
-		local t = text(box, { Position = UDim2.fromScale(0.05, 0.08), Size = UDim2.fromScale(0.9, 0.84), Text = "", TextWrapped = true }, 30)
-		local lock = text(box, { Position = UDim2.fromScale(0.86, 0.02), Size = UDim2.fromScale(0.12, 0.3), Text = "🔒", StrokeThickness = 0, Visible = false }, 40)
-		local lvTag = text(box, { Position = UDim2.fromScale(0.3, 0.02), Size = UDim2.fromScale(0.4, 0.28), Text = "เลเวล " .. lv, TextColor3 = C(255, 90, 100), Visible = false }, 34)
-		local skip = button(box, { Position = UDim2.fromScale(0.6, 0.66), Size = UDim2.fromScale(0.38, 0.3), Text = "", Visible = false }, GREEN, function()
+		local bstroke = border(box, LEVEL_COLOR[lv], 2, 0.3)
+		gradient(box, C(255, 255, 255), C(195, 195, 205), 90)
+		local chip = frame(box, { Position = UDim2.fromScale(0.03, 0.08), Size = UDim2.fromScale(0.2, 0.28), BackgroundColor3 = LEVEL_COLOR[lv], BackgroundTransparency = 0 })
+		corner(chip, UDim.new(0.5, 0))
+		border(chip, C(0, 0, 0), 1.5, 0)
+		text(chip, { Size = UDim2.fromScale(0.9, 0.86), Position = UDim2.fromScale(0.05, 0.07), Text = "Lv." .. lv }, 22, 1.5)
+		local name = text(box, { Position = UDim2.fromScale(0.26, 0.06), Size = UDim2.fromScale(0.62, 0.32), Text = "", TextColor3 = C(255, 214, 90), TextXAlignment = Enum.TextXAlignment.Left }, 28)
+		local lock = text(box, { Position = UDim2.fromScale(0.88, 0.06), Size = UDim2.fromScale(0.1, 0.32), Text = "🔒", Visible = false }, 26, 0)
+		local desc = text(box, { Position = UDim2.fromScale(0.04, 0.42), Size = UDim2.fromScale(0.92, 0.28), Text = "", TextXAlignment = Enum.TextXAlignment.Left, TextWrapped = true, Font = Enum.Font.GothamBold }, 22, 1.5)
+		local foot = text(box, { Position = UDim2.fromScale(0.04, 0.74), Size = UDim2.fromScale(0.52, 0.2), Text = "", TextColor3 = C(255, 120, 120), TextXAlignment = Enum.TextXAlignment.Left, Visible = false }, 18, 1.5)
+		local skip = button(box, { Position = UDim2.fromScale(0.6, 0.71), Size = UDim2.fromScale(0.37, 0.25), Text = "", Visible = false }, GREEN, function()
 			Remotes.Get("SkipClassLevel"):FireServer(selected)
-		end, 26)
-		local skipLabel = text(box, { Position = UDim2.fromScale(0.38, 0.66), Size = UDim2.fromScale(0.2, 0.3), Text = "ข้าม", Visible = false }, 30)
-		ui.Skills[lv] = { Box = box, Text = t, Lock = lock, Tag = lvTag, Skip = skip, SkipLabel = skipLabel }
+		end, 20)
+		ui.Skills[lv] = { Box = box, Stroke = bstroke, Name = name, Lock = lock, Desc = desc, Foot = foot, Skip = skip }
 	end
 end
 
-function ClassShop.MakeCard(id, order)
-	local c = Classes.Data[id]
-	local card = Instance.new("TextButton")
-	card.Text = ""
-	card.AutoButtonColor = false
-	card.BackgroundColor3 = C(10, 10, 12)
-	card.BackgroundTransparency = 0.12
-	card.Size = UDim2.new(1, -12, 0, 124)
-	card.LayoutOrder = order
-	card.Parent = ui.List
-	corner(card, 6)
-	local cs = Instance.new("UIStroke")
-	cs.Color, cs.Thickness, cs.ApplyStrokeMode, cs.Parent = C(44, 44, 48), 2, Enum.ApplyStrokeMode.Border, card
-	-- รูปวงกลม
-	local vp = Instance.new("ViewportFrame")
-	vp.Size = UDim2.fromOffset(112, 112)
-	vp.Position = UDim2.fromOffset(6, 6)
-	vp.BackgroundColor3 = C(60, 58, 64)
-	vp.Parent = card
-	corner(vp, UDim.new(0.5, 0))
-	local ring = Instance.new("UIStroke")
-	ring.Color, ring.Thickness, ring.Parent = Classes.StarColor[c.Stars], 4, vp
-	gradient(vp, C(255, 255, 255), C(150, 150, 160), 90)
-	task.spawn(ClassAvatars.Viewport, vp, id, true)
-	local badge = text(card, { Position = UDim2.fromOffset(4, 82), Size = UDim2.fromOffset(118, 34), Text = "", ZIndex = 3 }, 26)
-	text(card, { Position = UDim2.new(0, 126, 0, 8), Size = UDim2.new(0.42, -120, 0, 30), Text = stars(c.Stars), TextColor3 = C(255, 196, 40), TextXAlignment = Enum.TextXAlignment.Left }, 28)
-	text(card, { Position = UDim2.new(0.42, 0, 0, 6), Size = UDim2.new(0.56, 0, 0, 40), Text = c.Thai, TextXAlignment = Enum.TextXAlignment.Right }, 32)
-	local price = text(card, { Position = UDim2.new(0, 126, 1, -50), Size = UDim2.new(0.3, -60, 0, 40), Text = "", TextXAlignment = Enum.TextXAlignment.Left }, 32)
-	local btn = button(card, { Position = UDim2.new(0.56, 0, 1, -54), Size = UDim2.new(0.42, 0, 0, 44), Text = "" }, BLUE, nil, 26)
-	local function pick()
-		selected = id
-		ClassShop.Refresh()
-		showOnStage(id)
-	end
-	card.Activated:Connect(pick)
-	btn.Activated:Connect(pick)
-	ui.Cards[id] = { Card = card, Stroke = cs, Badge = badge, Price = price, Button = btn }
-end
-
----------------------------------------------------------------- อัปเดตข้อมูล
-local function setButton(b, txt, color)
-	b.Text = txt
-	b.BackgroundColor3 = color
-	local s = b:FindFirstChildOfClass("UIStroke")
-	if s then
-		s.Color = color:Lerp(C(0, 0, 0), 0.55)
-	end
-end
-
-function ClassShop.Refresh()
-	if not ui.Root then
-		return
-	end
-	local d = data()
-	local st = stock()
-	local current = player:GetAttribute("Class") or "Survivor"
-	ui.Gems.Text = tostring(player:GetAttribute("Diamonds") or d.Diamonds or 0)
-	local s = Classes.SecondsToRestock(now())
-	ui.Restock.Text = string.format("- อัปเดตใน %dชั่วโมง %dนาที -", s // 3600, (s % 3600) // 60)
-	for id, cd in pairs(ui.Cards) do
-		local c = Classes.Data[id]
-		local owned = d.Owned and d.Owned[id]
-		cd.Stroke.Color = (id == selected) and C(255, 220, 40) or C(44, 44, 48)
-		cd.Stroke.Thickness = (id == selected) and 3.5 or 2
-		if id == current then
-			cd.Badge.Text, cd.Badge.TextColor3 = "สวมใส่แล้ว", C(255, 220, 40)
-		elseif owned then
-			cd.Badge.Text, cd.Badge.TextColor3 = "มีแล้ว", C(130, 240, 90)
-		else
-			cd.Badge.Text = ""
-		end
-		if owned then
-			cd.Price.Text = ""
-			setButton(cd.Button, "เลเวล " .. levelOf(id), BLUE)
-		else
-			cd.Price.Text = "💎" .. c.Price
-			if st[id] then
-				setButton(cd.Button, "มีสินค้าคงคลัง", GREEN)
-			else
-				setButton(cd.Button, "ไม่มีสต๊อค", RED)
-			end
-		end
-	end
-	-- กลาง
-	local c = Classes.Data[selected]
-	local owned = d.Owned and d.Owned[selected]
-	local lv = levelOf(selected)
-	ui.Name.Text = c.Thai
-	ui.Level.Text = owned and string.format("- เลเวล %d -", lv) or "- ยังไม่ปลดล็อก -"
-	ui.Stars.Text = stars(c.Stars)
-	local stats = (d.ClassStats and d.ClassStats[selected]) or {}
-	local reqLv = math.min(lv + 1, Classes.MaxLevel)
-	local req = Classes.Requirement(selected, lv + 1)
-	if not owned then
-		ui.ReqTitle.Text = "- ซื้อเพื่อเริ่มเก็บเลเวล -"
-		ui.Req1.Text = string.format("ราคา: 💎%d   (มี 💎%d)", c.Price, player:GetAttribute("Diamonds") or 0)
-		ui.Req2.Text = st[selected] and "✅ มีในสต็อควันนี้" or "❌ ไม่มีสต๊อค — รอรีสต็อกหรือรีโรล"
-	elseif req then
-		ui.ReqTitle.Text = string.format("- ข้อกำหนดของเลเวล %d -", reqLv)
-		local lines = {}
-		for _, k in ipairs(Classes.StatOrder) do
-			table.insert(lines, string.format("%s: %d/%d", Classes.StatNames[k], math.min(stats[k] or 0, req[k]), req[k]))
-		end
-		ui.Req1.Text = lines[1] or ""
-		ui.Req2.Text = lines[2] or ""
-	else
-		ui.ReqTitle.Text = "- เลเวลสูงสุดแล้ว -"
-		ui.Req1.Text = string.format("ล่าสัตว์: %d  ·  รอดคืน: %d", stats.Kills or 0, stats.Nights or 0)
-		ui.Req2.Text = "⭐ ปลดทักษะครบทุกขั้น"
-	end
-	if selected == current then
-		setButton(ui.Main, selected == "Survivor" and "สวมใส่แล้ว" or "ถอดอุปกรณ์", selected == "Survivor" and GRAY or RED)
-	elseif owned then
-		setButton(ui.Main, "สวมใส่", GREEN)
-	elseif st[selected] then
-		setButton(ui.Main, "ซื้อ 💎" .. c.Price, GREEN)
-	else
-		setButton(ui.Main, "ไม่มีสต๊อค", GRAY)
-	end
-	-- ขวา: เครื่องมือ
+---------------------------------------------------------------- เติมข้อมูล
+local function drawTools(c)
 	for _, ch in ipairs(ui.Tools:GetChildren()) do
 		if ch:IsA("Frame") then
 			ch:Destroy()
@@ -477,14 +474,18 @@ function ClassShop.Refresh()
 	local order = 0
 	for itemId, n in pairs(c.StartItems) do
 		order += 1
-		local slot = frame(ui.Tools, { Size = UDim2.fromScale(0.3, 1), BackgroundTransparency = 1, LayoutOrder = order })
+		local tile = frame(ui.Tools, { Size = UDim2.fromScale(0.3, 1), BackgroundColor3 = C(44, 42, 50), BackgroundTransparency = 0, LayoutOrder = order })
+		corner(tile, 12)
+		border(tile, C(0, 0, 0), 2, 0.2)
+		gradient(tile, C(255, 255, 255), C(185, 185, 195), 90)
 		local icon = Instance.new("ViewportFrame")
-		icon.Size = UDim2.fromScale(0.7, 0.62)
+		icon.Size = UDim2.fromScale(0.8, 0.6)
+		icon.Position = UDim2.fromScale(0.1, 0.05)
 		icon.BackgroundTransparency = 1
-		icon.Parent = slot
-		local emoji = text(slot, { Size = UDim2.fromScale(0.7, 0.62), Text = ITEM_EMOJI[itemId] or "📦", StrokeThickness = 0 }, 60)
-		text(slot, { Position = UDim2.fromScale(0.62, 0.15), Size = UDim2.fromScale(0.38, 0.4), Text = "x" .. n }, 30)
-		text(slot, { Position = UDim2.fromScale(0, 0.66), Size = UDim2.fromScale(1, 0.3), Text = Items.DisplayName(itemId) }, 18)
+		icon.Parent = tile
+		local emoji = text(tile, { Size = UDim2.fromScale(0.8, 0.6), Position = UDim2.fromScale(0.1, 0.05), Text = ITEM_EMOJI[itemId] or "📦" }, 54, 0)
+		text(tile, { Position = UDim2.fromScale(0.55, 0.02), Size = UDim2.fromScale(0.42, 0.26), Text = "x" .. n, TextXAlignment = Enum.TextXAlignment.Right }, 24)
+		text(tile, { Position = UDim2.fromScale(0.04, 0.68), Size = UDim2.fromScale(0.92, 0.26), Text = Items.DisplayName(itemId) }, 18, 1.5)
 		if MeshProps.Has(itemId) then
 			task.spawn(function()
 				local ok, model = pcall(MeshProps.Build, itemId)
@@ -504,20 +505,118 @@ function ClassShop.Refresh()
 			end)
 		end
 	end
-	-- ทักษะ
-	for i, sk in ipairs(ui.Skills) do
-		local unlocked = owned and lv >= i
-		sk.Text.Text = c.Skills[i].Text
-		sk.Text.TextTransparency = unlocked and 0 or 0.55
-		sk.Lock.Visible = not unlocked
-		sk.Tag.Visible = not unlocked
-		sk.Box.BackgroundTransparency = unlocked and 0.25 or 0.45
-		local canSkip = owned and i == lv + 1
-		sk.Skip.Visible = canSkip
-		sk.SkipLabel.Visible = canSkip
-		if canSkip then
-			sk.Skip.Text = "💎 " .. Classes.SkipPrice(selected, i)
+end
+
+function ClassShop.Refresh()
+	if not ui.Root then
+		return
+	end
+	local d = data()
+	local st = stock()
+	local current = player:GetAttribute("Class") or "Survivor"
+	ui.Gems.Text = "💎 " .. tostring(gems())
+	local s = Classes.SecondsToRestock(now())
+	ui.Restock.Text = string.format("สต็อกใหม่ใน %d ชม. %d นาที", s // 3600, (s % 3600) // 60)
+	local h = cardHeight()
+	for id, cd in pairs(ui.Cards) do
+		local c = Classes.Data[id]
+		local owned = d.Owned and d.Owned[id]
+		cd.Card.Size = UDim2.new(1, -10, 0, h)
+		cd.Stroke.Color = (id == selected) and C(255, 214, 60) or C(0, 0, 0)
+		cd.Stroke.Thickness = (id == selected) and 3.5 or 2
+		cd.Stroke.Transparency = (id == selected) and 0 or 0.2
+		if id == current then
+			cd.Tag.Text, cd.Tag.TextColor3 = "✔ สวมใส่อยู่", C(255, 220, 60)
+		elseif owned then
+			cd.Tag.Text, cd.Tag.TextColor3 = "มีแล้ว", C(140, 240, 100)
+		else
+			cd.Tag.Text, cd.Tag.TextColor3 = "💎 " .. c.Price, C(150, 225, 255)
 		end
+		if owned then
+			setButton(cd.Button, "เลเวล " .. levelOf(id), BLUE)
+		elseif st[id] then
+			setButton(cd.Button, "มีในสต็อค", GREEN)
+		else
+			setButton(cd.Button, "ไม่มีสต๊อค", RED)
+		end
+	end
+	-- กลาง
+	local c = Classes.Data[selected]
+	local owned = d.Owned and d.Owned[selected]
+	local lv = levelOf(selected)
+	ui.Name.Text = c.Thai
+	ui.Sub.Text = string.format('<font color="#FFCD32">%s</font>  ·  %s  ·  %s', stars(c.Stars), c.Role, owned and ("เลเวล " .. lv .. "/" .. Classes.MaxLevel) or "ยังไม่ปลดล็อก")
+	local stats = (d.ClassStats and d.ClassStats[selected]) or {}
+	local req = Classes.Requirement(selected, lv + 1)
+	local showBars = owned and req ~= nil
+	for _, b in ipairs(ui.Bars) do
+		b.Label.Visible, b.Track.Visible = showBars, showBars
+	end
+	ui.Info.Visible = not showBars
+	if not owned then
+		ui.ProgTitle.Text = "ปลดล็อกคลาสนี้"
+		ui.Info.Text = st[selected] and string.format("ราคา 💎%d — มีในสต็อควันนี้", c.Price) or "ไม่มีสต๊อควันนี้ — รอรีสต็อกหรือกดรีโรล"
+		ui.Info.TextColor3 = st[selected] and C(140, 240, 100) or C(255, 130, 120)
+	elseif req then
+		ui.ProgTitle.Text = string.format("ความคืบหน้า → เลเวล %d", lv + 1)
+		for i, k in ipairs(Classes.StatOrder) do
+			local b = ui.Bars[i]
+			local have, need = stats[k] or 0, req[k]
+			b.Label.Text = Classes.StatNames[k]
+			b.Fill.Size = UDim2.fromScale(math.clamp(have / need, 0, 1), 1)
+			b.Num.Text = string.format("%d / %d", math.min(have, need), need)
+		end
+	else
+		ui.ProgTitle.Text = "⭐ เลเวลสูงสุดแล้ว"
+		ui.Info.Text = string.format("ล่าสัตว์ %d ตัว · รอด %d คืน กับคลาสนี้", stats.Kills or 0, stats.Nights or 0)
+		ui.Info.TextColor3 = C(255, 220, 120)
+	end
+	if selected == current then
+		if selected == "Survivor" then
+			setButton(ui.Main, "สวมใส่อยู่", GRAY, false)
+		else
+			setButton(ui.Main, "ถอดออก", RED)
+		end
+	elseif owned then
+		setButton(ui.Main, "สวมใส่", GREEN)
+	elseif not st[selected] then
+		setButton(ui.Main, "ไม่มีสต๊อค", GRAY, false)
+	elseif gems() < c.Price then
+		setButton(ui.Main, "💎 ไม่พอ (" .. c.Price .. ")", GRAY, false)
+	else
+		setButton(ui.Main, "ซื้อ  💎" .. c.Price, GREEN)
+	end
+	-- ขวา
+	if shownTools ~= selected then
+		shownTools = selected
+		drawTools(c)
+	end
+	for i, sk in ipairs(ui.Skills) do
+		local skill = c.Skills[i]
+		local unlocked = owned and lv >= i
+		sk.Name.Text = skill.Name
+		sk.Desc.Text = skill.Text
+		sk.Name.TextTransparency = unlocked and 0 or 0.35
+		sk.Desc.TextTransparency = unlocked and 0 or 0.4
+		sk.Box.BackgroundColor3 = unlocked and C(40, 38, 46) or C(26, 24, 30)
+		sk.Stroke.Transparency = unlocked and 0.1 or 0.6
+		sk.Lock.Visible = not unlocked
+		local canSkip = owned and i == lv + 1
+		sk.Foot.Visible = not unlocked
+		sk.Foot.Text = owned and ("ปลดที่เลเวล " .. i) or "ซื้อคลาสก่อน"
+		sk.Skip.Visible = canSkip
+		if canSkip then
+			sk.Skip.Text = "ข้าม 💎" .. Classes.SkipPrice(selected, i)
+		end
+	end
+end
+
+-- เลือกคลาสจากภายนอก (เทสต์/ทางลัด)
+function ClassShop.Select(id)
+	if Classes.Data[id] and ClassShop.IsOpen() then
+		selected = id
+		ClassShop.Refresh()
+		showOnStage(id)
 	end
 end
 
@@ -531,20 +630,16 @@ function ClassShop.MainAction()
 		end
 	elseif owned then
 		Remotes.Get("ChooseClass"):FireServer(selected)
-	elseif stock()[selected] then
+	elseif stock()[selected] and gems() >= Classes.Data[selected].Price then
 		Remotes.Get("BuyClass"):FireServer(selected)
 	end
 end
 
 function ClassShop.SetProfile(p)
 	profile = p
-	if ui.Root and ui.Root.Visible then
+	if ClassShop.IsOpen() then
 		ClassShop.Refresh()
 	end
-end
-
-function ClassShop.IsOpen()
-	return ui.Root and ui.Root.Visible
 end
 
 function ClassShop.Open()
@@ -563,7 +658,7 @@ function ClassShop.Open()
 end
 
 function ClassShop.Close()
-	if not (ui.Root and ui.Root.Visible) then
+	if not ClassShop.IsOpen() then
 		return
 	end
 	ui.Root.Visible = false
@@ -575,28 +670,23 @@ end
 
 function ClassShop.Init(gui)
 	ClassShop.Build(gui)
-	player:GetAttributeChangedSignal("Diamonds"):Connect(function()
+	local function refreshIfOpen()
 		if ClassShop.IsOpen() then
 			ClassShop.Refresh()
 		end
-	end)
-	player:GetAttributeChangedSignal("Class"):Connect(function()
-		if ClassShop.IsOpen() then
-			ClassShop.Refresh()
-		end
-	end)
+	end
+	player:GetAttributeChangedSignal("Diamonds"):Connect(refreshIfOpen)
+	player:GetAttributeChangedSignal("Class"):Connect(refreshIfOpen)
+	player:GetAttributeChangedSignal("ClassLevel"):Connect(refreshIfOpen)
 	player:GetAttributeChangedSignal("InRun"):Connect(function()
 		if player:GetAttribute("InRun") then
 			ClassShop.Close()
 		end
 	end)
-	-- นาฬิการีสต็อก
 	task.spawn(function()
 		while true do
-			task.wait(20)
-			if ClassShop.IsOpen() then
-				ClassShop.Refresh()
-			end
+			task.wait(30)
+			refreshIfOpen()
 		end
 	end)
 end

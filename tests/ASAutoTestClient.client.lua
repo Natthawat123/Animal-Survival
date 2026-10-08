@@ -59,8 +59,19 @@ if lobby then
 		Menus.OpenShop("Kits")
 		shot("lobby_shop", 1.5)
 		Menus.OpenShop("Classes")
-		shot("lobby_classes", 2.5)
+		shot("lobby_classes", 4)
 		task.wait(2)
+		local okCS, ClassShop = pcall(function()
+			return require(script.Parent:WaitForChild("Client"):WaitForChild("ClassShop"))
+		end)
+		if okCS then
+			ClassShop.Select("Beastwarden")
+			shot("lobby_classes_beast", 3)
+			task.wait(2)
+			ClassShop.Select("Medic")
+			shot("lobby_classes_medic", 3)
+			task.wait(2)
+		end
 		Menus.OpenShop("Kits") -- ปิดร้านคลาส (คืนกล้อง)
 		pcall(function()
 			player.PlayerGui.Menus:GetChildren()[1].Visible = false
@@ -132,7 +143,9 @@ if tool and target then
 	cam.CFrame = CFrame.lookAt(root.Position + dir * 14 + Vector3.new(4, 7, 4), tp + Vector3.new(0, 6, 0))
 	for _ = 1, 12 do
 		tool:Activate()
-		task.wait(0.7)
+		task.wait(0.1)
+		tool:Deactivate() -- เหมือนปล่อยเมาส์ (ไม่งั้น Roblox ไม่ยิง Activated ครั้งถัดไป)
+		task.wait(0.6)
 	end
 	shot("play_chop", 0.5)
 	cam.CameraType = Enum.CameraType.Custom
@@ -224,6 +237,8 @@ if wolf and axe then
 			task.wait(0.2)
 		end
 		axe:Activate()
+		task.wait(0.1)
+		axe:Deactivate()
 		print(string.format("[TEST] swing parent=%s d=%.1f hp=%s", tostring(axe.Parent and axe.Parent.Name), (root.Position - (wolf.PrimaryPart and wolf.PrimaryPart.Position or wp)).Magnitude, tostring(wolf:GetAttribute("Health"))))
 		task.wait(0.65)
 	end

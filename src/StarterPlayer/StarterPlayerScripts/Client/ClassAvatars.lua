@@ -1,8 +1,11 @@
 --[[
-	ClassAvatars — หุ่นตัวละครแต่งชุดตามคลาส (บล็อกแบบ Roblox R6)
+	ClassAvatars — ตัวละครของแต่ละคลาส: โมเดลจริงจาก Blender (Char_<Class>) / หุ่นบล็อกสำรองถ้าไม่มีข้อมูลเมช
 	ใช้ทั้งรูปโปรไฟล์วงกลมในร้านคลาส (ViewportFrame) และหุ่นโชว์บนเวทีในเต็นท์ Classes
 	Build(classId) -> Model (เท้าอยู่ที่ y = 0, หันหน้า -Z)
 ]]
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local MeshProps = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("MeshProps"))
 
 local ClassAvatars = {}
 
@@ -92,7 +95,29 @@ local function hat(m, kind, color, head)
 	end
 end
 
-function ClassAvatars.Build(classId)
+-- ตัวละครโมเดลจริง (Quaternius CC0 -> blender/characters_export.py -> PropMeshData/Char_<Class>)
+local function meshCharacter(classId)
+	local kind = "Char_" .. tostring(classId)
+	if not MeshProps.Has(kind) then
+		return nil
+	end
+	local m = MeshProps.Build(kind, { Collide = "none" })
+	-- มี PrimaryPart แล้ว pivot = กลางชิ้น -> ย้าย pivot ไปที่เท้า (จุดกำเนิดของโมเดล)
+	local pp = m.PrimaryPart
+	if pp then
+		pp.PivotOffset = pp.CFrame:Inverse()
+	end
+	return m
+end
+
+-- (ตัวละครเป็นเมชนิ่งท่า idle — การขยับทำในร้านคลาส)
+function ClassAvatars.PlayIdle(_model) end
+
+function ClassAvatars.Build(classId, _waitSec)
+	local real = meshCharacter(classId)
+	if real then
+		return real, true
+	end
 	local o = OUTFIT[classId] or OUTFIT.Survivor
 	local m = Instance.new("Model")
 	m.Name = "ClassAvatar_" .. tostring(classId)
@@ -177,9 +202,12 @@ function ClassAvatars.Build(classId)
 end
 
 -- ใส่หุ่นใน ViewportFrame แบบรูปครึ่งตัว (portrait) หรือเต็มตัว
-function ClassAvatars.Viewport(frame, classId, portrait)
+function ClassAvatars.Viewport(frame, classId, portrait, waitSec)
+	local model = ClassAvatars.Build(classId, waitSec)
+	if not frame.Parent then
+		return nil
+	end
 	frame:ClearAllChildren()
-	local model = ClassAvatars.Build(classId)
 	local world = Instance.new("WorldModel")
 	world.Parent = frame
 	model.Parent = world
@@ -187,14 +215,14 @@ function ClassAvatars.Viewport(frame, classId, portrait)
 	local cam = Instance.new("Camera")
 	cam.FieldOfView = portrait and 28 or 35
 	if portrait then
-		cam.CFrame = CFrame.lookAt(V(0.9, 5.1, 7.4), V(0, 4.15, 0))
+		cam.CFrame = CFrame.lookAt(V(0.9, 5.0, 8.6), V(0, 4.25, 0))
 	else
 		cam.CFrame = CFrame.lookAt(V(1.5, 3.6, 13), V(0, 2.9, 0))
 	end
 	cam.Parent = frame
 	frame.CurrentCamera = cam
-	frame.Ambient = C(170, 160, 150)
-	frame.LightColor = C(255, 240, 220)
+	frame.Ambient = C(215, 210, 205)
+	frame.LightColor = C(255, 250, 240)
 	frame.LightDirection = V(-0.4, -1, -0.6)
 	return model
 end

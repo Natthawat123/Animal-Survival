@@ -70,16 +70,23 @@ def face_colors(ob):
     me = ob.data
     uv = me.uv_layers.active.data if me.uv_layers else None
     infos = [mat_info(m) for m in me.materials] or [((0.8, 0.8, 0.8), None, None)]
+    # as_notex = ใช้สีฐานแทนลาย texture, as_tint = คูณสี (sRGB) — ใช้แต่งสีตัวละครตามคลาส
+    flags = [((m.get("as_notex") if m else None), (tuple(m["as_tint"]) if m and m.get("as_tint") is not None else None)) for m in me.materials] or [(None, None)]
     out = []
     for p in me.polygons:
-        base, glow, img = infos[min(p.material_index, len(infos) - 1)]
-        if img is not None and uv is not None:
+        mi = min(p.material_index, len(infos) - 1)
+        base, glow, img = infos[mi]
+        notex, tint = flags[min(mi, len(flags) - 1)]
+        if img is not None and uv is not None and not notex:
             us = [uv[li].uv for li in p.loop_indices]
             cu = sum(u.x for u in us) / len(us)
             cv = sum(u.y for u in us) / len(us)
-            out.append(sample_image(img, (cu, cv)))
+            c = sample_image(img, (cu, cv))
         else:
-            out.append(base)
+            c = base
+        if tint:
+            c = tuple(min(1.0, x * t) for x, t in zip(c, tint))
+        out.append(c)
     return out, infos
 
 

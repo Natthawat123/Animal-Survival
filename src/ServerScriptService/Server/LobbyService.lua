@@ -219,12 +219,12 @@ local function lanternPost(parent, cf, h)
 end
 
 -- ตอไม้มีไฟลุก (แบบหน้าเต็นท์ Classes)
-local function fireStump(parent, cf)
+local function fireStump(parent, cf, brightness, range)
 	cyl(parent, 3, 3.4, cf * CF(0, 1.5, 0), C(120, 86, 58), Enum.Material.Wood)
 	P(parent, { Shape = Enum.PartType.Cylinder, Size = V(0.1, 3, 3), CFrame = cf * CF(0, 3.02, 0) * ANG(0, 0, math.pi / 2), Color = C(70, 50, 36), Material = Enum.Material.Wood })
 	local core = P(parent, { Size = V(1, 1, 1), CFrame = cf * CF(0, 3.6, 0), Transparency = 1, CanCollide = false })
 	fireOn(core, 4)
-	light(core, C(255, 150, 70), 26, 2.4, true)
+	light(core, C(255, 150, 70), range or 26, brightness or 2.4, true)
 end
 
 -- กองฟาง
@@ -382,7 +382,23 @@ local function classesTent(self, parent, cf)
 	local counterCf = cf * CF(-11, 1.5, -6)
 	P(parent, { Size = V(10, 3.2, 3), CFrame = counterCf * CF(0, 1.6, 0), Color = C(110, 78, 50), Material = Enum.Material.WoodPlanks })
 	P(parent, { Size = V(10.6, 0.4, 3.6), CFrame = counterCf * CF(0, 3.3, 0), Color = C(140, 100, 64), Material = Enum.Material.WoodPlanks })
-	local _, kbody = shopkeeper(parent, counterCf * CF(0, 0, 3.2) * ANG(0, math.pi, 0))
+	local keeper, kbody = shopkeeper(parent, counterCf * CF(0, 0, 3.2) * ANG(0, math.pi, 0))
+	-- ใช้ตัวละครโมเดลจริง (สาวคาวบอย = นักหาของป่า) แทนหุ่นบล็อก
+	if MeshProps.Has("Char_Forager") then
+		local npc = MeshProps.Build("Char_Forager", { Collide = "none" })
+		npc.Name = "CounselorModel"
+		if npc.PrimaryPart then
+			npc.PrimaryPart.PivotOffset = npc.PrimaryPart.CFrame:Inverse() -- pivot ที่เท้า
+		end
+		npc:PivotTo(counterCf * CF(0, 0, 3.2) * ANG(0, math.pi, 0))
+		npc.Parent = parent
+		for _, d in ipairs(keeper:GetDescendants()) do
+			if d:IsA("BasePart") then
+				d.Transparency = 1
+				d.CanCollide = false
+			end
+		end
+	end
 	prompt(kbody, "ดูคลาส", "ที่ปรึกษาค่าย", Enum.KeyCode.E, 18).Triggered:Connect(function(p)
 		self.ctx.Remotes.Get("Cinematic"):FireClient(p, "OpenClasses", {})
 	end)
@@ -397,14 +413,14 @@ local function classesTent(self, parent, cf)
 	end
 	label(wb, Enum.NormalId.Front, "แผนวันนี้:\n1. เลือกคลาส\n2. ขึ้นแท่นเริ่มเกม\n3. รอด 99 คืน!", C(40, 60, 160), Enum.Font.GothamBold)
 	-- ตอไม้มีไฟ (หลังเวที ขวา) + ลังไม้
-	fireStump(parent, cf * CF(10, 1.5, D / 2 - 4))
+	fireStump(parent, cf * CF(10, 1.5, D / 2 - 4), 0.7, 14) -- ไฟอ่อนๆ ไม่ให้หน้าตัวละครบนเวทีสว่างจ้า
 	crate(parent, cf * CF(16, 1.5, D / 2 - 3))
 	crate(parent, cf * CF(16.5, 4.5, D / 2 - 3) * ANG(0, 0.5, 0), 2.4)
 	crate(parent, cf * CF(-16, 1.5, -10) * ANG(0, 0.3, 0))
 	for _, z in ipairs({ -8, 6 }) do
 		local lamp = P(parent, { Size = V(1.2, 1.6, 1.2), CFrame = cf * CF(0, H - 4, z), Color = C(255, 214, 150), Material = Enum.Material.Neon, CanCollide = false })
 		P(parent, { Size = V(0.1, 4, 0.1), CFrame = cf * CF(0, H - 1.6, z), Color = C(40, 36, 34), CanCollide = false })
-		light(lamp, C(255, 196, 130), 30, 1.6, true)
+		light(lamp, C(255, 196, 130), 24, 0.8, true)
 	end
 	-- เวทีโชว์หุ่นคลาส (กล้องร้านคลาสเล็งมาที่นี่) หันหน้าเข้าหาทางเข้าเต็นท์
 	local stageCf = cf * CF(0, 1.5, D / 2 - 7)
@@ -416,7 +432,7 @@ local function classesTent(self, parent, cf)
 	sl.Face = Enum.NormalId.Bottom
 	sl.Angle = 50
 	sl.Range = 24
-	sl.Brightness = 1.1
+	sl.Brightness = 0.25
 	sl.Color = C(255, 236, 210)
 	sl.Parent = spot
 end

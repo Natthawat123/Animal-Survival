@@ -245,8 +245,8 @@ function SurvivalService:OnCharacter(player, char)
 	local hum = char:WaitForChild("Humanoid")
 	local root = char:WaitForChild("HumanoidRootPart")
 	hum.BreakJointsOnDeath = false
-	hum.MaxHealth = 100
-	hum.Health = 100
+	hum.MaxHealth = 100 + self:Perk(player, "MaxHealthBonus", 0)
+	hum.Health = hum.MaxHealth
 	hum.WalkSpeed = Config.BaseWalkSpeed * self:Perk(player, "SpeedMult", 1)
 	local pos = self:SpawnPoint(player)
 	-- ล็อบบี้อยู่ไกลจากแมพมาก (StreamingEnabled): ตรึงตัวไว้จนพื้นตรงจุดเกิดโหลดถึงเครื่องผู้เล่น ไม่งั้นตกทะลุโลก
@@ -289,6 +289,10 @@ function SurvivalService:OnClassChosen(player, classId)
 	local hum = humanoidOf(player)
 	if hum then
 		hum.WalkSpeed = Config.BaseWalkSpeed * self:Perk(player, "SpeedMult", 1)
+		-- เลือดสูงสุดตามทักษะ (คงสัดส่วนเลือดเดิม)
+		local frac = hum.Health / math.max(hum.MaxHealth, 1)
+		hum.MaxHealth = 100 + self:Perk(player, "MaxHealthBonus", 0)
+		hum.Health = hum.MaxHealth * frac
 	end
 	player:SetAttribute("StaminaMult", self:Perk(player, "StaminaMult", 1))
 end
@@ -405,6 +409,11 @@ function SurvivalService:Start(ctx)
 						-- ฟื้นเลือดช้าๆ ตอนอิ่ม
 						if h > Config.HungerMax * 0.6 and os.clock() - (s.LastHit or 0) > 8 then
 							self:Heal(player, 0.6 * dt)
+						end
+						-- ทักษะฟื้นเลือด (ทำงานตลอด ถ้าไม่อดอาหาร)
+						local regen = self:Perk(player, "Regen", 0)
+						if regen > 0 and h > 0 then
+							self:Heal(player, regen * dt)
 						end
 					end
 				end
