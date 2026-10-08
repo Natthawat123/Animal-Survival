@@ -1,0 +1,70 @@
+--[[
+	Remotes — สร้าง/หา RemoteEvent ทั้งหมดของเกม
+	Server: Remotes.Init() ครั้งเดียว   ทั้งสองฝั่ง: Remotes.Get("Attack")
+]]
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+
+local Remotes = {}
+
+Remotes.Events = {
+	-- client -> server
+	"Attack", -- (aimDirection: Vector3)
+	"Craft", -- (recipeId)
+	"PlaceStructure", -- (kitId, cframe)
+	"UseItem", -- (itemId)  กิน/ใช้ยา
+	"ChooseClass", -- (classId)
+	"BuyClass", -- (classId)
+	"BuyKit", -- (kitId) ร้านในล็อบบี้
+	"RerollStock", -- () สุ่มสต็อกร้านคลาสใหม่ (เพชร)
+	"SkipClassLevel", -- (classId) จ่ายเพชรข้ามเลเวล
+	"ClaimDaily", -- () หม้อรางวัลประจำวัน
+	"Trade", -- (offerId) พ่อค้าเร่
+	"Ping", -- เทสต์
+	-- server -> client
+	"Notify", -- (text, kind)
+	"Inventory", -- (table)
+	"Cinematic", -- (kind, data)
+	"HitFx", -- (kind, data)
+	"Profile", -- (profile table)
+}
+Remotes.Functions = {
+	"GetProfile",
+}
+
+local folder
+
+function Remotes.Init()
+	assert(RunService:IsServer(), "Remotes.Init ต้องเรียกจาก server")
+	folder = ReplicatedStorage:FindFirstChild("Remotes")
+	if not folder then
+		folder = Instance.new("Folder")
+		folder.Name = "Remotes"
+		folder.Parent = ReplicatedStorage
+	end
+	for _, name in ipairs(Remotes.Events) do
+		if not folder:FindFirstChild(name) then
+			local r = Instance.new("RemoteEvent")
+			r.Name = name
+			r.Parent = folder
+		end
+	end
+	for _, name in ipairs(Remotes.Functions) do
+		if not folder:FindFirstChild(name) then
+			local r = Instance.new("RemoteFunction")
+			r.Name = name
+			r.Parent = folder
+		end
+	end
+	return folder
+end
+
+function Remotes.Get(name)
+	if not folder then
+		folder = ReplicatedStorage:WaitForChild("Remotes")
+	end
+	return folder:WaitForChild(name)
+end
+
+return Remotes

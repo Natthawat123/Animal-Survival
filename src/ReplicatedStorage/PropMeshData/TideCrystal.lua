@@ -1,0 +1,21 @@
+-- สร้างโดย blender/mesh_export.py — TideCrystal (โมเดลจริงจาก Blender, ประกอบเป็น EditableMesh ตอนเล่น)
+return {
+	Name = "TideCrystal",
+	Height = 9.000,
+	Palette = table.concat({
+			"QAACAAIAWtX/PgAAAAACAFrV/z4AAAAA"
+		}),
+	Parts = {
+		{
+			Name = "Glow_5ad2ff",
+			Attach = "Body",
+			Center = {0.0000, 4.5000, 0.0000},
+			Size = {3.7748, 9.0000, 3.3295},
+			Color = {0.353, 0.835, 1.000},
+			Glow = {0.353, 0.824, 1.000},
+			Mesh = table.concat({
+			"CAABAAwADABGAJQRKAB7A+f/gQaF/Of/gQah+Of/PACF/Of/f/nkA+f/vPlfB+f/PABGAGzuKAAABACABNSJadXIANV3ZtY/ACt4mdPFBCyJm9Q/airHZik/mSzEmyw/BQAHAAQAAAAAAAAAAAAAAAAABgAHAAUAAAAAAAAAAQABAAEAAgAHAAEAAAAAAAAAAgACAAIAAQAHAAYAAAAAAAAAAwADAAMAAAACAAEAAAAAAAAABAAEAAQABwADAAQAAAAAAAAABQAFAAUAAAAFAAQAAAAAAAAABgAGAAYABwACAAMAAAAAAAAABwAHAAcAAAAGAAUAAAAAAAAACAAIAAgAAAABAAYAAAAAAAAACQAJAAkAAAAEAAMAAAAAAAAACgAKAAoAAgAAAAMAAAAAAAAACwALAAsA"
+		}),
+		},
+	},
+}
