@@ -41,12 +41,18 @@ Config.InteractRange = 14
 Config.BuildRange = 60
 
 ---------------------------------------------------------------- สัตว์
+-- ปิดสัตว์ทั้งหมดไว้ก่อน (กำลังปั้นโมเดลใหม่) — Dev Tool (F8) ยังเสกได้
+Config.AnimalsEnabled = false
 Config.MaxWildAnimals = 70 -- สัตว์ป่ากลางวันทั้งแมพ
 Config.WildSpawnRadius = { Min = 140, Max = 420 } -- เกิดรอบตัวผู้เล่น
 Config.WildDespawnRadius = 900
 Config.RaidSpawnRadius = { Min = 330, Max = 470 } -- ฝูงบุกเกิดรอบกองไฟ
 Config.MaxRaidAnimals = 55
 Config.AnimalThinkRate = 0.25 -- วินาทีต่อรอบคิดของ AI
+
+---------------------------------------------------------------- นักพัฒนา
+-- UserId ที่ใช้เครื่องมือ DEV (F8) ในเกมจริงได้ (ใน Studio และเจ้าของเกมใช้ได้เสมอ)
+Config.DevUserIds = {}
 
 ---------------------------------------------------------------- การทดสอบ
 -- ReplicatedStorage.ASAutoTest มีอยู่ = โหมดทดสอบ: แมพเล็ก เวลาเร็ว

@@ -41,6 +41,25 @@ def mat_info(mat):
     if c is None:
         bsdf = next((n for n in mat.node_tree.nodes if n.type == "BSDF_PRINCIPLED"), None) if mat.use_nodes else None
         lc = bsdf.inputs["Base Color"].default_value[:3] if bsdf else mat.diffuse_color[:3]
+        # Base Color ต่อจากโหนดอื่น (Mix/RGB) -> ไล่หาค่าสีจริง
+        if bsdf and bsdf.inputs["Base Color"].links:
+            node = bsdf.inputs["Base Color"].links[0].from_node
+            for _ in range(4):
+                if node.type == "RGB":
+                    lc = node.outputs[0].default_value[:3]
+                    break
+                cand = [i for i in node.inputs if i.type == "RGBA"]
+                nxt = None
+                for i in cand:
+                    if i.links:
+                        nxt = nxt or i.links[0].from_node
+                    else:
+                        lc = i.default_value[:3]
+                        nxt = None
+                        break
+                if nxt is None:
+                    break
+                node = nxt
         c = tuple(((x * 1.055) ** (1 / 2.4) - 0.055) if x > 0.0031308 else x * 12.92 for x in lc)  # linear -> sRGB โดยประมาณ
     return tuple(c[:3]), (tuple(c[:3]) if emissive else None), img
 
@@ -73,8 +92,24 @@ def face_colors(ob):
     # as_notex = ใช้สีฐานแทนลาย texture, as_tint = คูณสี (sRGB) — ใช้แต่งสีตัวละครตามคลาส
     flags = [((m.get("as_notex") if m else None), (tuple(m["as_tint"]) if m and m.get("as_tint") is not None else None)) for m in me.materials] or [(None, None)]
     out = []
+    vcol = me.color_attributes.active_color if getattr(me, "color_attributes", None) and len(me.color_attributes) else None
+    vflags = [bool(m and m.get("as_vcol")) for m in me.materials] or [False]
     for p in me.polygons:
         mi = min(p.material_index, len(infos) - 1)
+        if vcol is not None and vflags[min(mi, len(vflags) - 1)]:
+            acc = [0.0, 0.0, 0.0]
+            idxs = p.loop_indices if vcol.domain == "CORNER" else p.vertices
+            for li in idxs:
+                d = vcol.data[li]
+                col = d.color_srgb if hasattr(d, "color_srgb") else d.color
+                for k in range(3):
+                    acc[k] += col[k]
+            c = tuple(a / len(idxs) for a in acc)
+            tint_ = flags[min(mi, len(flags) - 1)][1] if flags else None
+            if tint_:
+                c = tuple(min(1.0, x * t) for x, t in zip(c, tint_))
+            out.append(c)
+            continue
         base, glow, img = infos[mi]
         notex, tint = flags[min(mi, len(flags) - 1)]
         if img is not None and uv is not None and not notex:

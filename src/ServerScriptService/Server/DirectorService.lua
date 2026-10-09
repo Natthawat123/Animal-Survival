@@ -40,9 +40,20 @@ end
 function DirectorService:Wait(seconds, runId)
 	local t = 0
 	while t < seconds do
-		t += task.wait(0.25)
+		local dt = task.wait(0.25)
 		if runId ~= self.runId then
 			return false
+		end
+		if self.skip then -- DEV: ข้ามช่วงนี้
+			self.skip = false
+			return true
+		end
+		if self.paused then -- DEV: หยุดเวลา (เลื่อนเวลาสิ้นสุดช่วงออกไปด้วย ให้นาฬิกาบนจอหยุด)
+			local s = self.ctx.State
+			s:SetAttribute("PhaseStart", (s:GetAttribute("PhaseStart") or 0) + dt)
+			s:SetAttribute("PhaseEnd", (s:GetAttribute("PhaseEnd") or 0) + dt)
+		else
+			t += dt
 		end
 	end
 	return true

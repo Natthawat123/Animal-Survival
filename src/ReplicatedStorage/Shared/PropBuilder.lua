@@ -389,6 +389,9 @@ Kinds.Flowers = {
 		return m
 	end,
 }
+Kinds.Mushrooms = { Scale = { 0.7, 1.4 }, NoCollide = true, Build = function()
+	return ellipsoid(V(2, 1.4, 2), CF(0, 1.2, 0), { Name = "Cap", Color = C(190, 50, 40), CanCollide = false })
+end }
 Kinds.GlowShroom = {
 	Scale = { 0.8, 2.2 }, NoCollide = true, Light = { Color = C(110, 255, 200), Range = 14, Brightness = 1.4, Chance = 0.35 },
 	Build = function()
@@ -414,6 +417,10 @@ local function rockKind(kind, size, color, material, extra)
 	end
 end
 
+-- เฟิร์นคลุมดิน (โมเดลจริงจาก Store; ไม่มีก็ใช้พุ่มเล็ก)
+Kinds.Fern = { Scale = { 0.8, 1.5 }, NoCollide = true, Build = function()
+	return ellipsoid(V(4, 2, 4), CF(0, 0.8, 0), { Name = "Fern", Color = C(84, 130, 60), Material = Enum.Material.Grass, CanCollide = false })
+end }
 Kinds.Boulder = { Node = { Node = "Rock", Yield = "Stone", HP = 8 }, Scale = { 0.6, 1.4 }, Build = rockKind("Boulder", V(9, 6, 8), C(132, 130, 126), Enum.Material.Slate) }
 Kinds.MossRock = {
 	Node = { Node = "Rock", Yield = "Stone", HP = 10 }, Scale = { 0.8, 1.8 },
@@ -594,29 +601,162 @@ Kinds.Kelp = {
 }
 
 ---------------------------------------------------------------- ระบบแม่แบบ
-function PropBuilder.GetTemplate(kind)
+---------------------------------------------------------------- โมเดลจาก Creator Store (assets/rbxm/Props)
+-- Models = ชื่อโมเดลใน Assets.Props (แพ็กที่มีโมเดลย่อยหลายต้น -> สุ่มทีละต้น)
+-- Height = ความสูงหลังปรับ · Trunk = เส้นผ่านศูนย์กลางลำต้น (ทำกล่องชนล่องหน) · Solid = ชนทั้งก้อน (หิน)
+local STORE = {
+	GiantPine = { Models = { "Fir1", "SnowPine" }, Height = 50, Trunk = 3, Foliage = C(44, 82, 52), Bark = C(84, 60, 44), DropWhite = true },
+	Oak = { Models = { "OakPack" }, Split = "Models", Height = 30, Trunk = 3, Foliage = C(82, 122, 54), Bark = C(96, 72, 52) },
+	AncientOak = { Models = { "OakPack" }, Split = "Models", Height = 46, Trunk = 5, Foliage = C(60, 98, 46), Bark = C(80, 60, 46) },
+	Palm = { Models = { "PalmLP" }, Height = 28, Trunk = 2, Foliage = C(70, 136, 70), Bark = C(120, 96, 70) },
+	FrostPine = { Models = { "SnowPine" }, Height = 42, Trunk = 3, Foliage = C(50, 86, 70), Bark = C(84, 66, 54) },
+	CharredTree = { Models = { "DeadTree" }, Height = 28, Trunk = 2.2, Color = C(44, 36, 34) },
+	Boulder = { Models = { "RockLP" }, Split = "Parts", Height = 7, Solid = true, Color = C(120, 118, 114) },
+	MossRock = { Models = { "RockLP" }, Split = "Parts", Height = 9, Solid = true, Color = C(100, 116, 88) },
+	SeaRock = { Models = { "RockLP" }, Split = "Parts", Height = 8, Solid = true, Color = C(178, 170, 150) },
+	SkyStone = { Models = { "RockLP" }, Split = "Parts", Height = 10, Solid = true, Color = C(168, 178, 198) },
+	Bush = { Models = { "BushLP" }, Height = 5, Foliage = C(66, 108, 50) },
+	Fern = { Models = { "GrassTuft", "GrassTuft2" }, Height = 3.2, Foliage = C(84, 128, 58) },
+	Mushrooms = { Models = { "Mushrooms" }, Height = 2.6 },
+}
+PropBuilder.Store = STORE
+local storeVariants = {}
+
+-- โมเดลย่อยของแพ็ก (ถ้ามีหลายชิ้นวางแยกกัน) หรือทั้งโมเดล
+local function variantsOf(model, split)
+	local subs = {}
+	if split == "Parts" then
+		for _, c in ipairs(model:GetChildren()) do
+			if c:IsA("BasePart") then
+				table.insert(subs, c)
+			end
+		end
+		return subs
+	end
+	for _, c in ipairs(model:GetChildren()) do
+		if c:IsA("Model") and c:FindFirstChildWhichIsA("BasePart", true) then
+			table.insert(subs, c)
+		end
+	end
+	if #subs >= 2 or (split == "Models" and #subs >= 1) then
+		return subs
+	end
+	return { model }
+end
+
+local variantSeed = 0
+local function normalize(kind, src, spec)
+	variantSeed += 3
+	local m = Instance.new("Model")
+	m.Name = kind
+	local parts = src:IsA("BasePart") and { src } or src:GetDescendants()
+	for _, d in ipairs(parts) do
+		if d:IsA("BasePart") then
+			local c = d:Clone()
+			c:ClearAllChildren()
+			for _, k in ipairs(d:GetChildren()) do
+				if not k:IsA("BasePart") and not k:IsA("Model") and not k:IsA("JointInstance") and not k:IsA("WeldConstraint") then
+					k:Clone().Parent = c
+				end
+			end
+			c.Anchored = true
+			c.CanCollide = spec.Solid == true
+			c.CanTouch = false
+			c.CastShadow = true
+			-- ปรับสีให้เป็นธรรมชาติ (ใบเขียวเข้ม/เปลือกน้ำตาล) + ต่างกันเล็กน้อยต่อแบบ
+			local col = c.Color
+			local green = col.G > col.R * 1.08 and col.G > col.B * 1.02
+			local white = col.R > 0.82 and col.G > 0.82 and col.B > 0.82
+			if white and spec.DropWhite then
+				c:Destroy()
+				continue
+			elseif spec.Color then
+				c.Color = spec.Color
+				if spec.Material then
+					c.Material = spec.Material
+				end
+			elseif green and spec.Foliage then
+				local h, sat, v = spec.Foliage:ToHSV()
+				c.Color = Color3.fromHSV((h + (variantSeed % 7 - 3) * 0.006) % 1, sat, math.clamp(v * (0.92 + (variantSeed % 5) * 0.04), 0, 1))
+			elseif not green and not white and spec.Bark then
+				c.Color = spec.Bark
+			end
+			c.Parent = m
+		end
+	end
+	local cf, size = m:GetBoundingBox()
+	if size.Y <= 0.01 then
+		return nil
+	end
+	m.WorldPivot = CF(cf.Position - V(0, size.Y / 2, 0))
+	pcall(function()
+		m:ScaleTo(spec.Height / size.Y)
+	end)
+	m:PivotTo(CF(0, 0, 0))
+	if spec.Trunk then
+		local h = spec.Height * 0.45
+		local col = Instance.new("Part")
+		col.Name = "Collider"
+		col.Shape = Enum.PartType.Cylinder
+		col.Size = V(h, spec.Trunk, spec.Trunk)
+		col.CFrame = CF(0, h / 2, 0) * ANG(0, 0, math.pi / 2)
+		col.Transparency = 1
+		col.Anchored = true
+		col.CanCollide = true
+		col.CastShadow = false
+		col.Parent = m
+	end
+	m.Parent = getTemp()
+	return m
+end
+
+local function storeTemplates(kind)
+	if storeVariants[kind] ~= nil then
+		return storeVariants[kind]
+	end
+	storeVariants[kind] = false
+	local spec = STORE[kind]
+	local assets = ReplicatedStorage:FindFirstChild("Assets")
+	local folder = assets and assets:FindFirstChild("Props")
+	if not (spec and folder) then
+		return false
+	end
+	local list = {}
+	for _, name in ipairs(spec.Models) do
+		local src = folder:FindFirstChild(name)
+		if src then
+			for _, v in ipairs(variantsOf(src, spec.Split)) do
+				local t = normalize(kind, v, spec)
+				if t then
+					table.insert(list, t)
+				end
+			end
+		end
+	end
+	if #list > 0 then
+		storeVariants[kind] = list
+	end
+	return storeVariants[kind]
+end
+
+function PropBuilder.GetTemplate(kind, rng)
+	local list = storeTemplates(kind)
+	if list then
+		return list[(rng or Random.new()):NextInteger(1, #list)]
+	end
 	if templates[kind] and templates[kind].Parent then
 		return templates[kind]
 	end
 	-- โมเดลจาก Blender (ถ้ามี)
-	local assets = ReplicatedStorage:FindFirstChild("Assets")
-	local custom = assets and assets:FindFirstChild("Props") and assets.Props:FindFirstChild(kind)
 	local t
-	if not custom and MeshProps.Has(kind) then
+	if MeshProps.Has(kind) then
 		-- โมเดลจริงจาก Blender (สวมผิวฝั่ง client)
 		t = MeshProps.Build(kind)
 		t.Parent = getTemp()
 		templates[kind] = t
 		return t
 	end
-	if custom then
-		t = custom:Clone()
-		if t:IsA("Model") and not t.PrimaryPart then
-			local cf, size = t:GetBoundingBox()
-			t.WorldPivot = cf * CF(0, -size.Y / 2, 0)
-		end
-		t.Parent = getTemp()
-	else
+	do
 		local spec = Kinds[kind]
 		if not spec then
 			return nil
@@ -632,6 +772,7 @@ function PropBuilder.ClearTemplates()
 		t:Destroy()
 	end
 	table.clear(templates)
+	table.clear(storeVariants)
 	if tempFolder then
 		tempFolder:Destroy()
 		tempFolder = nil
@@ -655,7 +796,7 @@ end
 
 -- วาง 1 ชิ้น
 function PropBuilder.Place(kind, position, yaw, scale, parent, rng)
-	local t = PropBuilder.GetTemplate(kind)
+	local t = PropBuilder.GetTemplate(kind, rng)
 	if not t then
 		return nil
 	end
@@ -698,6 +839,13 @@ function PropBuilder.Place(kind, position, yaw, scale, parent, rng)
 		inst:SetAttribute("Hazard", spec.Hazard)
 	end
 	inst:SetAttribute("Kind", kind)
+	if inst:IsA("Model") then
+		-- สตรีมทั้งต้นพร้อมกัน + ไกลๆ แสดงเป็นเมชความละเอียดต่ำ (ประหยัดเครื่อง)
+		pcall(function()
+			inst.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
+			inst.LevelOfDetail = Enum.ModelLevelOfDetail.StreamingMesh
+		end)
+	end
 	addLight(inst, spec.Light, rng or Random.new())
 	inst.Parent = parent
 	return inst
@@ -730,7 +878,9 @@ function PropBuilder.Scatter(layout, parent, opts)
 	for _, sp in ipairs(layout.Specials) do
 		table.insert(avoid, { sp.Position, sp.Kind == "Lair" and 90 or 40 })
 	end
-	table.insert(avoid, { Vector3.new(0, 0, 0), 44 }) -- ลานโล่งรอบกองไฟเล็กๆ แล้วเป็นป่าทึบทันที (แบบ 99 Nights)
+	table.insert(avoid, { Vector3.new(0, 0, 0), 46 }) -- ลานโล่งรอบกองไฟเล็กๆ แล้วเป็นป่าทึบทันที (แบบ 99 Nights)
+	table.insert(avoid, { Vector3.new(0, 0, -72), 42 }) -- บ้านพักนายพราน
+	table.insert(avoid, { Vector3.new(36, 0, 22), 14 }) -- โรงเก็บของ
 	local count = 0
 	local t0 = os.clock()
 	local x = -half
@@ -745,7 +895,19 @@ function PropBuilder.Scatter(layout, parent, opts)
 			if biome == "Water" then
 				chance = 0.35
 			end
-			if not lava and rng:NextNumber() < chance then
+			-- ป่าทึบ: ไบโอมป่าวางหลายชิ้นต่อช่อง
+			local tries = data.PropDensity or 1
+			for t = 1, math.ceil(tries) do
+			local cx = (t == 1) and px or (x + rng:NextNumber(0, cell))
+			local cz = (t == 1) and pz or (z + rng:NextNumber(0, cell))
+			if t > 1 then
+				h, biome, lava = layout:HeightAt(cx, cz)
+				if biome ~= data.Id and Biomes.Data[biome] ~= data then
+					break
+				end
+			end
+			local px, pz = cx, cz
+			if not lava and rng:NextNumber() < chance * math.min(1, tries - (t - 1)) then
 				local kind = pickKind(data.Props, rng)
 				local spec = Kinds[kind]
 				local ok = spec ~= nil
@@ -779,6 +941,7 @@ function PropBuilder.Scatter(layout, parent, opts)
 					count += 1
 				end
 			end
+			end
 			z += cell
 			if opts.Yield and os.clock() - t0 > 0.03 then
 				task.wait()
@@ -793,7 +956,7 @@ function PropBuilder.Scatter(layout, parent, opts)
 		local r = 46 + rng:NextNumber() ^ 1.6 * 90
 		local px, pz = math.cos(a) * r, math.sin(a) * r
 		local h = layout:HeightAt(px, pz)
-		if h > water + 1.5 then
+		if h > water + 1.5 and Vector3.new(px, 0, pz + 72).Magnitude > 44 then
 			local kind = (rng:NextNumber() < 0.75) and "GiantPine" or "Oak"
 			local spec = Kinds[kind]
 			PropBuilder.Place(kind, Vector3.new(px, h - 0.6, pz), rng:NextNumber(0, math.pi * 2), rng:NextNumber(spec.Scale[2], spec.Scale[2] * 1.25), parent, rng)
@@ -869,6 +1032,37 @@ local function light(parent, color, range, brightness, shadows)
 end
 
 -- แคมป์กลาง: กองไฟ + โต๊ะคราฟต์ + เต็นท์ + ที่นั่ง
+-- วางโมเดลจาก Store (Assets.Props.<name>) ปรับสูงตาม height · คืน nil ถ้าไม่มี
+local CAMP_STORE = {
+	CampLodge = { Height = 26, Solid = true },
+	CampShack = { Height = 11, Solid = true },
+	LogBench = { Height = 2.3, Solid = true },
+	LampPost = { Height = 13, Solid = true },
+	Crate = { Height = 3.6, Solid = true },
+	LogPileStore = { Height = 4.6, Solid = true },
+	Fence = { Height = 4.2, Solid = true, Color = C(98, 72, 52), Material = Enum.Material.Wood },
+	SleepingBagStore = { Height = 1.1 },
+}
+local campCache = {}
+function PropBuilder.StoreModel(name, cf, parent)
+	local spec = CAMP_STORE[name]
+	local assets = ReplicatedStorage:FindFirstChild("Assets")
+	local src = assets and assets:FindFirstChild("Props") and assets.Props:FindFirstChild(name)
+	if not (spec and src) then
+		return nil
+	end
+	if not campCache[name] then
+		campCache[name] = normalize(name, src, spec)
+	end
+	if not campCache[name] then
+		return nil
+	end
+	local m = campCache[name]:Clone()
+	m:PivotTo(cf)
+	m.Parent = parent
+	return m
+end
+
 function PropBuilder.BuildCamp(position, parent)
 	local m = Instance.new("Model")
 	m.Name = "Camp"
@@ -915,6 +1109,15 @@ function PropBuilder.BuildCamp(position, parent)
 	sparks.Color = ColorSequence.new(C(255, 220, 120), C(255, 90, 20))
 	sparks.Acceleration = V(0, 4, 0)
 	sparks.Parent = core
+	-- ควันลอยเป็นเสาสูง เห็นได้จากในป่า (นำทางกลับแคมป์)
+	local smoke = Instance.new("Smoke")
+	smoke.Name = "Smoke"
+	smoke.Color = C(150, 146, 140)
+	smoke.Opacity = 0.12
+	smoke.RiseVelocity = 9
+	smoke.Size = 3
+	smoke.TimeScale = 0.6
+	smoke.Parent = core
 	logs.PrimaryPart = core
 	logs.Parent = m
 
@@ -972,9 +1175,12 @@ function PropBuilder.BuildCamp(position, parent)
 		tent.Parent = m
 	end
 	-- ที่นั่งท่อนไม้
-	for i = 0, 3 do
-		local ang = i / 4 * math.pi * 2 + 0.4
-		cylinderY(7, 2, base * CF(math.cos(ang) * 11, 1, math.sin(ang) * 11) * ANG(0, -ang, math.pi / 2), { Color = C(110, 78, 52), Material = Enum.Material.Wood }, m)
+	for i = 0, 5 do
+		local ang = i / 6 * math.pi * 2 + 0.4
+		local bcf = base * CF(math.cos(ang) * 11, 0, math.sin(ang) * 11) * ANG(0, -ang, 0)
+		if not PropBuilder.StoreModel("LogBench", bcf, m) then
+			cylinderY(7, 2, bcf * CF(0, 1, 0) * ANG(0, 0, math.pi / 2), { Color = C(110, 78, 52), Material = Enum.Material.Wood }, m)
+		end
 	end
 	------------------------------------------------ แคมป์กลางป่า (สไตล์ 99 Nights)
 	local deco = Instance.new("Folder")
@@ -994,12 +1200,22 @@ function PropBuilder.BuildCamp(position, parent)
 	for i, ang in ipairs({ rad(150), rad(200), rad(250) }) do
 		local tcf = base * CF(math.cos(ang) * 26, 0, math.sin(ang) * 26) * ANG(0, -ang + math.pi / 2, 0)
 		local bagCols = { C(200, 90, 50), C(60, 110, 170), C(110, 150, 70) }
-		BaseDecor.SleepingBag(deco, tcf * CF(2.2, 0, -9) * ANG(0, 0.25, 0), bagCols[i])
+		if not PropBuilder.StoreModel("SleepingBagStore", tcf * CF(2.2, 0, -9) * ANG(0, 0.25, 0), deco) then
+			BaseDecor.SleepingBag(deco, tcf * CF(2.2, 0, -9) * ANG(0, 0.25, 0), bagCols[i])
+		end
 		BaseDecor.Backpack(deco, tcf * CF(-3.6, 0, -6.5) * ANG(0, 0.6, 0), bagCols[(i % 3) + 1])
 	end
 	-- เสาตะเกียงรอบลาน
-	for _, ang in ipairs({ rad(95), rad(225), rad(330), rad(20) }) do
-		BaseDecor.LanternPost(deco, base * CF(math.cos(ang) * 17, 0, math.sin(ang) * 17) * ANG(0, -ang - math.pi / 2, 0), 7.5)
+	for _, ang in ipairs({ rad(95), rad(160), rad(225), rad(290), rad(330), rad(20) }) do
+		local lcf = base * CF(math.cos(ang) * 19, 0, math.sin(ang) * 19) * ANG(0, -ang - math.pi / 2, 0)
+		local lamp = PropBuilder.StoreModel("LampPost", lcf, deco)
+		if lamp then
+			local cf, size = lamp:GetBoundingBox()
+			local bulb = P("Part", { Name = "LampGlow", Size = V(0.6, 0.6, 0.6), CFrame = CF(cf.Position + V(0, size.Y * 0.28, 0)), Transparency = 1, CanCollide = false, CanQuery = false }, lamp)
+			light(bulb, C(255, 190, 110), 26, 1.6, false)
+		else
+			BaseDecor.LanternPost(deco, lcf, 7.5)
+		end
 	end
 	-- ตอผ่าฟืน, เก้าอี้, กล่องเย็น, ราวตากผ้า
 	BaseDecor.ChoppingStump(deco, base * CF(-6, 0, 21) * ANG(0, 0.8, 0))
@@ -1009,6 +1225,26 @@ function PropBuilder.BuildCamp(position, parent)
 	end
 	BaseDecor.Cooler(deco, base * CF(14, 0, 15) * ANG(0, 0.5, 0))
 	BaseDecor.Clothesline(deco, (base * CF(-33, 0, 8)).Position, (base * CF(-30, 0, -14)).Position)
+
+	-- บ้านพักนายพราน (บ้านของเรา) + โรงเก็บของ + ลังไม้ + กองฟืน
+	PropBuilder.StoreModel("CampLodge", base * CF(0, 0, -72), deco)
+	PropBuilder.StoreModel("CampShack", base * CF(36, 0, 22) * ANG(0, rad(-120), 0), deco)
+	for _, info in ipairs({ { CF(17, 0, -30), 0.3 }, { CF(20.5, 0, -29), 1.1 }, { CF(18.5, 3.6, -29.6), 0.7 }, { CF(-22, 0, -28), 0.2 }, { CF(30, 0, 16), 0.9 } }) do
+		PropBuilder.StoreModel("Crate", base * info[1] * ANG(0, info[2], 0), deco)
+	end
+	for _, info in ipairs({ { CF(-26, 0, -16), 0.6 }, { CF(-12, 0, -33), 1.6 }, { CF(26, 0, -10), 2.4 } }) do
+		PropBuilder.StoreModel("LogPileStore", base * info[1] * ANG(0, info[2], 0), deco)
+	end
+	-- รั้วไม้ล้อมลาน (เว้นทางเข้า 4 ทิศ)
+	local fenceR = 40
+	for i = 0, 23 do
+		local ang = (i + 0.5) / 24 * math.pi * 2
+		local deg = math.deg(ang) % 90
+		if deg > 12 and deg < 78 then
+			local fcf = base * CF(math.cos(ang) * fenceR, 0, math.sin(ang) * fenceR) * ANG(0, -ang, 0)
+			PropBuilder.StoreModel("Fence", fcf, deco)
+		end
+	end
 
 	-- เสาไฟสี่ทิศ (ธงธาตุ)
 	for i, el in ipairs({ "Earth", "Water", "Air", "Fire" }) do

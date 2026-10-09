@@ -13,21 +13,21 @@ Biomes.Elements = { "Earth", "Water", "Air", "Fire" }
 
 -- สี Terrain ของทั้งโลก
 Biomes.MaterialColors = {
-	Grass = Color3.fromRGB(104, 156, 62),
-	LeafyGrass = Color3.fromRGB(58, 112, 48),
-	Ground = Color3.fromRGB(112, 86, 60),
-	Mud = Color3.fromRGB(74, 58, 44),
-	Rock = Color3.fromRGB(112, 112, 118),
-	Sand = Color3.fromRGB(230, 210, 156),
+	Grass = Color3.fromRGB(80, 118, 50),
+	LeafyGrass = Color3.fromRGB(54, 90, 40),
+	Ground = Color3.fromRGB(92, 72, 52),
+	Mud = Color3.fromRGB(66, 52, 40),
+	Rock = Color3.fromRGB(98, 98, 102),
+	Sand = Color3.fromRGB(204, 188, 144),
 	Limestone = Color3.fromRGB(186, 210, 202),
 	Salt = Color3.fromRGB(214, 224, 238), -- ชายหาดขาว + ทุนดราน้ำแข็งของธาตุลม
-	Snow = Color3.fromRGB(236, 243, 255),
+	Snow = Color3.fromRGB(228, 235, 246),
 	Glacier = Color3.fromRGB(140, 200, 236),
 	Slate = Color3.fromRGB(88, 98, 128),
-	Basalt = Color3.fromRGB(36, 31, 33),
+	Basalt = Color3.fromRGB(34, 30, 32),
 	CrackedLava = Color3.fromRGB(255, 104, 26),
-	Asphalt = Color3.fromRGB(60, 55, 57),
-	Sandstone = Color3.fromRGB(150, 68, 44),
+	Asphalt = Color3.fromRGB(50, 46, 46),
+	Sandstone = Color3.fromRGB(104, 62, 48),
 	Pavement = Color3.fromRGB(160, 168, 190),
 }
 
@@ -68,10 +68,13 @@ Biomes.Data = {
 		},
 		Grade = { Tint = Color3.fromRGB(244, 250, 244), Saturation = 0.06, Contrast = 0.12, Brightness = 0 },
 		Ambient = "Pollen",
+		PropDensity = 2.6, -- ความถี่ของต้นไม้/ของ (ป่าทึบ)
 		Props = {
 			{ Kind = "GiantPine", Weight = 7 },
 			{ Kind = "Oak", Weight = 3 },
 			{ Kind = "Bush", Weight = 3 },
+			{ Kind = "Fern", Weight = 4 },
+			{ Kind = "Mushrooms", Weight = 1 },
 			{ Kind = "BerryBush", Weight = 2 },
 			{ Kind = "Flowers", Weight = 1 },
 			{ Kind = "Boulder", Weight = 1 },
@@ -91,9 +94,13 @@ Biomes.Data = {
 		},
 		Grade = { Tint = Color3.fromRGB(240, 255, 236), Saturation = 0.16, Contrast = 0.12, Brightness = -0.01 },
 		Ambient = "Fireflies",
+		PropDensity = 2.4, -- ความถี่ของต้นไม้/ของ (ป่าทึบ)
 		Props = {
 			{ Kind = "GiantPine", Weight = 6 },
 			{ Kind = "AncientOak", Weight = 3 },
+			{ Kind = "Fern", Weight = 5 },
+			{ Kind = "Mushrooms", Weight = 2 },
+			{ Kind = "Bush", Weight = 2 },
 			{ Kind = "MossRock", Weight = 3 },
 			{ Kind = "GlowShroom", Weight = 2 },
 			{ Kind = "BerryBush", Weight = 1 },
@@ -117,6 +124,7 @@ Biomes.Data = {
 		},
 		Grade = { Tint = Color3.fromRGB(228, 244, 255), Saturation = 0.22, Contrast = 0.08, Brightness = 0.03 },
 		Ambient = "Mist",
+		PropDensity = 1.3, -- ความถี่ของต้นไม้/ของ (ป่าทึบ)
 		Props = {
 			{ Kind = "Palm", Weight = 4 },
 			{ Kind = "Coral", Weight = 4 },
@@ -142,6 +150,7 @@ Biomes.Data = {
 		},
 		Grade = { Tint = Color3.fromRGB(240, 246, 255), Saturation = 0.05, Contrast = 0.1, Brightness = 0.05 },
 		Ambient = "Wind",
+		PropDensity = 1.4, -- ความถี่ของต้นไม้/ของ (ป่าทึบ)
 		Props = {
 			{ Kind = "FrostPine", Weight = 5 },
 			{ Kind = "IceSpire", Weight = 2 },
@@ -166,6 +175,7 @@ Biomes.Data = {
 		},
 		Grade = { Tint = Color3.fromRGB(255, 222, 200), Saturation = 0.1, Contrast = 0.16, Brightness = -0.02 },
 		Ambient = "Embers",
+		PropDensity = 1.3, -- ความถี่ของต้นไม้/ของ (ป่าทึบ)
 		Props = {
 			{ Kind = "CharredTree", Weight = 4 },
 			{ Kind = "ObsidianSpire", Weight = 3 },

@@ -112,8 +112,8 @@ function CampService:Refuel(player)
 	local used = {}
 	for _, id in ipairs(FUEL_ORDER) do
 		local fuel = Items.Data[id].Fuel
-		while self.fuel < max - fuel * 0.5 and inv:Count(player, id) > 0 and (id ~= "BeastHeart") do
-			inv:Remove(player, id, 1)
+		while self.fuel < max - fuel * 0.5 and inv:Available(player, id) > 0 and (id ~= "BeastHeart") do
+			inv:Spend(player, { [id] = 1 })
 			self.fuel = math.min(max, self.fuel + fuel)
 			used[id] = (used[id] or 0) + 1
 		end
@@ -283,6 +283,17 @@ function CampService:Start(ctx)
 	local craft = prompt(benchTop, "Craft", "เปิดเมนูคราฟต์", "โต๊ะคราฟต์", Enum.KeyCode.E, 0, 14)
 	craft.Triggered:Connect(function(p)
 		ctx.Remotes.Get("Cinematic"):FireClient(p, "OpenCraft", {})
+	end)
+	local deposit = prompt(benchTop, "Deposit", "เทกระสอบลงคลังแคมป์", "โต๊ะคราฟต์", Enum.KeyCode.G, 0, 16)
+	deposit.UIOffset = Vector2.new(0, 140)
+	deposit.Triggered:Connect(function(p)
+		local n = ctx.Services.InventoryService:Deposit(p)
+		if n > 0 then
+			ctx.Notify(p, string.format("📦 เทของลงคลังแคมป์ %d ชิ้น (ทุกคนในทีมใช้ร่วมกันได้)", n), "Good")
+			ctx.Remotes.Get("HitFx"):FireAllClients("Craft", { Position = self.benchPos })
+		else
+			ctx.Notify(p, "ในกระสอบไม่มีวัตถุดิบให้เท (อาหาร/ยาเก็บไว้กับตัว)", "Info")
+		end
 	end)
 	self.benchUpgradePrompt = prompt(benchTop, "UpgradeBench", "อัปเกรด", "โต๊ะคราฟต์", Enum.KeyCode.F, 1, 14)
 	self.benchUpgradePrompt.UIOffset = Vector2.new(0, 70)

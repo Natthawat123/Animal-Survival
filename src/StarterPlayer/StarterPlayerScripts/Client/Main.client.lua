@@ -37,14 +37,68 @@ safe("Skins", SkinStreamer.Init)
 safe("Combat", CombatClient.Init, state, HUD)
 safe("Menus", Menus.Init, state, HUD)
 safe("Map", MapUI.Init, state, HUD, AtmosphereController)
+safe("Dev", require(script.Parent:WaitForChild("DevPanel")).Init)
 
 Remotes.Get("Notify").OnClientEvent:Connect(function(text, kind)
 	HUD.Notify(text, kind)
 end)
-Remotes.Get("Inventory").OnClientEvent:Connect(function(inv)
-	HUD.SetInventory(inv)
-	Menus.SetInventory(inv)
+Remotes.Get("Inventory").OnClientEvent:Connect(function(data)
+	local bag, camp = data.Bag or {}, data.Camp or {}
+	local merged = {}
+	for id, n in pairs(camp) do
+		merged[id] = n
+	end
+	for id, n in pairs(bag) do
+		merged[id] = (merged[id] or 0) + n
+	end
+	HUD.SetInventory(merged)
+	HUD.SetSack(data.Used or 0, data.Cap or 0)
+	Menus.SetInventory(merged, bag, camp, data.Used, data.Cap)
 end)
+-- ถือกระสอบ: เปิดหน้ากระสอบ + คลิกของบนพื้นเพื่อเก็บ (แบบ 99 Nights)
+do
+	local Players = game:GetService("Players")
+	local Workspace = game:GetService("Workspace")
+	local player = Players.LocalPlayer
+	local mouse = player:GetMouse()
+	local function hookTool(tool)
+		if not (tool:IsA("Tool") and tool:GetAttribute("Kind") == "Sack") or tool:GetAttribute("SackHooked") then
+			return
+		end
+		tool:SetAttribute("SackHooked", true)
+		tool.Equipped:Connect(function()
+			Menus.ToggleBag(true)
+		end)
+		tool.Unequipped:Connect(function()
+			Menus.ToggleBag(false)
+		end)
+		tool.Activated:Connect(function()
+			local target = mouse.Target
+			local drops = Workspace:FindFirstChild("Drops")
+			while target and drops and target.Parent ~= drops do
+				target = target.Parent
+			end
+			if target and drops and target:IsA("Model") then
+				Remotes.Get("PickupDrop"):FireServer(target)
+			end
+		end)
+	end
+	local function hookContainer(c)
+		for _, t in ipairs(c:GetChildren()) do
+			hookTool(t)
+		end
+		c.ChildAdded:Connect(hookTool)
+	end
+	hookContainer(player:WaitForChild("Backpack"))
+	player.CharacterAdded:Connect(function(char)
+		hookContainer(char)
+		hookContainer(player:WaitForChild("Backpack"))
+	end)
+	if player.Character then
+		hookContainer(player.Character)
+	end
+end
+
 Remotes.Get("Cinematic").OnClientEvent:Connect(function(kind, data)
 	local ok, err = pcall(Cinematics.Handle, kind, data or {}, Menus, CombatClient)
 	if not ok then

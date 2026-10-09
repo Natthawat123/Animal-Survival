@@ -1,0 +1,1456 @@
+{
+ "Alpaca_bCVFD48i2l": {
+  "tris": 2140,
+  "bones": 46,
+  "actions": [
+   "AnimalArmature|Attack_Headbutt",
+   "AnimalArmature|Attack_Kick",
+   "AnimalArmature|Death",
+   "AnimalArmature|Eating",
+   "AnimalArmature|Gallop",
+   "AnimalArmature|Gallop_Jump",
+   "AnimalArmature|Idle",
+   "AnimalArmature|Idle_2",
+   "AnimalArmature|Idle_Headlow",
+   "AnimalArmature|Idle_HitReact_Left",
+   "AnimalArmature|Idle_HitReact_Right",
+   "AnimalArmature|Jump_toIdle",
+   "AnimalArmature|Walk",
+   "Attack_Headbutt",
+   "Attack_Kick",
+   "Death",
+   "Eating",
+   "Gallop",
+   "Gallop_Jump",
+   "Idle",
+   "Idle_2",
+   "Idle_Headlow",
+   "Idle_HitReact_Left",
+   "Idle_HitReact_Right",
+   "Jump_toIdle",
+   "Walk"
+  ],
+  "size": [
+   1.9,
+   4.27,
+   6.4
+  ]
+ },
+ "Apatosaurus_fvo0x8Zk3z": {
+  "tris": 1518,
+  "bones": 29,
+  "actions": [
+   "Armature|Apatosaurus_Attack",
+   "Armature|Apatosaurus_Idle",
+   "Armature|Apatosaurus_Jump",
+   "Armature|Apatosaurus_Run",
+   "Armature|Apatosaurus_Walk",
+   "Armature|Stegosaurus_Death"
+  ],
+  "size": [
+   5.61,
+   49.42,
+   11.88
+  ]
+ },
+ "Bat_hNO9XvjlKa": {
+  "tris": 1126,
+  "bones": 23,
+  "actions": [
+   "BatArmature|Bat_Attack",
+   "BatArmature|Bat_Attack2",
+   "BatArmature|Bat_Death",
+   "BatArmature|Bat_Flying",
+   "BatArmature|Bat_Hit"
+  ],
+  "size": [
+   2.55,
+   3.06,
+   5.54
+  ]
+ },
+ "Birb_gZ2ExU9OAB": {
+  "tris": 3244,
+  "bones": 4,
+  "actions": [
+   "CharacterArmature|Bite_Front",
+   "CharacterArmature|Dance",
+   "CharacterArmature|Death",
+   "CharacterArmature|HitRecieve",
+   "CharacterArmature|Idle",
+   "CharacterArmature|Jump",
+   "CharacterArmature|No",
+   "CharacterArmature|Walk",
+   "CharacterArmature|Yes"
+  ],
+  "size": [
+   2.79,
+   3.02,
+   3.61
+  ]
+ },
+ "Bird_gYYC0gYMnw": {
+  "tris": 1204,
+  "bones": 0,
+  "actions": [],
+  "size": [
+   0.76,
+   0.63,
+   0.39
+  ]
+ },
+ "Bull_a8PIIYwF7r": {
+  "tris": 2498,
+  "bones": 42,
+  "actions": [
+   "AnimalArmature|Attack_Headbutt",
+   "AnimalArmature|Attack_Kick",
+   "AnimalArmature|Death",
+   "AnimalArmature|Eating",
+   "AnimalArmature|Gallop",
+   "AnimalArmature|Gallop_Jump",
+   "AnimalArmature|Idle",
+   "AnimalArmature|Idle_2",
+   "AnimalArmature|Idle_Headlow",
+   "AnimalArmature|Idle_HitReact_Left",
+   "AnimalArmature|Jump_toIdle",
+   "AnimalArmature|Walk",
+   "Attack_Headbutt",
+   "Attack_Kick",
+   "Death",
+   "Eating",
+   "Gallop",
+   "Gallop_Jump",
+   "Idle",
+   "Idle_2",
+   "Idle_Headlow",
+   "Idle_HitReact_Left",
+   "Idle_HitReact_Right",
+   "Jump_toIdle",
+   "Walk"
+  ],
+  "size": [
+   3.09,
+   8.14,
+   5.53
+  ]
+ },
+ "Bunny_irZjWFARyl": {
+  "tris": 8362,
+  "bones": 49,
+  "actions": [
+   "CharacterArmature|Death",
+   "CharacterArmature|Duck",
+   "CharacterArmature|HitReact",
+   "CharacterArmature|Idle",
+   "CharacterArmature|Jump",
+   "CharacterArmature|Jump_Idle",
+   "CharacterArmature|Jump_Land",
+   "CharacterArmature|No",
+   "CharacterArmature|Punch",
+   "CharacterArmature|Run",
+   "CharacterArmature|Walk",
+   "CharacterArmature|Wave",
+   "CharacterArmature|Weapon",
+   "CharacterArmature|Yes"
+  ],
+  "size": [
+   3.03,
+   2.0,
+   4.32
+  ]
+ },
+ "Cat_2f54vbV0In": {
+  "tris": 1852,
+  "bones": 4,
+  "actions": [
+   "CharacterArmature|Bite_Front",
+   "CharacterArmature|Dance",
+   "CharacterArmature|Death",
+   "CharacterArmature|HitRecieve",
+   "CharacterArmature|Idle",
+   "CharacterArmature|Jump",
+   "CharacterArmature|No",
+   "CharacterArmature|Walk",
+   "CharacterArmature|Yes"
+  ],
+  "size": [
+   2.1,
+   2.0,
+   3.0
+  ]
+ },
+ "Cat_qKICY6xla2": {
+  "tris": 2491,
+  "bones": 16,
+  "actions": [
+   "AnimalArmature|AnimalArmature|AnimalArmature|Death",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Headbutt",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Idle",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Idle_Eating",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Jump_Loop",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Jump_Start",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Run",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Walk"
+  ],
+  "size": [
+   1.9,
+   2.23,
+   2.89
+  ]
+ },
+ "Chicken_Z3RCoCYss4": {
+  "tris": 2169,
+  "bones": 7,
+  "actions": [
+   "AnimalArmature|AnimalArmature|AnimalArmature|Attack",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Death",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Idle",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Idle_Peck",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Run"
+  ],
+  "size": [
+   1.9,
+   2.0,
+   2.31
+  ]
+ },
+ "Chicken_ineV9pU5VL": {
+  "tris": 2984,
+  "bones": 4,
+  "actions": [
+   "CharacterArmature|Bite_Front",
+   "CharacterArmature|Dance",
+   "CharacterArmature|Death",
+   "CharacterArmature|HitRecieve",
+   "CharacterArmature|Idle",
+   "CharacterArmature|Jump",
+   "CharacterArmature|No",
+   "CharacterArmature|Walk",
+   "CharacterArmature|Yes"
+  ],
+  "size": [
+   2.35,
+   2.29,
+   3.41
+  ]
+ },
+ "Cow_26zM1outCr": {
+  "tris": 2530,
+  "bones": 42,
+  "actions": [
+   "AnimalArmature|Attack_Headbutt",
+   "AnimalArmature|Attack_Kick",
+   "AnimalArmature|Death",
+   "AnimalArmature|Eating",
+   "AnimalArmature|Gallop",
+   "AnimalArmature|Gallop_Jump",
+   "AnimalArmature|Idle",
+   "AnimalArmature|Idle_2",
+   "AnimalArmature|Idle_Headlow",
+   "AnimalArmature|Idle_HitReact_Left",
+   "AnimalArmature|Jump_toIdle",
+   "AnimalArmature|Walk",
+   "Attack_Headbutt",
+   "Attack_Kick",
+   "Death",
+   "Eating",
+   "Gallop",
+   "Gallop_Jump",
+   "Idle",
+   "Idle_2",
+   "Idle_Headlow",
+   "Idle_HitReact_Left",
+   "Idle_HitReact_Right",
+   "Jump_toIdle",
+   "Walk"
+  ],
+  "size": [
+   3.02,
+   8.14,
+   5.53
+  ]
+ },
+ "Cow_5XSc2Fka3F": {
+  "tris": 876,
+  "bones": 28,
+  "actions": [
+   "Armature|Death",
+   "Armature|Idle",
+   "Armature|Jump",
+   "Armature|Run",
+   "Armature|Walk",
+   "Armature|WalkSlow"
+  ],
+  "size": [
+   2.26,
+   9.17,
+   6.08
+  ]
+ },
+ "CrabEnemy_Gs3yfsV5lB": {
+  "tris": 3704,
+  "bones": 7,
+  "actions": [
+   "MonsterArmature|Bite_Front",
+   "MonsterArmature|Bite_InPlace",
+   "MonsterArmature|Dance",
+   "MonsterArmature|Death",
+   "MonsterArmature|HitRecieve",
+   "MonsterArmature|Idle",
+   "MonsterArmature|Jump",
+   "MonsterArmature|No",
+   "MonsterArmature|Walk",
+   "MonsterArmature|Yes"
+  ],
+  "size": [
+   2.54,
+   2.0,
+   2.57
+  ]
+ },
+ "Deer_T6Cs7tmMHJ": {
+  "tris": 2176,
+  "bones": 46,
+  "actions": [
+   "AnimalArmature|Attack_Headbutt",
+   "AnimalArmature|Attack_Kick",
+   "AnimalArmature|Death",
+   "AnimalArmature|Eating",
+   "AnimalArmature|Gallop",
+   "AnimalArmature|Gallop_Jump",
+   "AnimalArmature|Idle",
+   "AnimalArmature|Idle_2",
+   "AnimalArmature|Idle_Headlow",
+   "AnimalArmature|Idle_HitReact_Left",
+   "AnimalArmature|Idle_HitReact_Right",
+   "AnimalArmature|Jump_toIdle",
+   "AnimalArmature|Walk",
+   "Attack_Headbutt",
+   "Attack_Kick",
+   "Death",
+   "Eating",
+   "Gallop",
+   "Gallop_Jump",
+   "Idle",
+   "Idle_2",
+   "Idle_Headlow",
+   "Idle_HitReact_Left",
+   "Idle_HitReact_Right",
+   "Jump_toIdle",
+   "Walk"
+  ],
+  "size": [
+   1.9,
+   4.39,
+   5.25
+  ]
+ },
+ "Demon_IkB63XOPvr": {
+  "tris": 3372,
+  "bones": 12,
+  "actions": [
+   "EnemyArmature|EnemyArmature|EnemyArmature|Attack",
+   "EnemyArmature|EnemyArmature|EnemyArmature|Death",
+   "EnemyArmature|EnemyArmature|EnemyArmature|HitRecieve",
+   "EnemyArmature|EnemyArmature|EnemyArmature|Idle",
+   "EnemyArmature|EnemyArmature|EnemyArmature|Jump",
+   "EnemyArmature|EnemyArmature|EnemyArmature|Run",
+   "EnemyArmature|EnemyArmature|EnemyArmature|Walk"
+  ],
+  "size": [
+   2.75,
+   2.0,
+   3.54
+  ]
+ },
+ "Demon_LnfIziKv4o": {
+  "tris": 6792,
+  "bones": 43,
+  "actions": [
+   "CharacterArmature|Death",
+   "CharacterArmature|Duck",
+   "CharacterArmature|HitReact",
+   "CharacterArmature|Idle",
+   "CharacterArmature|Jump",
+   "CharacterArmature|Jump_Idle",
+   "CharacterArmature|Jump_Land",
+   "CharacterArmature|No",
+   "CharacterArmature|Punch",
+   "CharacterArmature|Run",
+   "CharacterArmature|Walk",
+   "CharacterArmature|Wave",
+   "CharacterArmature|Weapon",
+   "CharacterArmature|Yes"
+  ],
+  "size": [
+   3.33,
+   2.33,
+   3.96
+  ]
+ },
+ "Demon_Mo2ky6vkf8": {
+  "tris": 4864,
+  "bones": 43,
+  "actions": [
+   "CharacterArmature|Death",
+   "CharacterArmature|Fast_Flying",
+   "CharacterArmature|Flying_Idle",
+   "CharacterArmature|Headbutt",
+   "CharacterArmature|HitReact",
+   "CharacterArmature|No",
+   "CharacterArmature|Punch",
+   "CharacterArmature|Yes"
+  ],
+  "size": [
+   4.71,
+   2.74,
+   3.92
+  ]
+ },
+ "Dino_wuerCFCWNR": {
+  "tris": 5494,
+  "bones": 43,
+  "actions": [
+   "CharacterArmature|Death",
+   "CharacterArmature|Duck",
+   "CharacterArmature|HitReact",
+   "CharacterArmature|Idle",
+   "CharacterArmature|Jump",
+   "CharacterArmature|Jump_Idle",
+   "CharacterArmature|Jump_Land",
+   "CharacterArmature|No",
+   "CharacterArmature|Punch",
+   "CharacterArmature|Run",
+   "CharacterArmature|Walk",
+   "CharacterArmature|Wave",
+   "CharacterArmature|Weapon",
+   "CharacterArmature|Yes"
+  ],
+  "size": [
+   3.07,
+   2.12,
+   4.08
+  ]
+ },
+ "Dog_2kUk0QqpCg": {
+  "tris": 3684,
+  "bones": 16,
+  "actions": [
+   "AnimalArmature|AnimalArmature|AnimalArmature|Death",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Headbutt",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Idle",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Idle_Eating",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Jump_Loop",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Jump_Start",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Run",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Walk"
+  ],
+  "size": [
+   1.9,
+   2.33,
+   2.91
+  ]
+ },
+ "Donkey_qmX6nhnvp7": {
+  "tris": 2080,
+  "bones": 50,
+  "actions": [
+   "AnimalArmature|Attack_Headbutt",
+   "AnimalArmature|Attack_Kick",
+   "AnimalArmature|Death",
+   "AnimalArmature|Eating",
+   "AnimalArmature|Gallop",
+   "AnimalArmature|Gallop_Jump",
+   "AnimalArmature|Idle",
+   "AnimalArmature|Idle_2",
+   "AnimalArmature|Idle_Headlow",
+   "AnimalArmature|Idle_HitReact_Left",
+   "AnimalArmature|Idle_HitReact_Right",
+   "AnimalArmature|Jump_toIdle",
+   "AnimalArmature|Walk",
+   "Attack_Headbutt",
+   "Attack_Kick",
+   "Death",
+   "Eating",
+   "Gallop",
+   "Gallop_Jump",
+   "Idle",
+   "Idle_2",
+   "Idle_Headlow",
+   "Idle_HitReact_Left",
+   "Idle_HitReact_Right",
+   "Jump_toIdle",
+   "Walk"
+  ],
+  "size": [
+   1.9,
+   4.76,
+   4.98
+  ]
+ },
+ "DragonEvolved_LlwD0QNUPj": {
+  "tris": 7518,
+  "bones": 46,
+  "actions": [
+   "CharacterArmature|Death",
+   "CharacterArmature|Fast_Flying",
+   "CharacterArmature|Flying_Idle",
+   "CharacterArmature|Headbutt",
+   "CharacterArmature|HitReact",
+   "CharacterArmature|No",
+   "CharacterArmature|Punch",
+   "CharacterArmature|Yes"
+  ],
+  "size": [
+   4.66,
+   2.79,
+   4.17
+  ]
+ },
+ "Dragon_3rUm1cN3yp": {
+  "tris": 4642,
+  "bones": 13,
+  "actions": [
+   "CharacterArmature|Death",
+   "CharacterArmature|Fast_Flying",
+   "CharacterArmature|Flying_Idle",
+   "CharacterArmature|Headbutt",
+   "CharacterArmature|HitReact",
+   "CharacterArmature|No",
+   "CharacterArmature|Punch",
+   "CharacterArmature|Yes"
+  ],
+  "size": [
+   4.69,
+   2.41,
+   4.0
+  ]
+ },
+ "Dragon_VBvzjFIYws": {
+  "tris": 1424,
+  "bones": 27,
+  "actions": [
+   "DragonArmature|Dragon_Attack",
+   "DragonArmature|Dragon_Attack2",
+   "DragonArmature|Dragon_Death",
+   "DragonArmature|Dragon_Flying",
+   "DragonArmature|Dragon_Hit"
+  ],
+  "size": [
+   4.21,
+   2.92,
+   4.5
+  ]
+ },
+ "Fox_Bc97C66HKi": {
+  "tris": 1928,
+  "bones": 51,
+  "actions": [
+   "AnimalArmature|Attack",
+   "AnimalArmature|Death",
+   "AnimalArmature|Eating",
+   "AnimalArmature|Gallop",
+   "AnimalArmature|Gallop_Jump",
+   "AnimalArmature|Idle",
+   "AnimalArmature|Idle_2",
+   "AnimalArmature|Idle_2_HeadLow",
+   "AnimalArmature|Idle_HitReact_Left",
+   "AnimalArmature|Idle_HitReact_Right",
+   "AnimalArmature|Jump_ToIdle",
+   "AnimalArmature|Walk",
+   "Attack",
+   "Death",
+   "Eating",
+   "Gallop",
+   "Gallop_Jump",
+   "Idle",
+   "Idle_2",
+   "Idle_2_HeadLow",
+   "Idle_HitReact_Left",
+   "Idle_HitReact_Right",
+   "Jump_ToIdle",
+   "Walk"
+  ],
+  "size": [
+   1.9,
+   5.58,
+   3.65
+  ]
+ },
+ "Frog_37wofOCOzG": {
+  "tris": 5096,
+  "bones": 43,
+  "actions": [
+   "CharacterArmature|Death",
+   "CharacterArmature|Duck",
+   "CharacterArmature|HitReact",
+   "CharacterArmature|Idle",
+   "CharacterArmature|Jump",
+   "CharacterArmature|Jump_Idle",
+   "CharacterArmature|Jump_Land",
+   "CharacterArmature|No",
+   "CharacterArmature|Punch",
+   "CharacterArmature|Run",
+   "CharacterArmature|Walk",
+   "CharacterArmature|Wave",
+   "CharacterArmature|Weapon",
+   "CharacterArmature|Yes"
+  ],
+  "size": [
+   3.06,
+   2.06,
+   3.52
+  ]
+ },
+ "Frog_9Z2V8fpazF": {
+  "tris": 5000,
+  "bones": 28,
+  "actions": [
+   "FrogArmature|Frog_Attack",
+   "FrogArmature|Frog_Death",
+   "FrogArmature|Frog_Idle",
+   "FrogArmature|Frog_Jump"
+  ],
+  "size": [
+   3.51,
+   3.16,
+   2.4
+  ]
+ },
+ "GermanShepard_Hssa6NPc6W": {
+  "tris": 4978,
+  "bones": 50,
+  "actions": [
+   "AnimalArmature|Attack",
+   "AnimalArmature|Death",
+   "AnimalArmature|Eating",
+   "AnimalArmature|HitReact_Left",
+   "AnimalArmature|HitReact_Right",
+   "AnimalArmature|Idle",
+   "AnimalArmature|Idle_2",
+   "AnimalArmature|Idle_2_HeadLow",
+   "AnimalArmature|Run",
+   "AnimalArmature|Run_Jump",
+   "AnimalArmature|Walk",
+   "Attack",
+   "Death",
+   "Eating",
+   "HitReact_Left",
+   "HitReact_Right",
+   "Idle",
+   "Idle_2",
+   "Idle_2_HeadLow",
+   "Run",
+   "Run_Jump",
+   "Walk"
+  ],
+  "size": [
+   1.9,
+   2.0,
+   2.0
+  ]
+ },
+ "GolelingEvolved_iHEuXiH6Aj": {
+  "tris": 5944,
+  "bones": 13,
+  "actions": [
+   "CharacterArmature|Death",
+   "CharacterArmature|Fast_Flying",
+   "CharacterArmature|Flying_Idle",
+   "CharacterArmature|Headbutt",
+   "CharacterArmature|HitReact",
+   "CharacterArmature|No",
+   "CharacterArmature|Punch",
+   "CharacterArmature|Yes"
+  ],
+  "size": [
+   4.71,
+   2.4,
+   4.75
+  ]
+ },
+ "Goleling_71gomWolax": {
+  "tris": 3776,
+  "bones": 13,
+  "actions": [
+   "CharacterArmature|Death",
+   "CharacterArmature|Fast_Flying",
+   "CharacterArmature|Flying_Idle",
+   "CharacterArmature|Headbutt",
+   "CharacterArmature|HitReact",
+   "CharacterArmature|No",
+   "CharacterArmature|Punch",
+   "CharacterArmature|Yes"
+  ],
+  "size": [
+   4.71,
+   2.4,
+   3.99
+  ]
+ },
+ "Hedgehog_Uu0PXwt2nU": {
+  "tris": 1552,
+  "bones": 4,
+  "actions": [
+   "EnemyArmature|EnemyArmature|EnemyArmature|Attack",
+   "EnemyArmature|EnemyArmature|EnemyArmature|Death",
+   "EnemyArmature|EnemyArmature|EnemyArmature|Idle"
+  ],
+  "size": [
+   1.9,
+   2.0,
+   2.1
+  ]
+ },
+ "Horse_D3hAeqeDBE": {
+  "tris": 2732,
+  "bones": 17,
+  "actions": [
+   "AnimalArmature|AnimalArmature|AnimalArmature|Death",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Headbutt",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Idle",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Idle_Eating",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Jump_Loop",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Jump_Start",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Run",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Walk"
+  ],
+  "size": [
+   1.9,
+   3.37,
+   3.96
+  ]
+ },
+ "Horse_F8HAAcLeBL": {
+  "tris": 770,
+  "bones": 28,
+  "actions": [
+   "Armature|Death",
+   "Armature|Idle",
+   "Armature|Jump",
+   "Armature|Run",
+   "Armature|Walk",
+   "Armature|WalkSlow"
+  ],
+  "size": [
+   2.56,
+   9.22,
+   7.96
+  ]
+ },
+ "Horse_qvTrSG9pZF": {
+  "tris": 2262,
+  "bones": 50,
+  "actions": [
+   "AnimalArmature|Attack_Headbutt",
+   "AnimalArmature|Attack_Kick",
+   "AnimalArmature|Death",
+   "AnimalArmature|Eating",
+   "AnimalArmature|Gallop",
+   "AnimalArmature|Gallop_Jump",
+   "AnimalArmature|Idle",
+   "AnimalArmature|Idle_2",
+   "AnimalArmature|Idle_Headlow",
+   "AnimalArmature|Idle_HitReact_Left",
+   "AnimalArmature|Idle_HitReact_Right",
+   "AnimalArmature|Jump_toIdle",
+   "AnimalArmature|Walk",
+   "Attack_Headbutt",
+   "Attack_Kick",
+   "Death",
+   "Eating",
+   "Gallop",
+   "Gallop_Jump",
+   "Idle",
+   "Idle_2",
+   "Idle_Headlow",
+   "Idle_HitReact_Left",
+   "Idle_HitReact_Right",
+   "Jump_toIdle",
+   "Walk"
+  ],
+  "size": [
+   2.13,
+   5.72,
+   5.84
+  ]
+ },
+ "Husky_wcWiuEqwzq": {
+  "tris": 2000,
+  "bones": 49,
+  "actions": [
+   "AnimalArmature|Attack",
+   "AnimalArmature|Death",
+   "AnimalArmature|Eating",
+   "AnimalArmature|Gallop",
+   "AnimalArmature|Gallop_Jump",
+   "AnimalArmature|Idle",
+   "AnimalArmature|Idle_2",
+   "AnimalArmature|Idle_2_HeadLow",
+   "AnimalArmature|Idle_HitReact_Left",
+   "AnimalArmature|Idle_HitReact_Right",
+   "AnimalArmature|Jump_ToIdle",
+   "AnimalArmature|Walk",
+   "Attack",
+   "Death",
+   "Eating",
+   "Gallop",
+   "Gallop_Jump",
+   "Idle",
+   "Idle_2",
+   "Idle_2_HeadLow",
+   "Idle_HitReact_Left",
+   "Idle_HitReact_Right",
+   "Jump_ToIdle",
+   "Walk"
+  ],
+  "size": [
+   1.9,
+   3.93,
+   4.15
+  ]
+ },
+ "Hywirl_zjr7CmWGER": {
+  "tris": 3376,
+  "bones": 38,
+  "actions": [
+   "CharacterArmature|Death",
+   "CharacterArmature|Fast_Flying",
+   "CharacterArmature|Flying_Idle",
+   "CharacterArmature|Headbutt",
+   "CharacterArmature|HitReact",
+   "CharacterArmature|No",
+   "CharacterArmature|Punch",
+   "CharacterArmature|Yes"
+  ],
+  "size": [
+   2.95,
+   2.48,
+   3.8
+  ]
+ },
+ "Llama_JxVJ9rfWGy": {
+  "tris": 741,
+  "bones": 24,
+  "actions": [
+   "Armature|Idle",
+   "Armature|Jump"
+  ],
+  "size": [
+   1.9,
+   4.9,
+   6.82
+  ]
+ },
+ "Mushnub_LWKmS30Xxl": {
+  "tris": 1328,
+  "bones": 4,
+  "actions": [
+   "CharacterArmature|Bite_Front",
+   "CharacterArmature|Dance",
+   "CharacterArmature|Death",
+   "CharacterArmature|HitRecieve",
+   "CharacterArmature|Idle",
+   "CharacterArmature|Jump",
+   "CharacterArmature|No",
+   "CharacterArmature|Walk",
+   "CharacterArmature|Yes"
+  ],
+  "size": [
+   2.75,
+   2.75,
+   4.3
+  ]
+ },
+ "Panda_q1uJ28Hs8T": {
+  "tris": 2548,
+  "bones": 58,
+  "actions": [
+   "CharacterArmature|CharacterArmature|CharacterArmature|Assem.001",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Assem.002",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Assembly_",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Chop_End",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Chop_Loop",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Chop_Star",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Death",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Duck",
+   "CharacterArmature|CharacterArmature|CharacterArmature|HitReact",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Idle",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Idle_Hold",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Jump",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Jump_Idle",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Jump_Land",
+   "CharacterArmature|CharacterArmature|CharacterArmature|No",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Pan_End",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Pan_Loop",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Pan_Start",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Punch",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Run",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Run_Holdi",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Sitti.001",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Sitting_E",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Sitting_I",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Sitting_S",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Sword",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Walk",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Walk_Hold",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Wave",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Yes"
+  ],
+  "size": [
+   3.49,
+   2.13,
+   4.22
+  ]
+ },
+ "Parasaurolophus_KeeQrrouRK": {
+  "tris": 1492,
+  "bones": 29,
+  "actions": [
+   "Armature|Parasaurolophus_Attack",
+   "Armature|Parasaurolophus_Death",
+   "Armature|Parasaurolophus_Idle",
+   "Armature|Parasaurolophus_Jump",
+   "Armature|Parasaurolophus_Run",
+   "Armature|Parasaurolophus_Walk"
+  ],
+  "size": [
+   1.96,
+   12.96,
+   6.43
+  ]
+ },
+ "Pig_TNvG3QUFlp": {
+  "tris": 642,
+  "bones": 24,
+  "actions": [
+   "Armature|Idle",
+   "Armature|Jump"
+  ],
+  "size": [
+   3.3,
+   9.76,
+   5.56
+  ]
+ },
+ "Pig_u35l6uP5vj": {
+  "tris": 2821,
+  "bones": 13,
+  "actions": [
+   "AnimalArmature|AnimalArmature|AnimalArmature|Death",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Headbutt",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Idle",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Idle_Eating",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Jump_Loop",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Jump_Start",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Run",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Walk"
+  ],
+  "size": [
+   1.9,
+   2.07,
+   2.64
+  ]
+ },
+ "Pigeon_9NGlBTpDEr": {
+  "tris": 2264,
+  "bones": 4,
+  "actions": [
+   "CharacterArmature|Bite_Front",
+   "CharacterArmature|Dance",
+   "CharacterArmature|Death",
+   "CharacterArmature|HitRecieve",
+   "CharacterArmature|Idle",
+   "CharacterArmature|Jump",
+   "CharacterArmature|No",
+   "CharacterArmature|Walk",
+   "CharacterArmature|Yes"
+  ],
+  "size": [
+   2.35,
+   2.2,
+   2.86
+  ]
+ },
+ "Rabbit_mKev485XTR": {
+  "tris": 2362,
+  "bones": 58,
+  "actions": [
+   "CharacterArmature|CharacterArmature|CharacterArmature|Assem.001",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Assem.002",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Assembly_",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Chop_End",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Chop_Loop",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Chop_Star",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Death",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Duck",
+   "CharacterArmature|CharacterArmature|CharacterArmature|HitReact",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Idle",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Idle_Hold",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Jump",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Jump_Idle",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Jump_Land",
+   "CharacterArmature|CharacterArmature|CharacterArmature|No",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Pan_End",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Pan_Loop",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Pan_Start",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Punch",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Run",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Run_Holdi",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Sitti.001",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Sitting_E",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Sitting_I",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Sitting_S",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Sword",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Walk",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Walk_Hold",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Wave",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Yes"
+  ],
+  "size": [
+   3.26,
+   2.05,
+   5.05
+  ]
+ },
+ "Raccoon_xMmx6VQP3r": {
+  "tris": 2956,
+  "bones": 16,
+  "actions": [
+   "AnimalArmature|AnimalArmature|AnimalArmature|Death",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Headbutt",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Idle",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Idle_Eating",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Jump_Loop",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Jump_Start",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Run",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Walk"
+  ],
+  "size": [
+   1.9,
+   3.24,
+   2.44
+  ]
+ },
+ "Rat_iltq5bVNaV": {
+  "tris": 4084,
+  "bones": 31,
+  "actions": [
+   "RatArmature|Rat_Attack",
+   "RatArmature|Rat_Death",
+   "RatArmature|Rat_Idle",
+   "RatArmature|Rat_Jump",
+   "RatArmature|Rat_Run",
+   "RatArmature|Rat_Walk"
+  ],
+  "size": [
+   1.9,
+   6.81,
+   3.23
+  ]
+ },
+ "Shark_AyHTK3zUSG": {
+  "tris": 724,
+  "bones": 8,
+  "actions": [
+   "Armature|Swim"
+  ],
+  "size": [
+   5.38,
+   15.84,
+   5.31
+  ]
+ },
+ "Shark_YYsK3gRCBZ": {
+  "tris": 6684,
+  "bones": 20,
+  "actions": [
+   "SharkArmature|SharkArmature|SharkArmature|Swim_Bite|SharkArmatu",
+   "SharkArmature|SharkArmature|SharkArmature|Swim_Fast|SharkArmatu",
+   "SharkArmature|SharkArmature|SharkArmature|Swim|SharkArmature|Sw"
+  ],
+  "size": [
+   2.27,
+   5.6,
+   2.29
+  ]
+ },
+ "Shark_sZR8AMLMz5": {
+  "tris": 1390,
+  "bones": 6,
+  "actions": [
+   "Fish_Armature|Attack",
+   "Fish_Armature|Death",
+   "Fish_Armature|Out_Of_Water",
+   "Fish_Armature|Swimming_Fast",
+   "Fish_Armature|Swimming_Impulse",
+   "Fish_Armature|Swimming_Normal"
+  ],
+  "size": [
+   3.81,
+   5.35,
+   3.86
+  ]
+ },
+ "Sharky_iPV5YmAoIv": {
+  "tris": 14674,
+  "bones": 58,
+  "actions": [
+   "CharacterArmature|CharacterArmature|CharacterArmature|Death|Cha",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Duck|Char",
+   "CharacterArmature|CharacterArmature|CharacterArmature|HitReact|",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Idle|Char",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Jump_Idle",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Jump_Land",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Jump|Char",
+   "CharacterArmature|CharacterArmature|CharacterArmature|No|Charac",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Punch|Cha",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Run|Chara",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Sword|Cha",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Walk|Char",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Wave|Char",
+   "CharacterArmature|CharacterArmature|CharacterArmature|Yes|Chara"
+  ],
+  "size": [
+   1.9,
+   2.0,
+   2.43
+  ]
+ },
+ "Sheep_C39AUXUUes": {
+  "tris": 690,
+  "bones": 24,
+  "actions": [
+   "Armature|Idle",
+   "Armature|Jump"
+  ],
+  "size": [
+   2.23,
+   5.92,
+   5.32
+  ]
+ },
+ "Sheep_rgJXF570ZK": {
+  "tris": 2608,
+  "bones": 16,
+  "actions": [
+   "AnimalArmature|AnimalArmature|AnimalArmature|Death",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Headbutt",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Idle",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Idle_Eating",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Jump_Loop",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Jump_Start",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Run",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Walk"
+  ],
+  "size": [
+   1.9,
+   2.58,
+   2.59
+  ]
+ },
+ "ShibaInu_y4wdQpg767": {
+  "tris": 2030,
+  "bones": 46,
+  "actions": [
+   "AnimalArmature|Attack",
+   "AnimalArmature|Death",
+   "AnimalArmature|Eating",
+   "AnimalArmature|Gallop",
+   "AnimalArmature|Gallop_Jump",
+   "AnimalArmature|Idle",
+   "AnimalArmature|Idle_2",
+   "AnimalArmature|Idle_2_HeadLow",
+   "AnimalArmature|Idle_HitReact_Left",
+   "AnimalArmature|Idle_HitReact_Right",
+   "AnimalArmature|Jump_ToIdle",
+   "AnimalArmature|Walk",
+   "Attack",
+   "Death",
+   "Eating",
+   "Gallop",
+   "Gallop_Jump",
+   "Idle",
+   "Idle_2",
+   "Idle_2_HeadLow",
+   "Idle_HitReact_Left",
+   "Idle_HitReact_Right",
+   "Jump_ToIdle",
+   "Walk"
+  ],
+  "size": [
+   1.9,
+   4.19,
+   4.06
+  ]
+ },
+ "Snake_x9x0viZs8V": {
+  "tris": 1698,
+  "bones": 15,
+  "actions": [
+   "SnakeArmature|Snake_Attack",
+   "SnakeArmature|Snake_Idle",
+   "SnakeArmature|Snake_Jump",
+   "SnakeArmature|Snake_Walk"
+  ],
+  "size": [
+   1.9,
+   2.77,
+   4.18
+  ]
+ },
+ "Squidle_54QyRcsogk": {
+  "tris": 4960,
+  "bones": 43,
+  "actions": [
+   "CharacterArmature|Death",
+   "CharacterArmature|Fast_Flying",
+   "CharacterArmature|Flying_Idle",
+   "CharacterArmature|Headbutt",
+   "CharacterArmature|HitReact",
+   "CharacterArmature|No",
+   "CharacterArmature|Punch",
+   "CharacterArmature|Yes"
+  ],
+  "size": [
+   4.71,
+   2.74,
+   4.05
+  ]
+ },
+ "Stag_tQdzbZ1Cmw": {
+  "tris": 3747,
+  "bones": 38,
+  "actions": [
+   "AnimalArmature|Attack_Headbutt",
+   "AnimalArmature|Attack_Kick",
+   "AnimalArmature|Death",
+   "AnimalArmature|Eating",
+   "AnimalArmature|Gallop",
+   "AnimalArmature|Gallop_Jump",
+   "AnimalArmature|Idle",
+   "AnimalArmature|Idle_2",
+   "AnimalArmature|Idle_Headlow",
+   "AnimalArmature|Idle_HitReact_Left",
+   "AnimalArmature|Idle_HitReact_Right",
+   "AnimalArmature|Jump_toIdle",
+   "AnimalArmature|Walk",
+   "Attack_Headbutt",
+   "Attack_Kick",
+   "Death",
+   "Eating",
+   "Gallop",
+   "Gallop_Jump",
+   "Idle",
+   "Idle_2",
+   "Idle_Headlow",
+   "Idle_HitReact_Left",
+   "Idle_HitReact_Right",
+   "Jump_toIdle",
+   "Walk"
+  ],
+  "size": [
+   2.55,
+   4.85,
+   6.35
+  ]
+ },
+ "Stegosaurus_eFcNbOlpvl": {
+  "tris": 2362,
+  "bones": 29,
+  "actions": [
+   "Armature|Stegosaurus_Attack",
+   "Armature|Stegosaurus_Death",
+   "Armature|Stegosaurus_Idle",
+   "Armature|Stegosaurus_Jump",
+   "Armature|Stegosaurus_Run",
+   "Armature|Stegosaurus_Walk"
+  ],
+  "size": [
+   4.7,
+   22.88,
+   11.38
+  ]
+ },
+ "T-Rex_UYtneO5FpF": {
+  "tris": 1900,
+  "bones": 29,
+  "actions": [
+   "Armature|TRex_Attack",
+   "Armature|TRex_Death",
+   "Armature|TRex_Idle",
+   "Armature|TRex_Jump",
+   "Armature|TRex_Run",
+   "Armature|TRex_Walk"
+  ],
+  "size": [
+   7.96,
+   30.61,
+   14.87
+  ]
+ },
+ "Triceratops_IGvrUqGrRM": {
+  "tris": 1412,
+  "bones": 29,
+  "actions": [
+   "Armature|Triceratops_Attack",
+   "Armature|Triceratops_Death",
+   "Armature|Triceratops_Idle",
+   "Armature|Triceratops_Jump",
+   "Armature|Triceratops_Run",
+   "Armature|Triceratops_Walk"
+  ],
+  "size": [
+   5.85,
+   20.8,
+   9.46
+  ]
+ },
+ "Velociraptor_cnlGH2UcDd": {
+  "tris": 1328,
+  "bones": 29,
+  "actions": [
+   "Armature|Velociraptor_Attack",
+   "Armature|Velociraptor_Death",
+   "Armature|Velociraptor_Idle",
+   "Armature|Velociraptor_Jump",
+   "Armature|Velociraptor_Run",
+   "Armature|Velociraptor_Walk"
+  ],
+  "size": [
+   2.64,
+   13.54,
+   5.69
+  ]
+ },
+ "Whale_JGFwp6xWgk": {
+  "tris": 524,
+  "bones": 13,
+  "actions": [
+   "Armature|Swim"
+  ],
+  "size": [
+   3.53,
+   10.02,
+   3.47
+  ]
+ },
+ "Wolf_P1gU3Qkr9r": {
+  "tris": 2042,
+  "bones": 51,
+  "actions": [
+   "AnimalArmature|Attack",
+   "AnimalArmature|Death",
+   "AnimalArmature|Eating",
+   "AnimalArmature|Gallop",
+   "AnimalArmature|Gallop_Jump",
+   "AnimalArmature|Idle",
+   "AnimalArmature|Idle_2",
+   "AnimalArmature|Idle_2_HeadLow",
+   "AnimalArmature|Idle_HitReact_Left",
+   "AnimalArmature|Idle_HitReact_Right",
+   "AnimalArmature|Jump_ToIdle",
+   "AnimalArmature|Walk",
+   "Attack",
+   "Death",
+   "Eating",
+   "Gallop",
+   "Gallop_Jump",
+   "Idle",
+   "Idle_2",
+   "Idle_2_HeadLow",
+   "Idle_HitReact_Left",
+   "Idle_HitReact_Right",
+   "Jump_ToIdle",
+   "Walk"
+  ],
+  "size": [
+   1.9,
+   5.26,
+   3.65
+  ]
+ },
+ "Wolf_XU7oNeKShV": {
+  "tris": 2820,
+  "bones": 16,
+  "actions": [
+   "AnimalArmature|AnimalArmature|AnimalArmature|Death",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Headbutt",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Idle",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Idle_Eating",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Jump_Loop",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Jump_Start",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Run",
+   "AnimalArmature|AnimalArmature|AnimalArmature|Walk"
+  ],
+  "size": [
+   1.9,
+   2.28,
+   2.79
+  ]
+ },
+ "Yeti_S1E7idPFhe": {
+  "tris": 2216,
+  "bones": 4,
+  "actions": [
+   "CharacterArmature|Bite_Front",
+   "CharacterArmature|Dance",
+   "CharacterArmature|Death",
+   "CharacterArmature|HitRecieve",
+   "CharacterArmature|Idle",
+   "CharacterArmature|Jump",
+   "CharacterArmature|No",
+   "CharacterArmature|Walk",
+   "CharacterArmature|Yes"
+  ],
+  "size": [
+   2.55,
+   2.56,
+   3.46
+  ]
+ },
+ "Yeti_ceRHrn8HHE": {
+  "tris": 6174,
+  "bones": 43,
+  "actions": [
+   "CharacterArmature|Death",
+   "CharacterArmature|Duck",
+   "CharacterArmature|HitReact",
+   "CharacterArmature|Idle",
+   "CharacterArmature|Jump",
+   "CharacterArmature|Jump_Idle",
+   "CharacterArmature|Jump_Land",
+   "CharacterArmature|No",
+   "CharacterArmature|Punch",
+   "CharacterArmature|Run",
+   "CharacterArmature|Walk",
+   "CharacterArmature|Wave",
+   "CharacterArmature|Weapon",
+   "CharacterArmature|Yes"
+  ],
+  "size": [
+   3.06,
+   2.0,
+   3.66
+  ]
+ },
+ "Yeti_xtMYEVzyw0": {
+  "tris": 3150,
+  "bones": 12,
+  "actions": [
+   "EnemyArmature|EnemyArmature|EnemyArmature|Attack",
+   "EnemyArmature|EnemyArmature|EnemyArmature|Death",
+   "EnemyArmature|EnemyArmature|EnemyArmature|HitRecieve",
+   "EnemyArmature|EnemyArmature|EnemyArmature|Idle",
+   "EnemyArmature|EnemyArmature|EnemyArmature|Jump",
+   "EnemyArmature|EnemyArmature|EnemyArmature|Run",
+   "EnemyArmature|EnemyArmature|EnemyArmature|Walk"
+  ],
+  "size": [
+   3.14,
+   2.59,
+   4.0
+  ]
+ }
+}

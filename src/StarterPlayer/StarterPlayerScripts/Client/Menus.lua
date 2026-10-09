@@ -24,7 +24,10 @@ local LobbyUI = require(script.Parent.LobbyUI)
 local Menus = {}
 local player = Players.LocalPlayer
 local C = UIKit.Colors
-local inventory = {}
+local inventory = {} -- กระสอบ + คลังแคมป์ (ใช้เช็กคราฟต์)
+local sack = {} -- เฉพาะในกระสอบ
+local campStock = {}
+local sackUsed, sackCap = 0, 0
 local profile = nil
 
 local CATS = {
@@ -192,7 +195,8 @@ function bag.Build(gui)
 	UIKit.Corner(panel, 14)
 	UIKit.Stroke(panel, C.Gold, 2, 0.3)
 	UIKit.Gradient(panel, Color3.fromRGB(34, 30, 34), Color3.fromRGB(12, 11, 14), 90)
-	UIKit.Text(panel, { Size = UDim2.new(1, -40, 0, 40), Position = UDim2.fromOffset(20, 8), Font = UIKit.Fonts.Title, TextSize = 28, TextColor3 = C.Gold, Text = "🎒 กระเป๋า" })
+	UIKit.Text(panel, { Size = UDim2.new(1, -40, 0, 40), Position = UDim2.fromOffset(20, 8), Font = UIKit.Fonts.Title, TextSize = 28, TextColor3 = C.Gold, Text = "🎒 กระสอบ" })
+	bag.Title = panel:FindFirstChildWhichIsA("TextLabel")
 	UIKit.Button(panel, { Size = UDim2.fromOffset(36, 36), Position = UDim2.new(1, -46, 0, 10), Text = "✕" }, function()
 		panel.Visible = false
 	end)
@@ -224,9 +228,12 @@ function bag.Refresh()
 			c:Destroy()
 		end
 	end
+	if bag.Title then
+		bag.Title.Text = string.format("🎒 กระสอบ  %d/%d", sackUsed, sackCap)
+	end
 	local ids = {}
-	for id, n in pairs(inventory) do
-		if n > 0 and Items.Data[id] then
+	for id, n in pairs(sack) do
+		if n > 0 and Items.Data[id] and Items.Data[id].Category ~= "Tool" then
 			table.insert(ids, id)
 		end
 	end
@@ -243,7 +250,12 @@ function bag.Refresh()
 		UIKit.Corner(card, 8)
 		UIKit.Stroke(card, item.Color or C.GoldDim, 1, 0.5)
 		UIKit.Text(card, { Size = UDim2.new(1, -12, 0, 20), Position = UDim2.fromOffset(8, 6), Text = item.Thai, TextSize = 14, TextTruncate = Enum.TextTruncate.AtEnd })
-		UIKit.Text(card, { Size = UDim2.new(0, 60, 0, 18), Position = UDim2.fromOffset(8, 36), Text = "x" .. inventory[id], TextSize = 14, TextColor3 = C.Gold })
+		UIKit.Text(card, { Size = UDim2.new(0, 60, 0, 18), Position = UDim2.fromOffset(8, 36), Text = "x" .. sack[id], TextSize = 14, TextColor3 = C.Gold })
+		if Items.Bulk(id) then
+			UIKit.Button(card, { Size = UDim2.fromOffset(36, 22), Position = UDim2.new(1, -42, 0, 4), Text = "ทิ้ง", TextSize = 11 }, function()
+				Remotes.Get("DropItem"):FireServer(id, 1)
+			end)
+		end
 		if item.Category == "Food" or item.Category == "Medical" then
 			UIKit.Button(card, { Size = UDim2.fromOffset(64, 26), Position = UDim2.new(1, -70, 1, -32), Text = item.Category == "Food" and "กิน" or "ใช้", TextSize = 13 }, function()
 				Remotes.Get("UseItem"):FireServer(id)
@@ -255,10 +267,31 @@ function bag.Refresh()
 			end)
 		end
 	end
+
+	-- คลังแคมป์ (ของที่เทไว้ ทุกคนใช้คราฟต์ร่วมกัน)
+	local campIds = {}
+	for id, n in pairs(campStock) do
+		if n > 0 and Items.Data[id] then
+			table.insert(campIds, id)
+		end
+	end
+	table.sort(campIds)
+	for i, id in ipairs(campIds) do
+		local item = Items.Data[id]
+		local card = UIKit.Frame(bag.Scroll, { BackgroundColor3 = Color3.fromRGB(22, 30, 26), BackgroundTransparency = 0.1, LayoutOrder = 1000 + i })
+		UIKit.Corner(card, 8)
+		UIKit.Stroke(card, Color3.fromRGB(120, 200, 140), 1, 0.6)
+		UIKit.Text(card, { Size = UDim2.new(1, -12, 0, 20), Position = UDim2.fromOffset(8, 6), Text = "📦 " .. item.Thai, TextSize = 14, TextTruncate = Enum.TextTruncate.AtEnd })
+		UIKit.Text(card, { Size = UDim2.new(1, -12, 0, 18), Position = UDim2.fromOffset(8, 36), Text = "คลังแคมป์ x" .. campStock[id], TextSize = 13, TextColor3 = Color3.fromRGB(150, 230, 170) })
+	end
 end
 
-function Menus.ToggleBag()
-	bag.Panel.Visible = not bag.Panel.Visible
+function Menus.ToggleBag(force)
+	if force == nil then
+		bag.Panel.Visible = not bag.Panel.Visible
+	else
+		bag.Panel.Visible = force
+	end
 	bag.Refresh()
 end
 
@@ -545,8 +578,11 @@ function Menus.OpenTrader()
 end
 
 ---------------------------------------------------------------- Init
-function Menus.SetInventory(inv)
+function Menus.SetInventory(inv, bagOnly, camp, used, cap)
 	inventory = inv
+	sack = bagOnly or inv
+	campStock = camp or {}
+	sackUsed, sackCap = used or 0, cap or 0
 	if craft.Panel and craft.Panel.Visible then
 		craft.Refresh()
 	end

@@ -576,7 +576,7 @@ function CombatClient.Init(state, hud)
 		local hum = char and char:FindFirstChildOfClass("Humanoid")
 		if hum and hum.Health > 0 and not player:GetAttribute("Downed") then
 			local perks = Classes.PerksFor(player:GetAttribute("Class") or "Survivor", player:GetAttribute("ClassLevel") or 1)
-			local speedMult = (perks.SpeedMult or 1) * (state:GetAttribute("SpiritAir") and 1.1 or 1)
+			local speedMult = (perks.SpeedMult or 1) * (state:GetAttribute("SpiritAir") and 1.1 or 1) * (player:GetAttribute("DevSpeed") or 1)
 			local staminaMult = perks.StaminaMult or 1
 			local moving = hum.MoveDirection.Magnitude > 0.1
 			if sprinting and moving and stamina > 0 then

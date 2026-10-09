@@ -1,4 +1,4 @@
-﻿param([switch]$ShowMinimized, [int]$TimeoutSec = 480, [string]$PlaceName = "AnimalSurvival_TEST.rbxlx", [string]$DonePattern = "\[AS\] (MAP|ANIMAL)SHOT DONE|\[TEST\] DONE|\[AS\] เทสต์จบ")
+﻿param([switch]$ShowMinimized, [int]$TimeoutSec = 480, [string]$PlaceName = "AnimalSurvival_TEST.rbxlx", [string]$DonePattern = "\[AS\] (MAP|ANIMAL)SHOT DONE|\[AS\] FETCH DONE|\[TEST\] DONE|\[AS\] เทสต์จบ")
 $ErrorActionPreference = "Continue"
 # รันเทสต์อัตโนมัติใน Studio + ถ่ายภาพ -> build/test_screenshots
 # ไม่ปิด Studio ที่เปิดอยู่ก่อน: เปิดหน้าต่างใหม่ของตัวเอง แล้วปิดเฉพาะหน้าต่างที่เปิดเอง

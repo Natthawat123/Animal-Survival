@@ -31,13 +31,22 @@ ANIMALSHOT = "--animalshot" in sys.argv
 SANDBOX = "--sandbox" in sys.argv
 SHOTS = "--shots" in sys.argv  # เทสต์ + ถ่ายภาพฉากสวยๆ ระหว่างเล่น
 SEED = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--seed=")), None)
+FETCH = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--fetch=")), None)  # ดึงโมเดล Creator Store: --fetch=id,id
+PROBE = "--probe" in sys.argv
+CREATURES = "--creatures" in sys.argv  # เทสต์สั้น: ถ่ายภาพสัตว์ทุกตัวในเกม
+GALLERY = "--gallery" in sys.argv  # สตูดิโอถ่ายภาพ: สัตว์/ไอเทม/คลาส ทีละตัว
+ANIMTEST = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--anim=")), None)  # ดูท่าเดิน/วิ่ง/กัด: --anim=MossWolf,Deer  # ถ่ายภาพโมเดลใน Assets.Creatures/Characters ตอน Edit
 
+if CREATURES or GALLERY or ANIMTEST:
+    TEST = True
 if TEST or SHOTS:
     OUT = os.path.join(OUT_DIR, "AnimalSurvival_TEST.rbxlx")
 elif MAPSHOT:
     OUT = os.path.join(OUT_DIR, "AnimalSurvival_MAP.rbxlx")
 elif ANIMALSHOT:
     OUT = os.path.join(OUT_DIR, "AnimalSurvival_ANIMALS.rbxlx")
+elif FETCH or PROBE:
+    OUT = os.path.join(OUT_DIR, "AnimalSurvival_FETCH.rbxlx")
 elif SANDBOX:
     OUT = os.path.join(OUT_DIR, "AnimalSurvival_SANDBOX.rbxlx")
 else:
@@ -147,12 +156,20 @@ def main():
     assets = item("Folder", "Animals", model_items("Animals"))
     assets += item("Folder", "Props", model_items("Props"))
     assets += item("Folder", "Weapons", model_items("Weapons"))
+    assets += item("Folder", "Creatures", model_items("Creatures"))  # โมเดลจาก Creator Store (tools/store_to_rbxmx.py)
+    assets += item("Folder", "Characters", model_items("Characters"))
     rs += item("Folder", "Assets", assets)
     if TEST or SHOTS:
         rs += value_item("BoolValue", "ASAutoTest", "true")
         if SHOTS:
             rs += value_item("BoolValue", "ASShots", "true")
         rs += value_item("BoolValue", "ASLobbyTest", "true")
+        if CREATURES:
+            rs += value_item("BoolValue", "ASCreatureShow", "true")
+        if GALLERY:
+            rs += value_item("BoolValue", "ASGallery", "true")
+        if ANIMTEST:
+            rs += value_item("StringValue", "ASAnimTest", ANIMTEST)
     if SANDBOX:
         rs += value_item("BoolValue", "ASSandbox", "true")
     if SEED:
@@ -173,6 +190,10 @@ def main():
         ss += value_item("BoolValue", "ASMapShot", "true")
     if ANIMALSHOT:
         ss += value_item("BoolValue", "ASAnimalShot", "true")
+    if FETCH:
+        ss += value_item("StringValue", "ASFetch", FETCH)
+    if PROBE:
+        ss += value_item("BoolValue", "ASProbe", "true")
 
     workspace_props = (
         '<bool name="StreamingEnabled">true</bool>'

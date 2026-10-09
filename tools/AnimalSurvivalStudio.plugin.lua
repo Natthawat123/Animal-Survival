@@ -367,6 +367,240 @@ local function runAnimalShot()
 	print("[AS] ANIMALSHOT DONE")
 end
 
+---------------------------------------------------------------- ดึงโมเดลฟรีจาก Creator Store (ใช้สิทธิ์ของ Studio ที่ล็อกอินอยู่)
+-- ServerStorage.ASFetch (StringValue "id,id,...") -> โหลดแต่ละโมเดล ถ่ายภาพ ([SHOT] fetch_<id>) แล้วพิมพ์โครงสร้างเป็น JSON
+--   [FETCH] <id> <ลำดับ>/<ทั้งหมด> <ข้อความ JSON ทีละท่อน>   (tools/fetch_models.py ประกอบกลับเป็นไฟล์ข้อมูล)
+local HttpService = game:GetService("HttpService")
+local visibleBounds
+
+local function num(x, k)
+	if x ~= x or x == math.huge or x == -math.huge then
+		return 0
+	end
+	return math.floor(x * k + 0.5) / k
+end
+
+local function v3(v)
+	return { num(v.X, 1000), num(v.Y, 1000), num(v.Z, 1000) }
+end
+
+local function cfr(cf)
+	local t = { cf:GetComponents() }
+	for i, x in ipairs(t) do
+		t[i] = num(x, 10000)
+	end
+	return t
+end
+
+local function serialize(model)
+	local pivot = model:IsA("Model") and model:GetPivot() or CFrame.new()
+	local inv = pivot:Inverse()
+	local list, index = {}, {}
+	local items = { model }
+	for _, d in ipairs(model:GetDescendants()) do
+		table.insert(items, d)
+	end
+	for _, d in ipairs(items) do
+		index[d] = #list + 1
+		local e = { C = d.ClassName, N = d.Name }
+		table.insert(list, e)
+	end
+	for i, d in ipairs(items) do
+		local e = list[i]
+		e.P = d.Parent and index[d.Parent] or 0
+		pcall(function()
+			if d:IsA("BasePart") then
+				e.Size = v3(d.Size)
+				e.CF = cfr(inv * d.CFrame)
+				e.Color = v3(Vector3.new(d.Color.R, d.Color.G, d.Color.B))
+				e.Mat = d.Material.Name
+				e.Tr = d.Transparency
+				e.Refl = d.Reflectance
+				e.Collide = d.CanCollide
+				if d:IsA("Part") then
+					e.Shape = d.Shape.Name
+				end
+			end
+			if d:IsA("MeshPart") then
+				e.MeshId = d.MeshId
+				e.TextureID = d.TextureID
+				pcall(function()
+					e.MeshSize = v3(d.MeshSize)
+				end)
+				e.DoubleSided = d.DoubleSided
+			elseif d:IsA("SpecialMesh") then
+				e.MeshId = d.MeshId
+				e.TextureId = d.TextureId
+				e.Scale = v3(d.Scale)
+				e.Offset = v3(d.Offset)
+				e.MeshType = d.MeshType.Name
+				e.VertexColor = v3(d.VertexColor)
+			elseif d:IsA("SurfaceAppearance") then
+				e.ColorMap = d.ColorMap
+				e.NormalMap = d.NormalMap
+				e.Alpha = d.AlphaMode.Name
+			elseif d:IsA("Decal") then
+				e.Texture = d.Texture
+				e.Face = d.Face.Name
+			elseif d:IsA("Bone") or d:IsA("Attachment") then
+				e.CF = cfr(d.CFrame)
+			elseif d:IsA("JointInstance") then
+				e.P0 = d.Part0 and index[d.Part0] or 0
+				e.P1 = d.Part1 and index[d.Part1] or 0
+				e.C0 = cfr(d.C0)
+				e.C1 = cfr(d.C1)
+			elseif d:IsA("WeldConstraint") then
+				e.P0 = d.Part0 and index[d.Part0] or 0
+				e.P1 = d.Part1 and index[d.Part1] or 0
+			elseif d:IsA("Animation") then
+				e.AnimationId = d.AnimationId
+			elseif d:IsA("Shirt") then
+				e.Template = d.ShirtTemplate
+			elseif d:IsA("Pants") then
+				e.Template = d.PantsTemplate
+			elseif d:IsA("ShirtGraphic") then
+				e.Template = d.Graphic
+			elseif d:IsA("BodyColors") then
+				e.Colors = {
+					v3(Vector3.new(d.HeadColor3.R, d.HeadColor3.G, d.HeadColor3.B)), v3(Vector3.new(d.TorsoColor3.R, d.TorsoColor3.G, d.TorsoColor3.B)),
+					v3(Vector3.new(d.LeftArmColor3.R, d.LeftArmColor3.G, d.LeftArmColor3.B)), v3(Vector3.new(d.RightArmColor3.R, d.RightArmColor3.G, d.RightArmColor3.B)),
+					v3(Vector3.new(d.LeftLegColor3.R, d.LeftLegColor3.G, d.LeftLegColor3.B)), v3(Vector3.new(d.RightLegColor3.R, d.RightLegColor3.G, d.RightLegColor3.B)),
+				}
+			elseif d:IsA("CharacterMesh") then
+				e.MeshId = d.MeshId
+				e.BaseTextureId = d.BaseTextureId
+				e.OverlayTextureId = d.OverlayTextureId
+				e.BodyPart = d.BodyPart.Name
+			end
+		end)
+	end
+	return list
+end
+
+-- ขอบเขตเฉพาะชิ้นที่มองเห็น (ไม่นับ HumanoidRootPart/hitbox ล่องหน)
+visibleBounds = function(model)
+	local mn, mx
+	for _, d in ipairs(model:GetDescendants()) do
+		if d:IsA("BasePart") and d.Transparency < 0.95 and d.Name ~= "HumanoidRootPart" then
+			local c, h = d.Position, d.Size / 2
+			local r = d.CFrame
+			local e = Vector3.new(
+				math.abs(r.RightVector.X) * h.X + math.abs(r.UpVector.X) * h.Y + math.abs(r.LookVector.X) * h.Z,
+				math.abs(r.RightVector.Y) * h.X + math.abs(r.UpVector.Y) * h.Y + math.abs(r.LookVector.Y) * h.Z,
+				math.abs(r.RightVector.Z) * h.X + math.abs(r.UpVector.Z) * h.Y + math.abs(r.LookVector.Z) * h.Z)
+			mn = mn and mn:Min(c - e) or c - e
+			mx = mx and mx:Max(c + e) or c + e
+		end
+	end
+	if not mn then
+		return model:GetBoundingBox()
+	end
+	return CFrame.new((mn + mx) / 2), mx - mn
+end
+
+local function runFetch(ids)
+	local stage = Instance.new("Folder")
+	stage.Name = "FetchStage"
+	stage.Parent = workspace
+	local floorPart = Instance.new("Part")
+	floorPart.Anchored = true
+	floorPart.Size = Vector3.new(400, 1, 400)
+	floorPart.CFrame = CFrame.new(0, -0.5, 0)
+	floorPart.Color = Color3.fromRGB(70, 74, 80)
+	floorPart.Parent = stage
+	Lighting.ClockTime = 14
+	for _, id in ipairs(ids) do
+		local ok, objs = pcall(function()
+			return game:GetObjects("rbxassetid://" .. id)
+		end)
+		if not ok or not objs or #objs == 0 then
+			print("[FETCH] " .. id .. " ERROR " .. tostring(objs))
+			continue
+		end
+		local root = objs[1]
+		if #objs > 1 or not root:IsA("Model") then
+			local m = Instance.new("Model")
+			m.Name = "Fetched"
+			for _, o in ipairs(objs) do
+				o.Parent = m
+			end
+			root = m
+		end
+		-- ลบสคริปต์ทั้งหมด (ไม่รันของคนอื่น)
+		for _, d in ipairs(root:GetDescendants()) do
+			if d:IsA("LuaSourceContainer") then
+				d:Destroy()
+			end
+		end
+		root.Parent = stage
+		for _, d in ipairs(root:GetDescendants()) do
+			if d:IsA("BasePart") then
+				d.Anchored = true
+			end
+		end
+		local cf, size = visibleBounds(root)
+		root:PivotTo(CFrame.new(-cf.Position + Vector3.new(0, size.Y / 2, 0)) * root:GetPivot())
+		local data = serialize(root)
+		for _, e in ipairs(data) do
+			for k, v in pairs(e) do
+				if type(v) == "number" then
+					e[k] = num(v, 10000)
+				end
+			end
+		end
+		local okJ, json = pcall(HttpService.JSONEncode, HttpService, { Id = id, Name = root.Name, Size = v3(size), Items = data })
+		if not okJ then
+			print("[FETCH] " .. id .. " ERROR json " .. tostring(json))
+			json = "{}"
+		end
+		local n = math.ceil(#json / 800)
+		for k = 1, n do
+			print(string.format("[FETCH] %s %d/%d %s", id, k, n, json:sub((k - 1) * 800 + 1, k * 800)))
+		end
+		local r = math.max(size.X, size.Y, size.Z)
+		shot("fetch_" .. id, CFrame.lookAt(Vector3.new(r * 0.9, size.Y * 0.75 + r * 0.25, -r * 1.25), Vector3.new(0, size.Y * 0.45, 0)), 45)
+		root:Destroy()
+	end
+	stage:Destroy()
+	print("[AS] FETCH DONE")
+end
+
+-- ถ่ายภาพโมเดลทุกตัวใน ReplicatedStorage.Assets.Creatures / Characters (เช็กว่าแปลงมาแล้วแสดงผลถูก)
+local function runProbe()
+	local stage = Instance.new("Folder")
+	stage.Name = "ProbeStage"
+	stage.Parent = workspace
+	local floorPart = Instance.new("Part")
+	floorPart.Anchored = true
+	floorPart.Size = Vector3.new(2000, 1, 2000)
+	floorPart.CFrame = CFrame.new(0, -0.5, 0)
+	floorPart.Color = Color3.fromRGB(70, 90, 64)
+	floorPart.Material = Enum.Material.Grass
+	floorPart.Parent = stage
+	Lighting.ClockTime = 14
+	local assets = ReplicatedStorage:FindFirstChild("Assets")
+	for _, folderName in ipairs({ "Creatures", "Characters" }) do
+		local folder = assets and assets:FindFirstChild(folderName)
+		for _, src in ipairs(folder and folder:GetChildren() or {}) do
+			local m = src:Clone()
+			for _, d in ipairs(m:GetDescendants()) do
+				if d:IsA("BasePart") then
+					d.Anchored = true
+				end
+			end
+			m.Parent = stage
+			local cf, size = visibleBounds(m)
+			m:PivotTo(CFrame.new(-cf.Position + Vector3.new(0, size.Y / 2, 0)) * m:GetPivot())
+			local r = math.max(size.X, size.Y, size.Z)
+			print(string.format("[PROBE] %s size=%.1f,%.1f,%.1f parts=%d", src.Name, size.X, size.Y, size.Z, #m:GetDescendants()))
+			shot("probe_" .. src.Name, CFrame.lookAt(Vector3.new(r * 0.75, size.Y * 0.6 + r * 0.2, -r * 0.95), Vector3.new(0, size.Y * 0.45, 0)), 40)
+			m:Destroy()
+		end
+	end
+	stage:Destroy()
+	print("[AS] FETCH DONE")
+end
+
 ---------------------------------------------------------------- เริ่มอัตโนมัติ
 task.defer(function()
 	task.wait(2)
@@ -380,6 +614,19 @@ task.defer(function()
 	end
 	if ServerStorage:FindFirstChild("ASAnimalShot") then
 		runAnimalShot()
+		return
+	end
+	if ServerStorage:FindFirstChild("ASProbe") then
+		runProbe()
+		return
+	end
+	local fetch = ServerStorage:FindFirstChild("ASFetch")
+	if fetch then
+		local ids = {}
+		for id in string.gmatch(fetch.Value, "%d+") do
+			table.insert(ids, id)
+		end
+		runFetch(ids)
 		return
 	end
 	if ReplicatedStorage:FindFirstChild("ASAutoTest") then
