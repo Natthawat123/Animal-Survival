@@ -147,7 +147,7 @@ function BuildingService:Setup(model, kind)
 		p.Parent = model:FindFirstChildWhichIsA("BasePart")
 		p.Triggered:Connect(function(player)
 			if os.clock() >= (model:GetAttribute("GrowAt") or math.huge) then
-				self.ctx.Services.InventoryService:Add(player, "Berries", Items.Structures.FarmPlot.Yield)
+				self.ctx.Services.DropService:Spawn("Berries", Items.Structures.FarmPlot.Yield, model:GetPivot().Position + Vector3.new(0, 1, 0))
 				model:SetAttribute("GrowAt", os.clock() + Items.Structures.FarmPlot.GrowTime)
 				p.Enabled = false
 				for _, c in ipairs(model.Crops:GetChildren()) do

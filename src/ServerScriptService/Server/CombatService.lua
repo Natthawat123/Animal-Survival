@@ -68,9 +68,16 @@ function CombatService:PlayerDamage(player, toolId, tool, target)
 	return dmg * mult, crit, mult
 end
 
-function CombatService:Melee(player, toolId, tool, root)
+function CombatService:Melee(player, toolId, tool, root, aim)
 	local animals = self.ctx.Services.AnimalService
+	-- ทิศฟัน = ทิศที่ผู้เล่นเล็ง (กล้อง/เมาส์) ถ้าส่งมาถูกต้อง ไม่งั้นใช้ทิศที่ตัวหัน
 	local look = root.CFrame.LookVector
+	if typeof(aim) == "Vector3" and aim.Magnitude > 0.5 then
+		local flat = Vector3.new(aim.X, 0, aim.Z)
+		if flat.Magnitude > 0.2 then
+			look = flat.Unit
+		end
+	end
 	local origin = root.Position
 	local best, bestScore
 	local hits = {}
@@ -169,7 +176,7 @@ function CombatService:OnAttack(player, aim)
 		end
 		self:Shoot(player, toolId, tool, aim.Unit, char)
 	else
-		self:Melee(player, toolId, tool, root)
+		self:Melee(player, toolId, tool, root, aim)
 	end
 end
 

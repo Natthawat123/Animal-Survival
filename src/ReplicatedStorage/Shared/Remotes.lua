@@ -22,6 +22,8 @@ Remotes.Events = {
 	"ClaimDaily", -- () หม้อรางวัลประจำวัน
 	"Trade", -- (offerId) พ่อค้าเร่
 	"Ping", -- เทสต์
+	"DropItem", -- (itemId, count) ทิ้งของจากกระสอบลงพื้น
+	"PickupDrop", -- (dropModel) เก็บของบนพื้น (คลิกตอนถือกระสอบ)
 	-- server -> client
 	"Notify", -- (text, kind)
 	"Inventory", -- (table)
@@ -31,6 +33,7 @@ Remotes.Events = {
 }
 Remotes.Functions = {
 	"GetProfile",
+	"DevCmd", -- (action, a, b) เครื่องมือนักพัฒนา (DevService)
 }
 
 local folder

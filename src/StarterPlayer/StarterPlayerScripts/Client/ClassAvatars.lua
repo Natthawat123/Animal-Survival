@@ -113,7 +113,57 @@ end
 -- (ตัวละครเป็นเมชนิ่งท่า idle — การขยับทำในร้านคลาส)
 function ClassAvatars.PlayIdle(_model) end
 
+-- ตัวละครสำเร็จรูปจาก Roblox Creator Store (ReplicatedStorage.Assets.Characters/<Class>)
+local function storeCharacter(classId)
+	local a = ReplicatedStorage:FindFirstChild("Assets")
+	local folder = a and a:FindFirstChild("Characters")
+	local src = folder and folder:FindFirstChild(classId)
+	if not src then
+		return nil
+	end
+	local m = src:Clone()
+	local list = {}
+	for _, d in ipairs(m:GetDescendants()) do
+		if d:IsA("BasePart") then
+			d.Anchored = true
+			d.CanCollide, d.CanQuery, d.CanTouch = false, false, false
+			table.insert(list, d)
+		elseif d:IsA("Humanoid") then
+			d.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
+			d.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOff
+		end
+	end
+	-- หาเท้าต่ำสุด + ทิศหน้า (หน้าหัวของ Roblox = LookVector ของ Head/HumanoidRootPart)
+	local mn, mx = Vector3.new(math.huge, math.huge, math.huge), -Vector3.new(math.huge, math.huge, math.huge)
+	for _, p in ipairs(list) do
+		if p.Transparency < 1 and p.Name ~= "HumanoidRootPart" then
+			mn = mn:Min(p.Position - p.Size / 2)
+			mx = mx:Max(p.Position + p.Size / 2)
+		end
+	end
+	local face = m:FindFirstChild("HumanoidRootPart") or m:FindFirstChild("Head") or list[1]
+	local look = face and face.CFrame.LookVector or Vector3.new(0, 0, -1)
+	look = Vector3.new(look.X, 0, look.Z)
+	look = look.Magnitude > 0.01 and look.Unit or Vector3.new(0, 0, -1)
+	local base = Vector3.new((mn.X + mx.X) / 2, mn.Y, (mn.Z + mx.Z) / 2)
+	local pivot = CFrame.lookAt(base, base + look)
+	local primary = m.PrimaryPart or face
+	m.PrimaryPart = primary
+	primary.PivotOffset = primary.CFrame:ToObjectSpace(pivot)
+	-- ย่อ/ขยายให้สูงเท่าตัวละครอื่น (5.6 studs)
+	local h = mx.Y - mn.Y
+	if h > 0.1 then
+		m:ScaleTo(m:GetScale() * 5.6 / h)
+	end
+	m:PivotTo(CF(0, 0, 0))
+	return m
+end
+
 function ClassAvatars.Build(classId, _waitSec)
+	local store = storeCharacter(classId)
+	if store then
+		return store, true
+	end
 	local real = meshCharacter(classId)
 	if real then
 		return real, true

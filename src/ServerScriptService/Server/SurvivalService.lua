@@ -45,7 +45,7 @@ end
 function SurvivalService:Damage(player, amount, source, opts)
 	local s = state[player]
 	local hum, char = humanoidOf(player)
-	if not (s and hum and char) or s.Dead or s.Downed or hum.Health <= 0 then
+	if not (s and hum and char) or s.Dead or s.Downed or hum.Health <= 0 or player:GetAttribute("TestGod") then
 		return
 	end
 	if char:FindFirstChildOfClass("ForceField") then
@@ -308,8 +308,10 @@ function SurvivalService:GiveStartItems(player)
 	end
 	player:SetAttribute("StartItemsGiven", true)
 	player:SetAttribute("Hunger", Config.HungerMax)
+	local inv = self.ctx.Services.InventoryService
+	inv:Add(player, "OldSack", 1, true)
 	for id, n in pairs(c.StartItems) do
-		self.ctx.Services.InventoryService:Add(player, id, n, true)
+		inv:Add(player, id, n, true)
 	end
 end
 

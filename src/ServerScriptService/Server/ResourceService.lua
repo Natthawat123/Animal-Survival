@@ -123,7 +123,6 @@ function ResourceService:Hit(player, node, tool)
 	local dealt = math.min(hp, power)
 	hp -= dealt
 	node:SetAttribute("HP", hp)
-	local inv = self.ctx.Services.InventoryService
 	local yield = node:GetAttribute("Yield")
 	local per = node:GetAttribute("YieldPerHP") or 1
 	-- เก็บเศษไว้ (ทศนิยม) ต่อ node ต่อคน
@@ -137,17 +136,24 @@ function ResourceService:Hit(player, node, tool)
 	if Items.Data[yield] and Items.Data[yield].Category == "Essence" then
 		whole = math.floor(whole * surv:Perk(player, "EssenceMult", 1) + 0.5)
 	end
+	local drops = self.ctx.Services.DropService
+	local nodePos = node:GetPivot().Position
+	local toward = player.Character and player.Character:GetPivot().Position or nodePos
+	local dropPos = nodePos + ((toward - nodePos) * Vector3.new(1, 0, 1)).Unit * 2.5
+	if dropPos ~= dropPos then
+		dropPos = nodePos
+	end
 	if whole > 0 then
-		inv:Add(player, yield, whole)
+		drops:Spawn(yield, whole, dropPos)
 	end
 	self.ctx.Remotes.Get("HitFx"):FireAllClients("NodeHit", { Position = node:GetPivot().Position, Kind = kind, Node = node })
 	if hp <= 0 then
 		local bonus = node:GetAttribute("Bonus")
 		if bonus then
-			inv:Add(player, bonus, kind == "Bush" and 1 or 2)
+			drops:Spawn(bonus, kind == "Bush" and 1 or 2, dropPos)
 		end
 		if kind == "Tree" and yield == "Wood" then
-			inv:Add(player, "Wood", 2)
+			drops:Spawn("Wood", 2, nodePos, { Spread = 4 })
 		end
 		local pos = player.Character and player.Character:GetPivot().Position or node:GetPivot().Position
 		self:Fell(node, pos)

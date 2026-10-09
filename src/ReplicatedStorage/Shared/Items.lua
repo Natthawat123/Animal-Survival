@@ -35,6 +35,10 @@ Items.Data = {
 
 	-- เครื่องมือ / อาวุธ (สร้างเป็น Tool ใน Backpack)
 	OldAxe = { Name = "Old Axe", Thai = "ขวานเก่า", Category = "Tool" },
+	-- กระสอบ (อยู่ในช่อง Tool ด้านล่าง) — ใส่ของได้ตามความจุ
+	OldSack = { Name = "Old Sack", Thai = "กระสอบเก่า", Category = "Tool" },
+	GoodSack = { Name = "Good Sack", Thai = "กระสอบดี", Category = "Tool" },
+	GiantSack = { Name = "Giant Sack", Thai = "กระสอบยักษ์", Category = "Tool" },
 	StoneAxe = { Name = "Stone Axe", Thai = "ขวานหิน", Category = "Tool" },
 	IronAxe = { Name = "Iron Axe", Thai = "ขวานเหล็ก", Category = "Tool" },
 	Pickaxe = { Name = "Pickaxe", Thai = "อีเต้อ", Category = "Tool" },
@@ -62,6 +66,16 @@ Items.Data = {
 	EmberTotem = { Name = "Ember Totem", Thai = "เสาอัคคี", Category = "Structure", Element = "Fire" },
 	SunBeacon = { Name = "Sun Beacon", Thai = "ประภาคารสุริยะ", Category = "Structure" },
 }
+
+-- ความจุกระสอบ (หน่วย = ของ 1 ชิ้น) · ใช้ใบที่ดีที่สุดที่มี
+Items.Sacks = { OldSack = 15, GoodSack = 30, GiantSack = 60 }
+Items.SackColor = { OldSack = Color3.fromRGB(150, 120, 80), GoodSack = Color3.fromRGB(110, 140, 90), GiantSack = Color3.fromRGB(150, 90, 60) }
+
+-- ของที่กินที่ในกระสอบ (เครื่องมือ/สิ่งก่อสร้างไม่นับ)
+function Items.Bulk(id)
+	local d = Items.Data[id]
+	return d ~= nil and d.Category ~= "Tool" and d.Category ~= "Structure"
+end
 
 -- ค่าของเครื่องมือ: Damage ต่อสัตว์, Chop = ตัดไม้, Mine = ขุดหิน/แร่, Range, Cooldown
 Items.Tools = {

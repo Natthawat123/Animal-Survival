@@ -85,9 +85,9 @@ function Atmosphere.Values(biome, night, mode)
 		Density = a.Density + n.DensityAdd, Offset = a.Offset * 0.5, Haze = a.Haze + 1.2, Glare = 0,
 		AtmColor = n.Color, Decay = n.Decay,
 		Tint = n.Tint, Saturation = n.Saturation, Contrast = n.Contrast, Brightness = -0.02,
-		Ambient = mode == "BloodMoon" and Color3.fromRGB(62, 22, 24) or Color3.fromRGB(40, 48, 78),
-		Outdoor = mode == "BloodMoon" and Color3.fromRGB(110, 40, 38) or Color3.fromRGB(78, 92, 140),
-		LightBrightness = 1.6, Exposure = 0,
+		Ambient = mode == "BloodMoon" and Color3.fromRGB(70, 26, 28) or Color3.fromRGB(54, 64, 98),
+		Outdoor = mode == "BloodMoon" and Color3.fromRGB(124, 46, 44) or Color3.fromRGB(100, 116, 166),
+		LightBrightness = 1.8, Exposure = 0.25, -- แสงจันทร์สีน้ำเงิน: มืดแต่ยังเห็นเงาต้นไม้ (แบบ 99 Nights)
 		BloomIntensity = 0.9, BloomSize = 30, BloomThreshold = 1.1,
 		CloudColor = mode == "BloodMoon" and Color3.fromRGB(120, 40, 40) or Color3.fromRGB(70, 80, 110), CloudCover = 0.62,
 	}

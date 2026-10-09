@@ -88,9 +88,9 @@ function AmbientFX.Init(state, atmosphereController)
 
 	-- อัตราอนุภาคตามไบโอม (กลางวัน, กลางคืน)
 	local RATES = {
-		Heart = { Pollen = { 18, 2 }, Fireflies = { 0, 22 } },
+		Heart = { Pollen = { 18, 2 }, Fireflies = { 0, 26 }, Mist = { 0, 4 } },
 		Lobby = { Fireflies = { 8, 8 } },
-		Earth = { Fireflies = { 6, 40 }, Mist = { 2, 3 }, Pollen = { 8, 0 } },
+		Earth = { Fireflies = { 6, 40 }, Mist = { 2, 6 }, Pollen = { 10, 0 } },
 		Water = { Mist = { 4, 5 }, Wind = { 2, 2 } },
 		Air = { Wind = { 10, 8 }, Snow = { 30, 40 } },
 		Fire = { Embers = { 30, 40 }, Ash = { 25, 25 } },

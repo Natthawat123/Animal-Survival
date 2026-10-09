@@ -1,0 +1,65 @@
+{
+ "Cottontailrabbit_3vvONbRCuEF": {
+  "tris": 954,
+  "bones": 0,
+  "actions": [],
+  "size": [
+   3.23,
+   7.13,
+   7.63
+  ]
+ },
+ "Jackrabbit_biNOm96olTH": {
+  "tris": 994,
+  "bones": 0,
+  "actions": [],
+  "size": [
+   3.29,
+   6.98,
+   7.0
+  ]
+ },
+ "Rabbit_9OBTRVYUSmt": {
+  "tris": 674,
+  "bones": 0,
+  "actions": [],
+  "size": [
+   41.05,
+   86.73,
+   62.44
+  ]
+ },
+ "Rabbit_Km89u3twcR": {
+  "tris": 1640,
+  "bones": 45,
+  "actions": [
+   "Bunny|Bunny_idle",
+   "Bunny|Bunny_walk"
+  ],
+  "size": [
+   1.9,
+   2.0,
+   2.0
+  ]
+ },
+ "Rabbit_dyeBDJxhDwP": {
+  "tris": 322,
+  "bones": 0,
+  "actions": [],
+  "size": [
+   263.38,
+   234.95,
+   131.63
+  ]
+ },
+ "Rabbit_lEJ3d1gMLC": {
+  "tris": 1272,
+  "bones": 0,
+  "actions": [],
+  "size": [
+   0.14,
+   0.57,
+   0.38
+  ]
+ }
+}

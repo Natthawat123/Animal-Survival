@@ -1,6 +1,9 @@
 --[[
-	InventoryService — กระเป๋าของผู้เล่น (server เป็นเจ้าของข้อมูล)
-	ของประเภท Tool จะได้ Tool ใน Backpack (1 ชิ้นต่อชนิด)
+	InventoryService — ของของผู้เล่น (server เป็นเจ้าของข้อมูล) แบบ 99 Nights
+	· เครื่องมือ/อาวุธ/กระสอบ = Tool ในช่องด้านล่างของ Roblox (1 ชิ้นต่อชนิด)
+	· ของอื่น (ไม้ หิน อาหาร ...) อยู่ใน "กระสอบ" มีความจุจำกัด (Items.Sacks)
+	· คลังแคมป์ (Camp) ใช้ร่วมกันทั้งเซิร์ฟเวอร์ — เทกระสอบลงที่โต๊ะคราฟต์
+	· คราฟต์/สร้าง/เติมไฟ ใช้ของจากกระสอบก่อน แล้วค่อยหยิบจากคลังแคมป์
 ]]
 
 local Players = game:GetService("Players")
@@ -12,9 +15,14 @@ local ToolFactory = require(script.Parent.ToolFactory)
 local InventoryService = {}
 local inv = {}
 local dirty = {}
+local camp = {}
+
+-- ของที่เทลงคลังแคมป์ได้ (อาหาร/ยาเก็บไว้กับตัว)
+local DEPOSIT = { Resource = true, Essence = true, Relic = true }
 
 function InventoryService:Init(ctx)
 	self.ctx = ctx
+	self.Camp = camp
 end
 
 function InventoryService:Get(player)
@@ -28,8 +36,44 @@ function InventoryService:Count(player, id)
 	return self:Get(player)[id] or 0
 end
 
+-- รวมของในกระสอบ + คลังแคมป์
+function InventoryService:Available(player, id)
+	return (self:Get(player)[id] or 0) + (camp[id] or 0)
+end
+
 local function markDirty(player)
 	dirty[player] = true
+end
+
+local function markAll()
+	for _, p in ipairs(Players:GetPlayers()) do
+		dirty[p] = true
+	end
+end
+
+function InventoryService:Capacity(player)
+	local bag = self:Get(player)
+	local cap = 0
+	for id, c in pairs(Items.Sacks) do
+		if (bag[id] or 0) > 0 then
+			cap = math.max(cap, c)
+		end
+	end
+	return cap
+end
+
+function InventoryService:Used(player)
+	local n = 0
+	for id, c in pairs(self:Get(player)) do
+		if Items.Bulk(id) then
+			n += c
+		end
+	end
+	return n
+end
+
+function InventoryService:Space(player)
+	return math.max(0, self:Capacity(player) - self:Used(player))
 end
 
 function InventoryService:GiveTool(player, id)
@@ -53,6 +97,7 @@ function InventoryService:GiveTool(player, id)
 	end
 end
 
+-- ใส่ของตรงๆ (ของเริ่มต้น/ซื้อ/คราฟต์) — ไม่สนความจุ
 function InventoryService:Add(player, id, n, silent)
 	n = n or 1
 	if n <= 0 or not Items.Data[id] then
@@ -70,6 +115,15 @@ function InventoryService:Add(player, id, n, silent)
 	end
 end
 
+-- เก็บของเข้ากระสอบตามที่ว่าง -> คืนจำนวนที่ใส่ได้
+function InventoryService:AddToSack(player, id, n)
+	local fit = math.min(n, self:Space(player))
+	if fit > 0 then
+		self:Add(player, id, fit)
+	end
+	return fit
+end
+
 function InventoryService:Remove(player, id, n)
 	n = n or 1
 	local bag = self:Get(player)
@@ -85,30 +139,67 @@ function InventoryService:Remove(player, id, n)
 end
 
 function InventoryService:Has(player, cost, mult)
-	local bag = self:Get(player)
 	for id, n in pairs(cost) do
 		local need = math.max(1, math.ceil(n * (mult or 1)))
-		if (bag[id] or 0) < need then
+		if self:Available(player, id) < need then
 			return false
 		end
 	end
 	return true
 end
 
+-- ใช้ของ: กระสอบก่อน แล้วค่อยคลังแคมป์
 function InventoryService:Spend(player, cost, mult)
 	if not self:Has(player, cost, mult) then
 		return false
 	end
 	local bag = self:Get(player)
+	local touchedCamp = false
 	for id, n in pairs(cost) do
 		local need = math.max(1, math.ceil(n * (mult or 1)))
-		bag[id] -= need
+		local fromBag = math.min(need, bag[id] or 0)
+		bag[id] = (bag[id] or 0) - fromBag
 		if bag[id] <= 0 then
 			bag[id] = nil
 		end
+		local rest = need - fromBag
+		if rest > 0 then
+			camp[id] -= rest
+			if camp[id] <= 0 then
+				camp[id] = nil
+			end
+			touchedCamp = true
+		end
 	end
-	markDirty(player)
+	if touchedCamp then
+		markAll()
+	else
+		markDirty(player)
+	end
 	return true
+end
+
+-- เทวัตถุดิบในกระสอบลงคลังแคมป์ -> คืนจำนวนชิ้น
+function InventoryService:Deposit(player)
+	local bag = self:Get(player)
+	local moved = 0
+	for id, n in pairs(bag) do
+		local d = Items.Data[id]
+		if d and DEPOSIT[d.Category] and n > 0 then
+			camp[id] = (camp[id] or 0) + n
+			bag[id] = nil
+			moved += n
+		end
+	end
+	if moved > 0 then
+		markAll()
+	end
+	return moved
+end
+
+function InventoryService:ResetCamp()
+	table.clear(camp)
+	markAll()
 end
 
 function InventoryService:Reset(player)
@@ -142,7 +233,7 @@ function InventoryService:Start(ctx)
 		inv[p] = nil
 		dirty[p] = nil
 	end)
-	-- ส่งข้อมูลกระเป๋าเมื่อมีการเปลี่ยน (รวมเป็นรอบละครั้ง)
+	-- ส่งข้อมูลเมื่อมีการเปลี่ยน (รวมเป็นรอบละครั้ง): { Bag, Camp, Cap, Used }
 	task.spawn(function()
 		local remote = ctx.Remotes.Get("Inventory")
 		while true do
@@ -150,7 +241,7 @@ function InventoryService:Start(ctx)
 			for p in pairs(dirty) do
 				dirty[p] = nil
 				if p.Parent then
-					remote:FireClient(p, self:Get(p))
+					remote:FireClient(p, { Bag = self:Get(p), Camp = camp, Cap = self:Capacity(p), Used = self:Used(p) })
 				end
 			end
 		end

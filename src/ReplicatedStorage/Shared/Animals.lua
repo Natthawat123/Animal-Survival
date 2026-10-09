@@ -173,7 +173,7 @@ Animals.Data = {
 
 	------------------------------------------------------------ บอสธาตุ
 	Terragon = {
-		Name = "TERRAGON, the Walking Mountain", Thai = "เทอร์ราก้อน เต่าภูผาเดินได้", Element = "Earth", Behaviour = "Boss",
+		Name = "JORMUNGAIA, the Jade Serpent", Thai = "ยอร์มุงไกอา งูมังกรหยกแห่งปฐพี", Element = "Earth", Behaviour = "Boss",
 		Health = 4200, Damage = 42, Speed = 12, AttackRange = 26, AttackCooldown = 3.0, Aggro = 160, StructureDamage = 10, Armor = 0.2,
 		BossNight = 25, Scale = 1,
 		Abilities = { "Quake", "BoulderRain" },
@@ -185,7 +185,7 @@ Animals.Data = {
 		},
 	},
 	Leviathan = {
-		Name = "LEVIATHAN, Mother of Tides", Thai = "เลวีอาธาน มารดาแห่งกระแสน้ำ", Element = "Water", Behaviour = "Boss",
+		Name = "TYRANNOMOSA, Terror of the Deep", Thai = "ไทรันโนโมซา โมซาซอรัสแห่งห้วงลึก", Element = "Water", Behaviour = "Boss",
 		Health = 4600, Damage = 38, Speed = 18, AttackRange = 30, AttackCooldown = 2.6, Aggro = 180, StructureDamage = 8,
 		BossNight = 50,
 		Abilities = { "TidalWave", "WaterSpout" },
@@ -197,7 +197,7 @@ Animals.Data = {
 		},
 	},
 	TempestRoc = {
-		Name = "TEMPEST ROC, Crown of Storms", Thai = "เทมเพสต์ร็อก มงกุฎแห่งพายุ", Element = "Air", Behaviour = "Boss",
+		Name = "AERION, the Storm Griffin", Thai = "แอริออน กริฟฟินแห่งพายุ", Element = "Air", Behaviour = "Boss",
 		Health = 3800, Damage = 34, Speed = 54, AttackRange = 24, AttackCooldown = 2.4, Aggro = 220, StructureDamage = 6, Flying = true,
 		BossNight = 75,
 		Abilities = { "Cyclone", "LightningDive" },
@@ -209,7 +209,7 @@ Animals.Data = {
 		},
 	},
 	Solfang = {
-		Name = "SOLFANG, Lion of the Caldera", Thai = "โซลแฟง ราชสีห์ปล่องภูเขาไฟ", Element = "Fire", Behaviour = "Boss",
+		Name = "IGNARAX, the Molten Dragon", Thai = "อิกนาแรกซ์ มังกรเพลิงลาวา", Element = "Fire", Behaviour = "Boss",
 		Health = 5200, Damage = 52, Speed = 26, AttackRange = 24, AttackCooldown = 2.2, Aggro = 200, StructureDamage = 10, Burn = 8,
 		BossNight = 99,
 		Abilities = { "FlameNova", "MeteorRoar" },

@@ -30,13 +30,12 @@ function LootService:Open(chest, player)
 	end
 	chest:SetAttribute("Opened", true)
 	local el = chest:GetAttribute("Element") or "Earth"
-	local inv = self.ctx.Services.InventoryService
 	local rng = Random.new()
 	local got = {}
 	for _, entry in ipairs(LOOT[el]) do
 		local n = rng:NextInteger(entry[2], entry[3])
 		if n > 0 then
-			inv:Add(player, entry[1], n, true)
+			self.ctx.Services.DropService:Spawn(entry[1], n, chest:GetPivot().Position + Vector3.new(0, 1, 0))
 			got[entry[1]] = n
 		end
 	end

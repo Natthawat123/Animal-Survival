@@ -84,7 +84,7 @@ end
 function AnimalService:Spawn(id, position, opts)
 	opts = opts or {}
 	local info = Animals.Data[id]
-	if not info then
+	if not info or (not Config.AnimalsEnabled and not opts.Force) then
 		return nil
 	end
 	local model = AnimalModels.Build(id)
@@ -248,7 +248,6 @@ function AnimalService:GiveDrops(a, player)
 	if not player then
 		return
 	end
-	local inv = self.ctx.Services.InventoryService
 	local extra = self.ctx.Services.SurvivalService:Perk(player, "ExtraDrops", 0)
 	local got = {}
 	for _, d in ipairs(a.Info.Drops or {}) do
@@ -264,7 +263,7 @@ function AnimalService:GiveDrops(a, player)
 			n += extra
 		end
 		if n > 0 then
-			inv:Add(player, d.Item, n, true)
+			self.ctx.Services.DropService:Spawn(d.Item, n, a.Root.Position)
 			got[d.Item] = n
 		end
 	end

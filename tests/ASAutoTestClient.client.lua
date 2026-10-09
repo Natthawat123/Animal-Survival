@@ -30,6 +30,7 @@ end
 
 local inventory = {}
 Remotes.Get("Inventory").OnClientEvent:Connect(function(inv)
+	inv = inv.Bag or inv
 	inventory = inv
 end)
 
@@ -118,6 +119,223 @@ local function ground(x, z)
 	return cmd:InvokeServer("height", x, z)
 end
 
+
+
+-- โหมดดูท่า (build --anim=Id,Id): ปล่อยสัตว์เดินจริง ถ่ายหลายเฟรม (ไล่ผู้เล่น = วิ่ง/กัด)
+local animTest = ReplicatedStorage:FindFirstChild("ASAnimTest")
+if animTest then
+	cmd:InvokeServer("showcase")
+	local cp = state:GetAttribute("CampPos") or Vector3.zero
+	local site = cmd:InvokeServer("safe", cp.X + 200, cp.Z + 40)
+	for _, g in ipairs(player.PlayerGui:GetChildren()) do
+		if g:IsA("ScreenGui") then
+			g.Enabled = false
+		end
+	end
+	for id in string.gmatch(animTest.Value, "[^,]+") do
+		cmd:InvokeServer("clearAnimals")
+		moveTo(site + Vector3.new(0, 4, 0))
+		root.Anchored = true
+		cmd:InvokeServer("spawn", id, site + Vector3.new(0, 4, 30))
+		task.wait(1)
+		local m
+		for _ = 1, 20 do
+			for _, x in ipairs(Workspace.Animals:GetChildren()) do
+				if x:GetAttribute("AnimalId") == id then
+					m = x
+				end
+			end
+			if m then
+				break
+			end
+			task.wait(0.25)
+		end
+		task.wait(1.5)
+		cam.CameraType = Enum.CameraType.Scriptable
+		print(string.format("[TEST] anim %s found=%s n=%d visual=%s", id, tostring(m ~= nil), #Workspace.Animals:GetChildren(), tostring(m and m:FindFirstChild("RigVisual") ~= nil)))
+		-- กล้องตามตัวสัตว์ทุกเฟรม (มองด้านข้าง เยื้องหน้า)
+		local size = m and m:GetExtentsSize() or Vector3.new(6, 6, 6)
+		local r = math.max(size.X, size.Z, 4)
+		game:GetService("RunService"):BindToRenderStep("ASAnimCam", Enum.RenderPriority.Last.Value + 1, function()
+			local hrp = m and m:FindFirstChild("HumanoidRootPart")
+			if hrp then
+				cam.CameraType = Enum.CameraType.Scriptable
+				cam.FieldOfView = 40
+				local side = hrp.CFrame.RightVector * r * 1.6 - hrp.CFrame.LookVector * r * 0.4 + Vector3.new(0, r * 0.3, 0)
+				cam.CFrame = CFrame.lookAt(hrp.Position + side, hrp.Position + Vector3.new(0, size.Y * 0.1, 0))
+			end
+		end)
+		for i = 1, 6 do
+			shot("anim_" .. id .. "_" .. i, i == 1 and 0.5 or 0.05)
+			local hrp = m and m:FindFirstChild("HumanoidRootPart")
+			local hum = m and m:FindFirstChildOfClass("Humanoid")
+			local vis = m and m:FindFirstChild("RigVisual")
+			local gap, vh = -99, -1
+			if vis and hrp then
+				local cf, sz = vis:GetBoundingBox()
+				local rp = RaycastParams.new()
+				rp.FilterDescendantsInstances = { m, player.Character }
+				rp.FilterType = Enum.RaycastFilterType.Exclude
+				local hit = Workspace:Raycast(hrp.Position, Vector3.new(0, -60, 0), rp)
+				gap = hit and (cf.Position.Y - sz.Y / 2 - hit.Position.Y) or -98
+				vh = sz.Y
+				if hit and hum then
+					local rr = vis:FindFirstChild("RigRoot")
+					local lowest, lowName = math.huge, "-"
+					for _, d in ipairs(vis:GetDescendants()) do
+						if d:IsA("BasePart") and d.Transparency < 1 then
+							local y = d.Position.Y - d.Size.Y / 2
+							if y < lowest then
+								lowest, lowName = y, d.Name
+							end
+						end
+					end
+					print(string.format("[TEST] animground %s hipGap=%.2f anchorGap=%.2f lowestGap=%.2f (%s) hrpSize=%.2f hip=%.2f", id,
+						hrp.Position.Y - hrp.Size.Y / 2 - hum.HipHeight - hit.Position.Y, rr and (rr.Position.Y - hit.Position.Y) or -99,
+						lowest - hit.Position.Y, lowName, hrp.Size.Y, hum.HipHeight))
+				end
+			end
+			print(string.format("[TEST] animpose %s %d upY=%.2f state=%s ai=%s clip=%s gap=%.2f visH=%.2f", id, i, hrp and hrp.CFrame.UpVector.Y or -9,
+				hum and hum:GetState().Name or "-", tostring(m and m:GetAttribute("State")), tostring(m and m:GetAttribute("RigClip")), gap, vh))
+		end
+		game:GetService("RunService"):UnbindFromRenderStep("ASAnimCam")
+		root.Anchored = false
+	end
+	cmd:InvokeServer("done", "anim")
+	return
+end
+
+-- โหมดแกลเลอรี (build --gallery): ถ่ายสัตว์/ไอเทม/คลาส ทีละตัวบนเวทีลอยฟ้า แล้วจบ
+if ReplicatedStorage:FindFirstChild("ASGallery") then
+	local cp = state:GetAttribute("CampPos") or Vector3.zero
+	local stage = cp + Vector3.new(0, 520, 0)
+	cmd:InvokeServer("galleryStage", stage)
+	for _, g in ipairs(player.PlayerGui:GetChildren()) do
+		if g:IsA("ScreenGui") then
+			g.Enabled = false
+		end
+	end
+	moveTo(stage + Vector3.new(0, 4, -60))
+	root.Anchored = true
+	cam.CameraType = Enum.CameraType.Scriptable
+	local function frame(center, size, fov)
+		local r = math.max(size.X, size.Y, size.Z)
+		cam.FieldOfView = fov or 40
+		local dist = r * 1.25 + 3
+		cam.CFrame = CFrame.lookAt(center + Vector3.new(dist * 0.55, size.Y * 0.35 + r * 0.25, -dist), center)
+	end
+	-- 1) สัตว์
+	local animals = { "Rabbit", "Deer", "MossWolf", "Thornboar", "StoneBear", "ReefCrab", "RiptideCroc", "GaleHawk", "SkyLynx", "StormRam",
+		"EmberFox", "MagmaRhino", "LavaSalamander", "HollowStag", "TerraPup", "TidePup", "GalePup", "EmberPup", "Solfang", "Leviathan", "TempestRoc", "Terragon" }
+	for _, id in ipairs(animals) do
+		cmd:InvokeServer("galleryClear")
+		cmd:InvokeServer("spawn", id, stage + Vector3.new(0, 3, 0))
+		task.wait(1)
+		cmd:InvokeServer("freeze", true)
+		local m
+		for _, x in ipairs(Workspace.Animals:GetChildren()) do
+			if x:GetAttribute("AnimalId") == id then
+				m = x
+			end
+		end
+		task.wait(1.5)
+		if m then
+			local cf, size = m:GetBoundingBox()
+			frame(cf.Position, size)
+		end
+		shot("gal_animal_" .. id, 1.2)
+	end
+	cmd:InvokeServer("galleryClear")
+	-- 2) ไอเทม (เครื่องมือ + สิ่งก่อสร้าง)
+	local tools = { "OldAxe", "StoneAxe", "IronAxe", "Pickaxe", "Spear", "Torch", "Bow", "TerraHammer", "TidalTrident", "GaleBow", "EmberBlade", "FourfoldBlade" }
+	local structs = { "LogWall", "StoneWall", "SpikeTrap", "Lantern", "Ballista", "Bed", "FarmPlot", "CookPot", "TerraTotem", "TideTotem", "GaleTotem", "EmberTotem", "SunBeacon" }
+	for _, list in ipairs({ { "Tool", tools }, { "Structure", structs } }) do
+		for _, id in ipairs(list[2]) do
+			cmd:InvokeServer("galleryClear")
+			local res = cmd:InvokeServer("galleryItem", { Kind = list[1], Id = id, Pos = stage })
+			task.wait(1.5)
+			if res then
+				frame(res[1], res[2], list[1] == "Tool" and 30 or 40)
+			end
+			shot("gal_item_" .. id, 1)
+		end
+	end
+	cmd:InvokeServer("galleryClear")
+	-- 3) คลาส (ตัวละครในร้าน)
+	local okCA, ClassAvatars = pcall(function()
+		return require(script.Parent:WaitForChild("Client"):WaitForChild("ClassAvatars"))
+	end)
+	if okCA then
+		local Classes = require(ReplicatedStorage.Shared.Classes)
+		for _, id in ipairs(Classes.Order) do
+			local m = ClassAvatars.Build(id)
+			m.Parent = Workspace
+			m:PivotTo(CFrame.new(stage) * CFrame.Angles(0, -0.35, 0))
+			task.wait(1)
+			cam.FieldOfView = 32
+			cam.CFrame = CFrame.lookAt(stage + Vector3.new(2.5, 4, -13), stage + Vector3.new(0, 2.8, 0))
+			shot("gal_class_" .. id, 1)
+			m:Destroy()
+		end
+	end
+	cmd:InvokeServer("done", "gallery")
+	return
+end
+
+-- โหมดโชว์สัตว์ (build --creatures): ถ่ายสัตว์ทุกตัวเป็นกลุ่ม แล้วจบ
+if ReplicatedStorage:FindFirstChild("ASCreatureShow") then
+	local groups = {
+		{ "small", 16, { "Rabbit", "Deer", "MossWolf", "Thornboar" } },
+		{ "mid", 20, { "StoneBear", "ReefCrab", "RiptideCroc", "GaleHawk" } },
+		{ "mid2", 20, { "SkyLynx", "StormRam", "EmberFox", "MagmaRhino" } },
+		{ "misc", 18, { "LavaSalamander", "HollowStag", "TerraPup", "EmberPup" } },
+		{ "boss_fire", 0, { "Solfang" } },
+		{ "boss_water", 0, { "Leviathan" } },
+		{ "boss_air", 0, { "TempestRoc" } },
+		{ "boss_earth", 0, { "Terragon" } },
+	}
+	cmd:InvokeServer("showcase")
+	local cp = state:GetAttribute("CampPos") or Vector3.zero
+	local site = cmd:InvokeServer("safe", cp.X + 220, cp.Z + 60)
+	cam.CameraType = Enum.CameraType.Scriptable
+	for _, g in ipairs(groups) do
+		cmd:InvokeServer("clearAnimals")
+		local name, gap, ids = g[1], g[2], g[3]
+		local boss = gap == 0
+		for i, id in ipairs(ids) do
+			local x = site.X + (i - (#ids + 1) / 2) * gap
+			local z = site.Z
+			cmd:InvokeServer("spawn", id, Vector3.new(x, ground(x, z) + (boss and 6 or 2), z))
+		end
+		task.wait(1.5)
+		cmd:InvokeServer("freeze", true)
+		moveTo(site + Vector3.new(0, 4, -160))
+		task.wait(2.5)
+		local gy = ground(site.X, site.Z)
+		if boss then
+			local target = Vector3.new(site.X, gy + 14, site.Z)
+			for _, m in ipairs(Workspace.Animals:GetChildren()) do
+				if m:GetAttribute("AnimalId") == ids[1] then
+					local cf, size = m:GetBoundingBox()
+					target = cf.Position
+					gy = cf.Position.Y - size.Y / 2
+				end
+			end
+			cam.CFrame = CFrame.lookAt(target + Vector3.new(50, 26, -64), target)
+		else
+			cam.CFrame = CFrame.lookAt(Vector3.new(site.X + 14, gy + 14, site.Z - 38), Vector3.new(site.X, gy + 3, site.Z))
+		end
+		shot("creatures_" .. name, 2.5)
+		if not boss then
+			cam.CFrame = CFrame.lookAt(Vector3.new(site.X - 30, gy + 8, site.Z - 16), Vector3.new(site.X + 4, gy + 3, site.Z))
+			shot("creatures_" .. name .. "_side", 1.2)
+		end
+		cmd:InvokeServer("freeze", false)
+	end
+	cmd:InvokeServer("done", "creatures")
+	return
+end
+
 -- 1) ตัดไม้
 local tool = player.Backpack:WaitForChild("ขวานเก่า", 10) or player.Backpack:FindFirstChildOfClass("Tool")
 check("has starter tool", tool ~= nil)
@@ -150,7 +368,17 @@ if tool and target then
 	shot("play_chop", 0.5)
 	cam.CameraType = Enum.CameraType.Custom
 end
-task.wait(0.5)
+task.wait(2.5)
+-- ของตกบนพื้น -> เก็บใส่กระสอบ
+local dropsNear = 0
+for _, d in ipairs(Workspace:WaitForChild("Drops"):GetChildren()) do
+	if d.PrimaryPart and (d.PrimaryPart.Position - root.Position).Magnitude < 30 then
+		dropsNear += 1
+		Remotes.Get("PickupDrop"):FireServer(d)
+	end
+end
+check("wood dropped on ground", dropsNear > 0, dropsNear)
+task.wait(1)
 check("chopped wood", (inventory.Wood or 0) > woodBefore, inventory.Wood)
 
 -- 2) คราฟต์ + สร้าง
@@ -236,9 +464,8 @@ if wolf and axe then
 			hum:EquipTool(axe)
 			task.wait(0.2)
 		end
-		axe:Activate()
-		task.wait(0.1)
-		axe:Deactivate()
+		-- ยิง Attack ตรง (การกดคลิกทดสอบแล้วตอนตัดไม้) — ทดสอบระบบตีของ server
+		game:GetService("ReplicatedStorage").Remotes.Attack:FireServer((wp - root.Position).Unit)
 		print(string.format("[TEST] swing parent=%s d=%.1f hp=%s", tostring(axe.Parent and axe.Parent.Name), (root.Position - (wolf.PrimaryPart and wolf.PrimaryPart.Position or wp)).Magnitude, tostring(wolf:GetAttribute("Health"))))
 		task.wait(0.65)
 	end
@@ -314,6 +541,38 @@ if okMap and MapUI.Toggle then
 	MapUI.Toggle()
 	shot("play_map", 2.5)
 	MapUI.Toggle()
+end
+
+-- 10) เครื่องมือนักพัฒนา (DEV)
+do
+	local dev = ReplicatedStorage.Remotes:WaitForChild("DevCmd")
+	local okAll, bad = true, {}
+	local calls = {
+		{ "info" }, { "heal" }, { "give", "IronAxe", 1 }, { "giveCategory", "Resource", 10 }, { "spawn", "Rabbit", 2 },
+		{ "freeze" }, { "freeze" }, { "killAll" }, { "setNight", 3 }, { "fuel" }, { "fireLevel", 1 }, { "benchLevel", 1 },
+		{ "diamonds", 50 }, { "unlockAll" }, { "maxClass" }, { "speed", 1 }, { "bloodMoon" }, { "bloodMoon" }, { "tp", "camp" },
+	}
+	for _, c in ipairs(calls) do
+		local ok, res = pcall(function()
+			return dev:InvokeServer(c[1], c[2], c[3])
+		end)
+		if not ok or type(res) ~= "string" or res:find("❌") or res:find("⛔") then
+			okAll = false
+			table.insert(bad, c[1] .. "=" .. tostring(res))
+		end
+	end
+	check("dev commands", okAll, table.concat(bad, "; "))
+	local panel = player.PlayerGui:FindFirstChild("DevPanel")
+	check("dev panel exists", panel ~= nil)
+	if panel then
+		for _, f in ipairs(panel:GetChildren()) do
+			if f:IsA("Frame") then
+				f.Visible = true
+			end
+		end
+		cam.CameraType = Enum.CameraType.Custom
+		shot("dev_panel", 1.5)
+	end
 end
 
 local errors = cmd:InvokeServer("errors")

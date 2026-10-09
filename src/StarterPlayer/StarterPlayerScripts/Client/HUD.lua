@@ -103,6 +103,9 @@ function HUD.Init(state)
 	layout.Padding = UDim.new(0, 6)
 	layout.Parent = strip
 	HUD.Strip = strip
+	local sackSlot = UIKit.Frame(strip, { Size = UDim2.fromOffset(84, 32), BackgroundColor3 = Color3.fromRGB(50, 40, 30), BackgroundTransparency = 0.2, LayoutOrder = -1 })
+	UIKit.Corner(sackSlot, 6)
+	HUD.SackLabel = UIKit.Text(sackSlot, { Size = UDim2.fromScale(1, 1), Text = "🎒 0/0", TextSize = 14, TextXAlignment = Enum.TextXAlignment.Center })
 	HUD.Slots = {}
 	for i, id in ipairs(STRIP) do
 		local slot = UIKit.Frame(strip, { Size = UDim2.fromOffset(44, 32), BackgroundColor3 = Color3.fromRGB(30, 28, 32), BackgroundTransparency = 0.3, LayoutOrder = i })
@@ -114,7 +117,7 @@ function HUD.Init(state)
 	end
 	HUD.Hint = UIKit.Text(gui, {
 		Size = UDim2.new(0, 760, 0, 18), Position = UDim2.new(0.5, -380, 1, -128), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 13, TextColor3 = C.TextDim,
-		Text = "[คลิก] ตี/ตัด   [Shift] วิ่ง   [C] คราฟต์   [B] สร้าง   [Tab] กระเป๋า   [M] แผนที่   [1-9] เลือกอาวุธ",
+		Text = "[คลิก] ตี/ตัด   [Shift] วิ่ง   [C] คราฟต์   [B] สร้าง   [E] เก็บของ   [Tab] กระสอบ   [M] แผนที่   [1-9] เลือกของ",
 		TextStrokeTransparency = 0.7,
 	})
 
@@ -237,7 +240,7 @@ function HUD.Update()
 	end
 	if not inLobby then
 		HUD.TimeFill.Size = UDim2.fromScale(frac, 1)
-		HUD.Hint.Text = "[คลิก] ตี/ตัด   [Shift] วิ่ง   [C] คราฟต์   [B] สร้าง   [Tab] กระเป๋า   [M] แผนที่   [1-9] เลือกอาวุธ"
+		HUD.Hint.Text = "[คลิก] ตี/ตัด   [Shift] วิ่ง   [C] คราฟต์   [B] สร้าง   [E] เก็บของ   [Tab] กระสอบ   [M] แผนที่   [1-9] เลือกของ"
 	end
 	HUD.TimeIcon.Position = UDim2.new(frac, -10, 0.5, -10)
 
@@ -346,6 +349,15 @@ function HUD.RefreshPOI()
 			HUD.CompassPOI[key] = { Label = label, Position = w.Position, Icon = w.Icon }
 		end
 	end
+end
+
+-- กระสอบ: ใช้ไป/ความจุ (แดงเมื่อเต็ม)
+function HUD.SetSack(used, cap)
+	if not HUD.SackLabel then
+		return
+	end
+	HUD.SackLabel.Text = cap > 0 and string.format("🎒 %d/%d", used, cap) or "🎒 ไม่มีกระสอบ"
+	HUD.SackLabel.TextColor3 = (cap > 0 and used >= cap) and Color3.fromRGB(255, 110, 100) or Color3.fromRGB(240, 226, 190)
 end
 
 function HUD.SetInventory(inv)

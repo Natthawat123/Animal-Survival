@@ -177,7 +177,36 @@ Shapes.FourfoldBlade = function(tool)
 	glow(blade, C(255, 245, 220), Items.Tools.FourfoldBlade.Light)
 end
 
+-- กระสอบ: ถุงผ้าผูกเชือก สะพายในมือ
+local function buildSack(itemId)
+	local tool = Instance.new("Tool")
+	tool.Name = Items.DisplayName(itemId)
+	tool.CanBeDropped = false
+	tool.RequiresHandle = true
+	tool:SetAttribute("ItemId", itemId)
+	tool:SetAttribute("Kind", "Sack")
+	tool.ToolTip = string.format("ความจุ %d ชิ้น · คลิกของบนพื้นเพื่อเก็บ", Items.Sacks[itemId])
+	local s = itemId == "GiantSack" and 1.35 or (itemId == "GoodSack" and 1.15 or 1)
+	local color = Items.SackColor[itemId]
+	local h = part(tool, "Handle", V(0.4, 1.2, 0.4), C(120, 90, 60), Enum.Material.Fabric)
+	local body = part(tool, "Bag", V(2.2, 2.4, 2.2) * s, color, Enum.Material.Fabric, "Ball")
+	attach(h, body, CF(0, -1.6 * s, 0))
+	local neck = part(tool, "Neck", V(0.9, 0.5, 0.9) * s, color:Lerp(Color3.new(0, 0, 0), 0.15), Enum.Material.Fabric, "Cylinder")
+	attach(h, neck, CF(0, -0.45 * s, 0) * ANG(0, 0, math.pi / 2))
+	local rope = part(tool, "Rope", V(1.0, 0.18, 1.0) * s, C(200, 170, 110), Enum.Material.Fabric, "Cylinder")
+	attach(h, rope, CF(0, -0.55 * s, 0) * ANG(0, 0, math.pi / 2))
+	if itemId ~= "OldSack" then
+		local patch_ = part(tool, "Patch", V(0.8, 0.8, 0.1), C(220, 200, 150), Enum.Material.Fabric)
+		attach(h, patch_, CF(0, -1.6 * s, -1.08 * s))
+	end
+	tool.GripPos = V(0, 0.3, 0)
+	return tool
+end
+
 function ToolFactory.Build(itemId)
+	if Items.Sacks[itemId] then
+		return buildSack(itemId)
+	end
 	local spec = Items.Tools[itemId]
 	local shape = Shapes[itemId]
 	if not (spec and shape) then

@@ -383,13 +383,29 @@ local function classesTent(self, parent, cf)
 	P(parent, { Size = V(10, 3.2, 3), CFrame = counterCf * CF(0, 1.6, 0), Color = C(110, 78, 50), Material = Enum.Material.WoodPlanks })
 	P(parent, { Size = V(10.6, 0.4, 3.6), CFrame = counterCf * CF(0, 3.3, 0), Color = C(140, 100, 64), Material = Enum.Material.WoodPlanks })
 	local keeper, kbody = shopkeeper(parent, counterCf * CF(0, 0, 3.2) * ANG(0, math.pi, 0))
-	-- ใช้ตัวละครโมเดลจริง (สาวคาวบอย = นักหาของป่า) แทนหุ่นบล็อก
-	if MeshProps.Has("Char_Forager") then
-		local npc = MeshProps.Build("Char_Forager", { Collide = "none" })
+	-- ใช้ตัวละคร Roblox จริง (เจ้าหน้าที่อุทยาน) แทนหุ่นบล็อก
+	local assets = ReplicatedStorage:FindFirstChild("Assets")
+	local chars = assets and assets:FindFirstChild("Characters")
+	local src = chars and chars:FindFirstChild("Scout")
+	if src then
+		local npc = src:Clone()
 		npc.Name = "CounselorModel"
-		if npc.PrimaryPart then
-			npc.PrimaryPart.PivotOffset = npc.PrimaryPart.CFrame:Inverse() -- pivot ที่เท้า
+		local mn, mx
+		for _, d in ipairs(npc:GetDescendants()) do
+			if d:IsA("BasePart") then
+				d.Anchored = true
+				d.CanCollide = false
+				if d.Transparency < 1 and d.Name ~= "HumanoidRootPart" then
+					mn = mn and mn:Min(d.Position - d.Size / 2) or d.Position - d.Size / 2
+					mx = mx and mx:Max(d.Position + d.Size / 2) or d.Position + d.Size / 2
+				end
+			end
 		end
+		local face = npc:FindFirstChild("HumanoidRootPart") or npc:FindFirstChild("Head")
+		local look = face.CFrame.LookVector * Vector3.new(1, 0, 1)
+		local foot = Vector3.new((mn.X + mx.X) / 2, mn.Y, (mn.Z + mx.Z) / 2)
+		npc.PrimaryPart = face
+		face.PivotOffset = face.CFrame:ToObjectSpace(CFrame.lookAt(foot, foot + look.Unit))
 		npc:PivotTo(counterCf * CF(0, 0, 3.2) * ANG(0, math.pi, 0))
 		npc.Parent = parent
 		for _, d in ipairs(keeper:GetDescendants()) do

@@ -67,6 +67,8 @@ function AtmosphereController.Init(state)
 		local inLobby = pos.Y > 1200
 		if inLobby then
 			clock, night = 0.2, 0
+		elseif state:GetAttribute("TestClock") then
+			clock, night = state:GetAttribute("TestClock"), 0 -- ภาพทดสอบ: ตรึงเวลากลางวัน
 		end
 		Lighting.ClockTime = clock
 		if os.clock() - lastBiomeCheck > 0.3 and (inLobby or ensureLayout()) then

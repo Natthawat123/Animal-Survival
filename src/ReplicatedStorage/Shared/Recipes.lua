@@ -8,6 +8,8 @@ local Recipes = {}
 Recipes.List = {
 	-- เลเวล 1
 	{ Id = "StoneAxe", Bench = 1, Cost = { Wood = 5, Stone = 3 } },
+	{ Id = "GoodSack", Bench = 1, Cost = { Pelt = 3, Fiber = 6 } },
+	{ Id = "GiantSack", Bench = 2, Cost = { Pelt = 6, Fiber = 12, Bone = 4 } },
 	{ Id = "Torch", Bench = 1, Cost = { Wood = 2, Fiber = 2 } },
 	{ Id = "Spear", Bench = 1, Cost = { Wood = 4, Bone = 2, Fiber = 2 } },
 	{ Id = "Bandage", Bench = 1, Cost = { Fiber = 4 }, Amount = 1 },

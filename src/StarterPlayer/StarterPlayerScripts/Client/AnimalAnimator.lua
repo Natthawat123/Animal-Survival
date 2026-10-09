@@ -9,6 +9,8 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local AnimalSkins = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("AnimalSkins"))
+local CreatureVisuals = require(script.Parent:WaitForChild("CreatureVisuals"))
+local RigPlayer = require(script.Parent:WaitForChild("RigPlayer"))
 
 local AnimalAnimator = {}
 
@@ -63,6 +65,24 @@ local function add(model)
 		local rig = collect(model)
 		if rig then
 			rigs[model] = rig
+			-- โมเดลมีกระดูก + ท่าจริง (ดีที่สุด) / ไม่งั้นโมเดลจาก Creator Store
+			if RigPlayer.Has(rig.Id) then
+				local ok, err = pcall(RigPlayer.Attach, rig)
+				if not ok then
+					warn("[AS] rig", rig.Id, err)
+					rig.Anim = nil
+				end
+			end
+			if not rig.Anim and CreatureVisuals.Has(rig.Id) then
+				local ok, err = pcall(CreatureVisuals.Attach, rig)
+				if not ok then
+					warn("[AS] visual", rig.Id, err)
+					if rig.Visual and rig.Visual.Model then
+						rig.Visual.Model:Destroy()
+					end
+					rig.Visual = nil
+				end
+			end
 		end
 	end)
 end
@@ -255,6 +275,28 @@ function AnimalAnimator.Init()
 				if not ok then
 					rigs[model] = nil
 					warn("[AS] anim", err)
+				elseif rig.Anim then
+					local vel = rig.Root.AssemblyLinearVelocity
+					local okA, errA = pcall(RigPlayer.Animate, rig, {
+						Now = now, Dt = dt, Speed = Vector3.new(vel.X, 0, vel.Z).Magnitude, AttackT = rig.AttackT > 0 and rig.AttackT or nil,
+						Kind = rig.AttackKind, State = model:GetAttribute("State"), Flying = model:GetAttribute("Flying"), DeadT = rig.DeadT,
+					})
+					if not okA then
+						warn("[AS] rig anim", rig.Id, errA)
+						rig.Anim = nil
+					end
+				elseif rig.Visual then
+					local vel = rig.Root.AssemblyLinearVelocity
+					local speed = Vector3.new(vel.X, 0, vel.Z).Magnitude
+					local att, kind = attackCurve(rig, now)
+					local okV, errV = pcall(CreatureVisuals.Animate, rig, {
+						Now = now, Speed = speed, Walk = clamp(speed / 6, 0, 1), Phase = rig.Phase, Att = att, Kind = kind,
+						State = model:GetAttribute("State"), Flying = model:GetAttribute("Flying"), DeadT = rig.DeadT,
+					})
+					if not okV then
+						warn("[AS] visual anim", rig.Id, errV)
+						rig.Visual = nil
+					end
 				end
 			end
 		end
