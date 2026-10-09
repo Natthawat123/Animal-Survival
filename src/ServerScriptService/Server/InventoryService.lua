@@ -241,7 +241,17 @@ function InventoryService:Start(ctx)
 			for p in pairs(dirty) do
 				dirty[p] = nil
 				if p.Parent then
-					remote:FireClient(p, { Bag = self:Get(p), Camp = camp, Cap = self:Capacity(p), Used = self:Used(p) })
+					local cap, used = self:Capacity(p), self:Used(p)
+					remote:FireClient(p, { Bag = self:Get(p), Camp = camp, Cap = cap, Used = used })
+					-- โชว์จำนวนในกระสอบบนช่องเครื่องมือ เช่น "กระสอบเก่า 3/10"
+					for _, c in ipairs({ p:FindFirstChild("Backpack"), p.Character }) do
+						for _, t in ipairs(c and c:GetChildren() or {}) do
+							local id = t:IsA("Tool") and t:GetAttribute("ItemId")
+							if id and Items.Sacks[id] then
+								t.Name = string.format("%s %d/%d", Items.DisplayName(id), used, Items.Sacks[id])
+							end
+						end
+					end
 				end
 			end
 		end

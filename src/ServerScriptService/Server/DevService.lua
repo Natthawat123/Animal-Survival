@@ -167,93 +167,35 @@ function C.clearInv(self, p)
 	return "🗑 ล้างกระเป๋าแล้ว"
 end
 
--- สัตว์
-function C.spawn(self, p, id, n)
+-- เรียกบอส (เฉพาะตัวที่มีโมเดลแล้วใน assets/rbxm/Animals)
+function C.spawnBoss(self, p, id)
 	local info = Animals.Data[id]
 	if not info then
-		return "ไม่มีสัตว์ " .. tostring(id)
+		return "ไม่รู้จัก " .. tostring(id)
 	end
-	if not p:GetAttribute("InRun") then
-		return "ลงแมพก่อน"
+	local a = self.ctx.Services.AnimalService:Spawn(id, self:FrontGround(p, 70), { Kind = "Boss", Night = self.ctx.State:GetAttribute("Night") or 1 })
+	if not a then
+		return "ยังไม่มีโมเดลของ " .. info.Thai
 	end
-	local animals = self.ctx.Services.AnimalService
-	local made = 0
-	local boss = info.Behaviour == "Boss"
-	for i = 1, math.clamp(tonumber(n) or 1, 1, 20) do
-		local pos = self:FrontGround(p, boss and 70 or (18 + i * 3))
-		if pos then
-			local a = animals:Spawn(id, pos + Vector3.new((i - 1) * 4, 0, 0), { Kind = boss and "Boss" or (info.Behaviour == "Spirit" and "Wild" or "Wild"), Night = self.ctx.State:GetAttribute("Night") or 1, Force = true })
-			if a then
-				made += 1
-				if boss then
-					a.Model:SetAttribute("IsBoss", true)
-					local s = self.ctx.State
-					s:SetAttribute("BossId", id)
-					s:SetAttribute("BossHP", a.Hum.MaxHealth)
-					s:SetAttribute("BossMaxHP", a.Hum.MaxHealth)
-					self.ctx.Remotes.Get("Cinematic"):FireAllClients("BossIntro", { Model = a.Model, Id = id, Name = info.Name, Thai = info.Thai, Element = info.Element })
-				end
-			end
-		end
-	end
-	return string.format("🐾 เสก %s x%d", info.Thai, made)
+	a.Model:SetAttribute("IsBoss", true)
+	local s = self.ctx.State
+	s:SetAttribute("BossId", id)
+	s:SetAttribute("BossHP", a.Hum.MaxHealth)
+	s:SetAttribute("BossMaxHP", a.Hum.MaxHealth)
+	self.ctx.Remotes.Get("Cinematic"):FireAllClients("BossIntro", { Model = a.Model, Id = id, Name = info.Name, Thai = info.Thai, Element = info.Element })
+	return "👑 เรียก " .. info.Thai
 end
 
-function C.raid(self, p)
-	if not p:GetAttribute("InRun") then
-		return "ลงแมพก่อน"
-	end
-	local dir = self.ctx.Services.DirectorService
-	local night = self.ctx.State:GetAttribute("Night") or 1
-	local rng = Random.new()
-	local plan = Nights.Plan(night, rng, Nights.PickElement(night, rng, nil))
-	local n = 0
-	for _, w in ipairs(plan.Waves) do
-		if not w.Boss then
-			for _, id in ipairs(w.Spawns) do
-				dir:SpawnRaid(id, plan, night)
-				n += 1
-			end
-			break
-		end
-	end
-	return string.format("⚔ ปล่อยฝูงบุก %d ตัว (คืนที่ %d)", n, night)
-end
-
-function C.killAll(self, p)
-	local animals = self.ctx.Services.AnimalService
-	local n = 0
-	for _, a in ipairs(table.clone(animals:All())) do
-		if a.Kind ~= "Spirit" and not a.Dead then
-			animals:TakeDamage(a, 1e9, p, {})
-			n += 1
-		end
-	end
-	return "💀 สังหารสัตว์ " .. n .. " ตัว (ได้ของดรอป)"
-end
-
+-- ลบสัตว์/บอสทั้งหมดในแมพ
 function C.clearAnimals(self)
 	local animals = self.ctx.Services.AnimalService
-	local n = 0
 	for _, a in ipairs(table.clone(animals:All())) do
-		if a.Kind ~= "Spirit" then
-			animals:Remove(a)
-			n += 1
-		end
+		animals:Remove(a)
 	end
 	self.ctx.State:SetAttribute("BossId", "")
-	return "🧹 ลบสัตว์ " .. n .. " ตัว"
+	return "🧹 ลบสัตว์ทั้งหมดแล้ว"
 end
 
-function C.freeze(self)
-	self.frozen = not self.frozen
-	for _, a in ipairs(self.ctx.Services.AnimalService:All()) do
-		a.Root.Anchored = self.frozen
-	end
-	return self.frozen and "🧊 หยุดสัตว์ทั้งหมด" or "▶ สัตว์ขยับต่อ"
-end
-
--- เวลา
 function C.skip(self)
 	local dir = self.ctx.Services.DirectorService
 	if not dir:IsRunning() then

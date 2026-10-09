@@ -173,13 +173,14 @@ Animals.Data = {
 
 	------------------------------------------------------------ บอสธาตุ
 	Terragon = {
-		Name = "JORMUNGAIA, the Jade Serpent", Thai = "ยอร์มุงไกอา งูมังกรหยกแห่งปฐพี", Element = "Earth", Behaviour = "Boss",
+		Name = "GOLGRAN, the Living Mountain", Thai = "โกลแกรน โกเลมขุนเขา", Element = "Earth", Behaviour = "Boss",
 		Health = 4200, Damage = 42, Speed = 12, AttackRange = 26, AttackCooldown = 3.0, Aggro = 160, StructureDamage = 10, Armor = 0.2,
 		BossNight = 25, Scale = 1,
-		Abilities = { "Quake", "BoulderRain" },
+		Abilities = { "Quake", "Fissure", "BoulderRain" },
 		Drops = { { Item = "BeastHeart", Min = 1, Max = 1 }, { Item = "TerraCore", Min = 8, Max = 12 }, { Item = "Stone", Min = 20, Max = 30 } },
 		Model = {
 			Template = "Tortoise", Body = V(22, 12, 26), Head = V(6, 5, 7), LegLen = 6, LegThick = 5,
+			Skin = { Scale = 32, Rig = "Biped" }, -- โมเดลโกเลม (assets/rbxm/Animals/Terragon.rbxmx)
 			Colors = { Main = C(108, 98, 78), Belly = C(160, 146, 110), Dark = C(60, 56, 48), Eye = C(170, 255, 120), Glow = C(120, 240, 90), Shell = C(90, 96, 84), Moss = C(76, 140, 52), Crystal = C(130, 240, 110) },
 			Extras = { "ShellForest", "Crystals" },
 		},
@@ -188,34 +189,37 @@ Animals.Data = {
 		Name = "TYRANNOMOSA, Terror of the Deep", Thai = "ไทรันโนโมซา โมซาซอรัสแห่งห้วงลึก", Element = "Water", Behaviour = "Boss",
 		Health = 4600, Damage = 38, Speed = 18, AttackRange = 30, AttackCooldown = 2.6, Aggro = 180, StructureDamage = 8,
 		BossNight = 50,
-		Abilities = { "TidalWave", "WaterSpout" },
+		Abilities = { "TidalWave", "WaterSpout", "Quake" },
 		Drops = { { Item = "BeastHeart", Min = 1, Max = 1 }, { Item = "TidePearl", Min = 8, Max = 12 } },
 		Model = {
 			Template = "Reptile", Body = V(10, 7, 26), Head = V(7, 4.6, 6), Snout = V(5, 3, 9), LegLen = 4, LegThick = 2.6,
+			Skin = { Scale = 13, Rig = "Mosasaur" }, -- โมเดลโมซาซอรัส
 			TailLen = 34, Colors = { Main = C(22, 52, 96), Belly = C(120, 190, 210), Dark = C(10, 24, 50), Eye = C(120, 255, 255), Glow = C(70, 230, 255) },
 			Extras = { "BackPlates", "GlowStripes", "Fins", "Frills" },
 		},
 	},
 	TempestRoc = {
-		Name = "AERION, the Storm Griffin", Thai = "แอริออน กริฟฟินแห่งพายุ", Element = "Air", Behaviour = "Boss",
-		Health = 3800, Damage = 34, Speed = 54, AttackRange = 24, AttackCooldown = 2.4, Aggro = 220, StructureDamage = 6, Flying = true,
+		Name = "FROSTMAW, the Glacier Yeti", Thai = "ฟรอสต์มอว์ เยติธารน้ำแข็ง", Element = "Air", Behaviour = "Boss",
+		Health = 4000, Damage = 40, Speed = 20, AttackRange = 22, AttackCooldown = 2.4, Aggro = 220, StructureDamage = 8,
 		BossNight = 75,
-		Abilities = { "Cyclone", "LightningDive" },
+		Abilities = { "Blizzard", "IceSpikes", "Quake" },
 		Drops = { { Item = "BeastHeart", Min = 1, Max = 1 }, { Item = "GaleFeather", Min = 10, Max = 14 } },
 		Model = {
 			Template = "Bird", Body = V(9, 9, 16), Head = V(5.4, 5, 5.6), Wing = V(30, 1.2, 12),
+			Skin = { Scale = 30, Rig = "Biped" }, -- โมเดลเยติ
 			Colors = { Main = C(70, 84, 120), Belly = C(214, 222, 240), Dark = C(30, 34, 54), Eye = C(200, 245, 255), Beak = C(230, 200, 110), Glow = C(150, 210, 255) },
 			Extras = { "Crest", "Sparks" },
 		},
 	},
 	Solfang = {
 		Name = "IGNARAX, the Molten Dragon", Thai = "อิกนาแรกซ์ มังกรเพลิงลาวา", Element = "Fire", Behaviour = "Boss",
-		Health = 5200, Damage = 52, Speed = 26, AttackRange = 24, AttackCooldown = 2.2, Aggro = 200, StructureDamage = 10, Burn = 8,
+		Health = 5200, Damage = 52, Speed = 34, AttackRange = 26, AttackCooldown = 2.2, Aggro = 200, StructureDamage = 10, Burn = 8, Flying = true,
 		BossNight = 99,
-		Abilities = { "FlameNova", "MeteorRoar" },
+		Abilities = { "FireBreath", "FlameNova", "MeteorRoar" },
 		Drops = { { Item = "BeastHeart", Min = 2, Max = 2 }, { Item = "EmberShard", Min = 10, Max = 14 } },
 		Model = {
 			Template = "Quadruped", Body = V(9, 8.5, 17), Head = V(6, 5.6, 5.6), Snout = V(3.2, 2.4, 2.4), LegLen = 7.5, LegThick = 2.6,
+			Skin = { Scale = 18, Rig = "Dragon" }, -- โมเดลมังกรไฟ
 			Neck = 2.2, Colors = { Main = C(120, 44, 24), Belly = C(176, 82, 40), Dark = C(40, 14, 10), Eye = C(255, 255, 210), Glow = C(255, 120, 20), Horn = C(30, 22, 24) },
 			Ears = "Round", Tail = "FlameTuft", Extras = { "FlameMane", "LavaCracks" },
 		},

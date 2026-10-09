@@ -68,7 +68,7 @@ Items.Data = {
 }
 
 -- ความจุกระสอบ (หน่วย = ของ 1 ชิ้น) · ใช้ใบที่ดีที่สุดที่มี
-Items.Sacks = { OldSack = 15, GoodSack = 30, GiantSack = 60 }
+Items.Sacks = { OldSack = 10, GoodSack = 20, GiantSack = 30 }
 Items.SackColor = { OldSack = Color3.fromRGB(150, 120, 80), GoodSack = Color3.fromRGB(110, 140, 90), GiantSack = Color3.fromRGB(150, 90, 60) }
 
 -- ของที่กินที่ในกระสอบ (เครื่องมือ/สิ่งก่อสร้างไม่นับ)

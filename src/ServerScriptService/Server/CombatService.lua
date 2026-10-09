@@ -187,12 +187,41 @@ end
 		Color, Size, Burn, OnImpact(position), Life
 	})
 ]]
+-- ก้อนหินจริง (โมเดล RockLP) สำหรับหินถล่ม/อุกกาบาต
+local function rockPart(size)
+	local assets = game:GetService("ReplicatedStorage"):FindFirstChild("Assets")
+	local pack = assets and assets:FindFirstChild("Props") and assets.Props:FindFirstChild("RockLP")
+	local list = {}
+	for _, d in ipairs(pack and pack:GetDescendants() or {}) do
+		if d:IsA("MeshPart") then
+			table.insert(list, d)
+		end
+	end
+	if #list == 0 then
+		return nil
+	end
+	local r = list[math.random(1, #list)]:Clone()
+	r:ClearAllChildren()
+	local k = size / math.max(r.Size.X, r.Size.Y, r.Size.Z)
+	r.Size *= k
+	return r
+end
+
 function CombatService:Projectile(spec)
-	local p = Instance.new("Part")
-	p.Shape = Enum.PartType.Ball
-	p.Size = Vector3.new(spec.Size or 2, spec.Size or 2, spec.Size or 2)
-	p.Material = Enum.Material.Neon
-	p.Color = spec.Color or Color3.fromRGB(255, 120, 30)
+	local p = spec.Model == "Rock" and rockPart(spec.Size or 2)
+	if p then
+		p.Color = spec.Color or Color3.fromRGB(110, 100, 90)
+		p.Material = spec.Fire and Enum.Material.Basalt or Enum.Material.Slate
+		if spec.VFX then
+			p:SetAttribute("VFX", spec.VFX)
+		end
+	else
+		p = Instance.new("Part")
+		p.Shape = Enum.PartType.Ball
+		p.Size = Vector3.new(spec.Size or 2, spec.Size or 2, spec.Size or 2)
+		p.Material = Enum.Material.Neon
+	end
+	p.Color = spec.Model == "Rock" and p.Color or (spec.Color or Color3.fromRGB(255, 120, 30))
 	p.Anchored = true
 	p.CanCollide = false
 	p.CanQuery = false
@@ -202,13 +231,14 @@ function CombatService:Projectile(spec)
 	l.Range = 14
 	l.Brightness = 2
 	l.Parent = p
-	if spec.Fire then
+	if spec.Fire and spec.Model ~= "Rock" then
 		local f = Instance.new("Fire")
 		f.Size = (spec.Size or 2) * 1.5
 		f.Heat = 4
 		f.Parent = p
 	end
 	local trail = Instance.new("ParticleEmitter")
+	trail.Enabled = spec.Model ~= "Rock" -- ก้อนหินใช้เอฟเฟกต์ฝั่ง client แทน
 	trail.Texture = "rbxasset://textures/particles/sparkles_main.dds"
 	trail.Rate = 40
 	trail.Lifetime = NumberRange.new(0.4, 0.7)

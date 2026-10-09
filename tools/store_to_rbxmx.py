@@ -30,7 +30,41 @@ FACE = {"Right": 0, "Top": 1, "Back": 2, "Left": 3, "Bottom": 4, "Front": 5}
 ALPHA = {"Overlay": 0, "Transparency": 1, "TintMask": 2}
 KEEP = {"Model", "Folder", "MeshPart", "Part", "WedgePart", "CornerWedgePart", "TrussPart", "SpecialMesh", "BlockMesh", "CylinderMesh",
         "SurfaceAppearance", "Decal", "Texture", "Bone", "Attachment", "Motor6D", "Weld", "ManualWeld", "Snap", "WeldConstraint",
-        "Humanoid", "AnimationController", "Animator", "Shirt", "Pants", "ShirtGraphic", "BodyColors", "CharacterMesh", "Accessory", "Hat", "Tool"}
+        "Humanoid", "AnimationController", "Animator", "Shirt", "Pants", "ShirtGraphic", "BodyColors", "CharacterMesh", "Accessory", "Hat", "Tool",
+        "ParticleEmitter", "Beam"}
+
+EMIT_DIR = {"Right": 0, "Top": 1, "Back": 2, "Left": 3, "Bottom": 4, "Front": 5}
+P_SHAPE = {"Box": 0, "Sphere": 1, "Cylinder": 2, "Disc": 3}
+P_STYLE = {"Volume": 0, "Surface": 1}
+P_INOUT = {"Outward": 0, "Inward": 1, "InAndOut": 2}
+P_ORIENT = {"FacingCamera": 0, "FacingCameraWorldUp": 1, "VelocityParallel": 2, "VelocityPerpendicular": 3}
+FB_LAYOUT = {"None": 0, "Grid2x2": 1, "Grid4x4": 2, "Grid8x8": 3}
+FB_MODE = {"Loop": 0, "OneShot": 1, "PingPong": 2, "Random": 3}
+TEX_MODE = {"Stretch": 0, "Wrap": 1, "Static": 2}
+
+
+def nseq(name, ks):
+    ks = ks or [[0, 0, 0], [1, 0, 0]]
+    return '<NumberSequence name="%s">' % name + " ".join("%s %s %s" % (k[0], k[1], k[2]) for k in ks) + " </NumberSequence>"
+
+
+def cseq(name, ks):
+    ks = ks or [[0, 1, 1, 1], [1, 1, 1, 1]]
+    return '<ColorSequence name="%s">' % name + " ".join("%s %s %s %s 0" % (k[0], k[1], k[2], k[3]) for k in ks) + " </ColorSequence>"
+
+
+def nrange(name, r):
+    r = r or [0, 0]
+    return '<NumberRange name="%s">%s %s </NumberRange>' % (name, r[0], r[1])
+
+
+def fl(name, x, d=0):
+    return '<float name="%s">%s</float>' % (name, x if x is not None else d)
+
+
+def bl(name, x):
+    return '<bool name="%s">%s</bool>' % (name, "true" if x else "false")
+
 BODYPART = {"Head": 0, "Torso": 1, "LeftArm": 2, "RightArm": 3, "LeftLeg": 4, "RightLeg": 5}
 
 
@@ -75,7 +109,7 @@ def inv(a):
     return [px, py, pz] + rt
 
 
-def convert(aid, name, folder="Creatures"):
+def convert(aid, name, folder="Props"):
     data = json.load(open(os.path.join(STORE, f"{aid}.json"), encoding="utf-8"))
     items = data["Items"]
     n = len(items)
@@ -148,6 +182,48 @@ def convert(aid, name, folder="Creatures"):
             out.append(f'<token name="BodyPart">{BODYPART.get(it.get("BodyPart"), 1)}</token>')
         elif c in ("Bone", "Attachment"):
             out.append(cf("CFrame", it["CF"]))
+        elif c == "ParticleEmitter":
+            out.append(content("Texture", it.get("Texture")))
+            out.append(cseq("Color", it.get("ColorSeq")))
+            out.append(nseq("Size", it.get("SizeSeq")))
+            out.append(nseq("Transparency", it.get("TransparencySeq")))
+            out.append(nseq("Squash", it.get("SquashSeq")))
+            out.append(nrange("Lifetime", it.get("Lifetime")))
+            out.append(nrange("Speed", it.get("Speed")))
+            out.append(nrange("Rotation", it.get("Rotation")))
+            out.append(nrange("RotSpeed", it.get("RotSpeed")))
+            out.append(nrange("FlipbookFramerate", it.get("FlipbookFramerate")))
+            sp = it.get("Spread") or [0, 0]
+            out.append('<Vector2 name="SpreadAngle"><X>%s</X><Y>%s</Y></Vector2>' % (sp[0], sp[1]))
+            out.append(v3("Acceleration", it.get("Accel") or [0, 0, 0]))
+            for k, d in (("Rate", 0), ("Drag", 0), ("LightEmission", 0), ("LightInfluence", 0), ("Brightness", 1), ("ZOffset", 0),
+                         ("ShapePartial", 1), ("TimeScale", 1), ("VelocityInheritance", 0)):
+                out.append(fl(k, it.get(k), d))
+            out.append(bl("Enabled", it.get("Enabled", True)))
+            out.append(bl("LockedToPart", it.get("LockedToPart")))
+            out.append(bl("FlipbookStartRandom", it.get("FlipbookStartRandom")))
+            out.append('<token name="EmissionDirection">%d</token>' % EMIT_DIR.get(it.get("EmissionDirection"), 1))
+            out.append('<token name="Shape">%d</token>' % P_SHAPE.get(it.get("Shape"), 0))
+            out.append('<token name="ShapeStyle">%d</token>' % P_STYLE.get(it.get("ShapeStyle"), 0))
+            out.append('<token name="ShapeInOut">%d</token>' % P_INOUT.get(it.get("ShapeInOut"), 0))
+            out.append('<token name="Orientation">%d</token>' % P_ORIENT.get(it.get("Orientation"), 0))
+            out.append('<token name="FlipbookLayout">%d</token>' % FB_LAYOUT.get(it.get("FlipbookLayout"), 0))
+            out.append('<token name="FlipbookMode">%d</token>' % FB_MODE.get(it.get("FlipbookMode"), 0))
+        elif c == "Beam":
+            out.append(content("Texture", it.get("Texture")))
+            out.append(cseq("Color", it.get("ColorSeq")))
+            out.append(nseq("Transparency", it.get("TransparencySeq")))
+            out.append('<Ref name="Attachment0">%s</Ref>' % (ref(it["A0"]) if it.get("A0") else "null"))
+            out.append('<Ref name="Attachment1">%s</Ref>' % (ref(it["A1"]) if it.get("A1") else "null"))
+            for k, d in (("LightEmission", 0), ("LightInfluence", 0), ("Brightness", 1), ("ZOffset", 0), ("TextureLength", 1), ("TextureSpeed", 1),
+                         ("Width0", 1), ("Width1", 1)):
+                out.append(fl(k, it.get(k), d))
+            out.append(fl("CurveSize0", it.get("Curve0"), 0))
+            out.append(fl("CurveSize1", it.get("Curve1"), 0))
+            out.append('<int name="Segments">%d</int>' % int(it.get("Segments") or 10))
+            out.append(bl("Enabled", it.get("Enabled", True)))
+            out.append(bl("FaceCamera", it.get("FaceCamera")))
+            out.append('<token name="TextureMode">%d</token>' % TEX_MODE.get(it.get("TextureMode"), 0))
         elif c in ("Motor6D", "Weld", "ManualWeld", "Snap"):
             out.append(f'<Ref name="Part0">{ref(it["P0"]) if it.get("P0") else "null"}</Ref>')
             out.append(f'<Ref name="Part1">{ref(it["P1"]) if it.get("P1") else "null"}</Ref>')
@@ -186,4 +262,4 @@ def convert(aid, name, folder="Creatures"):
 
 if __name__ == "__main__":
     a = sys.argv[1:]
-    convert(a[0], a[1], a[2] if len(a) > 2 else "Creatures")
+    convert(a[0], a[1], a[2] if len(a) > 2 else "Props")

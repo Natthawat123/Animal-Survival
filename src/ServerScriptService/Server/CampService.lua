@@ -18,6 +18,7 @@ local CampService = {}
 local FUEL_ORDER = { "Wood", "Coal", "EmberShard", "TerraCore", "BeastHeart" }
 
 function CampService:Init(ctx)
+	self.lastThrow = {}
 	self.ctx = ctx
 	self.level = 1
 	self.bench = 1
@@ -70,6 +71,12 @@ function CampService:UpdateVisual()
 		l.Enabled = lit
 		l.Range = math.max(12, info.Light * (0.4 + 0.6 * frac))
 		l.Brightness = 1.5 + frac * 2
+	end
+	local flames = core:FindFirstChild("Flames")
+	if flames then
+		flames.Enabled = lit
+		flames.Rate = 20 + 45 * frac + self.level * 8
+		flames.Speed = NumberRange.new(4 + self.level, 7 + self.level * 2)
 	end
 	local sparks = core:FindFirstChild("Sparks")
 	if sparks then
@@ -206,6 +213,66 @@ function CampService:Craft(player, recipeId)
 end
 
 -- ย่างเนื้อที่กองไฟ
+function CampService:FirePosition()
+	return self.fireCore and self.fireCore.Position
+end
+
+function CampService:ThrowFrom(player)
+	local inv = self.ctx.Services.InventoryService
+	local char = player.Character
+	local fire = self:FirePosition()
+	if not (char and fire) or (char:GetPivot().Position - fire).Magnitude > 30 then
+		return
+	end
+	local now = os.clock()
+	if (self.lastThrow[player] or 0) > now - 0.35 then
+		return
+	end
+	self.lastThrow[player] = now
+	local pick
+	for _, id in ipairs(FUEL_ORDER) do
+		if id ~= "BeastHeart" and inv:Count(player, id) > 0 then
+			pick = id
+			break
+		end
+	end
+	if not pick and inv:Count(player, "RawMeat") > 0 then
+		pick = "RawMeat"
+	end
+	if not pick then
+		self.ctx.Notify(player, "ในกระสอบไม่มีไม้/ถ่าน/เนื้อดิบ ให้โยนเข้ากองไฟ", "Info")
+		return
+	end
+	inv:Remove(player, pick, 1)
+	self.ctx.Services.DropService:Throw(player, pick, 1, fire + Vector3.new(0, 1, 0))
+end
+
+local COOK = { RawMeat = "CookedMeat" }
+function CampService:BurnDrops()
+	local fire = self:FirePosition()
+	if not fire then
+		return
+	end
+	local drops = self.ctx.Services.DropService
+	for _, d in ipairs(drops:Near(fire - Vector3.new(0, 1.5, 0), 5.5, 6)) do
+		local item = Items.Data[d.Id]
+		if COOK[d.Id] then
+			if self:IsLit() then
+				drops:Remove(d.Model)
+				-- สุกแล้วเด้งออกนอกกองไฟ
+				task.delay(1.2, function()
+					drops:Spawn(COOK[d.Id], d.Count, fire, { Spread = 0.5 })
+				end)
+				self.ctx.Remotes.Get("HitFx"):FireAllClients("Refuel", { Position = fire })
+			end
+		elseif item and item.Fuel then
+			drops:Remove(d.Model)
+			self:AddFuel(item.Fuel * d.Count)
+			self.ctx.Remotes.Get("HitFx"):FireAllClients("Refuel", { Position = fire })
+		end
+	end
+end
+
 function CampService:Cook(player)
 	if not self:IsLit() then
 		self.ctx.Notify(player, "ไฟดับอยู่ ย่างไม่ได้", "Error")
@@ -265,27 +332,13 @@ function CampService:Start(ctx)
 	local bench = camp:WaitForChild("Workbench")
 	self.benchPos = bench:GetPivot().Position
 
-	local refuel = prompt(self.fireCore, "Refuel", "เติมเชื้อเพลิง", "กองไฟ", Enum.KeyCode.E, 0, 16)
-	refuel.Triggered:Connect(function(p)
-		self:Refuel(p)
-	end)
-	self.upgradePrompt = prompt(self.fireCore, "UpgradeFire", "อัปเกรด", "กองไฟ", Enum.KeyCode.F, 1, 16)
-	self.upgradePrompt.UIOffset = Vector2.new(0, 70)
-	self.upgradePrompt.Triggered:Connect(function(p)
-		self:UpgradeFire(p)
-	end)
-	local cook = prompt(self.fireCore, "Cook", "ย่างเนื้อทั้งหมด", "กองไฟ", Enum.KeyCode.R, 0.6, 16)
-	cook.UIOffset = Vector2.new(0, 140)
-	cook.Triggered:Connect(function(p)
-		self:Cook(p)
-	end)
 	local benchTop = bench.PrimaryPart
 	local craft = prompt(benchTop, "Craft", "เปิดเมนูคราฟต์", "โต๊ะคราฟต์", Enum.KeyCode.E, 0, 14)
 	craft.Triggered:Connect(function(p)
 		ctx.Remotes.Get("Cinematic"):FireClient(p, "OpenCraft", {})
 	end)
 	local deposit = prompt(benchTop, "Deposit", "เทกระสอบลงคลังแคมป์", "โต๊ะคราฟต์", Enum.KeyCode.G, 0, 16)
-	deposit.UIOffset = Vector2.new(0, 140)
+	deposit.UIOffset = Vector2.new(0, 70)
 	deposit.Triggered:Connect(function(p)
 		local n = ctx.Services.InventoryService:Deposit(p)
 		if n > 0 then
@@ -295,16 +348,32 @@ function CampService:Start(ctx)
 			ctx.Notify(p, "ในกระสอบไม่มีวัตถุดิบให้เท (อาหาร/ยาเก็บไว้กับตัว)", "Info")
 		end
 	end)
-	self.benchUpgradePrompt = prompt(benchTop, "UpgradeBench", "อัปเกรด", "โต๊ะคราฟต์", Enum.KeyCode.F, 1, 14)
-	self.benchUpgradePrompt.UIOffset = Vector2.new(0, 70)
-	self.benchUpgradePrompt.Triggered:Connect(function(p)
-		self:UpgradeBench(p)
-	end)
 	self:RefreshPrompts()
 
 	ctx.Remotes.Get("Craft").OnServerEvent:Connect(function(player, recipeId)
-		if type(recipeId) == "string" then
+		if recipeId == "UpgradeFire" or recipeId == "UpgradeBench" then
+			-- อัปเกรดจากเมนูคราฟต์ (ต้องอยู่ในแคมป์)
+			local char = player.Character
+			if not char or (char:GetPivot().Position - self.benchPos).Magnitude > 60 then
+				self.ctx.Notify(player, "ต้องอยู่ในแคมป์", "Error")
+			elseif recipeId == "UpgradeFire" then
+				self:UpgradeFire(player)
+			else
+				self:UpgradeBench(player)
+			end
+		elseif type(recipeId) == "string" then
 			self:Craft(player, recipeId)
+		end
+	end)
+	-- ถือกระสอบแล้วคลิกกองไฟ = โยนเชื้อเพลิงจากกระสอบเข้าไป (ไม่มีก็โยนเนื้อดิบไปย่าง)
+	ctx.Remotes.Get("ThrowFuel").OnServerEvent:Connect(function(player)
+		self:ThrowFrom(player)
+	end)
+	-- ของที่ตกลงในกองไฟ: เชื้อเพลิงไหม้ / เนื้อดิบสุกเด้งออกมา
+	task.spawn(function()
+		while true do
+			task.wait(0.25)
+			self:BurnDrops()
 		end
 	end)
 

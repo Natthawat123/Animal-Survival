@@ -131,6 +131,36 @@ function craft.Refresh()
 			c:Destroy()
 		end
 	end
+	-- อัปเกรดกองไฟ / โต๊ะ (อยู่บนสุดทุกแท็บ แทนปุ่มกดที่กองไฟ)
+	local fireLv = state:GetAttribute("CampLevel") or 1
+	for i, up in ipairs({
+		{ Id = "UpgradeFire", Title = "🔥 อัปเกรดกองไฟ", Lv = fireLv, Next = Recipes.Campfire[fireLv + 1], Desc = "ไฟใหญ่ขึ้น เขตปลอดภัยกว้างขึ้น หมอกจางลง" },
+		{ Id = "UpgradeBench", Title = "🔨 อัปเกรดโต๊ะคราฟต์", Lv = bench, Next = Recipes.BenchUpgrade[bench + 1] and { Cost = Recipes.BenchUpgrade[bench + 1] }, Desc = "ปลดล็อกของที่คราฟต์ได้มากขึ้น" },
+	}) do
+		local card = UIKit.Frame(craft.Scroll, { BackgroundColor3 = Color3.fromRGB(40, 30, 22), BackgroundTransparency = 0.05, LayoutOrder = -10 + i })
+		UIKit.Corner(card, 10)
+		UIKit.Stroke(card, C.Gold, 1, 0.2)
+		UIKit.Text(card, { Size = UDim2.new(1, -110, 0, 22), Position = UDim2.fromOffset(12, 8), Text = string.format("%s  Lv.%d → %s", up.Title, up.Lv, up.Next and tostring(up.Lv + 1) or "MAX"), TextSize = 16 })
+		UIKit.Text(card, { Size = UDim2.new(1, -24, 0, 16), Position = UDim2.fromOffset(12, 34), Text = up.Desc, TextSize = 12, TextColor3 = Color3.fromRGB(200, 190, 170), Font = UIKit.Fonts.Body })
+		local can = up.Next ~= nil
+		local parts = {}
+		if up.Next then
+			for id, n in pairs(up.Next.Cost) do
+				local have = inventory[id] or 0
+				can = can and have >= n
+				table.insert(parts, string.format('<font color="#%s">%s %d/%d</font>', have >= n and "8CEB96" or "FF8070", Items.DisplayName(id), have, n))
+			end
+		end
+		local costLabel = UIKit.Text(card, { Size = UDim2.new(1, -120, 0, 36), Position = UDim2.fromOffset(12, 58), RichText = true, TextWrapped = true, Text = table.concat(parts, "  "), TextSize = 13, TextYAlignment = Enum.TextYAlignment.Top })
+		costLabel.Font = UIKit.Fonts.Bold
+		local btn = UIKit.Button(card, { Size = UDim2.fromOffset(96, 34), Position = UDim2.new(1, -106, 1, -44), Text = up.Next and "อัปเกรด" or "สูงสุด", TextSize = 14 }, function()
+			if up.Next then
+				Remotes.Get("Craft"):FireServer(up.Id)
+			end
+		end)
+		btn.BackgroundColor3 = can and Color3.fromRGB(110, 70, 26) or Color3.fromRGB(30, 28, 30)
+		btn.TextColor3 = can and C.Text or C.TextDim
+	end
 	for order, r in ipairs(Recipes.List) do
 		local item = Items.Data[r.Id]
 		if item.Category == craft.Tab then
@@ -646,6 +676,11 @@ function Menus.Init(state, hud)
 	UIKit.Corner(Menus.BuildHint, 8)
 	player:GetAttributeChangedSignal("Diamonds"):Connect(classUI.Refresh)
 	player:GetAttributeChangedSignal("Class"):Connect(classUI.Refresh)
+	state:GetAttributeChangedSignal("CampLevel"):Connect(function()
+		if craft.Panel and craft.Panel.Visible then
+			craft.Refresh()
+		end
+	end)
 	state:GetAttributeChangedSignal("BenchLevel"):Connect(function()
 		if craft.Panel.Visible then
 			craft.Refresh()

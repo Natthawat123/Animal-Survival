@@ -1067,35 +1067,71 @@ function PropBuilder.BuildCamp(position, parent)
 	local m = Instance.new("Model")
 	m.Name = "Camp"
 	local base = CF(position)
-	-- วงหินรอบกองไฟ (โมเดลจริงถ้ามี)
-	if MeshProps.Has("Campfire") then
-		local ring = MeshProps.Build("Campfire")
-		ring.Name = "CampfireRing" -- ห้ามชื่อซ้ำกับ "Campfire" (กองไฟที่ทำงานจริง)
-		ring:PivotTo(base)
-		ring.Parent = m
+	-- วงหินรอบกองไฟ: หิน low-poly จาก Store (ไม่มีก็ใช้หินปั้น)
+	local rocks = storeTemplates("Boulder")
+	local ring = Instance.new("Model")
+	ring.Name = "CampfireRing" -- ห้ามชื่อซ้ำกับ "Campfire" (กองไฟที่ทำงานจริง)
+	for i = 0, 13 do
+		local ang = i / 14 * math.pi * 2
+		local rcf = base * CF(math.cos(ang) * 5, 0, math.sin(ang) * 5) * ANG(0, -ang + (i % 3) * 0.7, 0)
+		if rocks then
+			local r = rocks[(i % #rocks) + 1]:Clone()
+			pcall(function()
+				r:ScaleTo(r:GetScale() * (0.22 + (i % 4) * 0.03))
+			end)
+			r:PivotTo(rcf * CF(0, -0.3, 0))
+			for _, d in ipairs(r:GetDescendants()) do
+				if d:IsA("BasePart") then
+					d.Color = C(104, 100, 96):Lerp(C(70, 66, 64), (i % 5) / 5)
+				end
+			end
+			r.Parent = ring
+		else
+			P("Part", { Size = V(2.4, 1.6, 2), CFrame = rcf * CF(0, 0.6, 0) * ANG(0.2, 0, 0.1), Color = C(110, 106, 100), Material = Enum.Material.Slate }, ring)
+		end
 	end
-	for i = 0, (MeshProps.Has("Campfire") and -1 or 11) do
-		local ang = i / 12 * math.pi * 2
-		P("Part", {
-			Size = V(2.4, 1.6, 2), CFrame = base * CF(math.cos(ang) * 5.2, 0.6, math.sin(ang) * 5.2) * ANG(0.2, -ang, 0.1),
-			Color = C(110, 106, 100), Material = Enum.Material.Slate,
-		}, m)
-	end
-	-- ฟืน
+	ring.Parent = m
+	-- ฟืนทรงกระโจม + ท่อนไม้ไหม้ที่ฐาน
 	local logs = Instance.new("Model")
 	logs.Name = "Campfire"
-	for i = 0, 5 do
-		local ang = i / 6 * math.pi * 2
-		cylinderY(6, 1.1, base * CF(math.cos(ang) * 1.2, 2.2, math.sin(ang) * 1.2) * ANG(math.sin(ang) * 0.55, 0, -math.cos(ang) * 0.55), {
-			Color = C(90, 60, 40), Material = Enum.Material.Wood, Name = "Log",
+	for i = 0, 6 do
+		local ang = i / 7 * math.pi * 2
+		cylinderY(5.5, 0.9, base * CF(math.cos(ang) * 1.3, 2, math.sin(ang) * 1.3) * ANG(math.sin(ang) * 0.5, 0, -math.cos(ang) * 0.5), {
+			Color = C(72, 52, 38), Material = Enum.Material.Wood, Name = "Log",
 		}, logs)
 	end
+	for i = 0, 2 do
+		local ang = i / 3 * math.pi * 2 + 0.5
+		cylinderY(4.5, 1, base * CF(math.cos(ang) * 1.6, 0.5, math.sin(ang) * 1.6) * ANG(0, -ang, math.pi / 2), {
+			Color = C(40, 30, 26), Material = Enum.Material.Wood, Name = "Charred",
+		}, logs)
+	end
+	P("Part", { Name = "Ash", Shape = Enum.PartType.Cylinder, Size = V(0.3, 7.6, 7.6), CFrame = base * CF(0, 0.1, 0) * ANG(0, 0, math.pi / 2), Color = C(46, 42, 40), Material = Enum.Material.Basalt, CanCollide = false }, logs)
 	local core = P("Part", {
 		Name = "FireCore", Size = V(2, 2, 2), CFrame = base * CF(0, 2.2, 0), Transparency = 1, CanCollide = false,
 	}, logs)
-	local glow = ellipsoid(V(3, 1.2, 3), base * CF(0, 0.8, 0), { Name = "Embers", Color = C(255, 120, 30), Material = Enum.Material.Neon, CanCollide = false }, logs)
+	local glow = ellipsoid(V(3.6, 0.7, 3.6), base * CF(0, 0.45, 0), { Name = "Embers", Color = C(255, 120, 30), Material = Enum.Material.Neon, CanCollide = false }, logs)
 	glow.Parent = logs
 	fire(core, 9)
+	-- เปลวไฟเป็นชั้นๆ (ดูมีมิติกว่า Fire อย่างเดียว)
+	local flames = Instance.new("ParticleEmitter")
+	flames.Name = "Flames"
+	flames.Texture = "rbxasset://textures/particles/fire_main.dds"
+	flames.Rate = 45
+	flames.Lifetime = NumberRange.new(0.55, 1.0)
+	flames.Speed = NumberRange.new(4, 8)
+	flames.SpreadAngle = Vector2.new(12, 12)
+	flames.LightEmission = 1
+	flames.LightInfluence = 0
+	flames.ZOffset = 1
+	flames.Rotation = NumberRange.new(-20, 20)
+	flames.RotSpeed = NumberRange.new(-40, 40)
+	flames.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 2.6), NumberSequenceKeypoint.new(0.5, 2.0), NumberSequenceKeypoint.new(1, 0.3) })
+	flames.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.6), NumberSequenceKeypoint.new(0.2, 0.1), NumberSequenceKeypoint.new(1, 1) })
+	flames.Color = ColorSequence.new({ ColorSequenceKeypoint.new(0, C(255, 240, 160)), ColorSequenceKeypoint.new(0.4, C(255, 150, 40)), ColorSequenceKeypoint.new(1, C(200, 50, 20)) })
+	flames.Shape = Enum.ParticleEmitterShape.Disc
+	flames.ShapeStyle = Enum.ParticleEmitterShapeStyle.Volume
+	flames.Parent = core
 	light(core, C(255, 150, 70), 60, 3, true)
 	local sparks = Instance.new("ParticleEmitter")
 	sparks.Name = "Sparks"

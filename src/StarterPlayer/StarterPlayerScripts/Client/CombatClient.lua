@@ -528,6 +528,15 @@ Handlers.StructureHit = function(d)
 	end)
 end
 
+-- เอฟเฟกต์สกิลบอส (BossFX)
+local BossFX = require(script.Parent:WaitForChild("BossFX"))
+BossFX.Init(function(power, time)
+	CombatClient.Shake(power, time)
+end)
+for k, fn in pairs(BossFX.Handlers) do
+	Handlers[k] = fn
+end
+
 function CombatClient.HandleFx(kind, data, hud)
 	if kind == "Pickup" then
 		hud.Pickup(data.Item, data.Count)

@@ -255,11 +255,28 @@ function SurvivalService:OnCharacter(player, char)
 		local look = player:GetAttribute("InRun") and self.ctx.CampPosition + Vector3.new(0, 4, 0) or pos + Vector3.new(0, 0, -10)
 		root.CFrame = CFrame.new(pos, Vector3.new(look.X, pos.Y, look.Z))
 		pcall(function()
-			player:RequestStreamAroundAsync(pos, 8)
+			player:RequestStreamAroundAsync(pos, 12)
 		end)
-		task.wait(0.6)
+		task.wait(1.5)
 		if root.Parent then
 			root.Anchored = false
+		end
+	end)
+	-- กันตกทะลุโลก (พื้นยังโหลดไม่ทัน): ร่วงต่ำเกินไป -> ดึงกลับจุดเกิดแล้วตรึงรอโหลด
+	task.spawn(function()
+		while char.Parent and root.Parent do
+			task.wait(1)
+			if player:GetAttribute("InRun") and root.Position.Y < Config.WaterLevel - 150 then
+				local back = self:SpawnPoint(player)
+				root.Anchored = true
+				root.AssemblyLinearVelocity = Vector3.zero
+				root.CFrame = CFrame.new(back)
+				pcall(function()
+					player:RequestStreamAroundAsync(back, 12)
+				end)
+				task.wait(1.5)
+				root.Anchored = false
+			end
 		end
 	end)
 	local ff = Instance.new("ForceField")

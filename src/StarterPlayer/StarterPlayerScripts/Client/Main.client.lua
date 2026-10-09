@@ -74,6 +74,14 @@ do
 		end)
 		tool.Activated:Connect(function()
 			local target = mouse.Target
+			-- คลิกกองไฟ = โยนไม้/ถ่าน/เนื้อดิบจากกระสอบเข้าไป
+			local camp = Workspace:FindFirstChild("World") and Workspace.World:FindFirstChild("Sites") and Workspace.World.Sites:FindFirstChild("Camp")
+			local fireModel = camp and camp:FindFirstChild("Campfire")
+			if target and fireModel and (target:IsDescendantOf(fireModel) or (camp:FindFirstChild("CampfireRing") and target:IsDescendantOf(camp.CampfireRing))
+				or (fireModel.PrimaryPart and (mouse.Hit.Position - fireModel.PrimaryPart.Position).Magnitude < 6)) then
+				Remotes.Get("ThrowFuel"):FireServer()
+				return
+			end
 			local drops = Workspace:FindFirstChild("Drops")
 			while target and drops and target.Parent ~= drops do
 				target = target.Parent

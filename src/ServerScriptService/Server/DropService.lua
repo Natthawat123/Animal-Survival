@@ -220,8 +220,8 @@ function DropService:Spawn(id, n, pos, opts)
 		return
 	end
 	opts = opts or {}
-	-- รวมกับกองเดิมที่อยู่ใกล้
-	for m, d in pairs(drops) do
+	-- รวมกับกองเดิมที่อยู่ใกล้ (ของที่โยนไม่รวม จะได้ลอยไปถึงเป้า)
+	for m, d in pairs(opts.Velocity and {} or drops) do
 		if d.Id == id and d.Count < STACK_MAX and m.PrimaryPart and (m.PrimaryPart.Position - pos).Magnitude < MERGE_RADIUS then
 			local add = math.min(n, STACK_MAX - d.Count)
 			d.Count += add
@@ -241,10 +241,14 @@ function DropService:Spawn(id, n, pos, opts)
 		local rng = self.rng
 		local a = rng:NextNumber() * math.pi * 2
 		local spread = opts.Spread or 2.5
-		root.CFrame = CF(pos + V(math.cos(a) * spread * rng:NextNumber(), 2.2, math.sin(a) * spread * rng:NextNumber())) * ANG(0, rng:NextNumber() * 6.28, 0)
+		if opts.Velocity then
+			root.CFrame = CF(pos) * ANG(0, rng:NextNumber() * 6.28, 0)
+		else
+			root.CFrame = CF(pos + V(math.cos(a) * spread * rng:NextNumber(), 2.2, math.sin(a) * spread * rng:NextNumber())) * ANG(0, rng:NextNumber() * 6.28, 0)
+		end
 		m:SetAttribute("ItemId", id)
 		m.Parent = folder
-		root.AssemblyLinearVelocity = V(math.cos(a) * 7, 16, math.sin(a) * 7)
+		root.AssemblyLinearVelocity = opts.Velocity or V(math.cos(a) * 7, 16, math.sin(a) * 7)
 		root.AssemblyAngularVelocity = V(rng:NextNumber() * 4, rng:NextNumber() * 4, rng:NextNumber() * 4)
 		drops[m] = { Id = id, Count = c, Born = os.clock() }
 		table.insert(order, m)
@@ -298,7 +302,37 @@ function DropService:Pickup(player, m)
 	end
 end
 
--- ทิ้งของจากกระสอบลงพื้นหน้าตัว
+-- ของตกในรัศมี (ใช้กับกองไฟ)
+function DropService:Near(pos, radius, height)
+	local out = {}
+	for m, d in pairs(drops) do
+		local r = m.PrimaryPart
+		if r then
+			local off = r.Position - pos
+			if Vector3.new(off.X, 0, off.Z).Magnitude < radius and math.abs(off.Y) < (height or radius) then
+				table.insert(out, { Model = m, Id = d.Id, Count = d.Count })
+			end
+		end
+	end
+	return out
+end
+
+-- โยนของจากมือเป็นวิถีโค้งไปตกที่ target
+function DropService:Throw(player, id, n, target)
+	local char = player.Character
+	local head = char and char:FindFirstChild("Head")
+	if not head then
+		return
+	end
+	local from = head.Position + Vector3.new(0, 1, 0)
+	local T = 0.75
+	local g = workspace.Gravity
+	local d = target - from
+	local v = Vector3.new(d.X / T, (d.Y + 0.5 * g * T * T) / T, d.Z / T)
+	self:Spawn(id, n, from, { Velocity = v })
+end
+
+-- ทิ้งของจากกระสอบ: ถ้ายืนใกล้กองไฟ -> โยนเข้ากองไฟเลย ไม่งั้นวางหน้าตัว
 function DropService:DropFromPlayer(player, id, n)
 	local inv = self.ctx.Services.InventoryService
 	n = math.clamp(math.floor(tonumber(n) or 1), 1, 999)
@@ -312,7 +346,12 @@ function DropService:DropFromPlayer(player, id, n)
 	end
 	inv:Remove(player, id, n)
 	local cf = char:GetPivot()
-	self:Spawn(id, n, cf.Position + cf.LookVector * 4, { Spread = 0.5 })
+	local fire = self.ctx.Services.CampService:FirePosition()
+	if fire and (cf.Position - fire).Magnitude < 18 then
+		self:Throw(player, id, n, fire + Vector3.new(0, 1, 0))
+	else
+		self:Spawn(id, n, cf.Position + cf.LookVector * 4, { Spread = 0.5 })
+	end
 end
 
 function DropService:Init(ctx)

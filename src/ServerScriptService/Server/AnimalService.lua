@@ -84,10 +84,13 @@ end
 function AnimalService:Spawn(id, position, opts)
 	opts = opts or {}
 	local info = Animals.Data[id]
-	if not info or (not Config.AnimalsEnabled and not opts.Force) then
+	if not info or not Config.AnimalsEnabled then
 		return nil
 	end
 	local model = AnimalModels.Build(id)
+	if not model then
+		return nil -- ยังไม่มีโมเดลของสัตว์ตัวนี้ (assets/rbxm/Animals/<Id>.rbxmx)
+	end
 	local root = model.PrimaryPart
 	local hum = model:FindFirstChildOfClass("Humanoid")
 	AnimalModels.PlaceAt(model, position, opts.Yaw or self.rng:NextNumber(0, math.pi * 2))
@@ -118,6 +121,20 @@ function AnimalService:Spawn(id, position, opts)
 	}
 	if info.Behaviour == "Flyer" or info.Flying then
 		self:SetupFlying(a)
+	elseif info.Behaviour == "Boss" then
+		-- บอสเดินพื้น: หมุนตัวเองหาผู้เล่นแบบนุ่มๆ (ไม่ใช่หันตามทางเดิน)
+		hum.AutoRotate = false
+		local att = Instance.new("Attachment")
+		att.Name = "FaceAttachment"
+		att.Parent = root
+		local ao = Instance.new("AlignOrientation")
+		ao.Mode = Enum.OrientationAlignmentMode.OneAttachment
+		ao.Attachment0 = att
+		ao.MaxTorque = 1e9
+		ao.Responsiveness = 7
+		ao.CFrame = root.CFrame.Rotation
+		ao.Parent = root
+		a.FaceAlign = ao
 	end
 	active[model] = a
 	table.insert(list, a)
@@ -606,14 +623,112 @@ function AnimalService:ThinkFlyer(a, now, target, dist)
 	end
 	ap.Position = goal
 	local dir = goal - pos
-	if dir.Magnitude > 1 then
-		ao.CFrame = CFrame.lookAt(pos, pos + dir) * CFrame.Angles(0, 0, 0)
+	local flat = Vector3.new(dir.X, 0, dir.Z)
+	if flat.Magnitude > 1 then
+		-- หันตามทิศบิน แต่ไม่เชิด/ก้มเกิน ~20° (ตัวใหญ่ตั้งดิ่งแล้วดูแปลก)
+		local pitch = math.clamp(math.atan2(dir.Y, flat.Magnitude), -0.35, 0.35)
+		ao.CFrame = CFrame.lookAt(pos, pos + flat) * CFrame.Angles(pitch, 0, 0)
 	end
+end
+
+-- บอส: ไม่เข้าตีประชิด — คุมระยะ หันหน้าหาผู้เล่นตลอด แล้วใช้สกิล (มีวงเตือนให้หลบ) วนไปทีละท่า
+function AnimalService:FaceBoss(a, pos)
+	local root = a.Root
+	local flat = Vector3.new(pos.X - root.Position.X, 0, pos.Z - root.Position.Z)
+	if flat.Magnitude < 1 then
+		return
+	end
+	local look = CFrame.lookAt(Vector3.zero, flat)
+	if a.FaceAlign then
+		a.FaceAlign.CFrame = look
+	elseif a.Orient then
+		a.Orient.CFrame = look
+	end
+end
+
+function AnimalService:ThinkBoss(a, now)
+	local info = a.Info
+	local target, dist = self:PickTarget(a)
+	if not target then
+		-- บอสไม่สนเขตปลอดภัยของกองไฟ: เล็งผู้เล่นที่ใกล้สุดในระยะ 200
+		local surv = self.ctx.Services.SurvivalService
+		for _, p in ipairs(Players:GetPlayers()) do
+			local pr = charRoot(p)
+			if pr and surv:IsAlive(p) then
+				local d = (pr.Position - a.Root.Position).Magnitude
+				if d < 200 and (not dist or d < dist) then
+					target, dist = p, d
+				end
+			end
+		end
+	end
+	local r = target and charRoot(target)
+	local center = r and r.Position
+	if not center then
+		-- ไม่มีผู้เล่นในระยะ: เดินไปทางแคมป์แล้วยืนคุมเชิง (เฝ้าถิ่นถ้าเป็นบอสถ้ำ)
+		if a.Leash then
+			center = a.Home
+		else
+			center = self.ctx.CampPosition
+		end
+		dist = ((center - a.Root.Position) * Vector3.new(1, 0, 1)).Magnitude
+	end
+	local keep = 45 + a.Radius * 0.5
+	if a.Flying then
+		-- มังกร: บินวน (ต่ำ) <-> ร่อนลงสู้บนพื้น สลับกัน — ตอนลงพื้นเดินเข้าไปตีได้
+		if not a.PhaseUntil then
+			a.PhaseUntil = now + 11
+			a.RootHeight = a.Root.Size.Y / 2 + a.Hum.HipHeight
+		end
+		if now >= a.PhaseUntil and not a.Casting then
+			a.Grounded = not a.Grounded
+			a.PhaseUntil = now + (a.Grounded and 14 or 11)
+			a.Model:SetAttribute("Grounded", a.Grounded)
+		end
+		local ap = a.Align
+		a.OrbitAngle = (a.OrbitAngle or 0) + Config.AnimalThinkRate * (a.Grounded and 0.06 or 0.22)
+		local rad = a.Grounded and keep * 0.75 or keep + 10
+		local gx, gz = center.X + math.cos(a.OrbitAngle) * rad, center.Z + math.sin(a.OrbitAngle) * rad
+		local layout = self.ctx.Layout
+		local floor = math.max(layout:HeightAt(gx, gz), layout.WaterLevel)
+		local gy = a.Grounded and (floor + a.RootHeight) or (math.max(floor, center.Y) + 26)
+		if ap and not a.Casting then
+			ap.Position = Vector3.new(gx, gy, gz)
+		end
+		self:FaceBoss(a, center)
+	else
+		-- บอสเดินพื้น: ยืนคุมพื้นที่ หันหาผู้เล่น (ไม่ถอยหนี จะได้เข้าไปตีได้) เดินเข้าหาเมื่ออยู่ไกล
+		self:FaceBoss(a, center)
+		if a.Casting then
+			self:Stop(a)
+			a.State = "Cast"
+		elseif dist > keep + 35 then
+			self:MoveTo(a, center, 1)
+			a.State = "Chase"
+		else
+			self:Stop(a)
+			a.State = "Idle"
+		end
+	end
+	-- สกิล (วนตามลำดับ ไม่ซ้ำท่าเดิมติดกัน)
+	if r and not a.Casting and now >= a.NextAbility and dist < 170 then
+		local abilities = info.Abilities or {}
+		if #abilities > 0 then
+			a.AbilityIndex = (a.AbilityIndex or 0) % #abilities + 1
+			a.NextAbility = now + self.rng:NextNumber(4.5, 6.5)
+			self:Stop(a)
+			BossAbilities.Run(self.ctx, a, abilities[a.AbilityIndex], target)
+		end
+	end
+	a.Model:SetAttribute("State", a.State)
 end
 
 function AnimalService:ThinkHostile(a, now)
 	local info = a.Info
 	local b = info.Behaviour
+	if b == "Boss" then
+		return self:ThinkBoss(a, now)
+	end
 	local target, dist = self:PickTarget(a)
 	local campMode = (a.Kind == "Raid") or (a.Kind == "Boss" and not a.Leash)
 

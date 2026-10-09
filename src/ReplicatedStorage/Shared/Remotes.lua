@@ -24,6 +24,7 @@ Remotes.Events = {
 	"Ping", -- เทสต์
 	"DropItem", -- (itemId, count) ทิ้งของจากกระสอบลงพื้น
 	"PickupDrop", -- (dropModel) เก็บของบนพื้น (คลิกตอนถือกระสอบ)
+	"ThrowFuel", -- () ถือกระสอบคลิกกองไฟ: โยนเชื้อเพลิง/เนื้อดิบเข้าไป
 	-- server -> client
 	"Notify", -- (text, kind)
 	"Inventory", -- (table)

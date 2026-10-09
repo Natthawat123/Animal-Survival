@@ -33,11 +33,10 @@ SHOTS = "--shots" in sys.argv  # เทสต์ + ถ่ายภาพฉา�
 SEED = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--seed=")), None)
 FETCH = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--fetch=")), None)  # ดึงโมเดล Creator Store: --fetch=id,id
 PROBE = "--probe" in sys.argv
-CREATURES = "--creatures" in sys.argv  # เทสต์สั้น: ถ่ายภาพสัตว์ทุกตัวในเกม
 GALLERY = "--gallery" in sys.argv  # สตูดิโอถ่ายภาพ: สัตว์/ไอเทม/คลาส ทีละตัว
-ANIMTEST = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--anim=")), None)  # ดูท่าเดิน/วิ่ง/กัด: --anim=MossWolf,Deer  # ถ่ายภาพโมเดลใน Assets.Creatures/Characters ตอน Edit
+VFXSHOW = next((a.split("=", 1)[1] if "=" in a else "*" for a in sys.argv if a.startswith("--vfxshow")), None)  # เทสต์: เล่น VFX ทีละตัวแล้วถ่ายภาพ (--vfxshow=Massive = เฉพาะแพ็ก)
 
-if CREATURES or GALLERY or ANIMTEST:
+if GALLERY or VFXSHOW:
     TEST = True
 if TEST or SHOTS:
     OUT = os.path.join(OUT_DIR, "AnimalSurvival_TEST.rbxlx")
@@ -156,20 +155,18 @@ def main():
     assets = item("Folder", "Animals", model_items("Animals"))
     assets += item("Folder", "Props", model_items("Props"))
     assets += item("Folder", "Weapons", model_items("Weapons"))
-    assets += item("Folder", "Creatures", model_items("Creatures"))  # โมเดลจาก Creator Store (tools/store_to_rbxmx.py)
     assets += item("Folder", "Characters", model_items("Characters"))
+    assets += item("Folder", "VFX", model_items("VFX"))  # เอฟเฟกต์อนุภาคจาก Creator Store (ใช้กับสกิลบอส)
     rs += item("Folder", "Assets", assets)
     if TEST or SHOTS:
         rs += value_item("BoolValue", "ASAutoTest", "true")
         if SHOTS:
             rs += value_item("BoolValue", "ASShots", "true")
         rs += value_item("BoolValue", "ASLobbyTest", "true")
-        if CREATURES:
-            rs += value_item("BoolValue", "ASCreatureShow", "true")
         if GALLERY:
             rs += value_item("BoolValue", "ASGallery", "true")
-        if ANIMTEST:
-            rs += value_item("StringValue", "ASAnimTest", ANIMTEST)
+        if VFXSHOW:
+            rs += value_item("StringValue", "ASVFXShow", VFXSHOW)
     if SANDBOX:
         rs += value_item("BoolValue", "ASSandbox", "true")
     if SEED:

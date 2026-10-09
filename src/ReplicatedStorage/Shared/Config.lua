@@ -41,8 +41,8 @@ Config.InteractRange = 14
 Config.BuildRange = 60
 
 ---------------------------------------------------------------- สัตว์
--- ปิดสัตว์ทั้งหมดไว้ก่อน (กำลังปั้นโมเดลใหม่) — Dev Tool (F8) ยังเสกได้
-Config.AnimalsEnabled = false
+-- สัตว์เกิดได้เฉพาะตัวที่มีโมเดลแล้ว (assets/rbxm/Animals/<Id>.rbxmx) — ตอนนี้มีแค่บอส 4 ไบโอม
+Config.AnimalsEnabled = true
 Config.MaxWildAnimals = 70 -- สัตว์ป่ากลางวันทั้งแมพ
 Config.WildSpawnRadius = { Min = 140, Max = 420 } -- เกิดรอบตัวผู้เล่น
 Config.WildDespawnRadius = 900

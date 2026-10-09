@@ -203,6 +203,112 @@ local function buildSack(itemId)
 	return tool
 end
 
+function ToolFactory.GripFor(tool, handle, kind)
+	local lo = V(math.huge, math.huge, math.huge)
+	local hi = -lo
+	local centroid, mass = V(), 0
+	for _, p in ipairs(tool:GetDescendants()) do
+		if p:IsA("BasePart") then
+			local rel = handle.CFrame:ToObjectSpace(p.CFrame)
+			local h = p.Size / 2
+			for _, sx in ipairs({ -1, 1 }) do
+				for _, sy in ipairs({ -1, 1 }) do
+					for _, sz in ipairs({ -1, 1 }) do
+						local c = rel * V(h.X * sx, h.Y * sy, h.Z * sz)
+						lo = V(math.min(lo.X, c.X), math.min(lo.Y, c.Y), math.min(lo.Z, c.Z))
+						hi = V(math.max(hi.X, c.X), math.max(hi.Y, c.Y), math.max(hi.Z, c.Z))
+					end
+				end
+			end
+			local m = p.Size.X * p.Size.Y * p.Size.Z
+			centroid += rel.Position * m
+			mass += m
+		end
+	end
+	if mass <= 0 then
+		return CF()
+	end
+	centroid /= mass
+	local ext = hi - lo
+	local mid = (lo + hi) / 2
+	-- แกนยาวสุด + ด้านที่หนักกว่า = หัว
+	local axis
+	if ext.X >= ext.Y and ext.X >= ext.Z then
+		axis = V(1, 0, 0)
+	elseif ext.Y >= ext.Z then
+		axis = V(0, 1, 0)
+	else
+		axis = V(0, 0, 1)
+	end
+	local len = ext:Dot(axis)
+	local sign = ((centroid - mid):Dot(axis) >= 0) and 1 or -1
+	local head = axis * sign
+	if kind == "Bow" then
+		-- ธนู: จับกลางคันธนู ตั้งคันขึ้น
+		local grip = mid
+		local up = V(0, 1, 0)
+		local rot = (head:Dot(up) > 0.999 or head:Dot(up) < -0.999) and CF() or CFrame.fromAxisAngle(up:Cross(head).Unit, math.acos(math.clamp(up:Dot(head), -1, 1)))
+		return CF(grip) * rot * ANG(0, math.pi / 2, 0)
+	end
+	local tail = mid - head * (len / 2)
+	local grip = tail + head * (len * (kind == "Spear" and 0.35 or 0.18))
+	-- ทิศคม: ส่วนหัว (30% บนสุด) ยื่นออกจากแนวด้ามไปทางไหน -> ให้หันไปข้างหน้า
+	local blade, bmass = V(), 0
+	local topLo, topHi = V(math.huge, math.huge, math.huge), V(-math.huge, -math.huge, -math.huge)
+	for _, p in ipairs(tool:GetDescendants()) do
+		if p:IsA("BasePart") then
+			local c = handle.CFrame:ToObjectSpace(p.CFrame).Position
+			if (c - mid):Dot(head) > len * 0.2 then
+				local perp = (c - mid) - head * (c - mid):Dot(head)
+				local m = p.Size.X * p.Size.Y * p.Size.Z
+				blade += perp * m
+				bmass += m
+				topLo = V(math.min(topLo.X, c.X - p.Size.X / 2), math.min(topLo.Y, c.Y - p.Size.Y / 2), math.min(topLo.Z, c.Z - p.Size.Z / 2))
+				topHi = V(math.max(topHi.X, c.X + p.Size.X / 2), math.max(topHi.Y, c.Y + p.Size.Y / 2), math.max(topHi.Z, c.Z + p.Size.Z / 2))
+			end
+		end
+	end
+	if bmass > 0 then
+		blade /= bmass
+	end
+	if bmass == 0 then
+		-- เครื่องมือชิ้นเดียว (เมชเดียว): ส่วนหัวกว้างสุดตามแกนที่ตั้งฉากกับด้าม
+		topLo, topHi = lo, hi
+	end
+	if blade.Magnitude < 0.05 then
+		-- หัวสมมาตร (เช่น ขวานสองคม): ใช้แกนที่กว้างสุดของส่วนหัว
+		local e = topHi - topLo
+		local cands = {}
+		for _, ax in ipairs({ V(1, 0, 0), V(0, 1, 0), V(0, 0, 1) }) do
+			if math.abs(ax:Dot(head)) < 0.5 then
+				table.insert(cands, { ax, e:Dot(ax) })
+			end
+		end
+		table.sort(cands, function(x, y)
+			return x[2] > y[2]
+		end)
+		blade = cands[1] and cands[1][1] or V()
+	end
+	-- หมุนให้ +Y ของด้ามมาตรฐาน = ทิศหัว แล้วใช้มุมจับแบบเดียวกับด้ามปั้น
+	local up = V(0, 1, 0)
+	local rot
+	if head:Dot(up) > 0.999 then
+		rot = CF()
+	elseif head:Dot(up) < -0.999 then
+		rot = ANG(math.pi, 0, 0)
+	else
+		rot = CFrame.fromAxisAngle(up:Cross(head).Unit, math.acos(math.clamp(up:Dot(head), -1, 1)))
+	end
+	-- แกน +Y ของมือ R15 (ตอนยกแขนถือของ) ชี้ขึ้น -> หัวเครื่องมือชี้ขึ้น ด้ามตั้งฉากกับแขน
+	-- แล้วบิดรอบด้ามให้คม (blade) หันไปทาง +Z ของมือ = ข้างหน้า
+	local twist = CF()
+	if blade.Magnitude > 0.01 then
+		local b = rot:VectorToObjectSpace(blade)
+		twist = ANG(0, math.atan2(b.X, b.Z), 0)
+	end
+	return CF(grip) * rot * twist
+end
+
 function ToolFactory.Build(itemId)
 	if Items.Sacks[itemId] then
 		return buildSack(itemId)
@@ -234,14 +340,8 @@ function ToolFactory.Build(itemId)
 		shape(tool)
 		handle = tool:FindFirstChild("Handle")
 	end
-	-- ท่าถือ: ด้ามตั้งขึ้น จับช่วงล่าง
-	if spec.Kind == "Bow" then
-		tool.Grip = CF(0, 0, 0) * ANG(0, math.pi / 2, 0)
-	elseif spec.Kind == "Spear" then
-		tool.Grip = CF(0, -1.2, 0) * ANG(math.rad(-90), 0, 0)
-	else
-		tool.Grip = CF(0, -handle.Size.Y * 0.35, 0) * ANG(math.rad(-90), 0, 0)
-	end
+	-- ท่าถือ: หาแกนยาวของเครื่องมือจริง (โมเดลแต่ละชิ้นวางแกนไม่เหมือนกัน) -> หัว (ใบขวาน/ใบดาบ) ชี้ขึ้น มือจับใกล้ปลายด้าม
+	tool.Grip = ToolFactory.GripFor(tool, handle, spec.Kind)
 	return tool
 end
 

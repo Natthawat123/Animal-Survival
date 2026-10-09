@@ -204,7 +204,8 @@ function HUD.Update()
 	HUD.HealthBar.Holder.Parent.Visible = not inLobby
 	HUD.Compass.Visible = not inLobby
 	HUD.TimeFill.Parent.Visible = not inLobby
-	HUD.Strip.Visible = not inLobby
+	HUD.Strip.Visible = false -- ไม่มีแถบนับของ: ของทั้งหมดอยู่ในกระสอบ (แบบ 99 Nights)
+	HUD.Hint.Visible = inLobby
 	if inLobby then
 		HUD.NightLabel.Text = "WILDHEART CAMP"
 		HUD.NightLabel.TextColor3 = C.Gold

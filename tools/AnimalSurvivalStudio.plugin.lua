@@ -442,6 +442,77 @@ local function serialize(model)
 			elseif d:IsA("Decal") then
 				e.Texture = d.Texture
 				e.Face = d.Face.Name
+			elseif d:IsA("ParticleEmitter") or d:IsA("Beam") or d:IsA("Trail") then
+				-- เก็บค่าเอฟเฟกต์ทั้งหมด (เอาไปทำ VFX ของบอส)
+				local function ns(x)
+					local out = {}
+					for _, k in ipairs(x.Keypoints) do
+						table.insert(out, { num(k.Time, 1000), num(k.Value, 1000), num(k.Envelope, 1000) })
+					end
+					return out
+				end
+				local function cs(x)
+					local out = {}
+					for _, k in ipairs(x.Keypoints) do
+						table.insert(out, { num(k.Time, 1000), num(k.Value.R, 1000), num(k.Value.G, 1000), num(k.Value.B, 1000) })
+					end
+					return out
+				end
+				local function nr(x)
+					return { num(x.Min, 1000), num(x.Max, 1000) }
+				end
+				e.Texture = d.Texture
+				e.ColorSeq = cs(d.Color)
+				e.TransparencySeq = ns(d.Transparency)
+				e.LightEmission = d.LightEmission
+				e.LightInfluence = d.LightInfluence
+				pcall(function()
+					e.Brightness = d.Brightness
+				end)
+				e.ZOffset = d.ZOffset
+				e.Enabled = d.Enabled
+				if d:IsA("ParticleEmitter") then
+					e.SizeSeq = ns(d.Size)
+					e.Lifetime = nr(d.Lifetime)
+					e.Speed = nr(d.Speed)
+					e.Rate = d.Rate
+					e.Spread = { d.SpreadAngle.X, d.SpreadAngle.Y }
+					e.Rotation = nr(d.Rotation)
+					e.RotSpeed = nr(d.RotSpeed)
+					e.Accel = v3(d.Acceleration)
+					e.Drag = d.Drag
+					e.EmissionDirection = d.EmissionDirection.Name
+					e.Shape = d.Shape.Name
+					e.ShapeStyle = d.ShapeStyle.Name
+					e.ShapeInOut = d.ShapeInOut.Name
+					e.ShapePartial = d.ShapePartial
+					e.SquashSeq = ns(d.Squash)
+					e.Orientation = d.Orientation.Name
+					e.LockedToPart = d.LockedToPart
+					e.VelocityInheritance = d.VelocityInheritance
+					e.TimeScale = d.TimeScale
+					e.FlipbookLayout = d.FlipbookLayout.Name
+					e.FlipbookMode = d.FlipbookMode.Name
+					e.FlipbookFramerate = nr(d.FlipbookFramerate)
+					e.FlipbookStartRandom = d.FlipbookStartRandom
+					pcall(function()
+						e.EmitCount = d:GetAttribute("EmitCount")
+					end)
+				elseif d:IsA("Beam") then
+					e.A0 = d.Attachment0 and index[d.Attachment0] or 0
+					e.A1 = d.Attachment1 and index[d.Attachment1] or 0
+					e.TextureMode = d.TextureMode.Name
+					e.TextureLength = d.TextureLength
+					e.TextureSpeed = d.TextureSpeed
+					e.Width0, e.Width1 = d.Width0, d.Width1
+					e.Curve0, e.Curve1 = d.CurveSize0, d.CurveSize1
+					e.Segments = d.Segments
+					e.FaceCamera = d.FaceCamera
+				else
+					e.TrailLifetime = d.Lifetime
+					e.WidthScale = ns(d.WidthScale)
+					e.FaceCamera = d.FaceCamera
+				end
 			elseif d:IsA("Bone") or d:IsA("Attachment") then
 				e.CF = cfr(d.CFrame)
 			elseif d:IsA("JointInstance") then

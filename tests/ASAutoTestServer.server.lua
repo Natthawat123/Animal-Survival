@@ -34,11 +34,6 @@ game:GetService("LogService").MessageOut:Connect(function(msg, t)
 end)
 
 cmd.OnServerInvoke = function(player, action, a, b)
-	if action == "spawn" or action == "spawnRaid" then
-		-- สัตว์ถูกปิดในเกม: เปิดให้เฉพาะช่วงเทสต์ต่อสู้/ฝูงบุก
-		require(game:GetService("ReplicatedStorage").Shared.Config).AnimalsEnabled = true
-		player:SetAttribute("TestGod", true) -- ไม่ให้ผู้เล่นเทสต์ตายจนเกมจบกลางเทสต์
-	end
 	if action == "give" then
 		local inv = svc("InventoryService")
 		for id, n in pairs(a) do

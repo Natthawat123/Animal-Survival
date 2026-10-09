@@ -108,6 +108,12 @@ task.wait(4)
 check("spawned", root.Position.Magnitude < 200, root.Position)
 check("camp exists", Workspace:FindFirstChild("World") and Workspace.World.Sites:FindFirstChild("Camp") ~= nil)
 shot("play_spawn", 2)
+-- ตัวละครอาจเกิดใหม่หลังเข้าแมพ -> ใช้ตัวปัจจุบันเสมอ
+local function refreshChar()
+	char = player.Character or player.CharacterAdded:Wait()
+	root = char:WaitForChild("HumanoidRootPart")
+	hum = char:WaitForChild("Humanoid")
+end
 
 local cam = Workspace.CurrentCamera
 local function moveTo(pos)
@@ -121,87 +127,42 @@ end
 
 
 
--- โหมดดูท่า (build --anim=Id,Id): ปล่อยสัตว์เดินจริง ถ่ายหลายเฟรม (ไล่ผู้เล่น = วิ่ง/กัด)
-local animTest = ReplicatedStorage:FindFirstChild("ASAnimTest")
-if animTest then
-	cmd:InvokeServer("showcase")
+-- โหมดโชว์ VFX (build --vfxshow): เล่นเอฟเฟกต์ในคลังทีละตัวบนเวทีลอยฟ้า แล้วถ่ายภาพ
+if ReplicatedStorage:FindFirstChild("ASVFXShow") then
+	local VFXLib = require(player:WaitForChild("PlayerScripts"):WaitForChild("Client"):WaitForChild("VFXLib"))
 	local cp = state:GetAttribute("CampPos") or Vector3.zero
-	local site = cmd:InvokeServer("safe", cp.X + 200, cp.Z + 40)
+	local stage = cp + Vector3.new(0, 520, 0)
+	cmd:InvokeServer("galleryStage", stage)
 	for _, g in ipairs(player.PlayerGui:GetChildren()) do
 		if g:IsA("ScreenGui") then
 			g.Enabled = false
 		end
 	end
-	for id in string.gmatch(animTest.Value, "[^,]+") do
-		cmd:InvokeServer("clearAnimals")
-		moveTo(site + Vector3.new(0, 4, 0))
-		root.Anchored = true
-		cmd:InvokeServer("spawn", id, site + Vector3.new(0, 4, 30))
-		task.wait(1)
-		local m
-		for _ = 1, 20 do
-			for _, x in ipairs(Workspace.Animals:GetChildren()) do
-				if x:GetAttribute("AnimalId") == id then
-					m = x
-				end
-			end
-			if m then
-				break
-			end
-			task.wait(0.25)
+	moveTo(stage + Vector3.new(0, 4, -80))
+	root.Anchored = true
+	local cam = Workspace.CurrentCamera
+	cam.CameraType = Enum.CameraType.Scriptable
+	local filter = ReplicatedStorage.ASVFXShow.Value
+	local list = {}
+	for _, path in ipairs(VFXLib.List()) do
+		if filter == "*" or path:sub(1, #filter) == filter then
+			table.insert(list, path)
 		end
-		task.wait(1.5)
-		cam.CameraType = Enum.CameraType.Scriptable
-		print(string.format("[TEST] anim %s found=%s n=%d visual=%s", id, tostring(m ~= nil), #Workspace.Animals:GetChildren(), tostring(m and m:FindFirstChild("RigVisual") ~= nil)))
-		-- กล้องตามตัวสัตว์ทุกเฟรม (มองด้านข้าง เยื้องหน้า)
-		local size = m and m:GetExtentsSize() or Vector3.new(6, 6, 6)
-		local r = math.max(size.X, size.Z, 4)
-		game:GetService("RunService"):BindToRenderStep("ASAnimCam", Enum.RenderPriority.Last.Value + 1, function()
-			local hrp = m and m:FindFirstChild("HumanoidRootPart")
-			if hrp then
-				cam.CameraType = Enum.CameraType.Scriptable
-				cam.FieldOfView = 40
-				local side = hrp.CFrame.RightVector * r * 1.6 - hrp.CFrame.LookVector * r * 0.4 + Vector3.new(0, r * 0.3, 0)
-				cam.CFrame = CFrame.lookAt(hrp.Position + side, hrp.Position + Vector3.new(0, size.Y * 0.1, 0))
-			end
-		end)
-		for i = 1, 6 do
-			shot("anim_" .. id .. "_" .. i, i == 1 and 0.5 or 0.05)
-			local hrp = m and m:FindFirstChild("HumanoidRootPart")
-			local hum = m and m:FindFirstChildOfClass("Humanoid")
-			local vis = m and m:FindFirstChild("RigVisual")
-			local gap, vh = -99, -1
-			if vis and hrp then
-				local cf, sz = vis:GetBoundingBox()
-				local rp = RaycastParams.new()
-				rp.FilterDescendantsInstances = { m, player.Character }
-				rp.FilterType = Enum.RaycastFilterType.Exclude
-				local hit = Workspace:Raycast(hrp.Position, Vector3.new(0, -60, 0), rp)
-				gap = hit and (cf.Position.Y - sz.Y / 2 - hit.Position.Y) or -98
-				vh = sz.Y
-				if hit and hum then
-					local rr = vis:FindFirstChild("RigRoot")
-					local lowest, lowName = math.huge, "-"
-					for _, d in ipairs(vis:GetDescendants()) do
-						if d:IsA("BasePart") and d.Transparency < 1 then
-							local y = d.Position.Y - d.Size.Y / 2
-							if y < lowest then
-								lowest, lowName = y, d.Name
-							end
-						end
-					end
-					print(string.format("[TEST] animground %s hipGap=%.2f anchorGap=%.2f lowestGap=%.2f (%s) hrpSize=%.2f hip=%.2f", id,
-						hrp.Position.Y - hrp.Size.Y / 2 - hum.HipHeight - hit.Position.Y, rr and (rr.Position.Y - hit.Position.Y) or -99,
-						lowest - hit.Position.Y, lowName, hrp.Size.Y, hum.HipHeight))
-				end
-			end
-			print(string.format("[TEST] animpose %s %d upY=%.2f state=%s ai=%s clip=%s gap=%.2f visH=%.2f", id, i, hrp and hrp.CFrame.UpVector.Y or -9,
-				hum and hum:GetState().Name or "-", tostring(m and m:GetAttribute("State")), tostring(m and m:GetAttribute("RigClip")), gap, vh))
-		end
-		game:GetService("RunService"):UnbindFromRenderStep("ASAnimCam")
-		root.Anchored = false
 	end
-	cmd:InvokeServer("done", "anim")
+	print("[TEST] vfx count", #list)
+	for i, path in ipairs(list) do
+		local m = VFXLib.Play(path, CFrame.new(stage + Vector3.new(0, 3, 0)), { Duration = 2.2 })
+		if m then
+			local cf, size = m:GetBoundingBox()
+			local r = math.clamp(math.max(size.X, size.Y, size.Z), 12, 120)
+			cam.CFrame = CFrame.lookAt(stage + Vector3.new(r * 0.9, r * 0.5, -r * 1.3), stage + Vector3.new(0, r * 0.25, 0))
+			print(string.format("[TEST] vfx %d %s size=%.0f", i, path, r))
+			local safe = path:gsub("[^%w%-]", "_")
+			shot(string.format("vfx_%03d_%s", i, safe), 0.9)
+			task.wait(1.2)
+		end
+	end
+	cmd:InvokeServer("done", "vfx")
 	return
 end
 
@@ -282,69 +243,17 @@ if ReplicatedStorage:FindFirstChild("ASGallery") then
 	return
 end
 
--- โหมดโชว์สัตว์ (build --creatures): ถ่ายสัตว์ทุกตัวเป็นกลุ่ม แล้วจบ
-if ReplicatedStorage:FindFirstChild("ASCreatureShow") then
-	local groups = {
-		{ "small", 16, { "Rabbit", "Deer", "MossWolf", "Thornboar" } },
-		{ "mid", 20, { "StoneBear", "ReefCrab", "RiptideCroc", "GaleHawk" } },
-		{ "mid2", 20, { "SkyLynx", "StormRam", "EmberFox", "MagmaRhino" } },
-		{ "misc", 18, { "LavaSalamander", "HollowStag", "TerraPup", "EmberPup" } },
-		{ "boss_fire", 0, { "Solfang" } },
-		{ "boss_water", 0, { "Leviathan" } },
-		{ "boss_air", 0, { "TempestRoc" } },
-		{ "boss_earth", 0, { "Terragon" } },
-	}
-	cmd:InvokeServer("showcase")
-	local cp = state:GetAttribute("CampPos") or Vector3.zero
-	local site = cmd:InvokeServer("safe", cp.X + 220, cp.Z + 60)
-	cam.CameraType = Enum.CameraType.Scriptable
-	for _, g in ipairs(groups) do
-		cmd:InvokeServer("clearAnimals")
-		local name, gap, ids = g[1], g[2], g[3]
-		local boss = gap == 0
-		for i, id in ipairs(ids) do
-			local x = site.X + (i - (#ids + 1) / 2) * gap
-			local z = site.Z
-			cmd:InvokeServer("spawn", id, Vector3.new(x, ground(x, z) + (boss and 6 or 2), z))
-		end
-		task.wait(1.5)
-		cmd:InvokeServer("freeze", true)
-		moveTo(site + Vector3.new(0, 4, -160))
-		task.wait(2.5)
-		local gy = ground(site.X, site.Z)
-		if boss then
-			local target = Vector3.new(site.X, gy + 14, site.Z)
-			for _, m in ipairs(Workspace.Animals:GetChildren()) do
-				if m:GetAttribute("AnimalId") == ids[1] then
-					local cf, size = m:GetBoundingBox()
-					target = cf.Position
-					gy = cf.Position.Y - size.Y / 2
-				end
-			end
-			cam.CFrame = CFrame.lookAt(target + Vector3.new(50, 26, -64), target)
-		else
-			cam.CFrame = CFrame.lookAt(Vector3.new(site.X + 14, gy + 14, site.Z - 38), Vector3.new(site.X, gy + 3, site.Z))
-		end
-		shot("creatures_" .. name, 2.5)
-		if not boss then
-			cam.CFrame = CFrame.lookAt(Vector3.new(site.X - 30, gy + 8, site.Z - 16), Vector3.new(site.X + 4, gy + 3, site.Z))
-			shot("creatures_" .. name .. "_side", 1.2)
-		end
-		cmd:InvokeServer("freeze", false)
-	end
-	cmd:InvokeServer("done", "creatures")
-	return
-end
-
 -- 1) ตัดไม้
+refreshChar()
 local tool = player.Backpack:WaitForChild("ขวานเก่า", 10) or player.Backpack:FindFirstChildOfClass("Tool")
 check("has starter tool", tool ~= nil)
 local woodBefore = inventory.Wood or 0
 local target
 for _, node in ipairs(game:GetService("CollectionService"):GetTagged("ResourceNode")) do
-	if node:GetAttribute("Node") == "Tree" and node:GetAttribute("Yield") == "Wood" then
+	if node:GetAttribute("Node") == "Tree" and node:GetAttribute("Yield") == "Wood" and node:GetPivot().Position.Y > 25 then -- บนบก ไม่ใช่ริมน้ำ
 		local d = (node:GetPivot().Position - root.Position).Magnitude
-		if d < 600 and (not target or d < (target:GetPivot().Position - root.Position).Magnitude) then
+		local fromCamp = (node:GetPivot().Position - state:GetAttribute("CampPos")) * Vector3.new(1, 0, 1)
+		if d < 600 and fromCamp.Magnitude > 70 and (not target or d < (target:GetPivot().Position - root.Position).Magnitude) then
 			target = node
 		end
 	end
@@ -360,6 +269,10 @@ if tool and target then
 	cam.CameraType = Enum.CameraType.Scriptable
 	cam.CFrame = CFrame.lookAt(root.Position + dir * 14 + Vector3.new(4, 7, 4), tp + Vector3.new(0, 6, 0))
 	for _ = 1, 12 do
+		if tool.Parent ~= char then
+			hum:EquipTool(tool)
+			task.wait(0.2)
+		end
 		tool:Activate()
 		task.wait(0.1)
 		tool:Deactivate() -- เหมือนปล่อยเมาส์ (ไม่งั้น Roblox ไม่ยิง Activated ครั้งถัดไป)
@@ -405,7 +318,63 @@ end
 task.wait(1)
 check("structures placed", #Workspace.Structures:GetChildren() >= 3, #Workspace.Structures:GetChildren())
 
--- 3) เติมไฟ + ภาพแคมป์
+-- 2.5) ภาพถือเครื่องมือแต่ละชิ้น (เช็กมุมจับ)
+if SHOTS then
+	refreshChar()
+	moveTo(campPos + Vector3.new(0, 4, 26))
+	root.Anchored = true
+	local k = 0
+	for _, t in ipairs(player.Backpack:GetChildren()) do
+		if t:IsA("Tool") then
+			k += 1
+			hum:EquipTool(t)
+			task.wait(0.6)
+			cam.CameraType = Enum.CameraType.Scriptable
+			cam.CFrame = CFrame.lookAt(root.Position + root.CFrame.RightVector * 8 + Vector3.new(0, 2, 0), root.Position + Vector3.new(0, 1.5, 0))
+			shot("hold_" .. k, 0.3)
+			-- ทิศของส่วนหัวเครื่องมือเทียบกับตัว (หน้า = -Z, ขวา = +X, ขึ้น = +Y)
+			local h = t:FindFirstChild("Handle")
+			if h then
+				local best, bd = nil, -1
+				for _, p in ipairs(t:GetDescendants()) do
+					if p:IsA("BasePart") then
+						local rel = root.CFrame:VectorToObjectSpace(p.Position - h.Position)
+						local vol = p.Size.X * p.Size.Y * p.Size.Z
+						if rel.Y > 0.5 and vol > bd then
+							best, bd = rel, vol
+						end
+					end
+				end
+				local function axis(v)
+					local r = root.CFrame:VectorToObjectSpace(v)
+					return string.format("(%.2f,%.2f,%.2f)", r.X, r.Y, r.Z)
+				end
+				print(string.format("[TEST] hold %s headRel=%s hX=%s hY=%s hZ=%s size=%s", t:GetAttribute("ItemId") or "?", tostring(best),
+					axis(h.CFrame.RightVector), axis(h.CFrame.UpVector), axis(-h.CFrame.LookVector), tostring(h.Size)))
+			end
+			hum:UnequipTools()
+		end
+	end
+	cam.CameraType = Enum.CameraType.Custom
+	root.Anchored = false
+end
+
+-- 3) โยนไม้เข้ากองไฟ (แบบ 99 Nights: ไม่มีปุ่มกดที่กองไฟ)
+moveTo(campPos + Vector3.new(9, 4, 9))
+local woodHad = inventory.Wood or 0
+for _ = 1, 3 do
+	Remotes.Get("ThrowFuel"):FireServer()
+	task.wait(0.45)
+end
+task.wait(2.5)
+local leftover = 0
+for _, d in ipairs(Workspace.Drops:GetChildren()) do
+	if d.PrimaryPart and (d.PrimaryPart.Position - campPos).Magnitude < 7 then
+		leftover += 1
+	end
+end
+check("threw wood into fire", (inventory.Wood or 0) <= woodHad - 3 and leftover == 0, woodHad, inventory.Wood, leftover)
+-- ภาพแคมป์
 moveTo(campPos + Vector3.new(10, 5, 10))
 cam.CameraType = Enum.CameraType.Scriptable
 cam.CFrame = CFrame.lookAt(campPos + Vector3.new(24, 14, 26), campPos + Vector3.new(-4, 2, -4))
@@ -415,65 +384,6 @@ shot("play_camp_aerial", 1)
 cam.CFrame = CFrame.lookAt(campPos + Vector3.new(12, 6, -16), campPos + Vector3.new(-22, 3, 8))
 shot("play_camp_tents", 1)
 cam.CameraType = Enum.CameraType.Custom
-
--- 4) สัตว์ทุกแบบรอบแคมป์
-local zoo = { "MossWolf", "StoneBear", "ReefCrab", "EmberFox", "SkyLynx", "MagmaRhino", "HollowStag" }
-local zooCenter = campPos + Vector3.new(120, 0, 0)
-for i, id in ipairs(zoo) do
-	local x, z = zooCenter.X + (i - 4) * 14, zooCenter.Z + 30
-	cmd:InvokeServer("spawn", id, Vector3.new(x, ground(x, z) + 2, z))
-end
-moveTo(Vector3.new(zooCenter.X, ground(zooCenter.X, zooCenter.Z - 20) + 4, zooCenter.Z - 20))
-cmd:InvokeServer("freeze", true)
-task.wait(1)
-cam.CameraType = Enum.CameraType.Scriptable
-cam.CFrame = CFrame.lookAt(Vector3.new(zooCenter.X, ground(zooCenter.X, zooCenter.Z) + 16, zooCenter.Z - 30), Vector3.new(zooCenter.X, ground(zooCenter.X, zooCenter.Z + 30) + 4, zooCenter.Z + 30))
-shot("play_zoo", 1)
-cmd:InvokeServer("freeze", false)
-cam.CameraType = Enum.CameraType.Custom
-check("animals alive", #Workspace.Animals:GetChildren() >= 5, #Workspace.Animals:GetChildren())
-
--- 5) ต่อสู้: ตีหมาป่า
-local axe = player.Backpack:FindFirstChild("ขวานหิน") or char:FindFirstChildOfClass("Tool") or tool
-if axe then
-	hum:EquipTool(axe)
-end
-local wolf
--- เลือกหมาป่าตัวในสวนสัตว์ทดสอบ (ใกล้สุด) ไม่ใช่หมาป่าป่าที่อยู่ไกลนอกระยะ streaming
-local bestD = math.huge
-for _, m in ipairs(Workspace.Animals:GetChildren()) do
-	if m:GetAttribute("AnimalId") == "MossWolf" and m.PrimaryPart then
-		local d = (m:GetPivot().Position - zooCenter).Magnitude
-		if d < bestD then
-			wolf, bestD = m, d
-		end
-	end
-end
-if wolf and axe then
-	local hp0 = wolf:GetAttribute("Health")
-	cmd:InvokeServer("freeze", true) -- ให้หมาป่ายืนนิ่ง ทดสอบแค่ระบบตีโดน
-	print(string.format("[TEST] wolf dist=%.1f tool=%s", bestD, tostring(axe.Name)))
-	for _ = 1, 8 do
-		if not wolf.Parent then
-			break
-		end
-		local wp = wolf:GetPivot().Position
-		moveTo(wp + Vector3.new(0, 2, -5))
-		root.CFrame = CFrame.lookAt(root.Position, Vector3.new(wp.X, root.Position.Y, wp.Z))
-		if axe.Parent ~= char then
-			hum:EquipTool(axe)
-			task.wait(0.2)
-		end
-		-- ยิง Attack ตรง (การกดคลิกทดสอบแล้วตอนตัดไม้) — ทดสอบระบบตีของ server
-		game:GetService("ReplicatedStorage").Remotes.Attack:FireServer((wp - root.Position).Unit)
-		print(string.format("[TEST] swing parent=%s d=%.1f hp=%s", tostring(axe.Parent and axe.Parent.Name), (root.Position - (wolf.PrimaryPart and wolf.PrimaryPart.Position or wp)).Magnitude, tostring(wolf:GetAttribute("Health"))))
-		task.wait(0.65)
-	end
-	cmd:InvokeServer("freeze", false)
-	check("damaged wolf", not wolf.Parent or (wolf:GetAttribute("Health") or hp0) < hp0, wolf:GetAttribute("Health"))
-else
-	check("damaged wolf", false, "no wolf/axe", wolf, axe)
-end
 
 -- 6) แต่ละไบโอม (ภาพระดับพื้น)
 if SHOTS then
@@ -495,6 +405,59 @@ if SHOTS then
 	moveTo(campPos + Vector3.new(14, 5, 0))
 end
 
+-- 6.5) บอส 4 ไบโอมจากโมเดลใหม่ (กลางวัน ภาพชัด)
+cmd:InvokeServer("showcase")
+local bossIds = { "Terragon", "Leviathan", "TempestRoc", "Solfang" }
+local bossMade = 0
+for i, id in ipairs(bossIds) do
+	local bx, bz = campPos.X + 8, campPos.Z + 18 -- กลางลานแคมป์ (โล่ง ไม่มีต้นไม้บัง)
+	local gy = ground(bx, bz)
+	moveTo(Vector3.new(bx - 20, gy + 8, bz - 30))
+	task.wait(1)
+	cmd:InvokeServer("spawn", id, Vector3.new(bx, gy + 3, bz))
+	local m
+	for _ = 1, 20 do
+		for _, x in ipairs(Workspace.Animals:GetChildren()) do
+			if x:GetAttribute("AnimalId") == id then
+				m = x
+			end
+		end
+		if m and m:FindFirstChild("Skin") then
+			break
+		end
+		task.wait(0.25)
+	end
+	if m and m:FindFirstChild("Skin") then
+		bossMade += 1
+		local function frontShot(name, wait_)
+			local cf, size = m:GetBoundingBox()
+			local r = math.max(size.X, size.Y, size.Z)
+			local look = m.PrimaryPart.CFrame.LookVector
+			cam.CameraType = Enum.CameraType.Scriptable
+			cam.CFrame = CFrame.lookAt(cf.Position + look * r * 0.95 + m.PrimaryPart.CFrame.RightVector * r * 0.3 + Vector3.new(0, r * 0.55, 0), cf.Position)
+			shot(name, wait_)
+		end
+		task.wait(2)
+		frontShot("boss_" .. id .. "_1", 0.3)
+		-- รอบอสร่ายสกิล -> ถ่ายตอนง้าง + ตอนกระแทก
+		local t0 = os.clock()
+		while not m:GetAttribute("Cast") and os.clock() - t0 < 12 and m.Parent do
+			task.wait(0.1)
+		end
+		local castName = m:GetAttribute("Cast")
+		local windup = m:GetAttribute("CastTime") or 1
+		frontShot("boss_" .. id .. "_2", windup * 0.6)
+		task.wait(math.max(0, windup * 0.4))
+		frontShot("boss_" .. id .. "_3", 0.12)
+		cam.CameraType = Enum.CameraType.Custom
+		print(string.format("[TEST] boss %s size=%s cast=%s", id, tostring(m:GetExtentsSize()), tostring(castName)))
+	else
+		print("[TEST] boss missing", id)
+	end
+	cmd:InvokeServer("clearAnimals")
+end
+check("bosses spawn from new models", bossMade == #bossIds, bossMade)
+
 -- 7) รอกลางคืน
 local t0 = os.clock()
 while state:GetAttribute("Phase") ~= "Night" and os.clock() - t0 < 90 do
@@ -507,31 +470,8 @@ cam.CameraType = Enum.CameraType.Scriptable
 cam.CFrame = CFrame.lookAt(campPos + Vector3.new(60, 30, 60), campPos)
 shot("play_night", 1)
 cam.CameraType = Enum.CameraType.Custom
-local raiders = 0
-for _, m in ipairs(Workspace.Animals:GetChildren()) do
-	if m:GetAttribute("Kind") == "Raid" then
-		raiders += 1
-	end
-end
-check("raid spawned", raiders > 0, raiders)
-
--- 8) บอส
-cmd:InvokeServer("spawnRaid", "Terragon")
-task.wait(5)
-local boss
-for _, m in ipairs(Workspace.Animals:GetChildren()) do
-	if m:GetAttribute("AnimalId") == "Terragon" then
-		boss = m
-	end
-end
-check("boss spawned", boss ~= nil)
-if boss then
-	local bp = boss:GetPivot().Position
-	cam.CameraType = Enum.CameraType.Scriptable
-	cam.CFrame = CFrame.lookAt(bp + Vector3.new(50, 30, 50), bp + Vector3.new(0, 10, 0))
-	shot("play_boss", 1)
-	cam.CameraType = Enum.CameraType.Custom
-end
+-- สัตว์ถูกเอาออกจากเกมหมด: ต้องไม่มีตัวไหนเกิดเลย แม้ตอนกลางคืน
+check("no animals in world", #Workspace.Animals:GetChildren() == 0, #Workspace.Animals:GetChildren())
 
 -- 9) แผนที่
 local okMap, MapUI = pcall(function()
@@ -548,8 +488,8 @@ do
 	local dev = ReplicatedStorage.Remotes:WaitForChild("DevCmd")
 	local okAll, bad = true, {}
 	local calls = {
-		{ "info" }, { "heal" }, { "give", "IronAxe", 1 }, { "giveCategory", "Resource", 10 }, { "spawn", "Rabbit", 2 },
-		{ "freeze" }, { "freeze" }, { "killAll" }, { "setNight", 3 }, { "fuel" }, { "fireLevel", 1 }, { "benchLevel", 1 },
+		{ "info" }, { "heal" }, { "give", "IronAxe", 1 }, { "giveCategory", "Resource", 10 },
+		{ "setNight", 3 }, { "fuel" }, { "fireLevel", 1 }, { "benchLevel", 1 },
 		{ "diamonds", 50 }, { "unlockAll" }, { "maxClass" }, { "speed", 1 }, { "bloodMoon" }, { "bloodMoon" }, { "tp", "camp" },
 	}
 	for _, c in ipairs(calls) do

@@ -1,6 +1,6 @@
 --[[
 	DevPanel — หน้าต่างเครื่องมือนักพัฒนา  [F8] หรือปุ่ม DEV มุมขวาบน (เฉพาะคนที่ server บอกว่า IsDev)
-	แท็บ: ผู้เล่น · ไอเทม · สัตว์ · เวลา · แคมป์ · วาร์ป · โปรไฟล์
+	แท็บ: ผู้เล่น · ไอเทม · บอส · เวลา · แคมป์ · วาร์ป · โปรไฟล์
 	บินได้/ทะลุกำแพง ทำฝั่ง client (ตัวละครเป็นของเครื่องเราอยู่แล้ว) — คำสั่งอื่นส่งไป DevService
 ]]
 
@@ -179,8 +179,6 @@ local ELEMENT_TH = { Earth = "ปฐพี", Water = "วารี", Air = "ว�
 local CAT = { { "Resource", "วัตถุดิบ", 100 }, { "Food", "อาหาร", 20 }, { "Essence", "แก่นธาตุ", 20 }, { "Medical", "ยา", 10 },
 	{ "Relic", "ของหายาก", 3 }, { "Tool", "เครื่องมือ", 1 }, { "Structure", "สิ่งก่อสร้าง", 10 } }
 
-local spawnCount = 1
-
 local TABS = {
 	{ "ผู้เล่น", function(page)
 		btn(page, "🛡 อมตะ (เปิด/ปิด)", C(60, 110, 70), function() run("god") end)
@@ -234,34 +232,16 @@ local TABS = {
 			btn(page, Items.DisplayName(id) .. " x" .. n, nil, function() run("give", id, n) end)
 		end
 	end },
-	{ "สัตว์", function(page)
-		local cnt = btn(page, "จำนวน: x1 (กดเปลี่ยน)", C(110, 90, 40))
-		cnt.Activated:Connect(function()
-			spawnCount = ({ [1] = 3, [3] = 5, [5] = 10, [10] = 1 })[spawnCount]
-			cnt.Text = "จำนวน: x" .. spawnCount .. " (กดเปลี่ยน)"
-		end)
-		btn(page, "⚔ ปล่อยฝูงบุกตอนนี้", C(150, 70, 50), function() run("raid") end)
-		btn(page, "💀 ฆ่าทั้งหมด (ได้ของ)", C(140, 60, 60), function() run("killAll") end)
-		btn(page, "🧹 ลบสัตว์ทั้งหมด", C(100, 60, 60), function() run("clearAnimals") end)
-		btn(page, "🧊 หยุด/ปล่อยสัตว์", C(60, 100, 140), function() run("freeze") end)
-		local list = {}
-		for id, a in pairs(Animals.Data) do
-			table.insert(list, { id, a })
-		end
-		table.sort(list, function(x, y)
-			local bx, by = x[2].Behaviour == "Boss", y[2].Behaviour == "Boss"
-			if bx ~= by then
-				return by
+	{ "บอส", function(page)
+		-- เฉพาะตัวที่มีโมเดลแล้ว (ReplicatedStorage.Assets.Animals)
+		local folder = ReplicatedStorage:FindFirstChild("Assets") and ReplicatedStorage.Assets:FindFirstChild("Animals")
+		for _, m in ipairs(folder and folder:GetChildren() or {}) do
+			local info = Animals.Data[m.Name]
+			if info then
+				btn(page, "👑 " .. info.Thai, C(150, 50, 90), function() run("spawnBoss", m.Name) end)
 			end
-			return (x[2].Element or "") .. x[1] < (y[2].Element or "") .. y[1]
-		end)
-		for _, e in ipairs(list) do
-			local id, a = e[1], e[2]
-			local boss = a.Behaviour == "Boss"
-			local col = boss and C(150, 50, 90) or (a.Element == "Fire" and C(130, 70, 40) or a.Element == "Water" and C(40, 90, 130)
-				or a.Element == "Air" and C(90, 100, 130) or a.Element == "Earth" and C(60, 100, 50) or nil)
-			btn(page, (boss and "👑 " or "🐾 ") .. a.Thai, col, function() run("spawn", id, boss and 1 or spawnCount) end)
 		end
+		btn(page, "🧹 ลบบอส/สัตว์ทั้งหมด", C(100, 60, 60), function() run("clearAnimals") end)
 	end },
 	{ "เวลา", function(page)
 		btn(page, "⏭ ข้ามช่วงเวลา", C(70, 100, 150), function() run("skip") end)
