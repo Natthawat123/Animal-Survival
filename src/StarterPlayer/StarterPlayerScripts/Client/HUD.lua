@@ -178,7 +178,15 @@ function HUD.Init(state)
 	})
 	UIKit.AutoScale(HUD.DownedText)
 
-	RunService.RenderStepped:Connect(HUD.Update)
+	-- อัปเดต HUD 30 ครั้ง/วินาที พอ (ไม่ต้องทุกเฟรม ลดภาระเครื่องอ่อน/มือถือ)
+	local hudAcc = 0
+	RunService.RenderStepped:Connect(function(dt)
+		hudAcc += dt
+		if hudAcc >= 1 / 30 then
+			hudAcc = 0
+			HUD.Update()
+		end
+	end)
 	state:GetAttributeChangedSignal("Phase"):Connect(HUD.UpdateNightLabel)
 	state:GetAttributeChangedSignal("Night"):Connect(HUD.UpdateNightLabel)
 	HUD.UpdateNightLabel()

@@ -41,15 +41,16 @@ Biomes.Data = {
 		Color = Color3.fromRGB(150, 200, 255),
 		Element = nil,
 		Terrain = { Top = "Grass", Sub = "Ground", Cliff = "Rock", Shore = "Sand" },
+		-- สนธยาฟ้าม่วงชมพู สว่างสดใส (โทนเดียวกับ UI ร้านค้า) — ไม่มืดทึบ
 		Atmosphere = {
-			Density = 0.26, Offset = 0.05, Haze = 1.2, Glare = 0,
-			Color = Color3.fromRGB(78, 96, 150), Decay = Color3.fromRGB(40, 52, 104),
+			Density = 0.2, Offset = 0.12, Haze = 0.8, Glare = 0.25,
+			Color = Color3.fromRGB(200, 150, 220), Decay = Color3.fromRGB(110, 90, 190),
 		},
-		Grade = { Tint = Color3.fromRGB(222, 232, 255), Saturation = 0.16, Contrast = 0.1, Brightness = 0.03 },
+		Grade = { Tint = Color3.fromRGB(255, 240, 250), Saturation = 0.28, Contrast = 0.1, Brightness = 0.06 },
 		Lighting = {
-			Ambient = Color3.fromRGB(104, 114, 168), Outdoor = Color3.fromRGB(124, 136, 192), Exposure = 0.4,
-			LightBrightness = 2.6, BloomIntensity = 0.8, BloomSize = 26, BloomThreshold = 1.1,
-			CloudColor = Color3.fromRGB(70, 84, 130), CloudCover = 0.45, SunRays = 0,
+			Ambient = Color3.fromRGB(150, 140, 190), Outdoor = Color3.fromRGB(190, 170, 220), Exposure = 0.55,
+			LightBrightness = 3.0, BloomIntensity = 0.6, BloomSize = 26, BloomThreshold = 1.3,
+			CloudColor = Color3.fromRGB(255, 190, 210), CloudCover = 0.42, SunRays = 0.05,
 		},
 		Ambient = "Fireflies",
 		Props = {},

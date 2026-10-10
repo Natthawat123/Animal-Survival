@@ -188,7 +188,7 @@ local function campScene(parent)
 	-- แนวป่ารอบแคมป์ 2 ชั้น
 	local trees = { "Fir1", "SnowPine", "OakPack", "Fir1", "DeadTree" }
 	for ring = 1, 2 do
-		local count = ring == 1 and 16 or 26
+		local count = ring == 1 and 10 or 14
 		for i = 1, count do
 			local a = i / count * math.pi * 2 + rng:NextNumber(-0.1, 0.1)
 			local r = (ring == 1 and 24 or 40) + rng:NextNumber(-3, 3)
@@ -196,7 +196,7 @@ local function campScene(parent)
 				CFrame.new(math.cos(a) * r, 0, math.sin(a) * r) * CFrame.Angles(0, rng:NextNumber(0, 6.28), 0))
 		end
 	end
-	for i = 1, 10 do
+	for i = 1, 6 do
 		local a = rng:NextNumber(0, 6.28)
 		local r = rng:NextNumber(10, 20)
 		placeModel(world, asset("Props", i % 2 == 0 and "RockLP" or "BushLP"), rng:NextNumber(1.2, 2.6), CFrame.new(math.cos(a) * r, 0, math.sin(a) * r))
@@ -221,7 +221,15 @@ local function campScene(parent)
 		ember.Size = Vector3.new(2.4, 2.4, 2.4) * (0.9 + flick * 0.15)
 	end
 	step()
-	local conn = RunService.RenderStepped:Connect(step)
+	-- อัปเดตฉาก 3 มิติ 30 ครั้ง/วินาที (ViewportFrame วาดใหม่ทุกครั้งที่กล้องขยับ -> ไม่ต้องทุกเฟรม ลดแลค)
+	local acc = 0
+	local conn = RunService.RenderStepped:Connect(function(dt)
+		acc += dt
+		if acc >= 1 / 30 then
+			acc = 0
+			step()
+		end
+	end)
 	vpf.Destroying:Connect(function()
 		conn:Disconnect()
 	end)
@@ -252,7 +260,7 @@ local function loadingScreen(title, subtitle)
 	gg.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.5, 0.25), NumberSequenceKeypoint.new(1, 1) })
 	gg.Parent = glow
 	-- ประกายไฟลอยขึ้น
-	for i = 1, 40 do
+	for i = 1, 22 do
 		local sz = math.random(2, 5)
 		local s = UIKit.Frame(f, { Size = UDim2.fromOffset(sz, sz), Position = UDim2.fromScale(0.3 + math.random() * 0.4, 1.02), BackgroundColor3 = Color3.fromRGB(255, math.random(150, 210), 80), BackgroundTransparency = 0.1, ZIndex = 102 })
 		UIKit.Corner(s, 3)
@@ -386,19 +394,28 @@ local function loadingScreen(title, subtitle)
 			UIKit.Tween(tip, 0.3, { TextTransparency = 0 })
 		end
 	end)
-	local shown = 0
+	local shown, target = 0, 0
+	-- แถบไหลไปหาเป้าหมายแบบนุ่มๆ ทุกเฟรม (ไม่กระตุกเป็นขั้นๆ)
+	local smoothConn = RunService.RenderStepped:Connect(function(dt)
+		if math.abs(target - shown) > 0.0005 then
+			shown += (target - shown) * math.min(1, dt * 6)
+			fill.Size = UDim2.fromScale(shown, 1)
+			head.Position = UDim2.fromOffset(barW * shown, 13)
+			pct.Text = math.floor(shown * 100 + 0.5) .. "%"
+		end
+	end)
+	f.Destroying:Connect(function()
+		smoothConn:Disconnect()
+	end)
 	local api = { Root = f }
 	function api.Set(p, text)
 		p = math.clamp(p, 0, 1)
-		if p > shown then
-			shown = p
-			UIKit.Tween(fill, 0.35, { Size = UDim2.fromScale(p, 1) })
-			UIKit.Tween(head, 0.35, { Position = UDim2.fromOffset(barW * p, 13) })
+		if p > target then
+			target = p
 		end
-		pct.Text = math.floor(shown * 100) .. "%"
 		for i, st in ipairs(steps) do
-			local done = shown >= st[1] - 0.001
-			local active = not done and (i == 1 or shown >= steps[i - 1][1] - 0.001)
+			local done = target >= st[1] - 0.001
+			local active = not done and (i == 1 or target >= steps[i - 1][1] - 0.001)
 			stepLabels[i].Text = (done and "✔ " or (active and "◉ " or "○ ")) .. st[2]
 			stepLabels[i].TextColor3 = done and C.Good or (active and C.Gold or Color3.fromRGB(150, 146, 170))
 		end
@@ -415,7 +432,11 @@ local function loadingScreen(title, subtitle)
 			end
 		end)
 		api.Set(1, "พร้อมแล้ว!")
-		task.wait(0.5)
+		local tw = os.clock()
+		while shown < 0.995 and os.clock() - tw < 1.2 do
+			task.wait()
+		end
+		task.wait(0.25)
 		local vpf = f:FindFirstChildOfClass("ViewportFrame")
 		for _, d in ipairs(f:GetDescendants()) do
 			if d:IsA("TextLabel") then
@@ -435,6 +456,17 @@ local function loadingScreen(title, subtitle)
 		f:Destroy()
 	end
 	api.Set(0)
+	-- เปิดหน้าโหลดแบบนุ่ม: ชื่อเกมเลื่อนลงมา + กล่องต่างๆ ค่อยๆ ขยาย
+	titleBox.Position = UDim2.new(0.5, 0, 0.28, -40)
+	UIKit.Tween(titleBox, 0.9, { Position = UDim2.fromScale(0.5, 0.28) }, Enum.EasingStyle.Back)
+	for _, obj in ipairs({ emblem, barBox, tipCard }) do
+		local sc = obj:FindFirstChild("AutoScale")
+		if sc then
+			local k = sc.Scale
+			sc.Scale = k * 0.7
+			UIKit.Tween(sc, 0.7, { Scale = k }, Enum.EasingStyle.Back)
+		end
+	end
 	return api
 end
 

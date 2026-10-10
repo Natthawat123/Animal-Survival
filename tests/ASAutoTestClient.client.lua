@@ -82,8 +82,6 @@ if lobby then
 		shot("lobby_shop", 1.5)
 		Menus.OpenShop("Passes")
 		shot("lobby_shop_passes", 1.2)
-		Menus.OpenShop("Kits")
-		shot("lobby_shop_kits", 1.2)
 		Menus.OpenShop("Classes")
 		shot("lobby_classes", 4)
 		task.wait(2)

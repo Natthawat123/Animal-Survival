@@ -145,6 +145,17 @@ function SoundController.Init(state)
 			applyVolumes()
 		end
 	end)
+	-- เสียงอื่นๆ ทั้งเกม (ตี/เดิน/กองไฟ/เอฟเฟกต์ในโลก/ของ Roblox) ที่ยังไม่มีกลุ่ม -> เข้ากลุ่มให้แถบปรับเสียงคุมได้จริง
+	local function adopt(d)
+		if d:IsA("Sound") and d.SoundGroup == nil then
+			d.SoundGroup = d.Looped and groups.Ambient or groups.Sfx
+		end
+	end
+	for _, d in ipairs(workspace:GetDescendants()) do
+		adopt(d)
+	end
+	workspace.DescendantAdded:Connect(adopt)
+	SoundService.DescendantAdded:Connect(adopt)
 	for name, def in pairs(Audio.Music) do
 		music[name] = makeLoop(def, groups.Music, "Music_" .. name)
 	end

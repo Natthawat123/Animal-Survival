@@ -2,7 +2,6 @@
 	StoreUI — ร้านค้าในล็อบบี้ (ปุ่ม 💎 ร้านค้า / ปุ่ม + ข้างเพชร)
 	  แท็บ 💎 เติมเพชร  : Developer Product (Robux -> เพชร) — Config.DiamondPacks
 	  แท็บ 🎫 Game Pass : ซื้อครั้งเดียวได้ถาวร — Config.GamePasses
-	  แท็บ 🎒 ชุดเริ่มต้น: ใช้เพชรซื้อของติดตัวรอบหน้า (ได้ตอนลงแมพ ใช้ครั้งเดียว)
 	  ID ที่ยังเป็น 0 = ยังไม่ได้สร้างใน Creator Hub -> ปุ่มเป็น "เร็วๆ นี้" (กดแล้วไม่พัง)
 ]]
 
@@ -14,7 +13,6 @@ local TweenService = game:GetService("TweenService")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared.Config)
 local Remotes = require(Shared.Remotes)
-local Shop = require(Shared.Shop)
 local UIKit = require(script.Parent.UIKit)
 
 local StoreUI = {}
@@ -28,7 +26,6 @@ local passes = {}
 local TABS = {
 	{ Id = "Diamonds", Text = "💎 เติมเพชร", Color = C.Cyan },
 	{ Id = "Passes", Text = "🎫 Game Pass", Color = C.Gold },
-	{ Id = "Kits", Text = "🎒 ชุดเริ่มต้น", Color = C.Green },
 }
 
 local function rgb(r, g, b)
@@ -175,25 +172,6 @@ function StoreUI.RefreshPasses()
 	end
 end
 
-function StoreUI.RefreshKits()
-	ui.Grid.CellSize = UDim2.fromOffset(196, 236)
-	ui.Hint.Text = "ชุดเริ่มต้นจ่ายด้วยเพชร ใช้ได้ 1 รอบ — ได้ของทันทีตอนออกเดินทางลงแมพ"
-	local pending = (profile and profile.PendingKits) or {}
-	for i, k in ipairs(Shop.Kits) do
-		local bought = pending[k.Id]
-		local card = baseCard(i, bought and rgb(46, 110, 70) or rgb(52, 60, 104), bought and rgb(20, 46, 30) or rgb(26, 28, 54))
-		UIKit.Text(card, { Size = UDim2.new(1, 0, 0, 64), Position = UDim2.fromOffset(0, 14), Text = k.Icon, TextSize = 52, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 4 })
-		UIKit.Text(card, { Size = UDim2.new(1, 0, 0, 26), Position = UDim2.fromOffset(0, 82), Text = k.Name, Font = UIKit.Fonts.Title, TextSize = 22, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 5 })
-		UIKit.Text(card, {
-			Size = UDim2.new(1, -20, 0, 50), Position = UDim2.fromOffset(10, 112), Text = k.Desc, TextSize = 14, TextWrapped = true, Font = UIKit.Fonts.Bold,
-			TextXAlignment = Enum.TextXAlignment.Center, TextYAlignment = Enum.TextYAlignment.Top, TextColor3 = rgb(215, 215, 230), ZIndex = 5,
-		})
-		priceButton(card, bought and "✔ ซื้อแล้ว" or ("💎 " .. k.Price), bought and C.Blue or C.Green, not bought, function()
-			Remotes.Get("BuyKit"):FireServer(k.Id)
-		end)
-	end
-end
-
 function StoreUI.Refresh()
 	if not ui.Panel then
 		return
@@ -205,12 +183,11 @@ function StoreUI.Refresh()
 		b.Size = on and UDim2.fromOffset(196, 46) or UDim2.fromOffset(186, 40)
 	end
 	clear()
-	if ui.Tab == "Diamonds" then
-		StoreUI.RefreshDiamonds()
-	elseif ui.Tab == "Passes" then
+	if ui.Tab == "Passes" then
 		StoreUI.RefreshPasses()
 	else
-		StoreUI.RefreshKits()
+		ui.Tab = "Diamonds"
+		StoreUI.RefreshDiamonds()
 	end
 end
 

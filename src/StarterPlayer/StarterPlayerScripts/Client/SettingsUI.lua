@@ -13,6 +13,7 @@ local UserInputService = game:GetService("UserInputService")
 
 local UIKit = require(script.Parent.UIKit)
 local ClientSettings = require(script.Parent.ClientSettings)
+local Audio = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Audio"))
 
 local SettingsUI = {}
 local C = UIKit.Colors
@@ -200,7 +201,13 @@ function SettingsUI.Init(gui, handlers)
 		return math.floor(v * 100 + 0.5) .. "%"
 	end
 	section(1, "🔊 เสียง")
-	slider(2, "MusicVol", "🎵 เพลง", 0, 1, pct)
+	local hasMusic = false
+	for _, def in pairs(Audio.Music) do
+		if def.Id ~= "" then
+			hasMusic = true
+		end
+	end
+	slider(2, "MusicVol", "🎵 เพลง", 0, 1, pct, not hasMusic and "ยังไม่ได้ใส่เพลง (ใส่ ID ใน Audio.lua)" or nil)
 	slider(3, "AmbientVol", "🌲 เสียงบรรยากาศ", 0, 1, pct)
 	slider(4, "SfxVol", "💥 เอฟเฟกต์", 0, 1, pct)
 	section(10, "🎨 กราฟิก")

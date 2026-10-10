@@ -44,27 +44,36 @@ local function statOf(key)
 	return p[key] or 0
 end
 
--- ปุ่มเมนูทรงสี่เหลี่ยมมนสีสด: ไอคอนใหญ่ลอยเด้ง + ชื่อขาวขอบดำ + ป้ายแจ้งเตือน
+-- ปุ่มเมนู: การ์ดกรมท่าเข้ม (ธีมเดียวกับร้านค้า) + วงไอคอนสีอ่อนๆ + ชื่อสีขาว · ชี้แล้วขยายนิดเดียว ไม่เด้งไปมา
 local function dockButton(parent, order, icon, name, color, onClick)
-	local b = UIKit.ColorButton(parent, color, { Text = "", Size = UDim2.fromOffset(92, 92), LayoutOrder = order }, onClick)
-	b:FindFirstChildOfClass("UICorner").CornerRadius = UDim.new(0, 22)
-	local ic = UIKit.Text(b, { Size = UDim2.new(1, 0, 0, 52), Position = UDim2.fromOffset(0, 6), Text = icon, TextSize = 44, TextXAlignment = Enum.TextXAlignment.Center })
-	UIKit.Text(b, { Size = UDim2.new(1, 0, 0, 24), Position = UDim2.new(0, 0, 1, -34), Text = name, Font = UIKit.Fonts.Title, TextSize = 22, TextXAlignment = Enum.TextXAlignment.Center })
-	-- ไอคอนลอยขึ้นลงเบาๆ (ดูมีชีวิต)
-	task.spawn(function()
-		local t0 = order * 0.7
-		while b.Parent do
-			ic.Position = UDim2.fromOffset(0, 6 + math.sin(os.clock() * 2.4 + t0) * 2.5)
-			ic.Rotation = math.sin(os.clock() * 1.6 + t0) * 5
-			task.wait(1 / 30)
-		end
-	end)
-	local dot = UIKit.Frame(b, { Size = UDim2.fromOffset(26, 26), Position = UDim2.new(1, -18, 0, -8), BackgroundColor3 = UIKit.Colors.Red, BackgroundTransparency = 0, Visible = false, ZIndex = 8 })
+	local b = UIKit.Button(parent, { Text = "", Size = UDim2.fromOffset(88, 88), LayoutOrder = order, BackgroundColor3 = C(34, 38, 66) }, onClick)
+	b:FindFirstChildOfClass("UICorner").CornerRadius = UDim.new(0, 18)
+	-- พื้นไล่สีกรมท่า (แทนไล่สีขาวของปุ่มทั่วไป)
+	local g = b:FindFirstChildOfClass("UIGradient")
+	if g then
+		g.Color = ColorSequence.new(C(255, 255, 255), C(170, 176, 205))
+	end
+	local border = b:FindFirstChildOfClass("UIStroke")
+	if border then
+		border.Color = C(10, 10, 22)
+	end
+	local ring = UIKit.Frame(b, { Size = UDim2.fromOffset(50, 50), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 8), BackgroundColor3 = color, BackgroundTransparency = 0.72, ZIndex = 2 })
+	local rc = Instance.new("UICorner")
+	rc.CornerRadius = UDim.new(1, 0)
+	rc.Parent = ring
+	local rs = Instance.new("UIStroke")
+	rs.Color = color
+	rs.Thickness = 2
+	rs.Transparency = 0.35
+	rs.Parent = ring
+	UIKit.Text(ring, { Size = UDim2.fromScale(1, 1), Text = icon, TextSize = 28, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 3 })
+	UIKit.Text(b, { Size = UDim2.new(1, -8, 0, 20), Position = UDim2.new(0, 4, 1, -26), Text = name, Font = UIKit.Fonts.Title, TextSize = 17, TextXAlignment = Enum.TextXAlignment.Center, TextColor3 = C(236, 238, 250), ZIndex = 3 })
+	local dot = UIKit.Frame(b, { Size = UDim2.fromOffset(24, 24), Position = UDim2.new(1, -16, 0, -8), BackgroundColor3 = UIKit.Colors.Red, BackgroundTransparency = 0, Visible = false, ZIndex = 8 })
 	local dc = Instance.new("UICorner")
 	dc.CornerRadius = UDim.new(1, 0)
 	dc.Parent = dot
 	UIKit.Stroke(dot, UIKit.Colors.Outline, 2, 0)
-	local dt = UIKit.Text(dot, { Size = UDim2.fromScale(1, 1), Text = "!", Font = UIKit.Fonts.Title, TextSize = 18, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 9 })
+	local dt = UIKit.Text(dot, { Size = UDim2.fromScale(1, 1), Text = "!", Font = UIKit.Fonts.Title, TextSize = 16, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 9 })
 	return b, dot, dt
 end
 
@@ -80,11 +89,11 @@ function LobbyUI.Build(gui, handlers)
 	side.BackgroundTransparency = 1
 	side.AnchorPoint = Vector2.new(0, 0.5)
 	side.Position = UDim2.new(0, 22, 0.52, 0)
-	side.Size = UDim2.fromOffset(100, 440)
+	side.Size = UDim2.fromOffset(100, 420)
 	side.Parent = root
 	UIKit.AutoScale(side)
 	local layout = Instance.new("UIListLayout")
-	layout.Padding = UDim.new(0, 16)
+	layout.Padding = UDim.new(0, 12)
 	layout.SortOrder = Enum.SortOrder.LayoutOrder
 	layout.VerticalAlignment = Enum.VerticalAlignment.Center
 	layout.Parent = side

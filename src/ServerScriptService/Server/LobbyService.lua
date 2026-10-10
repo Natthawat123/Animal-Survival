@@ -561,21 +561,44 @@ local function dailyCauldron(self, parent, cf)
 	end)
 end
 
--- แท่น "เริ่มเกม" (พื้นเรืองแสงขาว) + ป้ายลอย 0/5
+-- แท่น "เริ่มเกม" แบบประตูมิติ: ฐานหินกลม + ขอบเรืองแสง + วงแสงบนพื้น + ซุ้มประตูมีป้ายเลข + ม่านแสงในซุ้ม
 local function startPad(self, parent, cf, i)
-	-- แท่นหินกลมขอบไม้ + วงแสงจางๆ + ละอองลอยขึ้น (เดินเข้าไปยืน = เปิดหน้าเลือกจำนวนคน)
-	cyl(parent, 1.2, 19, cf * CF(0, 0.6, 0), C(92, 88, 84), Enum.Material.Slate)
-	cyl(parent, 0.5, 17.4, cf * CF(0, 1.35, 0), C(118, 84, 56), Enum.Material.WoodPlanks)
-	local pad = P(parent, { Name = "StartPad" .. i, Shape = Enum.PartType.Cylinder, Size = V(0.12, 13, 13), CFrame = cf * CF(0, 1.62, 0) * ANG(0, 0, math.pi / 2),
-		Color = C(180, 200, 230), Material = Enum.Material.Glass, Transparency = 0.55, CanCollide = false })
-	-- หินรอบแท่น 6 ก้อน
-	for k = 0, 5 do
-		local a = k / 6 * math.pi * 2 + 0.3
-		P(parent, { Size = V(2.2, 1.6 + (k % 2) * 0.6, 1.8), CFrame = cf * CF(math.cos(a) * 9.6, 1.2, math.sin(a) * 9.6) * ANG(0.15, a, 0.1),
-			Color = C(104, 100, 96), Material = Enum.Material.Slate })
+	local STONE, RIM, WOOD = C(120, 126, 156), C(90, 220, 255), C(104, 70, 46)
+	cyl(parent, 1.2, 18, cf * CF(0, 0.6, 0), C(86, 90, 116), Enum.Material.Slate)
+	cyl(parent, 0.3, 17.6, cf * CF(0, 1.3, 0), RIM, Enum.Material.Neon)
+	cyl(parent, 0.3, 16.6, cf * CF(0, 1.36, 0), STONE, Enum.Material.Slate)
+	local pad = P(parent, { Name = "StartPad" .. i, Shape = Enum.PartType.Cylinder, Size = V(0.1, 12, 12), CFrame = cf * CF(0, 1.55, 0) * ANG(0, 0, math.pi / 2),
+		Color = C(180, 200, 230), Material = Enum.Material.Neon, Transparency = 0.45, CanCollide = false })
+	-- ซุ้มประตูด้านหลัง (ทิศเหนือ) หันหน้าเข้าหาจุดเกิด
+	local gate = cf * CF(0, 0, -7.5)
+	for _, x in ipairs({ -6.4, 6.4 }) do
+		P(parent, { Size = V(1.6, 12.5, 1.6), CFrame = gate * CF(x, 7.4, 0), Color = WOOD, Material = Enum.Material.Wood })
+		P(parent, { Size = V(2.2, 1.2, 2.2), CFrame = gate * CF(x, 1.9, 0), Color = STONE, Material = Enum.Material.Slate })
+		P(parent, { Size = V(2.2, 0.6, 2.2), CFrame = gate * CF(x, 13.9, 0), Color = RIM, Material = Enum.Material.Neon, CanCollide = false })
 	end
+	local beam = P(parent, { Size = V(15.6, 2.4, 1.8), CFrame = gate * CF(0, 14.6, 0), Color = WOOD, Material = Enum.Material.WoodPlanks })
+	local sg = Instance.new("SurfaceGui")
+	sg.Face = Enum.NormalId.Back
+	sg.PixelsPerStud = 30
+	sg.LightInfluence = 0
+	sg.Parent = beam
+	local plate = Instance.new("TextLabel")
+	plate.Size = UDim2.fromScale(0.9, 0.86)
+	plate.Position = UDim2.fromScale(0.05, 0.07)
+	plate.BackgroundTransparency = 1
+	plate.Font = Enum.Font.FredokaOne
+	plate.TextScaled = true
+	plate.Text = "⚔ แท่น " .. i
+	plate.TextColor3 = C(255, 226, 140)
+	plate.Parent = sg
+	local ps = Instance.new("UIStroke")
+	ps.Thickness = 3
+	ps.Color = C(40, 20, 8)
+	ps.Parent = plate
+	-- ม่านแสงในซุ้ม (ประตูมิติ)
+	local veil = P(parent, { Name = "Veil", Shape = Enum.PartType.Cylinder, Size = V(0.15, 11, 11), CFrame = gate * CF(0, 7.6, 0) * ANG(0, math.pi / 2, 0),
+		Color = RIM, Material = Enum.Material.Neon, Transparency = 0.7, CanCollide = false, CanQuery = false })
 	local att = Instance.new("Attachment")
-	att.Position = V(0, 0, 0)
 	att.Parent = pad
 	local motes = Instance.new("ParticleEmitter")
 	motes.Texture = "rbxasset://textures/particles/sparkles_main.dds"
@@ -589,14 +612,15 @@ local function startPad(self, parent, cf, i)
 	motes.LightEmission = 1
 	motes.Color = ColorSequence.new(C(200, 220, 255))
 	motes.Parent = att
-	local go = light(pad, C(120, 255, 140), 20, 1.6)
+	local go = light(pad, C(120, 255, 140), 22, 1.8)
 	go.Enabled = false
-	-- ป้ายลอย
+	light(veil, RIM, 16, 1.2)
+	-- ป้ายลอย: จำนวนคนตัวใหญ่ + สถานะ
 	local anchor = P(parent, { Size = V(1, 1, 1), CFrame = cf * CF(0, 1, 0), Transparency = 1, CanCollide = false, CanQuery = false })
 	local bb = Instance.new("BillboardGui")
-	bb.Size = UDim2.fromScale(12, 6.5)
-	bb.StudsOffset = V(0, 9, 0)
-	bb.MaxDistance = 160
+	bb.Size = UDim2.fromScale(10, 4.6)
+	bb.StudsOffset = V(0, 7.5, 0)
+	bb.MaxDistance = 140
 	bb.LightInfluence = 0
 	bb.Parent = anchor
 	local function line(y, h, txt, color, font)
@@ -606,23 +630,23 @@ local function startPad(self, parent, cf, i)
 		t.BackgroundTransparency = 1
 		t.Text = txt
 		t.TextScaled = true
-		t.Font = font or Enum.Font.GothamBlack
+		t.Font = font or Enum.Font.FredokaOne
 		t.TextColor3 = color
 		t.Parent = bb
 		local st = Instance.new("UIStroke")
 		st.Thickness = 3
+		st.Color = C(10, 10, 22)
 		st.Parent = t
 		return t
 	end
-	line(0, 0.3, "แท่น " .. i, C(255, 226, 150))
-	local count = line(0.3, 0.42, "0/4", C(255, 255, 255))
-	local sub = line(0.74, 0.24, "", C(230, 230, 240), Enum.Font.GothamBold)
-	local zone = P(parent, { Name = "MatchBox" .. i, Size = V(17, 12, 17), CFrame = cf * CF(0, 6, 0), Transparency = 1, CanCollide = false, CanQuery = false })
+	local count = line(0, 0.62, "👥 0/4", C(255, 255, 255))
+	local sub = line(0.64, 0.34, "", C(220, 230, 255), Enum.Font.GothamBold)
+	local zone = P(parent, { Name = "MatchBox" .. i, Size = V(16, 12, 16), CFrame = cf * CF(0, 6, 0), Transparency = 1, CanCollide = false, CanQuery = false })
 	zone:SetAttribute("PadIndex", i)
 	zone:SetAttribute("Size", 4)
 	zone:SetAttribute("Count", 0)
 	zone:SetAttribute("Countdown", -1)
-	return { Index = i, Zone = zone, Size = 4, Text = count, Sub = sub, Countdown = nil, Pad = pad, Runes = {}, Pillar = go, Motes = motes }
+	return { Index = i, Zone = zone, Size = 4, Text = count, Sub = sub, Countdown = nil, Pad = pad, Veil = veil, Runes = {}, Pillar = go, Motes = motes }
 end
 
 ---------------------------------------------------------------- สร้างล็อบบี้: ค่ายฟาร์มกลางป่ายามค่ำคืน (แบบ 99 Nights)
@@ -637,8 +661,10 @@ function LobbyService:Build()
 	m.WorldPivot = base
 	local rng = Random.new(2024)
 	-- พื้นดิน + หินใต้เกาะ
-	cyl(m, 8, 560, base * CF(0, -4, 0), C(78, 62, 48), Enum.Material.Ground)
-	cyl(m, 1, 556, base * CF(0, 0.5, 0), C(96, 76, 56), Enum.Material.Ground)
+	-- พื้นหญ้าเขียวสด + ลานดินกลางค่าย (สว่าง สดใส ไม่มืดทึบ)
+	cyl(m, 8, 560, base * CF(0, -4, 0), C(110, 84, 60), Enum.Material.Ground)
+	cyl(m, 1, 556, base * CF(0, 0.5, 0), C(92, 160, 74), Enum.Material.Grass)
+	cyl(m, 0.2, 150, base * CF(0, 1.02, 10), C(176, 136, 92), Enum.Material.Ground)
 	for i = 1, 5 do
 		cyl(m, 16, 560 - i * 90, base * CF(0, -8 - i * 14, 0), C(60 - i * 5, 56 - i * 5, 56 - i * 5), Enum.Material.Rock)
 	end
@@ -647,7 +673,7 @@ function LobbyService:Build()
 		local a = rng:NextNumber(0, math.pi * 2)
 		local r = rng:NextNumber(60, 120)
 		local d = rng:NextNumber(14, 30)
-		P(m, { Shape = Enum.PartType.Cylinder, Size = V(0.3, d, d), CFrame = base * CF(math.cos(a) * r, 1.05, math.sin(a) * r) * ANG(0, 0, math.pi / 2), Color = C(62, 104, 56):Lerp(C(80, 120, 60), rng:NextNumber()), Material = Enum.Material.Grass, CanCollide = false })
+		P(m, { Shape = Enum.PartType.Cylinder, Size = V(0.3, d, d), CFrame = base * CF(math.cos(a) * r, 1.05, math.sin(a) * r) * ANG(0, 0, math.pi / 2), Color = C(104, 176, 82):Lerp(C(130, 196, 92), rng:NextNumber()), Material = Enum.Material.Grass, CanCollide = false })
 	end
 
 	local FX, FZ0, FZ1 = 120, -112, 104 -- ขอบรั้ว
@@ -733,13 +759,22 @@ function LobbyService:Build()
 	------------------------------------------------ ซ้าย: หม้อรางวัลประจำวัน + กระดานผู้รอดนานสุด + แคมป์ไฟ
 	dailyCauldron(self, deco, base * CF(-42, 1, -16))
 	local boardCf = base * CF(-88, 1, 6) * ANG(0, math.rad(90), 0)
-	local board = P(deco, { Size = V(16, 10, 0.8), CFrame = boardCf * CF(0, 7.5, 0), Color = C(44, 34, 30), Material = Enum.Material.WoodPlanks })
-	for _, x in ipairs({ -7.5, 7.5 }) do
-		P(deco, { Size = V(1, 13, 1), CFrame = boardCf * CF(x, 6.5, 0.7), Color = C(80, 56, 38), Material = Enum.Material.Wood })
+	-- กระดานใหญ่ (กว้าง 26 x สูง 17) กรอบไม้หนา + ขอบทอง + หลังคา + โคมสองข้าง
+	local board = P(deco, { Size = V(26, 17, 0.8), CFrame = boardCf * CF(0, 11, 0), Color = C(28, 26, 44), Material = Enum.Material.SmoothPlastic })
+	for _, x in ipairs({ -13.6, 13.6 }) do
+		P(deco, { Size = V(1.4, 21.5, 1.4), CFrame = boardCf * CF(x, 10.75, 0), Color = C(96, 64, 40), Material = Enum.Material.Wood })
+		P(deco, { Size = V(2, 1, 2), CFrame = boardCf * CF(x, 0.5, 0), Color = C(96, 92, 88), Material = Enum.Material.Slate })
 	end
-	P(deco, { ClassName = "WedgePart", Size = V(18, 1.8, 2.4), CFrame = boardCf * CF(0, 13.4, 0), Color = C(90, 60, 40), Material = Enum.Material.Wood })
+	for _, y in ipairs({ 2.15, 19.85 }) do
+		P(deco, { Size = V(27.6, 1.1, 1.3), CFrame = boardCf * CF(0, y, 0), Color = C(96, 64, 40), Material = Enum.Material.Wood })
+	end
+	for _, y in ipairs({ 2.75, 19.25 }) do
+		P(deco, { Size = V(26.2, 0.18, 1.0), CFrame = boardCf * CF(0, y, 0), Color = C(255, 196, 70), Material = Enum.Material.Neon })
+	end
+	P(deco, { ClassName = "WedgePart", Size = V(30, 2.4, 3.2), CFrame = boardCf * CF(0, 21.6, 0), Color = C(120, 64, 40), Material = Enum.Material.WoodPlanks })
 	self.boardGuis = { self:BuildBoardGui(board, Enum.NormalId.Back), self:BuildBoardGui(board, Enum.NormalId.Front) }
-	lanternPost(deco, boardCf * CF(-10, 0, -2), 9)
+	lanternPost(deco, boardCf * CF(-16, 0, -2), 11)
+	lanternPost(deco, boardCf * CF(16, 0, -2), 11)
 	-- แคมป์ไฟเล็ก + ม้านั่งท่อนซุง + เต็นท์นอน
 	local fcf = base * CF(-62, 1, 74)
 	local ring = mesh("Campfire", fcf, deco)
@@ -981,66 +1016,45 @@ function LobbyService:RefreshTag(player)
 	if not bb then
 		bb = Instance.new("BillboardGui")
 		bb.Name = "ASTag"
-		bb.Size = UDim2.fromOffset(220, 58)
-		bb.StudsOffset = Vector3.new(0, 2.6, 0)
-		bb.MaxDistance = 90
+		bb.Size = UDim2.fromOffset(200, 50)
+		bb.StudsOffset = Vector3.new(0, 2.4, 0)
+		bb.MaxDistance = 80
 		bb.LightInfluence = 0
-		bb.AlwaysOnTop = false
 		local list = Instance.new("UIListLayout")
 		list.HorizontalAlignment = Enum.HorizontalAlignment.Center
 		list.VerticalAlignment = Enum.VerticalAlignment.Bottom
-		list.Padding = UDim.new(0, 2)
 		list.SortOrder = Enum.SortOrder.LayoutOrder
 		list.Parent = bb
-		local function pill(name, order)
-			local f = Instance.new("Frame")
-			f.Name = name
-			f.LayoutOrder = order
-			f.AutomaticSize = Enum.AutomaticSize.X
-			f.Size = UDim2.fromOffset(0, 24)
-			f.BackgroundColor3 = C(20, 22, 40)
-			f.BackgroundTransparency = 0.2
-			local cr = Instance.new("UICorner")
-			cr.CornerRadius = UDim.new(1, 0)
-			cr.Parent = f
+		-- ตัวหนังสือล้วน + ขอบดำบาง (ไม่มีกรอบพื้นหลัง)
+		local function line(name, order, size)
+			local t = Instance.new("TextLabel")
+			t.Name = name
+			t.LayoutOrder = order
+			t.Size = UDim2.new(1, 0, 0, size)
+			t.BackgroundTransparency = 1
+			t.Font = Enum.Font.FredokaOne
+			t.TextSize = size
+			t.TextColor3 = C(255, 255, 255)
+			t.Parent = bb
 			local st = Instance.new("UIStroke")
 			st.Thickness = 2
 			st.Color = C(10, 10, 22)
-			st.Parent = f
-			local pad = Instance.new("UIPadding")
-			pad.PaddingLeft, pad.PaddingRight = UDim.new(0, 10), UDim.new(0, 10)
-			pad.Parent = f
-			local t = Instance.new("TextLabel")
-			t.Name = "Text"
-			t.AutomaticSize = Enum.AutomaticSize.X
-			t.Size = UDim2.fromScale(0, 1)
-			t.BackgroundTransparency = 1
-			t.Font = Enum.Font.FredokaOne
-			t.TextSize = 18
-			t.TextColor3 = C(255, 255, 255)
-			t.Parent = f
-			local ts = Instance.new("UIStroke")
-			ts.Thickness = 1.6
-			ts.Color = C(10, 10, 22)
-			ts.Parent = t
-			f.Parent = bb
-			return f
+			st.Parent = t
+			return t
 		end
-		pill("VIP", 1)
-		pill("Best", 2)
+		line("VIP", 1, 16)
+		line("Best", 2, 22)
 		bb.Parent = head
 	end
 	local best = player:GetAttribute("BestNight") or 0
 	local color, icon = tierColor(best)
-	local bestPill = bb:FindFirstChild("Best")
-	bestPill.Text.Text = best >= 99 and string.format("%s พิชิต 99 คืน · สูงสุด %d", icon, best) or string.format("%s สูงสุด %d คืน", icon, best)
-	bestPill.Text.TextColor3 = color
-	bestPill:FindFirstChildOfClass("UIStroke").Color = best >= 99 and C(150, 110, 20) or C(10, 10, 22)
+	local bestL = bb:FindFirstChild("Best")
+	bestL.Text = string.format("%s %d วัน", icon, best)
+	bestL.TextColor3 = color
 	local vip = bb:FindFirstChild("VIP")
 	vip.Visible = player:GetAttribute("Pass_VIP") == true
-	vip.Text.Text = "👑 VIP"
-	vip.Text.TextColor3 = C(255, 214, 90)
-	vip.BackgroundColor3 = C(70, 46, 10)
+	vip.Text = "👑 VIP"
+	vip.TextColor3 = C(255, 214, 90)
 	-- โชว์เฉพาะในล็อบบี้ (ในแมพไม่รกจอ)
 	bb.Enabled = not player:GetAttribute("InRun")
 end
@@ -1049,85 +1063,111 @@ end
 function LobbyService:BuildBoardGui(board, face)
 	local sg = Instance.new("SurfaceGui")
 	sg.Face = face
-	sg.PixelsPerStud = 40
+	sg.PixelsPerStud = 36
 	sg.LightInfluence = 0
 	sg.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
 	sg.Parent = board
 	local bg = Instance.new("Frame")
 	bg.Size = UDim2.fromScale(1, 1)
-	bg.BackgroundColor3 = C(18, 20, 36)
+	bg.BackgroundColor3 = C(255, 255, 255)
 	bg.Parent = sg
 	local g = Instance.new("UIGradient")
-	g.Color = ColorSequence.new(C(46, 40, 86), C(14, 14, 28))
+	g.Color = ColorSequence.new(C(54, 60, 104), C(22, 24, 44))
 	g.Rotation = 90
 	g.Parent = bg
+	-- หัวป้าย: ริบบิ้นทอง
+	local head = Instance.new("Frame")
+	head.Size = UDim2.fromScale(0.86, 0.15)
+	head.Position = UDim2.fromScale(0.07, 0.035)
+	head.BackgroundColor3 = C(255, 255, 255)
+	head.Parent = bg
+	local hc = Instance.new("UICorner")
+	hc.CornerRadius = UDim.new(0.35, 0)
+	hc.Parent = head
+	local hg = Instance.new("UIGradient")
+	hg.Color = ColorSequence.new(C(255, 214, 90), C(230, 140, 30))
+	hg.Rotation = 90
+	hg.Parent = head
+	local hs = Instance.new("UIStroke")
+	hs.Thickness = 5
+	hs.Color = C(70, 34, 8)
+	hs.Parent = head
 	local title = Instance.new("TextLabel")
-	title.Size = UDim2.new(1, 0, 0.13, 0)
-	title.Position = UDim2.fromScale(0, 0.015)
+	title.Size = UDim2.fromScale(0.94, 0.86)
+	title.Position = UDim2.fromScale(0.03, 0.07)
 	title.BackgroundTransparency = 1
 	title.Font = Enum.Font.FredokaOne
 	title.TextScaled = true
 	title.Text = "🏆 ผู้รอดนานสุดทั้งเกม"
-	title.TextColor3 = C(255, 214, 90)
-	title.Parent = bg
+	title.TextColor3 = C(255, 255, 255)
+	title.Parent = head
 	local ts = Instance.new("UIStroke")
-	ts.Thickness = 3
-	ts.Color = C(10, 10, 22)
+	ts.Thickness = 4
+	ts.Color = C(70, 34, 8)
 	ts.Parent = title
 	local sub = Instance.new("TextLabel")
 	sub.Name = "Sub"
-	sub.Size = UDim2.new(1, 0, 0.05, 0)
-	sub.Position = UDim2.fromScale(0, 0.14)
+	sub.Size = UDim2.fromScale(1, 0.045)
+	sub.Position = UDim2.fromScale(0, 0.195)
 	sub.BackgroundTransparency = 1
 	sub.Font = Enum.Font.GothamBold
 	sub.TextScaled = true
 	sub.Text = "กำลังโหลดอันดับ..."
-	sub.TextColor3 = C(190, 190, 220)
+	sub.TextColor3 = C(200, 205, 235)
 	sub.Parent = bg
 	local rows = {}
 	local n = Config.LeaderboardSize
-	local top, h = 0.2, 0.79 / n
-	local medal = { C(255, 205, 60), C(205, 215, 230), C(214, 140, 80) }
+	local top, h = 0.255, 0.725 / n
+	local medal = { C(255, 205, 60), C(214, 222, 236), C(222, 146, 84) }
 	for i = 1, n do
 		local r = Instance.new("Frame")
-		r.Size = UDim2.new(0.94, 0, h * 0.86, 0)
-		r.Position = UDim2.new(0.03, 0, top + (i - 1) * h, 0)
-		r.BackgroundColor3 = i <= 3 and C(60, 50, 96) or C(34, 36, 62)
-		r.BackgroundTransparency = 0.1
+		r.Size = UDim2.new(0.92, 0, h * 0.84, 0)
+		r.Position = UDim2.new(0.04, 0, top + (i - 1) * h, 0)
+		r.BackgroundColor3 = i <= 3 and C(70, 64, 120) or C(40, 44, 78)
 		r.Parent = bg
 		local rc = Instance.new("UICorner")
 		rc.CornerRadius = UDim.new(0.3, 0)
 		rc.Parent = r
+		if i <= 3 then
+			local st = Instance.new("UIStroke")
+			st.Thickness = 3
+			st.Color = medal[i]
+			st.Parent = r
+		end
 		local rank = Instance.new("TextLabel")
-		rank.Size = UDim2.fromScale(0.1, 1)
+		rank.Size = UDim2.fromScale(0.08, 0.9)
+		rank.Position = UDim2.fromScale(0.01, 0.05)
 		rank.BackgroundTransparency = 1
 		rank.Font = Enum.Font.FredokaOne
 		rank.TextScaled = true
 		rank.Text = tostring(i)
-		rank.TextColor3 = medal[i] or C(200, 200, 220)
+		rank.TextColor3 = medal[i] or C(210, 214, 236)
 		rank.Parent = r
 		local face2 = Instance.new("ImageLabel")
-		face2.Size = UDim2.fromScale(0.09, 0.9)
-		face2.Position = UDim2.fromScale(0.105, 0.05)
-		face2.BackgroundColor3 = C(20, 20, 34)
+		face2.Size = UDim2.fromScale(0.07, 0.9)
+		face2.Position = UDim2.fromScale(0.095, 0.05)
+		face2.BackgroundColor3 = C(24, 26, 44)
 		face2.Image = ""
 		face2.Parent = r
+		local ar = Instance.new("UIAspectRatioConstraint")
+		ar.AspectRatio = 1
+		ar.Parent = face2
 		local fc = Instance.new("UICorner")
 		fc.CornerRadius = UDim.new(1, 0)
 		fc.Parent = face2
 		local name = Instance.new("TextLabel")
-		name.Size = UDim2.fromScale(0.52, 0.8)
-		name.Position = UDim2.fromScale(0.215, 0.1)
+		name.Size = UDim2.fromScale(0.5, 0.78)
+		name.Position = UDim2.fromScale(0.19, 0.11)
 		name.BackgroundTransparency = 1
 		name.Font = Enum.Font.GothamBold
 		name.TextScaled = true
 		name.TextXAlignment = Enum.TextXAlignment.Left
 		name.Text = "—"
-		name.TextColor3 = C(240, 240, 250)
+		name.TextColor3 = C(244, 244, 252)
 		name.Parent = r
 		local val = Instance.new("TextLabel")
-		val.Size = UDim2.fromScale(0.25, 0.8)
-		val.Position = UDim2.fromScale(0.73, 0.1)
+		val.Size = UDim2.fromScale(0.28, 0.82)
+		val.Position = UDim2.fromScale(0.7, 0.09)
 		val.BackgroundTransparency = 1
 		val.Font = Enum.Font.FredokaOne
 		val.TextScaled = true
@@ -1208,7 +1248,7 @@ function LobbyService:Tick(dt)
 		box.Members = members
 		box.List = list
 		local n = #list
-		box.Text.Text = string.format("%d/%d", n, box.Size)
+		box.Text.Text = string.format("👥 %d/%d", n, box.Size)
 		box.Zone:SetAttribute("Size", box.Size)
 		box.Zone:SetAttribute("Count", n)
 		box.Zone:SetAttribute("Countdown", box.Countdown and math.max(0, math.ceil(box.Countdown)) or -1)
@@ -1222,7 +1262,8 @@ function LobbyService:Tick(dt)
 		elseif n == 0 then
 			box.Countdown = nil
 			box.Sub.Text = running and "⚔ ร่วมทีมที่เล่นอยู่" or "เดินขึ้นแท่นเพื่อเริ่ม"
-			box.Pad.Color = C(180, 200, 230)
+			box.Pad.Color = C(150, 200, 255)
+			box.Veil.Color = C(90, 220, 255)
 			box.Pillar.Enabled = false
 			box.Motes.Color = ColorSequence.new(C(200, 220, 255))
 			box.Motes.Rate = 6
@@ -1230,7 +1271,8 @@ function LobbyService:Tick(dt)
 			local target = running and COUNTDOWN_JOIN or ((n >= box.Size) and COUNTDOWN_FULL or COUNTDOWN)
 			box.Countdown = math.min(box.Countdown or target, target) - dt
 			box.Sub.Text = string.format("ออกเดินทางใน %d", math.max(0, math.ceil(box.Countdown)))
-			box.Pad.Color = C(120, 230, 130)
+			box.Pad.Color = C(120, 240, 140)
+			box.Veil.Color = C(120, 255, 150)
 			box.Pillar.Enabled = true
 			box.Motes.Color = ColorSequence.new(C(140, 255, 150))
 			box.Motes.Rate = 22
@@ -1266,7 +1308,7 @@ function LobbyService:RefreshBoard()
 			if e and (e.Value or 0) > 0 then
 				r.Name.Text = displayName(e.UserId)
 				r.Name.TextColor3 = vipNames[e.UserId] and Color3.fromRGB(255, 214, 90) or Color3.fromRGB(240, 240, 250)
-				r.Value.Text = string.format("%d คืน", e.Value)
+				r.Value.Text = string.format("%d วัน", e.Value)
 				r.Face.Image = thumb(e.UserId)
 				r.Row.Visible = true
 			else
