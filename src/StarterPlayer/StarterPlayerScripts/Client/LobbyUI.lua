@@ -80,8 +80,9 @@ function LobbyUI.Build(gui, handlers)
 	side.BackgroundTransparency = 1
 	side.AnchorPoint = Vector2.new(0, 0.5)
 	side.Position = UDim2.new(0, 22, 0.52, 0)
-	side.Size = UDim2.fromOffset(100, 330)
+	side.Size = UDim2.fromOffset(100, 440)
 	side.Parent = root
+	UIKit.AutoScale(side)
 	local layout = Instance.new("UIListLayout")
 	layout.Padding = UDim.new(0, 16)
 	layout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -97,9 +98,11 @@ function LobbyUI.Build(gui, handlers)
 	end)
 	ui.BadgeDot, ui.BadgeDotText = dot, dotText
 	dockButton(side, 3, "💎", "ร้านค้า", UIKit.Colors.Green, handlers.Shop)
+	dockButton(side, 4, "⚙", "ตั้งค่า", UIKit.Colors.Blue, handlers.Settings)
 
 	-- เพชร: แคปซูลมุมซ้ายบน + ปุ่ม + (เปิดร้านค้า)
-	local pill = UIKit.Frame(root, { Size = UDim2.fromOffset(190, 46), Position = UDim2.new(1, -214, 0, 20), BackgroundColor3 = Color3.fromRGB(26, 30, 54), BackgroundTransparency = 0 })
+	local pill = UIKit.Frame(root, { Size = UDim2.fromOffset(190, 46), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -24, 0, 20), BackgroundColor3 = Color3.fromRGB(26, 30, 54), BackgroundTransparency = 0 })
+	UIKit.AutoScale(pill)
 	local pc = Instance.new("UICorner")
 	pc.CornerRadius = UDim.new(1, 0)
 	pc.Parent = pill

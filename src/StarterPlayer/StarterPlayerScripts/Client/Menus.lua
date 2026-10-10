@@ -59,7 +59,7 @@ local function itemDesc(id)
 	if st then
 		local extra = {
 			LogWall = "ขวางฝูงสัตว์", StoneWall = "กำแพงถึกมาก", SpikeTrap = "แทงสัตว์ที่เหยียบ", Lantern = "แสงไล่กวางกลวง",
-			Ballista = "ยิงสัตว์อัตโนมัติ", Bed = "จุดเกิดใหม่", FarmPlot = "ปลูกเบอร์รี่", CookPot = "ทำสตูว์",
+			Ballista = "ยิงสัตว์อัตโนมัติ", Bed = "จุดเกิดของเพื่อนที่มาสมทบ", FarmPlot = "ปลูกเบอร์รี่", CookPot = "ทำสตูว์",
 			TerraTotem = "ซ่อมกำแพงรอบๆ", TideTotem = "สัตว์ในรัศมีช้าลง", GaleTotem = "ผลักสัตว์กระเด็น", EmberTotem = "เผาสัตว์รอบๆ",
 			SunBeacon = "แสงสว่างมหาศาล",
 		}
@@ -76,7 +76,8 @@ end
 local craft = {}
 
 function craft.Build(gui)
-	local panel = UIKit.Frame(gui, { Size = UDim2.fromOffset(760, 520), Position = UDim2.new(0.5, -380, 0.5, -260), BackgroundTransparency = 0.08, Visible = false })
+	local panel = UIKit.Frame(gui, { Size = UDim2.fromOffset(760, 520), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), BackgroundTransparency = 0.08, Visible = false })
+	UIKit.AutoScale(panel)
 	UIKit.Corner(panel, 14)
 	UIKit.Stroke(panel, C.Outline, 3, 0)
 	UIKit.Gradient(panel, Color3.fromRGB(52, 58, 100), Color3.fromRGB(26, 28, 50), 90)
@@ -222,7 +223,8 @@ end
 local bag = {}
 
 function bag.Build(gui)
-	local panel = UIKit.Frame(gui, { Size = UDim2.fromOffset(520, 440), Position = UDim2.new(0.5, -260, 0.5, -220), BackgroundTransparency = 0.08, Visible = false })
+	local panel = UIKit.Frame(gui, { Size = UDim2.fromOffset(520, 440), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), BackgroundTransparency = 0.08, Visible = false })
+	UIKit.AutoScale(panel)
 	UIKit.Corner(panel, 14)
 	UIKit.Stroke(panel, C.Outline, 3, 0)
 	UIKit.Gradient(panel, Color3.fromRGB(52, 58, 100), Color3.fromRGB(26, 28, 50), 90)
@@ -354,7 +356,8 @@ function Menus.StartBuild(kind)
 	ghost.Parent = Workspace.CurrentCamera
 	build.Ghost = ghost
 	build.Highlight = hl
-	Menus.BuildHint.Text = string.format("🏗 วาง %s (เหลือ %d)  ·  คลิก = วาง  ·  R = หมุน  ·  B/Esc = ยกเลิก", Items.DisplayName(kind), inventory[kind] or 0)
+	Menus.BuildHint.Text = Menus.TouchMode and string.format("🏗 วาง %s (เหลือ %d) — เล็งกลางจอแล้วกด ✔", Items.DisplayName(kind), inventory[kind] or 0)
+		or string.format("🏗 วาง %s (เหลือ %d)  ·  คลิก = วาง  ·  R = หมุน  ·  B/Esc = ยกเลิก", Items.DisplayName(kind), inventory[kind] or 0)
 	Menus.BuildHint.Visible = true
 end
 
@@ -369,9 +372,12 @@ function Menus.StopBuild()
 	end
 end
 
+-- มือถือ (Menus.TouchMode): เล็งด้วยกลางจอ (มีปุ่มวาง/หมุน/เปลี่ยน/ยกเลิก ใน MobileControls)
+Menus.TouchMode = false
 local function buildTarget()
-	local mouse = UserInputService:GetMouseLocation()
-	local ray = Workspace.CurrentCamera:ViewportPointToRay(mouse.X, mouse.Y)
+	local cam = Workspace.CurrentCamera
+	local mouse = Menus.TouchMode and (cam.ViewportSize / 2) or UserInputService:GetMouseLocation()
+	local ray = cam:ViewportPointToRay(mouse.X, mouse.Y)
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Include
 	params.FilterDescendantsInstances = { Workspace.Terrain }
@@ -413,6 +419,34 @@ function Menus.CycleBuild()
 	Menus.StartBuild(kinds[idx % #kinds + 1])
 end
 
+function Menus.IsBuilding()
+	return build.Active
+end
+
+function Menus.RotateBuild()
+	if build.Active then
+		build.Yaw += math.rad(45)
+	end
+end
+
+function Menus.PlaceBuild()
+	if not build.Active then
+		return
+	end
+	local res = buildTarget()
+	if res and build.Valid then
+		Remotes.Get("PlaceStructure"):FireServer(build.Kind, CFrame.new(res.Position) * CFrame.Angles(0, build.Yaw, 0))
+	end
+end
+
+function Menus.ToggleCraft()
+	if craft.Panel.Visible then
+		Menus.CloseCraft()
+	else
+		Menus.OpenCraft()
+	end
+end
+
 ---------------------------------------------------------------- ร้านค้า (ล็อบบี้)
 -- ร้านคลาส = ClassShop · ร้านค้า (เติมเพชร/Game Pass/ชุดเริ่มต้น) = StoreUI
 function Menus.OpenShop(tab)
@@ -433,7 +467,8 @@ end
 local trader = {}
 
 function trader.Build(gui)
-	local panel = UIKit.Frame(gui, { Size = UDim2.fromOffset(760, 520), Position = UDim2.new(0.5, -380, 0.5, -260), BackgroundTransparency = 0.05, Visible = false })
+	local panel = UIKit.Frame(gui, { Size = UDim2.fromOffset(760, 520), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), BackgroundTransparency = 0.05, Visible = false })
+	UIKit.AutoScale(panel)
 	UIKit.Corner(panel, 16)
 	UIKit.Stroke(panel, C.Outline, 3, 0)
 	UIKit.Gradient(panel, Color3.fromRGB(52, 58, 100), Color3.fromRGB(26, 28, 50), 90)
@@ -514,7 +549,8 @@ function Menus.SetInventory(inv, bagOnly, camp, used, cap)
 	if build.Active and (inventory[build.Kind] or 0) <= 0 then
 		Menus.StopBuild()
 	elseif build.Active then
-		Menus.BuildHint.Text = string.format("🏗 วาง %s (เหลือ %d)  ·  คลิก = วาง  ·  R = หมุน  ·  Q = เปลี่ยนชนิด  ·  B = ยกเลิก", Items.DisplayName(build.Kind), inventory[build.Kind] or 0)
+		Menus.BuildHint.Text = Menus.TouchMode and string.format("🏗 วาง %s (เหลือ %d) — เล็งกลางจอแล้วกด ✔", Items.DisplayName(build.Kind), inventory[build.Kind] or 0)
+			or string.format("🏗 วาง %s (เหลือ %d)  ·  คลิก = วาง  ·  R = หมุน  ·  Q = เปลี่ยนชนิด  ·  B = ยกเลิก", Items.DisplayName(build.Kind), inventory[build.Kind] or 0)
 	end
 end
 
@@ -548,6 +584,11 @@ function Menus.Init(state, hud)
 		Shop = function()
 			Menus.OpenShop("Diamonds")
 		end,
+		Settings = function()
+			if Menus.OnSettings then
+				Menus.OnSettings()
+			end
+		end,
 	})
 	ClassShop.OnVisibility = function(open)
 		if hud and hud.Gui then
@@ -563,7 +604,7 @@ function Menus.Init(state, hud)
 	end)
 	updateLobbyUI()
 	Menus.BuildHint = UIKit.Text(gui, {
-		Size = UDim2.new(0, 700, 0, 30), Position = UDim2.new(0.5, -350, 1, -150), TextXAlignment = Enum.TextXAlignment.Center,
+		Size = UDim2.new(0, 700, 0, 30), AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -120), TextXAlignment = Enum.TextXAlignment.Center,
 		TextSize = 16, TextColor3 = C.Gold, Visible = false, BackgroundTransparency = 0.4, BackgroundColor3 = C.Panel,
 	})
 	UIKit.Corner(Menus.BuildHint, 8)
@@ -610,11 +651,10 @@ function Menus.Init(state, hud)
 					Menus.OpenShop("Classes")
 				end
 			end
-		elseif input.UserInputType == Enum.UserInputType.MouseButton1 and build.Active then
-			local res = buildTarget()
-			if res and build.Valid then
-				Remotes.Get("PlaceStructure"):FireServer(build.Kind, CFrame.new(res.Position) * CFrame.Angles(0, build.Yaw, 0))
-			end
+		elseif k == Enum.KeyCode.Tab and player:GetAttribute("InRun") then
+			Menus.ToggleBag()
+		elseif input.UserInputType == Enum.UserInputType.MouseButton1 and build.Active and not Menus.TouchMode then
+			Menus.PlaceBuild()
 		end
 	end)
 

@@ -112,7 +112,7 @@ function AmbientFX.Init(state, atmosphereController)
 			if name == "BloodMist" then
 				target = state:GetAttribute("BloodMoon") and nightPhase and 6 or 0
 			end
-			e.Rate = target
+			e.Rate = target * (AmbientFX.RateMult or 1) -- ตั้งค่ากราฟิก: ต่ำ = ลด/ปิดอนุภาคลอย
 		end
 		-- ลมพัดขึ้น
 		local char = player.Character

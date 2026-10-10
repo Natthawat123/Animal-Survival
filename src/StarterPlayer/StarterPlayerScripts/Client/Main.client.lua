@@ -21,6 +21,11 @@ local Menus = require(Client:WaitForChild("Menus"))
 local MapUI = require(Client:WaitForChild("MapUI"))
 local SkinStreamer = require(Client:WaitForChild("SkinStreamer"))
 local DeathClient = require(Client:WaitForChild("DeathClient"))
+local ClientSettings = require(Client:WaitForChild("ClientSettings"))
+local SoundController = require(Client:WaitForChild("SoundController"))
+local SettingsUI = require(Client:WaitForChild("SettingsUI"))
+local Tutorial = require(Client:WaitForChild("Tutorial"))
+local MobileControls = require(Client:WaitForChild("MobileControls"))
 
 local function safe(name, fn, ...)
 	local ok, err = pcall(fn, ...)
@@ -42,6 +47,53 @@ safe("Dev", require(script.Parent:WaitForChild("DevPanel")).Init)
 safe("PadUI", require(Client:WaitForChild("PadUI")).Init)
 safe("Death", DeathClient.Init)
 Cinematics.Death = DeathClient
+safe("Sound", SoundController.Init, state)
+SoundController.Biome = function()
+	return AtmosphereController.Biome
+end
+safe("Tutorial", Tutorial.Init, UIKit.Screen("Tutorial", 60))
+safe("Settings", SettingsUI.Init, UIKit.Screen("Settings", 45), { Tutorial = Tutorial.Open, GearParent = HUD.RightCard })
+Menus.OnSettings = SettingsUI.Toggle
+safe("Mobile", MobileControls.Init, { Menus = Menus, Map = MapUI })
+
+-- การตั้งค่า -> ระบบต่างๆ
+local function applySetting(key, value)
+	if key == "Shake" then
+		CombatClient.ShakeEnabled = value ~= false
+	elseif key == "Hints" then
+		HUD.ShowHints = value ~= false
+	elseif key == "Graphics" or key == "Quality" then
+		AmbientFX.RateMult = ClientSettings.ParticleMult or 1
+	end
+end
+ClientSettings.OnChanged(applySetting)
+for _, k in ipairs({ "Shake", "Hints" }) do
+	applySetting(k, ClientSettings.Get(k))
+end
+pcall(ClientSettings.ApplyGraphics)
+
+-- เสียง: ปุ่ม UI / หน้าต่างเด้ง / แจ้งเตือน / เก็บของ
+UIKit.OnAnyClick = function()
+	SoundController.Play("UiClick")
+end
+UIKit.OnPop = function()
+	SoundController.Play("UiOpen")
+end
+do
+	local notify, pickup = HUD.Notify, HUD.Pickup
+	HUD.Notify = function(text, kind)
+		notify(text, kind)
+		if kind == "Reward" then
+			SoundController.Play("Reward")
+		elseif kind ~= "Info" then
+			SoundController.Play("Notify", (kind == "Danger" or kind == "Error") and 0.75 or 1)
+		end
+	end
+	HUD.Pickup = function(id, n)
+		pickup(id, n)
+		SoundController.Play("Pickup", 0.9 + math.random() * 0.25)
+	end
+end
 
 Remotes.Get("Notify").OnClientEvent:Connect(function(text, kind)
 	HUD.Notify(text, kind)
@@ -226,9 +278,13 @@ Remotes.Get("Cinematic").OnClientEvent:Connect(function(kind, data)
 	if not ok then
 		warn("[AS] cinematic", kind, err)
 	end
+	pcall(SoundController.OnCinematic, kind, data or {})
 end)
 Remotes.Get("HitFx").OnClientEvent:Connect(function(kind, data)
 	CombatClient.HandleFx(kind, data or {}, HUD)
+	if kind == "Eat" or kind == "Heal" then
+		SoundController.Play(kind)
+	end
 end)
 Remotes.Get("Profile").OnClientEvent:Connect(function(profile)
 	Menus.SetProfile(profile)
@@ -242,6 +298,12 @@ Cinematics.OnLoaded = function()
 		end)
 		if ok and profile then
 			Menus.SetProfile(profile)
+			ClientSettings.Load(profile.Settings)
+			-- ครั้งแรก: หน้าสอนเล่นแบบช่องการ์ตูน
+			if not profile.TutorialSeen and not ReplicatedStorage:FindFirstChild("ASAutoTest") then
+				task.wait(0.6)
+				Tutorial.Open()
+			end
 		end
 
 	end)

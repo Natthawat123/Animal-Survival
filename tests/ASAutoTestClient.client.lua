@@ -78,8 +78,12 @@ if lobby then
 		return require(script.Parent:WaitForChild("Client"):WaitForChild("Menus"))
 	end)
 	if okM then
-		Menus.OpenShop("Kits")
+		Menus.OpenShop("Diamonds")
 		shot("lobby_shop", 1.5)
+		Menus.OpenShop("Passes")
+		shot("lobby_shop_passes", 1.2)
+		Menus.OpenShop("Kits")
+		shot("lobby_shop_kits", 1.2)
 		Menus.OpenShop("Classes")
 		shot("lobby_classes", 4)
 		task.wait(2)
@@ -96,7 +100,17 @@ if lobby then
 		end
 		Menus.OpenShop("Kits") -- ปิดร้านคลาส (คืนกล้อง)
 		pcall(function()
-			player.PlayerGui.Menus:GetChildren()[1].Visible = false
+			require(script.Parent:WaitForChild("Client"):WaitForChild("StoreUI")).Close()
+		end)
+		pcall(function()
+			local Tutorial = require(script.Parent:WaitForChild("Client"):WaitForChild("Tutorial"))
+			Tutorial.Open()
+			shot("lobby_tutorial_1", 2)
+			Tutorial.Close()
+			local SettingsUI = require(script.Parent:WaitForChild("Client"):WaitForChild("SettingsUI"))
+			SettingsUI.Open()
+			shot("lobby_settings", 1.2)
+			SettingsUI.Close()
 		end)
 		for _, g in ipairs(player.PlayerGui.Menus:GetChildren()) do
 			if g:IsA("Frame") then

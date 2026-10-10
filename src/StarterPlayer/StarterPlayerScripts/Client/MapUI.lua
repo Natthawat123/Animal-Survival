@@ -27,7 +27,8 @@ local BIOME_MAP_COLOR = {
 function MapUI.Init(state, hud, atmosphere)
 	MapUI.State = state
 	local gui = UIKit.Screen("MapUI", 25)
-	local panel = UIKit.Frame(gui, { Size = UDim2.fromOffset(620, 660), Position = UDim2.new(0.5, -310, 0.5, -330), BackgroundTransparency = 0.05, Visible = false })
+	local panel = UIKit.Frame(gui, { Size = UDim2.fromOffset(620, 660), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), BackgroundTransparency = 0.05, Visible = false })
+	UIKit.AutoScale(panel)
 	UIKit.Corner(panel, 14)
 	UIKit.Stroke(panel, C.Outline, 3, 0)
 	UIKit.Text(panel, { Size = UDim2.new(1, 0, 0, 40), Position = UDim2.fromOffset(0, 6), TextXAlignment = Enum.TextXAlignment.Center, Font = UIKit.Fonts.Title, TextSize = 30, TextColor3 = C.Gold, Text = "แผนที่ดินแดนทั้งสี่" })

@@ -22,7 +22,8 @@ end
 
 function PadUI.Init()
 	local gui = UIKit.Screen("PadUI", 30)
-	local panel = UIKit.Card(gui, { Size = UDim2.fromOffset(560, 210), Position = UDim2.new(0.5, -280, 1, -260), Visible = false })
+	local panel = UIKit.Card(gui, { Size = UDim2.fromOffset(560, 210), AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -50), Visible = false })
+	UIKit.AutoScale(panel)
 	local _, title = UIKit.Header(panel, "แท่นเริ่มเกม", C.Green)
 	local status = UIKit.Text(panel, { Size = UDim2.new(1, -40, 0, 26), Position = UDim2.fromOffset(22, 34), Font = UIKit.Fonts.Title, TextSize = 24, TextXAlignment = Enum.TextXAlignment.Center, Text = "" })
 	local hint = UIKit.Text(panel, { Size = UDim2.new(1, -40, 0, 18), Position = UDim2.fromOffset(22, 64), TextSize = 15, TextColor3 = C.TextDim, TextXAlignment = Enum.TextXAlignment.Center, Text = "เลือกจำนวนผู้เล่นในทีม" })

@@ -6,8 +6,48 @@
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
+local Workspace = game:GetService("Workspace")
 
 local UIKit = {}
+
+---------------------------------------------------------------- สเกลอัตโนมัติตามขนาดจอ (มือถือจอเล็ก = ย่อ UI ลง)
+-- UIKit.AutoScale(frame): ใส่ UIScale ที่ปรับเองเมื่อจอเปลี่ยนขนาด · UIKit.UserScale = ตัวคูณจากหน้าตั้งค่า
+UIKit.UserScale = 1
+local scaled = setmetatable({}, { __mode = "k" })
+function UIKit.GetScale()
+	local cam = Workspace.CurrentCamera
+	local vp = cam and cam.ViewportSize or Vector2.new(1280, 720)
+	local base = math.clamp(math.min(vp.X / 1280, vp.Y / 720), 0.5, 1)
+	return base * UIKit.UserScale
+end
+local function scaler(frame)
+	local sc = frame:FindFirstChild("AutoScale")
+	if not sc then
+		sc = Instance.new("UIScale")
+		sc.Name = "AutoScale"
+		sc.Parent = frame
+	end
+	return sc
+end
+function UIKit.AutoScale(frame)
+	scaler(frame).Scale = UIKit.GetScale()
+	scaled[frame] = true
+	return frame
+end
+function UIKit.RefreshScale()
+	local k = UIKit.GetScale()
+	for f in pairs(scaled) do
+		if f.Parent then
+			scaler(f).Scale = k
+		end
+	end
+end
+task.defer(function()
+	local cam = Workspace.CurrentCamera
+	if cam then
+		cam:GetPropertyChangedSignal("ViewportSize"):Connect(UIKit.RefreshScale)
+	end
+end)
 
 UIKit.Colors = {
 	Panel = Color3.fromRGB(22, 24, 40),
@@ -204,6 +244,11 @@ function UIKit.Button(parent, props, onClick)
 	b.MouseButton1Up:Connect(function()
 		TweenService:Create(scale, TweenInfo.new(0.2, Enum.EasingStyle.Back), { Scale = 1.06 }):Play()
 	end)
+	b.Activated:Connect(function()
+		if UIKit.OnAnyClick then
+			UIKit.OnAnyClick()
+		end
+	end)
 	if onClick then
 		b.Activated:Connect(onClick)
 	end
@@ -260,14 +305,14 @@ end
 
 -- เปิดหน้าต่างแบบเด้ง
 function UIKit.Pop(frame)
-	local sc = frame:FindFirstChild("PopScale")
-	if not sc then
-		sc = Instance.new("UIScale")
-		sc.Name = "PopScale"
-		sc.Parent = frame
+	local target = UIKit.GetScale()
+	local sc = scaler(frame)
+	scaled[frame] = true
+	sc.Scale = target * 0.82
+	TweenService:Create(sc, TweenInfo.new(0.32, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = target }):Play()
+	if UIKit.OnPop then
+		UIKit.OnPop()
 	end
-	sc.Scale = 0.82
-	TweenService:Create(sc, TweenInfo.new(0.32, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
 end
 
 -- แถบค่า (เลือด/หิว/สตามิน่า): ร่องเข้ม + ขอบดำ + ไฮไลต์มันวาวด้านบน

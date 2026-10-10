@@ -57,7 +57,11 @@ end
 
 ---------------------------------------------------------------- จอสั่น
 local shake = 0
+CombatClient.ShakeEnabled = true -- ตั้งค่า: ปิดจอสั่นได้
 function CombatClient.Shake(power, time)
+	if not CombatClient.ShakeEnabled then
+		return
+	end
 	shake = math.max(shake, power)
 	task.delay(time or 0.3, function()
 		shake = math.max(0, shake - power)
