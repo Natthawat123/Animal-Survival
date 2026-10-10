@@ -157,8 +157,8 @@ function HUD.Init(state)
 	-- ล้ม
 	HUD.DownedFrame = UIKit.Frame(gui, { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.fromRGB(80, 0, 0), BackgroundTransparency = 0.7, Visible = false, ZIndex = 20 })
 	HUD.DownedText = UIKit.Text(HUD.DownedFrame, {
-		Size = UDim2.new(1, 0, 0, 60), Position = UDim2.new(0, 0, 0.62, 0), TextXAlignment = Enum.TextXAlignment.Center,
-		Font = UIKit.Fonts.Title, TextSize = 34, Text = "", TextColor3 = Color3.fromRGB(255, 200, 190), ZIndex = 21,
+		Size = UDim2.new(1, 0, 0, 90), Position = UDim2.new(0, 0, 0.62, 0), TextXAlignment = Enum.TextXAlignment.Center,
+		Font = UIKit.Fonts.Title, TextSize = 32, Text = "", TextColor3 = Color3.fromRGB(255, 200, 190), ZIndex = 21,
 	})
 
 	RunService.RenderStepped:Connect(HUD.Update)
@@ -294,7 +294,7 @@ function HUD.Update()
 	HUD.DownedFrame.Visible = downed == true
 	if downed then
 		local left = (player:GetAttribute("DownedUntil") or now) - now
-		HUD.DownedText.Text = string.format("คุณล้มลงแล้ว — รอเพื่อนช่วย %d", math.max(0, math.ceil(left)))
+		HUD.DownedText.Text = string.format("🩸 คุณล้มลงแล้ว — รอเพื่อนช่วย %d วินาที\nไม่มีใครช่วยทัน = ตาย (ไม่เกิดใหม่ในรอบนี้)", math.max(0, math.ceil(left)))
 	end
 
 	-- เข็มทิศ

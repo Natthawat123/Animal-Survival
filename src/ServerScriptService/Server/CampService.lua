@@ -462,6 +462,9 @@ function CampService:Start(ctx)
 	self:RefreshPrompts()
 
 	ctx.Remotes.Get("Craft").OnServerEvent:Connect(function(player, recipeId)
+		if ctx.Services.SurvivalService:IsIncapacitated(player) then
+			return
+		end
 		if recipeId == "UpgradeFire" or recipeId == "UpgradeBench" then
 			-- อัปเกรดจากเมนูคราฟต์ (ต้องอยู่ในแคมป์)
 			local char = player.Character
@@ -478,6 +481,9 @@ function CampService:Start(ctx)
 	end)
 	-- ถือกระสอบแล้วคลิกกองไฟ = โยนเชื้อเพลิงจากกระสอบเข้าไป (ไม่มีก็โยนเนื้อดิบไปย่าง)
 	ctx.Remotes.Get("ThrowFuel").OnServerEvent:Connect(function(player)
+		if ctx.Services.SurvivalService:IsIncapacitated(player) then
+			return
+		end
 		self:ThrowFrom(player)
 	end)
 	task.spawn(function()
@@ -487,6 +493,9 @@ function CampService:Start(ctx)
 		end
 	end)
 	ctx.Remotes.Get("ThrowGrind").OnServerEvent:Connect(function(player)
+		if ctx.Services.SurvivalService:IsIncapacitated(player) then
+			return
+		end
 		self:FeedGrinder(player, false)
 	end)
 	-- ของที่ตกลงในกองไฟ: เชื้อเพลิงไหม้ / เนื้อดิบสุกเด้งออกมา · ของที่ตกลงช่องเครื่องย่อย: บดเข้าคลัง

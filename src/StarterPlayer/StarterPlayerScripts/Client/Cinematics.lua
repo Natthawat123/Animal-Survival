@@ -25,7 +25,9 @@ local TIPS = {
 	"น้ำชนะไฟ · ไฟชนะลม · ลมชนะดิน · ดินชนะน้ำ",
 	"ลูกสัตว์ธาตุ 4 ตัวถูกขังอยู่ในศาลเจ้า ช่วยครบเพื่อฉากจบที่แท้จริง",
 	"ทุก 10 คืนจะเกิดพระจันทร์เลือด ฝูงทุกธาตุบุกพร้อมกัน",
-	"เพื่อนล้มลง? ใช้ผ้าพันแผลช่วยให้ทันใน 30 วินาที",
+	"เพื่อนล้มลง? ใช้ผ้าพันแผลช่วยให้ทันใน 30 วินาที — ไม่เหลือใครยืนอยู่ = แพ้ทั้งทีม",
+	"ตายแล้วไม่เกิดใหม่ในรอบนั้น — ช่วยกันระวังหลังให้กัน",
+	"รอดครบ 99 คืน = พิชิต! แต่เล่นต่อได้ไม่จำกัดเพื่อทำสถิติขึ้นกระดานอันดับ",
 	"หน้าไม้ยักษ์ยิงเองอัตโนมัติ วางไว้รอบกองไฟ",
 	"ลมพัดขึ้นในเขตวายุจะส่งคุณขึ้นสู่เกาะลอยฟ้า",
 	"รังบอสอยู่ใจกลางแต่ละธาตุ — เตรียมตัวให้พร้อมก่อนเข้าไป",
@@ -332,7 +334,26 @@ end
 
 ---------------------------------------------------------------- จอดำตาย
 local deathFrame
-function Cinematics.Died()
+local function clearDeath(time)
+	if not deathFrame then
+		return
+	end
+	local df = deathFrame
+	deathFrame = nil
+	for _, d in ipairs(df:GetDescendants()) do
+		if d:IsA("TextLabel") then
+			UIKit.Tween(d, time, { TextTransparency = 1 })
+		elseif d:IsA("Frame") then
+			UIKit.Tween(d, time, { BackgroundTransparency = 1 })
+		end
+	end
+	task.delay(time + 0.1, function()
+		df:Destroy()
+	end)
+end
+
+-- ตายในรอบ: ไม่เกิดใหม่ -> จอ YOU PERISHED สั้นๆ แล้วไปโหมดดูเพื่อน (DeathClient)
+function Cinematics.Died(d)
 	if deathFrame then
 		deathFrame:Destroy()
 	end
@@ -345,26 +366,27 @@ function Cinematics.Died()
 		Size = UDim2.new(1, 0, 0, 110), Position = UDim2.fromOffset(0, 20), TextXAlignment = Enum.TextXAlignment.Center, Font = UIKit.Fonts.Title,
 		TextSize = 96, Text = "YOU PERISHED", TextColor3 = Color3.fromRGB(150, 16, 20), TextTransparency = 1, TextStrokeTransparency = 1, ZIndex = 72,
 	})
+	local alive = d and d.Alive or 0
 	local s = UIKit.Text(band, {
 		Size = UDim2.new(1, 0, 0, 30), Position = UDim2.fromOffset(0, 124), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 20,
-		Text = "สิ้นชีพ... จะได้เกิดใหม่ตอนรุ่งเช้า (หรือที่เตียง)", TextColor3 = Color3.fromRGB(200, 170, 160), TextTransparency = 1, ZIndex = 72,
+		Text = alive > 0 and string.format("สิ้นชีพ... ไม่มีการเกิดใหม่ในรอบนี้ · เพื่อนยังรอดอยู่ %d คน", alive) or "สิ้นชีพ... ไม่มีการเกิดใหม่ในรอบนี้",
+		TextColor3 = Color3.fromRGB(200, 170, 160), TextTransparency = 1, ZIndex = 72,
 	})
 	UIKit.Tween(band, 1.5, { BackgroundTransparency = 0 })
 	UIKit.Tween(t, 2.2, { TextTransparency = 0, TextSize = 104 })
 	task.delay(1.4, function()
 		UIKit.Tween(s, 1, { TextTransparency = 0 })
 	end)
-	player.CharacterAdded:Once(function()
-		if deathFrame then
-			UIKit.Tween(t, 0.8, { TextTransparency = 1 })
-			UIKit.Tween(s, 0.8, { TextTransparency = 1 })
-			UIKit.Tween(band, 0.8, { BackgroundTransparency = 1 })
-			local df = deathFrame
-			deathFrame = nil
-			task.delay(1, function()
-				df:Destroy()
-			end)
+	task.delay(3.4, function()
+		if alive > 0 then
+			clearDeath(0.8)
 		end
+		if Cinematics.Death then
+			Cinematics.Death.StartSpectate(d)
+		end
+	end)
+	player.CharacterAdded:Once(function()
+		clearDeath(0.8)
 	end)
 end
 
@@ -438,28 +460,41 @@ function Cinematics.Handle(kind, d, menus, combat)
 	elseif kind == "BossFelled" then
 		Cinematics.Banner("BEAST VANQUISHED", "ปราบ " .. (d.Thai or "") .. " สำเร็จ! · ได้หัวใจอสูร", Color3.fromRGB(255, 214, 120), 4.5, { Size = 76 })
 	elseif kind == "Died" then
-		Cinematics.Died()
+		Cinematics.Died(d)
 	elseif kind == "Downed" then
 		combat.Shake(0.5, 0.4)
+		Cinematics.Banner("DOWNED", "คุณล้มลง! รอเพื่อนใช้ผ้าพันแผลช่วย — ถ้าไม่เหลือใครยืนอยู่ = แพ้ทั้งทีม", Color3.fromRGB(255, 90, 80), 3, { Size = 64, Y = 0.2 })
 	elseif kind == "Revived" then
 		Cinematics.Banner("", "✨ ได้รับการช่วยชีวิต!", C.Good, 1.5, { Size = 10, Y = 0.5 })
 	elseif kind == "GameOver" then
-		if deathFrame then
-			deathFrame:Destroy()
-			deathFrame = nil
+		clearDeath(0.3)
+		if Cinematics.Death then
+			Cinematics.Death.StopSpectate()
 		end
-		Cinematics.FullScreen("ALL HAVE PERISHED", { "ทุกคนสิ้นชีพในคืนที่ " .. tostring(d.Night), "กองไฟมอดดับลง... ป่ากลืนกินทุกสิ่ง", "เริ่มการเอาชีวิตรอดใหม่ในอีกครู่..." }, Color3.fromRGB(170, 20, 24), 11)
+		local lines = {
+			string.format("ทีมล้มลงทั้งหมดในคืนที่ %d", d.Night or 1),
+			string.format("รอดได้ %d คืน · สถิติสูงสุดของคุณ %d คืน", d.Survived or 0, d.Best or 0),
+			"กองไฟมอดดับลง... ป่ากลืนกินทุกสิ่ง",
+			"กำลังพากลับสู่ล็อบบี้...",
+		}
+		Cinematics.FullScreen("ALL HAVE PERISHED", lines, Color3.fromRGB(170, 20, 24), 11)
 	elseif kind == "Ending" then
+		local tail = d.Continue and "♾ เกมยังไม่จบ! เล่นต่อได้ไม่จำกัด — รอดให้นานที่สุดเพื่อขึ้นกระดานอันดับ" or ""
 		if d.Kind == "True" then
 			Cinematics.FullScreen("THE FOUR SPIRITS REUNITE", {
-				"ลูกสัตว์ทั้ง 4 ธาตุกลับมาพร้อมหน้า", "ความโกรธของผืนป่าสงบลง... สัตว์ทั้งหลายกลับคืนสู่ป่า",
-				"คุณพิชิตคืนสุดท้าย — จบแบบสมบูรณ์", "💎 +300 เพชร",
-			}, Color3.fromRGB(255, 226, 150), 28)
+				"ลูกสัตว์ทั้ง 4 ธาตุกลับมาพร้อมหน้า", "คุณพิชิต 99 คืน — จบแบบสมบูรณ์", "💎 +300 เพชร", tail,
+			}, Color3.fromRGB(255, 226, 150), 12)
 		else
-			Cinematics.FullScreen("THE LAST NIGHT CONQUERED", {
-				"คุณพิชิตคืนสุดท้าย", string.format("แต่ลูกสัตว์ธาตุกลับมาเพียง %d/4 ตัว...", d.Spirits or 0),
-				"ผืนป่ายังคงโกรธเกรี้ยว — ลองใหม่เพื่อฉากจบที่แท้จริง", "💎 +100 เพชร",
-			}, C.Gold, 28)
+			Cinematics.FullScreen("99 NIGHTS CONQUERED", {
+				"คุณพิชิต 99 คืนแห่งผืนป่า!", string.format("ลูกสัตว์ธาตุกลับมา %d/4 ตัว — ช่วยครบเพื่อฉากจบที่แท้จริง", d.Spirits or 0),
+				"💎 +100 เพชร", tail,
+			}, C.Gold, 12)
+		end
+	elseif kind == "Purchased" then
+		if d.Kind == "Pack" then
+			Cinematics.Banner("💎 +" .. tostring(d.Diamonds or 0), "เติม " .. (d.Name or "เพชร") .. " สำเร็จ — ขอบคุณที่สนับสนุน!", Color3.fromRGB(120, 230, 255), 3, { Size = 72, Y = 0.3 })
+		else
+			Cinematics.Banner("🎫 " .. (d.Name or "GAME PASS"), "ปลดล็อกแล้ว! ขอบคุณที่สนับสนุน", C.Gold, 3, { Size = 64, Y = 0.3 })
 		end
 	elseif kind == "SpiritFreed" then
 		Cinematics.Banner("SPIRIT UNSEALED", (d.Player or "") .. " ปลดปล่อย " .. (d.Name or "") .. " — พากลับกองไฟ!", C.Element[d.Element] or C.Gold, 3.5, { Size = 56 })
@@ -473,13 +508,17 @@ function Cinematics.Handle(kind, d, menus, combat)
 	elseif kind == "OpenCraft" then
 		menus.OpenCraft()
 	elseif kind == "OpenShop" then
-		menus.OpenShop("Kits")
+		menus.OpenShop("Diamonds")
 	elseif kind == "OpenClasses" then
 		menus.OpenShop("Classes")
 	elseif kind == "OpenTrader" then
 		menus.OpenTrader()
 	elseif kind == "Teleporting" then
-		Cinematics.Banner("DEPARTING", "กำลังพาทีมไปยังผืนป่าของพวกคุณ...", C.Gold, 6, { Size = 60 })
+		if d.Back then
+			Cinematics.Banner("RETURNING", "กำลังพากลับสู่ค่าย WILDHEART...", C.Gold, 8, { Size = 60, Y = 0.62 })
+		else
+			Cinematics.Banner("DEPARTING", "กำลังพาทีมไปยังผืนป่าของพวกคุณ...", C.Gold, 6, { Size = 60 })
+		end
 	elseif kind == "Depart" then
 		letterbox(true)
 		Cinematics.Banner("INTO THE WILDS", "ลงสู่ผืนป่า... จุดไฟให้ลุกโชน แล้วเอาชีวิตรอดให้ได้ 99 คืน", C.Gold, 3.5, { Size = 64 })

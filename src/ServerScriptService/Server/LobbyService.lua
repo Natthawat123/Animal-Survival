@@ -15,12 +15,14 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TeleportService = game:GetService("TeleportService")
+local UserService = game:GetService("UserService")
 local Workspace = game:GetService("Workspace")
 
 local Shop = require(ReplicatedStorage.Shared.Shop)
 local MeshProps = require(ReplicatedStorage.Shared.MeshProps)
 local BaseDecor = require(ReplicatedStorage.Shared.BaseDecor)
 local PropBuilder = require(ReplicatedStorage.Shared.PropBuilder)
+local Config = require(ReplicatedStorage.Shared.Config)
 
 local LobbyService = {}
 
@@ -736,8 +738,7 @@ function LobbyService:Build()
 		P(deco, { Size = V(1, 13, 1), CFrame = boardCf * CF(x, 6.5, 0.7), Color = C(80, 56, 38), Material = Enum.Material.Wood })
 	end
 	P(deco, { ClassName = "WedgePart", Size = V(18, 1.8, 2.4), CFrame = boardCf * CF(0, 13.4, 0), Color = C(90, 60, 40), Material = Enum.Material.Wood })
-	self.boardLabel = label(board, Enum.NormalId.Back, "🏆 ผู้รอดนานสุด", C(255, 230, 170), Enum.Font.GothamBold)
-	label(board, Enum.NormalId.Front, "🏆 ผู้รอดนานสุด", C(255, 230, 170), Enum.Font.GothamBold)
+	self.boardGuis = { self:BuildBoardGui(board, Enum.NormalId.Back), self:BuildBoardGui(board, Enum.NormalId.Front) }
 	lanternPost(deco, boardCf * CF(-10, 0, -2), 9)
 	-- แคมป์ไฟเล็ก + ม้านั่งท่อนซุง + เต็นท์นอน
 	local fcf = base * CF(-62, 1, 74)
@@ -869,6 +870,7 @@ function LobbyService:Depart(player)
 	player:SetAttribute("InRun", true)
 	local surv = ctx.Services.SurvivalService
 	surv:GiveStartItems(player)
+	ctx.Services.MonetizationService:GiveRunPerks(player)
 	local data = ctx.Services.DataService:Get(player)
 	if data and data.PendingKits then
 		for kitId in pairs(data.PendingKits) do
@@ -917,7 +919,265 @@ end
 function LobbyService:ReturnAll()
 	for _, p in ipairs(Players:GetPlayers()) do
 		p:SetAttribute("InRun", false)
+		self:RefreshTag(p)
 	end
+end
+
+-- เซิร์ฟเวอร์ของทีม -> ส่งกลับล็อบบี้หลัก (เซิร์ฟเวอร์สาธารณะของเกมเดียวกัน) · คืน true ถ้าเริ่มส่งได้
+function LobbyService:ReturnToMainLobby(list, info)
+	if RunService:IsStudio() or game.PlaceId == 0 or #list == 0 then
+		return false
+	end
+	for _, p in ipairs(list) do
+		self.ctx.Services.DataService:Save(p)
+		self.ctx.Remotes.Get("Cinematic"):FireClient(p, "Teleporting", { Back = true })
+	end
+	local ok, err = pcall(function()
+		local opts = Instance.new("TeleportOptions")
+		opts:SetTeleportData({ Back = true, Result = info and info.Result, Night = info and info.Night })
+		TeleportService:TeleportAsync(game.PlaceId, list, opts)
+	end)
+	if not ok then
+		warn("[AS] return to lobby failed:", err)
+	end
+	return ok
+end
+
+-- คนที่ตายแล้ว (กำลังดูเพื่อน) กดกลับล็อบบี้เอง
+function LobbyService:LeaveRun(player)
+	local surv = self.ctx.Services.SurvivalService
+	if not player:GetAttribute("InRun") or not player:GetAttribute("Dead") then
+		return
+	end
+	if self.IsTeamServer and self:ReturnToMainLobby({ player }, { Result = "Left" }) then
+		return
+	end
+	surv:ResetPlayer(player)
+	self:RefreshTag(player)
+	surv:CheckWipe()
+end
+
+---------------------------------------------------------------- ป้ายบนหัว (ล็อบบี้): คืนที่รอดนานสุด + VIP
+local function tierColor(best)
+	if best >= 99 then
+		return C(255, 214, 90), "👑"
+	elseif best >= 50 then
+		return C(255, 120, 90), "🔥"
+	elseif best >= 25 then
+		return C(190, 140, 255), "🌕"
+	elseif best >= 10 then
+		return C(120, 210, 255), "🌙"
+	end
+	return C(225, 225, 235), "🌙"
+end
+
+function LobbyService:RefreshTag(player)
+	local char = player.Character
+	local head = char and char:FindFirstChild("Head")
+	if not head then
+		return
+	end
+	local bb = head:FindFirstChild("ASTag")
+	if not bb then
+		bb = Instance.new("BillboardGui")
+		bb.Name = "ASTag"
+		bb.Size = UDim2.fromOffset(220, 58)
+		bb.StudsOffset = Vector3.new(0, 2.6, 0)
+		bb.MaxDistance = 90
+		bb.LightInfluence = 0
+		bb.AlwaysOnTop = false
+		local list = Instance.new("UIListLayout")
+		list.HorizontalAlignment = Enum.HorizontalAlignment.Center
+		list.VerticalAlignment = Enum.VerticalAlignment.Bottom
+		list.Padding = UDim.new(0, 2)
+		list.SortOrder = Enum.SortOrder.LayoutOrder
+		list.Parent = bb
+		local function pill(name, order)
+			local f = Instance.new("Frame")
+			f.Name = name
+			f.LayoutOrder = order
+			f.AutomaticSize = Enum.AutomaticSize.X
+			f.Size = UDim2.fromOffset(0, 24)
+			f.BackgroundColor3 = C(20, 22, 40)
+			f.BackgroundTransparency = 0.2
+			local cr = Instance.new("UICorner")
+			cr.CornerRadius = UDim.new(1, 0)
+			cr.Parent = f
+			local st = Instance.new("UIStroke")
+			st.Thickness = 2
+			st.Color = C(10, 10, 22)
+			st.Parent = f
+			local pad = Instance.new("UIPadding")
+			pad.PaddingLeft, pad.PaddingRight = UDim.new(0, 10), UDim.new(0, 10)
+			pad.Parent = f
+			local t = Instance.new("TextLabel")
+			t.Name = "Text"
+			t.AutomaticSize = Enum.AutomaticSize.X
+			t.Size = UDim2.fromScale(0, 1)
+			t.BackgroundTransparency = 1
+			t.Font = Enum.Font.FredokaOne
+			t.TextSize = 18
+			t.TextColor3 = C(255, 255, 255)
+			t.Parent = f
+			local ts = Instance.new("UIStroke")
+			ts.Thickness = 1.6
+			ts.Color = C(10, 10, 22)
+			ts.Parent = t
+			f.Parent = bb
+			return f
+		end
+		pill("VIP", 1)
+		pill("Best", 2)
+		bb.Parent = head
+	end
+	local best = player:GetAttribute("BestNight") or 0
+	local color, icon = tierColor(best)
+	local bestPill = bb:FindFirstChild("Best")
+	bestPill.Text.Text = best >= 99 and string.format("%s พิชิต 99 คืน · สูงสุด %d", icon, best) or string.format("%s สูงสุด %d คืน", icon, best)
+	bestPill.Text.TextColor3 = color
+	bestPill:FindFirstChildOfClass("UIStroke").Color = best >= 99 and C(150, 110, 20) or C(10, 10, 22)
+	local vip = bb:FindFirstChild("VIP")
+	vip.Visible = player:GetAttribute("Pass_VIP") == true
+	vip.Text.Text = "👑 VIP"
+	vip.Text.TextColor3 = C(255, 214, 90)
+	vip.BackgroundColor3 = C(70, 46, 10)
+	-- โชว์เฉพาะในล็อบบี้ (ในแมพไม่รกจอ)
+	bb.Enabled = not player:GetAttribute("InRun")
+end
+
+---------------------------------------------------------------- กระดานอันดับทั้งเกม (ทุกเซิร์ฟเวอร์)
+function LobbyService:BuildBoardGui(board, face)
+	local sg = Instance.new("SurfaceGui")
+	sg.Face = face
+	sg.PixelsPerStud = 40
+	sg.LightInfluence = 0
+	sg.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+	sg.Parent = board
+	local bg = Instance.new("Frame")
+	bg.Size = UDim2.fromScale(1, 1)
+	bg.BackgroundColor3 = C(18, 20, 36)
+	bg.Parent = sg
+	local g = Instance.new("UIGradient")
+	g.Color = ColorSequence.new(C(46, 40, 86), C(14, 14, 28))
+	g.Rotation = 90
+	g.Parent = bg
+	local title = Instance.new("TextLabel")
+	title.Size = UDim2.new(1, 0, 0.13, 0)
+	title.Position = UDim2.fromScale(0, 0.015)
+	title.BackgroundTransparency = 1
+	title.Font = Enum.Font.FredokaOne
+	title.TextScaled = true
+	title.Text = "🏆 ผู้รอดนานสุดทั้งเกม"
+	title.TextColor3 = C(255, 214, 90)
+	title.Parent = bg
+	local ts = Instance.new("UIStroke")
+	ts.Thickness = 3
+	ts.Color = C(10, 10, 22)
+	ts.Parent = title
+	local sub = Instance.new("TextLabel")
+	sub.Name = "Sub"
+	sub.Size = UDim2.new(1, 0, 0.05, 0)
+	sub.Position = UDim2.fromScale(0, 0.14)
+	sub.BackgroundTransparency = 1
+	sub.Font = Enum.Font.GothamBold
+	sub.TextScaled = true
+	sub.Text = "กำลังโหลดอันดับ..."
+	sub.TextColor3 = C(190, 190, 220)
+	sub.Parent = bg
+	local rows = {}
+	local n = Config.LeaderboardSize
+	local top, h = 0.2, 0.79 / n
+	local medal = { C(255, 205, 60), C(205, 215, 230), C(214, 140, 80) }
+	for i = 1, n do
+		local r = Instance.new("Frame")
+		r.Size = UDim2.new(0.94, 0, h * 0.86, 0)
+		r.Position = UDim2.new(0.03, 0, top + (i - 1) * h, 0)
+		r.BackgroundColor3 = i <= 3 and C(60, 50, 96) or C(34, 36, 62)
+		r.BackgroundTransparency = 0.1
+		r.Parent = bg
+		local rc = Instance.new("UICorner")
+		rc.CornerRadius = UDim.new(0.3, 0)
+		rc.Parent = r
+		local rank = Instance.new("TextLabel")
+		rank.Size = UDim2.fromScale(0.1, 1)
+		rank.BackgroundTransparency = 1
+		rank.Font = Enum.Font.FredokaOne
+		rank.TextScaled = true
+		rank.Text = tostring(i)
+		rank.TextColor3 = medal[i] or C(200, 200, 220)
+		rank.Parent = r
+		local face2 = Instance.new("ImageLabel")
+		face2.Size = UDim2.fromScale(0.09, 0.9)
+		face2.Position = UDim2.fromScale(0.105, 0.05)
+		face2.BackgroundColor3 = C(20, 20, 34)
+		face2.Image = ""
+		face2.Parent = r
+		local fc = Instance.new("UICorner")
+		fc.CornerRadius = UDim.new(1, 0)
+		fc.Parent = face2
+		local name = Instance.new("TextLabel")
+		name.Size = UDim2.fromScale(0.52, 0.8)
+		name.Position = UDim2.fromScale(0.215, 0.1)
+		name.BackgroundTransparency = 1
+		name.Font = Enum.Font.GothamBold
+		name.TextScaled = true
+		name.TextXAlignment = Enum.TextXAlignment.Left
+		name.Text = "—"
+		name.TextColor3 = C(240, 240, 250)
+		name.Parent = r
+		local val = Instance.new("TextLabel")
+		val.Size = UDim2.fromScale(0.25, 0.8)
+		val.Position = UDim2.fromScale(0.73, 0.1)
+		val.BackgroundTransparency = 1
+		val.Font = Enum.Font.FredokaOne
+		val.TextScaled = true
+		val.TextXAlignment = Enum.TextXAlignment.Right
+		val.Text = ""
+		val.TextColor3 = C(255, 214, 90)
+		val.Parent = r
+		rows[i] = { Row = r, Face = face2, Name = name, Value = val }
+	end
+	return { Sub = sub, Rows = rows }
+end
+
+local nameCache, thumbCache = {}, {}
+local function displayName(userId)
+	if nameCache[userId] then
+		return nameCache[userId]
+	end
+	local p = Players:GetPlayerByUserId(userId)
+	if p then
+		nameCache[userId] = p.DisplayName
+		return p.DisplayName
+	end
+	local ok, infos = pcall(UserService.GetUserInfosByUserIdsAsync, UserService, { userId })
+	if ok and infos and infos[1] then
+		nameCache[userId] = infos[1].DisplayName
+	else
+		local ok2, n = pcall(Players.GetNameFromUserIdAsync, Players, userId)
+		nameCache[userId] = ok2 and n or ("ผู้เล่น " .. userId)
+	end
+	return nameCache[userId]
+end
+local function thumb(userId)
+	if thumbCache[userId] == nil then
+		local ok, url = pcall(Players.GetUserThumbnailAsync, Players, userId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
+		thumbCache[userId] = ok and url or ""
+	end
+	return thumbCache[userId]
+end
+local function rowsFromServer(self)
+	local list = {}
+	for _, p in ipairs(Players:GetPlayers()) do
+		local d = self.ctx.Services.DataService:Get(p)
+		if d and p.UserId > 0 then
+			table.insert(list, { UserId = p.UserId, Value = d.BestNight or 0 })
+		end
+	end
+	table.sort(list, function(a, b)
+		return a.Value > b.Value
+	end)
+	return list
 end
 
 local function inside(zone, pos)
@@ -987,27 +1247,74 @@ function LobbyService:Tick(dt)
 end
 
 function LobbyService:RefreshBoard()
-	if not self.boardLabel then
+	if not self.boardGuis then
 		return
 	end
-	local rows = {}
+	local list = self.ctx.Services.DataService:GetTop(Config.LeaderboardSize)
+	local global = list ~= nil
+	list = list or rowsFromServer(self)
+	local vipNames = {}
 	for _, p in ipairs(Players:GetPlayers()) do
-		local d = self.ctx.Services.DataService:Get(p)
-		if d then
-			table.insert(rows, { p.DisplayName, d.BestNight or 0 })
+		if p:GetAttribute("Pass_VIP") then
+			vipNames[p.UserId] = true
 		end
 	end
-	table.sort(rows, function(a, b)
-		return a[2] > b[2]
-	end)
-	local lines = { "🏆 ผู้รอดนานสุด" }
-	for i = 1, math.min(6, #rows) do
-		table.insert(lines, string.format("%d. %s — %d คืน", i, rows[i][1], rows[i][2]))
+	for _, gui in ipairs(self.boardGuis) do
+		gui.Sub.Text = global and "อันดับจากทุกเซิร์ฟเวอร์ · อัปเดตทุก 1 นาที" or "(ยังเชื่อมระบบเซฟไม่ได้ — โชว์เฉพาะคนในเซิร์ฟเวอร์นี้)"
+		for i, r in ipairs(gui.Rows) do
+			local e = list[i]
+			if e and (e.Value or 0) > 0 then
+				r.Name.Text = displayName(e.UserId)
+				r.Name.TextColor3 = vipNames[e.UserId] and Color3.fromRGB(255, 214, 90) or Color3.fromRGB(240, 240, 250)
+				r.Value.Text = string.format("%d คืน", e.Value)
+				r.Face.Image = thumb(e.UserId)
+				r.Row.Visible = true
+			else
+				r.Name.Text = "—"
+				r.Value.Text = ""
+				r.Face.Image = ""
+				r.Row.Visible = i <= 3
+			end
+		end
 	end
-	self.boardLabel.Text = table.concat(lines, "\n")
 end
 
 function LobbyService:Start(ctx)
+	ctx.Remotes.Get("LeaveRun").OnServerEvent:Connect(function(player)
+		self:LeaveRun(player)
+	end)
+	-- ป้ายบนหัว: สร้างทุกครั้งที่เกิด + อัปเดตเมื่อสถิติ/สถานะเปลี่ยน
+	local function hookTag(player)
+		player.CharacterAdded:Connect(function(char)
+			char:WaitForChild("Head", 10)
+			self:RefreshTag(player)
+		end)
+		player:GetAttributeChangedSignal("BestNight"):Connect(function()
+			self:RefreshTag(player)
+		end)
+		player:GetAttributeChangedSignal("InRun"):Connect(function()
+			self:RefreshTag(player)
+		end)
+		if player.Character then
+			self:RefreshTag(player)
+		end
+		-- กลับมาจากเซิร์ฟเวอร์ของทีม: สรุปผลรอบที่แล้ว
+		local okJoin, join = pcall(function()
+			return player:GetJoinData()
+		end)
+		local td = okJoin and join and join.TeleportData
+		if type(td) == "table" and td.Back and not self.IsTeamServer then
+			task.delay(6, function()
+				if player.Parent and td.Result == "Defeat" then
+					ctx.Notify(player, string.format("🔥 รอบที่แล้ว: ทีมไปถึงคืนที่ %d — ลองใหม่อีกครั้ง!", tonumber(td.Night) or 0), "Info")
+				end
+			end)
+		end
+	end
+	Players.PlayerAdded:Connect(hookTag)
+	for _, p in ipairs(Players:GetPlayers()) do
+		task.spawn(hookTag, p)
+	end
 	ctx.Remotes.Get("PadSize").OnServerEvent:Connect(function(player, index, n)
 		local box = self.boxes and self.boxes[tonumber(index) or 0]
 		n = math.floor(tonumber(n) or 0)
@@ -1070,9 +1377,15 @@ function LobbyService:Start(ctx)
 			if not ok then
 				warn("[AS] lobby", err)
 			end
-			if t > 5 then
+			if t > 60 or not self.boardOnce then
 				t = 0
-				pcall(self.RefreshBoard, self)
+				self.boardOnce = true
+				task.spawn(function()
+					local ok, err = pcall(self.RefreshBoard, self)
+					if not ok then
+						warn("[AS] board", err)
+					end
+				end)
 			end
 		end
 	end)

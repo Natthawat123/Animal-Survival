@@ -70,7 +70,7 @@ function ctx.Broadcast(text, kind)
 end
 
 local order = {
-	"DataService", "DevService", "InventoryService", "DropService", "SurvivalService", "LobbyService", "ResourceService", "CampService", "BuildingService",
+	"DataService", "DevService", "InventoryService", "DropService", "SurvivalService", "LobbyService", "MonetizationService", "ResourceService", "CampService", "BuildingService",
 	"CombatService", "AnimalService", "SpiritService", "LootService", "TraderService", "DirectorService",
 }
 for _, name in ipairs(order) do
@@ -92,7 +92,7 @@ end
 
 -- ช่วงที่ 1: ล็อบบี้พร้อมทันที (ผู้เล่นเกิดในล็อบบี้ระหว่างรอสร้างแมพ)
 ctx.Services.LobbyService:Build()
-start({ "DataService", "DevService", "InventoryService", "SurvivalService", "LobbyService" })
+start({ "DataService", "DevService", "InventoryService", "SurvivalService", "LobbyService", "MonetizationService" })
 
 ---------------------------------------------------------------- สร้างโลก
 local t0 = os.clock()

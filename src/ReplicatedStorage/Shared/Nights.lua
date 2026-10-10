@@ -3,13 +3,34 @@
 	- ทุกคืนสุ่ม "ธาตุประจำคืน" (สัตว์ธาตุนั้นบุก)
 	- ทุก 10 คืน = พระจันทร์เลือด (ทุกธาตุบุกพร้อมกัน งบ x1.5)
 	- คืน 25 / 50 / 75 / 99 = บอสธาตุบุกฐาน
+	- หลังคืน 99 = โหมดไร้ขีดจำกัด (ฝูงแรงขึ้นเรื่อยๆ + บอสวนมาทุก 25 คืน)
 ]]
 
 local Animals = require(script.Parent.Animals)
+local Config = require(script.Parent.Config)
 
 local Nights = {}
 
 Nights.BossNights = { [25] = "Terragon", [50] = "Leviathan", [75] = "TempestRoc", [99] = "Solfang" }
+local BOSS_CYCLE = { "Terragon", "Leviathan", "TempestRoc", "Solfang" }
+
+-- บอสของคืนนี้ (หลังคืน 99 = โหมดไร้ขีดจำกัด: บอสวนกลับมาทุก Config.EndlessBossEvery คืน)
+function Nights.BossFor(night)
+	if Nights.BossNights[night] then
+		return Nights.BossNights[night]
+	end
+	local total = Config.TotalNights
+	local every = Config.EndlessBossEvery or 25
+	if night > total and (night - total) % every == 0 then
+		local i = ((night - total) // every - 1) % #BOSS_CYCLE + 1
+		return BOSS_CYCLE[i]
+	end
+	return nil
+end
+
+function Nights.IsEndless(night)
+	return night > Config.TotalNights
+end
 
 -- คืนพิเศษที่มีชื่อ
 Nights.Named = {
@@ -70,7 +91,7 @@ function Nights.Plan(night, rng, element)
 	local plan = {
 		Element = element,
 		BloodMoon = Nights.IsBloodMoon(night),
-		Boss = Nights.BossNights[night],
+		Boss = Nights.BossFor(night),
 		Waves = {},
 	}
 	local pools = {}

@@ -412,11 +412,17 @@ end
 
 function DropService:Start(ctx)
 	ctx.Remotes.Get("PickupDrop").OnServerEvent:Connect(function(player, m)
+		if ctx.Services.SurvivalService:IsIncapacitated(player) then
+			return
+		end
 		if typeof(m) == "Instance" and drops[m] then
 			self:Pickup(player, m)
 		end
 	end)
 	ctx.Remotes.Get("DropItem").OnServerEvent:Connect(function(player, id, n)
+		if ctx.Services.SurvivalService:IsIncapacitated(player) then
+			return
+		end
 		if id == nil or type(id) == "string" then
 			self:DropFromPlayer(player, id, n)
 		end

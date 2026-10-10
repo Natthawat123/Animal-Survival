@@ -27,6 +27,9 @@ Remotes.Events = {
 	"ThrowFuel", -- () ถือกระสอบคลิกกองไฟ: โยนเชื้อเพลิง/เนื้อดิบเข้าไป
 	"ThrowGrind", -- () ถือกระสอบคลิกเครื่องย่อย: โยนวัตถุดิบลงช่องบด
 	"PadSize", -- (padIndex, n) หัวหน้าแท่นเลือกจำนวนคน 1-8
+	"LeaveRun", -- () คนที่ตายแล้ว (ดูเพื่อน) กดกลับล็อบบี้
+	"SaveSettings", -- (table) การตั้งค่าเสียง/กราฟิก/ปุ่ม
+	"TutorialDone", -- () ดูหน้าสอนเล่นจบแล้ว
 	-- server -> client
 	"Notify", -- (text, kind)
 	"Inventory", -- (table)
@@ -36,6 +39,7 @@ Remotes.Events = {
 }
 Remotes.Functions = {
 	"GetProfile",
+	"GetShopInfo", -- () -> { Passes = { [id] = true }, Packs = Config.DiamondPacks ... }
 	"DevCmd", -- (action, a, b) เครื่องมือนักพัฒนา (DevService)
 }
 

@@ -268,6 +268,9 @@ end
 
 function BuildingService:Start(ctx)
 	ctx.Remotes.Get("PlaceStructure").OnServerEvent:Connect(function(player, kind, cf)
+		if ctx.Services.SurvivalService:IsIncapacitated(player) then
+			return
+		end
 		if type(kind) == "string" then
 			self:Place(player, kind, cf)
 		end

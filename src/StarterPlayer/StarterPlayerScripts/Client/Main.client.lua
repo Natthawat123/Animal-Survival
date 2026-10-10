@@ -20,6 +20,7 @@ local CombatClient = require(Client:WaitForChild("CombatClient"))
 local Menus = require(Client:WaitForChild("Menus"))
 local MapUI = require(Client:WaitForChild("MapUI"))
 local SkinStreamer = require(Client:WaitForChild("SkinStreamer"))
+local DeathClient = require(Client:WaitForChild("DeathClient"))
 
 local function safe(name, fn, ...)
 	local ok, err = pcall(fn, ...)
@@ -39,6 +40,8 @@ safe("Menus", Menus.Init, state, HUD)
 safe("Map", MapUI.Init, state, HUD, AtmosphereController)
 safe("Dev", require(script.Parent:WaitForChild("DevPanel")).Init)
 safe("PadUI", require(Client:WaitForChild("PadUI")).Init)
+safe("Death", DeathClient.Init)
+Cinematics.Death = DeathClient
 
 Remotes.Get("Notify").OnClientEvent:Connect(function(text, kind)
 	HUD.Notify(text, kind)

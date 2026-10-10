@@ -95,8 +95,11 @@ function DirectorService:RunNight(night, runId)
 	s:SetAttribute("BloodMoon", plan.BloodMoon)
 	self:SetPhase("Night", Config.NightLength)
 	local title = Nights.Named[night] or ("คืนแห่ง" .. (ELEMENT_THAI[plan.Element] or ""))
+	if Nights.IsEndless(night) then
+		title = "♾ ไร้ขีดจำกัด · " .. title
+	end
 	ctx.Remotes.Get("Cinematic"):FireAllClients("NightStart", {
-		Night = night, Element = plan.Element, BloodMoon = plan.BloodMoon, Boss = plan.Boss, Title = title,
+		Night = night, Element = plan.Element, BloodMoon = plan.BloodMoon, Boss = plan.Boss, Title = title, Endless = Nights.IsEndless(night),
 	})
 	local total = 0
 	for _, w in ipairs(plan.Waves) do
@@ -157,25 +160,23 @@ function DirectorService:Dawn(night)
 	ctx.State:SetAttribute("BossId", "")
 	ctx.State:SetAttribute("BloodMoon", false)
 	ctx.Remotes.Get("Cinematic"):FireAllClients("Dawn", { Night = night })
-	-- รางวัล
+	-- รางวัล: เฉพาะคนที่ยังรอดอยู่ในรอบ (คนที่ตายแล้วไม่ได้ และไม่ได้เกิดใหม่)
 	for _, p in ipairs(Players:GetPlayers()) do
-		local data = ctx.Services.DataService:Get(p)
-		if data then
-			data.BestNight = math.max(data.BestNight or 0, night)
-			if p:GetAttribute("InRun") then
+		if p:GetAttribute("InRun") and not p:GetAttribute("Dead") then
+			local data = ctx.Services.DataService:Get(p)
+			if data then
+				ctx.Services.DataService:SetBestNight(p, night)
 				data.NightsTotal = (data.NightsTotal or 0) + 1
 				ctx.Services.DataService:AddClassStat(p, "Nights", 1)
 			end
-		end
-		local bonus = Classes.NightRewards[night]
-		if bonus then
-			ctx.Services.DataService:AddDiamonds(p, bonus, "รอดถึงคืนที่ " .. night)
-		elseif night >= 3 then
-			ctx.Services.DataService:AddDiamonds(p, 1, "รอดคืนที่ " .. night)
-		end
-		-- ช่วยเพื่อนที่ตายไปตอนกลางคืน
-		if p:GetAttribute("Dead") and p:GetAttribute("InRun") then
-			ctx.Services.SurvivalService:Spawn(p)
+			local bonus = Classes.NightRewards[night]
+			if bonus then
+				ctx.Services.DataService:AddDiamonds(p, bonus, "รอดถึงคืนที่ " .. night)
+			elseif night > Config.TotalNights and night % 10 == 0 then
+				ctx.Services.DataService:AddDiamonds(p, 10, "โหมดไร้ขีดจำกัด คืนที่ " .. night)
+			elseif night >= 3 then
+				ctx.Services.DataService:AddDiamonds(p, 1, "รอดคืนที่ " .. night)
+			end
 		end
 	end
 end
@@ -205,9 +206,8 @@ function DirectorService:Loop(runId)
 			return
 		end
 		self:Dawn(night)
-		if night >= Config.TotalNights then
-			self:Ending()
-			return
+		if night == Config.TotalNights then
+			self:Complete()
 		end
 		self.night = night + 1
 	end
@@ -223,45 +223,71 @@ function DirectorService:SpiritCount()
 	return n
 end
 
-function DirectorService:Ending()
+-- รอดครบ 99 คืน: ฉลอง + รางวัล แล้วเล่นต่อ (โหมดไร้ขีดจำกัด)
+function DirectorService:Complete()
 	local ctx = self.ctx
 	local spirits = self:SpiritCount()
 	local kind = spirits >= 4 and "True" or "Survived"
-	self:SetPhase("Ended", 30)
-	ctx.State:SetAttribute("Ending", kind)
-	ctx.Services.AnimalService:ClearKind(nil, true)
-	ctx.Remotes.Get("Cinematic"):FireAllClients("Ending", { Kind = kind, Spirits = spirits, Nights = Config.TotalNights })
+	ctx.State:SetAttribute("Conquered", true)
+	ctx.Remotes.Get("Cinematic"):FireAllClients("Ending", { Kind = kind, Spirits = spirits, Nights = Config.TotalNights, Continue = true })
 	for _, p in ipairs(Players:GetPlayers()) do
-		local data = ctx.Services.DataService:Get(p)
-		if data then
-			data.Wins = (data.Wins or 0) + 1
+		if p:GetAttribute("InRun") and not p:GetAttribute("Dead") then
+			local data = ctx.Services.DataService:Get(p)
+			if data then
+				data.Wins = (data.Wins or 0) + 1
+				if kind == "True" then
+					data.TrueEndings = (data.TrueEndings or 0) + 1
+				end
+			end
+			ctx.Services.DataService:AddDiamonds(p, kind == "True" and 300 or 100, "พิชิต 99 คืน")
+			ctx.Services.DataService:CheckBadges(p)
+			ctx.Services.DataService:Save(p)
 		end
-		ctx.Services.DataService:AddDiamonds(p, kind == "True" and 300 or 100, "พิชิตคืนสุดท้าย")
 	end
-	task.delay(30, function()
-		self:ResetRun()
-	end)
+	ctx.Broadcast("♾ เข้าสู่โหมดไร้ขีดจำกัด — ฝูงจะแรงขึ้นทุกคืน รอดให้นานที่สุดเพื่อขึ้นกระดานอันดับ!", "Reward")
 end
 
 function DirectorService:GameOver()
 	local ctx = self.ctx
-	if ctx.State:GetAttribute("Phase") == "Ended" then
+	if ctx.State:GetAttribute("Phase") == "Ended" or not self.running then
 		return
 	end
 	self.runId += 1
 	self:SetPhase("Ended", 12)
 	ctx.State:SetAttribute("Ending", "Defeat")
-	ctx.Remotes.Get("Cinematic"):FireAllClients("GameOver", { Night = self.night })
+	local survived = self.night - 1
 	for _, p in ipairs(Players:GetPlayers()) do
-		local data = ctx.Services.DataService:Get(p)
-		if data then
-			data.Runs = (data.Runs or 0) + 1
-			data.BestNight = math.max(data.BestNight or 0, self.night - 1)
+		if p:GetAttribute("InRun") then
+			local data = ctx.Services.DataService:Get(p)
+			if data then
+				data.Runs = (data.Runs or 0) + 1
+			end
+			ctx.Remotes.Get("Cinematic"):FireClient(p, "GameOver", {
+				Night = self.night, Survived = survived, Best = data and data.BestNight or survived, Conquered = ctx.State:GetAttribute("Conquered"),
+			})
+			ctx.Services.DataService:Save(p)
 		end
 	end
+	ctx.Services.AnimalService:ClearKind("Raid", true)
+	ctx.Services.AnimalService:ClearKind("Stalker", true)
 	task.delay(12, function()
-		self:ResetRun()
+		self:EndRun()
 	end)
+end
+
+-- จบรอบ: เซิร์ฟเวอร์ของทีม (มาจากล็อบบี้หลัก) = ส่งทุกคนกลับล็อบบี้หลัก / ที่อื่น (Studio) = กลับล็อบบี้ในเซิร์ฟเวอร์นี้
+function DirectorService:EndRun()
+	local lobby = self.ctx.Services.LobbyService
+	if lobby.IsTeamServer and lobby:ReturnToMainLobby(Players:GetPlayers(), { Result = "Defeat", Night = self.night }) then
+		-- กันพลาด: ส่งไม่สำเร็จ (Roblox ล่ม ฯลฯ) -> กลับล็อบบี้ในเซิร์ฟเวอร์นี้แทน
+		task.delay(20, function()
+			if #Players:GetPlayers() > 0 and self.ctx.State:GetAttribute("Phase") == "Ended" then
+				self:ResetRun()
+			end
+		end)
+		return
+	end
+	self:ResetRun()
 end
 
 function DirectorService:IsRunning()
@@ -289,6 +315,7 @@ function DirectorService:ResetRun()
 	self.night = 1
 	self.lastElement = nil
 	ctx.State:SetAttribute("Ending", "")
+	ctx.State:SetAttribute("Conquered", false)
 	ctx.State:SetAttribute("BossId", "")
 	ctx.Services.AnimalService:ClearKind(nil, false)
 	ctx.Services.BuildingService:Clear()
@@ -300,7 +327,7 @@ function DirectorService:ResetRun()
 	end
 	ctx.Services.LobbyService:ReturnAll()
 	self:SetPhase("Lobby", 0)
-	ctx.Broadcast("🔥 ทุกคนกลับสู่ล็อบบี้ — เข้าประตูเพื่อเริ่มรอบใหม่", "Info")
+	ctx.Broadcast("🔥 ทุกคนกลับสู่ล็อบบี้ — ขึ้นแท่นเริ่มเกมเพื่อเริ่มรอบใหม่", "Info")
 end
 
 function DirectorService:Start(ctx)

@@ -323,6 +323,11 @@ function AnimalService:Kill(a, attacker)
 			if c and (c:GetPivot().Position - pos).Magnitude < 260 then
 				self:GiveDrops(a, p)
 				self.ctx.Services.DataService:AddDiamonds(p, Classes.BossReward, "ปราบ " .. a.Info.Thai)
+				local pd = self.ctx.Services.DataService:Get(p)
+				if pd then
+					pd.BossKills = (pd.BossKills or 0) + 1
+					self.ctx.Services.DataService:CheckBadges(p)
+				end
 			end
 		end
 		self.ctx.State:SetAttribute("BossId", "")

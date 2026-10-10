@@ -20,6 +20,7 @@ local Shop = require(Shared.Shop)
 local UIKit = require(script.Parent.UIKit)
 local ClassShop = require(script.Parent.ClassShop)
 local LobbyUI = require(script.Parent.LobbyUI)
+local StoreUI = require(script.Parent.StoreUI)
 
 local Menus = {}
 local player = Players.LocalPlayer
@@ -412,124 +413,16 @@ function Menus.CycleBuild()
 	Menus.StartBuild(kinds[idx % #kinds + 1])
 end
 
----------------------------------------------------------------- เลือกคลาส
-local classUI = { Tab = "Classes" }
-
--- ร้านค้า (ล็อบบี้): แท็บคลาส / ชุดเริ่มต้น  — ใช้เพชร
-function classUI.Build(gui)
-	-- สไตล์เดียวกับร้านคลาส: พื้นดำโปร่ง มุมมน ตัวหนังสือหนาขอบดำ ปุ่มสีสด
-	local panel = UIKit.Frame(gui, { Size = UDim2.fromOffset(900, 580), Position = UDim2.new(0.5, -450, 0.5, -290), BackgroundColor3 = Color3.fromRGB(30, 34, 62), BackgroundTransparency = 0.2, Visible = false })
-	UIKit.Corner(panel, 22)
-	UIKit.Stroke(panel, Color3.fromRGB(70, 60, 48), 2, 0.3)
-	classUI.Title = UIKit.Text(panel, { Size = UDim2.new(1, 0, 0, 56), Position = UDim2.fromOffset(0, 8), Font = UIKit.Fonts.Black, TextSize = 46, TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Center, Text = "ร้านค้า" })
-	local ts = Instance.new("UIStroke")
-	ts.Thickness, ts.Parent = 3, classUI.Title
-	UIKit.Gradient(classUI.Title, Color3.fromRGB(255, 244, 150), Color3.fromRGB(242, 176, 40), 90)
-	classUI.Diamonds = UIKit.Text(panel, { Size = UDim2.fromOffset(200, 34), Position = UDim2.new(1, -260, 0, 18), TextXAlignment = Enum.TextXAlignment.Right, TextSize = 26, Font = UIKit.Fonts.Black, TextColor3 = Color3.new(1, 1, 1), Text = "💎 0" })
-	local ds = Instance.new("UIStroke")
-	ds.Thickness, ds.Parent = 2, classUI.Diamonds
-	UIKit.CloseButton(panel, function()
-		panel.Visible = false
-	end)
-	classUI.TabButtons = {}
-	for i, t in ipairs({ { "Classes", "🔥 คลาส" }, { "Kits", "🎒 ชุดเริ่มต้น" } }) do
-		classUI.TabButtons[t[1]] = UIKit.Button(panel, { Size = UDim2.fromOffset(170, 34), Position = UDim2.fromOffset(20 + (i - 1) * 180, 60), Text = t[2], TextSize = 15 }, function()
-			classUI.Tab = t[1]
-			classUI.Refresh()
-		end)
-		classUI.TabButtons[t[1]].Visible = false -- คลาสย้ายไปร้านคลาสแบบใหม่ (ClassShop)
-	end
-	local scroll = Instance.new("ScrollingFrame")
-	scroll.Size = UDim2.new(1, -40, 1, -170)
-	scroll.Position = UDim2.fromOffset(20, 104)
-	scroll.BackgroundTransparency = 1
-	scroll.BorderSizePixel = 0
-	scroll.ScrollBarThickness = 6
-	scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
-	scroll.CanvasSize = UDim2.new()
-	scroll.Parent = panel
-	local grid = Instance.new("UIGridLayout")
-	grid.CellSize = UDim2.fromOffset(200, 170)
-	grid.CellPadding = UDim2.fromOffset(10, 10)
-	grid.SortOrder = Enum.SortOrder.LayoutOrder
-	grid.Parent = scroll
-	classUI.Scroll = scroll
-	classUI.Panel = panel
-	classUI.Hint = UIKit.Text(panel, { Size = UDim2.new(1, -40, 0, 20), Position = UDim2.new(0, 20, 1, -58), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 13, TextColor3 = C.TextDim, Text = "" })
-	UIKit.Button(panel, { Size = UDim2.fromOffset(240, 40), Position = UDim2.new(0.5, -120, 1, -48), Text = "ปิด", TextSize = 24, Font = UIKit.Fonts.Black, TextColor3 = Color3.new(1, 1, 1), BackgroundColor3 = Color3.fromRGB(220, 60, 60) }, function()
-		panel.Visible = false
-	end)
-end
-
-local function card(parent, order, icon, title, desc, button, stroke, onClick, buttonColor)
-	local f = UIKit.Frame(parent, { BackgroundColor3 = Color3.fromRGB(44, 50, 86), BackgroundTransparency = 0.12, LayoutOrder = order })
-	UIKit.Corner(f, 8)
-	UIKit.Stroke(f, stroke or Color3.fromRGB(44, 44, 48), 2, 0)
-	UIKit.Text(f, { Size = UDim2.new(1, 0, 0, 44), Position = UDim2.fromOffset(0, 4), Text = icon, TextSize = 36, TextXAlignment = Enum.TextXAlignment.Center })
-	local t = UIKit.Text(f, { Size = UDim2.new(1, 0, 0, 24), Position = UDim2.fromOffset(0, 48), Text = title, TextSize = 19, Font = UIKit.Fonts.Black, TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Center })
-	local st = Instance.new("UIStroke")
-	st.Thickness, st.Parent = 2, t
-	UIKit.Text(f, { Size = UDim2.new(1, -16, 0, 44), Position = UDim2.fromOffset(8, 74), Text = desc, TextSize = 13, TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Center, TextYAlignment = Enum.TextYAlignment.Top, Font = UIKit.Fonts.Bold, TextColor3 = Color3.fromRGB(215, 215, 220) })
-	local b = UIKit.Button(f, { Size = UDim2.new(1, -24, 0, 36), Position = UDim2.new(0, 12, 1, -44), Text = button, TextSize = 19, Font = UIKit.Fonts.Black, TextColor3 = Color3.new(1, 1, 1), BackgroundColor3 = buttonColor or Color3.fromRGB(70, 200, 60) }, onClick)
-	local bs = Instance.new("UIStroke")
-	bs.Thickness, bs.ApplyStrokeMode, bs.Parent = 2, Enum.ApplyStrokeMode.Contextual, b
-	return f
-end
-
-function classUI.Refresh()
-	if not classUI.Panel then
-		return
-	end
-	local data = profile or { Diamonds = player:GetAttribute("Diamonds") or 0, Owned = { Survivor = true } }
-	classUI.Diamonds.Text = "💎 " .. tostring(player:GetAttribute("Diamonds") or data.Diamonds or 0)
-	for id, b in pairs(classUI.TabButtons) do
-		b.BackgroundColor3 = (id == classUI.Tab) and Color3.fromRGB(80, 60, 30) or C.Panel2
-	end
-	for _, c in ipairs(classUI.Scroll:GetChildren()) do
-		if c:IsA("Frame") then
-			c:Destroy()
-		end
-	end
-	classUI.Tab = "Kits"
-	if classUI.Tab == "Kits" then
-		classUI.Hint.Text = "ชุดเริ่มต้นใช้ได้ 1 ครั้ง — ได้ของทันทีตอนเดินเข้าประตูลงแมพ · เพชรได้จากการรอดคืน ปราบบอส และช่วยลูกสัตว์ธาตุ"
-		local pending = data.PendingKits or {}
-		for i, k in ipairs(Shop.Kits) do
-			local bought = pending[k.Id]
-			card(classUI.Scroll, i, k.Icon, k.Name, k.Desc, bought and "ซื้อแล้ว ✔" or ("💎 " .. k.Price), bought and Color3.fromRGB(130, 240, 90) or nil, function()
-				if not bought then
-					Remotes.Get("BuyKit"):FireServer(k.Id)
-				end
-			end, bought and Color3.fromRGB(60, 170, 240) or Color3.fromRGB(70, 200, 60))
-		end
-		return
-	end
-	classUI.Hint.Text = "คลาสที่ซื้อแล้วเป็นของคุณถาวร · เลือกก่อนออกเดินทาง"
-	local current = player:GetAttribute("Class") or "Survivor"
-	for i, id in ipairs(Classes.Order) do
-		local c = Classes.Data[id]
-		local owned = data.Owned and data.Owned[id]
-		local text = id == current and "✓ ใช้อยู่" or (owned and "เลือก" or ("💎 " .. c.Price))
-		card(classUI.Scroll, i, c.Icon, c.Thai, c.Desc, text, id == current and C.Gold or (owned and C.GoldDim or Color3.fromRGB(70, 66, 70)), function()
-			if owned then
-				Remotes.Get("ChooseClass"):FireServer(id)
-			else
-				Remotes.Get("BuyClass"):FireServer(id)
-			end
-		end, owned and Color3.fromRGB(60, 48, 30) or Color3.fromRGB(30, 50, 70))
-	end
-end
-
+---------------------------------------------------------------- ร้านค้า (ล็อบบี้)
+-- ร้านคลาส = ClassShop · ร้านค้า (เติมเพชร/Game Pass/ชุดเริ่มต้น) = StoreUI
 function Menus.OpenShop(tab)
 	if tab == nil or tab == "Classes" then
-		classUI.Panel.Visible = false
+		StoreUI.Close()
 		ClassShop.Open()
 		return
 	end
 	ClassShop.Close()
-	classUI.Tab = "Kits"
-	classUI.Panel.Visible = true
-	classUI.Refresh()
+	StoreUI.Open(tab == "Shop" and "Diamonds" or tab)
 end
 
 function Menus.OpenClasses()
@@ -627,7 +520,7 @@ end
 
 function Menus.SetProfile(p)
 	profile = p
-	classUI.Refresh()
+	StoreUI.SetProfile(p)
 	ClassShop.SetProfile(p)
 	LobbyUI.SetProfile(p)
 end
@@ -642,8 +535,8 @@ function Menus.Init(state, hud)
 	local gui = UIKit.Screen("Menus", 20)
 	craft.Build(gui)
 	bag.Build(gui)
-	classUI.Build(gui)
 	trader.Build(gui)
+	StoreUI.Init(UIKit.Screen("Store", 32))
 	-- ร้านคลาส (เต็มจอ) + ปุ่มล็อบบี้ด้านซ้าย
 	local shopGui = UIKit.Screen("ClassShop", 30)
 	ClassShop.Init(shopGui)
@@ -653,7 +546,7 @@ function Menus.Init(state, hud)
 			Menus.OpenShop("Classes")
 		end,
 		Shop = function()
-			Menus.OpenShop("Kits")
+			Menus.OpenShop("Diamonds")
 		end,
 	})
 	ClassShop.OnVisibility = function(open)
@@ -665,7 +558,7 @@ function Menus.Init(state, hud)
 	player:GetAttributeChangedSignal("InRun"):Connect(function()
 		updateLobbyUI()
 		if player:GetAttribute("InRun") then
-			classUI.Panel.Visible = false
+			StoreUI.Close()
 		end
 	end)
 	updateLobbyUI()
@@ -674,8 +567,6 @@ function Menus.Init(state, hud)
 		TextSize = 16, TextColor3 = C.Gold, Visible = false, BackgroundTransparency = 0.4, BackgroundColor3 = C.Panel,
 	})
 	UIKit.Corner(Menus.BuildHint, 8)
-	player:GetAttributeChangedSignal("Diamonds"):Connect(classUI.Refresh)
-	player:GetAttributeChangedSignal("Class"):Connect(classUI.Refresh)
 	state:GetAttributeChangedSignal("CampLevel"):Connect(function()
 		if craft.Panel and craft.Panel.Visible then
 			craft.Refresh()
@@ -710,6 +601,7 @@ function Menus.Init(state, hud)
 			Menus.CloseCraft()
 			bag.Panel.Visible = false
 			ClassShop.Close()
+			StoreUI.Close()
 		elseif k == Enum.KeyCode.K then
 			if not player:GetAttribute("InRun") then
 				if ClassShop.IsOpen() then

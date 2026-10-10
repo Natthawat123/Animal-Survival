@@ -116,6 +116,9 @@ end
 
 function TraderService:Start(ctx)
 	ctx.Remotes.Get("Trade").OnServerEvent:Connect(function(player, offerId)
+		if ctx.Services.SurvivalService:IsIncapacitated(player) then
+			return
+		end
 		local offer = Shop.TraderById[offerId]
 		if not (offer and self.model) then
 			return

@@ -76,18 +76,63 @@ function SurvivalService:Heal(player, amount)
 end
 
 ---------------------------------------------------------------- ล้ม / ช่วย / ตาย
+-- ล้ม = นอนราบกับพื้น ขยับ/ตี/ใช้ของไม่ได้ รอเพื่อนช่วยภายใน Config.DownedTime วินาที
+-- ไม่มีใครช่วยทัน = ตาย (ดูเพื่อนเล่นต่อจนจบรอบ ไม่เกิดใหม่) · ไม่เหลือใครยืนอยู่เลย = แพ้ทั้งทีม
+function SurvivalService:IsIncapacitated(player)
+	local s = state[player]
+	return s ~= nil and (s.Downed or s.Dead)
+end
+
+-- ตรึงตัวนอนราบบนพื้น (เซิร์ฟเวอร์ตรึงเอง ทุกเครื่องเห็นตรงกัน)
+local function layDown(char)
+	local root = char:FindFirstChild("HumanoidRootPart")
+	if not root then
+		return
+	end
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.FilterDescendantsInstances = { char }
+	local hit = Workspace:Raycast(root.Position + Vector3.new(0, 2, 0), Vector3.new(0, -40, 0), params)
+	local groundY = hit and hit.Position.Y or (root.Position.Y - 3)
+	local _, yaw = root.CFrame:ToOrientation()
+	root.AssemblyLinearVelocity = Vector3.zero
+	root.Anchored = true
+	root.CFrame = CFrame.new(root.Position.X, groundY + 1, root.Position.Z) * CFrame.Angles(0, yaw, 0) * CFrame.Angles(math.rad(-90), 0, 0)
+end
+
+local function standUp(player, char)
+	local root = char and char:FindFirstChild("HumanoidRootPart")
+	if not root then
+		return
+	end
+	local _, yaw = root.CFrame:ToOrientation()
+	root.CFrame = CFrame.new(root.Position + Vector3.new(0, 2.5, 0)) * CFrame.Angles(0, yaw, 0)
+	root.Anchored = false
+	pcall(function()
+		root:SetNetworkOwner(player)
+	end)
+end
+
 function SurvivalService:Down(player, source)
 	local s = state[player]
 	local hum, char = humanoidOf(player)
-	if not (s and hum and char) then
+	if not (s and hum and char) or s.Downed or s.Dead then
+		return
+	end
+	-- ล็อบบี้ (ไม่ได้อยู่ในรอบ): ไม่มีระบบล้ม แค่ฟื้นเลือด
+	if not player:GetAttribute("InRun") then
+		hum.Health = hum.MaxHealth
 		return
 	end
 	s.Downed = true
 	s.DownedAt = os.clock()
 	player:SetAttribute("Downed", true)
 	player:SetAttribute("DownedUntil", Workspace:GetServerTimeNow() + Config.DownedTime)
-	hum.WalkSpeed = 3
+	hum.WalkSpeed = 0
 	hum.JumpPower = 0
+	hum.AutoRotate = false
+	hum:UnequipTools()
+	layDown(char)
 	self.ctx.Broadcast(string.format("💀 %s ล้มลงแล้ว! ใช้ผ้าพันแผลช่วยด่วน", player.DisplayName), "Danger")
 	self.ctx.Remotes.Get("Cinematic"):FireClient(player, "Downed", { Time = Config.DownedTime })
 	-- ปุ่มช่วยเพื่อน
@@ -102,7 +147,7 @@ function SurvivalService:Down(player, source)
 		prompt.RequiresLineOfSight = false
 		prompt.Parent = root
 		prompt.Triggered:Connect(function(helper)
-			if helper == player or not self:IsAlive(helper) then
+			if helper == player or not self:IsAlive(helper) or not self:IsDowned(player) then
 				return
 			end
 			local inv = self.ctx.Services.InventoryService
@@ -126,7 +171,7 @@ end
 function SurvivalService:Revive(player, frac)
 	local s = state[player]
 	local hum, char = humanoidOf(player)
-	if not (s and hum) then
+	if not (s and hum) or not s.Downed then
 		return
 	end
 	s.Downed = false
@@ -134,86 +179,90 @@ function SurvivalService:Revive(player, frac)
 	hum.Health = hum.MaxHealth * math.clamp(frac or 0.4, 0.1, 1)
 	hum.WalkSpeed = Config.BaseWalkSpeed * self:Perk(player, "SpeedMult", 1)
 	hum.JumpPower = 50
+	hum.AutoRotate = true
 	local prompt = char and char:FindFirstChild("Revive", true)
 	if prompt then
 		prompt:Destroy()
 	end
+	standUp(player, char)
 	self.ctx.Remotes.Get("Cinematic"):FireClient(player, "Revived", {})
 end
 
 function SurvivalService:Die(player)
 	local s = state[player]
-	local hum = humanoidOf(player)
-	if not s then
+	local hum, char = humanoidOf(player)
+	if not s or s.Dead then
 		return
 	end
 	s.Downed = false
 	s.Dead = true
 	player:SetAttribute("Downed", false)
 	player:SetAttribute("Dead", true)
+	local prompt = char and char:FindFirstChild("Revive", true)
+	if prompt then
+		prompt:Destroy()
+	end
+	local root = char and char:FindFirstChild("HumanoidRootPart")
+	if root then
+		root.Anchored = false
+	end
 	if hum then
 		hum.Health = 0
 	end
-	self.ctx.Remotes.Get("Cinematic"):FireClient(player, "Died", {})
-	self.ctx.Broadcast(string.format("☠ %s สิ้นชีพแล้ว...", player.DisplayName), "Danger")
-	self:CheckWipe()
-	-- เกิดใหม่: กลางวันเกิดเร็ว / กลางคืนรอเช้า หรือมีเตียง
-	task.spawn(function()
-		local waited = 0
-		while player.Parent do
-			task.wait(1)
-			waited += 1
-			local phase = self.ctx.State:GetAttribute("Phase")
-			local hasBed = self.ctx.Services.BuildingService and self.ctx.Services.BuildingService:FindBed()
-			if self.ctx.State:GetAttribute("Phase") == "Ended" then
-				return
+	-- ล็อบบี้: เกิดใหม่ทันที
+	if not player:GetAttribute("InRun") then
+		task.delay(3, function()
+			if player.Parent and s.Dead then
+				self:Spawn(player)
 			end
-			if not player:GetAttribute("InRun") or (phase ~= "Night" and waited >= 6) or (hasBed and waited >= 20) then
-				break
-			end
-		end
-		if player.Parent and s.Dead then
-			self:Spawn(player)
-		end
-	end)
-end
-
--- ทุกคนล้ม/ตายพร้อมกัน "ตอนกลางคืน" = จบเกม (กลางวันตายแล้วเกิดใหม่ที่แคมป์)
-function SurvivalService:CheckWipe()
-	if self.ctx.State:GetAttribute("Phase") ~= "Night" then
+		end)
 		return
 	end
-	local anyAlive = false
-	local count = 0
+	-- ในรอบ: ไม่เกิดใหม่ — ดูเพื่อนเล่นต่อ (หรือกดกลับล็อบบี้เอง)
+	local alive = 0
 	for _, p in ipairs(Players:GetPlayers()) do
-		if p:GetAttribute("InRun") then
-			count += 1
-			if self:IsAlive(p) then
-				anyAlive = true
-			end
+		if p:GetAttribute("InRun") and self:IsAlive(p) then
+			alive += 1
 		end
 	end
-	if count > 0 and not anyAlive then
-		task.delay(1.5, function()
-			-- เช็กซ้ำ (เผื่อมีคนลุกทัน)
-			for _, p in ipairs(Players:GetPlayers()) do
-				if p:GetAttribute("InRun") and self:IsAlive(p) then
-					return
-				end
-			end
-			local downedOnly = false
-			for _, p in ipairs(Players:GetPlayers()) do
-				if self:IsDowned(p) then
-					downedOnly = true
-				end
-			end
-			-- ถ้ายังมีคนล้มรอช่วยอยู่ ให้รอจนหมดเวลา
-			if downedOnly then
-				return
-			end
-			self.ctx.Services.DirectorService:GameOver()
-		end)
+	self.ctx.Remotes.Get("Cinematic"):FireClient(player, "Died", { Night = self.ctx.State:GetAttribute("Night"), Alive = alive })
+	self.ctx.Broadcast(string.format("☠ %s สิ้นชีพแล้ว...", player.DisplayName), "Danger")
+	self:CheckWipe()
+end
+
+-- ไม่เหลือใครยืนอยู่ในรอบเลย (ล้ม/ตายหมด) = แพ้ทั้งทีม (ทุกช่วงเวลา ไม่ใช่แค่กลางคืน)
+function SurvivalService:CheckWipe()
+	local director = self.ctx.Services.DirectorService
+	if not (director and director:IsRunning()) or self.ctx.State:GetAttribute("Phase") == "Ended" then
+		return
 	end
+	local function standing()
+		local count, alive = 0, 0
+		for _, p in ipairs(Players:GetPlayers()) do
+			if p:GetAttribute("InRun") then
+				count += 1
+				if self:IsAlive(p) then
+					alive += 1
+				end
+			end
+		end
+		return count, alive
+	end
+	local count, alive = standing()
+	if alive > 0 then
+		return
+	end
+	if count == 0 then
+		-- ทุกคนออกจากรอบไปแล้ว
+		director:GameOver()
+		return
+	end
+	task.delay(2, function()
+		local c2, a2 = standing()
+		if a2 == 0 and (c2 > 0 or count > 0) then
+			director:GameOver()
+		end
+	end)
 end
 
 ---------------------------------------------------------------- เกิด
@@ -398,6 +447,12 @@ function SurvivalService:Start(ctx)
 	end
 	Players.PlayerRemoving:Connect(function(p)
 		state[p] = nil
+		-- คนในรอบออกจากเกม: เช็กว่ายังเหลือคนยืนอยู่ไหม
+		if p:GetAttribute("InRun") then
+			task.defer(function()
+				self:CheckWipe()
+			end)
+		end
 	end)
 
 	-- ความหิว / ไฟไหม้ / หมดเวลาล้ม
