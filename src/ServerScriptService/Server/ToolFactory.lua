@@ -304,7 +304,7 @@ function ToolFactory.GripFor(tool, handle, kind)
 	local twist = CF()
 	if blade.Magnitude > 0.01 then
 		local b = rot:VectorToObjectSpace(blade)
-		twist = ANG(0, math.atan2(b.X, b.Z), 0)
+		twist = ANG(0, math.atan2(b.X, b.Z) + math.pi, 0) -- คมหันไปข้างหน้า (ทิศที่ฟัน)
 	end
 	return CF(grip) * rot * twist
 end

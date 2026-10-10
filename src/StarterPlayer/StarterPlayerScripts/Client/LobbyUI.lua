@@ -1,5 +1,5 @@
 --[[
-	LobbyUI — ปุ่มด้านซ้ายในล็อบบี้แบบ 99 Nights: คลาส / ป้าย / ร้านค้า + ตัวนับเพชรมุมซ้ายล่าง
+	LobbyUI — ปุ่มเมนูล็อบบี้สไตล์เกมยุคใหม่: คลาส / ป้าย / ร้านค้า + แคปซูลเพชรมุมซ้ายบน
 	ป้าย = ความสำเร็จที่คำนวณจากสถิติจริงในเซฟ (คืนที่รอด, สัตว์ที่ล่า, คลาสที่มี)
 ]]
 
@@ -7,6 +7,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Classes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Classes"))
+local UIKit = require(script.Parent.UIKit)
 
 local LobbyUI = {}
 
@@ -15,35 +16,10 @@ local C = Color3.fromRGB
 local profile
 local ui = {}
 
-local function stroke(obj, thickness, color, mode)
-	local s = Instance.new("UIStroke")
-	s.Thickness = thickness
-	s.Color = color or C(0, 0, 0)
-	s.ApplyStrokeMode = mode or Enum.ApplyStrokeMode.Contextual
-	s.Parent = obj
-	return s
-end
-
-local function label(parent, props, maxSize)
-	local t = Instance.new("TextLabel")
-	t.BackgroundTransparency = 1
-	t.Font = Enum.Font.GothamBlack
-	t.TextColor3 = C(255, 255, 255)
-	t.TextScaled = true
-	for k, v in pairs(props) do
-		t[k] = v
-	end
-	t.Parent = parent
-	local lim = Instance.new("UITextSizeConstraint")
-	lim.MaxTextSize = maxSize or 36
-	lim.Parent = t
-	return t
-end
-
 -- ความสำเร็จ: { ชื่อ, ค่าปัจจุบัน(profile), เป้า }
 local BADGES = {
 	{ "🌙 รอดถึงคืนที่ 5", "BestNight", 5 }, { "🌙 รอดถึงคืนที่ 10", "BestNight", 10 }, { "🌕 รอดถึงคืนที่ 25", "BestNight", 25 },
-	{ "🌕 รอดถึงคืนที่ 50", "BestNight", 50 }, { "👑 ครบ 99 คืน", "BestNight", 99 },
+	{ "🌕 รอดถึงคืนที่ 50", "BestNight", 50 }, { "👑 พิชิตคืนสุดท้าย", "BestNight", 99 },
 	{ "🐾 ล่าสัตว์ 50 ตัว", "Kills", 50 }, { "🐾 ล่าสัตว์ 250 ตัว", "Kills", 250 }, { "🐺 ล่าสัตว์ 1000 ตัว", "Kills", 1000 },
 	{ "🔥 รอดรวม 20 คืน", "NightsTotal", 20 }, { "🔥 รอดรวม 100 คืน", "NightsTotal", 100 },
 	{ "🎒 มีคลาส 3 คลาส", "OwnedCount", 3 }, { "🎒 มีคลาส 6 คลาส", "OwnedCount", 6 }, { "🏆 สะสมครบทุกคลาส", "OwnedCount", #Classes.Order },
@@ -68,28 +44,28 @@ local function statOf(key)
 	return p[key] or 0
 end
 
-local function sideButton(parent, order, icon, name, onClick)
-	local b = Instance.new("TextButton")
-	b.Text = ""
-	b.AutoButtonColor = true
-	b.BackgroundColor3 = C(24, 26, 30)
-	b.BackgroundTransparency = 0.3
-	b.Size = UDim2.fromScale(1, 0.31)
-	b.LayoutOrder = order
-	b.Parent = parent
-	local c = Instance.new("UICorner")
-	c.CornerRadius = UDim.new(0, 10)
-	c.Parent = b
-	stroke(b, 2.5, C(210, 214, 224), Enum.ApplyStrokeMode.Border).Transparency = 0.35
-	label(b, { Size = UDim2.fromScale(1, 0.62), Position = UDim2.fromScale(0, 0.04), Text = icon }, 70)
-	local t = label(b, { Size = UDim2.fromScale(0.96, 0.36), Position = UDim2.fromScale(0.02, 0.62), Text = name }, 40)
-	stroke(t, 2.5)
-	local g = Instance.new("UIGradient")
-	g.Color = ColorSequence.new(C(220, 240, 255), C(140, 190, 255))
-	g.Rotation = 90
-	g.Parent = t
-	b.Activated:Connect(onClick)
-	return b
+-- ปุ่มเมนูทรงสี่เหลี่ยมมนสีสด: ไอคอนใหญ่ลอยเด้ง + ชื่อขาวขอบดำ + ป้ายแจ้งเตือน
+local function dockButton(parent, order, icon, name, color, onClick)
+	local b = UIKit.ColorButton(parent, color, { Text = "", Size = UDim2.fromOffset(92, 92), LayoutOrder = order }, onClick)
+	b:FindFirstChildOfClass("UICorner").CornerRadius = UDim.new(0, 22)
+	local ic = UIKit.Text(b, { Size = UDim2.new(1, 0, 0, 52), Position = UDim2.fromOffset(0, 6), Text = icon, TextSize = 44, TextXAlignment = Enum.TextXAlignment.Center })
+	UIKit.Text(b, { Size = UDim2.new(1, 0, 0, 24), Position = UDim2.new(0, 0, 1, -34), Text = name, Font = UIKit.Fonts.Title, TextSize = 22, TextXAlignment = Enum.TextXAlignment.Center })
+	-- ไอคอนลอยขึ้นลงเบาๆ (ดูมีชีวิต)
+	task.spawn(function()
+		local t0 = order * 0.7
+		while b.Parent do
+			ic.Position = UDim2.fromOffset(0, 6 + math.sin(os.clock() * 2.4 + t0) * 2.5)
+			ic.Rotation = math.sin(os.clock() * 1.6 + t0) * 5
+			task.wait(1 / 30)
+		end
+	end)
+	local dot = UIKit.Frame(b, { Size = UDim2.fromOffset(26, 26), Position = UDim2.new(1, -18, 0, -8), BackgroundColor3 = UIKit.Colors.Red, BackgroundTransparency = 0, Visible = false, ZIndex = 8 })
+	local dc = Instance.new("UICorner")
+	dc.CornerRadius = UDim.new(1, 0)
+	dc.Parent = dot
+	UIKit.Stroke(dot, UIKit.Colors.Outline, 2, 0)
+	local dt = UIKit.Text(dot, { Size = UDim2.fromScale(1, 1), Text = "!", Font = UIKit.Fonts.Title, TextSize = 18, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 9 })
+	return b, dot, dt
 end
 
 function LobbyUI.Build(gui, handlers)
@@ -99,94 +75,73 @@ function LobbyUI.Build(gui, handlers)
 	root.Size = UDim2.fromScale(1, 1)
 	root.Parent = gui
 	ui.Root = root
-	-- ปุ่มด้านซ้าย (สี่เหลี่ยมจัตุรัสตามความสูงจอ)
+	-- แถบเมนูซ้าย (แนวตั้ง กลางจอ)
 	local side = Instance.new("Frame")
 	side.BackgroundTransparency = 1
-	side.Position = UDim2.fromScale(0.012, 0.36)
-	side.Size = UDim2.fromScale(0.11, 0.44)
+	side.AnchorPoint = Vector2.new(0, 0.5)
+	side.Position = UDim2.new(0, 22, 0.52, 0)
+	side.Size = UDim2.fromOffset(100, 330)
 	side.Parent = root
-	local ar = Instance.new("UIAspectRatioConstraint")
-	ar.AspectRatio = 0.36
-	ar.Parent = side
 	local layout = Instance.new("UIListLayout")
-	layout.Padding = UDim.new(0.035, 0)
+	layout.Padding = UDim.new(0, 16)
 	layout.SortOrder = Enum.SortOrder.LayoutOrder
+	layout.VerticalAlignment = Enum.VerticalAlignment.Center
 	layout.Parent = side
-	sideButton(side, 1, "⚔", "คลาส", handlers.Classes)
-	sideButton(side, 2, "🏅", "ป้าย", function()
+	dockButton(side, 1, "⚔", "คลาส", UIKit.Colors.Orange, handlers.Classes)
+	local _, dot, dotText = dockButton(side, 2, "🏅", "ป้าย", UIKit.Colors.Purple, function()
 		ui.Badges.Visible = not ui.Badges.Visible
+		if ui.Badges.Visible then
+			UIKit.Pop(ui.Badges)
+		end
 		LobbyUI.Refresh()
 	end)
-	sideButton(side, 3, "💎", "ร้านค้า", handlers.Shop)
-	-- เพชรมุมซ้ายล่าง
-	local gem = label(root, { Position = UDim2.fromScale(0.005, 0.885), Size = UDim2.fromScale(0.075, 0.11), Text = "💎" }, 100)
-	local _ = gem
-	ui.Gems = label(root, { Position = UDim2.fromScale(0.012, 0.915), Size = UDim2.fromScale(0.06, 0.055), Text = "0", Rotation = -8 }, 44)
-	stroke(ui.Gems, 3)
+	ui.BadgeDot, ui.BadgeDotText = dot, dotText
+	dockButton(side, 3, "💎", "ร้านค้า", UIKit.Colors.Green, handlers.Shop)
+
+	-- เพชร: แคปซูลมุมซ้ายบน + ปุ่ม + (เปิดร้านค้า)
+	local pill = UIKit.Frame(root, { Size = UDim2.fromOffset(190, 46), Position = UDim2.new(1, -214, 0, 20), BackgroundColor3 = Color3.fromRGB(26, 30, 54), BackgroundTransparency = 0 })
+	local pc = Instance.new("UICorner")
+	pc.CornerRadius = UDim.new(1, 0)
+	pc.Parent = pill
+	UIKit.Stroke(pill, UIKit.Colors.Outline, 2, 0)
+	UIKit.IconBadge(pill, "💎", UIKit.Colors.Cyan, 54, { Position = UDim2.fromOffset(-26, -4) })
+	ui.Gems = UIKit.Text(pill, { Size = UDim2.new(1, -80, 1, 0), Position = UDim2.fromOffset(34, 0), Text = "0", Font = UIKit.Fonts.Title, TextSize = 28 })
+	local plus = UIKit.ColorButton(pill, UIKit.Colors.Green, { Size = UDim2.fromOffset(36, 36), Position = UDim2.new(1, -41, 0, 5), Text = "+", TextSize = 28 }, handlers.Shop)
+	plus:FindFirstChildOfClass("UICorner").CornerRadius = UDim.new(1, 0)
 
 	-- หน้าต่างป้ายความสำเร็จ
-	local panel = Instance.new("Frame")
-	panel.Visible = false
-	panel.BackgroundColor3 = C(14, 12, 10)
-	panel.BackgroundTransparency = 0.15
-	panel.Position = UDim2.fromScale(0.3, 0.12)
-	panel.Size = UDim2.fromScale(0.4, 0.76)
-	panel.Parent = root
-	local pc = Instance.new("UICorner")
-	pc.CornerRadius = UDim.new(0, 20)
-	pc.Parent = panel
-	stroke(panel, 2, C(70, 60, 48), Enum.ApplyStrokeMode.Border)
-	local title = label(panel, { Position = UDim2.fromScale(0.05, 0.02), Size = UDim2.fromScale(0.9, 0.1), Text = "ป้าย" }, 60)
-	stroke(title, 3)
-	local tg = Instance.new("UIGradient")
-	tg.Color = ColorSequence.new(C(255, 244, 150), C(242, 176, 40))
-	tg.Rotation = 90
-	tg.Parent = title
+	local panel = UIKit.Card(root, { Visible = false, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.53), Size = UDim2.fromOffset(560, 520) })
+	UIKit.Header(panel, "🏅 ป้ายความสำเร็จ", UIKit.Colors.Purple)
+	UIKit.CloseButton(panel, function()
+		panel.Visible = false
+	end)
 	local scroll = Instance.new("ScrollingFrame")
 	scroll.BackgroundTransparency = 1
 	scroll.BorderSizePixel = 0
-	scroll.Position = UDim2.fromScale(0.05, 0.13)
-	scroll.Size = UDim2.fromScale(0.9, 0.74)
+	scroll.Position = UDim2.fromOffset(20, 40)
+	scroll.Size = UDim2.new(1, -40, 1, -58)
 	scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
 	scroll.CanvasSize = UDim2.new()
 	scroll.ScrollBarThickness = 6
+	scroll.ScrollBarImageColor3 = UIKit.Colors.Purple
 	scroll.Parent = panel
 	local ll = Instance.new("UIListLayout")
-	ll.Padding = UDim.new(0, 6)
+	ll.Padding = UDim.new(0, 10)
+	ll.SortOrder = Enum.SortOrder.LayoutOrder
 	ll.Parent = scroll
+	local sp = Instance.new("UIPadding")
+	sp.PaddingTop, sp.PaddingLeft, sp.PaddingRight, sp.PaddingBottom = UDim.new(0, 4), UDim.new(0, 4), UDim.new(0, 12), UDim.new(0, 6)
+	sp.Parent = scroll
 	ui.BadgeRows = {}
 	for i, b in ipairs(BADGES) do
-		local row = Instance.new("Frame")
-		row.Size = UDim2.new(1, -10, 0, 52)
-		row.BackgroundColor3 = C(24, 22, 22)
-		row.BackgroundTransparency = 0.2
-		row.LayoutOrder = i
-		row.Parent = scroll
-		local rc = Instance.new("UICorner")
-		rc.CornerRadius = UDim.new(0, 8)
-		rc.Parent = row
-		local name = label(row, { Position = UDim2.fromScale(0.03, 0.1), Size = UDim2.fromScale(0.62, 0.8), Text = b[1], TextXAlignment = Enum.TextXAlignment.Left }, 26)
-		stroke(name, 2)
-		local prog = label(row, { Position = UDim2.fromScale(0.66, 0.15), Size = UDim2.fromScale(0.31, 0.7), Text = "", TextXAlignment = Enum.TextXAlignment.Right }, 24)
-		stroke(prog, 2)
-		ui.BadgeRows[i] = { Row = row, Name = name, Prog = prog }
+		local row = UIKit.Frame(scroll, { Size = UDim2.new(1, 0, 0, 64), BackgroundColor3 = Color3.fromRGB(46, 52, 86), BackgroundTransparency = 0, LayoutOrder = i })
+		UIKit.Corner(row, 12)
+		UIKit.Stroke(row, UIKit.Colors.Outline, 2, 0)
+		local name = UIKit.Text(row, { Position = UDim2.fromOffset(14, 6), Size = UDim2.new(0.68, 0, 0, 28), Text = b[1], Font = UIKit.Fonts.Black, TextSize = 20 })
+		local bar = UIKit.Bar(row, { Size = UDim2.new(0.68, 0, 0, 16), Position = UDim2.fromOffset(14, 38), Color = UIKit.Colors.Purple, Label = "" })
+		local prog = UIKit.Text(row, { Position = UDim2.new(0.72, 0, 0, 0), Size = UDim2.new(0.28, -14, 1, 0), Text = "", Font = UIKit.Fonts.Title, TextSize = 20, TextXAlignment = Enum.TextXAlignment.Right })
+		ui.BadgeRows[i] = { Row = row, Name = name, Prog = prog, Bar = bar }
 	end
-	local close = Instance.new("TextButton")
-	close.Text = "ปิด"
-	close.Font = Enum.Font.GothamBlack
-	close.TextScaled = true
-	close.TextColor3 = C(255, 255, 255)
-	close.BackgroundColor3 = C(220, 60, 60)
-	close.Position = UDim2.fromScale(0.35, 0.89)
-	close.Size = UDim2.fromScale(0.3, 0.08)
-	close.Parent = panel
-	local cc = Instance.new("UICorner")
-	cc.CornerRadius = UDim.new(0, 8)
-	cc.Parent = close
-	stroke(close, 2)
-	close.Activated:Connect(function()
-		panel.Visible = false
-	end)
 	ui.Badges = panel
 end
 
@@ -195,17 +150,23 @@ function LobbyUI.Refresh()
 		return
 	end
 	ui.Gems.Text = tostring(player:GetAttribute("Diamonds") or (profile and profile.Diamonds) or 0)
-	if ui.Badges.Visible then
-		for i, b in ipairs(BADGES) do
-			local v = statOf(b[2])
-			local done = v >= b[3]
+	local got = 0
+	for i, b in ipairs(BADGES) do
+		local v = statOf(b[2])
+		local done = v >= b[3]
+		got += done and 1 or 0
+		if ui.Badges.Visible then
 			local r = ui.BadgeRows[i]
-			r.Prog.Text = done and "✅ ได้แล้ว" or string.format("%d/%d", v, b[3])
-			r.Prog.TextColor3 = done and C(130, 240, 90) or C(220, 220, 220)
-			r.Name.TextTransparency = done and 0 or 0.35
-			r.Row.BackgroundColor3 = done and C(40, 60, 30) or C(24, 22, 22)
+			r.Prog.Text = done and "✅" or string.format("%d/%d", math.min(v, b[3]), b[3])
+			r.Prog.TextColor3 = done and C(130, 240, 90) or C(235, 235, 255)
+			r.Name.TextTransparency = done and 0 or 0.25
+			r.Bar.Set(math.min(v / b[3], 1))
+			r.Bar.Fill.BackgroundColor3 = done and UIKit.Colors.Green or UIKit.Colors.Purple
+			r.Row.BackgroundColor3 = done and C(40, 92, 60) or C(46, 52, 86)
 		end
 	end
+	ui.BadgeDot.Visible = got > 0
+	ui.BadgeDotText.Text = tostring(got)
 end
 
 function LobbyUI.SetProfile(p)

@@ -64,7 +64,7 @@ function CampService:UpdateVisual()
 	local lit = self.fuel > 0
 	if f then
 		f.Enabled = lit
-		f.Size = 4 + (6 + self.level * 2) * frac
+		f.Size = 2 + (2 + self.level) * frac
 		f.Heat = 8 + self.level * 2
 	end
 	if l then
@@ -72,16 +72,33 @@ function CampService:UpdateVisual()
 		l.Range = math.max(12, info.Light * (0.4 + 0.6 * frac))
 		l.Brightness = 1.5 + frac * 2
 	end
-	local flames = core:FindFirstChild("Flames")
-	if flames then
-		flames.Enabled = lit
-		flames.Rate = 20 + 45 * frac + self.level * 8
-		flames.Speed = NumberRange.new(4 + self.level, 7 + self.level * 2)
+	for _, e in ipairs(core:GetChildren()) do
+		if e:IsA("ParticleEmitter") and e:GetAttribute("RealFire") then
+			e.Enabled = lit
+			e.TimeScale = 0.7 + 0.3 * frac
+		end
+	end
+	-- เปลวไฟโตตามเชื้อเพลิง/เลเวล แต่ไม่ใหญ่เกินกองฟืน (0.55x - 1.35x)
+	local mul = 0.55 + 0.45 * frac + 0.08 * self.level
+	for _, name in ipairs({ "FlameCore", "Flames" }) do
+		local e = core:FindFirstChild(name)
+		local base = e and e:GetAttribute("BaseSize")
+		if e then
+			e.Enabled = lit
+			e.Rate = (name == "Flames" and 14 or 18) + 16 * frac + self.level * 3
+			if typeof(base) == "NumberSequence" then
+				local ks = {}
+				for _, k in ipairs(base.Keypoints) do
+					table.insert(ks, NumberSequenceKeypoint.new(k.Time, k.Value * mul))
+				end
+				e.Size = NumberSequence.new(ks)
+			end
+		end
 	end
 	local sparks = core:FindFirstChild("Sparks")
 	if sparks then
 		sparks.Enabled = lit
-		sparks.Rate = 8 + self.level * 6
+		sparks.Rate = 4 + self.level * 3
 	end
 	local embers = self.campfire and self.campfire:FindFirstChild("Embers")
 	if embers then
@@ -247,6 +264,101 @@ function CampService:ThrowFrom(player)
 	self.ctx.Services.DropService:Throw(player, pick, 1, fire + Vector3.new(0, 1, 0))
 end
 
+-- เครื่องย่อย: ของที่บดได้ (วัตถุดิบ/แก่นธาตุ/ของหายาก)
+local GRINDABLE = { Resource = true, Essence = true, Relic = true }
+
+function CampService:FeedGrinder(player, all)
+	local hopper = self.hopper
+	if not hopper then
+		local n = self.ctx.Services.InventoryService:Deposit(player)
+		if n > 0 then
+			self.ctx.Notify(player, string.format("📦 เทของลงคลังแคมป์ %d ชิ้น", n), "Good")
+		end
+		return
+	end
+	local char = player.Character
+	if not char or (char:GetPivot().Position - hopper.Position).Magnitude > 34 then
+		return
+	end
+	local now = os.clock()
+	if (self.lastThrow[player] or 0) > now - 0.3 then
+		return
+	end
+	self.lastThrow[player] = now
+	local inv = self.ctx.Services.InventoryService
+	local list = {}
+	for id, n in pairs(inv:Get(player)) do
+		local d = Items.Data[id]
+		if d and GRINDABLE[d.Category] and n > 0 then
+			table.insert(list, { id, n })
+		end
+	end
+	if #list == 0 then
+		self.ctx.Notify(player, "ในกระสอบไม่มีวัตถุดิบให้ย่อย (ไม้ หิน แร่ หนัง กระดูก ...)", "Info")
+		return
+	end
+	local target = hopper.Position + Vector3.new(0, hopper.Size.Y * 0.2, 0)
+	if not all then
+		local id = list[1][1]
+		inv:Remove(player, id, 1)
+		self.ctx.Services.DropService:Throw(player, id, 1, target)
+		return
+	end
+	-- โยนทั้งกระสอบทีละกอง (เห็นของลอยเข้าเครื่อง)
+	task.spawn(function()
+		for _, e in ipairs(list) do
+			local left = e[2]
+			while left > 0 do
+				local k = math.min(left, 5)
+				if inv:Remove(player, e[1], k) then
+					self.ctx.Services.DropService:Throw(player, e[1], k, target)
+				end
+				left -= k
+				task.wait(0.18)
+			end
+		end
+	end)
+end
+
+-- ป้ายบนเครื่องบด: จำนวนไม้/เหล็กในคลังแคมป์
+function CampService:UpdateStockSign()
+	local bench = self.campModel and self.campModel:FindFirstChild("Workbench")
+	if not bench then
+		return
+	end
+	local camp = self.ctx.Services.InventoryService.Camp
+	for name, id in pairs({ StockWood = "Wood", StockIron = "Iron" }) do
+		local part = bench:FindFirstChild(name)
+		local gui = part and part:FindFirstChildOfClass("SurfaceGui")
+		if gui then
+			gui.Label.Text = tostring(camp[id] or 0)
+		end
+	end
+end
+
+function CampService:GrindDrops()
+	local hopper = self.hopper
+	if not hopper then
+		return
+	end
+	local drops = self.ctx.Services.DropService
+	local got = {}
+	for _, d in ipairs(drops:Near(hopper.Position, math.max(hopper.Size.X, hopper.Size.Z) * 0.6, hopper.Size.Y * 1.6)) do
+		local item = Items.Data[d.Id]
+		if item and GRINDABLE[item.Category] then
+			drops:Remove(d.Model)
+			local camp = self.ctx.Services.InventoryService.Camp
+			camp[d.Id] = (camp[d.Id] or 0) + d.Count
+			got[d.Id] = (got[d.Id] or 0) + d.Count
+		end
+	end
+	if next(got) then
+		self:UpdateStockSign()
+		self.ctx.Services.InventoryService:MarkAll()
+		self.ctx.Remotes.Get("HitFx"):FireAllClients("Grind", { Bench = self.campModel:FindFirstChild("Workbench"), Items = got })
+	end
+end
+
 local COOK = { RawMeat = "CookedMeat" }
 function CampService:BurnDrops()
 	local fire = self:FirePosition()
@@ -337,16 +449,15 @@ function CampService:Start(ctx)
 	craft.Triggered:Connect(function(p)
 		ctx.Remotes.Get("Cinematic"):FireClient(p, "OpenCraft", {})
 	end)
-	local deposit = prompt(benchTop, "Deposit", "เทกระสอบลงคลังแคมป์", "โต๊ะคราฟต์", Enum.KeyCode.G, 0, 16)
-	deposit.UIOffset = Vector2.new(0, 70)
+	-- เครื่องย่อย (ซ้าย): โยนวัตถุดิบลงช่อง -> บด -> เข้าคลังแคมป์ (ทุกคนใช้ร่วมกัน)
+	self.hopper = bench:FindFirstChild("Hopper")
+	local depositHost = self.hopper or benchTop
+	local deposit = prompt(depositHost, "Deposit", "โยนวัตถุดิบลงเครื่องย่อย", "เครื่องย่อย", Enum.KeyCode.G, 0, 20)
+	if not self.hopper then
+		deposit.UIOffset = Vector2.new(0, 70)
+	end
 	deposit.Triggered:Connect(function(p)
-		local n = ctx.Services.InventoryService:Deposit(p)
-		if n > 0 then
-			ctx.Notify(p, string.format("📦 เทของลงคลังแคมป์ %d ชิ้น (ทุกคนในทีมใช้ร่วมกันได้)", n), "Good")
-			ctx.Remotes.Get("HitFx"):FireAllClients("Craft", { Position = self.benchPos })
-		else
-			ctx.Notify(p, "ในกระสอบไม่มีวัตถุดิบให้เท (อาหาร/ยาเก็บไว้กับตัว)", "Info")
-		end
+		self:FeedGrinder(p, true)
 	end)
 	self:RefreshPrompts()
 
@@ -369,11 +480,21 @@ function CampService:Start(ctx)
 	ctx.Remotes.Get("ThrowFuel").OnServerEvent:Connect(function(player)
 		self:ThrowFrom(player)
 	end)
-	-- ของที่ตกลงในกองไฟ: เชื้อเพลิงไหม้ / เนื้อดิบสุกเด้งออกมา
+	task.spawn(function()
+		while true do
+			self:UpdateStockSign()
+			task.wait(1)
+		end
+	end)
+	ctx.Remotes.Get("ThrowGrind").OnServerEvent:Connect(function(player)
+		self:FeedGrinder(player, false)
+	end)
+	-- ของที่ตกลงในกองไฟ: เชื้อเพลิงไหม้ / เนื้อดิบสุกเด้งออกมา · ของที่ตกลงช่องเครื่องย่อย: บดเข้าคลัง
 	task.spawn(function()
 		while true do
 			task.wait(0.25)
 			self:BurnDrops()
+			self:GrindDrops()
 		end
 	end)
 

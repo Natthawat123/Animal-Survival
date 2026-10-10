@@ -86,77 +86,191 @@ local function letterbox(on)
 	end
 end
 
----------------------------------------------------------------- หน้าโหลด
-function Cinematics.Loading(state)
-	local f = UIKit.Frame(gui, { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.fromRGB(6, 5, 7), BackgroundTransparency = 0, ZIndex = 100 })
-	UIKit.Gradient(f, Color3.fromRGB(30, 14, 10), Color3.fromRGB(4, 4, 6), 90)
-	local title = UIKit.Text(f, {
-		Size = UDim2.new(1, 0, 0, 110), Position = UDim2.new(0, 0, 0.3, 0), TextXAlignment = Enum.TextXAlignment.Center, Font = UIKit.Fonts.Title,
-		TextSize = 96, Text = Config.GameName, TextColor3 = C.Gold, ZIndex = 101, TextStrokeTransparency = 0.5,
-	})
-	UIKit.Text(f, {
-		Size = UDim2.new(1, 0, 0, 40), Position = UDim2.new(0, 0, 0.3, 112), TextXAlignment = Enum.TextXAlignment.Center, Font = UIKit.Fonts.Title,
-		TextSize = 32, Text = Config.Subtitle, TextColor3 = Color3.fromRGB(220, 200, 170), ZIndex = 101,
-	})
-	local line = UIKit.Frame(f, { Size = UDim2.new(0, 600, 0, 2), Position = UDim2.new(0.5, -300, 0.3, 160), BackgroundColor3 = C.GoldDim, BackgroundTransparency = 0, ZIndex = 101 })
-	local _ = line
-	-- สัญลักษณ์ 4 ธาตุ
-	for i, el in ipairs({ "Earth", "Water", "Air", "Fire" }) do
-		local orb = UIKit.Text(f, {
-			Size = UDim2.fromOffset(60, 60), Position = UDim2.new(0.5, -150 + (i - 1) * 80, 0.3, 180), TextSize = 40, TextXAlignment = Enum.TextXAlignment.Center,
-			Text = UIKit.ElementIcon[el], ZIndex = 101,
-		})
+---------------------------------------------------------------- หน้าโหลด (เข้าเกม + เดินทางลงแมพ)
+-- โครงหน้าโหลด: พื้นหลังไล่สี + ชื่อเกม + แถบความคืบหน้า + ขั้นตอน + เคล็ดลับ -> คืน { Root, Set(p, text), Close() }
+local function loadingScreen(title, subtitle)
+	local f = UIKit.Frame(gui, { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.fromRGB(8, 7, 10), BackgroundTransparency = 0, ZIndex = 100 })
+	UIKit.Gradient(f, Color3.fromRGB(46, 36, 96), Color3.fromRGB(10, 10, 28), 90)
+	-- แสงไฟกองไฟวูบวาบด้านล่าง
+	local glow = UIKit.Frame(f, { Size = UDim2.fromScale(1.2, 0.6), Position = UDim2.fromScale(-0.1, 0.62), BackgroundColor3 = Color3.fromRGB(255, 120, 40), BackgroundTransparency = 0.82, ZIndex = 100 })
+	UIKit.Corner(glow, 400)
+	local fx = Instance.new("UIGradient")
+	fx.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.5, 0.2), NumberSequenceKeypoint.new(1, 1) })
+	fx.Rotation = 90
+	fx.Parent = glow
+	-- ประกายไฟลอยขึ้น
+	for i = 1, 26 do
+		local s = UIKit.Frame(f, { Size = UDim2.fromOffset(3, 3), Position = UDim2.fromScale(math.random(), 1.02), BackgroundColor3 = Color3.fromRGB(255, 190, 90), BackgroundTransparency = 0.2, ZIndex = 101 })
+		UIKit.Corner(s, 2)
 		task.spawn(function()
-			while orb.Parent do
-				UIKit.Tween(orb, 1.2, { TextTransparency = 0.6 })
-				task.wait(1.2 + i * 0.1)
-				UIKit.Tween(orb, 1.2, { TextTransparency = 0 })
-				task.wait(1.2)
+			task.wait(i * 0.17)
+			while s.Parent do
+				s.Position = UDim2.fromScale(math.random(), 1.02)
+				local t = 3 + math.random() * 3
+				TweenService:Create(s, TweenInfo.new(t, Enum.EasingStyle.Linear), { Position = UDim2.fromScale(s.Position.X.Scale + (math.random() - 0.5) * 0.15, 0.35 + math.random() * 0.3), BackgroundTransparency = 1 }):Play()
+				task.wait(t)
+				s.BackgroundTransparency = 0.2
 			end
 		end)
 	end
-	local track = UIKit.Frame(f, { Size = UDim2.new(0, 520, 0, 6), Position = UDim2.new(0.5, -260, 0.78, 0), BackgroundColor3 = Color3.fromRGB(40, 36, 36), BackgroundTransparency = 0, ZIndex = 101 })
-	UIKit.Corner(track, 3)
-	local fill = UIKit.Frame(track, { Size = UDim2.fromScale(0, 1), BackgroundColor3 = C.Fire, BackgroundTransparency = 0, ZIndex = 102 })
-	UIKit.Corner(fill, 3)
-	local status = UIKit.Text(f, { Size = UDim2.new(1, 0, 0, 24), Position = UDim2.new(0, 0, 0.78, 14), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 16, ZIndex = 101, TextColor3 = C.TextDim, Text = "กำลังสร้างโลก..." })
-	local tip = UIKit.Text(f, { Size = UDim2.new(1, 0, 0, 24), Position = UDim2.new(0, 0, 0.9, 0), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 16, ZIndex = 101, TextColor3 = Color3.fromRGB(200, 186, 160), Text = "💡 " .. TIPS[math.random(#TIPS)] })
+	local titleL = UIKit.Text(f, {
+		Size = UDim2.new(1, 0, 0, 110), Position = UDim2.new(0, 0, 0.26, 0), TextXAlignment = Enum.TextXAlignment.Center, Font = UIKit.Fonts.Title,
+		TextSize = 96, Text = title, TextColor3 = C.Gold, ZIndex = 102,
+	})
+	titleL:FindFirstChildOfClass("UIStroke").Thickness = 6
+	UIKit.Gradient(titleL, Color3.fromRGB(255, 240, 150), Color3.fromRGB(255, 160, 40), 90)
+	UIKit.Text(f, {
+		Size = UDim2.new(1, 0, 0, 40), Position = UDim2.new(0, 0, 0.26, 108), TextXAlignment = Enum.TextXAlignment.Center, Font = UIKit.Fonts.Title,
+		TextSize = 30, Text = subtitle, TextColor3 = Color3.fromRGB(226, 208, 178), ZIndex = 102,
+	})
+	-- แถบความคืบหน้า (มีเงาเรืองแสง)
+	local track = UIKit.Frame(f, { Size = UDim2.new(0, 600, 0, 26), Position = UDim2.new(0.5, -300, 0.76, 0), BackgroundColor3 = Color3.fromRGB(16, 16, 34), BackgroundTransparency = 0, ZIndex = 102 })
+	UIKit.Corner(track, 11)
+	UIKit.Stroke(track, C.Outline, 3, 0)
+	local fill = UIKit.Frame(track, { Size = UDim2.fromScale(0, 1), BackgroundColor3 = C.Green, BackgroundTransparency = 0, ZIndex = 103 })
+	UIKit.Corner(fill, 11)
+	local fg = Instance.new("UIGradient")
+	fg.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(0.4, Color3.fromRGB(255, 255, 255)),
+		ColorSequenceKeypoint.new(0.41, Color3.fromRGB(205, 205, 205)), ColorSequenceKeypoint.new(1, Color3.fromRGB(160, 160, 160)),
+	})
+	fg.Rotation = 90
+	fg.Parent = fill
+	local pct = UIKit.Text(f, { Size = UDim2.new(0, 600, 0, 26), Position = UDim2.new(0.5, -300, 0.76, -34), TextXAlignment = Enum.TextXAlignment.Right, TextSize = 24, Font = UIKit.Fonts.Title, ZIndex = 102, TextColor3 = C.Gold, Text = "0%" })
+	local status = UIKit.Text(f, { Size = UDim2.new(0, 600, 0, 26), Position = UDim2.new(0.5, -300, 0.76, -34), TextXAlignment = Enum.TextXAlignment.Left, TextSize = 18, Font = UIKit.Fonts.Black, ZIndex = 102, TextColor3 = Color3.fromRGB(220, 206, 184), Text = "" })
+	local tip = UIKit.Text(f, { Size = UDim2.new(1, -80, 0, 24), Position = UDim2.new(0, 40, 0.88, 0), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 16, ZIndex = 102, TextColor3 = Color3.fromRGB(196, 182, 156), Text = "💡 " .. TIPS[math.random(#TIPS)] })
 	task.spawn(function()
 		while f.Parent do
 			task.wait(5)
 			tip.Text = "💡 " .. TIPS[math.random(#TIPS)]
 		end
 	end)
-	local conn
-	conn = RunService.RenderStepped:Connect(function()
-		local p = state:GetAttribute("LoadProgress") or 0
-		fill.Size = UDim2.fromScale(p, 1)
-		if p < 0.8 then
-			status.Text = string.format("กำลังปั้นแผ่นดินทั้ง 4 ธาตุ... %d%%", math.floor(p * 100))
-		elseif p < 1 then
-			status.Text = "กำลังปลูกป่า วางหินผา และปลุกสรรพสัตว์..."
-		else
-			status.Text = "กำลังจุดกองไฟ..."
+	local shown = 0
+	local api = { Root = f }
+	function api.Set(p, text)
+		p = math.clamp(p, 0, 1)
+		if p > shown then
+			shown = p
+			UIKit.Tween(fill, 0.35, { Size = UDim2.fromScale(p, 1) })
 		end
-		if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-			conn:Disconnect()
-			task.wait(1.5)
-			UIKit.Tween(f, 1.5, { BackgroundTransparency = 1 })
-			for _, d in ipairs(f:GetDescendants()) do
-				if d:IsA("TextLabel") then
-					UIKit.Tween(d, 1.2, { TextTransparency = 1, TextStrokeTransparency = 1 })
-				elseif d:IsA("Frame") then
-					UIKit.Tween(d, 1.2, { BackgroundTransparency = 1 })
+		pct.Text = math.floor(shown * 100) .. "%"
+		if text then
+			status.Text = text
+		end
+	end
+	function api.Close()
+		api.Set(1, "พร้อมแล้ว!")
+		task.wait(0.4)
+		for _, d in ipairs(f:GetDescendants()) do
+			if d:IsA("TextLabel") then
+				UIKit.Tween(d, 0.8, { TextTransparency = 1, TextStrokeTransparency = 1 })
+			elseif d:IsA("Frame") then
+				UIKit.Tween(d, 0.8, { BackgroundTransparency = 1 })
+			elseif d:IsA("UIStroke") then
+				UIKit.Tween(d, 0.8, { Transparency = 1 })
+			end
+		end
+		UIKit.Tween(f, 0.9, { BackgroundTransparency = 1 })
+		task.wait(0.95)
+		f:Destroy()
+	end
+	local _ = titleL
+	return api
+end
+
+-- พื้นใต้เท้าโหลดมาถึงเครื่องแล้วหรือยัง
+local function groundReady()
+	local char = player.Character
+	local root = char and char:FindFirstChild("HumanoidRootPart")
+	if not root then
+		return false
+	end
+	local rp = RaycastParams.new()
+	rp.FilterType = Enum.RaycastFilterType.Exclude
+	rp.FilterDescendantsInstances = { char }
+	return Workspace:Raycast(root.Position, Vector3.new(0, -60, 0), rp) ~= nil
+end
+
+-- เข้าเกม: โหลดโลก -> โหลดทรัพยากร (โมเดล/พื้นผิว/เอฟเฟกต์) -> ตัวละคร + พื้นใต้เท้า -> ค่อยปิด
+function Cinematics.Loading(state)
+	local ui = loadingScreen(Config.GameName, Config.Subtitle)
+	Cinematics.IsLoading = true
+	task.spawn(function()
+		-- 1) โลก (เซิร์ฟเวอร์สร้างแมพ) 0-40%
+		while (state:GetAttribute("LoadProgress") or 0) < 1 and not state:GetAttribute("Ready") do
+			local p = state:GetAttribute("LoadProgress") or 0
+			ui.Set(p * 0.4, string.format("กำลังสร้างโลกทั้ง 4 ธาตุ... %d%%", math.floor(p * 100)))
+			task.wait(0.1)
+		end
+		ui.Set(0.4, "กำลังโหลดโมเดลและพื้นผิว...")
+		-- 2) ทรัพยากรทั้งหมด 40-90%
+		local list = {}
+		local assets = ReplicatedStorage:FindFirstChild("Assets")
+		if assets then
+			table.insert(list, assets)
+		end
+		local lobby = Workspace:FindFirstChild("Lobby")
+		if lobby then
+			table.insert(list, lobby)
+		end
+		local items = {}
+		for _, root in ipairs(list) do
+			for _, d in ipairs(root:GetDescendants()) do
+				if d:IsA("MeshPart") or d:IsA("SurfaceAppearance") or d:IsA("Decal") or d:IsA("Texture") or d:IsA("ParticleEmitter")
+					or d:IsA("Beam") or d:IsA("SpecialMesh") or d:IsA("Sound") then
+					table.insert(items, d)
 				end
 			end
-			task.wait(1.6)
-			f:Destroy()
-			if Cinematics.OnLoaded then
-				Cinematics.OnLoaded()
+		end
+		local total = math.max(#items, 1)
+		local done = 0
+		local CP = game:GetService("ContentProvider")
+		local batch = 40
+		for i = 1, #items, batch do
+			local chunk = {}
+			for k = i, math.min(i + batch - 1, #items) do
+				table.insert(chunk, items[k])
 			end
+			pcall(function()
+				CP:PreloadAsync(chunk)
+			end)
+			done += #chunk
+			ui.Set(0.4 + 0.5 * done / total, string.format("กำลังโหลดทรัพยากร %d/%d", done, total))
+		end
+		-- 3) ตัวละคร + พื้นล็อบบี้ใต้เท้า 90-100%
+		ui.Set(0.9, "กำลังจุดกองไฟในค่าย...")
+		local t0 = os.clock()
+		while not (player.Character and groundReady()) and os.clock() - t0 < 20 do
+			task.wait(0.1)
+		end
+		ui.Close()
+		Cinematics.IsLoading = false
+		if Cinematics.OnLoaded then
+			Cinematics.OnLoaded()
 		end
 	end)
-	local _ = title
+end
+
+-- เดินทางลงแมพ (ออกจากล็อบบี้): รอพื้นแมพรอบตัวโหลดเสร็จก่อนค่อยเปิดจอ
+function Cinematics.Travel()
+	if Cinematics.Traveling then
+		return
+	end
+	Cinematics.Traveling = true
+	local ui = loadingScreen("ออกเดินทาง", "สู่ดินแดนสี่ธาตุ")
+	task.spawn(function()
+		local t0 = os.clock()
+		while os.clock() - t0 < 25 do
+			local k = math.clamp((os.clock() - t0) / 2.5, 0, 1)
+			if player:GetAttribute("InRun") and groundReady() and k >= 1 then
+				break
+			end
+			ui.Set(math.min(0.95, k * 0.7 + (groundReady() and 0.25 or 0)), groundReady() and "กำลังเข้าสู่แคมป์..." or "กำลังโหลดพื้นที่รอบแคมป์...")
+			task.wait(0.1)
+		end
+		ui.Close()
+		Cinematics.Traveling = false
+	end)
 end
 
 ---------------------------------------------------------------- เปิดตัวบอส
@@ -339,11 +453,11 @@ function Cinematics.Handle(kind, d, menus, combat)
 		if d.Kind == "True" then
 			Cinematics.FullScreen("THE FOUR SPIRITS REUNITE", {
 				"ลูกสัตว์ทั้ง 4 ธาตุกลับมาพร้อมหน้า", "ความโกรธของผืนป่าสงบลง... สัตว์ทั้งหลายกลับคืนสู่ป่า",
-				"คุณรอดชีวิตครบ 99 คืน — จบแบบสมบูรณ์", "💎 +300 เพชร",
+				"คุณพิชิตคืนสุดท้าย — จบแบบสมบูรณ์", "💎 +300 เพชร",
 			}, Color3.fromRGB(255, 226, 150), 28)
 		else
-			Cinematics.FullScreen("99 NIGHTS SURVIVED", {
-				"คุณรอดชีวิตครบ 99 คืน", string.format("แต่ลูกสัตว์ธาตุกลับมาเพียง %d/4 ตัว...", d.Spirits or 0),
+			Cinematics.FullScreen("THE LAST NIGHT CONQUERED", {
+				"คุณพิชิตคืนสุดท้าย", string.format("แต่ลูกสัตว์ธาตุกลับมาเพียง %d/4 ตัว...", d.Spirits or 0),
 				"ผืนป่ายังคงโกรธเกรี้ยว — ลองใหม่เพื่อฉากจบที่แท้จริง", "💎 +100 เพชร",
 			}, C.Gold, 28)
 		end
@@ -380,9 +494,22 @@ end
 function Cinematics.Init(state)
 	gui = UIKit.Screen("Cinematics", 40)
 	Cinematics.Gui = gui
-	if not player.Character then
+	-- หน้าโหลดเสมอตอนเข้าเกม (ปิดเองเมื่อโหลดทุกอย่างครบ) · ลงแมพ = หน้าโหลดเดินทาง
+	local testing = ReplicatedStorage:FindFirstChild("ASAutoTest") ~= nil -- เทสต์อัตโนมัติ: ไม่บังจอ
+	if not testing then
 		Cinematics.Loading(state)
+	else
+		task.defer(function()
+			if Cinematics.OnLoaded then
+				Cinematics.OnLoaded()
+			end
+		end)
 	end
+	player:GetAttributeChangedSignal("InRun"):Connect(function()
+		if player:GetAttribute("InRun") and not Cinematics.IsLoading and not testing then
+			Cinematics.Travel()
+		end
+	end)
 end
 
 return Cinematics

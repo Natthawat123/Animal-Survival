@@ -38,6 +38,7 @@ safe("Combat", CombatClient.Init, state, HUD)
 safe("Menus", Menus.Init, state, HUD)
 safe("Map", MapUI.Init, state, HUD, AtmosphereController)
 safe("Dev", require(script.Parent:WaitForChild("DevPanel")).Init)
+safe("PadUI", require(Client:WaitForChild("PadUI")).Init)
 
 Remotes.Get("Notify").OnClientEvent:Connect(function(text, kind)
 	HUD.Notify(text, kind)
@@ -55,22 +56,124 @@ Remotes.Get("Inventory").OnClientEvent:Connect(function(data)
 	HUD.SetSack(data.Used or 0, data.Cap or 0)
 	Menus.SetInventory(merged, bag, camp, data.Used, data.Cap)
 end)
--- ถือกระสอบ: เปิดหน้ากระสอบ + คลิกของบนพื้นเพื่อเก็บ (แบบ 99 Nights)
+-- กันตกทะลุโลก (ฝั่งเครื่องผู้เล่น ซึ่งรู้ว่าพื้นโหลดถึงหรือยัง):
+--  ตอนเกิด/วาร์ป: ตรึงตัวจนกว่าจะมีพื้นใต้เท้า · ถ้าร่วงลงต่ำผิดปกติ: ดึงกลับแคมป์แล้วตรึงรอพื้นโหลด
+do
+	local Players = game:GetService("Players")
+	local Workspace = game:GetService("Workspace")
+	local ReplicatedStorage = game:GetService("ReplicatedStorage")
+	local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
+	local player = Players.LocalPlayer
+	local rp = RaycastParams.new()
+	rp.FilterType = Enum.RaycastFilterType.Exclude
+	local function groundBelow(root)
+		rp.FilterDescendantsInstances = { player.Character }
+		return Workspace:Raycast(root.Position, Vector3.new(0, -60, 0), rp) ~= nil
+	end
+	local function holdUntilGround(root)
+		root.Anchored = true
+		local t0 = os.clock()
+		while root.Parent and os.clock() - t0 < 12 and not groundBelow(root) do
+			task.wait(0.2)
+		end
+		task.wait(0.2)
+		if root.Parent then
+			root.Anchored = false
+		end
+	end
+	local function watch(char)
+		local root = char:WaitForChild("HumanoidRootPart", 10)
+		if not root then
+			return
+		end
+		task.wait(0.1)
+		if not groundBelow(root) then
+			holdUntilGround(root)
+		end
+		while char.Parent and root.Parent do
+			task.wait(0.25)
+			if player:GetAttribute("InRun") and root.Position.Y < Config.WaterLevel - 120 then
+				local state = ReplicatedStorage:FindFirstChild("GameState")
+				local camp = state and state:GetAttribute("CampPos")
+				if camp then
+					root.AssemblyLinearVelocity = Vector3.zero
+					root.CFrame = CFrame.new(camp + Vector3.new(math.random(-8, 8), 6, math.random(-8, 8)))
+					pcall(function()
+						player:RequestStreamAroundAsync(camp, 10)
+					end)
+					holdUntilGround(root)
+				end
+			end
+		end
+	end
+	player.CharacterAdded:Connect(function(c)
+		task.spawn(watch, c)
+	end)
+	player:GetAttributeChangedSignal("InRun"):Connect(function()
+		local c = player.Character
+		local root = c and c:FindFirstChild("HumanoidRootPart")
+		if root then
+			task.delay(0.3, function()
+				if root.Parent and not groundBelow(root) then
+					holdUntilGround(root)
+				end
+			end)
+		end
+	end)
+	if player.Character then
+		task.spawn(watch, player.Character)
+	end
+end
+
+local holdingSack, refreshPickupPrompts
+-- ถือกระสอบ: คลิกของบนพื้น/กองไฟ/เครื่องบด + E เก็บ + F ทิ้ง (แบบ 99 Nights · ไม่มีหน้ารายการของ)
 do
 	local Players = game:GetService("Players")
 	local Workspace = game:GetService("Workspace")
 	local player = Players.LocalPlayer
 	local mouse = player:GetMouse()
+	-- ปุ่ม "เก็บใส่กระสอบ" บนของที่ตก: ขึ้นเฉพาะตอนถือกระสอบ (เปิด/ปิดเฉพาะเครื่องนี้)
+	holdingSack = false
+	function refreshPickupPrompts()
+		local drops = Workspace:FindFirstChild("Drops")
+		for _, d in ipairs(drops and drops:GetDescendants() or {}) do
+			if d:IsA("ProximityPrompt") and d.Name == "Pickup" then
+				d.Enabled = holdingSack
+			end
+		end
+	end
+	task.spawn(function()
+		local drops = Workspace:WaitForChild("Drops", 60)
+		if drops then
+			drops.DescendantAdded:Connect(function(d)
+				if d:IsA("ProximityPrompt") and d.Name == "Pickup" then
+					d.Enabled = holdingSack
+				end
+			end)
+			refreshPickupPrompts()
+		end
+	end)
+	-- F = เอาของออกจากกระสอบ (ชิ้นล่าสุด) · ยืนใกล้กองไฟ = โยนเข้ากองไฟ
+	game:GetService("UserInputService").InputBegan:Connect(function(input, gp)
+		if gp or input.KeyCode ~= Enum.KeyCode.F then
+			return
+		end
+		if holdingSack and player:GetAttribute("InRun") then
+			Remotes.Get("DropItem"):FireServer(nil, 1)
+		end
+	end)
 	local function hookTool(tool)
 		if not (tool:IsA("Tool") and tool:GetAttribute("Kind") == "Sack") or tool:GetAttribute("SackHooked") then
 			return
 		end
 		tool:SetAttribute("SackHooked", true)
 		tool.Equipped:Connect(function()
-			Menus.ToggleBag(true)
+			holdingSack = true
+			refreshPickupPrompts()
 		end)
 		tool.Unequipped:Connect(function()
-			Menus.ToggleBag(false)
+			holdingSack = false
+			refreshPickupPrompts()
 		end)
 		tool.Activated:Connect(function()
 			local target = mouse.Target
@@ -80,6 +183,14 @@ do
 			if target and fireModel and (target:IsDescendantOf(fireModel) or (camp:FindFirstChild("CampfireRing") and target:IsDescendantOf(camp.CampfireRing))
 				or (fireModel.PrimaryPart and (mouse.Hit.Position - fireModel.PrimaryPart.Position).Magnitude < 6)) then
 				Remotes.Get("ThrowFuel"):FireServer()
+				return
+			end
+			-- คลิกเครื่องย่อย = โยนวัตถุดิบลงช่องบด
+			local bench = camp and camp:FindFirstChild("Workbench")
+			local hopper = bench and bench:FindFirstChild("Hopper")
+			local crafterModel = bench and bench:FindFirstChild("CrafterModel")
+			if target and hopper and (target == hopper or (crafterModel and target:IsDescendantOf(crafterModel) and (mouse.Hit.Position - hopper.Position).Magnitude < 12)) then
+				Remotes.Get("ThrowGrind"):FireServer()
 				return
 			end
 			local drops = Workspace:FindFirstChild("Drops")
@@ -129,14 +240,10 @@ Cinematics.OnLoaded = function()
 		if ok and profile then
 			Menus.SetProfile(profile)
 		end
-		if not ReplicatedStorage:FindFirstChild("ASAutoTest") then
-			Menus.OpenClasses()
-		end
+
 	end)
 end
-if state:GetAttribute("Ready") and Players.LocalPlayer.Character then
-	Cinematics.OnLoaded()
-end
+
 
 -- กันตกทะลุโลก: ล็อบบี้อยู่ไกลจากแมพ (StreamingEnabled) -> ตรึงตัวไว้จนพื้นใต้เท้าโหลดมาถึงเครื่องจริง
 local function holdUntilGround(char)

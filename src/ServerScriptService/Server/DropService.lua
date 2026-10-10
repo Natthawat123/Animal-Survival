@@ -192,6 +192,17 @@ local function build(id, n)
 	pr.RequiresLineOfSight = false
 	pr.Style = Enum.ProximityPromptStyle.Default
 	pr.Parent = root
+	if item.Category == "Food" or item.Category == "Medical" then
+		local use = Instance.new("ProximityPrompt")
+		use.Name = "Use"
+		use.ActionText = item.Category == "Food" and "กิน" or "ใช้"
+		use.KeyboardKeyCode = Enum.KeyCode.R
+		use.HoldDuration = 0.4
+		use.MaxActivationDistance = 10
+		use.RequiresLineOfSight = false
+		use.UIOffset = Vector2.new(0, 60)
+		use.Parent = root
+	end
 	return m, root
 end
 
@@ -256,6 +267,12 @@ function DropService:Spawn(id, n, pos, opts)
 		root.Pickup.Triggered:Connect(function(player)
 			self:Pickup(player, m)
 		end)
+		local use = root:FindFirstChild("Use")
+		if use then
+			use.Triggered:Connect(function(player)
+				self:UseDrop(player, m)
+			end)
+		end
 		-- ตกถึงพื้นแล้วตรึงไว้ (ประหยัดฟิสิกส์ + ผู้เล่นเตะไม่กระเด็น)
 		task.delay(2.5, function()
 			if m.Parent and m.PrimaryPart then
@@ -285,8 +302,8 @@ function DropService:Pickup(player, m)
 		return
 	end
 	local inv = self.ctx.Services.InventoryService
-	if inv:Capacity(player) <= 0 then
-		self.ctx.Notify(player, "ต้องมีกระสอบก่อนถึงจะเก็บของได้", "Error")
+	if not inv:HoldingSack(player) then
+		self.ctx.Notify(player, "🎒 ถือกระสอบก่อนถึงจะเก็บของได้", "Info")
 		return
 	end
 	local got = inv:AddToSack(player, d.Id, d.Count)
@@ -295,6 +312,30 @@ function DropService:Pickup(player, m)
 		return
 	end
 	d.Count -= got
+	if d.Count <= 0 then
+		self:Remove(m)
+	else
+		refresh(m)
+	end
+end
+
+-- กิน/ใช้ของบนพื้น 1 ชิ้น
+function DropService:UseDrop(player, m)
+	local d = drops[m]
+	local char = player.Character
+	if not (d and char and m.PrimaryPart) or (char:GetPivot().Position - m.PrimaryPart.Position).Magnitude > PICK_RANGE then
+		return
+	end
+	local inv = self.ctx.Services.InventoryService
+	local before = inv:Count(player, d.Id)
+	inv:Add(player, d.Id, 1, true)
+	self.ctx.Services.SurvivalService:UseItem(player, d.Id)
+	if inv:Count(player, d.Id) > before then
+		-- ใช้ไม่สำเร็จ (เช่นเลือดเต็ม) -> เอาคืนออกจากกระสอบ ของยังอยู่บนพื้น
+		inv:Remove(player, d.Id, 1)
+		return
+	end
+	d.Count -= 1
 	if d.Count <= 0 then
 		self:Remove(m)
 	else
@@ -336,7 +377,13 @@ end
 function DropService:DropFromPlayer(player, id, n)
 	local inv = self.ctx.Services.InventoryService
 	n = math.clamp(math.floor(tonumber(n) or 1), 1, 999)
-	if not (Items.Data[id] and Items.Bulk(id)) then
+	if not inv:HoldingSack(player) then
+		return
+	end
+	if id == nil then
+		id = inv:LastItem(player)
+	end
+	if not (id and Items.Data[id] and Items.Bulk(id)) then
 		return
 	end
 	n = math.min(n, inv:Count(player, id))
@@ -345,6 +392,7 @@ function DropService:DropFromPlayer(player, id, n)
 		return
 	end
 	inv:Remove(player, id, n)
+	inv:PopOrder(player, id)
 	local cf = char:GetPivot()
 	local fire = self.ctx.Services.CampService:FirePosition()
 	if fire and (cf.Position - fire).Magnitude < 18 then
@@ -369,7 +417,7 @@ function DropService:Start(ctx)
 		end
 	end)
 	ctx.Remotes.Get("DropItem").OnServerEvent:Connect(function(player, id, n)
-		if type(id) == "string" then
+		if id == nil or type(id) == "string" then
 			self:DropFromPlayer(player, id, n)
 		end
 	end)

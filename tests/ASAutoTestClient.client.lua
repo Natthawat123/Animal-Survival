@@ -48,6 +48,27 @@ if lobby then
 	shot("lobby_overview", 2)
 	cam0.CFrame = CFrame.lookAt(Vector3.new(lp.X + 2, lp.Y + 9, lp.Z + 92), Vector3.new(lp.X, lp.Y + 8, lp.Z - 50))
 	shot("lobby_spawnview", 1.5)
+	-- กระท่อม Classes มองจากด้านหน้า (+Z ของโมเดล = ด้านป้าย)
+	local hut = Workspace:FindFirstChild("ClassHut", true)
+	if hut then
+		local pv = hut:GetPivot()
+		local _, hs = hut:GetBoundingBox()
+		local r = math.max(hs.X, hs.Z)
+		local c = Workspace.CurrentCamera
+		local toSpawn = (root.Position - pv.Position) * Vector3.new(1, 0, 1)
+		c.CameraType = Enum.CameraType.Scriptable
+		c.CFrame = CFrame.lookAt(pv.Position + toSpawn.Unit * r * 1.0 + Vector3.new(0, hs.Y * 0.3, 0), pv.Position + Vector3.new(0, hs.Y * 0.3, 0))
+		shot("lobby_hut", 0.8)
+		-- มองเข้าไปข้างในจากทางเข้า (ระดับสายตา)
+		c.CFrame = CFrame.lookAt(pv.Position + toSpawn.Unit * r * 0.55 + Vector3.new(0, hs.Y * 0.28, 0), pv.Position + Vector3.new(0, hs.Y * 0.12, 0))
+		shot("lobby_hut_inside", 0.6)
+		local npc = Workspace:FindFirstChild("CounselorModel", true)
+		local nr = npc and (npc:FindFirstChild("HumanoidRootPart") or npc:FindFirstChild("Head"))
+		if nr then
+			print(string.format("[TEST] counselor faceDot=%.2f y=%.1f hutBaseY=%.1f", nr.CFrame.LookVector:Dot(toSpawn.Unit), nr.Position.Y, pv.Position.Y))
+		end
+		c.CameraType = Enum.CameraType.Custom
+	end
 	cam0.CFrame = CFrame.lookAt(Vector3.new(lp.X - 120, lp.Y + 120, lp.Z + 170), Vector3.new(lp.X + 10, lp.Y, lp.Z - 20))
 	shot("lobby_aerial", 1.5)
 	cam0.CFrame = CFrame.lookAt(Vector3.new(lp.X + 30, lp.Y + 14, lp.Z + 44), Vector3.new(lp.X + 70, lp.Y + 4, lp.Z + 4))
@@ -282,7 +303,13 @@ if tool and target then
 	cam.CameraType = Enum.CameraType.Custom
 end
 task.wait(2.5)
--- ของตกบนพื้น -> เก็บใส่กระสอบ
+-- ของตกบนพื้น -> ถือกระสอบแล้วเก็บ (แบบ 99 Nights)
+for _, t in ipairs(player.Backpack:GetChildren()) do
+	if t:IsA("Tool") and t:GetAttribute("Kind") == "Sack" then
+		hum:EquipTool(t)
+	end
+end
+task.wait(0.4)
 local dropsNear = 0
 for _, d in ipairs(Workspace:WaitForChild("Drops"):GetChildren()) do
 	if d.PrimaryPart and (d.PrimaryPart.Position - root.Position).Magnitude < 30 then
@@ -359,6 +386,35 @@ if SHOTS then
 	root.Anchored = false
 end
 
+-- 2.7) เครื่องย่อย: โยนไม้ลงช่อง -> เข้าคลังแคมป์
+do
+	local bench = Workspace.World.Sites.Camp:FindFirstChild("Workbench")
+	local hopper = bench and bench:FindFirstChild("Hopper")
+	check("crafter model", bench ~= nil and bench:FindFirstChild("CrafterModel") ~= nil and hopper ~= nil)
+	if hopper then
+		local away = (campPos - hopper.Position) * Vector3.new(1, 0, 1)
+		moveTo(Vector3.new(hopper.Position.X, campPos.Y + 4, hopper.Position.Z) + away.Unit * 14)
+		task.wait(0.5)
+		local woodBag = inventory.Wood or 0
+		Remotes.Get("ThrowGrind"):FireServer()
+		task.wait(0.4)
+		Remotes.Get("ThrowGrind"):FireServer()
+		task.wait(0.8)
+		if SHOTS then
+			moveTo(campPos + Vector3.new(-30, 4, 30)) -- หลบออกจากหน้ากล้อง
+			local cf, size = bench.CrafterModel:GetBoundingBox()
+			local r = math.max(size.X, size.Y, size.Z)
+			cam.CameraType = Enum.CameraType.Scriptable
+			local front = (campPos - cf.Position) * Vector3.new(1, 0, 1)
+			cam.CFrame = CFrame.lookAt(cf.Position + front.Unit * r * 0.9 + Vector3.new(0, r * 0.15, 0), cf.Position)
+			shot("crafter_grind", 0.2)
+			cam.CameraType = Enum.CameraType.Custom
+		end
+		task.wait(2)
+		check("grinder took wood", (inventory.Wood or 0) < woodBag, woodBag, inventory.Wood)
+	end
+end
+
 -- 3) โยนไม้เข้ากองไฟ (แบบ 99 Nights: ไม่มีปุ่มกดที่กองไฟ)
 moveTo(campPos + Vector3.new(9, 4, 9))
 local woodHad = inventory.Wood or 0
@@ -383,6 +439,21 @@ cam.CFrame = CFrame.lookAt(campPos + Vector3.new(-70, 62, 70), campPos + Vector3
 shot("play_camp_aerial", 1)
 cam.CFrame = CFrame.lookAt(campPos + Vector3.new(12, 6, -16), campPos + Vector3.new(-22, 3, 8))
 shot("play_camp_tents", 1)
+local fireCore = workspace:FindFirstChild("FireCore", true)
+if fireCore then
+	local fp = fireCore.Position
+	local logsModel = fireCore.Parent
+	local bcf, bsize = logsModel:GetBoundingBox()
+	print("[TEST] fire core", fireCore:GetFullName(), fp, "logs bbox", bcf.Position, bsize, "#desc", #logsModel:GetDescendants())
+	for _, c in ipairs(fireCore:GetChildren()) do
+		print("[TEST] fire child", c.ClassName, c.Name, c:IsA("ParticleEmitter") and tostring(c.Enabled) .. " rate=" .. c.Rate .. " size0=" .. c.Size.Keypoints[1].Value or "")
+	end
+	for _, c in ipairs(logsModel:GetChildren()) do
+		print("[TEST] logs child", c.ClassName, c.Name, c:IsA("Model") and #c:GetDescendants() or "")
+	end
+	cam.CFrame = CFrame.lookAt(fp + Vector3.new(9, 5, 9), fp + Vector3.new(0, 0.5, 0))
+	shot("play_campfire", 1)
+end
 cam.CameraType = Enum.CameraType.Custom
 
 -- 6) แต่ละไบโอม (ภาพระดับพื้น)

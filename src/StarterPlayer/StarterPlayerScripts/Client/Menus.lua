@@ -77,10 +77,10 @@ local craft = {}
 function craft.Build(gui)
 	local panel = UIKit.Frame(gui, { Size = UDim2.fromOffset(760, 520), Position = UDim2.new(0.5, -380, 0.5, -260), BackgroundTransparency = 0.08, Visible = false })
 	UIKit.Corner(panel, 14)
-	UIKit.Stroke(panel, C.Gold, 2, 0.3)
-	UIKit.Gradient(panel, Color3.fromRGB(34, 30, 34), Color3.fromRGB(12, 11, 14), 90)
+	UIKit.Stroke(panel, C.Outline, 3, 0)
+	UIKit.Gradient(panel, Color3.fromRGB(52, 58, 100), Color3.fromRGB(26, 28, 50), 90)
 	craft.Title = UIKit.Text(panel, { Size = UDim2.new(1, -40, 0, 40), Position = UDim2.fromOffset(20, 10), Font = UIKit.Fonts.Title, TextSize = 30, TextColor3 = C.Gold, Text = "โต๊ะคราฟต์" })
-	UIKit.Button(panel, { Size = UDim2.fromOffset(36, 36), Position = UDim2.new(1, -46, 0, 10), Text = "✕" }, function()
+	UIKit.CloseButton(panel, function()
 		Menus.CloseCraft()
 	end)
 	local tabs = UIKit.Frame(panel, { Size = UDim2.new(1, -40, 0, 34), Position = UDim2.fromOffset(20, 54), BackgroundTransparency = 1 })
@@ -137,7 +137,7 @@ function craft.Refresh()
 		{ Id = "UpgradeFire", Title = "🔥 อัปเกรดกองไฟ", Lv = fireLv, Next = Recipes.Campfire[fireLv + 1], Desc = "ไฟใหญ่ขึ้น เขตปลอดภัยกว้างขึ้น หมอกจางลง" },
 		{ Id = "UpgradeBench", Title = "🔨 อัปเกรดโต๊ะคราฟต์", Lv = bench, Next = Recipes.BenchUpgrade[bench + 1] and { Cost = Recipes.BenchUpgrade[bench + 1] }, Desc = "ปลดล็อกของที่คราฟต์ได้มากขึ้น" },
 	}) do
-		local card = UIKit.Frame(craft.Scroll, { BackgroundColor3 = Color3.fromRGB(40, 30, 22), BackgroundTransparency = 0.05, LayoutOrder = -10 + i })
+		local card = UIKit.Frame(craft.Scroll, { BackgroundColor3 = Color3.fromRGB(92, 64, 160), BackgroundTransparency = 0.05, LayoutOrder = -10 + i })
 		UIKit.Corner(card, 10)
 		UIKit.Stroke(card, C.Gold, 1, 0.2)
 		UIKit.Text(card, { Size = UDim2.new(1, -110, 0, 22), Position = UDim2.fromOffset(12, 8), Text = string.format("%s  Lv.%d → %s", up.Title, up.Lv, up.Next and tostring(up.Lv + 1) or "MAX"), TextSize = 16 })
@@ -158,13 +158,13 @@ function craft.Refresh()
 				Remotes.Get("Craft"):FireServer(up.Id)
 			end
 		end)
-		btn.BackgroundColor3 = can and Color3.fromRGB(110, 70, 26) or Color3.fromRGB(30, 28, 30)
+		btn.BackgroundColor3 = can and Color3.fromRGB(110, 70, 26) or Color3.fromRGB(50, 56, 94)
 		btn.TextColor3 = can and C.Text or C.TextDim
 	end
 	for order, r in ipairs(Recipes.List) do
 		local item = Items.Data[r.Id]
 		if item.Category == craft.Tab then
-			local card = UIKit.Frame(craft.Scroll, { BackgroundColor3 = Color3.fromRGB(28, 26, 30), BackgroundTransparency = 0.1, LayoutOrder = order })
+			local card = UIKit.Frame(craft.Scroll, { BackgroundColor3 = Color3.fromRGB(50, 56, 94), BackgroundTransparency = 0.1, LayoutOrder = order })
 			UIKit.Corner(card, 10)
 			local locked = r.Bench > bench
 			UIKit.Stroke(card, locked and Color3.fromRGB(80, 70, 70) or (item.Element and C.Element[item.Element] or C.GoldDim), 1, 0.3)
@@ -200,9 +200,9 @@ function craft.Refresh()
 			end)
 			if not can or owned then
 				btn.TextColor3 = C.TextDim
-				btn.BackgroundColor3 = Color3.fromRGB(30, 28, 30)
+				btn.BackgroundColor3 = Color3.fromRGB(50, 56, 94)
 			else
-				btn.BackgroundColor3 = Color3.fromRGB(90, 66, 30)
+				btn.BackgroundColor3 = Color3.fromRGB(72, 190, 96)
 			end
 		end
 	end
@@ -223,11 +223,11 @@ local bag = {}
 function bag.Build(gui)
 	local panel = UIKit.Frame(gui, { Size = UDim2.fromOffset(520, 440), Position = UDim2.new(0.5, -260, 0.5, -220), BackgroundTransparency = 0.08, Visible = false })
 	UIKit.Corner(panel, 14)
-	UIKit.Stroke(panel, C.Gold, 2, 0.3)
-	UIKit.Gradient(panel, Color3.fromRGB(34, 30, 34), Color3.fromRGB(12, 11, 14), 90)
+	UIKit.Stroke(panel, C.Outline, 3, 0)
+	UIKit.Gradient(panel, Color3.fromRGB(52, 58, 100), Color3.fromRGB(26, 28, 50), 90)
 	UIKit.Text(panel, { Size = UDim2.new(1, -40, 0, 40), Position = UDim2.fromOffset(20, 8), Font = UIKit.Fonts.Title, TextSize = 28, TextColor3 = C.Gold, Text = "🎒 กระสอบ" })
 	bag.Title = panel:FindFirstChildWhichIsA("TextLabel")
-	UIKit.Button(panel, { Size = UDim2.fromOffset(36, 36), Position = UDim2.new(1, -46, 0, 10), Text = "✕" }, function()
+	UIKit.CloseButton(panel, function()
 		panel.Visible = false
 	end)
 	local scroll = Instance.new("ScrollingFrame")
@@ -276,7 +276,7 @@ function bag.Refresh()
 	end)
 	for i, id in ipairs(ids) do
 		local item = Items.Data[id]
-		local card = UIKit.Frame(bag.Scroll, { BackgroundColor3 = Color3.fromRGB(28, 26, 30), BackgroundTransparency = 0.1, LayoutOrder = i })
+		local card = UIKit.Frame(bag.Scroll, { BackgroundColor3 = Color3.fromRGB(50, 56, 94), BackgroundTransparency = 0.1, LayoutOrder = i })
 		UIKit.Corner(card, 8)
 		UIKit.Stroke(card, item.Color or C.GoldDim, 1, 0.5)
 		UIKit.Text(card, { Size = UDim2.new(1, -12, 0, 20), Position = UDim2.fromOffset(8, 6), Text = item.Thai, TextSize = 14, TextTruncate = Enum.TextTruncate.AtEnd })
@@ -308,7 +308,7 @@ function bag.Refresh()
 	table.sort(campIds)
 	for i, id in ipairs(campIds) do
 		local item = Items.Data[id]
-		local card = UIKit.Frame(bag.Scroll, { BackgroundColor3 = Color3.fromRGB(22, 30, 26), BackgroundTransparency = 0.1, LayoutOrder = 1000 + i })
+		local card = UIKit.Frame(bag.Scroll, { BackgroundColor3 = Color3.fromRGB(36, 92, 76), BackgroundTransparency = 0.1, LayoutOrder = 1000 + i })
 		UIKit.Corner(card, 8)
 		UIKit.Stroke(card, Color3.fromRGB(120, 200, 140), 1, 0.6)
 		UIKit.Text(card, { Size = UDim2.new(1, -12, 0, 20), Position = UDim2.fromOffset(8, 6), Text = "📦 " .. item.Thai, TextSize = 14, TextTruncate = Enum.TextTruncate.AtEnd })
@@ -418,7 +418,7 @@ local classUI = { Tab = "Classes" }
 -- ร้านค้า (ล็อบบี้): แท็บคลาส / ชุดเริ่มต้น  — ใช้เพชร
 function classUI.Build(gui)
 	-- สไตล์เดียวกับร้านคลาส: พื้นดำโปร่ง มุมมน ตัวหนังสือหนาขอบดำ ปุ่มสีสด
-	local panel = UIKit.Frame(gui, { Size = UDim2.fromOffset(900, 580), Position = UDim2.new(0.5, -450, 0.5, -290), BackgroundColor3 = Color3.fromRGB(14, 12, 10), BackgroundTransparency = 0.2, Visible = false })
+	local panel = UIKit.Frame(gui, { Size = UDim2.fromOffset(900, 580), Position = UDim2.new(0.5, -450, 0.5, -290), BackgroundColor3 = Color3.fromRGB(30, 34, 62), BackgroundTransparency = 0.2, Visible = false })
 	UIKit.Corner(panel, 22)
 	UIKit.Stroke(panel, Color3.fromRGB(70, 60, 48), 2, 0.3)
 	classUI.Title = UIKit.Text(panel, { Size = UDim2.new(1, 0, 0, 56), Position = UDim2.fromOffset(0, 8), Font = UIKit.Fonts.Black, TextSize = 46, TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Center, Text = "ร้านค้า" })
@@ -428,7 +428,7 @@ function classUI.Build(gui)
 	classUI.Diamonds = UIKit.Text(panel, { Size = UDim2.fromOffset(200, 34), Position = UDim2.new(1, -260, 0, 18), TextXAlignment = Enum.TextXAlignment.Right, TextSize = 26, Font = UIKit.Fonts.Black, TextColor3 = Color3.new(1, 1, 1), Text = "💎 0" })
 	local ds = Instance.new("UIStroke")
 	ds.Thickness, ds.Parent = 2, classUI.Diamonds
-	UIKit.Button(panel, { Size = UDim2.fromOffset(40, 40), Position = UDim2.new(1, -52, 0, 14), Text = "X", Font = UIKit.Fonts.Black, TextSize = 22, TextColor3 = Color3.new(1, 1, 1), BackgroundColor3 = Color3.fromRGB(220, 60, 60) }, function()
+	UIKit.CloseButton(panel, function()
 		panel.Visible = false
 	end)
 	classUI.TabButtons = {}
@@ -462,7 +462,7 @@ function classUI.Build(gui)
 end
 
 local function card(parent, order, icon, title, desc, button, stroke, onClick, buttonColor)
-	local f = UIKit.Frame(parent, { BackgroundColor3 = Color3.fromRGB(10, 10, 12), BackgroundTransparency = 0.12, LayoutOrder = order })
+	local f = UIKit.Frame(parent, { BackgroundColor3 = Color3.fromRGB(44, 50, 86), BackgroundTransparency = 0.12, LayoutOrder = order })
 	UIKit.Corner(f, 8)
 	UIKit.Stroke(f, stroke or Color3.fromRGB(44, 44, 48), 2, 0)
 	UIKit.Text(f, { Size = UDim2.new(1, 0, 0, 44), Position = UDim2.fromOffset(0, 4), Text = icon, TextSize = 36, TextXAlignment = Enum.TextXAlignment.Center })
@@ -542,11 +542,11 @@ local trader = {}
 function trader.Build(gui)
 	local panel = UIKit.Frame(gui, { Size = UDim2.fromOffset(760, 520), Position = UDim2.new(0.5, -380, 0.5, -260), BackgroundTransparency = 0.05, Visible = false })
 	UIKit.Corner(panel, 16)
-	UIKit.Stroke(panel, C.Gold, 2, 0.2)
-	UIKit.Gradient(panel, Color3.fromRGB(36, 28, 22), Color3.fromRGB(10, 9, 12), 90)
+	UIKit.Stroke(panel, C.Outline, 3, 0)
+	UIKit.Gradient(panel, Color3.fromRGB(52, 58, 100), Color3.fromRGB(26, 28, 50), 90)
 	UIKit.Text(panel, { Size = UDim2.new(1, 0, 0, 44), Position = UDim2.fromOffset(0, 10), Font = UIKit.Fonts.Title, TextSize = 34, TextColor3 = C.Gold, TextXAlignment = Enum.TextXAlignment.Center, Text = "🐾 พ่อค้าเร่" })
 	UIKit.Text(panel, { Size = UDim2.new(1, 0, 0, 20), Position = UDim2.fromOffset(0, 52), TextSize = 13, TextColor3 = C.TextDim, TextXAlignment = Enum.TextXAlignment.Center, Text = "\"หนังสัตว์ดีๆ แลกของจำเป็นได้นะสหาย... รีบหน่อย ข้าจะไปก่อนพระอาทิตย์ตก\"" })
-	UIKit.Button(panel, { Size = UDim2.fromOffset(36, 36), Position = UDim2.new(1, -46, 0, 12), Text = "✕" }, function()
+	UIKit.CloseButton(panel, function()
 		panel.Visible = false
 	end)
 	local scroll = Instance.new("ScrollingFrame")
@@ -590,13 +590,13 @@ function trader.Refresh()
 		end
 	end
 	for i, o in ipairs(Shop.Trader) do
-		local f = UIKit.Frame(trader.Scroll, { BackgroundColor3 = Color3.fromRGB(32, 28, 26), BackgroundTransparency = 0.05, LayoutOrder = i })
+		local f = UIKit.Frame(trader.Scroll, { BackgroundColor3 = Color3.fromRGB(50, 56, 94), BackgroundTransparency = 0.05, LayoutOrder = i })
 		UIKit.Corner(f, 10)
 		UIKit.Stroke(f, C.GoldDim, 1, 0.3)
 		UIKit.Text(f, { Size = UDim2.new(1, -120, 0, 24), Position = UDim2.fromOffset(12, 8), Text = "ได้: " .. listText(o.Give), TextSize = 15, TextColor3 = C.Gold, TextTruncate = Enum.TextTruncate.AtEnd })
 		local cost = UIKit.Text(f, { Size = UDim2.new(1, -120, 0, 36), Position = UDim2.fromOffset(12, 34), RichText = true, TextWrapped = true, Text = "จ่าย: " .. listText(o.Cost, true), TextSize = 13, TextYAlignment = Enum.TextYAlignment.Top })
 		local _ = cost
-		UIKit.Button(f, { Size = UDim2.fromOffset(96, 36), Position = UDim2.new(1, -106, 0.5, -18), Text = "แลก", TextSize = 15, BackgroundColor3 = Color3.fromRGB(90, 66, 30) }, function()
+		UIKit.Button(f, { Size = UDim2.fromOffset(96, 36), Position = UDim2.new(1, -106, 0.5, -18), Text = "แลก", TextSize = 15, BackgroundColor3 = Color3.fromRGB(72, 190, 96) }, function()
 			Remotes.Get("Trade"):FireServer(o.Id)
 		end)
 	end
@@ -698,8 +698,7 @@ function Menus.Init(state, hud)
 			else
 				Menus.OpenCraft()
 			end
-		elseif k == Enum.KeyCode.Tab or k == Enum.KeyCode.I then
-			Menus.ToggleBag()
+		elseif false then
 		elseif k == Enum.KeyCode.B then
 			Menus.ToggleBuildPicker()
 		elseif k == Enum.KeyCode.R and build.Active then

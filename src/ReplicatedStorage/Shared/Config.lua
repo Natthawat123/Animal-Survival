@@ -6,7 +6,7 @@
 local Config = {}
 
 Config.GameName = "ANIMAL SURVIVAL"
-Config.Subtitle = "99 Nights of the Elements"
+Config.Subtitle = "Legends of the Four Elements"
 
 ---------------------------------------------------------------- แมพ
 -- ขนาดแมพ (ด้านละกี่ studs) 6144 = ~1.7 กม. ต่อด้าน / ใส่ 8192 ได้ถ้าเครื่องเซิร์ฟเวอร์ไหว

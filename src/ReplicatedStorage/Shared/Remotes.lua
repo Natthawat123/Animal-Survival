@@ -25,6 +25,8 @@ Remotes.Events = {
 	"DropItem", -- (itemId, count) ทิ้งของจากกระสอบลงพื้น
 	"PickupDrop", -- (dropModel) เก็บของบนพื้น (คลิกตอนถือกระสอบ)
 	"ThrowFuel", -- () ถือกระสอบคลิกกองไฟ: โยนเชื้อเพลิง/เนื้อดิบเข้าไป
+	"ThrowGrind", -- () ถือกระสอบคลิกเครื่องย่อย: โยนวัตถุดิบลงช่องบด
+	"PadSize", -- (padIndex, n) หัวหน้าแท่นเลือกจำนวนคน 1-8
 	-- server -> client
 	"Notify", -- (text, kind)
 	"Inventory", -- (table)

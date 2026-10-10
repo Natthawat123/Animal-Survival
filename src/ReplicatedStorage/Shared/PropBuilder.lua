@@ -27,6 +27,7 @@ local rad = math.rad
 
 local tempFolder: Folder? = nil
 local templates = {}
+local storeTemplates -- ประกาศก่อน (ใช้ใน LavaVent ที่อยู่ก่อนนิยาม)
 
 ---------------------------------------------------------------- helpers
 local function P(className, props, parent)
@@ -493,52 +494,108 @@ end
 Kinds.IceSpire = { Scale = { 0.8, 1.8 }, Build = spire("IceSpire", C(170, 220, 245), Enum.Material.Glacier) }
 Kinds.ObsidianSpire = { Scale = { 0.8, 2.0 }, Build = spire("ObsidianSpire", C(30, 24, 34), Enum.Material.Glass, C(255, 90, 20)) }
 
-Kinds.LavaVent = {
-	Scale = { 0.9, 1.4 }, Hazard = "Burn", Light = { Color = C(255, 110, 30), Range = 22, Brightness = 2.2, Chance = 0.6 },
-	Build = function()
-		local ring = {}
-		for i = 1, 7 do
-			local ang = i / 7 * math.pi * 2
-			table.insert(ring, P("Part", {
-				Size = V(4, 3 + (i % 3), 3),
-				CFrame = CF(math.cos(ang) * 4.6, 1.2, math.sin(ang) * 4.6) * ANG(rad(-12), -ang, rad(8)),
-			}, getTemp()))
+-- ไฟจริงจากคลัง VFX (Assets.VFX.RealFire) ใส่ใน part
+local function seq(t, mul)
+	local ks = {}
+	for _, k in ipairs(t) do
+		table.insert(ks, NumberSequenceKeypoint.new(k[1], k[2] * (mul or 1)))
+	end
+	return NumberSequence.new(ks)
+end
+-- ไฟกะทัดรัด 3 ชั้น: แกนเหลืองสว่าง / เปลวส้มพลิ้ว / ประกายลอย (scale 1 = สูง ~3 stud พอดีกองฟืน)
+-- ขนาดตั้งต้นเก็บใน attribute BaseSize -> CampService ปรับโตตามเชื้อเพลิง
+local function realFire(host, scale)
+	scale = scale or 1
+	local function emitter(name, props)
+		local e = Instance.new("ParticleEmitter")
+		e.Name = name
+		e.Texture = "rbxasset://textures/particles/fire_main.dds"
+		e.LightEmission = 0.8
+		e.LightInfluence = 0
+		e.Shape = Enum.ParticleEmitterShape.Disc
+		e.ShapeStyle = Enum.ParticleEmitterShapeStyle.Volume
+		e.EmissionDirection = Enum.NormalId.Top
+		for k, v in pairs(props) do
+			e[k] = v
 		end
-		local rim = union(ring, { Name = "Rim", Color = C(36, 30, 32), Material = Enum.Material.Basalt })
-		local pool = cylinderY(0.6, 8, CF(0, 0.8, 0), { Name = "Lava", Color = C(255, 120, 30), Material = Enum.Material.Neon, CanCollide = false })
-		local m = wrap("LavaVent", { rim, pool })
+		e:SetAttribute("BaseSize", e.Size)
+		e:SetAttribute("RealFire", true)
+		e.Parent = host
+		return e
+	end
+	emitter("FlameCore", {
+		Rate = 34, Lifetime = NumberRange.new(0.45, 0.75), Speed = NumberRange.new(3 * scale, 4.5 * scale), SpreadAngle = Vector2.new(6, 6), ZOffset = 1.2,
+		Rotation = NumberRange.new(-15, 15), RotSpeed = NumberRange.new(-30, 30), Acceleration = V(0, 3 * scale, 0),
+		Size = seq({ { 0, 1.7 }, { 0.5, 1.3 }, { 1, 0.2 } }, scale),
+		Transparency = seq({ { 0, 0.35 }, { 0.15, 0 }, { 0.8, 0.4 }, { 1, 1 } }),
+		Color = ColorSequence.new({ ColorSequenceKeypoint.new(0, C(255, 250, 210)), ColorSequenceKeypoint.new(0.5, C(255, 200, 90)), ColorSequenceKeypoint.new(1, C(255, 120, 40)) }),
+	})
+	emitter("Flames", {
+		Rate = 30, Lifetime = NumberRange.new(0.6, 1.0), Speed = NumberRange.new(3.5 * scale, 5.5 * scale), SpreadAngle = Vector2.new(14, 14), ZOffset = 1,
+		Rotation = NumberRange.new(-30, 30), RotSpeed = NumberRange.new(-60, 60), Acceleration = V(0, 2 * scale, 0),
+		Size = seq({ { 0, 2.3 }, { 0.4, 1.9 }, { 1, 0.3 } }, scale),
+		Transparency = seq({ { 0, 0.6 }, { 0.2, 0.08 }, { 0.75, 0.45 }, { 1, 1 } }),
+		Color = ColorSequence.new({ ColorSequenceKeypoint.new(0, C(255, 190, 80)), ColorSequenceKeypoint.new(0.45, C(255, 110, 30)), ColorSequenceKeypoint.new(1, C(150, 40, 20)) }),
+	})
+	local sparks = emitter("Sparks", {
+		Texture = "rbxasset://textures/particles/sparkles_main.dds", Rate = 8, Lifetime = NumberRange.new(1.2, 2.4),
+		Speed = NumberRange.new(4 * scale, 9 * scale), SpreadAngle = Vector2.new(25, 25), Drag = 1.5, Acceleration = V(0, 3, 0),
+		Size = NumberSequence.new(0.18 * scale, 0), Transparency = NumberSequence.new(0),
+		Color = ColorSequence.new(C(255, 220, 120), C(255, 90, 20)),
+	})
+	sparks.Shape = Enum.ParticleEmitterShape.Box
+	return true
+end
+PropBuilder.RealFire = realFire
+
+Kinds.LavaVent = {
+	Hazard = "Lava", NoCollide = false, Scale = { 0.8, 1.4 },
+	Build = function()
+		-- หินภูเขาไฟก้อนเตี้ยๆ ล้อมรอยแยก + ไฟลุกจริง + ควันลอย
+		local m = Instance.new("Model")
+		m.Name = "LavaVent"
+		local rocks = storeTemplates("CoalRock")
+		for i = 1, 5 do
+			local a = i / 5 * math.pi * 2
+			if rocks then
+				local r = rocks[(i % #rocks) + 1]:Clone()
+				pcall(function()
+					r:ScaleTo(r:GetScale() * 0.7)
+				end)
+				r:PivotTo(CF(math.cos(a) * 3.2, -0.4, math.sin(a) * 3.2) * ANG(0, a, 0))
+				r.Parent = m
+			end
+		end
+		local core = P("Part", { Name = "Vent", Size = V(4, 0.4, 4), CFrame = CF(0, 0.2, 0), Color = C(60, 30, 20), Material = Enum.Material.CrackedLava, CanCollide = false }, m)
+		if not realFire(core, 2.2) then
+			local f = Instance.new("Fire")
+			f.Size = 6
+			f.Heat = 12
+			f.Parent = core
+		end
 		local smoke = Instance.new("ParticleEmitter")
-		smoke.Name = "Smoke"
 		smoke.Texture = "rbxasset://textures/particles/smoke_main.dds"
-		smoke.Rate = 6
-		smoke.Lifetime = NumberRange.new(4, 7)
-		smoke.Speed = NumberRange.new(6, 10)
+		smoke.Rate = 4
+		smoke.Lifetime = NumberRange.new(3, 5)
+		smoke.Speed = NumberRange.new(4, 7)
 		smoke.SpreadAngle = Vector2.new(12, 12)
-		smoke.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 3), NumberSequenceKeypoint.new(1, 14) })
+		smoke.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 2), NumberSequenceKeypoint.new(1, 8) })
 		smoke.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.5), NumberSequenceKeypoint.new(1, 1) })
-		smoke.Color = ColorSequence.new(C(60, 50, 50), C(30, 28, 30))
-		smoke.Parent = pool
-		local sparks = Instance.new("ParticleEmitter")
-		sparks.Name = "Sparks"
-		sparks.Texture = "rbxasset://textures/particles/sparkles_main.dds"
-		sparks.Rate = 10
-		sparks.Lifetime = NumberRange.new(1, 2)
-		sparks.Speed = NumberRange.new(10, 22)
-		sparks.SpreadAngle = Vector2.new(25, 25)
-		sparks.LightEmission = 1
-		sparks.Size = NumberSequence.new(0.5, 0)
-		sparks.Color = ColorSequence.new(C(255, 200, 80), C(255, 70, 20))
-		sparks.Acceleration = V(0, -20, 0)
-		sparks.Parent = pool
+		smoke.Color = ColorSequence.new(C(70, 62, 60))
+		smoke.Parent = core
+		local l = Instance.new("PointLight")
+		l.Color = C(255, 120, 40)
+		l.Range = 16
+		l.Brightness = 1.4
+		l.Parent = core
+		m.WorldPivot = CF()
 		return m
 	end,
 }
-
 local function crystalCluster(kind, color, element)
 	return {
 		Node = { Node = "Crystal", Yield = element, HP = 8, YieldPerHP = 0.4, Regrow = 300 },
 		Scale = { 0.8, 1.5 },
-		Light = { Color = color, Range = 18, Brightness = 1.6, Chance = 1 },
 		Build = function()
 			local rng = Random.new(#kind * 13)
 			local shards = {}
@@ -556,6 +613,7 @@ local function crystalCluster(kind, color, element)
 		end,
 	}
 end
+
 
 Kinds.TerraCrystal = crystalCluster("TerraCrystal", C(130, 240, 100), "TerraCore")
 Kinds.TideCrystal = crystalCluster("TideCrystal", C(90, 210, 255), "TidePearl")
@@ -576,7 +634,7 @@ Kinds.Coral = {
 				local h = rng:NextNumber(3, 7)
 				table.insert(branches, cylinderY(h, rng:NextNumber(0.6, 1.1), CF(ox, h / 2, oz) * ANG(rng:NextNumber(-0.6, 0.6), 0, rng:NextNumber(-0.6, 0.6)), {}))
 			end
-			local u = union(branches, { Name = "Coral" .. i, Color = col, Material = (i == 2) and Enum.Material.Neon or Enum.Material.SmoothPlastic, CanCollide = false })
+			local u = union(branches, { Name = "Coral" .. i, Color = col, Material = Enum.Material.SmoothPlastic, CanCollide = false })
 			u.Parent = m
 		end
 		m.Name = "Coral"
@@ -618,6 +676,21 @@ local STORE = {
 	Bush = { Models = { "BushLP" }, Height = 5, Foliage = C(66, 108, 50) },
 	Fern = { Models = { "GrassTuft", "GrassTuft2" }, Height = 3.2, Foliage = C(84, 128, 58) },
 	Mushrooms = { Models = { "Mushrooms" }, Height = 2.6 },
+	GlowShroom = { Models = { "Mushrooms" }, Height = 4.5, Color = C(70, 170, 150), Material = Enum.Material.SmoothPlastic,
+		Light = { Color = C(90, 230, 190), Range = 10, Brightness = 0.6 } },
+	CoalRock = { Models = { "RockLP" }, Split = "Parts", Height = 6, Solid = true, Color = C(40, 36, 38), Material = Enum.Material.Basalt },
+	IronRock = { Models = { "RockLP" }, Split = "Parts", Height = 7, Solid = true, Color = C(120, 98, 86), Material = Enum.Material.Slate },
+	ObsidianSpire = { Models = { "RockLP" }, Split = "Parts", Height = 16, Solid = true, Color = C(34, 28, 36), Material = Enum.Material.Basalt, Stretch = 1.8 },
+	IceSpire = { Models = { "RockLP" }, Split = "Parts", Height = 15, Solid = true, Color = C(170, 215, 240), Material = Enum.Material.Ice, Stretch = 1.8 },
+	-- คริสตัลธาตุ: ผลึกจริง (หินโปร่งแสงสีธาตุ) + แสงอ่อน + ประกายเล็กๆ
+	TerraCrystal = { Models = { "RockLP" }, Split = "Parts", Height = 9, Solid = true, Color = C(110, 210, 90), Material = Enum.Material.Glass, Stretch = 1.6,
+		Light = { Color = C(130, 240, 100), Range = 14, Brightness = 0.9 }, Sparkle = C(170, 255, 140) },
+	TideCrystal = { Models = { "RockLP" }, Split = "Parts", Height = 9, Solid = true, Color = C(80, 180, 240), Material = Enum.Material.Glass, Stretch = 1.6,
+		Light = { Color = C(90, 210, 255), Range = 14, Brightness = 0.9 }, Sparkle = C(160, 230, 255) },
+	GaleCrystal = { Models = { "RockLP" }, Split = "Parts", Height = 9, Solid = true, Color = C(200, 225, 250), Material = Enum.Material.Glass, Stretch = 1.6,
+		Light = { Color = C(210, 235, 255), Range = 14, Brightness = 0.9 }, Sparkle = C(235, 245, 255) },
+	EmberCrystal = { Models = { "RockLP" }, Split = "Parts", Height = 9, Solid = true, Color = C(230, 110, 40), Material = Enum.Material.Glass, Stretch = 1.6,
+		Light = { Color = C(255, 120, 40), Range = 14, Brightness = 1 }, Sparkle = C(255, 190, 90) },
 }
 PropBuilder.Store = STORE
 local storeVariants = {}
@@ -693,6 +766,36 @@ local function normalize(kind, src, spec)
 		m:ScaleTo(spec.Height / size.Y)
 	end)
 	m:PivotTo(CF(0, 0, 0))
+	if spec.Stretch then
+		-- ยืดแนวตั้ง (หินก้อน -> เสาหิน/ผลึก) โดยฐานยังแตะพื้น
+		for _, p in ipairs(m:GetDescendants()) do
+			if p:IsA("BasePart") then
+				p.Size = V(p.Size.X * 0.75, p.Size.Y * spec.Stretch, p.Size.Z * 0.75)
+				p.CFrame = CF(p.Position.X * 0.75, p.Position.Y * spec.Stretch, p.Position.Z * 0.75) * p.CFrame.Rotation
+			end
+		end
+	end
+	local host = m:FindFirstChildWhichIsA("BasePart")
+	if host and spec.Light then
+		local l = Instance.new("PointLight")
+		l.Color = spec.Light.Color
+		l.Range = spec.Light.Range
+		l.Brightness = spec.Light.Brightness
+		l.Shadows = false
+		l.Parent = host
+	end
+	if host and spec.Sparkle then
+		local e = Instance.new("ParticleEmitter")
+		e.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+		e.Rate = 3
+		e.Lifetime = NumberRange.new(1.2, 2)
+		e.Speed = NumberRange.new(0.5, 1.5)
+		e.SpreadAngle = Vector2.new(180, 180)
+		e.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.5, 0.5), NumberSequenceKeypoint.new(1, 0) })
+		e.LightEmission = 1
+		e.Color = ColorSequence.new(spec.Sparkle)
+		e.Parent = host
+	end
 	if spec.Trunk then
 		local h = spec.Height * 0.45
 		local col = Instance.new("Part")
@@ -710,7 +813,7 @@ local function normalize(kind, src, spec)
 	return m
 end
 
-local function storeTemplates(kind)
+function storeTemplates(kind)
 	if storeVariants[kind] ~= nil then
 		return storeVariants[kind]
 	end
@@ -878,7 +981,7 @@ function PropBuilder.Scatter(layout, parent, opts)
 	for _, sp in ipairs(layout.Specials) do
 		table.insert(avoid, { sp.Position, sp.Kind == "Lair" and 90 or 40 })
 	end
-	table.insert(avoid, { Vector3.new(0, 0, 0), 46 }) -- ลานโล่งรอบกองไฟเล็กๆ แล้วเป็นป่าทึบทันที (แบบ 99 Nights)
+	table.insert(avoid, { Vector3.new(0, 0, 0), 72 }) -- ลานโล่งรอบแคมป์ (ไม่ให้ต้นไม้เบียดฐาน)
 	table.insert(avoid, { Vector3.new(0, 0, -72), 42 }) -- บ้านพักนายพราน
 	table.insert(avoid, { Vector3.new(36, 0, 22), 14 }) -- โรงเก็บของ
 	local count = 0
@@ -951,9 +1054,9 @@ function PropBuilder.Scatter(layout, parent, opts)
 		x += cell
 	end
 	-- กำแพงป่าสนรอบแคมป์ (ต้นไม้ชิดลานโล่ง ตัดได้)
-	for _ = 1, math.floor(150 * math.min(density, 1) + 0.5) do
+	for _ = 1, math.floor(45 * math.min(density, 1) + 0.5) do
 		local a = rng:NextNumber(0, math.pi * 2)
-		local r = 46 + rng:NextNumber() ^ 1.6 * 90
+		local r = 78 + rng:NextNumber() ^ 1.3 * 70
 		local px, pz = math.cos(a) * r, math.sin(a) * r
 		local h = layout:HeightAt(px, pz)
 		if h > water + 1.5 and Vector3.new(px, 0, pz + 72).Magnitude > 44 then
@@ -1063,15 +1166,55 @@ function PropBuilder.StoreModel(name, cf, parent)
 	return m
 end
 
+-- โมเดลที่ Import 3D เข้ามา (Assets.Props.<name>, MeshPart+SurfaceAppearance) -> วางเท้าแตะพื้นที่ cf ขยายให้กว้าง width
+function PropBuilder.Imported(name, cf, width, parent)
+	local assets = ReplicatedStorage:FindFirstChild("Assets")
+	local src = assets and assets:FindFirstChild("Props") and assets.Props:FindFirstChild(name)
+	if not src then
+		return nil
+	end
+	local m = src:Clone()
+	for _, d in ipairs(m:GetDescendants()) do
+		if d:IsA("BasePart") then
+			d.Anchored = true
+			d.CanTouch = false
+		elseif d:IsA("Bone") or d:IsA("AnimationController") or d:IsA("Script") then
+			-- ของนิ่ง: ตัดกระดูกทิ้ง (กระดูกจากไฟล์ทำให้เมชเลื่อนจมดิน)
+			d:Destroy()
+		end
+	end
+	local bcf, size = m:GetBoundingBox()
+	m.WorldPivot = CF(bcf.Position - V(0, size.Y / 2, 0))
+	pcall(function()
+		m:ScaleTo(m:GetScale() * width / math.max(size.X, size.Z))
+	end)
+	m:PivotTo(cf)
+	m.Parent = parent
+	return m
+end
+
 function PropBuilder.BuildCamp(position, parent)
 	local m = Instance.new("Model")
 	m.Name = "Camp"
+	-- วางบนพื้นจริง: พื้นที่ลานแคมป์อาจถูกเกลี่ยสูงกว่าจุดที่ส่งมา (เคยทำให้กองไฟจมดิน ~5 stud)
+	pcall(function()
+		local rp = RaycastParams.new()
+		rp.FilterType = Enum.RaycastFilterType.Include
+		rp.FilterDescendantsInstances = { workspace.Terrain }
+		local hit = workspace:Raycast(position + V(0, 80, 0), V(0, -200, 0), rp)
+		if hit then
+			position = V(position.X, math.max(position.Y, hit.Position.Y), position.Z)
+		end
+	end)
 	local base = CF(position)
+	m:SetAttribute("GroundY", position.Y)
 	-- วงหินรอบกองไฟ: หิน low-poly จาก Store (ไม่มีก็ใช้หินปั้น)
+	local hasRealLogs = ReplicatedStorage:FindFirstChild("Assets") and ReplicatedStorage.Assets:FindFirstChild("Props")
+		and ReplicatedStorage.Assets.Props:FindFirstChild("CampfireLogs")
 	local rocks = storeTemplates("Boulder")
 	local ring = Instance.new("Model")
 	ring.Name = "CampfireRing" -- ห้ามชื่อซ้ำกับ "Campfire" (กองไฟที่ทำงานจริง)
-	for i = 0, 13 do
+	for i = 0, hasRealLogs and -1 or 13 do
 		local ang = i / 14 * math.pi * 2
 		local rcf = base * CF(math.cos(ang) * 5, 0, math.sin(ang) * 5) * ANG(0, -ang + (i % 3) * 0.7, 0)
 		if rocks then
@@ -1091,67 +1234,56 @@ function PropBuilder.BuildCamp(position, parent)
 		end
 	end
 	ring.Parent = m
-	-- ฟืนทรงกระโจม + ท่อนไม้ไหม้ที่ฐาน
+	-- ฟืนจริง (โมเดล Store: ท่อนไม้กระโจม + ไม้นอนฐาน) — ไม่มีก็ใช้ท่อนไม้ปั้น
 	local logs = Instance.new("Model")
 	logs.Name = "Campfire"
-	for i = 0, 6 do
-		local ang = i / 7 * math.pi * 2
-		cylinderY(5.5, 0.9, base * CF(math.cos(ang) * 1.3, 2, math.sin(ang) * 1.3) * ANG(math.sin(ang) * 0.5, 0, -math.cos(ang) * 0.5), {
-			Color = C(72, 52, 38), Material = Enum.Material.Wood, Name = "Log",
-		}, logs)
+	local real = PropBuilder.Imported("CampfireLogs", base * CF(0, -0.15, 0), 8, logs)
+	if real then
+		for _, d in ipairs(real:GetDescendants()) do
+			if d:IsA("BasePart") then
+				d.CanCollide = d.Name == "Rock"
+				if d.Name == "Rock" then
+					d.Color = C(118, 112, 104):Lerp(C(84, 80, 76), math.random())
+					d.Material = Enum.Material.Slate
+				elseif d.Name == "Ash" then
+					d.Color = C(46, 40, 36)
+					d.Material = Enum.Material.Ground
+				else
+					d.Color = C(104, 70, 44):Lerp(C(64, 42, 28), math.random())
+					d.Material = Enum.Material.Wood
+				end
+				if d:IsA("MeshPart") then
+					d.TextureID = ""
+				end
+			elseif d:IsA("SpecialMesh") then
+				d.TextureId = ""
+			elseif d:IsA("Texture") or d:IsA("Decal") then
+				d:Destroy()
+			end
+		end
+	else
+		for i = 0, 5 do
+			local ang = i / 6 * math.pi * 2
+			cylinderY(4.5, 0.8, base * CF(math.cos(ang) * 1.1, 1.6, math.sin(ang) * 1.1) * ANG(math.sin(ang) * 0.5, 0, -math.cos(ang) * 0.5), {
+				Color = C(72, 52, 38), Material = Enum.Material.Wood, Name = "Log",
+			}, logs)
+		end
 	end
-	for i = 0, 2 do
-		local ang = i / 3 * math.pi * 2 + 0.5
-		cylinderY(4.5, 1, base * CF(math.cos(ang) * 1.6, 0.5, math.sin(ang) * 1.6) * ANG(0, -ang, math.pi / 2), {
-			Color = C(40, 30, 26), Material = Enum.Material.Wood, Name = "Charred",
-		}, logs)
-	end
-	P("Part", { Name = "Ash", Shape = Enum.PartType.Cylinder, Size = V(0.3, 7.6, 7.6), CFrame = base * CF(0, 0.1, 0) * ANG(0, 0, math.pi / 2), Color = C(46, 42, 40), Material = Enum.Material.Basalt, CanCollide = false }, logs)
+	P("Part", { Name = "Ash", Shape = Enum.PartType.Cylinder, Size = V(0.3, 6.4, 6.4), CFrame = base * CF(0, 0.1, 0) * ANG(0, 0, math.pi / 2), Color = C(46, 42, 40), Material = Enum.Material.Basalt, CanCollide = false }, logs)
 	local core = P("Part", {
-		Name = "FireCore", Size = V(2, 2, 2), CFrame = base * CF(0, 2.2, 0), Transparency = 1, CanCollide = false,
+		Name = "FireCore", Size = V(1.6, 0.4, 1.6), CFrame = base * CF(0, 1.1, 0), Transparency = 1, CanCollide = false, CanQuery = false,
 	}, logs)
-	local glow = ellipsoid(V(3.6, 0.7, 3.6), base * CF(0, 0.45, 0), { Name = "Embers", Color = C(255, 120, 30), Material = Enum.Material.Neon, CanCollide = false }, logs)
+	local glow = ellipsoid(V(2.6, 0.5, 2.6), base * CF(0, 0.4, 0), { Name = "Embers", Color = C(255, 120, 30), Material = Enum.Material.Neon, CanCollide = false }, logs)
 	glow.Parent = logs
-	fire(core, 9)
-	-- เปลวไฟเป็นชั้นๆ (ดูมีมิติกว่า Fire อย่างเดียว)
-	local flames = Instance.new("ParticleEmitter")
-	flames.Name = "Flames"
-	flames.Texture = "rbxasset://textures/particles/fire_main.dds"
-	flames.Rate = 45
-	flames.Lifetime = NumberRange.new(0.55, 1.0)
-	flames.Speed = NumberRange.new(4, 8)
-	flames.SpreadAngle = Vector2.new(12, 12)
-	flames.LightEmission = 1
-	flames.LightInfluence = 0
-	flames.ZOffset = 1
-	flames.Rotation = NumberRange.new(-20, 20)
-	flames.RotSpeed = NumberRange.new(-40, 40)
-	flames.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 2.6), NumberSequenceKeypoint.new(0.5, 2.0), NumberSequenceKeypoint.new(1, 0.3) })
-	flames.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.6), NumberSequenceKeypoint.new(0.2, 0.1), NumberSequenceKeypoint.new(1, 1) })
-	flames.Color = ColorSequence.new({ ColorSequenceKeypoint.new(0, C(255, 240, 160)), ColorSequenceKeypoint.new(0.4, C(255, 150, 40)), ColorSequenceKeypoint.new(1, C(200, 50, 20)) })
-	flames.Shape = Enum.ParticleEmitterShape.Disc
-	flames.ShapeStyle = Enum.ParticleEmitterShapeStyle.Volume
-	flames.Parent = core
+	realFire(core, 1)
 	light(core, C(255, 150, 70), 60, 3, true)
-	local sparks = Instance.new("ParticleEmitter")
-	sparks.Name = "Sparks"
-	sparks.Texture = "rbxasset://textures/particles/sparkles_main.dds"
-	sparks.Rate = 18
-	sparks.Lifetime = NumberRange.new(1.5, 3)
-	sparks.Speed = NumberRange.new(6, 14)
-	sparks.SpreadAngle = Vector2.new(20, 20)
-	sparks.LightEmission = 1
-	sparks.Size = NumberSequence.new(0.35, 0)
-	sparks.Color = ColorSequence.new(C(255, 220, 120), C(255, 90, 20))
-	sparks.Acceleration = V(0, 4, 0)
-	sparks.Parent = core
 	-- ควันลอยเป็นเสาสูง เห็นได้จากในป่า (นำทางกลับแคมป์)
 	local smoke = Instance.new("Smoke")
 	smoke.Name = "Smoke"
 	smoke.Color = C(150, 146, 140)
-	smoke.Opacity = 0.12
-	smoke.RiseVelocity = 9
-	smoke.Size = 3
+	smoke.Opacity = 0.08
+	smoke.RiseVelocity = 7
+	smoke.Size = 2
 	smoke.TimeScale = 0.6
 	smoke.Parent = core
 	logs.PrimaryPart = core
@@ -1182,7 +1314,86 @@ function PropBuilder.BuildCamp(position, parent)
 	t.Parent = sg
 	bench.PrimaryPart = top
 	bench.Parent = m
-	if MeshProps.Has("Workbench") then
+	-- เครื่องย่อยเหล็ก+ไม้ (โมเดล Import) หันหน้าเข้ากองไฟ
+	--   กลาง = เครื่องบด (ช่องเติมด้านบน + ฟันบดด้านล่าง + ป้ายจำนวน ไม้|เหล็ก) · ขวา = จุดคราฟต์
+	local crafterPos = (base * CF(27, 0, -16)).Position
+	-- วางบนพื้นจริง (พื้นตรงนั้นอาจสูงกว่าลานกองไฟ)
+	pcall(function()
+		local rp = RaycastParams.new()
+		rp.FilterType = Enum.RaycastFilterType.Include
+		rp.FilterDescendantsInstances = { workspace.Terrain }
+		local hit = workspace:Raycast(crafterPos + V(0, 60, 0), V(0, -160, 0), rp)
+		if hit then
+			crafterPos = V(crafterPos.X, math.max(crafterPos.Y, hit.Position.Y), crafterPos.Z)
+		end
+	end)
+	local toFire = (base.Position - crafterPos) * V(1, 0, 1)
+	local crafterCf = CFrame.lookAt(crafterPos, crafterPos + toFire) -- ด้านป้าย/ช่องบดของโมเดลหันเข้ากองไฟ
+	local crafter = PropBuilder.Imported("Crafter", crafterCf, 26, bench)
+	if crafter then
+		crafter.Name = "CrafterModel"
+		for _, d in ipairs(bench:GetChildren()) do
+			if d:IsA("BasePart") then
+				d.Transparency = 1
+				d.CanCollide = false
+				d:ClearAllChildren()
+			end
+		end
+		local _, size = crafter:GetBoundingBox()
+		local W, H, D = size.X, size.Y, size.Z
+		for _, d in ipairs(crafter:GetDescendants()) do
+			if d:IsA("BasePart") then
+				d.CanCollide = false
+			end
+		end
+		-- พิกัดในโมเดล: x+ = ขวามือเมื่อยืนมองด้านหน้า, z+ = ยื่นออกมาทางด้านหน้า
+		local function at(x, y, z)
+			return crafterCf * CF(-x * W, y * H, -z * D) * ANG(0, math.pi, 0)
+		end
+		-- ตำแหน่งวัดจากภาพหน้าตรงของโมเดล (blender: 3D Model/เครื่องย่อยเหล็กกับไม้)
+		-- จุดคราฟต์ (ขวา: ลังเครื่องมือ)
+		top.CFrame = at(0.2, 0.45, 0.2)
+		top.Size = V(W * 0.16, H * 0.2, 2)
+		-- ช่องเติมของ (ถังไม้ + ถังเหล็กด้านบนเครื่องบด): ของที่ตกในโซนนี้ถูกบด -> คลังแคมป์
+		P("Part", { Name = "Hopper", Size = V(W * 0.32, H * 0.3, D * 0.4), CFrame = at(-0.09, 0.56, 0.12), Transparency = 1, CanCollide = false, CanQuery = true }, bench)
+		-- ฟันบดด้านล่าง: ลูกกลิ้งเหล็กมีฟัน 2 แถว ทับแถวฟันในโมเดล (หมุนตอนบด) + จุดของออก
+		local out = at(-0.08, 0.12, 0.27)
+		P("Part", { Name = "GrindOut", Size = V(1, 1, 1), CFrame = out, Transparency = 1, CanCollide = false, CanQuery = false }, bench)
+		for i, y in ipairs({ 0.265, 0.175 }) do
+			local roller = P("Part", { Name = "Roller" .. i, Shape = Enum.PartType.Cylinder, Size = V(W * 0.27, H * 0.075, H * 0.075),
+				CFrame = at(-0.075, y, 0.235), Color = C(84, 86, 94), Material = Enum.Material.DiamondPlate, CanCollide = false }, bench)
+			roller:SetAttribute("Spin", i == 1 and 1 or -1)
+			for k = 0, 7 do
+				local tooth = P("Part", { Size = V(W * 0.27, H * 0.028, H * 0.022), CFrame = roller.CFrame * ANG(k / 8 * math.pi * 2, 0, 0) * CF(0, H * 0.045, 0),
+					Color = C(170, 172, 180), Material = Enum.Material.Metal, CanCollide = false }, roller)
+				local w = Instance.new("WeldConstraint")
+				w.Part0 = roller
+				w.Part1 = tooth
+				w.Parent = tooth
+				tooth.Anchored = false
+			end
+		end
+		-- ตัวเลขบนป้ายเดิมของโมเดล (ไม้ | เหล็ก) -> แทนด้วยจำนวนจริงในคลังแคมป์
+		for _, info in ipairs({ { "StockWood", -0.165, 0.2985 }, { "StockIron", 0.029, 0.3017 } }) do
+			local num = P("Part", { Name = info[1], Size = V(W * 0.062, H * 0.075, 0.05), CFrame = at(info[2], 0.735, 0.5 - info[3] + 0.004),
+				Color = C(44, 46, 54), Material = Enum.Material.SmoothPlastic, CanCollide = false, CanQuery = false }, bench)
+			local sg = Instance.new("SurfaceGui")
+			sg.Face = Enum.NormalId.Back
+			sg.PixelsPerStud = 60
+			sg.LightInfluence = 0.6
+			sg.Parent = num
+			local t = Instance.new("TextLabel")
+			t.Name = "Label"
+			t.Size = UDim2.fromScale(1, 1)
+			t.BackgroundTransparency = 1
+			t.TextScaled = true
+			t.Font = Enum.Font.GothamBlack
+			t.TextColor3 = C(238, 236, 228)
+			t.Text = "0"
+			t.Parent = sg
+		end
+		bench.PrimaryPart = top
+	elseif MeshProps.Has("Workbench") then
 		for _, d in ipairs(bench:GetDescendants()) do
 			if d:IsA("BasePart") and d.Name ~= "Sign" then
 				d.Transparency = 1
@@ -1381,7 +1592,26 @@ function PropBuilder.BuildLair(sp, parent)
 	end
 	ellipsoid(V(9, 7, 11), base * CF(-30, 3.5, -22) * ANG(0.3, 0.5, 0.2), { Color = C(232, 226, 206), Material = Enum.Material.SmoothPlastic }, m)
 	-- วงเวทกลางลาน
-	local sigil = cylinderY(0.3, 36, base * CF(0, 0.2, 0), { Name = "Sigil", Color = col, Material = Enum.Material.Neon, Transparency = 0.6, CanCollide = false }, m)
+	local sigil = cylinderY(0.3, 36, base * CF(0, 0.2, 0), { Name = "Sigil", Color = col, Material = Enum.Material.Slate, Transparency = 1, CanCollide = false }, m)
+	do
+		local mist = Instance.new("ParticleEmitter")
+		mist.Texture = "rbxasset://textures/particles/smoke_main.dds"
+		mist.Shape = Enum.ParticleEmitterShape.Cylinder
+		mist.ShapeStyle = Enum.ParticleEmitterShapeStyle.Surface
+		mist.Rate = 10
+		mist.Lifetime = NumberRange.new(3, 5)
+		mist.Speed = NumberRange.new(0.5, 1.5)
+		mist.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 3), NumberSequenceKeypoint.new(1, 8) })
+		mist.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.4, 0.75), NumberSequenceKeypoint.new(1, 1) })
+		mist.Color = ColorSequence.new(col)
+		mist.LightEmission = 0.4
+		mist.Parent = sigil
+		local glow = Instance.new("PointLight")
+		glow.Color = col
+		glow.Range = 30
+		glow.Brightness = 0.8
+		glow.Parent = sigil
+	end
 	sigil:SetAttribute("Element", el)
 	local center = P("Part", { Name = "BossSpawn", Size = V(2, 2, 2), CFrame = base * CF(0, 4, 0), Transparency = 1, CanCollide = false }, m)
 	center:SetAttribute("Element", el)
@@ -1471,7 +1701,7 @@ function PropBuilder.BuildUpdraft(up, parent)
 	}, parent)
 	zone:SetAttribute("Height", h)
 	CollectionService:AddTag(zone, "Updraft")
-	local ring = cylinderY(0.4, 16, CF(up.Position + V(0, 0.4, 0)), { Name = "UpdraftRing", Color = C(200, 230, 255), Material = Enum.Material.Neon, Transparency = 0.4, CanCollide = false }, parent)
+	local ring = cylinderY(0.4, 16, CF(up.Position + V(0, 0.4, 0)), { Name = "UpdraftRing", Color = C(200, 230, 255), Material = Enum.Material.Glass, Transparency = 0.85, CanCollide = false }, parent)
 	local att = Instance.new("Attachment")
 	att.Parent = ring
 	local wind = Instance.new("ParticleEmitter")

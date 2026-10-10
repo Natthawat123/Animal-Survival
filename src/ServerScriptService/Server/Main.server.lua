@@ -106,6 +106,12 @@ MapGenerator.Generate(layout, {
 State:SetAttribute("LoadProgress", 0.85)
 print(string.format("[AS] terrain %.1fs", os.clock() - t0))
 local world = PropBuilder.BuildWorld(layout, { Density = Config.PropDensity, Yield = true })
+-- แคมป์วางบนพื้นจริง (สูงกว่า HeightAt ได้) -> อัปเดตตำแหน่งแคมป์ให้ตรง
+local campModel = world:FindFirstChild("Sites") and world.Sites:FindFirstChild("Camp")
+if campModel and campModel:GetAttribute("GroundY") then
+	ctx.CampPosition = Vector3.new(0, campModel:GetAttribute("GroundY") + 0.5, 0)
+	State:SetAttribute("CampPos", ctx.CampPosition)
+end
 State:SetAttribute("LoadProgress", 1)
 print(string.format("[AS] world ready %.1fs props=%d", os.clock() - t0, world:GetAttribute("PropCount") or 0))
 for _, sp in ipairs(layout.Specials) do

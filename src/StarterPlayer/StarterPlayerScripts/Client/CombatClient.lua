@@ -528,6 +528,105 @@ Handlers.StructureHit = function(d)
 	end)
 end
 
+-- เครื่องย่อย: ลูกกลิ้งหมุน เครื่องสั่น ขี้เลื่อย/ประกายไฟ/ฝุ่นหินพุ่ง + ตัวเลขของที่ได้
+local grindState = {}
+Handlers.Grind = function(d)
+	local bench = d.Bench
+	local hopper = bench and bench:FindFirstChild("Hopper")
+	if not hopper then
+		return
+	end
+	local st = grindState[bench]
+	if not st then
+		st = { Until = 0 }
+		grindState[bench] = st
+	end
+	local already = os.clock() < st.Until
+	st.Until = os.clock() + 1.6
+	-- อนุภาคตามชนิดของ
+	local hasWood, hasHard = false, false
+	local lines = {}
+	for id, n in pairs(d.Items or {}) do
+		if id == "Wood" or id == "Fiber" then
+			hasWood = true
+		else
+			hasHard = true
+		end
+		table.insert(lines, "+" .. n .. " " .. Items.DisplayName(id))
+	end
+	local outPart = bench:FindFirstChild("GrindOut")
+	local top = outPart and outPart.Position or (hopper.Position + Vector3.new(0, hopper.Size.Y * 0.4, 0))
+	if hasWood then
+		burst(top, Color3.fromRGB(214, 170, 110), 30, 18, 0.5, "rbxasset://textures/particles/smoke_main.dds")
+		burst(top, Color3.fromRGB(170, 120, 70), 20, 22, 0.35)
+	end
+	if hasHard then
+		burst(top, Color3.fromRGB(255, 200, 110), 28, 26, 0.3)
+		smoke(top, Color3.fromRGB(150, 145, 140), 10, 4)
+	end
+	-- ป้ายตัวเลขลอยขึ้น
+	local bb = Instance.new("BillboardGui")
+	bb.Size = UDim2.fromOffset(220, 60)
+	bb.StudsOffsetWorldSpace = Vector3.new(0, hopper.Size.Y * 0.9, 0)
+	bb.AlwaysOnTop = true
+	bb.Adornee = hopper
+	local t = Instance.new("TextLabel")
+	t.Size = UDim2.fromScale(1, 1)
+	t.BackgroundTransparency = 1
+	t.Font = Enum.Font.GothamBlack
+	t.TextScaled = true
+	t.TextColor3 = Color3.fromRGB(150, 255, 160)
+	t.TextStrokeTransparency = 0.3
+	t.Text = "📦 " .. table.concat(lines, "  ")
+	t.Parent = bb
+	bb.Parent = hopper
+	TweenService:Create(bb, TweenInfo.new(1.6), { StudsOffsetWorldSpace = Vector3.new(0, hopper.Size.Y + 6, 0) }):Play()
+	TweenService:Create(t, TweenInfo.new(1.6, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
+	Debris:AddItem(bb, 1.7)
+	if already then
+		return
+	end
+	-- ลูกกลิ้งหมุน + เครื่องสั่น (ฝั่งนี้เท่านั้น)
+	local rollers = {}
+	for _, r in ipairs(bench:GetChildren()) do
+		if r:IsA("BasePart") and r:GetAttribute("Spin") then
+			table.insert(rollers, { r, r.CFrame, r:GetAttribute("Spin") })
+		end
+	end
+	local model = bench:FindFirstChild("CrafterModel")
+	local base = model and model:GetPivot()
+	task.spawn(function()
+		local a = 0
+		while os.clock() < st.Until and bench.Parent do
+			local dt = RunService.RenderStepped:Wait()
+			a += dt * 14
+			for _, e in ipairs(rollers) do
+				e[1].CFrame = e[2] * CFrame.Angles(a * e[3], 0, 0)
+			end
+			if model and base then
+				model:PivotTo(base * CFrame.new(math.sin(a * 3.1) * 0.06, math.abs(math.sin(a * 2.3)) * 0.05, math.cos(a * 2.7) * 0.06))
+			end
+		end
+		for _, e in ipairs(rollers) do
+			e[1].CFrame = e[2]
+		end
+		if model and base then
+			model:PivotTo(base)
+		end
+	end)
+	CombatClient.Sound("Land", hopper.Position, 0.8, 0.55)
+end
+
+-- เอฟเฟกต์จากคลัง VFX (แพ็ก Creator Store) สำหรับตี/ตัด/ทุบ/คราฟต์
+local VFXLib = require(script.Parent:WaitForChild("VFXLib"))
+local function vfx(name, pos, opts)
+	pcall(VFXLib.Play, name, CFrame.new(pos), opts or {})
+end
+local VFX_NAMES = {
+	RockRing = "VFXPack/vfx pack/f", Crack = "VFXPack/Anime/Crack-01", Shiny = "VFXPack/Anime/Shiny-01", Charge = "VFXPack/Anime/Charge-01",
+	ShieldBreak = "VFXPack/Anime/Shield-Break-01", Fire = "VFXPack/Anime/Fire-02", Punch = "VFXPack/Anime/Blood-Punch-01", Ice = "IceStomp",
+}
+
 -- เอฟเฟกต์สกิลบอส (BossFX)
 local BossFX = require(script.Parent:WaitForChild("BossFX"))
 BossFX.Init(function(power, time)
@@ -536,6 +635,51 @@ end)
 for k, fn in pairs(BossFX.Handlers) do
 	Handlers[k] = fn
 end
+local function wrap(name, extra)
+	local base = Handlers[name]
+	Handlers[name] = function(d)
+		if base then
+			base(d)
+		end
+		pcall(extra, d)
+	end
+end
+wrap("Hit", function(d)
+	vfx(VFX_NAMES.Punch, d.Position, { Scale = d.Crit and 1.6 or 1, Duration = 0.15 })
+end)
+wrap("NodeHit", function(d)
+	local p = d.Position + Vector3.new(0, 3, 0)
+	if d.Kind == "Rock" then
+		vfx(VFX_NAMES.Crack, p, { Scale = 1.2, Duration = 0.15 })
+	elseif d.Kind == "Crystal" then
+		vfx(VFX_NAMES.Shiny, p, { Scale = 1.4, Duration = 0.2 })
+	elseif d.Kind == "Tree" then
+		burst(p + Vector3.new(0, 3, 0), Color3.fromRGB(90, 150, 70), 10, 12, 0.5)
+	end
+end)
+wrap("TreeFall", function(d)
+	task.delay(1.3, function()
+		vfx(VFX_NAMES.RockRing, d.Position, { Scale = 2.2, Duration = 0.3 })
+	end)
+end)
+wrap("Shatter", function(d)
+	if d.Kind == "Crystal" then
+		vfx(VFX_NAMES.ShieldBreak, d.Position + Vector3.new(0, 3, 0), { Scale = 2.4, Duration = 0.2 })
+	else
+		vfx(VFX_NAMES.RockRing, d.Position, { Scale = 1.6, Duration = 0.3 })
+		vfx(VFX_NAMES.Crack, d.Position + Vector3.new(0, 1, 0), { Scale = 1.8, Duration = 0.2 })
+	end
+end)
+wrap("Craft", function(d)
+	vfx(VFX_NAMES.Shiny, d.Position + Vector3.new(0, 4, 0), { Scale = 2, Duration = 0.25 })
+end)
+wrap("Build", function(d)
+	vfx(VFX_NAMES.RockRing, d.Position, { Scale = 1.2, Duration = 0.25 })
+	vfx(VFX_NAMES.Shiny, d.Position + Vector3.new(0, 3, 0), { Scale = 1.6, Duration = 0.2 })
+end)
+wrap("Refuel", function(d)
+	vfx(VFX_NAMES.Fire, d.Position + Vector3.new(0, 2, 0), { Scale = 3.5, Duration = 0.4 })
+end)
 
 function CombatClient.HandleFx(kind, data, hud)
 	if kind == "Pickup" then

@@ -20,6 +20,7 @@ local Workspace = game:GetService("Workspace")
 local Shop = require(ReplicatedStorage.Shared.Shop)
 local MeshProps = require(ReplicatedStorage.Shared.MeshProps)
 local BaseDecor = require(ReplicatedStorage.Shared.BaseDecor)
+local PropBuilder = require(ReplicatedStorage.Shared.PropBuilder)
 
 local LobbyService = {}
 
@@ -136,6 +137,9 @@ local function light(part, color, range, brightness, shadows)
 end
 
 local function fireOn(part, size)
+	if PropBuilder.RealFire(part, size / 4) then
+		return part
+	end
 	local f = Instance.new("Fire")
 	f.Size = size
 	f.Heat = size * 1.3
@@ -309,45 +313,70 @@ local function classesTent(self, parent, cf)
 	local W, D, H, E = 40, 32, 22, 9
 	local canvas, canvasDark = C(134, 130, 70), C(108, 104, 56)
 	local rng = Random.new(77)
+	-- กระท่อม Classes (โมเดล Import) แทนเต็นท์ผ้าใบ: ของตกแต่งที่ทำเองข้างล่างจะซ่อนไว้ ใช้แค่ภายใน (เคาน์เตอร์ เวที)
+	-- Import 3D ของ Roblox หมุนโมเดลให้หน้า (ป้าย Classes) อยู่ทาง -Z แล้ว = ทางเดียวกับหน้าเต็นท์ · ยกให้พ้นพื้นไม้ของลาน
+	local hut = PropBuilder.Imported("ClassHut", cf * CF(0, 1.3, 0), W + 6, parent)
+	local tentFolder = parent
+	local hutDeck, hutSize, hutUnit
+	if hut then
+		hut.Name = "ClassHut"
+		for _, d in ipairs(hut:GetDescendants()) do
+			if d:IsA("BasePart") then
+				d.CanCollide = false -- เดินเข้าได้ (พื้น/ผนังชนด้วยกล่องล่องหนด้านล่าง)
+			end
+		end
+		-- เมชนี้ถูกดึงลงตามกระดูกราก (Y -0.83 ของความสูง 1.7) -> ยกกลับให้ฐานจริงแตะพื้น
+		local mesh = hut:FindFirstChildWhichIsA("MeshPart", true)
+		local unit = mesh and mesh.Size.Y / 1.7 or 14
+		hut:PivotTo(hut:GetPivot() + V(0, 0.832 * unit, 0))
+		local _, hs = hut:GetBoundingBox()
+		-- พื้นไม้ในกระท่อม (วัดจากโมเดล: สูง 0.13 จากฐาน)
+		hutDeck = 1.3 + 0.13 * unit
+		hutSize = hs
+		hutUnit = unit
+		P(parent, { Name = "HutFloor", Size = V(hs.X * 0.9, 1, hs.Z * 0.85), CFrame = cf * CF(0, hutDeck - 0.5, 0), Transparency = 1 })
+		tentFolder = Instance.new("Folder")
+		tentFolder.Name = "TentHidden"
+	end
 	-- พื้นไม้ในเต็นท์
-	deck(parent, cf * CF(0, 1, 0), W - 2, D - 2, rng)
+	deck(tentFolder, cf * CF(0, 1, 0), W - 2, D - 2, rng)
 	-- หลังคาสองฝั่ง
 	local slope = math.atan2(H - E, W / 2)
 	local slen = math.sqrt((H - E) ^ 2 + (W / 2) ^ 2)
 	for _, s in ipairs({ -1, 1 }) do
-		P(parent, { Size = V(slen + 1.5, 0.4, D + 3), CFrame = cf * CF(s * W / 4, (H + E) / 2 + 1, 0) * ANG(0, 0, -s * slope), Color = canvas, Material = Enum.Material.Fabric })
+		P(tentFolder, { Size = V(slen + 1.5, 0.4, D + 3), CFrame = cf * CF(s * W / 4, (H + E) / 2 + 1, 0) * ANG(0, 0, -s * slope), Color = canvas, Material = Enum.Material.Fabric })
 		-- ชายผ้าห้อยด้านหน้า
-		P(parent, { Size = V(slen + 1.5, 1.6, 0.2), CFrame = cf * CF(s * W / 4, (H + E) / 2 + 0.2, -D / 2 - 1.5) * ANG(0, 0, -s * slope), Color = canvasDark, Material = Enum.Material.Fabric })
+		P(tentFolder, { Size = V(slen + 1.5, 1.6, 0.2), CFrame = cf * CF(s * W / 4, (H + E) / 2 + 0.2, -D / 2 - 1.5) * ANG(0, 0, -s * slope), Color = canvasDark, Material = Enum.Material.Fabric })
 		-- ผนังข้าง
-		P(parent, { Size = V(0.4, E, D), CFrame = cf * CF(s * W / 2, E / 2 + 1, 0), Color = canvasDark, Material = Enum.Material.Fabric })
+		P(tentFolder, { Size = V(0.4, E, D), CFrame = cf * CF(s * W / 2, E / 2 + 1, 0), Color = canvasDark, Material = Enum.Material.Fabric })
 	end
 	-- ผนังหลัง + จั่ว
-	P(parent, { Size = V(W, E, 0.4), CFrame = cf * CF(0, E / 2 + 1, D / 2), Color = canvasDark, Material = Enum.Material.Fabric })
+	P(tentFolder, { Size = V(W, E, 0.4), CFrame = cf * CF(0, E / 2 + 1, D / 2), Color = canvasDark, Material = Enum.Material.Fabric })
 	for _, s in ipairs({ -1, 1 }) do
-		P(parent, { ClassName = "WedgePart", Size = V(0.4, H - E, W / 2), CFrame = cf * CF(s * W / 4, E + 1 + (H - E) / 2, D / 2) * ANG(0, s * -math.pi / 2, 0), Color = canvasDark, Material = Enum.Material.Fabric })
+		P(tentFolder, { ClassName = "WedgePart", Size = V(0.4, H - E, W / 2), CFrame = cf * CF(s * W / 4, E + 1 + (H - E) / 2, D / 2) * ANG(0, s * -math.pi / 2, 0), Color = canvasDark, Material = Enum.Material.Fabric })
 	end
 	-- เสา + คานสัน
 	for _, x in ipairs({ -W / 2, 0, W / 2 }) do
 		local ph = (x == 0) and H + 1 or E + 1
-		P(parent, { Size = V(0.9, ph, 0.9), CFrame = cf * CF(x, ph / 2, -D / 2 - 0.5), Color = C(84, 62, 44), Material = Enum.Material.Wood })
+		P(tentFolder, { Size = V(0.9, ph, 0.9), CFrame = cf * CF(x, ph / 2, -D / 2 - 0.5), Color = C(84, 62, 44), Material = Enum.Material.Wood })
 	end
-	P(parent, { Size = V(0.8, 0.8, D + 4), CFrame = cf * CF(0, H + 1.4, 0), Color = C(84, 62, 44), Material = Enum.Material.Wood })
+	P(tentFolder, { Size = V(0.8, 0.8, D + 4), CFrame = cf * CF(0, H + 1.4, 0), Color = C(84, 62, 44), Material = Enum.Material.Wood })
 	-- เชือกยึด + หมุด
 	for _, s in ipairs({ -1, 1 }) do
 		for _, z in ipairs({ -D / 2, 0, D / 2 }) do
 			local a = (cf * CF(s * W / 2, E + 1, z)).Position
 			local b = (cf * CF(s * (W / 2 + 7), 1, z)).Position
-			P(parent, { Size = V(0.12, 0.12, (b - a).Magnitude), CFrame = CFrame.lookAt((a + b) / 2, b), Color = C(214, 204, 170), CanCollide = false, CanQuery = false })
-			P(parent, { Size = V(0.5, 1.2, 0.5), CFrame = CF(b + V(0, 0.4, 0)), Color = C(84, 62, 44), Material = Enum.Material.Wood })
+			P(tentFolder, { Size = V(0.12, 0.12, (b - a).Magnitude), CFrame = CFrame.lookAt((a + b) / 2, b), Color = C(214, 204, 170), CanCollide = false, CanQuery = false })
+			P(tentFolder, { Size = V(0.5, 1.2, 0.5), CFrame = CF(b + V(0, 0.4, 0)), Color = C(84, 62, 44), Material = Enum.Material.Wood })
 		end
 	end
 	-- ป้าย "Classes" ไฟนีออนเขียว
 	local signCf = cf * CF(0, 15.5, -D / 2 - 1.8)
 	for _, x in ipairs({ -6, 6 }) do
-		P(parent, { Size = V(0.15, 4.5, 0.15), CFrame = signCf * CF(x, 4.2, 0), Color = C(40, 36, 34), Material = Enum.Material.Metal })
+		P(tentFolder, { Size = V(0.15, 4.5, 0.15), CFrame = signCf * CF(x, 4.2, 0), Color = C(40, 36, 34), Material = Enum.Material.Metal })
 	end
-	local board = P(parent, { Size = V(17, 5.6, 0.6), CFrame = signCf, Color = C(80, 52, 34), Material = Enum.Material.WoodPlanks })
-	P(parent, { Size = V(17.8, 6.4, 0.4), CFrame = signCf * CF(0, 0, 0.2), Color = C(56, 38, 26), Material = Enum.Material.Wood })
+	local board = P(tentFolder, { Size = V(17, 5.6, 0.6), CFrame = signCf, Color = C(80, 52, 34), Material = Enum.Material.WoodPlanks })
+	P(tentFolder, { Size = V(17.8, 6.4, 0.4), CFrame = signCf * CF(0, 0, 0.2), Color = C(56, 38, 26), Material = Enum.Material.Wood })
 	for _, face in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back }) do
 		local sg = Instance.new("SurfaceGui")
 		sg.Face = face
@@ -376,13 +405,19 @@ local function classesTent(self, parent, cf)
 	end
 	light(board, C(120, 255, 120), 16, 1.2)
 	-- ไฟหน้าเต็นท์ (ตอไม้มีไฟ)
-	fireStump(parent, cf * CF(-W / 2 + 3, 1, -D / 2 - 5))
-	fireStump(parent, cf * CF(W / 2 - 3, 1, -D / 2 - 5))
+	fireStump(parent, cf * CF(-W / 2 - 1, 1, -D / 2 - 8))
+	fireStump(parent, cf * CF(W / 2 + 1, 1, -D / 2 - 8))
 	-- ภายใน: เคาน์เตอร์ + คนดูแลคลาส + ไวท์บอร์ด + ลังไม้ + โคมแขวน
 	local counterCf = cf * CF(-11, 1.5, -6)
-	P(parent, { Size = V(10, 3.2, 3), CFrame = counterCf * CF(0, 1.6, 0), Color = C(110, 78, 50), Material = Enum.Material.WoodPlanks })
-	P(parent, { Size = V(10.6, 0.4, 3.6), CFrame = counterCf * CF(0, 3.3, 0), Color = C(140, 100, 64), Material = Enum.Material.WoodPlanks })
-	local keeper, kbody = shopkeeper(parent, counterCf * CF(0, 0, 3.2) * ANG(0, math.pi, 0))
+	P(tentFolder, { Size = V(10, 3.2, 3), CFrame = counterCf * CF(0, 1.6, 0), Color = C(110, 78, 50), Material = Enum.Material.WoodPlanks })
+	P(tentFolder, { Size = V(10.6, 0.4, 3.6), CFrame = counterCf * CF(0, 3.3, 0), Color = C(140, 100, 64), Material = Enum.Material.WoodPlanks })
+	-- ในกระท่อม: ที่ปรึกษายืนหลังโต๊ะยาวด้านหน้า หันออกทางเข้า
+	local keeperCf = counterCf * CF(0, 0, 3.2) * ANG(0, math.pi, 0)
+	if hutDeck then
+		-- โต๊ะยาวในโมเดลอยู่ที่ x -0.75..0.25, y -0.85..-0.55 (หน่วยโมเดล, ด้านหน้า = -y) -> ยืนหลังโต๊ะ หันออกทางเข้า
+		keeperCf = cf * CF(0.25 * hutUnit, hutDeck, -0.36 * hutUnit)
+	end
+	local keeper, kbody = shopkeeper(parent, keeperCf)
 	-- ใช้ตัวละคร Roblox จริง (เจ้าหน้าที่อุทยาน) แทนหุ่นบล็อก
 	local assets = ReplicatedStorage:FindFirstChild("Assets")
 	local chars = assets and assets:FindFirstChild("Characters")
@@ -406,7 +441,7 @@ local function classesTent(self, parent, cf)
 		local foot = Vector3.new((mn.X + mx.X) / 2, mn.Y, (mn.Z + mx.Z) / 2)
 		npc.PrimaryPart = face
 		face.PivotOffset = face.CFrame:ToObjectSpace(CFrame.lookAt(foot, foot + look.Unit))
-		npc:PivotTo(counterCf * CF(0, 0, 3.2) * ANG(0, math.pi, 0))
+		npc:PivotTo(keeperCf)
 		npc.Parent = parent
 		for _, d in ipairs(keeper:GetDescendants()) do
 			if d:IsA("BasePart") then
@@ -418,28 +453,39 @@ local function classesTent(self, parent, cf)
 	prompt(kbody, "ดูคลาส", "ที่ปรึกษาค่าย", Enum.KeyCode.E, 18).Triggered:Connect(function(p)
 		self.ctx.Remotes.Get("Cinematic"):FireClient(p, "OpenClasses", {})
 	end)
+	if hut then
+		-- ป้ายเดิมซ่อน แต่เก็บปุ่มเปิดร้านไว้ที่จุดเดิม
+		board.Parent = parent
+		board.Transparency = 1
+		board.CanCollide = false
+		board:ClearAllChildren()
+	end
 	prompt(board, "ร้านคลาส", "Classes", Enum.KeyCode.E, 30).Triggered:Connect(function(p)
 		self.ctx.Remotes.Get("Cinematic"):FireClient(p, "OpenClasses", {})
 	end)
 	-- ไวท์บอร์ดบนขาตั้ง (หลังเวที ซ้าย)
 	local wbCf = cf * CF(-9, 1.5, D / 2 - 4) * ANG(0, math.rad(15), 0)
-	local wb = P(parent, { Size = V(9, 5.5, 0.3), CFrame = wbCf * CF(0, 6, 0), Color = C(196, 192, 200), Material = Enum.Material.SmoothPlastic })
+	local wb = P(tentFolder, { Size = V(9, 5.5, 0.3), CFrame = wbCf * CF(0, 6, 0), Color = C(196, 192, 200), Material = Enum.Material.SmoothPlastic })
 	for _, x in ipairs({ -3.5, 3.5 }) do
-		P(parent, { Size = V(0.3, 8, 0.3), CFrame = wbCf * CF(x, 4, 0.4) * ANG(math.rad(8), 0, 0), Color = C(200, 200, 206), Material = Enum.Material.Metal })
+		P(tentFolder, { Size = V(0.3, 8, 0.3), CFrame = wbCf * CF(x, 4, 0.4) * ANG(math.rad(8), 0, 0), Color = C(200, 200, 206), Material = Enum.Material.Metal })
 	end
-	label(wb, Enum.NormalId.Front, "แผนวันนี้:\n1. เลือกคลาส\n2. ขึ้นแท่นเริ่มเกม\n3. รอด 99 คืน!", C(40, 60, 160), Enum.Font.GothamBold)
+	label(wb, Enum.NormalId.Front, "แผนวันนี้:\n1. เลือกคลาส\n2. ขึ้นแท่นเริ่มเกม\n3. พิชิตคืนสุดท้าย!", C(40, 60, 160), Enum.Font.GothamBold)
 	-- ตอไม้มีไฟ (หลังเวที ขวา) + ลังไม้
-	fireStump(parent, cf * CF(10, 1.5, D / 2 - 4), 0.7, 14) -- ไฟอ่อนๆ ไม่ให้หน้าตัวละครบนเวทีสว่างจ้า
-	crate(parent, cf * CF(16, 1.5, D / 2 - 3))
-	crate(parent, cf * CF(16.5, 4.5, D / 2 - 3) * ANG(0, 0.5, 0), 2.4)
-	crate(parent, cf * CF(-16, 1.5, -10) * ANG(0, 0.3, 0))
+	fireStump(tentFolder, cf * CF(10, 1.5, D / 2 - 4), 0.7, 14) -- ไฟอ่อนๆ ไม่ให้หน้าตัวละครบนเวทีสว่างจ้า
+	crate(tentFolder, cf * CF(16, 1.5, D / 2 - 3))
+	crate(tentFolder, cf * CF(16.5, 4.5, D / 2 - 3) * ANG(0, 0.5, 0), 2.4)
+	crate(tentFolder, cf * CF(-16, 1.5, -10) * ANG(0, 0.3, 0))
 	for _, z in ipairs({ -8, 6 }) do
-		local lamp = P(parent, { Size = V(1.2, 1.6, 1.2), CFrame = cf * CF(0, H - 4, z), Color = C(255, 214, 150), Material = Enum.Material.Neon, CanCollide = false })
-		P(parent, { Size = V(0.1, 4, 0.1), CFrame = cf * CF(0, H - 1.6, z), Color = C(40, 36, 34), CanCollide = false })
+		local lamp = P(tentFolder, { Size = V(1.2, 1.6, 1.2), CFrame = cf * CF(0, H - 4, z), Color = C(255, 214, 150), Material = Enum.Material.Neon, CanCollide = false })
+		P(tentFolder, { Size = V(0.1, 4, 0.1), CFrame = cf * CF(0, H - 1.6, z), Color = C(40, 36, 34), CanCollide = false })
 		light(lamp, C(255, 196, 130), 24, 0.8, true)
 	end
 	-- เวทีโชว์หุ่นคลาส (กล้องร้านคลาสเล็งมาที่นี่) หันหน้าเข้าหาทางเข้าเต็นท์
 	local stageCf = cf * CF(0, 1.5, D / 2 - 7)
+	if hutDeck then
+		-- บนพื้นกระท่อม ด้านขวา-หลัง (กล้องร้านคลาสอยู่หน้าเวที 16 studs ไม่ติดที่ปรึกษา/โต๊ะ)
+		stageCf = cf * CF(0.97 * hutUnit, hutDeck - 1.1, 0.35 * hutUnit)
+	end
 	cyl(parent, 1.2, 8, stageCf * CF(0, 0.6, 0), C(120, 84, 56), Enum.Material.WoodPlanks)
 	cyl(parent, 0.5, 9, stageCf * CF(0, 0.25, 0), C(84, 60, 42), Enum.Material.Wood)
 	P(parent, { Name = "ClassStage", Size = V(6, 0.2, 6), CFrame = stageCf * CF(0, 1.1, 0), Transparency = 1, CanCollide = false, CanQuery = false })
@@ -515,28 +561,39 @@ end
 
 -- แท่น "เริ่มเกม" (พื้นเรืองแสงขาว) + ป้ายลอย 0/5
 local function startPad(self, parent, cf, i)
-	local rng = Random.new(100 + i)
-	-- กรอบไม้
-	for _, e in ipairs({ { V(0, 0, -9), V(19.5, 0.8, 1.4) }, { V(0, 0, 9), V(19.5, 0.8, 1.4) }, { V(-9, 0, 0), V(1.4, 0.8, 19.5) }, { V(9, 0, 0), V(1.4, 0.8, 19.5) } }) do
-		P(parent, { Size = e[2], CFrame = cf * CF(e[1] + V(0, 0.4, 0)), Color = WOOD[rng:NextInteger(1, #WOOD)], Material = Enum.Material.WoodPlanks })
+	-- แท่นหินกลมขอบไม้ + วงแสงจางๆ + ละอองลอยขึ้น (เดินเข้าไปยืน = เปิดหน้าเลือกจำนวนคน)
+	cyl(parent, 1.2, 19, cf * CF(0, 0.6, 0), C(92, 88, 84), Enum.Material.Slate)
+	cyl(parent, 0.5, 17.4, cf * CF(0, 1.35, 0), C(118, 84, 56), Enum.Material.WoodPlanks)
+	local pad = P(parent, { Name = "StartPad" .. i, Shape = Enum.PartType.Cylinder, Size = V(0.12, 13, 13), CFrame = cf * CF(0, 1.62, 0) * ANG(0, 0, math.pi / 2),
+		Color = C(180, 200, 230), Material = Enum.Material.Glass, Transparency = 0.55, CanCollide = false })
+	-- หินรอบแท่น 6 ก้อน
+	for k = 0, 5 do
+		local a = k / 6 * math.pi * 2 + 0.3
+		P(parent, { Size = V(2.2, 1.6 + (k % 2) * 0.6, 1.8), CFrame = cf * CF(math.cos(a) * 9.6, 1.2, math.sin(a) * 9.6) * ANG(0.15, a, 0.1),
+			Color = C(104, 100, 96), Material = Enum.Material.Slate })
 	end
-	local pad = P(parent, { Name = "StartPad" .. i, Size = V(16.4, 0.3, 16.4), CFrame = cf * CF(0, 0.25, 0), Color = C(200, 214, 245), Material = Enum.Material.Neon, Transparency = 0.5 })
-	local glow = Instance.new("SurfaceLight")
-	glow.Face = Enum.NormalId.Top
-	glow.Range = 14
-	glow.Brightness = 0.7
-	glow.Angle = 120
-	glow.Color = C(200, 220, 255)
-	glow.Parent = pad
-	local edges = {}
-	for _, e in ipairs({ { V(0, 0, -8.1), V(16.4, 0.12, 0.35) }, { V(0, 0, 8.1), V(16.4, 0.12, 0.35) }, { V(-8.1, 0, 0), V(0.35, 0.12, 16.4) }, { V(8.1, 0, 0), V(0.35, 0.12, 16.4) } }) do
-		table.insert(edges, P(parent, { Size = e[2], CFrame = cf * CF(e[1] + V(0, 0.45, 0)), Color = C(230, 236, 255), Material = Enum.Material.Neon, CanCollide = false }))
-	end
+	local att = Instance.new("Attachment")
+	att.Position = V(0, 0, 0)
+	att.Parent = pad
+	local motes = Instance.new("ParticleEmitter")
+	motes.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+	motes.Shape = Enum.ParticleEmitterShape.Disc
+	motes.ShapeStyle = Enum.ParticleEmitterShapeStyle.Volume
+	motes.EmissionDirection = Enum.NormalId.Right -- แกนของทรงกระบอก = ขึ้นด้านบน
+	motes.Rate = 6
+	motes.Lifetime = NumberRange.new(2, 3.5)
+	motes.Speed = NumberRange.new(2, 4)
+	motes.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.4, 0.35), NumberSequenceKeypoint.new(1, 0) })
+	motes.LightEmission = 1
+	motes.Color = ColorSequence.new(C(200, 220, 255))
+	motes.Parent = att
+	local go = light(pad, C(120, 255, 140), 20, 1.6)
+	go.Enabled = false
 	-- ป้ายลอย
 	local anchor = P(parent, { Size = V(1, 1, 1), CFrame = cf * CF(0, 1, 0), Transparency = 1, CanCollide = false, CanQuery = false })
 	local bb = Instance.new("BillboardGui")
-	bb.Size = UDim2.fromScale(13, 7.5) -- ขนาดเป็น stud: ไกลแล้วเล็กลง ไม่ทับกัน
-	bb.StudsOffset = V(0, 10, 0)
+	bb.Size = UDim2.fromScale(12, 6.5)
+	bb.StudsOffset = V(0, 9, 0)
 	bb.MaxDistance = 160
 	bb.LightInfluence = 0
 	bb.Parent = anchor
@@ -550,33 +607,20 @@ local function startPad(self, parent, cf, i)
 		t.Font = font or Enum.Font.GothamBlack
 		t.TextColor3 = color
 		t.Parent = bb
-		local s = Instance.new("UIStroke")
-		s.Thickness = 3
-		s.Parent = t
+		local st = Instance.new("UIStroke")
+		st.Thickness = 3
+		st.Parent = t
 		return t
 	end
-	line(0, 0.3, "เริ่มเกม", C(130, 255, 120))
-	local count = line(0.3, 0.42, "0/5", C(255, 255, 255))
+	line(0, 0.3, "แท่น " .. i, C(255, 226, 150))
+	local count = line(0.3, 0.42, "0/4", C(255, 255, 255))
 	local sub = line(0.74, 0.24, "", C(230, 230, 240), Enum.Font.GothamBold)
-	-- เสาป้ายเปลี่ยนขนาดทีม (หลังแท่น)
-	local post = cf * CF(0, 0, 10.5)
-	P(parent, { Size = V(0.8, 6, 0.8), CFrame = post * CF(0, 3, 0), Color = C(74, 52, 38), Material = Enum.Material.Wood })
-	local plate = P(parent, { Size = V(6, 2.4, 0.4), CFrame = post * CF(0, 5.6, 0), Color = C(96, 68, 46), Material = Enum.Material.WoodPlanks })
-	label(plate, Enum.NormalId.Front, "ขนาดทีม [F]", C(255, 230, 170), Enum.Font.GothamBold)
-	label(plate, Enum.NormalId.Back, "ขนาดทีม [F]", C(255, 230, 170), Enum.Font.GothamBold)
-	local go = light(pad, C(120, 255, 140), 24, 2.5)
-	go.Enabled = false
-	local zone = P(parent, { Name = "MatchBox" .. i, Size = V(16, 12, 16), CFrame = cf * CF(0, 6, 0), Transparency = 1, CanCollide = false, CanQuery = false })
-	local box = { Index = i, Zone = zone, Size = 5, Text = count, Sub = sub, Countdown = nil, Pad = pad, Runes = edges, Pillar = go }
-	prompt(plate, "เปลี่ยนขนาดทีม", "แท่นเริ่มเกม " .. i, Enum.KeyCode.F, 22).Triggered:Connect(function(p)
-		if box.Members and box.Members[p] then
-			box.Size = box.Size % 5 + 1
-			box.Countdown = nil
-		else
-			self.ctx.Notify(p, "ขึ้นไปยืนบนแท่นก่อน แล้วค่อยเปลี่ยนขนาดทีม", "Info")
-		end
-	end)
-	return box
+	local zone = P(parent, { Name = "MatchBox" .. i, Size = V(17, 12, 17), CFrame = cf * CF(0, 6, 0), Transparency = 1, CanCollide = false, CanQuery = false })
+	zone:SetAttribute("PadIndex", i)
+	zone:SetAttribute("Size", 4)
+	zone:SetAttribute("Count", 0)
+	zone:SetAttribute("Countdown", -1)
+	return { Index = i, Zone = zone, Size = 4, Text = count, Sub = sub, Countdown = nil, Pad = pad, Runes = {}, Pillar = go, Motes = motes }
 end
 
 ---------------------------------------------------------------- สร้างล็อบบี้: ค่ายฟาร์มกลางป่ายามค่ำคืน (แบบ 99 Nights)
@@ -632,9 +676,7 @@ function LobbyService:Build()
 		P(deco, { Size = V(0.1, 5, 0.1), CFrame = archCf * CF(x, 14, 0), Color = C(40, 36, 34), CanCollide = false })
 		light(l, C(255, 186, 110), 26, 2, true)
 	end
-	for _, x in ipairs({ -20, 20 }) do
-		fireStump(deco, base * CF(x, 1, FZ1 - 4))
-	end
+
 	-- ทางนอกซุ้มหายเข้าป่ามืด (ปิดด้วยกำแพงล่องหน)
 	boardwalk(deco, (base * CF(0, 1, FZ1 + 2)).Position, (base * CF(0, 1, FZ1 + 34)).Position, 9, rng)
 	P(m, { Name = "GateBlock", Size = V(30, 40, 1), CFrame = base * CF(0, 20, FZ1 + 6), Transparency = 1, CanQuery = false })
@@ -642,14 +684,20 @@ function LobbyService:Build()
 	------------------------------------------------ ทางเดินไม้
 	boardwalk(deco, (base * CF(0, 1, 72)).Position, (base * CF(0, 1, -30)).Position, 10, rng)
 	boardwalk(deco, (base * CF(-86, 1, 44)).Position, (base * CF(92, 1, 44)).Position, 8, rng)
-	boardwalk(deco, (base * CF(71, 1, 44)).Position, (base * CF(71, 1, -24)).Position, 8, rng)
+	boardwalk(deco, (base * CF(65, 1, 44)).Position, (base * CF(65, 1, -26)).Position, 7, rng)
 	boardwalk(deco, (base * CF(-42, 1, 44)).Position, (base * CF(-42, 1, -8)).Position, 8, rng)
-	for z = 60, -16, -19 do
-		lanternPost(deco, base * CF(-8, 1, z) * ANG(0, math.rad(-90), 0), 8)
-		lanternPost(deco, base * CF(8, 1, z) * ANG(0, math.rad(90), 0), 8)
+	-- ไฟริมทาง: เหลือแค่หัวทาง + ทางแยก (ไม่เยอะจนรก)
+	lanternPost(deco, base * CF(-8, 1, 60) * ANG(0, math.rad(-90), 0), 8)
+	lanternPost(deco, base * CF(8, 1, 60) * ANG(0, math.rad(90), 0), 8)
+	lanternPost(deco, base * CF(-30, 1, 51), 8)
+	lanternPost(deco, base * CF(40, 1, 51), 8)
+	-- ของตกแต่งโทนเดียวกับกระท่อม Classes (โมเดลจริง): ม้านั่งท่อนซุง ลังไม้ กองฟืน โรงเก็บของ
+	PropBuilder.StoreModel("CampShack", base * CF(-96, 1, -70) * ANG(0, math.rad(60), 0), deco)
+	for _, info in ipairs({ { -24, -36, 0.2 }, { 28, -40, 1.1 }, { -60, 30, 2.2 }, { 46, 70, 0.6 }, { -100, -40, 1.6 } }) do
+		PropBuilder.StoreModel("LogPileStore", base * CF(info[1], 1, info[2]) * ANG(0, info[3], 0), deco)
 	end
-	for _, x in ipairs({ -70, -24, 30, 92 }) do
-		lanternPost(deco, base * CF(x, 1, 51) * ANG(0, 0, 0), 8)
+	for _, info in ipairs({ { 22, -36, 0.4 }, { 25, -38, 1.2 }, { -30, 62, 0.3 }, { 110, 46, 0.9 }, { -104, 8, 0.2 } }) do
+		PropBuilder.StoreModel("Crate", base * CF(info[1], 1, info[2]) * ANG(0, info[3], 0), deco)
 	end
 
 	------------------------------------------------ กลาง: เต็นท์ Classes
@@ -675,7 +723,7 @@ function LobbyService:Build()
 	nt.TextWrapped = true
 	nt.Font = Enum.Font.GothamBold
 	nt.TextColor3 = C(255, 240, 200)
-	nt.Text = '<font color="#FFE066">กระดานข่าวค่าย</font>\n\nรอดคืนที่ 5·10·25·50·99\n= รับเพชร 💎\n\nช่วยลูกสัตว์ธาตุ = 💎15\n<font color="#8CFF8C">รับเพชรฟรีที่หม้อเขียวทุกวัน!</font>'
+	nt.Text = '<font color="#FFE066">กระดานข่าวค่าย</font>\n\nรอดคืนสำคัญ (ทุก 5-25 คืน)\n= รับเพชร 💎\n\nช่วยลูกสัตว์ธาตุ = 💎15\n<font color="#8CFF8C">รับเพชรฟรีที่หม้อเขียวทุกวัน!</font>'
 	nt.Parent = nbg
 	local nlamp = P(deco, { Size = V(0.9, 0.9, 0.9), CFrame = nbCf * CF(0, 12, -1.6), Color = C(255, 214, 150), Material = Enum.Material.Neon, CanCollide = false })
 	light(nlamp, C(255, 196, 130), 14, 1.6)
@@ -700,23 +748,26 @@ function LobbyService:Build()
 	local core = P(deco, { Name = "LobbyFire", Size = V(2, 2, 2), CFrame = fcf * CF(0, 2, 0), Transparency = 1, CanCollide = false })
 	fireOn(core, 7)
 	light(core, C(255, 150, 70), 40, 2.8, true)
-	for i = 0, 2 do
-		local a = i / 3 * math.pi * 2 + 0.5
-		cyl(deco, 7, 1.8, fcf * CF(math.cos(a) * 8, 0.9, math.sin(a) * 8) * ANG(0, -a + math.pi / 2, 0) * ANG(0, 0, -math.pi / 2), C(104, 74, 50), Enum.Material.Wood)
+	for i = 0, 3 do
+		local a = i / 4 * math.pi * 2 + 0.5
+		local bcf = fcf * CF(math.cos(a) * 8, 0, math.sin(a) * 8) * ANG(0, -a, 0)
+		if not PropBuilder.StoreModel("LogBench", bcf, deco) then
+			cyl(deco, 7, 1.8, bcf * CF(0, 0.9, 0) * ANG(0, math.pi / 2, 0) * ANG(0, 0, -math.pi / 2), C(104, 74, 50), Enum.Material.Wood)
+		end
 	end
 	BaseDecor.CanvasTent(deco, base * CF(-90, 1, 78) * ANG(0, math.rad(-70), 0), C(70, 104, 150))
 	BaseDecor.CanvasTent(deco, base * CF(-80, 1, 96) * ANG(0, math.rad(-130), 0), C(196, 110, 52))
 
-	------------------------------------------------ ขวา: แท่นเริ่มเกม 4 แท่น
+	------------------------------------------------ ขวา: แท่นเริ่มเกม 6 แท่น (3 x 2)
 	self.boxes = {}
-	for i, pos in ipairs({ V(56, 1, -8), V(86, 1, -8), V(56, 1, 20), V(86, 1, 20) }) do
+	for i, pos in ipairs({ V(52, 1, -12), V(78, 1, -12), V(104, 1, -12), V(52, 1, 22), V(78, 1, 22), V(104, 1, 22) }) do
 		table.insert(self.boxes, startPad(self, deco, base * CF(pos), i))
 	end
-	local startSign = P(deco, { Size = V(14, 3.4, 0.5), CFrame = base * CF(71, 7.5, 50) * ANG(0, math.pi, 0), Color = C(76, 52, 34), Material = Enum.Material.WoodPlanks })
+	local startSign = P(deco, { Size = V(14, 3.4, 0.5), CFrame = base * CF(65, 7.5, 50) * ANG(0, math.pi, 0), Color = C(76, 52, 34), Material = Enum.Material.WoodPlanks })
 	label(startSign, Enum.NormalId.Front, "⚔ เริ่มเกม →", C(130, 255, 120), Enum.Font.GothamBlack)
 	label(startSign, Enum.NormalId.Back, "⚔ เริ่มเกม", C(130, 255, 120), Enum.Font.GothamBlack)
 	for _, x in ipairs({ -6, 6 }) do
-		P(deco, { Size = V(0.8, 7, 0.8), CFrame = base * CF(71 + x, 4.5, 50.4), Color = C(74, 52, 38), Material = Enum.Material.Wood })
+		P(deco, { Size = V(0.8, 7, 0.8), CFrame = base * CF(65 + x, 4.5, 50.4), Color = C(74, 52, 38), Material = Enum.Material.Wood })
 	end
 
 	------------------------------------------------ ของตกแต่ง: ฟาง ลังไม้ โต๊ะปิกนิก
@@ -895,8 +946,13 @@ function LobbyService:Tick(dt)
 			end
 		end
 		box.Members = members
+		box.List = list
 		local n = #list
 		box.Text.Text = string.format("%d/%d", n, box.Size)
+		box.Zone:SetAttribute("Size", box.Size)
+		box.Zone:SetAttribute("Count", n)
+		box.Zone:SetAttribute("Countdown", box.Countdown and math.max(0, math.ceil(box.Countdown)) or -1)
+		box.Zone:SetAttribute("Host", list[1] and list[1].UserId or 0)
 		if not worldReady then
 			box.Sub.Text = string.format("⏳ กำลังสร้างโลก %d%%", math.floor((s:GetAttribute("LoadProgress") or 0) * 100))
 			box.Countdown = nil
@@ -905,22 +961,19 @@ function LobbyService:Tick(dt)
 			box.Countdown = nil
 		elseif n == 0 then
 			box.Countdown = nil
-			box.Sub.Text = running and "⚔ ร่วมทีมที่เล่นอยู่" or "[F] เปลี่ยนขนาดทีม"
-			box.Pad.Color = C(200, 214, 245)
+			box.Sub.Text = running and "⚔ ร่วมทีมที่เล่นอยู่" or "เดินขึ้นแท่นเพื่อเริ่ม"
+			box.Pad.Color = C(180, 200, 230)
 			box.Pillar.Enabled = false
-			for _, r in ipairs(box.Runes) do
-				r.Color = C(230, 236, 255)
-			end
+			box.Motes.Color = ColorSequence.new(C(200, 220, 255))
+			box.Motes.Rate = 6
 		else
 			local target = running and COUNTDOWN_JOIN or ((n >= box.Size) and COUNTDOWN_FULL or COUNTDOWN)
 			box.Countdown = math.min(box.Countdown or target, target) - dt
 			box.Sub.Text = string.format("ออกเดินทางใน %d", math.max(0, math.ceil(box.Countdown)))
 			box.Pad.Color = C(120, 230, 130)
 			box.Pillar.Enabled = true
-			local blink = math.floor(os.clock() * 2) % 2 == 0
-			for _, r in ipairs(box.Runes) do
-				r.Color = blink and C(120, 255, 140) or C(255, 255, 255)
-			end
+			box.Motes.Color = ColorSequence.new(C(140, 255, 150))
+			box.Motes.Rate = 22
 			anyCountdown = math.max(anyCountdown, math.ceil(box.Countdown))
 			anyCount += n
 			if box.Countdown <= 0 then
@@ -955,6 +1008,19 @@ function LobbyService:RefreshBoard()
 end
 
 function LobbyService:Start(ctx)
+	ctx.Remotes.Get("PadSize").OnServerEvent:Connect(function(player, index, n)
+		local box = self.boxes and self.boxes[tonumber(index) or 0]
+		n = math.floor(tonumber(n) or 0)
+		if not box or n < 1 or n > 8 or not (box.Members and box.Members[player]) then
+			return
+		end
+		if box.List and box.List[1] ~= player then
+			ctx.Notify(player, "เฉพาะหัวหน้าแท่น (คนแรกที่ขึ้น) เลือกจำนวนคนได้", "Info")
+			return
+		end
+		box.Size = math.max(n, #(box.List or {}))
+		box.Countdown = nil
+	end)
 	ctx.Remotes.Get("BuyKit").OnServerEvent:Connect(function(player, kitId)
 		local kit = Shop.KitById[kitId]
 		local data = ctx.Services.DataService:Get(player)

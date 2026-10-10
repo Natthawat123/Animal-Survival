@@ -66,7 +66,7 @@ end
 local function frame(parent, props)
 	local f = Instance.new("Frame")
 	f.BorderSizePixel = 0
-	f.BackgroundColor3 = C(20, 18, 24)
+	f.BackgroundColor3 = C(28, 30, 52)
 	f.BackgroundTransparency = 0.08
 	for k, v in pairs(props or {}) do
 		f[k] = v
@@ -79,7 +79,7 @@ end
 local function text(parent, props, maxSize, strokeThickness)
 	local t = Instance.new("TextLabel")
 	t.BackgroundTransparency = 1
-	t.Font = Enum.Font.GothamBlack
+	t.Font = Enum.Font.FredokaOne
 	t.TextColor3 = C(255, 255, 255)
 	t.TextScaled = true
 	for k, v in pairs(props or {}) do
@@ -104,7 +104,7 @@ local function button(parent, props, color, onClick, maxSize)
 	b.AutoButtonColor = true
 	b.BorderSizePixel = 0
 	b.BackgroundColor3 = color
-	b.Font = Enum.Font.GothamBlack
+	b.Font = Enum.Font.FredokaOne
 	b.TextColor3 = C(255, 255, 255)
 	b.TextScaled = true
 	for k, v in pairs(props or {}) do
@@ -141,7 +141,7 @@ end
 
 -- แผงหลัก: พื้นเข้ม ขอบดำหนา ไล่แสงด้านบน + เส้นขอบในบางๆ
 local function panel(parent, pos, size)
-	local p = frame(parent, { Position = pos, Size = size, BackgroundColor3 = C(24, 22, 28), BackgroundTransparency = 0.06 })
+	local p = frame(parent, { Position = pos, Size = size, BackgroundColor3 = C(34, 38, 66), BackgroundTransparency = 0.06 })
 	corner(p, 18)
 	border(p, C(0, 0, 0), 3, 0.15)
 	gradient(p, C(255, 255, 255), C(185, 185, 195), 90)
@@ -291,7 +291,7 @@ function ClassShop.MakeCard(id, order)
 	local card = Instance.new("TextButton")
 	card.Text = ""
 	card.AutoButtonColor = false
-	card.BackgroundColor3 = C(36, 34, 42)
+	card.BackgroundColor3 = C(52, 58, 98)
 	card.Size = UDim2.new(1, -10, 0, cardHeight())
 	card.LayoutOrder = order
 	card.Parent = ui.List
@@ -302,7 +302,7 @@ function ClassShop.MakeCard(id, order)
 	corner(accent, 3)
 	-- รูปวงกลม (CanvasGroup ตัดขอบให้กลมจริง)
 	local holder = Instance.new("CanvasGroup")
-	holder.BackgroundColor3 = C(70, 70, 80)
+	holder.BackgroundColor3 = C(74, 80, 126)
 	holder.Size = UDim2.fromScale(0.84, 0.84)
 	holder.Position = UDim2.new(0, 18, 0.08, 0)
 	holder.Parent = card
@@ -349,7 +349,7 @@ function ClassShop.Build(gui)
 	local left = panel(canvas, UDim2.fromScale(0.012, 0.03), UDim2.fromScale(0.285, 0.94))
 	local title = text(left, { Position = UDim2.fromScale(0.06, 0.018), Size = UDim2.fromScale(0.45, 0.085), Text = "คลาส", TextXAlignment = Enum.TextXAlignment.Left }, 72, 3)
 	gradient(title, GOLD_A, GOLD_B, 90)
-	local gemPill = frame(left, { Position = UDim2.fromScale(0.55, 0.03), Size = UDim2.fromScale(0.4, 0.062), BackgroundColor3 = C(10, 10, 14), BackgroundTransparency = 0.15 })
+	local gemPill = frame(left, { Position = UDim2.fromScale(0.55, 0.03), Size = UDim2.fromScale(0.4, 0.062), BackgroundColor3 = C(22, 24, 44), BackgroundTransparency = 0.15 })
 	corner(gemPill, UDim.new(0.5, 0))
 	border(gemPill, C(110, 200, 255), 2, 0.2)
 	ui.Gems = text(gemPill, { Size = UDim2.fromScale(0.9, 0.8), Position = UDim2.fromScale(0.05, 0.1), Text = "💎 0" }, 28)
@@ -445,7 +445,7 @@ function ClassShop.Build(gui)
 	gradient(skillTitle, C(220, 245, 255), C(110, 185, 255), 90)
 	ui.Skills = {}
 	for lv = 1, 3 do
-		local box = frame(right, { Position = UDim2.fromScale(0.05, 0.36 + (lv - 1) * 0.205), Size = UDim2.fromScale(0.9, 0.19), BackgroundColor3 = C(40, 38, 46), BackgroundTransparency = 0 })
+		local box = frame(right, { Position = UDim2.fromScale(0.05, 0.36 + (lv - 1) * 0.205), Size = UDim2.fromScale(0.9, 0.19), BackgroundColor3 = C(52, 58, 98), BackgroundTransparency = 0 })
 		corner(box, 12)
 		local bstroke = border(box, LEVEL_COLOR[lv], 2, 0.3)
 		gradient(box, C(255, 255, 255), C(195, 195, 205), 90)
@@ -474,7 +474,7 @@ local function drawTools(c)
 	local order = 0
 	for itemId, n in pairs(c.StartItems) do
 		order += 1
-		local tile = frame(ui.Tools, { Size = UDim2.fromScale(0.3, 1), BackgroundColor3 = C(44, 42, 50), BackgroundTransparency = 0, LayoutOrder = order })
+		local tile = frame(ui.Tools, { Size = UDim2.fromScale(0.3, 1), BackgroundColor3 = C(56, 62, 104), BackgroundTransparency = 0, LayoutOrder = order })
 		corner(tile, 12)
 		border(tile, C(0, 0, 0), 2, 0.2)
 		gradient(tile, C(255, 255, 255), C(185, 185, 195), 90)
@@ -598,7 +598,7 @@ function ClassShop.Refresh()
 		sk.Desc.Text = skill.Text
 		sk.Name.TextTransparency = unlocked and 0 or 0.35
 		sk.Desc.TextTransparency = unlocked and 0 or 0.4
-		sk.Box.BackgroundColor3 = unlocked and C(40, 38, 46) or C(26, 24, 30)
+		sk.Box.BackgroundColor3 = unlocked and C(52, 58, 98) or C(30, 32, 54)
 		sk.Stroke.Transparency = unlocked and 0.1 or 0.6
 		sk.Lock.Visible = not unlocked
 		local canSkip = owned and i == lv + 1

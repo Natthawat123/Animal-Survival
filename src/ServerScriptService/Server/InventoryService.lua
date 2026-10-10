@@ -23,6 +23,7 @@ local DEPOSIT = { Resource = true, Essence = true, Relic = true }
 function InventoryService:Init(ctx)
 	self.ctx = ctx
 	self.Camp = camp
+	self.order = {}
 end
 
 function InventoryService:Get(player)
@@ -120,8 +121,53 @@ function InventoryService:AddToSack(player, id, n)
 	local fit = math.min(n, self:Space(player))
 	if fit > 0 then
 		self:Add(player, id, fit)
+		local order = self.order[player] or {}
+		self.order[player] = order
+		for _ = 1, fit do
+			table.insert(order, id)
+		end
 	end
 	return fit
+end
+
+-- ของชิ้นล่าสุดที่ยังอยู่ในกระสอบ (กด F ทิ้งตามลำดับ เข้าหลังออกก่อน)
+function InventoryService:LastItem(player)
+	local bag = self:Get(player)
+	local order = self.order[player] or {}
+	while #order > 0 do
+		local id = order[#order]
+		if (bag[id] or 0) > 0 and Items.Bulk(id) then
+			return id
+		end
+		table.remove(order)
+	end
+	-- ของที่ได้มาทางอื่น (ของเริ่มต้น/คราฟต์)
+	for id, n in pairs(bag) do
+		if n > 0 and Items.Bulk(id) then
+			return id
+		end
+	end
+	return nil
+end
+
+function InventoryService:PopOrder(player, id)
+	local order = self.order[player]
+	if not order then
+		return
+	end
+	for i = #order, 1, -1 do
+		if order[i] == id then
+			table.remove(order, i)
+			return
+		end
+	end
+end
+
+-- ถือกระสอบอยู่ไหม
+function InventoryService:HoldingSack(player)
+	local char = player.Character
+	local tool = char and char:FindFirstChildOfClass("Tool")
+	return tool ~= nil and tool:GetAttribute("Kind") == "Sack"
 end
 
 function InventoryService:Remove(player, id, n)
@@ -195,6 +241,10 @@ function InventoryService:Deposit(player)
 		markAll()
 	end
 	return moved
+end
+
+function InventoryService:MarkAll()
+	markAll()
 end
 
 function InventoryService:ResetCamp()

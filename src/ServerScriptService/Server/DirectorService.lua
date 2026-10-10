@@ -236,7 +236,7 @@ function DirectorService:Ending()
 		if data then
 			data.Wins = (data.Wins or 0) + 1
 		end
-		ctx.Services.DataService:AddDiamonds(p, kind == "True" and 300 or 100, "รอดชีวิตครบ 99 คืน")
+		ctx.Services.DataService:AddDiamonds(p, kind == "True" and 300 or 100, "พิชิตคืนสุดท้าย")
 	end
 	task.delay(30, function()
 		self:ResetRun()
