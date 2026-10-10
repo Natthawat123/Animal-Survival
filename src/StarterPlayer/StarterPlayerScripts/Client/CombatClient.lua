@@ -203,7 +203,7 @@ end
 local vignette
 local function hurtVignette(power)
 	if not vignette then
-		local gui = UIKit.Screen("HurtFX", 30)
+		local gui = UIKit.Screen("HurtFX", 30, true)
 		vignette = Instance.new("CanvasGroup")
 		vignette.Size = UDim2.fromScale(1, 1)
 		vignette.BackgroundTransparency = 1
@@ -277,6 +277,12 @@ end
 ---------------------------------------------------------------- วิ่ง / สตามิน่า
 local stamina = 100
 local sprinting = false
+function CombatClient.SetSprint(on)
+	sprinting = on == true
+end
+function CombatClient.IsSprinting()
+	return sprinting
+end
 local function sprintAction(_, inputState)
 	sprinting = inputState == Enum.UserInputState.Begin
 	return Enum.ContextActionResult.Pass
@@ -724,9 +730,13 @@ function CombatClient.Init(state, hud)
 		end
 	end
 	player.CharacterAdded:Connect(hookCharacter)
-	ContextActionService:BindAction("ASSprint", sprintAction, true, Enum.KeyCode.LeftShift, Enum.KeyCode.ButtonL3)
-	ContextActionService:SetTitle("ASSprint", "วิ่ง")
-	ContextActionService:SetPosition("ASSprint", UDim2.new(1, -170, 1, -170))
+	-- มือถือใช้ปุ่ม "วิ่ง" ของ MobileControls (จัดวางรอบปุ่มกระโดด ไม่ซ้อนกัน) แทนปุ่มอัตโนมัติของ ContextActionService
+	local touchOnly = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+	ContextActionService:BindAction("ASSprint", sprintAction, not touchOnly, Enum.KeyCode.LeftShift, Enum.KeyCode.ButtonL3)
+	if not touchOnly then
+		ContextActionService:SetTitle("ASSprint", "วิ่ง")
+		ContextActionService:SetPosition("ASSprint", UDim2.new(1, -170, 1, -170))
+	end
 
 	RunService.RenderStepped:Connect(function(dt)
 		local char = player.Character

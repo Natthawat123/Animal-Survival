@@ -169,7 +169,8 @@ function MapUI.Init(state, hud, atmosphere)
 	end)
 
 	-- ป้ายชื่อเขต
-	local areaFrame = UIKit.Frame(gui, { Size = UDim2.new(1, 0, 0, 120), Position = UDim2.new(0, 0, 0.16, 0), BackgroundTransparency = 1 })
+	local areaFrame = UIKit.Frame(gui, { Size = UDim2.new(1, 0, 0, 120), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0.16, 0), BackgroundTransparency = 1 })
+	UIKit.AutoScale(areaFrame)
 	local areaTitle = UIKit.Text(areaFrame, { Size = UDim2.new(1, 0, 0, 60), TextXAlignment = Enum.TextXAlignment.Center, Font = UIKit.Fonts.Title, TextSize = 52, TextTransparency = 1, TextStrokeTransparency = 1, Text = "" })
 	local areaLine = UIKit.Frame(areaFrame, { Size = UDim2.new(0, 460, 0, 1), Position = UDim2.new(0.5, -230, 0, 62), BackgroundColor3 = C.Gold, BackgroundTransparency = 1 })
 	local areaSub = UIKit.Text(areaFrame, { Size = UDim2.new(1, 0, 0, 30), Position = UDim2.fromOffset(0, 68), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 20, TextTransparency = 1, Text = "" })

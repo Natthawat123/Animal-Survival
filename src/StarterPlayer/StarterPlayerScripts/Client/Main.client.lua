@@ -54,7 +54,7 @@ end
 safe("Tutorial", Tutorial.Init, UIKit.Screen("Tutorial", 60))
 safe("Settings", SettingsUI.Init, UIKit.Screen("Settings", 45), { Tutorial = Tutorial.Open, GearParent = HUD.RightCard })
 Menus.OnSettings = SettingsUI.Toggle
-safe("Mobile", MobileControls.Init, { Menus = Menus, Map = MapUI })
+safe("Mobile", MobileControls.Init, { Menus = Menus, Map = MapUI, HUD = HUD, Combat = CombatClient })
 
 -- การตั้งค่า -> ระบบต่างๆ
 local function applySetting(key, value)

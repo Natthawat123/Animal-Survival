@@ -142,7 +142,11 @@ function HUD.Init(state)
 	HUD.BossFrame = boss
 
 	---------------------------------------------------------------- แจ้งเตือน
-	local feed = UIKit.Frame(gui, { Size = UDim2.new(0, 380, 0, 300), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -20, 0, 150), BackgroundTransparency = 1 })
+	-- มือถือ: กล่องแจ้งเตือนเตี้ยลง/ขึ้นใกล้การ์ดกองไฟ ไม่ลงไปทับปุ่มมือถือมุมขวาล่าง
+	local feed = UIKit.Frame(gui, {
+		Size = UDim2.new(0, 380, 0, HUD.Touch and 200 or 300), AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -20, 0, HUD.Touch and 96 or 150), BackgroundTransparency = 1, ClipsDescendants = HUD.Touch,
+	})
 	UIKit.AutoScale(feed)
 	local fl = Instance.new("UIListLayout")
 	fl.Padding = UDim.new(0, 6)
@@ -169,9 +173,10 @@ function HUD.Init(state)
 	-- ล้ม
 	HUD.DownedFrame = UIKit.Frame(gui, { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.fromRGB(80, 0, 0), BackgroundTransparency = 0.7, Visible = false, ZIndex = 20 })
 	HUD.DownedText = UIKit.Text(HUD.DownedFrame, {
-		Size = UDim2.new(1, 0, 0, 90), Position = UDim2.new(0, 0, 0.62, 0), TextXAlignment = Enum.TextXAlignment.Center,
+		Size = UDim2.new(1, 0, 0, 90), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0.62, 0), TextXAlignment = Enum.TextXAlignment.Center,
 		Font = UIKit.Fonts.Title, TextSize = 32, Text = "", TextColor3 = Color3.fromRGB(255, 200, 190), ZIndex = 21,
 	})
+	UIKit.AutoScale(HUD.DownedText)
 
 	RunService.RenderStepped:Connect(HUD.Update)
 	state:GetAttributeChangedSignal("Phase"):Connect(HUD.UpdateNightLabel)
@@ -428,7 +433,7 @@ function HUD.Notify(text, kind)
 			table.insert(children, c)
 		end
 	end
-	if #children > 6 then
+	if #children > (HUD.Touch and 4 or 6) then
 		table.sort(children, function(a, b)
 			return a.LayoutOrder > b.LayoutOrder
 		end)

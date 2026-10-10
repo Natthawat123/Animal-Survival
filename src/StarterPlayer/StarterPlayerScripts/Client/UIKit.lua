@@ -6,19 +6,39 @@
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local UIKit = {}
 
 ---------------------------------------------------------------- สเกลอัตโนมัติตามขนาดจอ (มือถือจอเล็ก = ย่อ UI ลง)
 -- UIKit.AutoScale(frame): ใส่ UIScale ที่ปรับเองเมื่อจอเปลี่ยนขนาด · UIKit.UserScale = ตัวคูณจากหน้าตั้งค่า
+--   หน้าต่างกลางจอ (AnchorPoint 0.5,0.5 + ขนาดเป็นพิกเซล) จะถูกย่อเพิ่มจน "พอดีจอเสมอ" (ปุ่มปิด/หัวหน้าต่างไม่หลุดขอบ)
 UIKit.UserScale = 1
+UIKit.IsTouch = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
 local scaled = setmetatable({}, { __mode = "k" })
-function UIKit.GetScale()
+local function viewport()
 	local cam = Workspace.CurrentCamera
 	local vp = cam and cam.ViewportSize or Vector2.new(1280, 720)
-	local base = math.clamp(math.min(vp.X / 1280, vp.Y / 720), 0.5, 1)
-	return base * UIKit.UserScale
+	if vp.X < 50 or vp.Y < 50 then
+		vp = Vector2.new(1280, 720)
+	end
+	return vp
+end
+function UIKit.GetScale(frame)
+	local vp = viewport()
+	-- มือถือ: อ้างอิงจอเล็กกว่า (UI ใหญ่ขึ้นนิด ปุ่มกดง่าย) — หน้าต่างใหญ่ยังถูกบีบให้พอดีจอด้านล่าง
+	local refX, refY = 1280, 720
+	if UIKit.IsTouch then
+		refX, refY = 1100, 620
+	end
+	local base = math.clamp(math.min(vp.X / refX, vp.Y / refY), 0.4, 1) * UIKit.UserScale
+	if frame and frame:IsA("GuiObject") and frame.AnchorPoint == Vector2.new(0.5, 0.5) and frame.Size.X.Scale == 0 and frame.Size.Y.Scale == 0 then
+		-- เผื่อขอบ: แถบหัวหน้าต่าง (ยื่นขึ้น ~24) + ปุ่มปิด (ยื่นออก ~30) + ระยะห่างจากขอบจอ
+		local w, h = frame.Size.X.Offset + 70, frame.Size.Y.Offset + 70
+		base = math.min(base, (vp.X - 16) / w, (vp.Y - 16) / h)
+	end
+	return math.max(base, 0.3)
 end
 local function scaler(frame)
 	local sc = frame:FindFirstChild("AutoScale")
@@ -30,15 +50,14 @@ local function scaler(frame)
 	return sc
 end
 function UIKit.AutoScale(frame)
-	scaler(frame).Scale = UIKit.GetScale()
+	scaler(frame).Scale = UIKit.GetScale(frame)
 	scaled[frame] = true
 	return frame
 end
 function UIKit.RefreshScale()
-	local k = UIKit.GetScale()
 	for f in pairs(scaled) do
 		if f.Parent then
-			scaler(f).Scale = k
+			scaler(f).Scale = UIKit.GetScale(f)
 		end
 	end
 end
@@ -95,11 +114,17 @@ local function darker(c, k)
 end
 UIKit.Darker = darker
 
-function UIKit.Screen(name, order)
+-- fullScreen = true: เต็มจอจริง (ฉากโหลด/ข้อความภาพยนตร์) · อื่นๆ หลบติ่งกล้อง/ขอบโค้งของมือถือ (DeviceSafeInsets)
+function UIKit.Screen(name, order, fullScreen)
 	local gui = Instance.new("ScreenGui")
 	gui.Name = name
 	gui.ResetOnSpawn = false
 	gui.IgnoreGuiInset = true
+	if not fullScreen then
+		pcall(function()
+			gui.ScreenInsets = Enum.ScreenInsets.DeviceSafeInsets
+		end)
+	end
 	gui.DisplayOrder = order or 1
 	gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 	gui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
@@ -335,7 +360,7 @@ end
 
 -- เปิดหน้าต่างแบบเด้ง
 function UIKit.Pop(frame)
-	local target = UIKit.GetScale()
+	local target = UIKit.GetScale(frame)
 	local sc = scaler(frame)
 	scaled[frame] = true
 	sc.Scale = target * 0.82

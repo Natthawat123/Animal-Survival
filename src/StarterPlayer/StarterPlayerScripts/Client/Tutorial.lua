@@ -245,7 +245,12 @@ function Tutorial.Open()
 	page = 1
 	ui.Root.Visible = true
 	UIKit.Pop(ui.Card)
-	buildPage(page)
+	local ok, err = pcall(buildPage, page)
+	if not ok then
+		-- สร้างหน้าไม่สำเร็จ: ปิดไปเลย ไม่ปล่อยให้พื้นหลังมืดบังจอ
+		warn("[AS] tutorial", err)
+		ui.Root.Visible = false
+	end
 end
 
 function Tutorial.Close()

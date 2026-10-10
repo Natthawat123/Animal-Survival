@@ -53,7 +53,8 @@ end
 -- ข้อความใหญ่กลางจอ (หายเอง)
 function Cinematics.Banner(title, subtitle, color, hold, opts)
 	opts = opts or {}
-	local f = UIKit.Frame(gui, { Size = UDim2.new(1, 0, 0, 170), Position = UDim2.new(0, 0, opts.Y or 0.28, 0), BackgroundTransparency = 1 })
+	local f = UIKit.Frame(gui, { Size = UDim2.new(1, 0, 0, 170), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, opts.Y or 0.28, 0), BackgroundTransparency = 1 })
+	UIKit.AutoScale(f) -- มือถือ: ตัวหนังสือใหญ่กลางจอย่อตามจอ
 	local t = bigText(f)
 	t.Text = title
 	t.TextColor3 = color or C.Gold
@@ -406,6 +407,13 @@ local function loadingScreen(title, subtitle)
 		end
 	end
 	function api.Close()
+		-- กันค้าง: ถ้าแอนิเมชันปิดพังกลางทาง ก็ต้องลบหน้าโหลดทิ้งเสมอ (ไม่งั้นบังจอจนกดอะไรไม่ได้)
+		task.delay(4, function()
+			if f.Parent then
+				animConn:Disconnect()
+				f:Destroy()
+			end
+		end)
 		api.Set(1, "พร้อมแล้ว!")
 		task.wait(0.5)
 		local vpf = f:FindFirstChildOfClass("ViewportFrame")
@@ -534,7 +542,8 @@ function Cinematics.BossIntro(d)
 	end
 	letterbox(true)
 	local color = C.Element[d.Element] or C.Gold
-	local f = UIKit.Frame(gui, { Size = UDim2.new(1, 0, 0, 160), Position = UDim2.new(0, 0, 0.62, 0), BackgroundTransparency = 1, ZIndex = 60 })
+	local f = UIKit.Frame(gui, { Size = UDim2.new(1, 0, 0, 160), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0.62, 0), BackgroundTransparency = 1, ZIndex = 60 })
+	UIKit.AutoScale(f)
 	local name = UIKit.Text(f, {
 		Size = UDim2.new(1, 0, 0, 70), TextXAlignment = Enum.TextXAlignment.Center, Font = UIKit.Fonts.Title, TextSize = 56,
 		Text = d.Name, TextColor3 = Color3.fromRGB(245, 236, 220), TextTransparency = 1, TextStrokeTransparency = 1, ZIndex = 61,
@@ -612,12 +621,14 @@ function Cinematics.Died(d)
 	UIKit.Gradient(band, Color3.new(0, 0, 0), Color3.new(0, 0, 0), 90).Transparency = NumberSequence.new({
 		NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.3, 0.2), NumberSequenceKeypoint.new(0.7, 0.2), NumberSequenceKeypoint.new(1, 1),
 	})
-	local t = UIKit.Text(band, {
+	local inner = UIKit.Frame(band, { Size = UDim2.fromScale(1, 1), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), BackgroundTransparency = 1, ZIndex = 71 })
+	UIKit.AutoScale(inner)
+	local t = UIKit.Text(inner, {
 		Size = UDim2.new(1, 0, 0, 110), Position = UDim2.fromOffset(0, 20), TextXAlignment = Enum.TextXAlignment.Center, Font = UIKit.Fonts.Title,
 		TextSize = 96, Text = "YOU PERISHED", TextColor3 = Color3.fromRGB(150, 16, 20), TextTransparency = 1, TextStrokeTransparency = 1, ZIndex = 72,
 	})
 	local alive = d and d.Alive or 0
-	local s = UIKit.Text(band, {
+	local s = UIKit.Text(inner, {
 		Size = UDim2.new(1, 0, 0, 30), Position = UDim2.fromOffset(0, 124), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 20,
 		Text = alive > 0 and string.format("สิ้นชีพ... ไม่มีการเกิดใหม่ในรอบนี้ · เพื่อนยังรอดอยู่ %d คน", alive) or "สิ้นชีพ... ไม่มีการเกิดใหม่ในรอบนี้",
 		TextColor3 = Color3.fromRGB(200, 170, 160), TextTransparency = 1, ZIndex = 72,
@@ -644,14 +655,17 @@ end
 function Cinematics.FullScreen(title, lines, color, time)
 	local f = UIKit.Frame(gui, { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(0, 0, 0), BackgroundTransparency = 1, ZIndex = 90 })
 	UIKit.Tween(f, 2, { BackgroundTransparency = 0.15 })
-	local t = UIKit.Text(f, {
-		Size = UDim2.new(1, 0, 0, 100), Position = UDim2.new(0, 0, 0.3, 0), TextXAlignment = Enum.TextXAlignment.Center, Font = UIKit.Fonts.Title,
+	-- เนื้อหาอยู่ในกล่องกลางจอ (ย่อทั้งกล่องบนมือถือ)
+	local box = UIKit.Frame(f, { Size = UDim2.new(1, 0, 0, 120 + #lines * 34), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.45), BackgroundTransparency = 1, ZIndex = 90 })
+	UIKit.AutoScale(box)
+	local t = UIKit.Text(box, {
+		Size = UDim2.new(1, 0, 0, 100), Position = UDim2.new(0, 0, 0, 0), TextXAlignment = Enum.TextXAlignment.Center, Font = UIKit.Fonts.Title,
 		TextSize = 80, Text = title, TextColor3 = color, TextTransparency = 1, ZIndex = 91,
 	})
 	UIKit.Tween(t, 2.5, { TextTransparency = 0 })
 	for i, line in ipairs(lines) do
-		local l = UIKit.Text(f, {
-			Size = UDim2.new(1, 0, 0, 30), Position = UDim2.new(0, 0, 0.3, 110 + i * 34), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 22,
+		local l = UIKit.Text(box, {
+			Size = UDim2.new(1, 0, 0, 30), Position = UDim2.new(0, 0, 0, 76 + i * 34), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 22,
 			Text = line, TextColor3 = C.Text, TextTransparency = 1, ZIndex = 91,
 		})
 		task.delay(1.5 + i * 0.8, function()
@@ -781,7 +795,7 @@ function Cinematics.Handle(kind, d, menus, combat)
 end
 
 function Cinematics.Init(state)
-	gui = UIKit.Screen("Cinematics", 40)
+	gui = UIKit.Screen("Cinematics", 40, true)
 	Cinematics.Gui = gui
 	-- หน้าโหลดเสมอตอนเข้าเกม (ปิดเองเมื่อโหลดทุกอย่างครบ) · ลงแมพ = หน้าโหลดเดินทาง
 	local testing = ReplicatedStorage:FindFirstChild("ASAutoTest") ~= nil -- เทสต์อัตโนมัติ: ไม่บังจอ
