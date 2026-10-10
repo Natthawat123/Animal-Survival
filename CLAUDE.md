@@ -11,6 +11,7 @@
 ## คำสั่งเทส
 - `powershell -File tools/run_studio_test.ps1` → เปิด Roblox Studio ด้วย `build/AnimalSurvival_TEST.rbxlx` (ต้อง build `--test` ก่อน), รันออโต้เทสต์ในเกม แล้วถ่ายภาพหน้าจอเก็บไว้ที่ `build/test_screenshots/`
 - ดูผลผ่าน log ที่ terminal พิมพ์ออกมา และภาพใน `build/test_screenshots/`
+- **ถ้ารันบนคลาวด์ (Linux): ห้ามรันเทส Studio** (ต้องใช้ Roblox Studio บน Windows เท่านั้น ไม่มีบนคลาวด์ จะพังวนไปเปลืองเครดิต) ให้รันแค่ `python tools/build_rbxlx.py` เพื่อเช็กว่า build ไม่ error แล้วจบ — การเทสในเกมจริงผู้ใช้จะทำเองในเครื่อง Windows
 
 ## Blender pipeline
 - Blender 5.2 ที่ `C:\Program Files\Blender Foundation\Blender 5.2`
