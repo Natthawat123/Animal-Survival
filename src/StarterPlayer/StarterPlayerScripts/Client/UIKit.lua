@@ -173,6 +173,29 @@ function UIKit.TextStroke(obj, thickness, transparency)
 	return s
 end
 
+-- ข้อความบรรทัดเดียวยาวเกินกรอบ (ภาษาไทยยาวกว่าอังกฤษ) -> ย่อตัวอักษรลงเองให้พอดีกรอบ ไม่ล้นออกนอกปุ่ม/การ์ด
+-- (ขนาดปกติไม่เปลี่ยน: ใช้ TextScaled + จำกัดไม่ให้ใหญ่กว่า TextSize เดิม)
+function UIKit.FitText(obj)
+	if obj.TextScaled or obj.TextWrapped or obj.AutomaticSize ~= Enum.AutomaticSize.None or obj:FindFirstChildOfClass("UITextSizeConstraint") then
+		return
+	end
+	local size = obj.TextSize
+	local h = obj.Size.Y
+	if h.Scale == 0 and h.Offset < size * 0.85 then
+		return -- กรอบเตี้ยกว่าตัวอักษร (ตั้งใจให้ล้นขึ้นลง) ไม่ยุ่ง
+	end
+	local c = Instance.new("UITextSizeConstraint")
+	c.MaxTextSize = size
+	c.MinTextSize = math.max(8, math.floor(size * 0.5))
+	c.Parent = obj
+	obj.TextScaled = true
+	-- โค้ดที่ตั้ง/ทวีน TextSize ทีหลัง (เช่น ป้ายใหญ่กลางจอ) ยังได้ขนาดตามที่ตั้ง
+	obj:GetPropertyChangedSignal("TextSize"):Connect(function()
+		c.MaxTextSize = math.max(1, obj.TextSize)
+		c.MinTextSize = math.min(c.MaxTextSize, math.max(8, math.floor(obj.TextSize * 0.5)))
+	end)
+end
+
 function UIKit.Text(parent, props)
 	local t = Instance.new("TextLabel")
 	t.BackgroundTransparency = 1
@@ -191,6 +214,7 @@ function UIKit.Text(parent, props)
 	if t.TextSize >= 14 or t.TextScaled or customStroke then
 		UIKit.TextStroke(t, t.TextScaled and 2 or math.clamp(t.TextSize / 11, 1.2, 3.5), 0.2)
 	end
+	UIKit.FitText(t)
 	return t
 end
 
@@ -218,6 +242,12 @@ function UIKit.Button(parent, props, onClick)
 		border.Color = darker(b.BackgroundColor3, 0.4)
 	end)
 	UIKit.TextStroke(b, math.clamp(b.TextSize / 10, 1.5, 3), 0.1)
+	if b.Text ~= "" then
+		local pad = Instance.new("UIPadding")
+		pad.PaddingLeft, pad.PaddingRight = UDim.new(0, 6), UDim.new(0, 6)
+		pad.Parent = b
+		UIKit.FitText(b)
+	end
 	local g = Instance.new("UIGradient")
 	g.Color = ColorSequence.new({
 		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),

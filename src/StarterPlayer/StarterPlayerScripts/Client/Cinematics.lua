@@ -89,62 +89,300 @@ local function letterbox(on)
 end
 
 ---------------------------------------------------------------- หน้าโหลด (เข้าเกม + เดินทางลงแมพ)
--- โครงหน้าโหลด: พื้นหลังไล่สี + ชื่อเกม + แถบความคืบหน้า + ขั้นตอน + เคล็ดลับ -> คืน { Root, Set(p, text), Close() }
+-- ฉากหลัง 3 มิติ: แคมป์กลางป่ายามค่ำ (โมเดลจริงในเกม) กล้องค่อยๆ หมุนรอบกองไฟ + มังกรเฝ้าอยู่หลังแนวป่า
+local function asset(folder, name)
+	local a = ReplicatedStorage:FindFirstChild("Assets")
+	local f = a and a:FindFirstChild(folder)
+	local src = f and f:FindFirstChild(name)
+	if not src then
+		return nil
+	end
+	local m = src:Clone()
+	if m:IsA("BasePart") then
+		local wrap = Instance.new("Model")
+		m.Parent = wrap
+		wrap.PrimaryPart = m
+		m = wrap
+	end
+	for _, d in ipairs(m:GetDescendants()) do
+		if d:IsA("BasePart") then
+			d.Anchored = true
+		elseif d:IsA("LuaSourceContainer") or d:IsA("Sound") or d:IsA("Humanoid") then
+			d:Destroy()
+		end
+	end
+	return m
+end
+
+local function placeModel(world, m, height, cf)
+	if not m then
+		return nil
+	end
+	m.Parent = world
+	local _, size = m:GetBoundingBox()
+	if height and size.Y > 0.05 then
+		pcall(function()
+			m:ScaleTo(m:GetScale() * height / size.Y)
+		end)
+	end
+	local bcf, bsize = m:GetBoundingBox()
+	local pivot = m:GetPivot()
+	local foot = pivot.Position.Y - (bcf.Position.Y - bsize.Y / 2)
+	local off = pivot.Position - bcf.Position
+	m:PivotTo(cf * CFrame.new(off.X, foot, off.Z) * (pivot - pivot.Position))
+	return m
+end
+
+local function campScene(parent)
+	local vpf = Instance.new("ViewportFrame")
+	vpf.Size = UDim2.fromScale(1, 1)
+	vpf.BackgroundTransparency = 1
+	vpf.ZIndex = 100
+	vpf.Ambient = Color3.fromRGB(70, 74, 120)
+	vpf.LightColor = Color3.fromRGB(255, 150, 80)
+	vpf.LightDirection = Vector3.new(0.2, -0.35, -1)
+	vpf.Parent = parent
+	local world = Instance.new("WorldModel")
+	world.Parent = vpf
+	local rng = Random.new(7)
+	-- พื้นดิน
+	local ground = Instance.new("Part")
+	ground.Anchored = true
+	ground.Shape = Enum.PartType.Cylinder
+	ground.Size = Vector3.new(1, 220, 220)
+	ground.CFrame = CFrame.new(0, -0.5, 0) * CFrame.Angles(0, 0, math.pi / 2)
+	ground.Color = Color3.fromRGB(46, 58, 40)
+	ground.Material = Enum.Material.Grass
+	ground.Parent = world
+	-- กองไฟ + ม้านั่ง + เต็นท์
+	placeModel(world, asset("Props", "CampfireLogs"), 3, CFrame.new())
+	local ember = Instance.new("Part")
+	ember.Anchored = true
+	ember.Shape = Enum.PartType.Ball
+	ember.Size = Vector3.new(2.6, 2.6, 2.6)
+	ember.CFrame = CFrame.new(0, 1.6, 0)
+	ember.Material = Enum.Material.Neon
+	ember.Color = Color3.fromRGB(255, 150, 50)
+	ember.Transparency = 0.15
+	ember.Parent = world
+	for i = 0, 2 do
+		local a = i / 3 * math.pi * 2 + 0.4
+		placeModel(world, asset("Props", "LogBench"), 1.6, CFrame.new(math.cos(a) * 7, 0, math.sin(a) * 7) * CFrame.Angles(0, -a + math.pi / 2, 0))
+	end
+	placeModel(world, asset("Props", "SleepingBagStore"), 2, CFrame.new(-11, 0, 6) * CFrame.Angles(0, 1.2, 0))
+	placeModel(world, asset("Props", "LogPileStore"), 2.4, CFrame.new(9, 0, -8) * CFrame.Angles(0, 0.6, 0))
+	-- ผู้รอดชีวิตรอบกองไฟ (หันหน้าเข้ากองไฟ)
+	for i, cls in ipairs({ "Survivor", "Hunter", "Medic", "Lumberjack" }) do
+		local a = i / 4 * math.pi * 2 + 1.1
+		local okC, ClassAvatars = pcall(require, script.Parent.ClassAvatars)
+		if okC then
+			local okB, m = pcall(ClassAvatars.Build, cls)
+			if okB and m then
+				m.Parent = world
+				local pos = Vector3.new(math.cos(a) * 4.6, 0, math.sin(a) * 4.6)
+				m:PivotTo(CFrame.lookAt(pos, Vector3.new(0, 0, 0)))
+			end
+		end
+	end
+	-- แนวป่ารอบแคมป์ 2 ชั้น
+	local trees = { "Fir1", "SnowPine", "OakPack", "Fir1", "DeadTree" }
+	for ring = 1, 2 do
+		local count = ring == 1 and 16 or 26
+		for i = 1, count do
+			local a = i / count * math.pi * 2 + rng:NextNumber(-0.1, 0.1)
+			local r = (ring == 1 and 24 or 40) + rng:NextNumber(-3, 3)
+			placeModel(world, asset("Props", trees[rng:NextInteger(1, #trees)]), rng:NextNumber(14, 22) * (ring == 1 and 1 or 1.25),
+				CFrame.new(math.cos(a) * r, 0, math.sin(a) * r) * CFrame.Angles(0, rng:NextNumber(0, 6.28), 0))
+		end
+	end
+	for i = 1, 10 do
+		local a = rng:NextNumber(0, 6.28)
+		local r = rng:NextNumber(10, 20)
+		placeModel(world, asset("Props", i % 2 == 0 and "RockLP" or "BushLP"), rng:NextNumber(1.2, 2.6), CFrame.new(math.cos(a) * r, 0, math.sin(a) * r))
+	end
+	-- อสูรเฝ้าอยู่หลังแนวป่า (ตัวใหญ่ มืดๆ ไกลๆ)
+	placeModel(world, asset("Animals", "Solfang"), 34, CFrame.new(-18, 0, -62) * CFrame.Angles(0, 0.35, 0))
+	placeModel(world, asset("Animals", "Terragon"), 26, CFrame.new(46, 0, -48) * CFrame.Angles(0, -0.7, 0))
+	local cam = Instance.new("Camera")
+	cam.FieldOfView = 52
+	cam.Parent = vpf
+	vpf.CurrentCamera = cam
+	local t0 = os.clock()
+	local function step()
+		local t = os.clock() - t0
+		local a = t * 0.05 + 0.3
+		local r = 21 + math.sin(t * 0.21) * 2.5
+		local pos = Vector3.new(math.cos(a) * r, 6.5 + math.sin(t * 0.17) * 1.2, math.sin(a) * r)
+		cam.CFrame = CFrame.lookAt(pos, Vector3.new(0, 4.5, 0))
+		-- ไฟวูบวาบ
+		local flick = 0.85 + math.noise(t * 3.1, 0.5) * 0.35
+		vpf.LightColor = Color3.fromRGB(255, math.floor(130 + 30 * flick), math.floor(60 + 20 * flick))
+		ember.Size = Vector3.new(2.4, 2.4, 2.4) * (0.9 + flick * 0.15)
+	end
+	step()
+	local conn = RunService.RenderStepped:Connect(step)
+	vpf.Destroying:Connect(function()
+		conn:Disconnect()
+	end)
+	return vpf
+end
+
+-- โครงหน้าโหลด: ฉากแคมป์ 3 มิติ + หมอก/แสงไฟ + โลโก้สี่ธาตุ + ชื่อเกมเงาวิ่ง + แถบความคืบหน้าสี่ธาตุ + ขั้นตอน + เคล็ดลับ
+-- คืน { Root, Set(p, text), Close() }
 local function loadingScreen(title, subtitle)
-	local f = UIKit.Frame(gui, { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.fromRGB(8, 7, 10), BackgroundTransparency = 0, ZIndex = 100 })
-	UIKit.Gradient(f, Color3.fromRGB(46, 36, 96), Color3.fromRGB(10, 10, 28), 90)
-	-- แสงไฟกองไฟวูบวาบด้านล่าง
-	local glow = UIKit.Frame(f, { Size = UDim2.fromScale(1.2, 0.6), Position = UDim2.fromScale(-0.1, 0.62), BackgroundColor3 = Color3.fromRGB(255, 120, 40), BackgroundTransparency = 0.82, ZIndex = 100 })
-	UIKit.Corner(glow, 400)
-	local fx = Instance.new("UIGradient")
-	fx.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.5, 0.2), NumberSequenceKeypoint.new(1, 1) })
-	fx.Rotation = 90
-	fx.Parent = glow
+	local f = UIKit.Frame(gui, { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.fromRGB(6, 6, 14), BackgroundTransparency = 0, ZIndex = 100 })
+	UIKit.Gradient(f, Color3.fromRGB(30, 26, 70), Color3.fromRGB(6, 6, 14), 90)
+	pcall(campScene, f)
+	-- หมอกบน/ล่าง + ขอบมืด
+	local fogTop = UIKit.Frame(f, { Size = UDim2.fromScale(1, 0.55), BackgroundColor3 = Color3.fromRGB(10, 10, 30), BackgroundTransparency = 0, ZIndex = 101 })
+	local ft = Instance.new("UIGradient")
+	ft.Rotation = 90
+	ft.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.05), NumberSequenceKeypoint.new(0.55, 0.7), NumberSequenceKeypoint.new(1, 1) })
+	ft.Parent = fogTop
+	local fogBottom = UIKit.Frame(f, { Size = UDim2.fromScale(1, 0.45), Position = UDim2.fromScale(0, 0.55), BackgroundColor3 = Color3.fromRGB(8, 6, 10), BackgroundTransparency = 0, ZIndex = 101 })
+	local fb = Instance.new("UIGradient")
+	fb.Rotation = 90
+	fb.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.6, 0.35), NumberSequenceKeypoint.new(1, 0) })
+	fb.Parent = fogBottom
+	-- แสงไฟกองไฟวูบวาบกลางจอ
+	local glow = UIKit.Frame(f, { Size = UDim2.fromScale(0.9, 0.7), Position = UDim2.fromScale(0.05, 0.38), BackgroundColor3 = Color3.fromRGB(255, 120, 40), BackgroundTransparency = 0.78, ZIndex = 101 })
+	UIKit.Corner(glow, 600)
+	local gg = Instance.new("UIGradient")
+	gg.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.5, 0.25), NumberSequenceKeypoint.new(1, 1) })
+	gg.Parent = glow
 	-- ประกายไฟลอยขึ้น
-	for i = 1, 26 do
-		local s = UIKit.Frame(f, { Size = UDim2.fromOffset(3, 3), Position = UDim2.fromScale(math.random(), 1.02), BackgroundColor3 = Color3.fromRGB(255, 190, 90), BackgroundTransparency = 0.2, ZIndex = 101 })
-		UIKit.Corner(s, 2)
+	for i = 1, 40 do
+		local sz = math.random(2, 5)
+		local s = UIKit.Frame(f, { Size = UDim2.fromOffset(sz, sz), Position = UDim2.fromScale(0.3 + math.random() * 0.4, 1.02), BackgroundColor3 = Color3.fromRGB(255, math.random(150, 210), 80), BackgroundTransparency = 0.1, ZIndex = 102 })
+		UIKit.Corner(s, 3)
 		task.spawn(function()
-			task.wait(i * 0.17)
+			task.wait(i * 0.12)
 			while s.Parent do
-				s.Position = UDim2.fromScale(math.random(), 1.02)
-				local t = 3 + math.random() * 3
-				TweenService:Create(s, TweenInfo.new(t, Enum.EasingStyle.Linear), { Position = UDim2.fromScale(s.Position.X.Scale + (math.random() - 0.5) * 0.15, 0.35 + math.random() * 0.3), BackgroundTransparency = 1 }):Play()
+				s.Position = UDim2.fromScale(0.3 + math.random() * 0.4, 0.75 + math.random() * 0.2)
+				s.BackgroundTransparency = 0.1
+				local t = 2.5 + math.random() * 3
+				TweenService:Create(s, TweenInfo.new(t, Enum.EasingStyle.Sine), { Position = UDim2.fromScale(s.Position.X.Scale + (math.random() - 0.5) * 0.25, 0.2 + math.random() * 0.35), BackgroundTransparency = 1 }):Play()
 				task.wait(t)
-				s.BackgroundTransparency = 0.2
 			end
 		end)
 	end
-	local titleL = UIKit.Text(f, {
-		Size = UDim2.new(1, 0, 0, 110), Position = UDim2.new(0, 0, 0.26, 0), TextXAlignment = Enum.TextXAlignment.Center, Font = UIKit.Fonts.Title,
-		TextSize = 96, Text = title, TextColor3 = C.Gold, ZIndex = 102,
+	-- โลโก้: ลูกแก้วสี่ธาตุหมุนรอบเปลวไฟ
+	local emblem = UIKit.Frame(f, { Size = UDim2.fromOffset(150, 150), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.17), BackgroundTransparency = 1, ZIndex = 103 })
+	local core = UIKit.IconBadge(emblem, "🔥", Color3.fromRGB(255, 150, 40), 70, { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), ZIndex = 104 })
+	core:FindFirstChildOfClass("TextLabel").ZIndex = 105
+	local ring = UIKit.Frame(emblem, { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, ZIndex = 103 })
+	local rs = Instance.new("UIStroke")
+	rs.Thickness = 3
+	rs.Color = Color3.fromRGB(255, 220, 150)
+	rs.Transparency = 0.5
+	rs.Parent = ring
+	UIKit.Corner(ring, 200)
+	local orbs = {}
+	for i, el in ipairs({ "Earth", "Water", "Air", "Fire" }) do
+		local o = UIKit.IconBadge(emblem, UIKit.ElementIcon[el], C.Element[el], 42, { AnchorPoint = Vector2.new(0.5, 0.5), ZIndex = 106 })
+		o:FindFirstChildOfClass("TextLabel").ZIndex = 107
+		orbs[i] = o
+	end
+	-- ชื่อเกม (ทองไล่สี + เงาวิ่ง) — อยู่ในกล่องเดียวกัน ย่อ/ขยายพร้อมกัน
+	local titleBox = UIKit.Frame(f, { Size = UDim2.fromOffset(1100, 170), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.fromScale(0.5, 0.28), BackgroundTransparency = 1, ZIndex = 104 })
+	local titleL = UIKit.Text(titleBox, {
+		Size = UDim2.new(1, 0, 0, 120), Position = UDim2.new(0, 0, 0, 0), TextXAlignment = Enum.TextXAlignment.Center, Font = UIKit.Fonts.Title,
+		TextSize = 110, Text = title, TextColor3 = Color3.new(1, 1, 1), ZIndex = 104,
 	})
-	titleL:FindFirstChildOfClass("UIStroke").Thickness = 6
-	UIKit.Gradient(titleL, Color3.fromRGB(255, 240, 150), Color3.fromRGB(255, 160, 40), 90)
-	UIKit.Text(f, {
-		Size = UDim2.new(1, 0, 0, 40), Position = UDim2.new(0, 0, 0.26, 108), TextXAlignment = Enum.TextXAlignment.Center, Font = UIKit.Fonts.Title,
-		TextSize = 30, Text = subtitle, TextColor3 = Color3.fromRGB(226, 208, 178), ZIndex = 102,
+	titleL:FindFirstChildOfClass("UIStroke").Thickness = 7
+	local tg = Instance.new("UIGradient")
+	tg.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 180, 50)), ColorSequenceKeypoint.new(0.42, Color3.fromRGB(255, 236, 150)),
+		ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(0.58, Color3.fromRGB(255, 236, 150)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 150, 40)),
 	})
-	-- แถบความคืบหน้า (มีเงาเรืองแสง)
-	local track = UIKit.Frame(f, { Size = UDim2.new(0, 600, 0, 26), Position = UDim2.new(0.5, -300, 0.76, 0), BackgroundColor3 = Color3.fromRGB(16, 16, 34), BackgroundTransparency = 0, ZIndex = 102 })
+	tg.Parent = titleL
+	local sub = UIKit.Text(titleBox, {
+		Size = UDim2.new(1, 0, 0, 40), Position = UDim2.new(0, 0, 0, 118), TextXAlignment = Enum.TextXAlignment.Center, Font = UIKit.Fonts.Title,
+		TextSize = 32, Text = subtitle, TextColor3 = Color3.fromRGB(236, 220, 190), ZIndex = 104,
+	})
+	local line = UIKit.Frame(titleBox, { Size = UDim2.new(0, 420, 0, 3), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 164), BackgroundColor3 = C.Gold, BackgroundTransparency = 0, ZIndex = 104 })
+	local lg = Instance.new("UIGradient")
+	lg.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.5, 0), NumberSequenceKeypoint.new(1, 1) })
+	lg.Parent = line
+	-- แถบความคืบหน้า (สี่ธาตุ + หัวเรืองแสง + แสงวิ่ง)
+	local barW = 680
+	local barBox = UIKit.Frame(f, { Size = UDim2.fromOffset(barW, 70), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.fromScale(0.5, 0.8), BackgroundTransparency = 1, ZIndex = 104 })
+	local track = UIKit.Frame(barBox, { Size = UDim2.new(0, barW, 0, 26), Position = UDim2.fromOffset(0, 0), BackgroundColor3 = Color3.fromRGB(14, 14, 30), BackgroundTransparency = 0.1, ZIndex = 104, ClipsDescendants = true })
 	UIKit.Corner(track, 11)
-	UIKit.Stroke(track, C.Outline, 3, 0)
-	local fill = UIKit.Frame(track, { Size = UDim2.fromScale(0, 1), BackgroundColor3 = C.Green, BackgroundTransparency = 0, ZIndex = 103 })
+	local trackStroke = Instance.new("UIStroke")
+	trackStroke.Thickness = 3
+	trackStroke.Color = Color3.fromRGB(255, 214, 120)
+	trackStroke.Transparency = 0.35
+	trackStroke.Parent = track
+	local fill = UIKit.Frame(track, { Size = UDim2.fromScale(0, 1), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0, ZIndex = 105 })
 	UIKit.Corner(fill, 11)
-	local fg = Instance.new("UIGradient")
-	fg.Color = ColorSequence.new({
-		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(0.4, Color3.fromRGB(255, 255, 255)),
-		ColorSequenceKeypoint.new(0.41, Color3.fromRGB(205, 205, 205)), ColorSequenceKeypoint.new(1, Color3.fromRGB(160, 160, 160)),
+	local fc = Instance.new("UIGradient")
+	fc.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, C.Element.Earth), ColorSequenceKeypoint.new(0.33, C.Element.Water),
+		ColorSequenceKeypoint.new(0.66, C.Element.Air), ColorSequenceKeypoint.new(1, C.Element.Fire),
 	})
-	fg.Rotation = 90
-	fg.Parent = fill
-	local pct = UIKit.Text(f, { Size = UDim2.new(0, 600, 0, 26), Position = UDim2.new(0.5, -300, 0.76, -34), TextXAlignment = Enum.TextXAlignment.Right, TextSize = 24, Font = UIKit.Fonts.Title, ZIndex = 102, TextColor3 = C.Gold, Text = "0%" })
-	local status = UIKit.Text(f, { Size = UDim2.new(0, 600, 0, 26), Position = UDim2.new(0.5, -300, 0.76, -34), TextXAlignment = Enum.TextXAlignment.Left, TextSize = 18, Font = UIKit.Fonts.Black, ZIndex = 102, TextColor3 = Color3.fromRGB(220, 206, 184), Text = "" })
-	local tip = UIKit.Text(f, { Size = UDim2.new(1, -80, 0, 24), Position = UDim2.new(0, 40, 0.88, 0), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 16, ZIndex = 102, TextColor3 = Color3.fromRGB(196, 182, 156), Text = "💡 " .. TIPS[math.random(#TIPS)] })
+	fc.Parent = fill
+	local sheen = UIKit.Frame(fill, { Size = UDim2.fromScale(1, 0.45), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.7, ZIndex = 106 })
+	UIKit.Corner(sheen, 8)
+	local runner = UIKit.Frame(fill, { Size = UDim2.new(0, 90, 1, 0), Position = UDim2.fromScale(-0.2, 0), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0, ZIndex = 107 })
+	local rg = Instance.new("UIGradient")
+	rg.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.5, 0.45), NumberSequenceKeypoint.new(1, 1) })
+	rg.Parent = runner
+	local head = UIKit.Frame(barBox, { Size = UDim2.fromOffset(34, 34), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromOffset(0, 13), BackgroundColor3 = Color3.fromRGB(255, 230, 160), BackgroundTransparency = 0.3, ZIndex = 108 })
+	UIKit.Corner(head, 20)
+	local pct = UIKit.Text(barBox, { Size = UDim2.new(0, barW, 0, 30), Position = UDim2.fromOffset(0, -36), TextXAlignment = Enum.TextXAlignment.Right, TextSize = 28, Font = UIKit.Fonts.Title, ZIndex = 104, TextColor3 = C.Gold, Text = "0%" })
+	local status = UIKit.Text(barBox, { Size = UDim2.new(0, barW - 100, 0, 30), Position = UDim2.fromOffset(0, -36), TextXAlignment = Enum.TextXAlignment.Left, TextSize = 19, Font = UIKit.Fonts.Black, ZIndex = 104, TextColor3 = Color3.fromRGB(230, 216, 194), Text = "" })
+	-- ขั้นตอน (ติ๊กถูกเมื่อผ่าน)
+	local steps = { { 0.4, "🌍 สร้างโลกสี่ธาตุ" }, { 0.9, "🎨 โหลดโมเดลและพื้นผิว" }, { 1, "🔥 จุดไฟในค่าย" } }
+	local stepRow = UIKit.Frame(barBox, { Size = UDim2.new(0, barW, 0, 26), Position = UDim2.fromOffset(0, 34), BackgroundTransparency = 1, ZIndex = 104 })
+	local sl = Instance.new("UIListLayout")
+	sl.FillDirection = Enum.FillDirection.Horizontal
+	sl.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	sl.Padding = UDim.new(0, 26)
+	sl.Parent = stepRow
+	local stepLabels = {}
+	for i, st in ipairs(steps) do
+		stepLabels[i] = UIKit.Text(stepRow, { Size = UDim2.fromOffset(200, 26), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 16, Font = UIKit.Fonts.Black, ZIndex = 104, TextColor3 = Color3.fromRGB(150, 146, 170), Text = "○ " .. st[2], LayoutOrder = i })
+	end
+	-- การ์ดเคล็ดลับ
+	local tipCard = UIKit.Frame(f, { Size = UDim2.new(0, 760, 0, 46), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0.91, 0), BackgroundColor3 = Color3.fromRGB(16, 16, 32), BackgroundTransparency = 0.25, ZIndex = 104 })
+	UIKit.Corner(tipCard, 14)
+	local tcs = Instance.new("UIStroke")
+	tcs.Thickness = 2
+	tcs.Color = Color3.fromRGB(255, 214, 120)
+	tcs.Transparency = 0.6
+	tcs.Parent = tipCard
+	local tip = UIKit.Text(tipCard, { Size = UDim2.new(1, -30, 1, 0), Position = UDim2.fromOffset(15, 0), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 18, ZIndex = 105, TextColor3 = Color3.fromRGB(236, 224, 200), TextWrapped = true, Text = "💡 " .. TIPS[math.random(#TIPS)] })
+	-- ย่อทั้งชุดบนจอเล็ก (มือถือ)
+	for _, obj in ipairs({ emblem, titleBox, barBox, tipCard }) do
+		UIKit.AutoScale(obj)
+	end
+	local t0 = os.clock()
+	local animConn = RunService.RenderStepped:Connect(function()
+		local t = os.clock() - t0
+		for i, o in ipairs(orbs) do
+			local a = t * 0.9 + (i - 1) * math.pi / 2
+			o.Position = UDim2.new(0.5, math.cos(a) * 75, 0.5, math.sin(a) * 75 * 0.45)
+			o.ZIndex = math.sin(a) > 0 and 106 or 102
+			o:FindFirstChildOfClass("TextLabel").ZIndex = o.ZIndex + 1
+		end
+		core.Rotation = math.sin(t * 2) * 6
+		tg.Offset = Vector2.new(((t * 0.35) % 2) - 1, 0)
+		runner.Position = UDim2.new(((t * 0.6) % 1.4) - 0.2, 0, 0, 0)
+		glow.BackgroundTransparency = 0.76 + math.noise(t * 2.3, 1.7) * 0.08
+		head.Size = UDim2.fromOffset(30 + math.sin(t * 6) * 4, 30 + math.sin(t * 6) * 4)
+	end)
 	task.spawn(function()
 		while f.Parent do
 			task.wait(5)
+			if not f.Parent then
+				break
+			end
+			UIKit.Tween(tip, 0.3, { TextTransparency = 1 })
+			task.wait(0.32)
 			tip.Text = "💡 " .. TIPS[math.random(#TIPS)]
+			UIKit.Tween(tip, 0.3, { TextTransparency = 0 })
 		end
 	end)
 	local shown = 0
@@ -154,29 +392,41 @@ local function loadingScreen(title, subtitle)
 		if p > shown then
 			shown = p
 			UIKit.Tween(fill, 0.35, { Size = UDim2.fromScale(p, 1) })
+			UIKit.Tween(head, 0.35, { Position = UDim2.fromOffset(barW * p, 13) })
 		end
 		pct.Text = math.floor(shown * 100) .. "%"
+		for i, st in ipairs(steps) do
+			local done = shown >= st[1] - 0.001
+			local active = not done and (i == 1 or shown >= steps[i - 1][1] - 0.001)
+			stepLabels[i].Text = (done and "✔ " or (active and "◉ " or "○ ")) .. st[2]
+			stepLabels[i].TextColor3 = done and C.Good or (active and C.Gold or Color3.fromRGB(150, 146, 170))
+		end
 		if text then
 			status.Text = text
 		end
 	end
 	function api.Close()
 		api.Set(1, "พร้อมแล้ว!")
-		task.wait(0.4)
+		task.wait(0.5)
+		local vpf = f:FindFirstChildOfClass("ViewportFrame")
 		for _, d in ipairs(f:GetDescendants()) do
 			if d:IsA("TextLabel") then
-				UIKit.Tween(d, 0.8, { TextTransparency = 1, TextStrokeTransparency = 1 })
+				UIKit.Tween(d, 0.9, { TextTransparency = 1, TextStrokeTransparency = 1 })
 			elseif d:IsA("Frame") then
-				UIKit.Tween(d, 0.8, { BackgroundTransparency = 1 })
+				UIKit.Tween(d, 0.9, { BackgroundTransparency = 1 })
 			elseif d:IsA("UIStroke") then
-				UIKit.Tween(d, 0.8, { Transparency = 1 })
+				UIKit.Tween(d, 0.9, { Transparency = 1 })
 			end
 		end
-		UIKit.Tween(f, 0.9, { BackgroundTransparency = 1 })
-		task.wait(0.95)
+		if vpf then
+			UIKit.Tween(vpf, 0.9, { ImageTransparency = 1 })
+		end
+		UIKit.Tween(f, 1, { BackgroundTransparency = 1 })
+		task.wait(1.05)
+		animConn:Disconnect()
 		f:Destroy()
 	end
-	local _ = titleL
+	api.Set(0)
 	return api
 end
 

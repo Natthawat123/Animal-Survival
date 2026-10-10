@@ -9,6 +9,26 @@ local Items = require(ReplicatedStorage.Shared.Items)
 local MeshProps = require(ReplicatedStorage.Shared.MeshProps)
 -- อาวุธ/เครื่องมือที่ใช้โมเดลจริง (ที่เหลือปั้นเอง: คบเพลิง หอก ตรีศูล)
 local MESH_TOOLS = { OldAxe = true, StoneAxe = true, IronAxe = true, Pickaxe = true, Bow = true, GaleBow = true, TerraHammer = true, EmberBlade = true, FourfoldBlade = true }
+-- ด้าน "หน้า" ของโมเดลจริงแต่ละชิ้น (แกนของชิ้น Handle) = ด้านที่ต้องหันออกไปข้างหน้าตัวละคร (ทิศที่ฟัน/ยิง)
+-- วัดจากเมชจริง (PropMeshData): ทุกชิ้นตั้งตามแกน +Y (หัวอยู่บน) แบนตามแกน Z · ใบ/หัวอยู่ด้าน +X หรือ -X
+--   ขวานเก่า: ใบด้าน +X · ขวานหิน: ใบด้าน -X (กลับข้างกัน!) · ธนู: หลังคันโค้งด้าน +X (สายอยู่ -X)
+--   ขวานเหล็ก/อีเตอร์/ค้อน/ดาบ: สมมาตรซ้ายขวา -> ใช้ +X (คมหันหน้า ด้านแบนหันข้าง)
+-- ⚠ ดาบทั้งสองเล่มโมเดลกลับหัว (ด้ามอยู่บน ใบดาบชี้ลง -Y) -> MESH_HEAD บอกว่า "หัว" (ใบ) อยู่ทาง -Y
+local MESH_HEAD = {
+	EmberBlade = Vector3.new(0, -1, 0),
+	FourfoldBlade = Vector3.new(0, -1, 0),
+}
+local MESH_FRONT = {
+	OldAxe = Vector3.new(1, 0, 0),
+	StoneAxe = Vector3.new(-1, 0, 0),
+	IronAxe = Vector3.new(1, 0, 0),
+	Pickaxe = Vector3.new(1, 0, 0),
+	Bow = Vector3.new(1, 0, 0),
+	GaleBow = Vector3.new(1, 0, 0),
+	TerraHammer = Vector3.new(1, 0, 0),
+	EmberBlade = Vector3.new(1, 0, 0),
+	FourfoldBlade = Vector3.new(1, 0, 0),
+}
 
 local ToolFactory = {}
 
@@ -203,7 +223,8 @@ local function buildSack(itemId)
 	return tool
 end
 
-function ToolFactory.GripFor(tool, handle, kind)
+-- front (ไม่บังคับ) = ทิศ "หน้า" ของเครื่องมือในแกนของ Handle (ถ้ารู้จากเมชจริง) — ไม่งั้นเดาจากรูปทรง
+function ToolFactory.GripFor(tool, handle, kind, front, headOverride)
 	local lo = V(math.huge, math.huge, math.huge)
 	local hi = -lo
 	local centroid, mass = V(), 0
@@ -243,15 +264,40 @@ function ToolFactory.GripFor(tool, handle, kind)
 	local len = ext:Dot(axis)
 	local sign = ((centroid - mid):Dot(axis) >= 0) and 1 or -1
 	local head = axis * sign
+	if headOverride then
+		head = headOverride
+		axis = V(math.abs(head.X), math.abs(head.Y), math.abs(head.Z))
+		len = ext:Dot(axis)
+	end
+	local up = V(0, 1, 0)
+	local function headUp()
+		if head:Dot(up) > 0.999 then
+			return CF()
+		elseif head:Dot(up) < -0.999 then
+			return ANG(math.pi, 0, 0)
+		end
+		return CFrame.fromAxisAngle(up:Cross(head).Unit, math.acos(math.clamp(up:Dot(head), -1, 1)))
+	end
+	-- บิดรอบด้ามให้ทิศ f หันไปข้างหน้าตัวละคร (แบบเดียวกับขวานเก่าที่ถือถูกอยู่แล้ว)
+	local function faceForward(rot, f)
+		local b = rot:VectorToObjectSpace(f)
+		return ANG(0, math.atan2(b.X, b.Z) + math.pi, 0)
+	end
 	if kind == "Bow" then
-		-- ธนู: จับกลางคันธนู ตั้งคันขึ้น
-		local grip = mid
-		local up = V(0, 1, 0)
-		local rot = (head:Dot(up) > 0.999 or head:Dot(up) < -0.999) and CF() or CFrame.fromAxisAngle(up:Cross(head).Unit, math.acos(math.clamp(up:Dot(head), -1, 1)))
-		return CF(grip) * rot * ANG(0, math.pi / 2, 0)
+		-- ธนู: จับกลางคัน (ค่อนไปทางหลังคัน) ตั้งคันขึ้น หลังคันหันไปข้างหน้า สายหันเข้าหาตัว
+		local rot = headUp()
+		if front then
+			local widthAxis = math.abs(front.X) > 0.5 and ext.X or (math.abs(front.Z) > 0.5 and ext.Z or ext.Y)
+			return CF(mid + front * widthAxis * 0.25) * rot * faceForward(rot, front)
+		end
+		return CF(mid) * rot * ANG(0, math.pi / 2, 0)
 	end
 	local tail = mid - head * (len / 2)
 	local grip = tail + head * (len * (kind == "Spear" and 0.35 or 0.18))
+	if front then
+		local rot = headUp()
+		return CF(grip) * rot * faceForward(rot, front)
+	end
 	-- ทิศคม: ส่วนหัว (30% บนสุด) ยื่นออกจากแนวด้ามไปทางไหน -> ให้หันไปข้างหน้า
 	local blade, bmass = V(), 0
 	local topLo, topHi = V(math.huge, math.huge, math.huge), V(-math.huge, -math.huge, -math.huge)
@@ -290,21 +336,12 @@ function ToolFactory.GripFor(tool, handle, kind)
 		blade = cands[1] and cands[1][1] or V()
 	end
 	-- หมุนให้ +Y ของด้ามมาตรฐาน = ทิศหัว แล้วใช้มุมจับแบบเดียวกับด้ามปั้น
-	local up = V(0, 1, 0)
-	local rot
-	if head:Dot(up) > 0.999 then
-		rot = CF()
-	elseif head:Dot(up) < -0.999 then
-		rot = ANG(math.pi, 0, 0)
-	else
-		rot = CFrame.fromAxisAngle(up:Cross(head).Unit, math.acos(math.clamp(up:Dot(head), -1, 1)))
-	end
 	-- แกน +Y ของมือ R15 (ตอนยกแขนถือของ) ชี้ขึ้น -> หัวเครื่องมือชี้ขึ้น ด้ามตั้งฉากกับแขน
-	-- แล้วบิดรอบด้ามให้คม (blade) หันไปทาง +Z ของมือ = ข้างหน้า
+	-- แล้วบิดรอบด้ามให้คม (blade) หันไปข้างหน้า (ทิศที่ฟัน)
+	local rot = headUp()
 	local twist = CF()
 	if blade.Magnitude > 0.01 then
-		local b = rot:VectorToObjectSpace(blade)
-		twist = ANG(0, math.atan2(b.X, b.Z) + math.pi, 0) -- คมหันไปข้างหน้า (ทิศที่ฟัน)
+		twist = faceForward(rot, blade)
 	end
 	return CF(grip) * rot * twist
 end
@@ -341,7 +378,8 @@ function ToolFactory.Build(itemId)
 		handle = tool:FindFirstChild("Handle")
 	end
 	-- ท่าถือ: หาแกนยาวของเครื่องมือจริง (โมเดลแต่ละชิ้นวางแกนไม่เหมือนกัน) -> หัว (ใบขวาน/ใบดาบ) ชี้ขึ้น มือจับใกล้ปลายด้าม
-	tool.Grip = ToolFactory.GripFor(tool, handle, spec.Kind)
+	local isMesh = MESH_TOOLS[itemId] and MeshProps.Has(itemId)
+	tool.Grip = ToolFactory.GripFor(tool, handle, spec.Kind, isMesh and MESH_FRONT[itemId] or nil, isMesh and MESH_HEAD[itemId] or nil)
 	return tool
 end
 
