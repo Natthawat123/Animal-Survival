@@ -281,7 +281,7 @@ end
 -- โปรไฟล์ / ร้าน
 function C.diamonds(self, p, n)
 	self.ctx.Services.DataService:AddDiamonds(p, tonumber(n) or 1000, "DEV")
-	return "💎 +" .. (tonumber(n) or 1000)
+	return "🔺 +" .. (tonumber(n) or 1000)
 end
 
 function C.unlockAll(self, p)
@@ -329,7 +329,7 @@ function C.resetProfile(self, p)
 		p:SetAttribute("ClassLevel", 1)
 		ds:Push(p)
 	end
-	return "♻ รีเซ็ตโปรไฟล์ (เพชร/คลาส)"
+	return "♻ รีเซ็ตโปรไฟล์ (แร่แดง/คลาส)"
 end
 
 -- ข้อมูลสถานะ

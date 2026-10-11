@@ -17,8 +17,8 @@ Remotes.Events = {
 	"ChooseClass", -- (classId)
 	"BuyClass", -- (classId)
 	"BuyKit", -- (kitId) ร้านในล็อบบี้
-	"RerollStock", -- () สุ่มสต็อกร้านคลาสใหม่ (เพชร)
-	"SkipClassLevel", -- (classId) จ่ายเพชรข้ามเลเวล
+	"RerollStock", -- () สุ่มสต็อกร้านคลาสใหม่ (แร่แดง)
+	"SkipClassLevel", -- (classId) จ่ายแร่แดงข้ามเลเวล
 	"ClaimDaily", -- () หม้อรางวัลประจำวัน
 	"Trade", -- (offerId) พ่อค้าเร่
 	"Ping", -- เทสต์

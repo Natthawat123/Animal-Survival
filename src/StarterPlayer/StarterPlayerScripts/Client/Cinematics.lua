@@ -136,7 +136,10 @@ end
 
 local function campScene(parent)
 	local vpf = Instance.new("ViewportFrame")
-	vpf.Size = UDim2.fromScale(1, 1)
+	-- ใหญ่กว่าจอนิดหน่อย: เลื่อนกรอบภาพช้าๆ แทนการขยับกล้อง (ฉาก 3 มิติวาดครั้งเดียว ไม่ต้องวาดใหม่ทุกเฟรม = ไม่แลค)
+	vpf.AnchorPoint = Vector2.new(0.5, 0.5)
+	vpf.Position = UDim2.fromScale(0.5, 0.5)
+	vpf.Size = UDim2.fromScale(1.12, 1.12)
 	vpf.BackgroundTransparency = 1
 	vpf.ZIndex = 100
 	vpf.Ambient = Color3.fromRGB(70, 74, 120)
@@ -201,37 +204,17 @@ local function campScene(parent)
 		local r = rng:NextNumber(10, 20)
 		placeModel(world, asset("Props", i % 2 == 0 and "RockLP" or "BushLP"), rng:NextNumber(1.2, 2.6), CFrame.new(math.cos(a) * r, 0, math.sin(a) * r))
 	end
-	-- อสูรเฝ้าอยู่หลังแนวป่า (ตัวใหญ่ มืดๆ ไกลๆ)
-	placeModel(world, asset("Animals", "Solfang"), 34, CFrame.new(-18, 0, -62) * CFrame.Angles(0, 0.35, 0))
-	placeModel(world, asset("Animals", "Terragon"), 26, CFrame.new(46, 0, -48) * CFrame.Angles(0, -0.7, 0))
 	local cam = Instance.new("Camera")
 	cam.FieldOfView = 52
 	cam.Parent = vpf
 	vpf.CurrentCamera = cam
-	local t0 = os.clock()
-	local function step()
-		local t = os.clock() - t0
-		local a = t * 0.05 + 0.3
-		local r = 21 + math.sin(t * 0.21) * 2.5
-		local pos = Vector3.new(math.cos(a) * r, 6.5 + math.sin(t * 0.17) * 1.2, math.sin(a) * r)
-		cam.CFrame = CFrame.lookAt(pos, Vector3.new(0, 4.5, 0))
-		-- ไฟวูบวาบ
-		local flick = 0.85 + math.noise(t * 3.1, 0.5) * 0.35
-		vpf.LightColor = Color3.fromRGB(255, math.floor(130 + 30 * flick), math.floor(60 + 20 * flick))
-		ember.Size = Vector3.new(2.4, 2.4, 2.4) * (0.9 + flick * 0.15)
-	end
-	step()
-	-- อัปเดตฉาก 3 มิติ 30 ครั้ง/วินาที (ViewportFrame วาดใหม่ทุกครั้งที่กล้องขยับ -> ไม่ต้องทุกเฟรม ลดแลค)
-	local acc = 0
-	local conn = RunService.RenderStepped:Connect(function(dt)
-		acc += dt
-		if acc >= 1 / 30 then
-			acc = 0
-			step()
-		end
-	end)
+	-- กล้องนิ่ง (วาดฉากครั้งเดียว) · ความเคลื่อนไหวมาจาก: กรอบภาพเลื่อนช้าๆ + ประกายไฟ 2 มิติ
+	cam.CFrame = CFrame.lookAt(Vector3.new(math.cos(0.3) * 21, 6.5, math.sin(0.3) * 21), Vector3.new(0, 4.5, 0))
+	vpf.LightColor = Color3.fromRGB(255, 150, 70)
+	local pan = TweenService:Create(vpf, TweenInfo.new(14, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { Position = UDim2.fromScale(0.535, 0.48) })
+	pan:Play()
 	vpf.Destroying:Connect(function()
-		conn:Disconnect()
+		pan:Cancel()
 	end)
 	return vpf
 end
@@ -488,19 +471,26 @@ function Cinematics.Loading(state)
 	local ui = loadingScreen(Config.GameName, Config.Subtitle)
 	Cinematics.IsLoading = true
 	task.spawn(function()
-		-- 1) โลก (เซิร์ฟเวอร์สร้างแมพ) 0-40%
-		while (state:GetAttribute("LoadProgress") or 0) < 1 and not state:GetAttribute("Ready") do
-			local p = state:GetAttribute("LoadProgress") or 0
-			ui.Set(p * 0.4, string.format("กำลังสร้างโลกทั้ง 4 ธาตุ... %d%%", math.floor(p * 100)))
+		-- 1) ค่าย (ล็อบบี้) 0-40% · ไม่ต้องรอแมพใหญ่สร้างเสร็จ: เข้าล็อบบี้ได้เลย แมพสร้างต่อเบื้องหลัง
+		-- (เซิร์ฟเวอร์ของทีมไม่มีช่วงล็อบบี้ -> ยังต้องรอแมพเสร็จเหมือนเดิม)
+		local teamServer = game.PrivateServerId ~= "" and game.PrivateServerOwnerId == 0
+		local w0 = os.clock()
+		if teamServer then
+			while (state:GetAttribute("LoadProgress") or 0) < 1 and not state:GetAttribute("Ready") do
+				local p = state:GetAttribute("LoadProgress") or 0
+				ui.Set(p * 0.4, string.format("กำลังสร้างโลกทั้ง 4 ธาตุ... %d%%", math.floor(p * 100)))
+				task.wait(0.1)
+			end
+		end
+		while not Workspace:FindFirstChild("Lobby") and os.clock() - w0 < 15 do
+			ui.Set(math.min(0.35, (os.clock() - w0) * 0.2), "กำลังเตรียมค่าย...")
 			task.wait(0.1)
 		end
 		ui.Set(0.4, "กำลังโหลดโมเดลและพื้นผิว...")
 		-- 2) ทรัพยากรทั้งหมด 40-90%
+		-- โหลดล่วงหน้าเฉพาะของในล็อบบี้ (ที่เห็นทันที) · โมเดลสัตว์/บอสทั้งหมดปล่อยให้ Roblox โหลดเองตอนใช้
+		-- (เดิมโหลดทั้งคลังพร้อมกัน ~1400 ชิ้น = เครื่องกระตุกหนักตอนหน้าโหลด)
 		local list = {}
-		local assets = ReplicatedStorage:FindFirstChild("Assets")
-		if assets then
-			table.insert(list, assets)
-		end
 		local lobby = Workspace:FindFirstChild("Lobby")
 		if lobby then
 			table.insert(list, lobby)
@@ -778,17 +768,17 @@ function Cinematics.Handle(kind, d, menus, combat)
 		local tail = d.Continue and "♾ เกมยังไม่จบ! เล่นต่อได้ไม่จำกัด — รอดให้นานที่สุดเพื่อขึ้นกระดานอันดับ" or ""
 		if d.Kind == "True" then
 			Cinematics.FullScreen("THE FOUR SPIRITS REUNITE", {
-				"ลูกสัตว์ทั้ง 4 ธาตุกลับมาพร้อมหน้า", "คุณพิชิต 99 คืน — จบแบบสมบูรณ์", "💎 +300 เพชร", tail,
+				"ลูกสัตว์ทั้ง 4 ธาตุกลับมาพร้อมหน้า", "คุณพิชิต 99 คืน — จบแบบสมบูรณ์", "🔺 +300 แร่แดง", tail,
 			}, Color3.fromRGB(255, 226, 150), 12)
 		else
 			Cinematics.FullScreen("99 NIGHTS CONQUERED", {
 				"คุณพิชิต 99 คืนแห่งผืนป่า!", string.format("ลูกสัตว์ธาตุกลับมา %d/4 ตัว — ช่วยครบเพื่อฉากจบที่แท้จริง", d.Spirits or 0),
-				"💎 +100 เพชร", tail,
+				"🔺 +100 แร่แดง", tail,
 			}, C.Gold, 12)
 		end
 	elseif kind == "Purchased" then
 		if d.Kind == "Pack" then
-			Cinematics.Banner("💎 +" .. tostring(d.Diamonds or 0), "เติม " .. (d.Name or "เพชร") .. " สำเร็จ — ขอบคุณที่สนับสนุน!", Color3.fromRGB(120, 230, 255), 3, { Size = 72, Y = 0.3 })
+			Cinematics.Banner("🔺 +" .. tostring(d.Diamonds or 0), "เติม " .. (d.Name or "แร่แดง") .. " สำเร็จ — ขอบคุณที่สนับสนุน!", Color3.fromRGB(120, 230, 255), 3, { Size = 72, Y = 0.3 })
 		else
 			Cinematics.Banner("🎫 " .. (d.Name or "GAME PASS"), "ปลดล็อกแล้ว! ขอบคุณที่สนับสนุน", C.Gold, 3, { Size = 64, Y = 0.3 })
 		end

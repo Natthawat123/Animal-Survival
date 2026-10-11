@@ -1,9 +1,9 @@
 --[[
 	ClassShop — ร้านคลาส (แบบ 99 Nights) เวอร์ชันออกแบบใหม่
 	  ซ้าย  : รายการคลาส — รูปตัวละครวงกลม (กรอบสีตามดาว) ชื่อ ดาว สายของคลาส ราคา/สต็อก/เลเวล
-	          + เพชรของเรา + เวลารีสต็อก + รีโรลสต็อค + อัตราต่อรอง
+	          + แร่แดงของเรา + เวลารีสต็อก + รีโรลสต็อค + อัตราต่อรอง
 	  กลาง  : ตัวละครคลาสจริง (R15 + ของในแคตตาล็อก) ยืนบนเวทีในเต็นท์ Classes + แถบความคืบหน้าเลเวลถัดไป + ปุ่ม
-	  ขวา   : เครื่องมือเริ่มต้น + การ์ดทักษะ 3 ขั้น (ชื่อทักษะ + คำอธิบาย / ล็อก = ข้ามด้วยเพชร)
+	  ขวา   : เครื่องมือเริ่มต้น + การ์ดทักษะ 3 ขั้น (ชื่อทักษะ + คำอธิบาย / ล็อก = ข้ามด้วยแร่แดง)
 	ทุกอย่างอยู่ในกรอบ 16:9 กลางจอ (UIAspectRatioConstraint) จะได้ไม่เพี้ยนตามขนาดจอ
 ]]
 
@@ -351,8 +351,8 @@ function ClassShop.Build(gui)
 	gradient(title, GOLD_A, GOLD_B, 90)
 	local gemPill = frame(left, { Position = UDim2.fromScale(0.55, 0.03), Size = UDim2.fromScale(0.4, 0.062), BackgroundColor3 = C(22, 24, 44), BackgroundTransparency = 0.15 })
 	corner(gemPill, UDim.new(0.5, 0))
-	border(gemPill, C(110, 200, 255), 2, 0.2)
-	ui.Gems = text(gemPill, { Size = UDim2.fromScale(0.9, 0.8), Position = UDim2.fromScale(0.05, 0.1), Text = "💎 0" }, 28)
+	border(gemPill, C(255, 120, 120), 2, 0.2)
+	ui.Gems = text(gemPill, { Size = UDim2.fromScale(0.9, 0.8), Position = UDim2.fromScale(0.05, 0.1), Text = "🔺 0" }, 28)
 	local restock = frame(left, { Position = UDim2.fromScale(0.06, 0.108), Size = UDim2.fromScale(0.88, 0.045), BackgroundColor3 = C(0, 0, 0), BackgroundTransparency = 0.55 })
 	corner(restock, UDim.new(0.5, 0))
 	ui.Restock = text(restock, { Size = UDim2.fromScale(0.94, 0.8), Position = UDim2.fromScale(0.03, 0.1), Text = "", TextColor3 = C(210, 214, 225) }, 20, 1.5)
@@ -380,7 +380,7 @@ function ClassShop.Build(gui)
 	for i, id in ipairs(Classes.Order) do
 		ClassShop.MakeCard(id, i)
 	end
-	button(left, { Position = UDim2.fromScale(0.05, 0.887), Size = UDim2.fromScale(0.58, 0.08), Text = "🎲 รีโรลสต็อค  💎" .. Classes.RerollPrice }, GREEN, function()
+	button(left, { Position = UDim2.fromScale(0.05, 0.887), Size = UDim2.fromScale(0.58, 0.08), Text = "🎲 รีโรลสต็อค  🔺" .. Classes.RerollPrice }, GREEN, function()
 		Remotes.Get("RerollStock"):FireServer()
 	end, 28)
 	button(left, { Position = UDim2.fromScale(0.66, 0.887), Size = UDim2.fromScale(0.29, 0.08), Text = "อัตราต่อรอง" }, GRAY, function()
@@ -514,7 +514,7 @@ function ClassShop.Refresh()
 	local d = data()
 	local st = stock()
 	local current = player:GetAttribute("Class") or "Survivor"
-	ui.Gems.Text = "💎 " .. tostring(gems())
+	ui.Gems.Text = "🔺 " .. tostring(gems())
 	local s = Classes.SecondsToRestock(now())
 	ui.Restock.Text = string.format("สต็อกใหม่ใน %d ชม. %d นาที", s // 3600, (s % 3600) // 60)
 	local h = cardHeight()
@@ -530,7 +530,7 @@ function ClassShop.Refresh()
 		elseif owned then
 			cd.Tag.Text, cd.Tag.TextColor3 = "มีแล้ว", C(140, 240, 100)
 		else
-			cd.Tag.Text, cd.Tag.TextColor3 = "💎 " .. c.Price, C(150, 225, 255)
+			cd.Tag.Text, cd.Tag.TextColor3 = "🔺 " .. c.Price, C(150, 225, 255)
 		end
 		if owned then
 			setButton(cd.Button, "เลเวล " .. levelOf(id), BLUE)
@@ -555,7 +555,7 @@ function ClassShop.Refresh()
 	ui.Info.Visible = not showBars
 	if not owned then
 		ui.ProgTitle.Text = "ปลดล็อกคลาสนี้"
-		ui.Info.Text = st[selected] and string.format("ราคา 💎%d — มีในสต็อควันนี้", c.Price) or "ไม่มีสต๊อควันนี้ — รอรีสต็อกหรือกดรีโรล"
+		ui.Info.Text = st[selected] and string.format("ราคา 🔺%d — มีในสต็อควันนี้", c.Price) or "ไม่มีสต๊อควันนี้ — รอรีสต็อกหรือกดรีโรล"
 		ui.Info.TextColor3 = st[selected] and C(140, 240, 100) or C(255, 130, 120)
 	elseif req then
 		ui.ProgTitle.Text = string.format("ความคืบหน้า → เลเวล %d", lv + 1)
@@ -582,9 +582,9 @@ function ClassShop.Refresh()
 	elseif not st[selected] then
 		setButton(ui.Main, "ไม่มีสต๊อค", GRAY, false)
 	elseif gems() < c.Price then
-		setButton(ui.Main, "💎 ไม่พอ (" .. c.Price .. ")", GRAY, false)
+		setButton(ui.Main, "🔺 ไม่พอ (" .. c.Price .. ")", GRAY, false)
 	else
-		setButton(ui.Main, "ซื้อ  💎" .. c.Price, GREEN)
+		setButton(ui.Main, "ซื้อ  🔺" .. c.Price, GREEN)
 	end
 	-- ขวา
 	if shownTools ~= selected then
@@ -606,7 +606,7 @@ function ClassShop.Refresh()
 		sk.Foot.Text = owned and ("ปลดที่เลเวล " .. i) or "ซื้อคลาสก่อน"
 		sk.Skip.Visible = canSkip
 		if canSkip then
-			sk.Skip.Text = "ข้าม 💎" .. Classes.SkipPrice(selected, i)
+			sk.Skip.Text = "ข้าม 🔺" .. Classes.SkipPrice(selected, i)
 		end
 	end
 end

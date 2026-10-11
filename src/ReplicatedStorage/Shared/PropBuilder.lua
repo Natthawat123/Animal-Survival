@@ -1046,7 +1046,7 @@ function PropBuilder.Scatter(layout, parent, opts)
 			end
 			end
 			z += cell
-			if opts.Yield and os.clock() - t0 > 0.03 then
+			if opts.Yield and os.clock() - t0 > (opts.Budget or 0.03) then
 				task.wait()
 				t0 = os.clock()
 			end

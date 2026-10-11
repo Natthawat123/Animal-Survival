@@ -96,16 +96,18 @@ start({ "DataService", "DevService", "InventoryService", "SurvivalService", "Lob
 
 ---------------------------------------------------------------- สร้างโลก
 local t0 = os.clock()
+-- Studio (กด Play) เซิร์ฟเวอร์กับผู้เล่นอยู่โปรแกรมเดียวกัน -> แบ่งเวลาสร้างโลกต่อเฟรมให้น้อยลง หน้าโหลด/ล็อบบี้จะไม่กระตุก
+local genBudget = game:GetService("RunService"):IsStudio() and 0.01 or 0.04
 MapGenerator.Generate(layout, {
 	Yield = true,
-	Budget = 0.04,
+	Budget = genBudget,
 	Progress = function(done, total)
 		State:SetAttribute("LoadProgress", done / total * 0.8)
 	end,
 })
 State:SetAttribute("LoadProgress", 0.85)
 print(string.format("[AS] terrain %.1fs", os.clock() - t0))
-local world = PropBuilder.BuildWorld(layout, { Density = Config.PropDensity, Yield = true })
+local world = PropBuilder.BuildWorld(layout, { Density = Config.PropDensity, Yield = true, Budget = genBudget * 0.75 })
 -- แคมป์วางบนพื้นจริง (สูงกว่า HeightAt ได้) -> อัปเดตตำแหน่งแคมป์ให้ตรง
 local campModel = world:FindFirstChild("Sites") and world.Sites:FindFirstChild("Camp")
 if campModel and campModel:GetAttribute("GroundY") then

@@ -440,6 +440,142 @@ function UIKit.IconBadge(parent, icon, color, size, props)
 	return f
 end
 
+-- ไอคอนวาดจาก Frame (ไม่ต้องอัปโหลดรูป): "Ore" แร่แดง (สกุลเงิน) · "Shield" โล่ดาบ (คลาส) · "Trophy" ถ้วยรางวัล (ป้าย)
+-- ทุกชิ้น = สี่เหลี่ยมหมุนได้ + มุมมน + ไล่สีแบบแบ่งหน้าเหลี่ยม + ขอบเข้มด้านหลัง (สไตล์การ์ตูน)
+local SQ2 = math.sqrt(2)
+local function facet(light, dark, darker)
+	return ColorSequence.new({
+		ColorSequenceKeypoint.new(0, light),
+		ColorSequenceKeypoint.new(0.499, light),
+		ColorSequenceKeypoint.new(0.5, dark),
+		ColorSequenceKeypoint.new(1, darker or dark),
+	})
+end
+function UIKit.Icon(parent, kind, size, props)
+	local root = Instance.new("Frame")
+	root.Name = "Icon" .. kind
+	root.BackgroundTransparency = 1
+	root.BorderSizePixel = 0
+	root.Size = UDim2.fromOffset(size, size)
+	for k, v in pairs(props or {}) do
+		root[k] = v
+	end
+	root.Parent = parent
+	local s, z0 = size, root.ZIndex
+	local function piece(z, cx, cy, w, h, rot, fill, opt)
+		opt = opt or {}
+		local f = Instance.new("Frame")
+		f.BorderSizePixel = 0
+		f.AnchorPoint = Vector2.new(0.5, 0.5)
+		f.Position = UDim2.fromOffset(cx, cy)
+		f.Size = UDim2.fromOffset(w, h)
+		f.Rotation = rot
+		f.ZIndex = z0 + z
+		f.BackgroundTransparency = opt.tr or 0
+		if typeof(fill) == "Color3" then
+			f.BackgroundColor3 = fill
+		else
+			f.BackgroundColor3 = Color3.new(1, 1, 1)
+			local g = Instance.new("UIGradient")
+			g.Color = fill
+			g.Rotation = opt.grot or 0
+			g.Parent = f
+		end
+		if opt.corner then
+			local c = Instance.new("UICorner")
+			c.CornerRadius = UDim.new(0, math.min(w, h) / 2 * opt.corner)
+			c.Parent = f
+		end
+		if opt.ring then
+			f.BackgroundTransparency = 1
+			local st = Instance.new("UIStroke")
+			st.Thickness = opt.ring
+			st.Color = fill
+			st.Parent = f
+		end
+		f.Parent = root
+		return f
+	end
+	if kind == "Ore" then
+		local o, dark = s * 0.045, Color3.fromRGB(58, 14, 22)
+		local red = facet(Color3.fromRGB(255, 120, 120), Color3.fromRGB(196, 28, 46), Color3.fromRGB(150, 16, 34))
+		local function shard(bx, by, W, H, rot, z)
+			local bodyH = H - W / 2
+			local th = math.rad(rot)
+			local function tr(lx, ly)
+				return bx + lx * math.cos(th) - ly * math.sin(th), by + lx * math.sin(th) + ly * math.cos(th)
+			end
+			local bcx, bcy = tr(0, -bodyH / 2)
+			local tcx, tcy = tr(0, -bodyH)
+			local side = W / SQ2
+			piece(z, bcx, bcy, W + 2 * o, bodyH + 2 * o, rot, dark)
+			piece(z, tcx, tcy, side + 2 * o, side + 2 * o, rot + 45, dark)
+			piece(z + 1, tcx, tcy, side, side, rot + 45, red, { grot = -45 })
+			piece(z + 2, bcx, bcy, W, bodyH, rot, red)
+			local hx, hy = tr(-W * 0.22, -bodyH * 0.62)
+			piece(z + 3, hx, hy, W * 0.11, bodyH * 0.5, rot, Color3.fromRGB(255, 220, 220), { tr = 0.25, corner = 1 })
+		end
+		shard(s * 0.32, s * 0.74, s * 0.2, s * 0.44, -24, 1)
+		shard(s * 0.69, s * 0.75, s * 0.19, s * 0.4, 22, 5)
+		shard(s * 0.5, s * 0.72, s * 0.27, s * 0.64, 0, 9)
+		local rock = ColorSequence.new(Color3.fromRGB(150, 138, 150), Color3.fromRGB(84, 74, 88))
+		local blobs = { { 0.34, 0.79, 0.4, 0.3 }, { 0.62, 0.8, 0.5, 0.26 }, { 0.5, 0.85, 0.74, 0.16 } }
+		for _, b in ipairs(blobs) do
+			piece(20, s * b[1], s * b[2], s * b[3] + 2 * o, s * b[4] + 2 * o, 0, Color3.fromRGB(30, 22, 30), { corner = 0.75 })
+		end
+		for _, b in ipairs(blobs) do
+			piece(21, s * b[1], s * b[2], s * b[3], s * b[4], 0, rock, { grot = 90, corner = 0.75 })
+		end
+		piece(22, s * 0.38, s * 0.74, s * 0.14, s * 0.05, -8, Color3.fromRGB(200, 190, 205), { tr = 0.45, corner = 1 })
+	elseif kind == "Shield" then
+		local o, dark = s * 0.05, Color3.fromRGB(26, 26, 44)
+		local W, bodyH, top = s * 0.62, s * 0.34, s * 0.12
+		local side = W / SQ2
+		local blue = facet(Color3.fromRGB(110, 160, 255), Color3.fromRGB(62, 100, 210), Color3.fromRGB(44, 76, 176))
+		piece(1, s / 2, top + bodyH / 2, W + 2 * o, bodyH + 2 * o, 0, dark, { corner = 0.22 })
+		piece(1, s / 2, top + bodyH, side + 2 * o, side + 2 * o, 45, dark, { corner = 0.16 })
+		piece(2, s / 2, top + bodyH, side, side, 45, blue, { grot = -45, corner = 0.16 })
+		piece(3, s / 2, top + bodyH / 2, W, bodyH, 0, blue, { corner = 0.22 })
+		local steel = facet(Color3.fromRGB(255, 255, 255), Color3.fromRGB(196, 204, 222))
+		local gold = ColorSequence.new(Color3.fromRGB(255, 230, 130), Color3.fromRGB(222, 150, 40))
+		local bw, bh, bcy, oo = s * 0.11, s * 0.4, s * 0.44, o * 0.7
+		local ts = bw / SQ2
+		piece(4, s / 2, bcy, bw + 2 * oo, bh + 2 * oo, 0, dark)
+		piece(4, s / 2, bcy - bh / 2, ts + 2 * oo, ts + 2 * oo, 45, dark)
+		piece(5, s / 2, bcy - bh / 2, ts, ts, 45, steel, { grot = -45 })
+		piece(6, s / 2, bcy, bw, bh, 0, steel)
+		local hilt = { { 0.66, 0.36, 0.08, 0.4 }, { 0.74, 0.08, 0.12, 0.2 }, { 0.82, 0.13, 0.08, 1 } }
+		for _, h in ipairs(hilt) do
+			piece(7, s / 2, s * h[1], s * h[2] + 2 * oo, s * h[3] + 2 * oo, 0, dark, { corner = h[4] })
+		end
+		for _, h in ipairs(hilt) do
+			piece(8, s / 2, s * h[1], s * h[2], s * h[3], 0, gold, { grot = 90, corner = h[4] })
+		end
+	elseif kind == "Trophy" then
+		local o, dark = s * 0.045, Color3.fromRGB(70, 40, 8)
+		local gold = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 236, 140)),
+			ColorSequenceKeypoint.new(0.6, Color3.fromRGB(246, 184, 50)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(214, 138, 28)),
+		})
+		local ring, d = s * 0.06, s * 0.18
+		for _, x in ipairs({ 0.25, 0.75 }) do
+			piece(1, s * x, s * 0.36, d - 2 * o, d - 2 * o, 0, dark, { corner = 1, ring = ring + 2 * o })
+			piece(2, s * x, s * 0.36, d, d, 0, Color3.fromRGB(240, 176, 46), { corner = 1, ring = ring })
+		end
+		local parts = { { 0.5, 0.42, 0.5, 0.5, 1 }, { 0.5, 0.27, 0.5, 0.2, 0.06 }, { 0.5, 0.71, 0.11, 0.14, 0 }, { 0.5, 0.8, 0.3, 0.07, 0.3 }, { 0.5, 0.87, 0.46, 0.1, 0.3 } }
+		for _, q in ipairs(parts) do
+			piece(3, s * q[1], s * q[2], s * q[3] + 2 * o, s * q[4] + 2 * o, 0, dark, { corner = q[5] })
+		end
+		for _, q in ipairs(parts) do
+			piece(4, s * q[1], s * q[2], s * q[3], s * q[4], 0, gold, { grot = 90, corner = q[5] })
+		end
+		piece(5, s * 0.4, s * 0.36, s * 0.07, s * 0.2, 0, Color3.fromRGB(255, 250, 220), { tr = 0.3, corner = 1 })
+		piece(5, s * 0.5, s * 0.17, s * 0.5, s * 0.04, 0, Color3.fromRGB(255, 246, 200), { tr = 0.2, corner = 1 })
+	end
+	return root
+end
+
 function UIKit.Tween(obj, time, props, style)
 	local t = TweenService:Create(obj, TweenInfo.new(time, style or Enum.EasingStyle.Quad, Enum.EasingDirection.Out), props)
 	t:Play()

@@ -1,7 +1,7 @@
 --[[
 	MonetizationService — ร้านค้า Robux
-	  · เติมเพชร (Developer Product): Config.DiamondPacks — กันเติมซ้ำด้วยเลขใบเสร็จ (PurchaseId) ที่เก็บไว้ในเซฟ
-	  · Game Pass: Config.GamePasses — VIP (เพชร x2 + ป้ายบนหัว), ของเริ่มต้นทุกรอบ (ให้ตอนลงแมพ)
+	  · เติมแร่แดง (Developer Product): Config.DiamondPacks — กันเติมซ้ำด้วยเลขใบเสร็จ (PurchaseId) ที่เก็บไว้ในเซฟ
+	  · Game Pass: Config.GamePasses — VIP (แร่แดง x2 + ป้ายบนหัว), ของเริ่มต้นทุกรอบ (ให้ตอนลงแมพ)
 	  · ID ที่ยังเป็น 0 = ยังไม่ได้สร้างใน Creator Hub → ข้ามไป (ปุ่มในร้านขึ้นว่า "เร็วๆ นี้")
 ]]
 
@@ -97,7 +97,7 @@ local function processReceipt(self, receipt)
 		table.remove(data.Receipts, 1)
 	end
 	if ds:StoreReady() and not ds:Save(player) then
-		-- เซฟไม่ผ่าน: คืนค่าแล้วให้ Roblox ส่งใบเสร็จมาใหม่ (กันเพชรหาย/ได้ซ้ำ)
+		-- เซฟไม่ผ่าน: คืนค่าแล้วให้ Roblox ส่งใบเสร็จมาใหม่ (กันแร่แดงหาย/ได้ซ้ำ)
 		data.Diamonds -= total
 		table.remove(data.Receipts, #data.Receipts)
 		player:SetAttribute("Diamonds", data.Diamonds)

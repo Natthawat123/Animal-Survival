@@ -63,10 +63,10 @@ function AtmosphereController.Init(state)
 		local clock, night = clockFor(state, now)
 		local cam = Workspace.CurrentCamera
 		local pos = cam.CFrame.Position
-		-- ล็อบบี้: สนธยาฟ้าม่วงชมพูตลอด (ค่าแสงมาจาก Biomes.Data.Lobby)
+		-- ล็อบบี้: กลางวันบ่ายแดดอุ่นตลอด (ค่าแสงมาจาก Biomes.Data.Lobby)
 		local inLobby = pos.Y > 1200
 		if inLobby then
-			clock, night = 17.9, 0
+			clock, night = 14.6, 0
 		elseif state:GetAttribute("TestClock") then
 			clock, night = state:GetAttribute("TestClock"), 0 -- ภาพทดสอบ: ตรึงเวลากลางวัน
 		end

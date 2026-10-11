@@ -2,7 +2,7 @@
 	HUD — หน้าจอหลักระหว่างเล่น
 	  ซ้ายบน: เลือด / ความหิว / สตามิน่า
 	  กลางบน: คืนที่ X + เวลา + ธาตุประจำคืน + เข็มทิศ
-	  ขวาบน: กองไฟ + ลูกสัตว์ธาตุ 4 ดวง + เพชร
+	  ขวาบน: กองไฟ + ลูกสัตว์ธาตุ 4 ดวง + แร่แดง
 	  ล่าง: ทรัพยากรในกระเป๋า + ปุ่มลัด / แถบเลือดบอส
 ]]
 
@@ -86,7 +86,7 @@ function HUD.Init(state)
 	end
 	HUD.CompassPOI = {}
 
-	---------------------------------------------------------------- ขวาบน: กองไฟ / วิญญาณ / เพชร
+	---------------------------------------------------------------- ขวาบน: กองไฟ / วิญญาณ / แร่แดง
 	local right = UIKit.Card(gui, { Size = UDim2.fromOffset(270, 116), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -20, 0, 18), BackgroundTransparency = 0.12 })
 	UIKit.AutoScale(right)
 	HUD.RightCard = right
@@ -104,7 +104,8 @@ function HUD.Init(state)
 		local t = UIKit.Text(orb, { Size = UDim2.fromScale(1, 1), Text = UIKit.ElementIcon[el], TextSize = 15, TextXAlignment = Enum.TextXAlignment.Center, TextTransparency = 0.6 })
 		HUD.SpiritOrbs[el] = { Frame = orb, Icon = t }
 	end
-	HUD.DiamondLabel = UIKit.Text(right, { Size = UDim2.fromOffset(110, 28), Position = UDim2.new(1, -122, 0, 78), Text = "💎 0", Font = UIKit.Fonts.Title, TextSize = 22, TextXAlignment = Enum.TextXAlignment.Right, TextColor3 = Color3.fromRGB(150, 230, 255) })
+	HUD.DiamondLabel = UIKit.Text(right, { Size = UDim2.fromOffset(100, 28), Position = UDim2.new(1, -144, 0, 78), Text = "0", Font = UIKit.Fonts.Title, TextSize = 22, TextXAlignment = Enum.TextXAlignment.Right, TextColor3 = Color3.fromRGB(255, 190, 190) })
+	UIKit.Icon(right, "Ore", 32, { Position = UDim2.new(1, -42, 0, 74) })
 
 	---------------------------------------------------------------- ล่าง: ทรัพยากร
 	local strip = UIKit.Frame(gui, { Size = UDim2.new(0, 760, 0, 40), Position = UDim2.new(0.5, -380, 1, -172), BackgroundTransparency = 0.45 })
@@ -305,7 +306,7 @@ function HUD.Update()
 		orb.Frame.BackgroundColor3 = rescued and C.Element[el] or Color3.fromRGB(50, 50, 56)
 		orb.Icon.TextTransparency = rescued and 0 or 0.6
 	end
-	HUD.DiamondLabel.Text = "💎 " .. tostring(player:GetAttribute("Diamonds") or 0)
+	HUD.DiamondLabel.Text = tostring(player:GetAttribute("Diamonds") or 0)
 
 	-- บอส
 	local bossId = s:GetAttribute("BossId")
