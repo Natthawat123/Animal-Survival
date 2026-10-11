@@ -182,7 +182,7 @@ def main():
         sss += script_item(os.path.join(TESTS, "ASAutoTestServer.server.lua"))
         sps += script_item(os.path.join(TESTS, "ASAutoTestClient.client.lua"))
 
-    ss = ""
+    ss = item("Folder", "LobbyArt", model_items("LobbyArt"))  # ฉากล็อบบี้ป่าโบราณ (tools/lobby_art.py)
     if MAPSHOT:
         ss += value_item("BoolValue", "ASMapShot", "true")
     if ANIMALSHOT:

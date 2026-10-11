@@ -41,16 +41,16 @@ Biomes.Data = {
 		Color = Color3.fromRGB(150, 200, 255),
 		Element = nil,
 		Terrain = { Top = "Grass", Sub = "Ground", Cliff = "Rock", Shore = "Sand" },
-		-- กลางวันฟ้าใส แดดอุ่น หญ้าเขียวสด (สว่าง สนุก ไม่มืดมน)
+		-- ป่าโบราณศักดิ์สิทธิ์: แดดบ่ายลอดใบไม้ หมอกเขียวฟ้าบางๆ สีเขียวสด (ให้แสงเรืองฟ้าของประตูเด่น)
 		Atmosphere = {
-			Density = 0.26, Offset = 0.2, Haze = 1.1, Glare = 0.35,
-			Color = Color3.fromRGB(205, 225, 255), Decay = Color3.fromRGB(120, 160, 215),
+			Density = 0.34, Offset = 0.18, Haze = 1.8, Glare = 0.3,
+			Color = Color3.fromRGB(176, 218, 210), Decay = Color3.fromRGB(80, 128, 120),
 		},
-		Grade = { Tint = Color3.fromRGB(255, 250, 240), Saturation = 0.22, Contrast = 0.1, Brightness = 0.03 },
+		Grade = { Tint = Color3.fromRGB(240, 255, 248), Saturation = 0.28, Contrast = 0.14, Brightness = 0.0 },
 		Lighting = {
-			Ambient = Color3.fromRGB(130, 130, 145), Outdoor = Color3.fromRGB(150, 152, 170), Exposure = 0.2,
-			LightBrightness = 3.2, BloomIntensity = 0.35, BloomSize = 24, BloomThreshold = 1.7,
-			CloudColor = Color3.fromRGB(255, 255, 255), CloudCover = 0.5, SunRays = 0.1,
+			Ambient = Color3.fromRGB(104, 126, 120), Outdoor = Color3.fromRGB(120, 140, 136), Exposure = 0.05,
+			LightBrightness = 2.6, BloomIntensity = 0.7, BloomSize = 26, BloomThreshold = 1.15,
+			CloudColor = Color3.fromRGB(255, 255, 255), CloudCover = 0.5, SunRays = 0.16,
 		},
 		Ambient = "Fireflies",
 		Props = {},

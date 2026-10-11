@@ -14,6 +14,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local ServerStorage = game:GetService("ServerStorage")
 local TeleportService = game:GetService("TeleportService")
 local UserService = game:GetService("UserService")
 local Workspace = game:GetService("Workspace")
@@ -149,23 +150,6 @@ local function fireOn(part, size)
 	return f
 end
 
--- ทางเดินไม้กระดาน (แผ่นไม้วางขวางทาง เอียงนิดๆ สีไม่เท่ากัน)
-local function boardwalk(parent, a, b, width, rng)
-	local dir = (b - a)
-	local len = dir.Magnitude
-	local cf = CFrame.lookAt(a, b)
-	local t = 0
-	while t < len do
-		local w = width + rng:NextNumber(-0.8, 0.8)
-		P(parent, {
-			Size = V(w, 0.4, rng:NextNumber(1.6, 2.2)),
-			CFrame = cf * CF(rng:NextNumber(-0.4, 0.4), 0.2, -t) * ANG(0, math.rad(rng:NextNumber(-4, 4)), 0),
-			Color = WOOD[rng:NextInteger(1, #WOOD)]:Lerp(C(60, 44, 32), rng:NextNumber(0, 0.3)), Material = Enum.Material.WoodPlanks,
-		})
-		t += rng:NextNumber(2.3, 2.7)
-	end
-end
-
 -- ลานไม้ (ดาดฟ้า) สี่เหลี่ยม
 local function deck(parent, cf, w, d, rng)
 	for x = -w / 2 + 1, w / 2 - 1, 2.1 do
@@ -174,43 +158,6 @@ local function deck(parent, cf, w, d, rng)
 	for _, z in ipairs({ -d / 2 + 0.6, d / 2 - 0.6 }) do
 		P(parent, { Size = V(w + 0.6, 0.7, 1), CFrame = cf * CF(0, 0.35, z), Color = C(78, 56, 40), Material = Enum.Material.Wood })
 	end
-end
-
--- รั้วไม้กระดานสูง (แผ่นตั้ง + เสา + คาน)
-local function plankFence(parent, a, b, h, rng)
-	local len = (b - a).Magnitude
-	local cf = CFrame.lookAt(a, b)
-	local t = 0.6
-	while t < len do
-		local ph = h + rng:NextNumber(-0.8, 0.6)
-		P(parent, { Size = V(0.4, ph, 1.35), CFrame = cf * CF(0, ph / 2, -t), Color = WOOD[rng:NextInteger(1, #WOOD)]:Lerp(C(50, 38, 30), rng:NextNumber(0, 0.25)), Material = Enum.Material.WoodPlanks })
-		t += 1.45
-	end
-	for t2 = 0, len, 10 do
-		P(parent, { Size = V(1.2, h + 1.2, 1.2), CFrame = cf * CF(0.7, (h + 1.2) / 2, -t2), Color = C(74, 52, 38), Material = Enum.Material.Wood })
-	end
-	for _, y in ipairs({ 2.5, h - 2 }) do
-		P(parent, { Size = V(0.5, 0.7, len), CFrame = cf * CF(0.45, y, -len / 2), Color = C(80, 58, 40), Material = Enum.Material.Wood })
-	end
-	P(parent, { Name = "FenceBlock", Size = V(1, 40, len), CFrame = cf * CF(0, 20, -len / 2), Transparency = 1, CanQuery = false })
-end
-
--- ต้นไม้ใบเหลี่ยม (สไตล์ 99 Nights)
-local function blockyTree(parent, cf, s, rng)
-	local m = Instance.new("Model")
-	m.Name = "BlockTree"
-	local th = rng:NextNumber(14, 22) * s
-	P(m, { Size = V(2.6 * s, th, 2.6 * s), CFrame = cf * CF(0, th / 2, 0) * ANG(0, rng:NextNumber(0, 1.5), 0), Color = C(84, 60, 44), Material = Enum.Material.Wood })
-	for i = 1, rng:NextInteger(3, 5) do
-		local size = rng:NextNumber(9, 15) * s
-		local off = V(rng:NextNumber(-4, 4) * s, th + rng:NextNumber(-2, 6) * s + (i == 1 and 2 * s or 0), rng:NextNumber(-4, 4) * s)
-		P(m, {
-			Size = V(size, size * rng:NextNumber(0.75, 1), size), CFrame = cf * CF(off) * ANG(rng:NextNumber(-0.15, 0.15), rng:NextNumber(0, 1.5), rng:NextNumber(-0.15, 0.15)),
-			Color = LEAF[rng:NextInteger(1, #LEAF)], Material = Enum.Material.Grass, CanCollide = false,
-		})
-	end
-	m.Parent = parent
-	return m
 end
 
 -- เสาตะเกียง
@@ -233,81 +180,10 @@ local function fireStump(parent, cf, brightness, range)
 	light(core, C(255, 150, 70), range or 26, brightness or 2.4, true)
 end
 
--- กองฟาง
-local function hayBale(parent, cf)
-	P(parent, { Size = V(5, 3, 3), CFrame = cf * CF(0, 1.5, 0), Color = C(214, 180, 90), Material = Enum.Material.Fabric })
-	for _, x in ipairs({ -1.2, 1.2 }) do
-		P(parent, { Size = V(0.2, 3.05, 3.05), CFrame = cf * CF(x, 1.5, 0), Color = C(140, 104, 50), Material = Enum.Material.Fabric })
-	end
-end
-
 local function crate(parent, cf, s)
 	s = s or 3
 	P(parent, { Size = V(s, s, s), CFrame = cf * CF(0, s / 2, 0), Color = C(150, 110, 70), Material = Enum.Material.WoodPlanks })
 	P(parent, { Size = V(s * 1.42, 0.3, 0.32), CFrame = cf * CF(0, s / 2, -s / 2 - 0.05) * ANG(0, 0, math.rad(45)), Color = C(110, 78, 50), Material = Enum.Material.Wood })
-end
-
--- โรงนา + กังหันลม (ฉากหลังหลังรั้ว)
-local function barn(parent, cf)
-	local red, trim = C(140, 52, 44), C(226, 220, 206)
-	local w, d, h = 34, 28, 14
-	P(parent, { Size = V(w, h, d), CFrame = cf * CF(0, h / 2, 0), Color = red, Material = Enum.Material.WoodPlanks })
-	-- หลังคาจั่ว gambrel (สองช่วง)
-	for _, s in ipairs({ -1, 1 }) do
-		P(parent, { Size = V(10.5, 0.8, d + 2), CFrame = cf * CF(s * 13.2, h + 3.6, 0) * ANG(0, 0, s * -math.rad(58)), Color = C(70, 64, 62), Material = Enum.Material.Slate })
-		P(parent, { Size = V(10.5, 0.8, d + 2), CFrame = cf * CF(s * 4.6, h + 9.3, 0) * ANG(0, 0, s * -math.rad(20)), Color = C(70, 64, 62), Material = Enum.Material.Slate })
-	end
-	for _, z in ipairs({ -d / 2, d / 2 }) do
-		P(parent, { Size = V(w - 8, 9, 0.6), CFrame = cf * CF(0, h + 4.5, z), Color = red, Material = Enum.Material.WoodPlanks })
-	end
-	-- ประตูกากบาทขาว
-	local door = cf * CF(0, 5.5, -d / 2 - 0.35)
-	P(parent, { Size = V(12, 11, 0.4), CFrame = door, Color = C(120, 44, 38), Material = Enum.Material.WoodPlanks })
-	for _, r in ipairs({ math.rad(42), -math.rad(42) }) do
-		P(parent, { Size = V(16, 0.8, 0.3), CFrame = door * CF(0, 0, -0.3) * ANG(0, 0, r), Color = trim, Material = Enum.Material.Wood })
-	end
-	P(parent, { Size = V(12.6, 0.8, 0.3), CFrame = door * CF(0, 5.6, -0.3), Color = trim, Material = Enum.Material.Wood })
-	P(parent, { Size = V(12.6, 0.8, 0.3), CFrame = door * CF(0, -5.4, -0.3), Color = trim, Material = Enum.Material.Wood })
-	local loft = P(parent, { Size = V(5, 4, 0.3), CFrame = cf * CF(0, h + 3.2, -d / 2 - 0.4), Color = C(255, 200, 120), Material = Enum.Material.Neon })
-	light(loft, C(255, 190, 110), 26, 1.6)
-end
-
-local function windmill(parent, cf)
-	local h = 38
-	local iron = C(96, 96, 104)
-	for _, x in ipairs({ -1, 1 }) do
-		for _, z in ipairs({ -1, 1 }) do
-			local bottom = (cf * CF(x * 5, 0, z * 5)).Position
-			local top = (cf * CF(x * 1.2, h, z * 1.2)).Position
-			P(parent, { Size = V(0.6, 0.6, (top - bottom).Magnitude), CFrame = CFrame.lookAt((top + bottom) / 2, top), Color = iron, Material = Enum.Material.Metal })
-		end
-	end
-	for k = 1, 4 do
-		local y = k * h / 5
-		local r = 5 - (5 - 1.2) * (y / h)
-		for i = 0, 3 do
-			P(parent, { Size = V(r * 2, 0.35, 0.35), CFrame = cf * CF(0, y, 0) * ANG(0, i * math.pi / 2, 0) * CF(0, 0, r), Color = iron, Material = Enum.Material.Metal })
-		end
-	end
-	P(parent, { Size = V(3, 2.4, 4), CFrame = cf * CF(0, h + 1, 0), Color = C(70, 70, 76), Material = Enum.Material.Metal })
-	P(parent, { ClassName = "WedgePart", Size = V(0.3, 4, 6), CFrame = cf * CF(0, h + 2.5, 4.5), Color = C(150, 60, 50), Material = Enum.Material.Metal })
-	-- ใบพัด (หมุนด้วย Heartbeat)
-	local hub = P(parent, { Name = "WindmillHub", Shape = Enum.PartType.Cylinder, Size = V(1.2, 2.4, 2.4), CFrame = cf * CF(0, h + 1, -2.6) * ANG(0, math.pi / 2, 0), Color = C(60, 60, 66), Material = Enum.Material.Metal })
-	local blades = {}
-	for i = 0, 11 do
-		table.insert(blades, P(parent, { Size = V(1.6, 9, 0.2), Color = C(196, 196, 204), Material = Enum.Material.Metal, CanCollide = false }))
-	end
-	local center = (cf * CF(0, h + 1, -3.4))
-	task.spawn(function()
-		local a = 0
-		while hub.Parent do
-			a += RunService.Heartbeat:Wait() * 0.8
-			for i, bl in ipairs(blades) do
-				local ang = a + (i - 1) / #blades * math.pi * 2
-				bl.CFrame = center * ANG(0, 0, ang) * CF(0, 5.3, 0) * ANG(0, 0.35, 0)
-			end
-		end
-	end)
 end
 
 -- เต็นท์ Classes (ผ้าใบสีเขียวขี้ม้า หน้าเปิด) + เวทีโชว์หุ่น
@@ -561,50 +437,21 @@ local function dailyCauldron(self, parent, cf)
 	end)
 end
 
--- ธงราว / ไฟราว ห้อยโค้งระหว่างจุด a -> b (ตำแหน่งโลก)
-local BUNTING = { C(236, 84, 84), C(255, 204, 64), C(84, 172, 240), C(112, 210, 112), C(250, 144, 60), C(190, 112, 232) }
-local BULBS = { C(255, 214, 120), C(255, 150, 120), C(140, 220, 255), C(180, 255, 160) }
-local function garland(parent, a, b, sag, n, bulbs)
-	local pts = {}
-	for k = 0, n do
-		local t = k / n
-		pts[k] = a:Lerp(b, t) - V(0, sag * 4 * t * (1 - t), 0)
+-- ประตูมิติ (โมเดลหินจาก tools/lobby_art.py) -> ใส่ไฟ อนุภาค ป้าย 0/4 กลางม่าน เลขบนพื้น และโซนยืน
+local PORTAL_IDLE, PORTAL_VEIL, PORTAL_GO, PORTAL_GO_VEIL = C(70, 230, 255), C(30, 190, 255), C(110, 245, 140), C(80, 230, 130)
+local function portalHook(art, parent, i)
+	local center = art:FindFirstChild("PortalCenter" .. i, true)
+	local ring = art:FindFirstChild("PortalRing" .. i, true)
+	local veil = art:FindFirstChild("PortalVeil" .. i, true)
+	if not (center and ring and veil) then
+		return nil
 	end
-	local flat = (b - a) * V(1, 0, 1)
-	local dir = flat.Magnitude > 0.01 and flat.Unit or V(1, 0, 0)
-	for k = 1, n do
-		local p0, p1 = pts[k - 1], pts[k]
-		P(parent, { Size = V(0.12, 0.12, (p1 - p0).Magnitude), CFrame = CFrame.lookAt((p0 + p1) / 2, p1), Color = C(50, 40, 34), CanCollide = false, CanQuery = false, CastShadow = false })
-		local mid = (p0 + p1) / 2
-		if bulbs then
-			P(parent, { Shape = Enum.PartType.Ball, Size = V(0.6, 0.6, 0.6), CFrame = CF(mid - V(0, 0.35, 0)), Color = BULBS[(k % #BULBS) + 1], Material = Enum.Material.Neon, CanCollide = false, CanQuery = false, CastShadow = false })
-		else
-			local F = CFrame.lookAt(mid, mid + dir)
-			local col = BUNTING[(k % #BUNTING) + 1]
-			local hF, wF = 1.9, 1.5
-			P(parent, { ClassName = "WedgePart", Size = V(0.08, hF, wF / 2), CFrame = F * CF(0, -hF / 2, -wF / 4) * ANG(0, 0, math.pi), Color = col, Material = Enum.Material.Fabric, CanCollide = false, CanQuery = false, CastShadow = false })
-			P(parent, { ClassName = "WedgePart", Size = V(0.08, hF, wF / 2), CFrame = F * CF(0, -hF / 2, wF / 4) * ANG(0, math.pi, 0) * ANG(0, 0, math.pi), Color = col, Material = Enum.Material.Fabric, CanCollide = false, CanQuery = false, CastShadow = false })
-		end
-	end
-end
-
--- แท่น "เริ่มเกม": ลานไม้กลมยกพื้น + วงแหวนเรืองแสง + เลขแท่นกลางพื้น + คบไฟ 2 ข้าง + ป้ายลอยการ์ดกรมท่าขอบทอง
-local PAD_IDLE, PAD_GO = C(255, 196, 80), C(110, 240, 130)
-local function startPad(self, parent, cf, i)
-	cyl(parent, 0.6, 18.6, cf * CF(0, 0.3, 0), C(86, 60, 42), Enum.Material.Wood)
-	cyl(parent, 0.7, 17.2, cf * CF(0, 0.45, 0), C(170, 124, 82), Enum.Material.WoodPlanks)
-	local ring = cyl(parent, 0.08, 15.2, cf * CF(0, 0.82, 0), PAD_IDLE, Enum.Material.Neon)
-	ring.CanCollide = false
-	cyl(parent, 0.1, 14, cf * CF(0, 0.84, 0), C(180, 134, 90), Enum.Material.WoodPlanks)
-	local pad = P(parent, { Name = "StartPad" .. i, Shape = Enum.PartType.Cylinder, Size = V(0.06, 6.4, 6.4), CFrame = cf * CF(0, 0.91, 0) * ANG(0, 0, math.pi / 2),
-		Color = PAD_IDLE, Material = Enum.Material.Neon, Transparency = 0.35, CanCollide = false, CanQuery = false })
-	-- เลขแท่นกลางพื้น
-	local plate = P(parent, { Size = V(6, 0.05, 6), CFrame = cf * CF(0, 0.97, 0), Transparency = 1, CanCollide = false, CanQuery = false })
+	-- เลขประตูกลางลาน
 	local sg = Instance.new("SurfaceGui")
 	sg.Face = Enum.NormalId.Top
 	sg.PixelsPerStud = 30
 	sg.LightInfluence = 0
-	sg.Parent = plate
+	sg.Parent = center
 	local num = Instance.new("TextLabel")
 	num.Size = UDim2.fromScale(0.8, 0.8)
 	num.Position = UDim2.fromScale(0.1, 0.1)
@@ -612,83 +459,70 @@ local function startPad(self, parent, cf, i)
 	num.Font = Enum.Font.FredokaOne
 	num.TextScaled = true
 	num.Text = tostring(i)
-	num.TextColor3 = C(255, 255, 255)
+	num.TextColor3 = C(235, 252, 255)
 	num.Parent = sg
 	local ns = Instance.new("UIStroke")
-	ns.Thickness = 6
-	ns.Color = C(90, 52, 20)
+	ns.Thickness = 5
+	ns.Color = C(10, 60, 90)
 	ns.Parent = num
-	-- คบไฟ 2 ข้างด้านหลัง
-	for _, x in ipairs({ -7.6, 7.6 }) do
-		local tcf = cf * CF(x, 0.6, -5)
-		P(parent, { Size = V(0.7, 5, 0.7), CFrame = tcf * CF(0, 2.5, 0), Color = C(96, 66, 44), Material = Enum.Material.Wood })
-		P(parent, { Size = V(1.5, 0.6, 1.5), CFrame = tcf * CF(0, 5.2, 0), Color = C(60, 56, 54), Material = Enum.Material.Metal })
-		local core = P(parent, { Size = V(0.6, 0.6, 0.6), CFrame = tcf * CF(0, 5.9, 0), Transparency = 1, CanCollide = false, CanQuery = false })
-		fireOn(core, 2.6)
-	end
+	-- แสงม่าน + ประกายลอยออกจากม่าน
+	local glow = light(veil, PORTAL_VEIL, 26, 2.2)
 	local att = Instance.new("Attachment")
-	att.Parent = pad
+	att.Parent = veil
 	local motes = Instance.new("ParticleEmitter")
 	motes.Texture = "rbxasset://textures/particles/sparkles_main.dds"
 	motes.Shape = Enum.ParticleEmitterShape.Disc
 	motes.ShapeStyle = Enum.ParticleEmitterShapeStyle.Volume
-	motes.EmissionDirection = Enum.NormalId.Right -- แกนของทรงกระบอก = ขึ้นด้านบน
-	motes.Rate = 5
-	motes.Lifetime = NumberRange.new(1.6, 2.6)
-	motes.Speed = NumberRange.new(2, 4)
-	motes.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.4, 0.35), NumberSequenceKeypoint.new(1, 0) })
+	motes.Rate = 8
+	motes.Lifetime = NumberRange.new(1.5, 3)
+	motes.Speed = NumberRange.new(1, 3)
+	motes.SpreadAngle = Vector2.new(40, 40)
+	motes.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.3, 0.45), NumberSequenceKeypoint.new(1, 0) })
 	motes.LightEmission = 1
-	motes.Color = ColorSequence.new(C(255, 230, 160))
+	motes.Color = ColorSequence.new(C(190, 245, 255))
 	motes.Parent = att
-	local glow = light(pad, PAD_IDLE, 18, 1.2)
-	-- ป้ายลอย: การ์ดกรมท่าขอบทอง (โทนเดียวกับร้านค้า)
-	local anchor = P(parent, { Size = V(1, 1, 1), CFrame = cf * CF(0, 1, 0), Transparency = 1, CanCollide = false, CanQuery = false })
+	for _, tag in ipairs({ "L", "R" }) do
+		local lamp = art:FindFirstChild("PortalBrazier" .. i .. tag, true)
+		if lamp then
+			light(lamp, PORTAL_IDLE, 12, 1.4)
+		end
+	end
+	-- ป้ายกลางม่าน (ตัวหนังสือขาวขอบเข้ม แบบภาพต้นแบบ)
 	local bb = Instance.new("BillboardGui")
-	bb.Size = UDim2.fromScale(8.5, 4.2)
-	bb.StudsOffset = V(0, 8, 0)
-	bb.MaxDistance = 140
+	bb.Size = UDim2.fromScale(9, 4)
+	bb.MaxDistance = 160
 	bb.LightInfluence = 0
-	bb.Parent = anchor
-	local card = Instance.new("Frame")
-	card.Size = UDim2.fromScale(1, 1)
-	card.BackgroundColor3 = C(24, 28, 54)
-	card.BackgroundTransparency = 0.12
-	card.Parent = bb
-	local cc = Instance.new("UICorner")
-	cc.CornerRadius = UDim.new(0.22, 0)
-	cc.Parent = card
-	local cs = Instance.new("UIStroke")
-	cs.Thickness = 3
-	cs.Color = C(255, 200, 90)
-	cs.Parent = card
-	local function line(y, h, txt, color, font)
+	bb.Adornee = veil
+	bb.Parent = veil
+	local function line(y, h, txt, font)
 		local t = Instance.new("TextLabel")
-		t.Position = UDim2.fromScale(0.06, y)
-		t.Size = UDim2.fromScale(0.88, h)
+		t.Position = UDim2.fromScale(0, y)
+		t.Size = UDim2.fromScale(1, h)
 		t.BackgroundTransparency = 1
 		t.Text = txt
 		t.TextScaled = true
-		t.Font = font or Enum.Font.FredokaOne
-		t.TextColor3 = color
-		t.Parent = card
+		t.Font = font
+		t.TextColor3 = C(255, 255, 255)
+		t.Parent = bb
 		local st = Instance.new("UIStroke")
-		st.Thickness = 2
-		st.Color = C(10, 10, 22)
+		st.Thickness = 3
+		st.Color = C(8, 40, 70)
 		st.Parent = t
 		return t
 	end
-	line(0.06, 0.24, "แท่น " .. i, C(255, 210, 110))
-	local count = line(0.3, 0.42, "👥 0/4", C(255, 255, 255))
-	local sub = line(0.74, 0.2, "", C(210, 222, 255), Enum.Font.GothamBold)
-	local zone = P(parent, { Name = "MatchBox" .. i, Size = V(17, 12, 17), CFrame = cf * CF(0, 6, 0), Transparency = 1, CanCollide = false, CanQuery = false })
+	local count = line(0.05, 0.55, "👤 0/4", Enum.Font.FredokaOne)
+	local sub = line(0.62, 0.3, "เดินขึ้นแท่นเพื่อเริ่ม", Enum.Font.GothamBold)
+	local cp = center.Position
+	local zone = P(parent, { Name = "MatchBox" .. i, Size = V(21, 12, 21), CFrame = CF(cp.X, cp.Y + 5, cp.Z), Transparency = 1, CanCollide = false, CanQuery = false })
 	zone:SetAttribute("PadIndex", i)
 	zone:SetAttribute("Size", 4)
 	zone:SetAttribute("Count", 0)
 	zone:SetAttribute("Countdown", -1)
-	return { Index = i, Zone = zone, Size = 4, Text = count, Sub = sub, Countdown = nil, Pad = pad, Ring = ring, Runes = {}, Pillar = glow, Motes = motes }
+	return { Index = i, Zone = zone, Size = 4, Text = count, Sub = sub, Countdown = nil, Pad = veil, Ring = ring, Runes = {}, Pillar = glow, Motes = motes }
 end
 
----------------------------------------------------------------- สร้างล็อบบี้: ค่ายฟาร์มกลางป่ายามค่ำคืน (แบบ 99 Nights)
+---------------------------------------------------------------- สร้างล็อบบี้: ป่าโบราณศักดิ์สิทธิ์ (ประตูมิติหินโบราณ 4 ประตู + ซากรูน + ป่าดิบ + น้ำตก)
+-- ฉากหิน/ต้นไม้/พืชทั้งหมดมาจาก ServerStorage.LobbyArt.LobbyRuins (สร้างด้วย tools/lobby_art.py) · ที่นี่ใส่ของที่ใช้งานได้ + ไฟ/อนุภาค
 function LobbyService:Build()
 	local old = Workspace:FindFirstChild("Lobby")
 	if old then
@@ -699,65 +533,72 @@ function LobbyService:Build()
 	local base = CF(self.Position)
 	m.WorldPivot = base
 	local rng = Random.new(2024)
-	-- พื้นดิน + หินใต้เกาะ
-	-- พื้นหญ้าเขียวสด + ลานดินกลางค่าย (สว่าง สดใส ไม่มืดทึบ)
-	cyl(m, 8, 560, base * CF(0, -4, 0), C(110, 84, 60), Enum.Material.Ground)
-	cyl(m, 1, 556, base * CF(0, 0.5, 0), C(92, 160, 74), Enum.Material.Grass)
-	cyl(m, 0.2, 150, base * CF(0, 1.02, 10), C(176, 136, 92), Enum.Material.Ground)
+	-- พื้นหญ้าเขียวเข้มแบบป่า + หินใต้เกาะ
+	cyl(m, 8, 560, base * CF(0, -4, 0), C(96, 80, 60), Enum.Material.Ground)
+	cyl(m, 1, 556, base * CF(0, 0.5, 0), C(72, 138, 60), Enum.Material.Grass)
 	for i = 1, 5 do
-		cyl(m, 16, 560 - i * 90, base * CF(0, -8 - i * 14, 0), C(60 - i * 5, 56 - i * 5, 56 - i * 5), Enum.Material.Rock)
-	end
-	-- หย่อมหญ้าเขียวรอบลาน
-	for _ = 1, 26 do
-		local a = rng:NextNumber(0, math.pi * 2)
-		local r = rng:NextNumber(60, 120)
-		local d = rng:NextNumber(14, 30)
-		P(m, { Shape = Enum.PartType.Cylinder, Size = V(0.3, d, d), CFrame = base * CF(math.cos(a) * r, 1.05, math.sin(a) * r) * ANG(0, 0, math.pi / 2), Color = C(104, 176, 82):Lerp(C(130, 196, 92), rng:NextNumber()), Material = Enum.Material.Grass, CanCollide = false })
+		cyl(m, 16, 560 - i * 90, base * CF(0, -8 - i * 14, 0), C(60 - i * 5, 64 - i * 5, 60 - i * 5), Enum.Material.Rock)
 	end
 
-	local FX, FZ0, FZ1 = 120, -112, 104 -- ขอบรั้ว
+	local FX, FZ0, FZ1 = 120, -112, 104 -- ขอบค่าย (กำแพงหินพังในฉาก + กำแพงล่องหนกันตก)
 	local deco = Instance.new("Folder")
 	deco.Name = "Decor"
 	deco.Parent = m
 
-	------------------------------------------------ ทางเข้า: ลานไม้จุดเกิด + ซุ้มประตูไม้ซุง
-	deck(deco, base * CF(0, 1, 86), 50, 26, rng)
-	local archCf = base * CF(0, 1, FZ1)
-	for _, x in ipairs({ -12, 12 }) do
-		cyl(deco, 20, 2.6, archCf * CF(x, 10, 0), C(104, 74, 50), Enum.Material.Wood)
-		cyl(deco, 2.5, 3.8, archCf * CF(x, 1.2, 0), C(100, 96, 92), Enum.Material.Cobblestone)
+	------------------------------------------------ ฉากหลักจากโมเดล
+	local art
+	local src = ServerStorage:FindFirstChild("LobbyArt")
+	src = src and src:FindFirstChild("LobbyRuins")
+	if src then
+		art = src:Clone()
+		art:PivotTo(base)
+		art.Parent = m
+		for _, d in ipairs(art:GetDescendants()) do
+			if d:IsA("BasePart") then
+				if d.Name == "CrystalLamp" then
+					light(d, C(110, 230, 255), 16, 1.3)
+				elseif d.Name == "WaterfallFoam" then
+					local mist = Instance.new("ParticleEmitter")
+					mist.Texture = "rbxasset://textures/particles/smoke_main.dds"
+					mist.Rate = 14
+					mist.Lifetime = NumberRange.new(2, 3.5)
+					mist.Speed = NumberRange.new(2, 5)
+					mist.SpreadAngle = Vector2.new(60, 60)
+					mist.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 3), NumberSequenceKeypoint.new(1, 9) })
+					mist.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.55), NumberSequenceKeypoint.new(1, 1) })
+					mist.Color = ColorSequence.new(C(235, 248, 255))
+					mist.Parent = d
+				end
+			end
+		end
+		local campSign = art:FindFirstChild("CampSign", true)
+		if campSign then
+			for _, face in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back }) do
+				local t = label(campSign, face, "WILDHEART CAMP", C(150, 240, 255), Enum.Font.FredokaOne)
+				local st = Instance.new("UIStroke")
+				st.Color, st.Thickness, st.Parent = C(8, 40, 60), 3, t
+			end
+		end
+		local groveSign = art:FindFirstChild("GroveSign", true)
+		if groveSign then
+			for _, face in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back }) do
+				local t = label(groveSign, face, "⚔ เดินเข้าประตูมิติเพื่อเริ่มเกม", C(150, 240, 255), Enum.Font.GothamBlack)
+				local st = Instance.new("UIStroke")
+				st.Color, st.Thickness, st.Parent = C(8, 40, 60), 2, t
+			end
+		end
+	else
+		warn("[AS] ไม่พบ ServerStorage.LobbyArt.LobbyRuins (รัน python tools/lobby_art.py แล้ว build ใหม่)")
 	end
-	P(deco, { Shape = Enum.PartType.Cylinder, Size = V(30, 2.4, 2.4), CFrame = archCf * CF(0, 19.5, 0), Color = C(104, 74, 50), Material = Enum.Material.Wood })
-	P(deco, { Shape = Enum.PartType.Cylinder, Size = V(27, 1.6, 1.6), CFrame = archCf * CF(0, 16.8, 0), Color = C(92, 66, 44), Material = Enum.Material.Wood })
-	local campSign = P(deco, { Size = V(20, 4.2, 0.6), CFrame = archCf * CF(0, 13.4, 0), Color = C(76, 52, 34), Material = Enum.Material.WoodPlanks })
-	for _, x in ipairs({ -8, 8 }) do
-		P(deco, { Size = V(0.15, 2.4, 0.15), CFrame = archCf * CF(x, 15.6, 0), Color = C(40, 36, 34) })
+	-- กำแพงล่องหนรอบค่าย (เว้นประตูทิศใต้ที่ปิดด้วย GateBlock)
+	for _, w in ipairs({
+		{ V(FX * 2 + 4, 40, 2), V(0, 20, FZ0) }, { V(2, 40, FZ1 - FZ0), V(FX, 20, (FZ0 + FZ1) / 2) }, { V(2, 40, FZ1 - FZ0), V(-FX, 20, (FZ0 + FZ1) / 2) },
+		{ V(FX - 14, 40, 2), V((FX + 14) / 2, 20, FZ1) }, { V(FX - 14, 40, 2), V(-(FX + 14) / 2, 20, FZ1) },
+	}) do
+		P(m, { Name = "Boundary", Size = w[1], CFrame = base * CF(w[2]), Transparency = 1, CanQuery = false })
 	end
-	for _, face in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back }) do
-		local t = label(campSign, face, "WILDHEART CAMP", C(255, 214, 120), Enum.Font.FredokaOne)
-		local st = Instance.new("UIStroke")
-		st.Color, st.Thickness, st.Parent = C(40, 24, 10), 3, t
-	end
-	for _, x in ipairs({ -6, 6 }) do
-		local l = P(deco, { Size = V(1.1, 1.5, 1.1), CFrame = archCf * CF(x, 10.8, 0), Color = C(255, 206, 130), Material = Enum.Material.Neon, CanCollide = false })
-		P(deco, { Size = V(0.1, 5, 0.1), CFrame = archCf * CF(x, 14, 0), Color = C(40, 36, 34), CanCollide = false })
-		light(l, C(255, 186, 110), 26, 2, true)
-	end
-
-	-- ทางนอกซุ้มหายเข้าป่ามืด (ปิดด้วยกำแพงล่องหน)
-	boardwalk(deco, (base * CF(0, 1, FZ1 + 2)).Position, (base * CF(0, 1, FZ1 + 34)).Position, 9, rng)
 	P(m, { Name = "GateBlock", Size = V(30, 40, 1), CFrame = base * CF(0, 20, FZ1 + 6), Transparency = 1, CanQuery = false })
 
-	------------------------------------------------ ทางเดินไม้
-	boardwalk(deco, (base * CF(0, 1, 72)).Position, (base * CF(0, 1, -30)).Position, 10, rng)
-	boardwalk(deco, (base * CF(-86, 1, 44)).Position, (base * CF(92, 1, 44)).Position, 8, rng)
-	boardwalk(deco, (base * CF(65, 1, 44)).Position, (base * CF(65, 1, -26)).Position, 7, rng)
-	boardwalk(deco, (base * CF(-42, 1, 44)).Position, (base * CF(-42, 1, -8)).Position, 8, rng)
-	-- ไฟริมทาง: เหลือแค่หัวทาง + ทางแยก (ไม่เยอะจนรก)
-	lanternPost(deco, base * CF(-8, 1, 60) * ANG(0, math.rad(-90), 0), 8)
-	lanternPost(deco, base * CF(8, 1, 60) * ANG(0, math.rad(90), 0), 8)
-	lanternPost(deco, base * CF(-30, 1, 51), 8)
-	lanternPost(deco, base * CF(40, 1, 51), 8)
 	-- ของตกแต่งโทนเดียวกับกระท่อม Classes (โมเดลจริง): ม้านั่งท่อนซุง ลังไม้ กองฟืน โรงเก็บของ
 	PropBuilder.StoreModel("CampShack", base * CF(-96, 1, -70) * ANG(0, math.rad(60), 0), deco)
 	for _, info in ipairs({ { -24, -36, 0.2 }, { 28, -40, 1.1 }, { -60, 30, 2.2 }, { 46, 70, 0.6 }, { -100, -40, 1.6 } }) do
@@ -833,110 +674,20 @@ function LobbyService:Build()
 	BaseDecor.CanvasTent(deco, base * CF(-90, 1, 78) * ANG(0, math.rad(-70), 0), C(70, 104, 150))
 	BaseDecor.CanvasTent(deco, base * CF(-80, 1, 96) * ANG(0, math.rad(-130), 0), C(196, 110, 52))
 
-	------------------------------------------------ ขวา: แท่นเริ่มเกม 4 แท่น (2 x 2 ทางเดินไม้ผ่านกลาง)
+	------------------------------------------------ ประตูมิติ 4 ประตู (ลานฝั่งตะวันออก)
 	self.boxes = {}
-	for i, pos in ipairs({ V(49, 1, -6), V(81, 1, -6), V(49, 1, 24), V(81, 1, 24) }) do
-		table.insert(self.boxes, startPad(self, deco, base * CF(pos), i))
-	end
-	local startSign = P(deco, { Size = V(14, 3.4, 0.5), CFrame = base * CF(65, 7.5, 50) * ANG(0, math.pi, 0), Color = C(76, 52, 34), Material = Enum.Material.WoodPlanks })
-	label(startSign, Enum.NormalId.Front, "⚔ เริ่มเกม →", C(130, 255, 120), Enum.Font.GothamBlack)
-	label(startSign, Enum.NormalId.Back, "⚔ เริ่มเกม", C(130, 255, 120), Enum.Font.GothamBlack)
-	for _, x in ipairs({ -6, 6 }) do
-		P(deco, { Size = V(0.8, 7, 0.8), CFrame = base * CF(65 + x, 4.5, 50.4), Color = C(74, 52, 38), Material = Enum.Material.Wood })
-	end
-
-	------------------------------------------------ ของตกแต่ง: ฟาง ลังไม้ โต๊ะปิกนิก
-	for _, info in ipairs({ { 96, -92, 0.2 }, { 102, -84, 1.4 }, { 98, -88, 0.9, true }, { -100, -90, 0.6 }, { -94, -96, 2 } }) do
-		hayBale(deco, base * CF(info[1], info[3] and 4 or 1, info[2]) * ANG(0, info[3] or 0, 0))
-	end
-	for _, info in ipairs({ { 24, -40 }, { 27, -44 }, { -26, -40 }, { 40, 60 }, { -102, 30 } }) do
-		crate(deco, base * CF(info[1], 1, info[2]) * ANG(0, rng:NextNumber(0, 1), 0))
-	end
-	for _, pcf in ipairs({ base * CF(30, 1, 72), base * CF(44, 1, 84) * ANG(0, 0.5, 0) }) do
-		P(deco, { Size = V(9, 0.5, 3.6), CFrame = pcf * CF(0, 3.2, 0), Color = C(130, 92, 60), Material = Enum.Material.WoodPlanks })
-		for _, z in ipairs({ -3, 3 }) do
-			P(deco, { Size = V(9, 0.4, 1.4), CFrame = pcf * CF(0, 1.8, z), Color = C(116, 82, 54), Material = Enum.Material.WoodPlanks })
-		end
-		for _, x in ipairs({ -3.5, 3.5 }) do
-			P(deco, { Size = V(0.5, 3, 7), CFrame = pcf * CF(x, 1.5, 0), Color = C(96, 68, 46), Material = Enum.Material.Wood })
-		end
-	end
-	-- กอหญ้า
-	for _ = 1, 45 do
-		local x, z = rng:NextNumber(-FX + 4, FX - 4), rng:NextNumber(FZ0 + 4, FZ1 - 4)
-		if math.abs(x) > 12 and not (math.abs(x) < 26 and z < -30) and not (x > 36 and x < 94 and z > -20 and z < 38) then
-			for k = 0, 2 do
-				P(deco, { ClassName = "WedgePart", Size = V(0.2, rng:NextNumber(1, 2.2), 1), CFrame = base * CF(x + k * 0.4, 1.6, z) * ANG(0, rng:NextNumber(0, 6), 0), Color = LEAF[rng:NextInteger(1, #LEAF)]:Lerp(C(120, 160, 80), 0.3), Material = Enum.Material.Grass, CanCollide = false, CanQuery = false })
+	if art then
+		for i = 1, 4 do
+			local box = portalHook(art, deco, i)
+			if box then
+				table.insert(self.boxes, box)
 			end
 		end
 	end
 
-	------------------------------------------------ ธงราวสีสด + ไฟราว (บรรยากาศงานแคมป์สนุกๆ)
-	local fest = Instance.new("Folder")
-	fest.Name = "Festive"
-	fest.Parent = deco
-	local function wp(x, y, z)
-		return (base * CF(x, y, z)).Position
-	end
-	garland(fest, wp(-12, 17, FZ1), wp(-29.5, 8.4, 51), 2.2, 10, false)
-	garland(fest, wp(12, 17, FZ1), wp(39.5, 8.4, 51), 2.2, 10, false)
-	garland(fest, wp(-29.5, 8.4, 51), wp(-8, 8.4, 60), 1.2, 6, true)
-	garland(fest, wp(8, 8.4, 60), wp(39.5, 8.4, 51), 1.4, 8, true)
-	garland(fest, wp(-8, 8.4, 60), wp(8, 8.4, 60), 1, 6, false)
-	-- ไฟราวรอบลานแท่นเริ่มเกม
-	garland(fest, wp(65 - 6, 7.6, 50.4), wp(36, 6.5, 40), 1, 6, true)
-	garland(fest, wp(65 + 6, 7.6, 50.4), wp(94, 6.5, 40), 1, 6, true)
-	for _, x in ipairs({ 36, 94 }) do
-		P(fest, { Size = V(0.7, 7, 0.7), CFrame = base * CF(x, 4.5, 40), Color = C(96, 66, 44), Material = Enum.Material.Wood })
-	end
-
-	------------------------------------------------ รั้วไม้สูงรอบค่าย (เว้นประตูทิศใต้)
-	local fence = Instance.new("Folder")
-	fence.Name = "Fence"
-	fence.Parent = m
-	local function fp(x, z)
-		return (base * CF(x, 1, z)).Position
-	end
-	plankFence(fence, fp(-FX, FZ0), fp(FX, FZ0), 12, rng)
-	plankFence(fence, fp(FX, FZ0), fp(FX, FZ1), 12, rng)
-	plankFence(fence, fp(-FX, FZ1), fp(-FX, FZ0), 12, rng)
-	plankFence(fence, fp(FX, FZ1), fp(14, FZ1), 12, rng)
-	plankFence(fence, fp(-14, FZ1), fp(-FX, FZ1), 12, rng)
-
-	------------------------------------------------ ฉากหลัง: โรงนา กังหันลม ป่าใบเหลี่ยม
-	barn(deco, base * CF(70, 1, FZ0 - 34) * ANG(0, math.rad(8), 0))
-	windmill(deco, base * CF(-62, 1, FZ0 - 30))
-	for _, info in ipairs({ { -104, -70 }, { 104, -60 }, { -106, 50 }, { 106, 70 }, { -30, -98 }, { 30, -100 }, { 100, -20 } }) do
-		blockyTree(deco, base * CF(info[1], 1, info[2]) * ANG(0, rng:NextNumber(0, 6), 0), rng:NextNumber(0.9, 1.2), rng)
-	end
-	local trees = Instance.new("Folder")
-	trees.Name = "Forest"
-	trees.Parent = m
-	for _ = 1, 85 do
-		local a = rng:NextNumber(0, math.pi * 2)
-		local r = rng:NextNumber(150, 265)
-		local x, z = math.cos(a) * r, math.sin(a) * r
-		if not (math.abs(x) < 16 and z > FZ1) and not (x > 40 and x < 100 and z < FZ0 - 10 and z > FZ0 - 60) and not (x > -80 and x < -44 and z < FZ0 - 14 and z > FZ0 - 46) then
-			blockyTree(trees, base * CF(x, 1, z) * ANG(0, rng:NextNumber(0, 6), 0), rng:NextNumber(1, 1.6), rng)
-		end
-	end
-	-- แนวต้นไม้ชิดรั้วด้านนอก
-	for _ = 1, 40 do
-		local side = rng:NextInteger(1, 4)
-		local x, z
-		if side == 1 then
-			x, z = rng:NextNumber(-FX, FX), FZ0 - rng:NextNumber(8, 30)
-		elseif side == 2 then
-			x, z = FX + rng:NextNumber(8, 30), rng:NextNumber(FZ0, FZ1)
-		elseif side == 3 then
-			x, z = -FX - rng:NextNumber(8, 30), rng:NextNumber(FZ0, FZ1)
-		else
-			x, z = rng:NextNumber(-FX, FX), FZ1 + rng:NextNumber(10, 30)
-		end
-		local blocked = (x > 40 and x < 100 and z < FZ0) or (x > -80 and x < -44 and z < FZ0) or (math.abs(x) < 16 and z > FZ1)
-		if not blocked then
-			blockyTree(trees, base * CF(x, 1, z) * ANG(0, rng:NextNumber(0, 6), 0), rng:NextNumber(0.9, 1.4), rng)
-		end
+	------------------------------------------------ ลังไม้ประปราย
+	for _, info in ipairs({ { 24, -40 }, { 27, -44 }, { -26, -40 }, { 40, 60 }, { -102, 30 } }) do
+		crate(deco, base * CF(info[1], 1, info[2]) * ANG(0, rng:NextNumber(0, 1), 0))
 	end
 
 	self.spawnCf = base * CF(0, 4, 88)
@@ -1306,7 +1057,7 @@ function LobbyService:Tick(dt)
 		box.Members = members
 		box.List = list
 		local n = #list
-		box.Text.Text = string.format("👥 %d/%d", n, box.Size)
+		box.Text.Text = string.format("👤 %d/%d", n, box.Size)
 		box.Zone:SetAttribute("Size", box.Size)
 		box.Zone:SetAttribute("Count", n)
 		box.Zone:SetAttribute("Countdown", box.Countdown and math.max(0, math.ceil(box.Countdown)) or -1)
@@ -1320,20 +1071,20 @@ function LobbyService:Tick(dt)
 		elseif n == 0 then
 			box.Countdown = nil
 			box.Sub.Text = running and "⚔ ร่วมทีมที่เล่นอยู่" or "เดินขึ้นแท่นเพื่อเริ่ม"
-			box.Pad.Color = PAD_IDLE
-			box.Ring.Color = PAD_IDLE
-			box.Pillar.Color = PAD_IDLE
-			box.Motes.Color = ColorSequence.new(C(255, 230, 160))
-			box.Motes.Rate = 5
+			box.Pad.Color = PORTAL_VEIL
+			box.Ring.Color = PORTAL_IDLE
+			box.Pillar.Color = PORTAL_VEIL
+			box.Motes.Color = ColorSequence.new(C(190, 245, 255))
+			box.Motes.Rate = 8
 		else
 			local target = running and COUNTDOWN_JOIN or ((n >= box.Size) and COUNTDOWN_FULL or COUNTDOWN)
 			box.Countdown = math.min(box.Countdown or target, target) - dt
 			box.Sub.Text = string.format("ออกเดินทางใน %d", math.max(0, math.ceil(box.Countdown)))
-			box.Pad.Color = PAD_GO
-			box.Ring.Color = PAD_GO
-			box.Pillar.Color = PAD_GO
-			box.Motes.Color = ColorSequence.new(C(160, 255, 170))
-			box.Motes.Rate = 20
+			box.Pad.Color = PORTAL_GO_VEIL
+			box.Ring.Color = PORTAL_GO
+			box.Pillar.Color = PORTAL_GO_VEIL
+			box.Motes.Color = ColorSequence.new(C(170, 255, 180))
+			box.Motes.Rate = 24
 			anyCountdown = math.max(anyCountdown, math.ceil(box.Countdown))
 			anyCount += n
 			if box.Countdown <= 0 then
