@@ -44,36 +44,62 @@ local function statOf(key)
 	return p[key] or 0
 end
 
--- ปุ่มเมนู: การ์ดกรมท่าเข้ม (ธีมเดียวกับร้านค้า) + วงไอคอนสีอ่อนๆ + ชื่อสีขาว · ชี้แล้วขยายนิดเดียว ไม่เด้งไปมา
+-- ปุ่มเมนู: ไม่มีกล่องครอบ · วงกลมสีนุ่มๆ ไล่เงา + ขอบขาวบาง + ไอคอนใหญ่ + ชื่อตัวขาวขอบดำใต้วง
+-- ชี้แล้วขยายนิดเดียว กดแล้วยุบนิดเดียว (ไม่เด้งไปมาเอง)
 local function dockButton(parent, order, icon, name, color, onClick)
-	local b = UIKit.Button(parent, { Text = "", Size = UDim2.fromOffset(88, 88), LayoutOrder = order, BackgroundColor3 = C(34, 38, 66) }, onClick)
-	b:FindFirstChildOfClass("UICorner").CornerRadius = UDim.new(0, 18)
-	-- พื้นไล่สีกรมท่า (แทนไล่สีขาวของปุ่มทั่วไป)
-	local g = b:FindFirstChildOfClass("UIGradient")
-	if g then
-		g.Color = ColorSequence.new(C(255, 255, 255), C(170, 176, 205))
-	end
-	local border = b:FindFirstChildOfClass("UIStroke")
-	if border then
-		border.Color = C(10, 10, 22)
-	end
-	local ring = UIKit.Frame(b, { Size = UDim2.fromOffset(50, 50), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 8), BackgroundColor3 = color, BackgroundTransparency = 0.72, ZIndex = 2 })
-	local rc = Instance.new("UICorner")
-	rc.CornerRadius = UDim.new(1, 0)
-	rc.Parent = ring
-	local rs = Instance.new("UIStroke")
-	rs.Color = color
-	rs.Thickness = 2
-	rs.Transparency = 0.35
-	rs.Parent = ring
-	UIKit.Text(ring, { Size = UDim2.fromScale(1, 1), Text = icon, TextSize = 28, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 3 })
-	UIKit.Text(b, { Size = UDim2.new(1, -8, 0, 20), Position = UDim2.new(0, 4, 1, -26), Text = name, Font = UIKit.Fonts.Title, TextSize = 17, TextXAlignment = Enum.TextXAlignment.Center, TextColor3 = C(236, 238, 250), ZIndex = 3 })
-	local dot = UIKit.Frame(b, { Size = UDim2.fromOffset(24, 24), Position = UDim2.new(1, -16, 0, -8), BackgroundColor3 = UIKit.Colors.Red, BackgroundTransparency = 0, Visible = false, ZIndex = 8 })
+	local b = Instance.new("TextButton")
+	b.Name = "Dock_" .. name
+	b.Text = ""
+	b.AutoButtonColor = false
+	b.BackgroundTransparency = 1
+	b.Size = UDim2.fromOffset(84, 98)
+	b.LayoutOrder = order
+	b.Parent = parent
+	local circle = UIKit.Frame(b, { Size = UDim2.fromOffset(68, 68), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 2), BackgroundColor3 = color, BackgroundTransparency = 0, ZIndex = 2 })
+	local cc = Instance.new("UICorner")
+	cc.CornerRadius = UDim.new(1, 0)
+	cc.Parent = circle
+	local grad = Instance.new("UIGradient")
+	grad.Color = ColorSequence.new(C(255, 255, 255), C(150, 150, 160))
+	grad.Rotation = 90
+	grad.Parent = circle
+	local rim = Instance.new("UIStroke")
+	rim.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	rim.Color = C(255, 255, 255)
+	rim.Thickness = 2.5
+	rim.Transparency = 0.25
+	rim.Parent = circle
+	-- เงาวาวครึ่งบน
+	local gloss = UIKit.Frame(circle, { Size = UDim2.new(0.72, 0, 0.36, 0), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0.07, 0), BackgroundColor3 = C(255, 255, 255), BackgroundTransparency = 0.82, ZIndex = 3 })
+	local gc = Instance.new("UICorner")
+	gc.CornerRadius = UDim.new(1, 0)
+	gc.Parent = gloss
+	UIKit.Text(circle, { Size = UDim2.fromScale(1, 1), Text = icon, TextSize = 34, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 4 })
+	local label = UIKit.Text(b, { Size = UDim2.new(1, 0, 0, 24), Position = UDim2.new(0, 0, 0, 72), Text = name, Font = UIKit.Fonts.Title, TextSize = 19, TextXAlignment = Enum.TextXAlignment.Center, TextColor3 = C(255, 255, 255), ZIndex = 3 })
+	label:FindFirstChildOfClass("UIStroke").Thickness = 2.2
+	local sc = Instance.new("UIScale")
+	sc.Parent = circle
+	b.MouseEnter:Connect(function()
+		UIKit.Tween(sc, 0.15, { Scale = 1.08 })
+	end)
+	b.MouseLeave:Connect(function()
+		UIKit.Tween(sc, 0.15, { Scale = 1 })
+	end)
+	b.MouseButton1Down:Connect(function()
+		UIKit.Tween(sc, 0.08, { Scale = 0.94 })
+	end)
+	b.Activated:Connect(function()
+		UIKit.Tween(sc, 0.12, { Scale = 1 })
+		if onClick then
+			onClick()
+		end
+	end)
+	local dot = UIKit.Frame(circle, { Size = UDim2.fromOffset(22, 22), Position = UDim2.new(1, -16, 0, -4), BackgroundColor3 = UIKit.Colors.Red, BackgroundTransparency = 0, Visible = false, ZIndex = 8 })
 	local dc = Instance.new("UICorner")
 	dc.CornerRadius = UDim.new(1, 0)
 	dc.Parent = dot
-	UIKit.Stroke(dot, UIKit.Colors.Outline, 2, 0)
-	local dt = UIKit.Text(dot, { Size = UDim2.fromScale(1, 1), Text = "!", Font = UIKit.Fonts.Title, TextSize = 16, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 9 })
+	UIKit.Stroke(dot, C(255, 255, 255), 2, 0)
+	local dt = UIKit.Text(dot, { Size = UDim2.fromScale(1, 1), Text = "!", Font = UIKit.Fonts.Title, TextSize = 15, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 9 })
 	return b, dot, dt
 end
 
@@ -89,16 +115,16 @@ function LobbyUI.Build(gui, handlers)
 	side.BackgroundTransparency = 1
 	side.AnchorPoint = Vector2.new(0, 0.5)
 	side.Position = UDim2.new(0, 22, 0.52, 0)
-	side.Size = UDim2.fromOffset(100, 420)
+	side.Size = UDim2.fromOffset(90, 440)
 	side.Parent = root
 	UIKit.AutoScale(side)
 	local layout = Instance.new("UIListLayout")
-	layout.Padding = UDim.new(0, 12)
+	layout.Padding = UDim.new(0, 8)
 	layout.SortOrder = Enum.SortOrder.LayoutOrder
 	layout.VerticalAlignment = Enum.VerticalAlignment.Center
 	layout.Parent = side
-	dockButton(side, 1, "⚔", "คลาส", UIKit.Colors.Orange, handlers.Classes)
-	local _, dot, dotText = dockButton(side, 2, "🏅", "ป้าย", UIKit.Colors.Purple, function()
+	dockButton(side, 1, "⚔", "คลาส", C(230, 132, 64), handlers.Classes)
+	local _, dot, dotText = dockButton(side, 2, "🏅", "ป้าย", C(146, 104, 222), function()
 		ui.Badges.Visible = not ui.Badges.Visible
 		if ui.Badges.Visible then
 			UIKit.Pop(ui.Badges)
@@ -106,8 +132,8 @@ function LobbyUI.Build(gui, handlers)
 		LobbyUI.Refresh()
 	end)
 	ui.BadgeDot, ui.BadgeDotText = dot, dotText
-	dockButton(side, 3, "💎", "ร้านค้า", UIKit.Colors.Green, handlers.Shop)
-	dockButton(side, 4, "⚙", "ตั้งค่า", UIKit.Colors.Blue, handlers.Settings)
+	dockButton(side, 3, "💎", "ร้านค้า", C(64, 182, 120), handlers.Shop)
+	dockButton(side, 4, "⚙", "ตั้งค่า", C(74, 132, 220), handlers.Settings)
 
 	-- เพชร: แคปซูลมุมซ้ายบน + ปุ่ม + (เปิดร้านค้า)
 	local pill = UIKit.Frame(root, { Size = UDim2.fromOffset(190, 46), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -24, 0, 20), BackgroundColor3 = Color3.fromRGB(26, 30, 54), BackgroundTransparency = 0 })
