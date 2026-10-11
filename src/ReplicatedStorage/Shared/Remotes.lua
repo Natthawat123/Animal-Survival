@@ -36,6 +36,7 @@ Remotes.Events = {
 	"Cinematic", -- (kind, data)
 	"HitFx", -- (kind, data)
 	"Profile", -- (profile table)
+	"WorldEvent", -- (kind, data) เหตุการณ์กลางวัน/วิหารโบราณ (EventService, SanctumService)
 }
 Remotes.Functions = {
 	"GetProfile",

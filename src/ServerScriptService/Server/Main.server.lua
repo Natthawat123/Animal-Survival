@@ -72,6 +72,7 @@ end
 local order = {
 	"DataService", "DevService", "InventoryService", "DropService", "SurvivalService", "LobbyService", "MonetizationService", "ResourceService", "CampService", "BuildingService",
 	"CombatService", "AnimalService", "SpiritService", "LootService", "TraderService", "DirectorService",
+	"EventService", "SanctumService",
 }
 for _, name in ipairs(order) do
 	ctx.Services[name] = require(Server:WaitForChild(name))
@@ -126,7 +127,7 @@ for _, site in ipairs(layout.SiteList) do
 end
 
 -- ช่วงที่ 2: ระบบในแมพ
-start({ "DropService", "ResourceService", "CampService", "BuildingService", "CombatService", "AnimalService", "SpiritService", "LootService", "TraderService", "DirectorService" })
+start({ "DropService", "ResourceService", "CampService", "BuildingService", "CombatService", "AnimalService", "SpiritService", "LootService", "TraderService", "DirectorService", "EventService", "SanctumService" })
 
 -- โหมดลองเล่น: ของเต็มกระเป๋า
 if ReplicatedStorage:FindFirstChild("ASSandbox") then

@@ -64,6 +64,7 @@ function MapLayout.new(seed, size, config)
 	end
 
 	self:_placeSpecials(rng)
+	self:_placeSanctums()
 	return self
 end
 
@@ -292,6 +293,73 @@ function MapLayout:_placeSpecials(rng)
 	-- ลมพัดขึ้นสู่รังบอส (ต้องผ่านเกาะ)
 	local nh = self:HeightAt(air.X + 120, air.Z)
 	table.insert(self.Updrafts, { Position = Vector3.new(air.X + 120, nh, air.Z), Height = nest.Y - nh + 40 })
+end
+
+-- วิหารโบราณศักดิ์สิทธิ์ (Sanctum) ธาตุละ 1 แห่ง: หาที่ราบ ห่างแคมป์/ศาลเจ้า/รังบอส/ซาก/น้ำ/ลาวา
+-- ใช้ RNG แยก (ไม่กระทบตำแหน่งจุดพิเศษเดิม) · Radius = รัศมีลานที่ปรับพื้น/กันต้นไม้
+MapLayout.SanctumRadius = 52
+function MapLayout:_placeSanctums()
+	local rng = Random.new(self.Seed + 31337)
+	local R = MapLayout.SanctumRadius
+	self.Sanctums = {}
+	local function clearOf(x, z)
+		if x * x + z * z < (self.HeartRadius + 420) ^ 2 then
+			return false
+		end
+		for _, sp in ipairs(self.Specials) do
+			local need = (sp.Kind == "Lair" and 260) or (sp.Kind == "Sanctum" and 500) or 150
+			if (sp.Position.X - x) ^ 2 + (sp.Position.Z - z) ^ 2 < need * need then
+				return false
+			end
+		end
+		for _, up in ipairs(self.Updrafts) do
+			if (up.Position.X - x) ^ 2 + (up.Position.Z - z) ^ 2 < 90 * 90 then
+				return false
+			end
+		end
+		return true
+	end
+	for _, el in ipairs(ELEMENTS) do
+		local s = self.Sites[el]
+		local best, bestScore
+		for try = 1, 140 do
+			local spread = try > 90 and 1.3 or 0.75
+			local ang = s.Angle + rng:NextNumber(-spread, spread)
+			local dist = s.Dist * rng:NextNumber(0.4, 1.25)
+			local x, z = math.cos(ang) * dist, math.sin(ang) * dist
+			local h, biome, lava = self:HeightAt(x, z)
+			if biome == el and not lava and h > self.WaterLevel + 6 and h < 260 and clearOf(x, z) then
+				-- คะแนน (น้อย = ดี): ความต่างระดับรอบลาน + โทษจุดที่เป็นน้ำ/ลาวา/นอกไบโอม (ปรับพื้นทับได้ แต่ไม่สวย)
+				local lo, hi, penalty = h, h, 0
+				for k = 0, 7 do
+					local a = k / 8 * math.pi * 2
+					local hh, bb, ll = self:HeightAt(x + math.cos(a) * R * 0.8, z + math.sin(a) * R * 0.8)
+					if ll then
+						penalty += 200
+					elseif hh < self.WaterLevel + 2 then
+						penalty += 40
+					else
+						lo, hi = math.min(lo, hh), math.max(hi, hh)
+					end
+					if bb ~= el then
+						penalty += 15
+					end
+				end
+				local score = (hi - lo) + penalty + math.abs(dist - s.Dist * 0.8) * 0.01
+				if not bestScore or score < bestScore then
+					best, bestScore = { X = x, Z = z, Y = (lo + hi) / 2 }, score
+				end
+				if score < 8 and try > 30 then
+					break
+				end
+			end
+		end
+		if best then
+			local sp = { Kind = "Sanctum", Element = el, Position = Vector3.new(best.X, math.max(best.Y, self.WaterLevel + 6), best.Z), Radius = R + 6 }
+			table.insert(self.Specials, sp)
+			self.Sanctums[el] = sp
+		end
+	end
 end
 
 function MapLayout:GetSpecials(kind, element)
