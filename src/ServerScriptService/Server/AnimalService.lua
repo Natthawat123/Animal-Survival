@@ -317,7 +317,7 @@ function AnimalService:Kill(a, attacker)
 	end
 	local isBoss = model:GetAttribute("IsBoss")
 	if isBoss then
-		-- บอส: ทุกคนในระยะได้ของ + แร่แดง
+		-- บอส: ทุกคนในระยะได้ของ + Ruby
 		for _, p in ipairs(Players:GetPlayers()) do
 			local c = p.Character
 			if c and (c:GetPivot().Position - pos).Magnitude < 260 then

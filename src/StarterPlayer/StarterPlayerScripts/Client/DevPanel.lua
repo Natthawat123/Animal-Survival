@@ -270,7 +270,7 @@ local TABS = {
 		end
 	end },
 	{ "โปรไฟล์", function(page)
-		btn(page, "🔺 +1000 แร่แดง", C(50, 110, 160), function() run("diamonds", 1000) end)
+		btn(page, "♦️ +1000 Ruby", C(50, 110, 160), function() run("diamonds", 1000) end)
 		btn(page, "🔓 ปลดล็อกทุกคลาส", C(70, 120, 70), function() run("unlockAll") end)
 		btn(page, "⭐ คลาสปัจจุบันเลเวล 3", C(150, 120, 40), function() run("maxClass") end)
 		btn(page, "🔄 รีเซ็ตรางวัลรายวัน+สต็อก", nil, function() run("resetDaily") end)

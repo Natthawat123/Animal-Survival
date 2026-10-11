@@ -97,7 +97,7 @@ start({ "DataService", "DevService", "InventoryService", "SurvivalService", "Lob
 ---------------------------------------------------------------- สร้างโลก
 local t0 = os.clock()
 -- Studio (กด Play) เซิร์ฟเวอร์กับผู้เล่นอยู่โปรแกรมเดียวกัน -> แบ่งเวลาสร้างโลกต่อเฟรมให้น้อยลง หน้าโหลด/ล็อบบี้จะไม่กระตุก
-local genBudget = game:GetService("RunService"):IsStudio() and 0.01 or 0.04
+local genBudget = game:GetService("RunService"):IsStudio() and 0.016 or 0.04
 MapGenerator.Generate(layout, {
 	Yield = true,
 	Budget = genBudget,

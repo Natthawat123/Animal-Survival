@@ -1,5 +1,5 @@
 --[[
-	DataService — เซฟถาวร: แร่แดง 🔺, คลาสที่ซื้อแล้ว, สถิติ, การตั้งค่า, ป้าย
+	DataService — เซฟถาวร: Ruby ♦️, คลาสที่ซื้อแล้ว, สถิติ, การตั้งค่า, ป้าย
 	ใน Studio ถ้ายังไม่เปิด API Services จะใช้ข้อมูลชั่วคราว (ไม่เซฟ)
 	กระดานอันดับทั้งเกม: OrderedDataStore (Config.LeaderboardStore) เก็บ "คืนที่รอดนานสุด" ของทุกคน
 ]]
@@ -230,7 +230,7 @@ function DataService:Save(player)
 	return ok
 end
 
--- opts.Purchased = แร่แดงที่ซื้อด้วย Robux (ไม่คูณ VIP)
+-- opts.Purchased = Ruby ที่ซื้อด้วย Robux (ไม่คูณ VIP)
 function DataService:AddDiamonds(player, n, reason, opts)
 	local data = profiles[player]
 	if not data then
@@ -243,7 +243,7 @@ function DataService:AddDiamonds(player, n, reason, opts)
 	end
 	data.Diamonds += n
 	player:SetAttribute("Diamonds", data.Diamonds)
-	self.ctx.Notify(player, string.format("🔺 +%d แร่แดง  (%s)", n, reason or ""), "Reward")
+	self.ctx.Notify(player, string.format("♦️ +%d Ruby  (%s)", n, reason or ""), "Reward")
 	self.ctx.Remotes.Get("Profile"):FireClient(player, data)
 end
 
@@ -264,7 +264,7 @@ function DataService:Start(ctx)
 			return
 		end
 		if data.Diamonds < c.Price then
-			ctx.Notify(player, "🔺 แร่แดงไม่พอ", "Error")
+			ctx.Notify(player, "♦️ Ruby ไม่พอ", "Error")
 			return
 		end
 		data.Diamonds -= c.Price
@@ -291,7 +291,7 @@ function DataService:Start(ctx)
 			return
 		end
 		if data.Diamonds < Classes.RerollPrice then
-			ctx.Notify(player, "🔺 แร่แดงไม่พอรีโรลสต็อค", "Error")
+			ctx.Notify(player, "♦️ Ruby ไม่พอรีโรลสต็อค", "Error")
 			return
 		end
 		self:EnsureStock(data)
@@ -312,7 +312,7 @@ function DataService:Start(ctx)
 		end
 		local price = Classes.SkipPrice(classId, level + 1)
 		if data.Diamonds < price then
-			ctx.Notify(player, "🔺 แร่แดงไม่พอข้ามเลเวล", "Error")
+			ctx.Notify(player, "♦️ Ruby ไม่พอข้ามเลเวล", "Error")
 			return
 		end
 		data.Diamonds -= price

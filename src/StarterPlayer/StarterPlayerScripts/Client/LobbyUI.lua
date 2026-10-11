@@ -1,5 +1,5 @@
 --[[
-	LobbyUI — ปุ่มเมนูล็อบบี้สไตล์เกมยุคใหม่: คลาส / ป้าย / ร้านค้า + แคปซูลแร่แดงมุมซ้ายบน
+	LobbyUI — ปุ่มเมนูล็อบบี้สไตล์เกมยุคใหม่: คลาส / ป้าย / ร้านค้า + แคปซูล Ruby มุมซ้ายบน
 	ป้าย = ความสำเร็จที่คำนวณจากสถิติจริงในเซฟ (คืนที่รอด, สัตว์ที่ล่า, คลาสที่มี)
 ]]
 
@@ -74,7 +74,7 @@ local function dockButton(parent, order, icon, name, color, onClick)
 	local gc = Instance.new("UICorner")
 	gc.CornerRadius = UDim.new(1, 0)
 	gc.Parent = gloss
-	if icon == "Ore" or icon == "Shield" or icon == "Trophy" then
+	if icon == "Ruby" or icon == "Shield" or icon == "Trophy" then
 		UIKit.Icon(circle, icon, 50, { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), ZIndex = 4 })
 	else
 		UIKit.Text(circle, { Size = UDim2.fromScale(1, 1), Text = icon, TextSize = 34, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 4 })
@@ -136,17 +136,17 @@ function LobbyUI.Build(gui, handlers)
 		LobbyUI.Refresh()
 	end)
 	ui.BadgeDot, ui.BadgeDotText = dot, dotText
-	dockButton(side, 3, "Ore", "ร้านค้า", C(64, 182, 120), handlers.Shop)
+	dockButton(side, 3, "Ruby", "ร้านค้า", C(64, 182, 120), handlers.Shop)
 	dockButton(side, 4, "⚙", "ตั้งค่า", C(74, 132, 220), handlers.Settings)
 
-	-- แร่แดง: แคปซูลมุมซ้ายบน + ปุ่ม + (เปิดร้านค้า)
+	-- Ruby: แคปซูลมุมซ้ายบน + ปุ่ม + (เปิดร้านค้า)
 	local pill = UIKit.Frame(root, { Size = UDim2.fromOffset(190, 46), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -24, 0, 20), BackgroundColor3 = Color3.fromRGB(26, 30, 54), BackgroundTransparency = 0 })
 	UIKit.AutoScale(pill)
 	local pc = Instance.new("UICorner")
 	pc.CornerRadius = UDim.new(1, 0)
 	pc.Parent = pill
 	UIKit.Stroke(pill, UIKit.Colors.Outline, 2, 0)
-	UIKit.Icon(pill, "Ore", 60, { Position = UDim2.fromOffset(-30, -9), ZIndex = 3 })
+	UIKit.Icon(pill, "Ruby", 60, { Position = UDim2.fromOffset(-30, -9), ZIndex = 3 })
 	ui.Gems = UIKit.Text(pill, { Size = UDim2.new(1, -80, 1, 0), Position = UDim2.fromOffset(34, 0), Text = "0", Font = UIKit.Fonts.Title, TextSize = 28 })
 	local plus = UIKit.ColorButton(pill, UIKit.Colors.Green, { Size = UDim2.fromOffset(36, 36), Position = UDim2.new(1, -41, 0, 5), Text = "+", TextSize = 28 }, handlers.Shop)
 	plus:FindFirstChildOfClass("UICorner").CornerRadius = UDim.new(1, 0)

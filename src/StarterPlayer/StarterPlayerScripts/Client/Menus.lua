@@ -448,7 +448,7 @@ function Menus.ToggleCraft()
 end
 
 ---------------------------------------------------------------- ร้านค้า (ล็อบบี้)
--- ร้านคลาส = ClassShop · ร้านค้า (เติมแร่แดง/Game Pass/ชุดเริ่มต้น) = StoreUI
+-- ร้านคลาส = ClassShop · ร้านค้า (เติม Ruby/Game Pass/ชุดเริ่มต้น) = StoreUI
 function Menus.OpenShop(tab)
 	if tab == nil or tab == "Classes" then
 		StoreUI.Close()

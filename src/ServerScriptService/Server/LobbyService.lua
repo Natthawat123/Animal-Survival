@@ -3,7 +3,7 @@
 	  ค่ายฟาร์มกลางป่ายามค่ำคืน: พื้นดิน + ทางเดินไม้กระดาน, รั้วไม้สูงรอบค่าย, โรงนา/กังหันลม/ต้นไม้ใบเหลี่ยมเป็นฉากหลัง
 	  ทางเข้า (ใต้): ลานไม้จุดเกิด + ซุ้มประตูไม้ซุง "WILDHEART CAMP"
 	  กลาง: เต็นท์ "Classes" (ร้านคลาส + เวทีโชว์หุ่นที่กล้องร้านคลาสเล็ง) + กระดานข่าว
-	  ซ้าย: หม้อรางวัลประจำวัน (แร่แดงฟรี) + กระดานคนรอดนานสุด + แคมป์ไฟ
+	  ซ้าย: หม้อรางวัลประจำวัน (Ruby ฟรี) + กระดานคนรอดนานสุด + แคมป์ไฟ
 	  ขวา: แท่น "เริ่มเกม" เรืองแสง 4 แท่น — ขึ้นไปยืน เลือกขนาดทีม 1-5 คน -> คนครบ/หมดเวลา = ออกเดินทาง
 
 	ออกเดินทาง:
@@ -416,7 +416,7 @@ local function dailyCauldron(self, parent, cf)
 	local t = Instance.new("TextLabel")
 	t.Size = UDim2.fromScale(1, 0.6)
 	t.BackgroundTransparency = 1
-	t.Text = "รางวัลประจำวัน 🔺"
+	t.Text = "รางวัลประจำวัน ♦️"
 	t.TextScaled = true
 	t.Font = Enum.Font.GothamBlack
 	t.TextColor3 = C(130, 255, 120)
@@ -427,7 +427,7 @@ local function dailyCauldron(self, parent, cf)
 	t2.Size = UDim2.fromScale(1, 0.38)
 	t2.Position = UDim2.fromScale(0, 0.62)
 	t2.BackgroundTransparency = 1
-	t2.Text = "- รับแร่แดงฟรีทุกวัน -"
+	t2.Text = "- รับ Ruby ฟรีทุกวัน -"
 	t2.TextScaled = true
 	t2.Font = Enum.Font.GothamBold
 	t2.TextColor3 = C(255, 255, 255)
@@ -647,11 +647,13 @@ function LobbyService:Build()
 	plaza(-78, 6, 9)
 	road(-62, 44, -62, 64, 6)
 	plaza(-62, 74, 11)
-	plaza(GX, GZ, 19, Enum.Material.Slate)
+	plaza(GX, GZ, 19)
 	for _, ad in ipairs({ -60, -20, 20, 60 }) do
 		local a = math.rad(ad)
-		road(GX + math.cos(a) * 16, GZ + math.sin(a) * 16, GX + math.cos(a) * (GR - 10), GZ + math.sin(a) * (GR - 10), 7, Enum.Material.Slate)
+		road(GX + math.cos(a) * 16, GZ + math.sin(a) * 16, GX + math.cos(a) * (GR - 10), GZ + math.sin(a) * (GR - 10), 7)
 	end
+	-- กันพลาด: ล้าง Terrain ทุกช่องที่สูงกว่าผิวพื้น (หญ้า/หินล้นขึ้นมาท่วมหม้อ เต็นท์ ประตู ไม่ได้อีก)
+	terrain:FillBlock(base * CF(0, 1 + 16, 0), V(600, 32, 600), Enum.Material.Air)
 
 	------------------------------------------------ ต้นไม้/พุ่มไม้/เฟิร์น/หิน/เห็ด = โมเดลเมชชุดเดียวกับในแมพ (ไม่ใช่ลูกบอล)
 	local veg = Instance.new("Folder")
@@ -692,7 +694,9 @@ function LobbyService:Build()
 	end
 	-- ต้นไม้ใหญ่ในค่าย
 	for _, t in ipairs({ { -104, -40 }, { 106, -66 }, { -102, 94 }, { 40, 94 }, { -64, 22 }, { -106, -88 }, { 66, -96 }, { -30, -100 }, { 108, 96 }, { -40, 96 }, { 26, 64 }, { -26, 66 } }) do
-		plant(rng:NextNumber() < 0.6 and "AncientOak" or "Oak", t[1], t[2], rng:NextNumber(0.75, 0.95))
+		if not blocked(t[1], t[2]) then
+			plant(rng:NextNumber() < 0.6 and "AncientOak" or "Oak", t[1], t[2], rng:NextNumber(0.75, 0.95))
+		end
 	end
 	-- พุ่มไม้แน่นแนวกำแพงด้านใน
 	for _ = 1, 70 do
@@ -779,7 +783,7 @@ function LobbyService:Build()
 	nt.TextWrapped = true
 	nt.Font = Enum.Font.GothamBold
 	nt.TextColor3 = C(255, 240, 200)
-	nt.Text = '<font color="#FFE066">กระดานข่าวค่าย</font>\n\nรอดคืนสำคัญ (ทุก 5-25 คืน)\n= รับแร่แดง 🔺\n\nช่วยลูกสัตว์ธาตุ = 🔺15\n<font color="#8CFF8C">รับแร่แดงฟรีที่หม้อเขียวทุกวัน!</font>'
+	nt.Text = '<font color="#FFE066">กระดานข่าวค่าย</font>\n\nรอดคืนสำคัญ (ทุก 5-25 คืน)\n= รับ Ruby ♦️\n\nช่วยลูกสัตว์ธาตุ = ♦️15\n<font color="#8CFF8C">รับ Ruby ฟรีที่หม้อเขียวทุกวัน!</font>'
 	nt.Parent = nbg
 	local nlamp = P(deco, { Size = V(0.9, 0.9, 0.9), CFrame = nbCf * CF(0, 12, -1.6), Color = C(255, 214, 150), Material = Enum.Material.Neon, CanCollide = false })
 	light(nlamp, C(255, 196, 130), 14, 1.6)
@@ -839,6 +843,11 @@ function LobbyService:Build()
 	end
 
 	self.spawnCf = base * CF(0, 4, 88)
+	-- ส่งล็อบบี้ทั้งชุดถึงทุกเครื่องทันที (ไม่สตรีมทีละส่วน) + บอกจำนวนชิ้น ให้หน้าโหลดรอจนครบก่อนเข้า
+	pcall(function()
+		m.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
+	end)
+	m:SetAttribute("Parts", #m:GetDescendants())
 	m.Parent = Workspace
 	self.model = m
 	return m
@@ -1356,7 +1365,7 @@ function LobbyService:Start(ctx)
 			return
 		end
 		if data.Diamonds < kit.Price then
-			ctx.Notify(player, "🔺 แร่แดงไม่พอ", "Error")
+			ctx.Notify(player, "♦️ Ruby ไม่พอ", "Error")
 			return
 		end
 		data.Diamonds -= kit.Price

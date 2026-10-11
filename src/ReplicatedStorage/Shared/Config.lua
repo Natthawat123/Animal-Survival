@@ -65,14 +65,14 @@ Config.LeaderboardSize = 10
 --   Game Pass       : Creator Hub → เกม → การสร้างรายได้ → บัตรผ่าน
 --   Badge           : Creator Hub → เกม → การมีส่วนร่วม → ป้าย
 Config.DiamondPacks = {
-	{ Id = "Pack1", ProductId = 0, Diamonds = 60, Bonus = 0, Robux = 25, Icon = "🔺", Name = "ถุงแร่แดงเล็ก" },
-	{ Id = "Pack2", ProductId = 0, Diamonds = 150, Bonus = 15, Robux = 59, Icon = "🔺", Name = "ถุงแร่แดง" },
-	{ Id = "Pack3", ProductId = 0, Diamonds = 320, Bonus = 50, Robux = 119, Icon = "💰", Name = "หีบแร่แดง", Tag = "ยอดนิยม" },
-	{ Id = "Pack4", ProductId = 0, Diamonds = 700, Bonus = 150, Robux = 239, Icon = "👑", Name = "กองแร่แดงมหึมา" },
+	{ Id = "Pack1", ProductId = 0, Diamonds = 60, Bonus = 0, Robux = 25, Icon = "♦️", Name = "ถุง Ruby เล็ก" },
+	{ Id = "Pack2", ProductId = 0, Diamonds = 150, Bonus = 15, Robux = 59, Icon = "♦️", Name = "ถุง Ruby" },
+	{ Id = "Pack3", ProductId = 0, Diamonds = 320, Bonus = 50, Robux = 119, Icon = "💰", Name = "หีบ Ruby", Tag = "ยอดนิยม" },
+	{ Id = "Pack4", ProductId = 0, Diamonds = 700, Bonus = 150, Robux = 239, Icon = "👑", Name = "กอง Ruby มหึมา" },
 	{ Id = "Pack5", ProductId = 0, Diamonds = 1500, Bonus = 400, Robux = 479, Icon = "🏆", Name = "ขุมทรัพย์ราชา", Tag = "คุ้มสุด" },
 }
 Config.GamePasses = {
-	{ Id = "VIP", PassId = 0, Robux = 199, Icon = "👑", Name = "VIP", Desc = "แร่แดงที่ได้จากการเล่น x2 · ป้าย VIP บนหัว · ชื่อสีทองในกระดานอันดับ" },
+	{ Id = "VIP", PassId = 0, Robux = 199, Icon = "👑", Name = "VIP", Desc = "Ruby ที่ได้จากการเล่น x2 · ป้าย VIP บนหัว · ชื่อสีทองในกระดานอันดับ" },
 	{ Id = "GiantSack", PassId = 0, Robux = 149, Icon = "🎒", Name = "กระสอบยักษ์", Desc = "เริ่มทุกรอบด้วยกระสอบยักษ์ (ใส่ของได้มากสุด) แทนกระสอบเก่า" },
 	{ Id = "Medic", PassId = 0, Robux = 99, Icon = "🩹", Name = "หน่วยแพทย์", Desc = "เริ่มทุกรอบด้วยผ้าพันแผล 3 + ชุดปฐมพยาบาล 1 (ช่วยเพื่อนที่ล้มได้ทันที)" },
 	{ Id = "Torch", PassId = 0, Robux = 79, Icon = "🔥", Name = "คบเพลิงนิรันดร์", Desc = "เริ่มทุกรอบพร้อมคบเพลิง (ไล่กวางกลวง) + ถ่านหิน 5" },

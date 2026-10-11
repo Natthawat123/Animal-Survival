@@ -471,27 +471,34 @@ function Cinematics.Loading(state)
 	local ui = loadingScreen(Config.GameName, Config.Subtitle)
 	Cinematics.IsLoading = true
 	task.spawn(function()
-		-- 1) ค่าย (ล็อบบี้) 0-40% · ไม่ต้องรอแมพใหญ่สร้างเสร็จ: เข้าล็อบบี้ได้เลย แมพสร้างต่อเบื้องหลัง
-		-- (เซิร์ฟเวอร์ของทีมไม่มีช่วงล็อบบี้ -> ยังต้องรอแมพเสร็จเหมือนเดิม)
-		local teamServer = game.PrivateServerId ~= "" and game.PrivateServerOwnerId == 0
-		local w0 = os.clock()
-		if teamServer then
-			while (state:GetAttribute("LoadProgress") or 0) < 1 and not state:GetAttribute("Ready") do
-				local p = state:GetAttribute("LoadProgress") or 0
-				ui.Set(p * 0.4, string.format("กำลังสร้างโลกทั้ง 4 ธาตุ... %d%%", math.floor(p * 100)))
-				task.wait(0.1)
-			end
-		end
-		while not Workspace:FindFirstChild("Lobby") and os.clock() - w0 < 15 do
-			ui.Set(math.min(0.35, (os.clock() - w0) * 0.2), "กำลังเตรียมค่าย...")
+		-- โหลดให้ครบทุกอย่างก่อนเข้าเกม (โลก -> ล็อบบี้ทั้งชุด -> โมเดล/พื้นผิว -> ตัวละคร) แต่แบ่งงานทีละน้อยต่อเฟรม หน้าโหลดจึงลื่น
+		-- 1) โลก (เซิร์ฟเวอร์สร้างแมพ) 0-30%
+		while (state:GetAttribute("LoadProgress") or 0) < 1 and not state:GetAttribute("Ready") do
+			local p = state:GetAttribute("LoadProgress") or 0
+			ui.Set(p * 0.3, string.format("กำลังสร้างโลกทั้ง 4 ธาตุ... %d%%", math.floor(p * 100)))
 			task.wait(0.1)
 		end
-		ui.Set(0.4, "กำลังโหลดโมเดลและพื้นผิว...")
-		-- 2) ทรัพยากรทั้งหมด 40-90%
-		-- โหลดล่วงหน้าเฉพาะของในล็อบบี้ (ที่เห็นทันที) · โมเดลสัตว์/บอสทั้งหมดปล่อยให้ Roblox โหลดเองตอนใช้
-		-- (เดิมโหลดทั้งคลังพร้อมกัน ~1400 ชิ้น = เครื่องกระตุกหนักตอนหน้าโหลด)
-		local list = {}
+		-- 2) ล็อบบี้ทั้งชุดมาถึงเครื่อง 30-45%
+		local w0 = os.clock()
 		local lobby = Workspace:FindFirstChild("Lobby")
+		while os.clock() - w0 < 40 do
+			lobby = Workspace:FindFirstChild("Lobby")
+			local want = lobby and lobby:GetAttribute("Parts")
+			local have = lobby and #lobby:GetDescendants() or 0
+			if want and have >= want * 0.97 then
+				break
+			end
+			local k = want and math.clamp(have / want, 0, 1) or 0
+			ui.Set(0.3 + 0.15 * k, string.format("กำลังโหลดค่าย... %d%%", math.floor(k * 100)))
+			task.wait(0.15)
+		end
+		ui.Set(0.45, "กำลังโหลดโมเดลและพื้นผิว...")
+		-- 3) โมเดล/พื้นผิว/เอฟเฟกต์ทั้งหมด 45-90% (ทีละ 12 ชิ้น พักทุกชุด = ไม่กระตุก)
+		local list = {}
+		local assets = ReplicatedStorage:FindFirstChild("Assets")
+		if assets then
+			table.insert(list, assets)
+		end
 		if lobby then
 			table.insert(list, lobby)
 		end
@@ -507,7 +514,7 @@ function Cinematics.Loading(state)
 		local total = math.max(#items, 1)
 		local done = 0
 		local CP = game:GetService("ContentProvider")
-		local batch = 40
+		local batch = 12
 		for i = 1, #items, batch do
 			local chunk = {}
 			for k = i, math.min(i + batch - 1, #items) do
@@ -517,7 +524,8 @@ function Cinematics.Loading(state)
 				CP:PreloadAsync(chunk)
 			end)
 			done += #chunk
-			ui.Set(0.4 + 0.5 * done / total, string.format("กำลังโหลดทรัพยากร %d/%d", done, total))
+			ui.Set(0.45 + 0.45 * done / total, string.format("กำลังโหลดทรัพยากร %d/%d", done, total))
+			task.wait()
 		end
 		-- 3) ตัวละคร + พื้นล็อบบี้ใต้เท้า 90-100%
 		ui.Set(0.9, "กำลังจุดกองไฟในค่าย...")
@@ -768,17 +776,17 @@ function Cinematics.Handle(kind, d, menus, combat)
 		local tail = d.Continue and "♾ เกมยังไม่จบ! เล่นต่อได้ไม่จำกัด — รอดให้นานที่สุดเพื่อขึ้นกระดานอันดับ" or ""
 		if d.Kind == "True" then
 			Cinematics.FullScreen("THE FOUR SPIRITS REUNITE", {
-				"ลูกสัตว์ทั้ง 4 ธาตุกลับมาพร้อมหน้า", "คุณพิชิต 99 คืน — จบแบบสมบูรณ์", "🔺 +300 แร่แดง", tail,
+				"ลูกสัตว์ทั้ง 4 ธาตุกลับมาพร้อมหน้า", "คุณพิชิต 99 คืน — จบแบบสมบูรณ์", "♦️ +300 Ruby", tail,
 			}, Color3.fromRGB(255, 226, 150), 12)
 		else
 			Cinematics.FullScreen("99 NIGHTS CONQUERED", {
 				"คุณพิชิต 99 คืนแห่งผืนป่า!", string.format("ลูกสัตว์ธาตุกลับมา %d/4 ตัว — ช่วยครบเพื่อฉากจบที่แท้จริง", d.Spirits or 0),
-				"🔺 +100 แร่แดง", tail,
+				"♦️ +100 Ruby", tail,
 			}, C.Gold, 12)
 		end
 	elseif kind == "Purchased" then
 		if d.Kind == "Pack" then
-			Cinematics.Banner("🔺 +" .. tostring(d.Diamonds or 0), "เติม " .. (d.Name or "แร่แดง") .. " สำเร็จ — ขอบคุณที่สนับสนุน!", Color3.fromRGB(120, 230, 255), 3, { Size = 72, Y = 0.3 })
+			Cinematics.Banner("♦️ +" .. tostring(d.Diamonds or 0), "เติม " .. (d.Name or "Ruby") .. " สำเร็จ — ขอบคุณที่สนับสนุน!", Color3.fromRGB(120, 230, 255), 3, { Size = 72, Y = 0.3 })
 		else
 			Cinematics.Banner("🎫 " .. (d.Name or "GAME PASS"), "ปลดล็อกแล้ว! ขอบคุณที่สนับสนุน", C.Gold, 3, { Size = 64, Y = 0.3 })
 		end

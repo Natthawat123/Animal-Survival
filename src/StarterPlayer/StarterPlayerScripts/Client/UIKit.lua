@@ -440,7 +440,7 @@ function UIKit.IconBadge(parent, icon, color, size, props)
 	return f
 end
 
--- ไอคอนวาดจาก Frame (ไม่ต้องอัปโหลดรูป): "Ore" แร่แดง (สกุลเงิน) · "Shield" โล่ดาบ (คลาส) · "Trophy" ถ้วยรางวัล (ป้าย)
+-- ไอคอนวาดจาก Frame (ไม่ต้องอัปโหลดรูป): "Ruby" ทับทิม (สกุลเงิน) · "Ruby" แร่ · "Shield" โล่ดาบ (คลาส) · "Trophy" ถ้วยรางวัล (ป้าย)
 -- ทุกชิ้น = สี่เหลี่ยมหมุนได้ + มุมมน + ไล่สีแบบแบ่งหน้าเหลี่ยม + ขอบเข้มด้านหลัง (สไตล์การ์ตูน)
 local SQ2 = math.sqrt(2)
 local function facet(light, dark, darker)
@@ -527,6 +527,24 @@ function UIKit.Icon(parent, kind, size, props)
 			piece(21, s * b[1], s * b[2], s * b[3], s * b[4], 0, rock, { grot = 90, corner = 0.75 })
 		end
 		piece(22, s * 0.38, s * 0.74, s * 0.14, s * 0.05, -8, Color3.fromRGB(200, 190, 205), { tr = 0.45, corner = 1 })
+	elseif kind == "Ruby" then
+		-- ทับทิมเจียระไน: ทรงข้าวหลามตัด ซีกซ้ายสว่าง/ขวาเข้ม + ครึ่งบนอ่อน + หน้าโต๊ะกลาง + ประกาย
+		local cx, cy, side, o = s / 2, s * 0.52, s * 0.6, s * 0.05
+		local hard = function(a, b)
+			return ColorSequence.new({ ColorSequenceKeypoint.new(0, a), ColorSequenceKeypoint.new(0.499, a), ColorSequenceKeypoint.new(0.5, b), ColorSequenceKeypoint.new(1, b) })
+		end
+		piece(1, cx, cy, side + 2 * o, side + 2 * o, 45, Color3.fromRGB(74, 6, 24), { corner = 0.12 })
+		piece(2, cx, cy, side, side, 45, facet(Color3.fromRGB(246, 52, 86), Color3.fromRGB(188, 16, 50), Color3.fromRGB(150, 8, 40)), { grot = -45, corner = 0.12 })
+		piece(3, cx, cy, side * 0.999, side * 0.999, 45, hard(Color3.new(1, 1, 1), Color3.new(0, 0, 0)), { grot = 45, tr = 0.86, corner = 0.12 })
+		local t = side * 0.5
+		piece(4, cx, cy - s * 0.04, t, t, 45, facet(Color3.fromRGB(255, 150, 168), Color3.fromRGB(236, 70, 100)), { grot = -45 })
+		piece(5, cx, cy - s * 0.04, t * 0.55, t * 0.55, 45, facet(Color3.fromRGB(255, 205, 214), Color3.fromRGB(255, 140, 160)), { grot = -45 })
+		for _, f in ipairs({ { 45, -1, -1 }, { -45, 1, -1 }, { -45, -1, 1 }, { 45, 1, 1 } }) do
+			piece(6, cx + f[2] * s * 0.13, cy - s * 0.04 + f[3] * s * 0.13, s * 0.02, s * 0.21, f[1], Color3.fromRGB(255, 170, 185), { tr = 0.5 })
+		end
+		piece(7, cx - s * 0.16, cy - s * 0.16, s * 0.14, s * 0.028, -45, Color3.new(1, 1, 1), { tr = 0.05, corner = 1 })
+		piece(7, cx - s * 0.08, cy - s * 0.22, s * 0.05, s * 0.05, 45, Color3.new(1, 1, 1), { tr = 0.05 })
+		piece(7, cx + s * 0.2, cy + s * 0.12, s * 0.035, s * 0.035, 45, Color3.fromRGB(255, 225, 232), { tr = 0.2 })
 	elseif kind == "Shield" then
 		local o, dark = s * 0.05, Color3.fromRGB(26, 26, 44)
 		local W, bodyH, top = s * 0.62, s * 0.34, s * 0.12

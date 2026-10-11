@@ -1,6 +1,6 @@
 --[[
-	StoreUI — ร้านค้าในล็อบบี้ (ปุ่ม 🔺 ร้านค้า / ปุ่ม + ข้างแร่แดง)
-	  แท็บ 🔺 เติมแร่แดง  : Developer Product (Robux -> แร่แดง) — Config.DiamondPacks
+	StoreUI — ร้านค้าในล็อบบี้ (ปุ่ม ♦️ ร้านค้า / ปุ่ม + ข้าง Ruby)
+	  แท็บ ♦️ เติม Ruby  : Developer Product (Robux -> Ruby) — Config.DiamondPacks
 	  แท็บ 🎫 Game Pass : ซื้อครั้งเดียวได้ถาวร — Config.GamePasses
 	  ID ที่ยังเป็น 0 = ยังไม่ได้สร้างใน Creator Hub -> ปุ่มเป็น "เร็วๆ นี้" (กดแล้วไม่พัง)
 ]]
@@ -24,7 +24,7 @@ local profile
 local passes = {}
 
 local TABS = {
-	{ Id = "Diamonds", Text = "🔺 เติมแร่แดง", Color = C.Cyan },
+	{ Id = "Diamonds", Text = "♦️ เติม Ruby", Color = C.Cyan },
 	{ Id = "Passes", Text = "🎫 Game Pass", Color = C.Gold },
 }
 
@@ -115,17 +115,17 @@ end
 
 function StoreUI.RefreshDiamonds()
 	ui.Grid.CellSize = UDim2.fromOffset(196, 268)
-	ui.Hint.Text = "แร่แดงใช้ซื้อคลาส ข้ามเลเวลคลาส รีโรลสต็อค และชุดเริ่มต้น · ได้ฟรีจากการเล่น/หม้อรางวัลรายวันด้วยนะ!"
+	ui.Hint.Text = "Ruby ใช้ซื้อคลาส ข้ามเลเวลคลาส รีโรลสต็อค และชุดเริ่มต้น · ได้ฟรีจากการเล่น/หม้อรางวัลรายวันด้วยนะ!"
 	for i, pack in ipairs(Config.DiamondPacks) do
 		local card = baseCard(i, rgb(150, 46, 64), rgb(64, 18, 38))
 		rays(card, rgb(255, 150, 150), 120, UDim2.new(0.5, 0, 0, 74))
-		-- กองแร่แดง: แพ็กใหญ่ = แร่หลายก้อน
+		-- กอง Ruby: แพ็กใหญ่ = แร่หลายก้อน
 		local heaps = ({ { { 0, 0, 84 } }, { { -26, 6, 70 }, { 22, -2, 78 } } })[i] or { { -34, 10, 64 }, { 34, 10, 64 }, { 0, -6, 84 } }
 		for k, h in ipairs(heaps) do
-			UIKit.Icon(card, "Ore", h[3], { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(0.5, h[1], 0, 78 + h[2]), ZIndex = 4 + k * 30 })
+			UIKit.Icon(card, "Ruby", h[3], { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(0.5, h[1], 0, 78 + h[2]), ZIndex = 4 + k * 30 })
 		end
 		local amt = UIKit.Text(card, {
-			Size = UDim2.new(1, 0, 0, 40), Position = UDim2.fromOffset(0, 128), Text = tostring(pack.Diamonds) .. " แร่แดง", Font = UIKit.Fonts.Title, TextSize = 32,
+			Size = UDim2.new(1, 0, 0, 40), Position = UDim2.fromOffset(0, 128), Text = tostring(pack.Diamonds) .. " Ruby", Font = UIKit.Fonts.Title, TextSize = 32,
 			TextXAlignment = Enum.TextXAlignment.Center, TextColor3 = rgb(255, 200, 200), ZIndex = 140,
 		})
 		UIKit.Gradient(amt, rgb(255, 255, 255), rgb(255, 140, 140), 90)
@@ -237,13 +237,13 @@ function StoreUI.Init(gui)
 	ui.Panel = panel
 	UIKit.Header(panel, "🛒 ร้านค้า", C.Green)
 	UIKit.CloseButton(panel, StoreUI.Close)
-	-- แร่แดงของเรา
+	-- Ruby ของเรา
 	local pill = UIKit.Frame(panel, { Size = UDim2.fromOffset(170, 42), Position = UDim2.new(1, -206, 0, 34), BackgroundColor3 = rgb(20, 24, 44), BackgroundTransparency = 0 })
 	local pc = Instance.new("UICorner")
 	pc.CornerRadius = UDim.new(1, 0)
 	pc.Parent = pill
 	UIKit.Stroke(pill, C.Outline, 2, 0)
-	UIKit.Icon(pill, "Ore", 54, { Position = UDim2.fromOffset(-26, -8), ZIndex = 3 })
+	UIKit.Icon(pill, "Ruby", 54, { Position = UDim2.fromOffset(-26, -8), ZIndex = 3 })
 	ui.Gems = UIKit.Text(pill, { Size = UDim2.new(1, -40, 1, 0), Position = UDim2.fromOffset(34, 0), Text = "0", Font = UIKit.Fonts.Title, TextSize = 26 })
 	-- แท็บ
 	local tabs = UIKit.Frame(panel, { Size = UDim2.new(1, -260, 0, 50), Position = UDim2.fromOffset(24, 30), BackgroundTransparency = 1 })

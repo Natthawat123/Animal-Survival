@@ -2,7 +2,7 @@
 	HUD — หน้าจอหลักระหว่างเล่น
 	  ซ้ายบน: เลือด / ความหิว / สตามิน่า
 	  กลางบน: คืนที่ X + เวลา + ธาตุประจำคืน + เข็มทิศ
-	  ขวาบน: กองไฟ + ลูกสัตว์ธาตุ 4 ดวง + แร่แดง
+	  ขวาบน: กองไฟ + ลูกสัตว์ธาตุ 4 ดวง + Ruby
 	  ล่าง: ทรัพยากรในกระเป๋า + ปุ่มลัด / แถบเลือดบอส
 ]]
 
@@ -86,7 +86,7 @@ function HUD.Init(state)
 	end
 	HUD.CompassPOI = {}
 
-	---------------------------------------------------------------- ขวาบน: กองไฟ / วิญญาณ / แร่แดง
+	---------------------------------------------------------------- ขวาบน: กองไฟ / วิญญาณ / Ruby
 	local right = UIKit.Card(gui, { Size = UDim2.fromOffset(270, 116), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -20, 0, 18), BackgroundTransparency = 0.12 })
 	UIKit.AutoScale(right)
 	HUD.RightCard = right
@@ -105,7 +105,7 @@ function HUD.Init(state)
 		HUD.SpiritOrbs[el] = { Frame = orb, Icon = t }
 	end
 	HUD.DiamondLabel = UIKit.Text(right, { Size = UDim2.fromOffset(100, 28), Position = UDim2.new(1, -144, 0, 78), Text = "0", Font = UIKit.Fonts.Title, TextSize = 22, TextXAlignment = Enum.TextXAlignment.Right, TextColor3 = Color3.fromRGB(255, 190, 190) })
-	UIKit.Icon(right, "Ore", 32, { Position = UDim2.new(1, -42, 0, 74) })
+	UIKit.Icon(right, "Ruby", 32, { Position = UDim2.new(1, -42, 0, 74) })
 
 	---------------------------------------------------------------- ล่าง: ทรัพยากร
 	local strip = UIKit.Frame(gui, { Size = UDim2.new(0, 760, 0, 40), Position = UDim2.new(0.5, -380, 1, -172), BackgroundTransparency = 0.45 })
