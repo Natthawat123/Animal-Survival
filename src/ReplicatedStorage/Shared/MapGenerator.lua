@@ -256,6 +256,10 @@ function MapGenerator.BuildSpecialPads(layout, terrain)
 		elseif sp.Kind == "Shrine" then
 			local pos = sp.Position
 			MapGenerator.FlattenPad(terrain, pos, 26, Enum.Material.Cobblestone, 50)
+		elseif sp.Kind == "Sanctum" then -- วิหารโบราณ (SanctumService วางพรีแฟบทับ)
+			local top = Biomes.Data[sp.Element] and Biomes.Data[sp.Element].Terrain.Top
+			local mat = (top and Enum.Material[top]) or Enum.Material.Ground
+			MapGenerator.FlattenPad(terrain, sp.Position, sp.Radius or 56, mat, 90)
 		end
 	end
 end

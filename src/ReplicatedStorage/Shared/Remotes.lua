@@ -43,6 +43,7 @@ Remotes.Events = {
 	"HitFx", -- (kind, data)
 	"Profile", -- (profile table)
 	"RejoinOffer", -- ({ Left = วินาทีที่เหลือ, Local = bool }) มีรอบเดิมให้กลับเข้า
+	"WorldEvent", -- (kind, data) เหตุการณ์กลางวัน/วิหารโบราณ (EventService, SanctumService)
 }
 Remotes.Functions = {
 	"GetProfile",

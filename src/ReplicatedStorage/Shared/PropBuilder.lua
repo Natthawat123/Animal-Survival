@@ -979,7 +979,7 @@ function PropBuilder.Scatter(layout, parent, opts)
 	local water = layout.WaterLevel
 	local avoid = {}
 	for _, sp in ipairs(layout.Specials) do
-		table.insert(avoid, { sp.Position, sp.Kind == "Lair" and 90 or 40 })
+		table.insert(avoid, { sp.Position, sp.Radius or (sp.Kind == "Lair" and 90 or 40) })
 	end
 	table.insert(avoid, { Vector3.new(0, 0, 0), 72 }) -- ลานโล่งรอบแคมป์ (ไม่ให้ต้นไม้เบียดฐาน)
 	table.insert(avoid, { Vector3.new(0, 0, -72), 42 }) -- บ้านพักนายพราน

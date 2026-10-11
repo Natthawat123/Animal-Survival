@@ -12,6 +12,7 @@ local Biomes = require(Shared.Biomes)
 local UIKit = require(script.Parent.UIKit)
 
 local MapUI = {}
+MapUI.ExtraMarkers = {} -- ระบบอื่นเพิ่มหมุดได้: fn(marker, place, discovered) (WorldEventsClient)
 local player = Players.LocalPlayer
 local C = UIKit.Colors
 local N = 56
@@ -37,7 +38,7 @@ function MapUI.Init(state, hud, atmosphere)
 	mapFrame.ClipsDescendants = true
 	local legend = UIKit.Text(panel, {
 		Size = UDim2.new(1, -20, 0, 40), Position = UDim2.new(0, 10, 1, -46), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 13, TextWrapped = true,
-		TextColor3 = C.TextDim, Text = "🔥 แคมป์   ⛩ ศาลเจ้าลูกสัตว์ธาตุ   💀 รังบอส   ▲ คุณ   ● เพื่อน   (สถานที่จะปรากฏเมื่อค้นพบ · หมอกเปิดเมื่ออัปเกรดกองไฟ/เดินสำรวจ)",
+		TextColor3 = C.TextDim, Text = "🔥 แคมป์   ⛩ ศาลเจ้าลูกสัตว์ธาตุ   💀 รังบอส   🏛 วิหารโบราณ   ☄📦 เหตุการณ์   ▲ คุณ   ● เพื่อน   (สถานที่จะปรากฏเมื่อค้นพบ · หมอกเปิดเมื่ออัปเกรดกองไฟ/เดินสำรวจ)",
 	})
 	local _ = legend
 	MapUI.Panel = panel
@@ -129,6 +130,12 @@ function MapUI.Init(state, hud, atmosphere)
 		local camp = state:GetAttribute("CampPos")
 		if camp then
 			place(marker("camp", "🔥", C.Fire, 20), camp)
+		end
+		for _, fn in ipairs(MapUI.ExtraMarkers) do
+			local ok, err = pcall(fn, marker, place, discovered)
+			if not ok then
+				warn("[AS] map marker", err)
+			end
 		end
 		for _, el in ipairs({ "Earth", "Water", "Air", "Fire" }) do
 			local shrine = state:GetAttribute("Shrine_" .. el)
