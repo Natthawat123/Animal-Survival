@@ -347,7 +347,7 @@ def portal(cf, i):
         block((0.5, 0.16, 0.06), ci @ T(0, 0, 1.12), C_CYAN, "Neon", collide=False, shadow=False)
         rim = cf @ T(math.cos(th) * (R - 2.25), cy + math.sin(th) * (R - 2.25), cz + 0.3) @ rot
         block((math.tau * (R - 2.25) / N * 1.05, 0.2, 1.8), rim, C_CYAN, "Neon", collide=False, shadow=False)
-        if k % 2 == 0:
+        if k % 3 == 0:
             rune_glyph(c @ T(0, 0.1, 1.42), 0.55)
     for sx in (-1, 1):
         bx = sx * 4.6
@@ -405,8 +405,8 @@ def portal(cf, i):
         block((1.4, 0.3, 1.4), lc @ T(0, 3.3, 0), (80, 84, 82), "Slate")
         block((0.7, 0.4, 0.7), lc @ T(0, 3.6, 0) @ RY(math.pi / 4), (80, 84, 82), "Slate")
     # ---- เถาวัลย์หนาคลุมซุ้ม + ดอกดาวเรืองแสง
-    for k in range(38):
-        th = math.radians(4 + k / 37 * 172 + rng.uniform(-3, 3))
+    for k in range(30):
+        th = math.radians(4 + k / 29 * 172 + rng.uniform(-3, 3))
         r = R + rng.uniform(1.3, 2.7)
         p = pos_of(cf @ T(math.cos(th) * r, cy + math.sin(th) * r, cz + rng.uniform(-1.4, 1.8)))
         leaf_cluster(p, 3, 1.2)
@@ -421,9 +421,6 @@ def portal(cf, i):
         hanging_vine(p, rng.uniform(7, 11))
     # ---- พืชพรรณหนาแน่นรอบซุ้ม/ลาน
     for side in (-1, 1):
-        bush_at = cf @ T(side * 16.5, 0, dz + 1)
-        bush(*pos_of(bush_at)[[0, 2]], 1.3)
-        bush(*pos_of(cf @ T(side * 15, 0, dz - 5))[[0, 2]], 1.5)
         fern(pos_of(cf @ T(side * 13.4, 0.8, dz + 7.5)), 1.2)
         fern(pos_of(cf @ T(side * 17.5, 0.8, -4)), 1.3)
         mossy_rock(pos_of(cf @ T(side * 14.5, 0, -8.5)), rng.uniform(2.6, 3.6))
@@ -562,129 +559,48 @@ def cliff_with_falls(x0, x1, z, height, falls):
 
 # ---------------------------------------------------------------- ผังทั้งหมด
 def build():
-    origin_cf = T(0, 0, 0)
-    block((1, 1, 1), origin_cf, (0, 0, 0), tr=1, name="Origin", collide=False, shadow=False)
+    """ฉากหิน/ประตู/น้ำตก/แสงเรืองแสง · พื้นหญ้า+ทางหิน (Terrain) และต้นไม้/พุ่มไม้ (โมเดลเมช) ใส่ใน LobbyService"""
+    block((1, 1, 1), T(0, 0, 0), (0, 0, 0), tr=1, name="Origin", collide=False, shadow=False)
     gx, gz = GROVE
-    # ลานประตูมิติ + 4 ประตูหันเข้าลาน
-    flagstones(gx, gz, radius=17)
     for i, a in enumerate(PORTAL_ANGLES, 1):
         px, pz = gx + math.cos(math.radians(a)) * GROVE_R, gz + math.sin(math.radians(a)) * GROVE_R
         cf = look_at((px, 1.0, pz), (px + (px - gx), 1.0, pz + (pz - gz)))
         portal(cf, i)
-        # ทางหินจากลานไปแต่ละประตู
-        flagstones(None, None, rect=((gx + math.cos(math.radians(a)) * 15, gz + math.sin(math.radians(a)) * 15),
-                                     (gx + math.cos(math.radians(a)) * (GROVE_R - 11), gz + math.sin(math.radians(a)) * (GROVE_R - 11)), 6))
-    # พุ่มไม้ + ต้นไม้ + พืชเรืองแสง ล้อมลานประตู (ให้ประตูอยู่ในป่าแบบภาพต้นแบบ)
-    for ad in (-82, -40, 0, 40, 82):
-        a = math.radians(ad)
-        bush(gx + math.cos(a) * (GROVE_R + 1), gz + math.sin(a) * (GROVE_R + 1), rng.uniform(1.0, 1.3))
-        for _ in range(3):
-            r = GROVE_R + rng.uniform(-6, 8)
-            b = a + rng.uniform(-0.12, 0.12)
-            glow_plant((gx + math.cos(b) * r, 1.0, gz + math.sin(b) * r), rng.uniform(1.0, 1.4))
-        if ad in (-40, 0, 40):
-            jungle_tree(gx + math.cos(a) * (GROVE_R + 12), gz + math.sin(a) * (GROVE_R + 12), rng.uniform(0.85, 1.0))
-    for ad in PORTAL_ANGLES:
-        a = math.radians(ad)
-        for off in (-0.2, 0.2):
-            bush(gx + math.cos(a + off) * (GROVE_R + 15), gz + math.sin(a + off) * (GROVE_R + 15), rng.uniform(1.1, 1.5))
-    # พืชพรรณแซมระหว่างทางหินแต่ละเส้น (ลานไม่โล่ง)
+    # ดอกไม้/พืชเรืองแสงแซมระหว่างทางไปแต่ละประตู
     for ad in (-80, -40, 0, 40, 80):
-        for r in (22, 30, 37):
-            b = math.radians(ad + rng.uniform(-7, 7))
+        for r in (24, 34, 42):
+            b = math.radians(ad + rng.uniform(-6, 6))
             x, z = gx + math.cos(b) * r, gz + math.sin(b) * r
-            rr = rng.random()
-            if rr < 0.4:
-                flower_patch(x, z, rng.uniform(1.0, 1.3))
-            elif rr < 0.7:
-                fern((x, 1.0, z), rng.uniform(1.1, 1.5), 7)
-            else:
-                bush(x, z, rng.uniform(0.8, 1.1))
-    # ป้ายหินกลางลาน (LobbyService เขียนข้อความ)
+            flower_patch(x, z, rng.uniform(1.0, 1.3)) if rng.random() < 0.6 else glow_plant((x, 1.0, z), rng.uniform(1.0, 1.4))
+    # ป้ายหินกลางลาน + โคมคริสตัลรอบลาน
     block((5.6, 3.2, 1.0), T(gx - 6, 3.2, gz) @ RY(math.pi / 2), (86, 94, 90), "Slate", name="GroveSign")
     block((6.4, 1.2, 1.8), T(gx - 6, 1.6, gz) @ RY(math.pi / 2), C_STONE_D, "Slate")
-    for k in range(6):
+    for k in (1, 2, 4, 5):
         a = k / 6 * math.tau
-        crystal_lamp(gx + math.cos(a) * 19.5, gz + math.sin(a) * 19.5, 5.5) if k in (1, 2, 4, 5) else None
-    # ทางหินหลัก
-    flagstones(None, None, rect=((0, 74), (0, -28), 9))
-    flagstones(None, None, rect=((-84, 44), (gx - 16, 44), 8))
-    flagstones(None, None, rect=((-42, 40), (-42, -6), 7))
-    flagstones(0, 88, radius=14)  # ลานจุดเกิด
+        crystal_lamp(gx + math.cos(a) * 20.5, gz + math.sin(a) * 20.5, 5.5)
     entrance_gate(FZ1)
     for x, z in ((-9, 60), (9, 60), (-30, 50), (40, 50), (-50, 40), (-80, 40), (-38, 0), (12, -26), (-12, -26)):
         crystal_lamp(x, z)
-    # กำแพงหินพังรอบค่าย (แทนรั้วไม้)
     ruin_wall((-FX, FZ0), (FX, FZ0))
     ruin_wall((FX, FZ0), (FX, FZ1))
     ruin_wall((-FX, FZ1), (-FX, FZ0))
     ruin_wall((FX, FZ1), (16, FZ1))
     ruin_wall((-16, FZ1), (-FX, FZ1))
-    # ซากเสา / เสาล้ม
     for x, z in ((-104, -96), (104, -92), (-60, -98), (40, -100), (-108, 20), (110, 80), (-20, -96), (96, 92)):
         broken_pillar(x, z)
     fallen_column(-70, -60, 0.6)
     fallen_column(20, 96, 1.8)
     fallen_column(-104, 64, 2.6)
-    # หน้าผา + น้ำตก ทางเหนือ (หลังเต็นท์คลาส)
     cliff_with_falls(-170, 170, FZ0 - 52, 54, (-46, 58))
     cliff_with_falls(140, 230, -10, 46, ())
-    # ป่าดิบนอกกำแพง
-    for _ in range(26):
-        a = rng.uniform(0, math.tau)
-        r = rng.uniform(138, 215)
-        x, z = math.cos(a) * r, math.sin(a) * r
-        if z < FZ0 - 30:
-            continue  # หน้าผาทางเหนือ
-        if abs(x) < 22 and z > FZ1:
-            continue  # ทางเข้า
-        jungle_tree(x, z, rng.uniform(0.9, 1.25))
-    # ต้นไม้ใหญ่ในค่ายไม่กี่ต้น
-    for x, z in ((-104, -40), (106, -66), (-100, 92), (38, 94), (-64, 2), (-106, -86), (64, -96), (-30, -100), (108, 96), (-56, 100), (24, 62), (-24, 64)):
-        jungle_tree(x, z, rng.uniform(0.8, 0.95))
-    # พื้นหญ้าเข้ม/อ่อนเป็นหย่อม + พุ่มไม้ เฟิร์น ดอกดาวเรืองแสง ทั่วค่าย (ให้ทึบแบบป่า)
-    def free(x, z, pad=0.0):
-        return not (abs(x) < 10 + pad or abs(z - 44) < 8 + pad or math.hypot(x - gx, z - gz) < GROVE_R + 20 + pad
-                    or (abs(x) < 32 and -86 < z < -18) or math.hypot(x, z - 88) < 18 + pad or math.hypot(x + 42, z + 16) < 14
-                    or math.hypot(x + 88, z - 6) < 18 or math.hypot(x + 62, z - 74) < 16 or abs(x + 42) < 7 and -8 < z < 42)
-    for _ in range(36):
-        x, z = rng.uniform(-FX, FX), rng.uniform(FZ0, FZ1)
-        d = rng.uniform(10, 24)
-        add("Cylinder", (0.12, d, d), T(x, 1.03, z) @ RZ(math.pi / 2), jit(rng.choice(((60, 120, 52), (78, 140, 60), (54, 108, 50))), 6), "Grass", collide=False, shadow=False)
+    # จุดเรืองแสงประปรายทั่วค่าย (ดอกดาว/ก้านเรืองแสง)
     placed = 0
-    while placed < 150:
-        x, z = rng.uniform(-FX + 5, FX - 5), rng.uniform(FZ0 + 5, FZ1 - 5)
-        if not free(x, z):
+    while placed < 50:
+        x, z = rng.uniform(-FX + 6, FX - 6), rng.uniform(FZ0 + 6, FZ1 - 6)
+        if abs(x) < 12 or abs(z - 44) < 9 or math.hypot(x - gx, z - gz) < GROVE_R + 18 or (abs(x) < 32 and -86 < z < -18) or math.hypot(x, z - 88) < 18:
             continue
         placed += 1
-        rr = rng.random()
-        if rr < 0.32:
-            bush(x, z, rng.uniform(0.8, 1.3))
-        elif rr < 0.6:
-            flower_patch(x, z, rng.uniform(0.9, 1.3))
-        elif rr < 0.8:
-            fern((x, 1.0, z), rng.uniform(1.0, 1.5), 7)
-        else:
-            glow_plant((x, 1.0, z), rng.uniform(0.9, 1.3))
-    # แนวพุ่มไม้ชิดกำแพงด้านใน
-    for _ in range(40):
-        side = rng.randint(1, 4)
-        if side == 1:
-            x, z = rng.uniform(-FX + 6, FX - 6), FZ0 + rng.uniform(4, 9)
-        elif side == 2:
-            x, z = FX - rng.uniform(4, 9), rng.uniform(FZ0, FZ1)
-        elif side == 3:
-            x, z = -FX + rng.uniform(4, 9), rng.uniform(FZ0, FZ1)
-        else:
-            x, z = rng.uniform(-FX, FX), FZ1 - rng.uniform(4, 9)
-            if abs(x) < 20:
-                continue
-        bush(x, z, rng.uniform(1.1, 1.6))
-    for _ in range(40):
-        x, z = rng.uniform(-FX - 20, FX + 20), rng.uniform(FZ0 - 10, FZ1 + 20)
-        if -FX + 4 < x < FX - 4 and FZ0 + 4 < z < FZ1 - 4:
-            continue
-        mossy_rock((x, 1.0, z), rng.uniform(2, 4.5))
+        flower_patch(x, z, rng.uniform(0.9, 1.3)) if rng.random() < 0.6 else glow_plant((x, 1.0, z), rng.uniform(0.9, 1.3))
     return parts
 
 

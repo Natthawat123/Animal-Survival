@@ -11,6 +11,7 @@
 	  - ใน Studio / เซิร์ฟเวอร์ของทีมเอง: ลงแมพในเซิร์ฟเวอร์นี้เลย
 ]]
 
+local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -533,9 +534,8 @@ function LobbyService:Build()
 	local base = CF(self.Position)
 	m.WorldPivot = base
 	local rng = Random.new(2024)
-	-- พื้นหญ้าเขียวเข้มแบบป่า + หินใต้เกาะ
+	-- หินใต้เกาะ (พื้นหญ้าด้านบน = Terrain ด้านล่าง)
 	cyl(m, 8, 560, base * CF(0, -4, 0), C(96, 80, 60), Enum.Material.Ground)
-	cyl(m, 1, 556, base * CF(0, 0.5, 0), C(72, 138, 60), Enum.Material.Grass)
 	for i = 1, 5 do
 		cyl(m, 16, 560 - i * 90, base * CF(0, -8 - i * 14, 0), C(60 - i * 5, 64 - i * 5, 60 - i * 5), Enum.Material.Rock)
 	end
@@ -598,6 +598,137 @@ function LobbyService:Build()
 		P(m, { Name = "Boundary", Size = w[1], CFrame = base * CF(w[2]), Transparency = 1, CanQuery = false })
 	end
 	P(m, { Name = "GateBlock", Size = V(30, 40, 1), CFrame = base * CF(0, 20, FZ1 + 6), Transparency = 1, CanQuery = false })
+
+	------------------------------------------------ พื้น Terrain: หญ้าจริง (มีใบหญ้าขึ้น) + ทางหินปูถนน/ลานหิน
+	local terrain = Workspace.Terrain
+	local GX, GZ, GR = 52, 8, 50 -- ลานประตูมิติ (ตรงกับ tools/lobby_art.py)
+	terrain:FillCylinder(base * CF(0, -1.5, 0), 5, 278, Enum.Material.Grass)
+	local function road(x0, z0, x1, z1, w, mat)
+		local a, b = Vector3.new(x0, 0, z0), Vector3.new(x1, 0, z1)
+		local mid = (a + b) / 2
+		terrain:FillBlock(base * CFrame.lookAt(mid + Vector3.new(0, -1.5, 0), b + Vector3.new(0, -1.5, 0)), V(w, 5, (b - a).Magnitude + w * 0.5), mat or Enum.Material.Cobblestone)
+	end
+	local function plaza(x, z, r, mat)
+		terrain:FillCylinder(base * CF(x, -1.5, z), 5, r, mat or Enum.Material.Cobblestone)
+	end
+	plaza(0, 88, 15)
+	road(0, 76, 0, -30, 10)
+	plaza(0, -34, 12)
+	road(-86, 44, GX - 18, 44, 9)
+	road(-42, 44, -42, -8, 8)
+	plaza(-42, -16, 10)
+	road(-42, 6, -76, 6, 7)
+	plaza(-78, 6, 9)
+	road(-62, 44, -62, 64, 6)
+	plaza(-62, 74, 11)
+	plaza(GX, GZ, 19, Enum.Material.Slate)
+	for _, ad in ipairs({ -60, -20, 20, 60 }) do
+		local a = math.rad(ad)
+		road(GX + math.cos(a) * 16, GZ + math.sin(a) * 16, GX + math.cos(a) * (GR - 10), GZ + math.sin(a) * (GR - 10), 7, Enum.Material.Slate)
+	end
+
+	------------------------------------------------ ต้นไม้/พุ่มไม้/เฟิร์น/หิน/เห็ด = โมเดลเมชชุดเดียวกับในแมพ (ไม่ใช่ลูกบอล)
+	local veg = Instance.new("Folder")
+	veg.Name = "Vegetation"
+	veg.Parent = m
+	local function plant(kind, x, z, scale)
+		local inst = PropBuilder.Place(kind, (base * CF(x, 0.6, z)).Position, rng:NextNumber(0, math.pi * 2), scale or 1, nil, rng)
+		if inst then
+			CollectionService:RemoveTag(inst, "ResourceNode") -- ล็อบบี้: ตัด/เก็บไม่ได้
+			CollectionService:RemoveTag(inst, "Hazard")
+			inst:SetAttribute("Node", nil)
+			inst.Parent = veg
+		end
+		return inst
+	end
+	local function blocked(x, z)
+		return (math.abs(x) < 10 and z > -40 and z < 104) or (math.abs(z - 44) < 7.5 and x < GX - 14) or (math.abs(x + 42) < 7 and z > -10 and z < 44)
+			or math.sqrt(x * x + (z - 88) ^ 2) < 19 or (math.abs(x) < 34 and z > -90 and z < -18) or math.sqrt((x + 42) ^ 2 + (z + 16) ^ 2) < 13
+			or (x < -64 and x > -100 and math.abs(z - 6) < 22) or math.sqrt((x + 62) ^ 2 + (z - 74) ^ 2) < 16 or math.sqrt((x + 86) ^ 2 + (z - 86) ^ 2) < 16
+			or math.sqrt((x + 96) ^ 2 + (z + 70) ^ 2) < 13 or math.abs(z - 6) < 5 and x < -40 and x > -78 or math.abs(x + 62) < 5 and z > 44 and z < 66
+			or math.sqrt((x - GX) ^ 2 + (z - GZ) ^ 2) < GR + 18
+	end
+	-- ป่ารอบนอกกำแพง (ทึบ บังขอบเกาะ)
+	for _ = 1, 90 do
+		local a, r = rng:NextNumber(0, math.pi * 2), rng:NextNumber(128, 232)
+		local x, z = math.cos(a) * r, math.sin(a) * r
+		if z > FZ0 - 30 and not (math.abs(x) < 26 and z > FZ1) then
+			local k = rng:NextNumber()
+			plant(k < 0.45 and "AncientOak" or (k < 0.85 and "Oak" or "Palm"), x, z, rng:NextNumber(0.9, 1.35))
+		end
+	end
+	for _ = 1, 40 do -- พุ่มไม้ใต้ต้นไม้นอกกำแพง
+		local a, r = rng:NextNumber(0, math.pi * 2), rng:NextNumber(124, 160)
+		local x, z = math.cos(a) * r, math.sin(a) * r
+		if z > FZ0 - 20 and not (math.abs(x) < 26 and z > FZ1) then
+			plant("Bush", x, z, rng:NextNumber(1.2, 1.8))
+		end
+	end
+	-- ต้นไม้ใหญ่ในค่าย
+	for _, t in ipairs({ { -104, -40 }, { 106, -66 }, { -102, 94 }, { 40, 94 }, { -64, 22 }, { -106, -88 }, { 66, -96 }, { -30, -100 }, { 108, 96 }, { -40, 96 }, { 26, 64 }, { -26, 66 }, { 104, 30 }, { 100, -14 } }) do
+		plant(rng:NextNumber() < 0.6 and "AncientOak" or "Oak", t[1], t[2], rng:NextNumber(0.75, 0.95))
+	end
+	-- พุ่มไม้แน่นแนวกำแพงด้านใน
+	for _ = 1, 70 do
+		local side = rng:NextInteger(1, 4)
+		local x, z
+		if side == 1 then
+			x, z = rng:NextNumber(-FX + 6, FX - 6), FZ0 + rng:NextNumber(4, 10)
+		elseif side == 2 then
+			x, z = FX - rng:NextNumber(4, 10), rng:NextNumber(FZ0, FZ1)
+		elseif side == 3 then
+			x, z = -FX + rng:NextNumber(4, 10), rng:NextNumber(FZ0, FZ1)
+		else
+			x, z = rng:NextNumber(-FX, FX), FZ1 - rng:NextNumber(4, 10)
+		end
+		if not blocked(x, z) then
+			plant("Bush", x, z, rng:NextNumber(1.1, 1.7))
+		end
+	end
+	-- พืชพื้นล่างทั่วค่าย
+	local placed, tries = 0, 0
+	while placed < 230 and tries < 3000 do
+		tries += 1
+		local x, z = rng:NextNumber(-FX + 6, FX - 6), rng:NextNumber(FZ0 + 6, FZ1 - 6)
+		if not blocked(x, z) then
+			placed += 1
+			local k = rng:NextNumber()
+			if k < 0.3 then
+				plant("Bush", x, z, rng:NextNumber(0.9, 1.5))
+			elseif k < 0.78 then
+				plant("Fern", x, z, rng:NextNumber(1.0, 1.6))
+			elseif k < 0.88 then
+				plant("MossRock", x, z, rng:NextNumber(0.5, 1.0))
+			elseif k < 0.96 then
+				plant("Mushrooms", x, z, rng:NextNumber(0.9, 1.4))
+			else
+				plant("GlowShroom", x, z, rng:NextNumber(0.5, 0.9))
+			end
+		end
+	end
+	-- ลานประตู: พุ่มไม้/ต้นไม้ล้อมระหว่างประตู + เฟิร์นริมทาง
+	for _, ad in ipairs({ -84, -40, 0, 40, 84 }) do
+		local a = math.rad(ad)
+		plant("Bush", GX + math.cos(a) * (GR + 2), GZ + math.sin(a) * (GR + 2), 1.6)
+		plant("Bush", GX + math.cos(a) * (GR - 6), GZ + math.sin(a) * (GR - 6), 1.2)
+		plant("Fern", GX + math.cos(a) * (GR - 14), GZ + math.sin(a) * (GR - 14), 1.4)
+		if ad ~= -84 and ad ~= 84 then
+			plant("AncientOak", GX + math.cos(a) * (GR + 14), GZ + math.sin(a) * (GR + 14), 0.85)
+		end
+	end
+	for _, ad in ipairs({ -60, -20, 20, 60 }) do
+		local a = math.rad(ad)
+		for _, off in ipairs({ -0.22, 0.22 }) do
+			plant("Bush", GX + math.cos(a + off) * (GR + 15), GZ + math.sin(a + off) * (GR + 15), 1.7)
+			plant("Fern", GX + math.cos(a + off * 1.6) * (GR - 2), GZ + math.sin(a + off * 1.6) * (GR - 2), 1.3)
+		end
+		for _, rr in ipairs({ 22, 30 }) do
+			for _, sd in ipairs({ -1, 1 }) do
+				local b = a + sd * 5.2 / rr
+				plant("Fern", GX + math.cos(b) * rr, GZ + math.sin(b) * rr, 1.1)
+			end
+		end
+	end
 
 	-- ของตกแต่งโทนเดียวกับกระท่อม Classes (โมเดลจริง): ม้านั่งท่อนซุง ลังไม้ กองฟืน โรงเก็บของ
 	PropBuilder.StoreModel("CampShack", base * CF(-96, 1, -70) * ANG(0, math.rad(60), 0), deco)
