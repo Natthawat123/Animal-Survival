@@ -146,14 +146,24 @@ function ResourceService:Hit(player, node, tool)
 	if whole > 0 then
 		drops:Spawn(yield, whole, dropPos)
 	end
+	local quests = self.ctx.Services.QuestService
+	if quests and whole > 0 then
+		quests:Progress(player, "Gather", whole, yield)
+	end
 	self.ctx.Remotes.Get("HitFx"):FireAllClients("NodeHit", { Position = node:GetPivot().Position, Kind = kind, Node = node })
 	if hp <= 0 then
 		local bonus = node:GetAttribute("Bonus")
 		if bonus then
 			drops:Spawn(bonus, kind == "Bush" and 1 or 2, dropPos)
+			if quests then
+				quests:Progress(player, "Gather", kind == "Bush" and 1 or 2, bonus)
+			end
 		end
 		if kind == "Tree" and yield == "Wood" then
 			drops:Spawn("Wood", 2, nodePos, { Spread = 4 })
+			if quests then
+				quests:Progress(player, "Gather", 2, "Wood")
+			end
 		end
 		local pos = player.Character and player.Character:GetPivot().Position or node:GetPivot().Position
 		self:Fell(node, pos)

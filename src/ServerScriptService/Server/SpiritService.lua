@@ -173,6 +173,9 @@ function SpiritService:Rescue(a, player)
 	self.ctx.Remotes.Get("Cinematic"):FireAllClients("SpiritRescued", { Element = el, Name = a.Info.Thai, Buff = BUFF_TEXT[el], Count = count })
 	for _, p in ipairs(Players:GetPlayers()) do
 		self.ctx.Services.DataService:AddDiamonds(p, Classes.SpiritReward, "ช่วย " .. a.Info.Thai)
+		if self.ctx.Services.QuestService then
+			self.ctx.Services.QuestService:Progress(p, "Spirit", 1)
+		end
 	end
 end
 

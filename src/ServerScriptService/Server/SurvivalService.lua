@@ -176,6 +176,9 @@ function SurvivalService:Down(player, source)
 				return
 			end
 			self:Revive(player, used == "Medkit" and 0.8 or 0.4 * self:Perk(helper, "HealMult", 1))
+			if self.ctx.Services.QuestService then
+				self.ctx.Services.QuestService:Progress(helper, "Revive", 1)
+			end
 			self.ctx.Broadcast(string.format("✨ %s ช่วยชีวิต %s ได้ทัน!", helper.DisplayName, player.DisplayName), "Good")
 		end)
 	end

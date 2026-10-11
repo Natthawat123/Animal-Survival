@@ -712,6 +712,26 @@ function UIKit.Icon(parent, kind, size, props)
 		piece(7, cx - s * 0.16, cy - s * 0.16, s * 0.14, s * 0.028, -45, Color3.new(1, 1, 1), { tr = 0.05, corner = 1 })
 		piece(7, cx - s * 0.08, cy - s * 0.22, s * 0.05, s * 0.05, 45, Color3.new(1, 1, 1), { tr = 0.05 })
 		piece(7, cx + s * 0.2, cy + s * 0.12, s * 0.035, s * 0.035, 45, Color3.fromRGB(255, 225, 232), { tr = 0.2 })
+	elseif kind == "Scroll" then
+		-- ม้วนคัมภีร์ภารกิจ: กระดาษ + ม้วนไม้บนล่าง + เส้นตัวหนังสือ + ตราประทับแดง
+		local o, dark = s * 0.045, Color3.fromRGB(70, 40, 14)
+		local paper = ColorSequence.new(Color3.fromRGB(255, 244, 214), Color3.fromRGB(240, 214, 160))
+		local roll = ColorSequence.new(Color3.fromRGB(236, 196, 130), Color3.fromRGB(196, 140, 74))
+		piece(1, s * 0.5, s * 0.5, s * 0.56 + 2 * o, s * 0.62 + 2 * o, 0, dark, { corner = 0.08 })
+		piece(2, s * 0.5, s * 0.5, s * 0.56, s * 0.62, 0, paper, { grot = 90, corner = 0.08 })
+		for _, y in ipairs({ 0.2, 0.8 }) do
+			piece(3, s * 0.5, s * y, s * 0.72 + 2 * o, s * 0.13 + 2 * o, 0, dark, { corner = 1 })
+			piece(4, s * 0.5, s * y, s * 0.72, s * 0.13, 0, roll, { grot = 90, corner = 1 })
+			for _, x in ipairs({ 0.14, 0.86 }) do
+				piece(5, s * x, s * y, s * 0.07, s * 0.16, 0, Color3.fromRGB(150, 96, 46), { corner = 0.5 })
+			end
+		end
+		for _, l in ipairs({ { 0.36, 0.36 }, { 0.45, 0.4 }, { 0.54, 0.3 }, { 0.63, 0.22 } }) do
+			piece(5, s * (0.31 + l[2] / 2), s * l[1], s * l[2], s * 0.035, 0, Color3.fromRGB(150, 112, 70), { corner = 1 })
+		end
+		piece(6, s * 0.66, s * 0.64, s * 0.17 + 2 * o, s * 0.17 + 2 * o, 0, Color3.fromRGB(90, 10, 20), { corner = 1 })
+		piece(7, s * 0.66, s * 0.64, s * 0.17, s * 0.17, 0, ColorSequence.new(Color3.fromRGB(255, 90, 100), Color3.fromRGB(196, 24, 44)), { grot = 90, corner = 1 })
+		piece(8, s * 0.66, s * 0.64, s * 0.06, s * 0.06, 45, Color3.fromRGB(255, 210, 210), { tr = 0.2 })
 	elseif kind == "Shield" then
 		local o, dark = s * 0.05, Color3.fromRGB(26, 26, 44)
 		local W, bodyH, top = s * 0.62, s * 0.34, s * 0.12

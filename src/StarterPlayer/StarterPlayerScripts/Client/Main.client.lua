@@ -55,6 +55,9 @@ safe("Tutorial", Tutorial.Init, UIKit.Screen("Tutorial", 60))
 safe("Settings", SettingsUI.Init, UIKit.Screen("Settings", 45), { Tutorial = Tutorial.Open, GearParent = HUD.RightCard })
 Menus.OnSettings = SettingsUI.Toggle
 safe("Mobile", MobileControls.Init, { Menus = Menus, Map = MapUI, HUD = HUD, Combat = CombatClient })
+-- ภารกิจ / ล็อกอิน 7 วัน / Season Pass / โค้ด / ชวนเพื่อน (ปุ่ม "ภารกิจ" ในล็อบบี้)
+local QuestUI = require(Client:WaitForChild("QuestUI"))
+safe("Quests", QuestUI.Init, UIKit.Screen("Quests", 33))
 
 -- การตั้งค่า -> ระบบต่างๆ
 local function applySetting(key, value)
@@ -337,6 +340,16 @@ end
 Players.LocalPlayer.CharacterAdded:Connect(function(char)
 	task.spawn(holdUntilGround, char)
 end)
+
+do
+	local onLoaded = Cinematics.OnLoaded
+	Cinematics.OnLoaded = function()
+		if onLoaded then
+			onLoaded()
+		end
+		QuestUI.OnLoaded()
+	end
+end
 
 local _ = UIKit
 print("[AS] client ready")

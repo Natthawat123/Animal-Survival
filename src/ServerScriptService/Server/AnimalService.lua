@@ -330,6 +330,9 @@ function AnimalService:Kill(a, attacker)
 					self.ctx.Services.DataService:CheckBadges(p)
 				end
 				Analytics.Custom(p, "BossDefeated", self.ctx.State:GetAttribute("Night") or 1, { a.Id, a.Kind, p:GetAttribute("Class") or "Survivor" })
+				if self.ctx.Services.QuestService then
+					self.ctx.Services.QuestService:Progress(p, "Boss", 1)
+				end
 			end
 		end
 		self.ctx.State:SetAttribute("BossId", "")
@@ -346,6 +349,9 @@ function AnimalService:Kill(a, attacker)
 			pd.Kills = (pd.Kills or 0) + 1
 		end
 		ds:AddClassStat(receiver, "Kills", 1)
+		if self.ctx.Services.QuestService then
+			self.ctx.Services.QuestService:Progress(receiver, "Kill", 1)
+		end
 	end
 	self.ctx.Remotes.Get("HitFx"):FireAllClients("Death", { Model = model, Position = pos, Element = a.Info.Element, Boss = isBoss })
 	task.delay(isBoss and 6 or 3, function()

@@ -134,6 +134,7 @@ function CampService:Refuel(player)
 	local inv = self.ctx.Services.InventoryService
 	local max = self:Info().MaxFuel
 	local used = {}
+	local before = self.fuel
 	for _, id in ipairs(FUEL_ORDER) do
 		local fuel = Items.Data[id].Fuel
 		while self.fuel < max - fuel * 0.5 and inv:Available(player, id) > 0 and (id ~= "BeastHeart") do
@@ -155,6 +156,9 @@ function CampService:Refuel(player)
 		table.insert(parts, Items.DisplayName(id) .. " x" .. n)
 	end
 	self.ctx.Notify(player, "🔥 เติมไฟ: " .. table.concat(parts, ", "), "Good")
+	if self.ctx.Services.QuestService then
+		self.ctx.Services.QuestService:Progress(player, "Fuel", math.floor(self.fuel - before))
+	end
 	self.ctx.Remotes.Get("HitFx"):FireAllClients("Refuel", { Position = self.ctx.CampPosition })
 	self:UpdateVisual()
 	self:Publish()
@@ -225,6 +229,9 @@ function CampService:Craft(player, recipeId)
 		return
 	end
 	inv:Add(player, r.Id, r.Amount or 1)
+	if self.ctx.Services.QuestService then
+		self.ctx.Services.QuestService:Progress(player, "Craft", 1)
+	end
 	self.ctx.Notify(player, "🔨 คราฟต์สำเร็จ: " .. Items.DisplayName(r.Id) .. (item.Category == "Structure" and "  (กด B เพื่อวาง)" or ""), "Good")
 	self.ctx.Remotes.Get("HitFx"):FireAllClients("Craft", { Position = self.benchPos })
 end
@@ -379,7 +386,11 @@ function CampService:BurnDrops()
 			end
 		elseif item and item.Fuel then
 			drops:Remove(d.Model)
+			local before = self.fuel
 			self:AddFuel(item.Fuel * d.Count)
+			if d.By and self.ctx.Services.QuestService then
+				self.ctx.Services.QuestService:Progress(d.By, "Fuel", math.floor(self.fuel - before))
+			end
 			self.ctx.Remotes.Get("HitFx"):FireAllClients("Refuel", { Position = fire })
 		end
 	end

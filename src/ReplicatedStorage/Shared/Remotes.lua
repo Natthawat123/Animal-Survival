@@ -30,6 +30,10 @@ Remotes.Events = {
 	"LeaveRun", -- () คนที่ตายแล้ว (ดูเพื่อน) กดกลับล็อบบี้
 	"SaveSettings", -- (table) การตั้งค่าเสียง/กราฟิก/ปุ่ม
 	"TutorialDone", -- () ดูหน้าสอนเล่นจบแล้ว
+	"ClaimQuest", -- (scope "Daily"/"Weekly", index) รับรางวัลภารกิจ (QuestService)
+	"ClaimAchievement", -- (achId) รับ Ruby จากความสำเร็จ (หน้า "ป้าย")
+	"ClaimSeason", -- (track "Free"/"Prem"/"All", tier) รับรางวัล Season Pass
+	"EquipCosmetic", -- (kind "Title"/"Color", id) ใส่ฉายา/สีฉายา ("" = ถอด)
 	-- server -> client
 	"Notify", -- (text, kind)
 	"Inventory", -- (table)
@@ -41,6 +45,7 @@ Remotes.Functions = {
 	"GetProfile",
 	"GetShopInfo", -- () -> { Passes = { [id] = true }, Packs = Config.DiamondPacks ... }
 	"DevCmd", -- (action, a, b) เครื่องมือนักพัฒนา (DevService)
+	"RedeemCode", -- (code) -> { Ok, Text } แลกโค้ดรางวัล (QuestService)
 }
 
 local folder

@@ -1,12 +1,15 @@
 --[[
-	LobbyUI — ปุ่มเมนูล็อบบี้สไตล์เกมยุคใหม่: คลาส / ป้าย / ร้านค้า + แคปซูล Ruby มุมซ้ายบน
-	ป้าย = ความสำเร็จที่คำนวณจากสถิติจริงในเซฟ (คืนที่รอด, สัตว์ที่ล่า, คลาสที่มี)
+	LobbyUI — ปุ่มเมนูล็อบบี้สไตล์เกมยุคใหม่: คลาส / ภารกิจ / ป้าย / ร้านค้า / ตั้งค่า + แคปซูล Ruby มุมขวาบน
+	ป้าย = ความสำเร็จที่คำนวณจากสถิติจริงในเซฟ (Shared/Quests.lua Achievements) — ทำครบแล้วกดรับ Ruby ได้ครั้งเดียว
+	ภารกิจ = หน้าต่าง QuestUI (LobbyUI.OnQuests) · จุดแดง = มีรางวัลให้รับ (LobbyUI.SetQuestDot)
 ]]
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Classes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Classes"))
+local Quests = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Quests"))
+local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes"))
 local UIKit = require(script.Parent.UIKit)
 
 local LobbyUI = {}
@@ -16,32 +19,11 @@ local C = Color3.fromRGB
 local profile
 local ui = {}
 
--- ความสำเร็จ: { ชื่อ, ค่าปัจจุบัน(profile), เป้า }
-local BADGES = {
-	{ "🌙 รอดถึงคืนที่ 5", "BestNight", 5 }, { "🌙 รอดถึงคืนที่ 10", "BestNight", 10 }, { "🌕 รอดถึงคืนที่ 25", "BestNight", 25 },
-	{ "🌕 รอดถึงคืนที่ 50", "BestNight", 50 }, { "👑 พิชิตคืนสุดท้าย", "BestNight", 99 },
-	{ "🐾 ล่าสัตว์ 50 ตัว", "Kills", 50 }, { "🐾 ล่าสัตว์ 250 ตัว", "Kills", 250 }, { "🐺 ล่าสัตว์ 1000 ตัว", "Kills", 1000 },
-	{ "🔥 รอดรวม 20 คืน", "NightsTotal", 20 }, { "🔥 รอดรวม 100 คืน", "NightsTotal", 100 },
-	{ "🎒 มีคลาส 3 คลาส", "OwnedCount", 3 }, { "🎒 มีคลาส 6 คลาส", "OwnedCount", 6 }, { "🏆 สะสมครบทุกคลาส", "OwnedCount", #Classes.Order },
-	{ "⭐ คลาสเลเวล 3", "MaxClassLevel", 3 },
-}
+-- ความสำเร็จ: Quests.Achievements { Id, Text, Stat, Need, Ruby } (server ตรวจซ้ำตอนกดรับ)
+local BADGES = Quests.Achievements
 
 local function statOf(key)
-	local p = profile or {}
-	if key == "OwnedCount" then
-		local n = 0
-		for _ in pairs(p.Owned or {}) do
-			n += 1
-		end
-		return n
-	elseif key == "MaxClassLevel" then
-		local best = 1
-		for _, lv in pairs(p.ClassLevel or {}) do
-			best = math.max(best, lv)
-		end
-		return best
-	end
-	return p[key] or 0
+	return Quests.StatOf(profile, key)
 end
 
 -- ปุ่มเมนู: ไม่มีกล่องครอบ · วงกลมสีนุ่มๆ ไล่เงา + ขอบขาวบาง + ไอคอนใหญ่ + ชื่อตัวขาวขอบดำใต้วง
@@ -74,7 +56,7 @@ local function dockButton(parent, order, icon, name, color, onClick)
 	local gc = Instance.new("UICorner")
 	gc.CornerRadius = UDim.new(1, 0)
 	gc.Parent = gloss
-	if icon == "Ruby" or icon == "Shield" or icon == "Trophy" then
+	if icon == "Ruby" or icon == "Shield" or icon == "Trophy" or icon == "Scroll" then
 		UIKit.Icon(circle, icon, 50, { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), ZIndex = 4 })
 	else
 		UIKit.Text(circle, { Size = UDim2.fromScale(1, 1), Text = icon, TextSize = 34, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 4 })
@@ -122,16 +104,22 @@ function LobbyUI.Build(gui, handlers)
 	side.BackgroundTransparency = 1
 	side.AnchorPoint = Vector2.new(0, 0.5)
 	side.Position = UDim2.new(0, 22, 0.52, 0)
-	side.Size = UDim2.fromOffset(90, 440)
+	side.Size = UDim2.fromOffset(90, 510)
 	side.Parent = root
 	UIKit.AutoScale(side)
 	local layout = Instance.new("UIListLayout")
-	layout.Padding = UDim.new(0, 8)
+	layout.Padding = UDim.new(0, 4)
 	layout.SortOrder = Enum.SortOrder.LayoutOrder
 	layout.VerticalAlignment = Enum.VerticalAlignment.Center
 	layout.Parent = side
 	dockButton(side, 1, "Shield", "คลาส", C(230, 132, 64), handlers.Classes)
-	local _, dot, dotText = dockButton(side, 2, "Trophy", "ป้าย", C(146, 104, 222), function()
+	local _, qdot, qdotText = dockButton(side, 2, "Scroll", "ภารกิจ", C(236, 178, 52), function()
+		if LobbyUI.OnQuests then
+			LobbyUI.OnQuests()
+		end
+	end)
+	ui.QuestDot, ui.QuestDotText = qdot, qdotText
+	local _, dot, dotText = dockButton(side, 3, "Trophy", "ป้าย", C(146, 104, 222), function()
 		ui.Badges.Visible = not ui.Badges.Visible
 		if ui.Badges.Visible then
 			UIKit.Pop(ui.Badges)
@@ -139,8 +127,8 @@ function LobbyUI.Build(gui, handlers)
 		LobbyUI.Refresh()
 	end)
 	ui.BadgeDot, ui.BadgeDotText = dot, dotText
-	dockButton(side, 3, "Ruby", "ร้านค้า", C(64, 182, 120), handlers.Shop)
-	dockButton(side, 4, "⚙", "ตั้งค่า", C(74, 132, 220), handlers.Settings)
+	dockButton(side, 4, "Ruby", "ร้านค้า", C(64, 182, 120), handlers.Shop)
+	dockButton(side, 5, "⚙", "ตั้งค่า", C(74, 132, 220), handlers.Settings)
 
 	-- Ruby: แคปซูลมุมซ้ายบน + ปุ่ม + (เปิดร้านค้า)
 	local pill = UIKit.Frame(root, { Size = UDim2.fromOffset(190, 46), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -24, 0, 20), BackgroundColor3 = Color3.fromRGB(26, 30, 54), BackgroundTransparency = 0 })
@@ -156,7 +144,7 @@ function LobbyUI.Build(gui, handlers)
 	UIKit.EnsureTouchSize(plus, 44, handlers.Shop)
 
 	-- หน้าต่างป้ายความสำเร็จ
-	local panel = UIKit.Card(root, { Visible = false, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.53), Size = UDim2.fromOffset(560, 520) })
+	local panel = UIKit.Card(root, { Visible = false, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.53), Size = UDim2.fromOffset(640, 540) })
 	UIKit.Header(panel, "🏅 ป้ายความสำเร็จ", UIKit.Colors.Purple)
 	UIKit.CloseButton(panel, function()
 		panel.Visible = false
@@ -184,10 +172,17 @@ function LobbyUI.Build(gui, handlers)
 		local row = UIKit.Frame(scroll, { Size = UDim2.new(1, 0, 0, 64), BackgroundColor3 = Color3.fromRGB(46, 52, 86), BackgroundTransparency = 0, LayoutOrder = i })
 		UIKit.Corner(row, 12)
 		UIKit.Stroke(row, UIKit.Colors.Outline, 2, 0)
-		local name = UIKit.Text(row, { Position = UDim2.fromOffset(14, 6), Size = UDim2.new(0.68, 0, 0, 28), Text = b[1], Font = UIKit.Fonts.Black, TextSize = 20 })
-		local bar = UIKit.Bar(row, { Size = UDim2.new(0.68, 0, 0, 16), Position = UDim2.fromOffset(14, 38), Color = UIKit.Colors.Purple, Label = "" })
-		local prog = UIKit.Text(row, { Position = UDim2.new(0.72, 0, 0, 0), Size = UDim2.new(0.28, -14, 1, 0), Text = "", Font = UIKit.Fonts.Title, TextSize = 20, TextXAlignment = Enum.TextXAlignment.Right })
-		ui.BadgeRows[i] = { Row = row, Name = name, Prog = prog, Bar = bar }
+		local name = UIKit.Text(row, { Position = UDim2.fromOffset(14, 6), Size = UDim2.new(1, -250, 0, 28), Text = b.Text, Font = UIKit.Fonts.Black, TextSize = 20 })
+		local bar = UIKit.Bar(row, { Size = UDim2.new(1, -250, 0, 16), Position = UDim2.fromOffset(14, 38), Color = UIKit.Colors.Purple, Label = "" })
+		local prog = UIKit.Text(row, { Position = UDim2.new(1, -230, 0, 0), Size = UDim2.fromOffset(96, 64), Text = "", Font = UIKit.Fonts.Title, TextSize = 18, TextXAlignment = Enum.TextXAlignment.Center })
+		local claim = UIKit.ColorButton(row, UIKit.Colors.Green, { Size = UDim2.fromOffset(120, 44), Position = UDim2.new(1, -128, 0.5, -22), Text = "♦️ " .. b.Ruby, TextSize = 18, Font = UIKit.Fonts.Title }, function()
+			local r = ui.BadgeRows[i]
+			if r and r.Ready then
+				r.Ready = false
+				Remotes.Get("ClaimAchievement"):FireServer(b.Id)
+			end
+		end)
+		ui.BadgeRows[i] = { Row = row, Name = name, Prog = prog, Bar = bar, Claim = claim }
 	end
 	ui.Badges = panel
 end
@@ -197,28 +192,53 @@ function LobbyUI.Refresh()
 		return
 	end
 	ui.Gems.Text = tostring(player:GetAttribute("Diamonds") or (profile and profile.Diamonds) or 0)
-	local got = 0
+	local ready = 0
+	local claimed = (profile and profile.AchClaimed) or {}
 	for i, b in ipairs(BADGES) do
-		local v = statOf(b[2])
-		local done = v >= b[3]
-		got += done and 1 or 0
+		local need = Quests.NeedOf(b, #Classes.Order)
+		local v = statOf(b.Stat)
+		local done = v >= need
+		local got = claimed[b.Id] == true
+		local canClaim = done and not got and profile ~= nil
+		ready += canClaim and 1 or 0
+		local r = ui.BadgeRows[i]
+		r.Ready = canClaim
+		-- รับได้ขึ้นบนสุด · ยังไม่ครบตรงกลาง · รับแล้วไว้ล่างสุด
+		r.Row.LayoutOrder = (canClaim and 0 or (got and 2000 or 1000)) + i
 		if ui.Badges.Visible then
-			local r = ui.BadgeRows[i]
-			r.Prog.Text = done and "✅" or string.format("%d/%d", math.min(v, b[3]), b[3])
+			r.Prog.Text = done and "✅ สำเร็จ" or string.format("%d/%d", math.min(v, need), need)
 			r.Prog.TextColor3 = done and C(130, 240, 90) or C(235, 235, 255)
 			r.Name.TextTransparency = done and 0 or 0.25
-			r.Bar.Set(math.min(v / b[3], 1))
+			r.Bar.Set(math.min(v / need, 1))
 			r.Bar.Fill.BackgroundColor3 = done and UIKit.Colors.Green or UIKit.Colors.Purple
-			r.Row.BackgroundColor3 = done and C(40, 92, 60) or C(46, 52, 86)
+			r.Row.BackgroundColor3 = canClaim and C(92, 78, 30) or (done and C(40, 92, 60) or C(46, 52, 86))
+			if got then
+				r.Claim.Text = "✔ รับแล้ว"
+				r.Claim.BackgroundColor3 = C(78, 84, 112)
+			elseif canClaim then
+				r.Claim.Text = "รับ ♦️ " .. b.Ruby
+				r.Claim.BackgroundColor3 = UIKit.Colors.Green
+			else
+				r.Claim.Text = "♦️ " .. b.Ruby
+				r.Claim.BackgroundColor3 = C(78, 84, 112)
+			end
 		end
 	end
-	ui.BadgeDot.Visible = got > 0
-	ui.BadgeDotText.Text = tostring(got)
+	ui.BadgeDot.Visible = ready > 0
+	ui.BadgeDotText.Text = tostring(ready)
 end
 
 function LobbyUI.SetProfile(p)
 	profile = p
 	LobbyUI.Refresh()
+end
+
+-- จุดแดงบนปุ่ม "ภารกิจ" (QuestUI นับรางวัลที่รับได้)
+function LobbyUI.SetQuestDot(n)
+	if ui.QuestDot then
+		ui.QuestDot.Visible = (n or 0) > 0
+		ui.QuestDotText.Text = tostring(math.min(n or 0, 99))
+	end
 end
 
 -- ซ่อนตอนอยู่ในแมพ หรือเปิดร้านคลาสอยู่
@@ -227,6 +247,9 @@ function LobbyUI.SetVisible(v)
 		ui.Root.Visible = v
 		if not v then
 			ui.Badges.Visible = false
+			if LobbyUI.OnHidden then
+				LobbyUI.OnHidden()
+			end
 		end
 	end
 end

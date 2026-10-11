@@ -23,6 +23,10 @@ local function default()
 		Diamonds = 0, Owned = { Survivor = true }, Class = "Survivor", BestNight = 0, Runs = 0, Wins = 0, Kills = 0, PendingKits = {},
 		ClassLevel = {}, ClassStats = {}, StockDay = 0, StockRoll = 0, LastDaily = -1, NightsTotal = 0,
 		TutorialSeen = false, Settings = {}, TrueEndings = 0, BossKills = 0, Joined = 1, BadgesAwarded = {}, Receipts = {},
+		-- ภารกิจ / ล็อกอิน 7 วัน / Season Pass / โค้ด / ความสำเร็จ (QuestService, SeasonService)
+		Quests = {}, LoginStreak = 0, BestStreak = 0, AchClaimed = {}, CodesUsed = {}, WeekBest = {},
+		Season = {}, Titles = {}, NameColors = {}, EquipTitle = "", EquipColor = "",
+		Revives = 0, FuelAdded = 0, Crafts = 0, Gathered = 0, SpiritsSaved = 0, QuestsDone = 0,
 	}
 end
 
@@ -69,6 +73,9 @@ function DataService:Load(player)
 	player:SetAttribute("Diamonds", data.Diamonds)
 	player:SetAttribute("BestNight", data.BestNight or 0)
 	data.Joined = 1
+	if self.ctx.Services.QuestService then
+		self.ctx.Services.QuestService:OnLoad(player, data)
+	end
 	task.spawn(function()
 		self:CheckBadges(player)
 		-- ใส่ชื่อลงกระดานอันดับ (เผื่อเคยเล่นก่อนมีระบบนี้)
@@ -130,6 +137,10 @@ function DataService:ClaimDaily(player)
 	local data = profiles[player]
 	if not data then
 		return
+	end
+	-- หม้อรางวัล = รางวัลล็อกอิน 7 วันติด (QuestService) — รับได้วันละครั้งไม่ว่าจะกดจากหม้อหรือเมนูภารกิจ
+	if self.ctx.Services.QuestService then
+		return self.ctx.Services.QuestService:ClaimLogin(player)
 	end
 	local today = Classes.Day()
 	if data.LastDaily == today then
@@ -230,16 +241,25 @@ function DataService:Save(player)
 	return ok
 end
 
--- opts.Purchased = Ruby ที่ซื้อด้วย Robux (ไม่คูณ VIP)
+-- opts.Purchased = Ruby ที่ซื้อด้วย Robux (ไม่คูณ VIP) · opts.Flat = จำนวนตายตัว เช่นโค้ด (ไม่คูณ VIP/โบนัสเพื่อน)
 function DataService:AddDiamonds(player, n, reason, opts)
 	local data = profiles[player]
 	if not data then
 		return
 	end
 	local shop = self.ctx.Services.MonetizationService
-	if not (opts and opts.Purchased) and n > 0 and shop and shop:HasPass(player, "VIP") then
+	if not (opts and (opts.Purchased or opts.Flat)) and n > 0 and shop and shop:HasPass(player, "VIP") then
 		n *= 2
 		reason = (reason or "") .. " · VIP x2"
+	end
+	-- เล่นกับเพื่อน Roblox ในรอบเดียวกัน: +10% (FriendService)
+	local friends = self.ctx.Services.FriendService
+	if not (opts and (opts.Purchased or opts.Flat)) and n > 0 and friends then
+		local extra = friends:Extra(player, n)
+		if extra > 0 then
+			n += extra
+			reason = (reason or "") .. " · เพื่อน +10%"
+		end
 	end
 	data.Diamonds += n
 	player:SetAttribute("Diamonds", data.Diamonds)
