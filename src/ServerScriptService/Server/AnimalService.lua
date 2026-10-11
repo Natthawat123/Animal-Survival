@@ -16,6 +16,7 @@ local Biomes = require(ReplicatedStorage.Shared.Biomes)
 local Items = require(ReplicatedStorage.Shared.Items)
 local AnimalModels = require(ReplicatedStorage.Shared.AnimalModels)
 local Classes = require(ReplicatedStorage.Shared.Classes)
+local Analytics = require(script.Parent.Analytics)
 local BossAbilities = require(script.Parent.BossAbilities)
 
 local AnimalService = {}
@@ -328,6 +329,7 @@ function AnimalService:Kill(a, attacker)
 					pd.BossKills = (pd.BossKills or 0) + 1
 					self.ctx.Services.DataService:CheckBadges(p)
 				end
+				Analytics.Custom(p, "BossDefeated", self.ctx.State:GetAttribute("Night") or 1, { a.Id, a.Kind, p:GetAttribute("Class") or "Survivor" })
 			end
 		end
 		self.ctx.State:SetAttribute("BossId", "")
@@ -1074,7 +1076,8 @@ function AnimalService:WildTick()
 		end
 	end
 	local phase = self.ctx.State:GetAttribute("Phase")
-	local cap = Config.MaxWildAnimals * (phase == "Night" and 0.4 or 1)
+	-- เพดานสัตว์ป่าเพิ่มเล็กน้อยตามจำนวนคนในรอบ (1 คน = x1.0 · +12% ต่อคน สูงสุด x1.6)
+	local cap = Config.MaxWildAnimals * (phase == "Night" and 0.4 or 1) * math.min(1 + 0.12 * (#players - 1), 1.6)
 	if self.wildCount < cap then
 		local p = players[self.rng:NextInteger(1, #players)]
 		local r = charRoot(p)

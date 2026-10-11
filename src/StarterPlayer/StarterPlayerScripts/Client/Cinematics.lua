@@ -723,11 +723,64 @@ local ELEMENT_NIGHT_TEXT = {
 	All = "ทุกธาตุโกรธเกรี้ยว...",
 }
 
+-- กวางกลวงกำลังจะออกล่า (เตือนก่อน ~5 วินาที): ขอบจอแดงกะพริบ + ป้ายเตือน (เสียงเล่นจาก SoundController)
+function Cinematics.StalkerWarning(d, combat)
+	local holder = UIKit.Frame(gui, { Name = "StalkerVignette", Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1 })
+	local red = Color3.fromRGB(190, 0, 14)
+	local specs = {
+		{ UDim2.new(1, 0, 0.24, 0), UDim2.fromScale(0, 0), 90 },
+		{ UDim2.new(1, 0, 0.24, 0), UDim2.fromScale(0, 0.76), -90 },
+		{ UDim2.new(0.16, 0, 1, 0), UDim2.fromScale(0, 0), 0 },
+		{ UDim2.new(0.16, 0, 1, 0), UDim2.fromScale(0.84, 0), 180 },
+	}
+	local edges = {}
+	for _, sp in ipairs(specs) do
+		local e = UIKit.Frame(holder, { Size = sp[1], Position = sp[2], BackgroundColor3 = red, BackgroundTransparency = 1 })
+		local g = Instance.new("UIGradient")
+		g.Rotation = sp[3]
+		g.Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.55, 0.7), NumberSequenceKeypoint.new(1, 1),
+		})
+		g.Parent = e
+		table.insert(edges, e)
+	end
+	Cinematics.Banner("มีบางอย่างกำลังเข้ามา...", "อยู่ใกล้แสงไฟ! 🔥", Color3.fromRGB(255, 70, 60), 3.5, { Size = 50, Y = 0.2 })
+	if combat and combat.Shake then
+		combat.Shake(0.12, 0.5)
+	end
+	task.spawn(function()
+		local pulses = math.clamp(math.floor((tonumber(d.In) or 5) / 1.05 + 0.5), 2, 6)
+		for _ = 1, pulses do
+			for _, e in ipairs(edges) do
+				UIKit.Tween(e, 0.35, { BackgroundTransparency = 0.08 })
+			end
+			task.wait(0.4)
+			for _, e in ipairs(edges) do
+				UIKit.Tween(e, 0.6, { BackgroundTransparency = 0.7 })
+			end
+			task.wait(0.65)
+		end
+		for _, e in ipairs(edges) do
+			UIKit.Tween(e, 0.8, { BackgroundTransparency = 1 })
+		end
+		task.wait(0.9)
+		holder:Destroy()
+	end)
+end
+
 function Cinematics.Handle(kind, d, menus, combat)
 	if kind == "NightStart" then
 		local color = d.BloodMoon and Color3.fromRGB(220, 40, 40) or (C.Element[d.Element] or C.Gold)
 		local title = d.BloodMoon and "BLOOD MOON" or ("NIGHT " .. d.Night)
 		local sub = (d.BloodMoon and ("คืนที่ " .. d.Night .. " · ") or "") .. (d.Title or "") .. " — " .. (ELEMENT_NIGHT_TEXT[d.Element] or "")
+		if type(d.Elements) == "table" and #d.Elements > 0 then
+			-- พระจันทร์เลือดครั้งแรก: บอกว่าธาตุไหนบุกบ้าง
+			local names = {}
+			for _, e in ipairs(d.Elements) do
+				table.insert(names, (UIKit.ElementIcon[e] or "") .. (UIKit.ElementThai[e] or tostring(e)))
+			end
+			sub = "คืนที่ " .. d.Night .. " · " .. (d.Title or "") .. " — " .. table.concat(names, " + ") .. " บุกพร้อมกัน!"
+		end
 		if d.Boss then
 			sub = "คืนที่ " .. d.Night .. " · " .. (d.Title or "") .. " — บอสธาตุกำลังมาถึง!"
 		end
@@ -821,6 +874,8 @@ function Cinematics.Handle(kind, d, menus, combat)
 		end)
 	elseif kind == "Shake" then
 		combat.Shake(d.Power or 0.5, d.Time or 0.5)
+	elseif kind == "StalkerWarning" then
+		Cinematics.StalkerWarning(d, combat)
 	end
 end
 

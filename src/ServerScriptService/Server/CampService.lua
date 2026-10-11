@@ -528,14 +528,18 @@ function CampService:Start(ctx)
 				if ctx.State:GetAttribute("SpiritWater") then
 					drain *= 0.75
 				end
+				-- อัตรากินเชื้อเพลิงต่อวินาที (HUD ใช้ประมาณเวลาที่เหลือ) · ส่งเฉพาะตอนเปลี่ยน
+				local rounded = math.floor(drain * 1000 + 0.5) / 1000
+				if ctx.State:GetAttribute("CampDrain") ~= rounded then
+					ctx.State:SetAttribute("CampDrain", rounded)
+				end
 				local before = self.fuel
 				self.fuel = math.max(0, self.fuel - drain * dt)
 				if before > 0 and self.fuel <= 0 then
 					ctx.Broadcast("⚠ กองไฟมอดดับ! เติมไม้ด่วน", "Danger")
 					ctx.Remotes.Get("Cinematic"):FireAllClients("FireOut", {})
-				elseif before > self:Info().MaxFuel * 0.2 and self.fuel <= self:Info().MaxFuel * 0.2 then
-					ctx.Broadcast("🔥 เชื้อเพลิงกองไฟเหลือน้อย!", "Warn")
 				end
+				-- เชื้อเพลิงต่ำกว่า 20%: HUD ของผู้เล่นในรอบเตือนเอง (กะพริบ + เสียง + ข้อความพร้อมเวลาที่เหลือ)
 				self:UpdateVisual()
 				self:Publish()
 			end

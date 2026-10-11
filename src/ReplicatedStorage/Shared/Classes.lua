@@ -24,9 +24,9 @@ Classes.Data = {
 		Name = "Survivor", Thai = "ผู้รอดชีวิต", Role = "รอบด้าน", Stars = 1, Price = 0, Icon = "🔥",
 		StartItems = { OldAxe = 1, Torch = 1 },
 		Skills = {
-			{ Name = "ใจไม่ยอมแพ้", Text = "เลือดสูงสุด +15", Perks = { MaxHealthBonus = 15 } },
-			{ Name = "ฝีเท้าเบา", Text = "วิ่งเร็วขึ้น 8%", Perks = { SpeedMult = 1.08 } },
-			{ Name = "สัญชาตญาณรอด", Text = "ฟื้นเลือด 0.5 ต่อวินาทีตลอดเวลา", Perks = { Regen = 0.5 } },
+			{ Name = "ใจไม่ยอมแพ้", Text = "เลือดสูงสุด +15 · หิวช้าลง 10%", Perks = { MaxHealthBonus = 15, HungerMult = 0.9 } },
+			{ Name = "ฝีเท้าเบา", Text = "วิ่งเร็วขึ้น 5%", Perks = { SpeedMult = 1.05 } },
+			{ Name = "สัญชาตญาณรอด", Text = "ฟื้นเลือด 0.4 ต่อวินาทีตลอดเวลา", Perks = { Regen = 0.4 } },
 		},
 	},
 	Forager = {
@@ -52,7 +52,7 @@ Classes.Data = {
 		StartItems = { OldAxe = 1, Bandage = 3 },
 		Skills = {
 			{ Name = "มือหมอ", Text = "ผ้าพันแผล ยา และการชุบชีวิตเพื่อน ฮีลแรง x1.5", Perks = { HealMult = 1.5 } },
-			{ Name = "ร่างกายฟื้นตัว", Text = "ฟื้นเลือด 1 ต่อวินาทีตลอดเวลา", Perks = { Regen = 1 } },
+			{ Name = "ร่างกายฟื้นตัว", Text = "ฟื้นเลือด 0.6 ต่อวินาทีตลอดเวลา", Perks = { Regen = 0.6 } },
 			{ Name = "แพทย์สนามรบ", Text = "ฮีลแรง x2 · เลือดสูงสุด +20", Perks = { HealMult = 2, MaxHealthBonus = 20 } },
 		},
 	},
@@ -61,8 +61,8 @@ Classes.Data = {
 		StartItems = { OldAxe = 1, Bow = 1 },
 		Skills = {
 			{ Name = "ตาเหยี่ยว", Text = "ดาเมจทุกอาวุธ +15%", Perks = { DamageMult = 1.15 } },
-			{ Name = "มือถลกหนัง", Text = "ล่าสัตว์ได้หนัง/เนื้อเพิ่ม +1 ชิ้น", Perks = { ExtraDrops = 1 } },
-			{ Name = "นักล่าจ่าฝูง", Text = "ดาเมจทุกอาวุธ +30%", Perks = { DamageMult = 1.3 } },
+			{ Name = "ล่าไม่พลาด", Text = "ดาเมจทุกอาวุธ +20% · ล่าสัตว์/เก็บของได้เพิ่ม +1 ชิ้น", Perks = { DamageMult = 1.2, ExtraDrops = 1 } },
+			{ Name = "นักล่าจ่าฝูง", Text = "ดาเมจทุกอาวุธ +35%", Perks = { DamageMult = 1.35 } },
 		},
 	},
 	Builder = {
@@ -88,7 +88,7 @@ Classes.Data = {
 		StartItems = { OldAxe = 1, Coal = 4 },
 		Skills = {
 			{ Name = "ถนอมไฟ", Text = "กองไฟกินเชื้อเพลิงช้าลง 20% (ช่วยทั้งทีม)", Perks = { FuelDrainMult = 0.8 } },
-			{ Name = "ไออุ่นในกาย", Text = "ฟื้นเลือด 0.75 ต่อวินาทีตลอดเวลา", Perks = { Regen = 0.75 } },
+			{ Name = "ไออุ่นในกาย", Text = "ฟื้นเลือด 0.5 ต่อวินาที · หิวช้าลง 15%", Perks = { Regen = 0.5, HungerMult = 0.85 } },
 			{ Name = "หัวใจเปลวเพลิง", Text = "เชื้อเพลิงช้าลง 35% · โดนดาเมจน้อยลง 10%", Perks = { FuelDrainMult = 0.65, DamageTakenMult = 0.9 } },
 		},
 	},
@@ -107,7 +107,7 @@ Classes.Data = {
 		Skills = {
 			{ Name = "กลิ่นอสูร", Text = "สัตว์ป่าไม่โจมตีก่อน (ฝูงบุกกลางคืนยังโจมตี) · ดาเมจเรา -10%", Perks = { WildPeace = true, DamageMult = 0.9 } },
 			{ Name = "หนังหนาดั่งหมี", Text = "โดนดาเมจน้อยลง 20%", Perks = { DamageTakenMult = 0.8 } },
-			{ Name = "ราชันย์อสูร", Text = "โดนดาเมจน้อยลง 30% · ดาเมจเรา +15%", Perks = { DamageTakenMult = 0.7, DamageMult = 1.15 } },
+			{ Name = "ราชันย์อสูร", Text = "โดนดาเมจน้อยลง 30% · เลือดสูงสุด +25 · ดาเมจกลับเป็นปกติ", Perks = { DamageTakenMult = 0.7, MaxHealthBonus = 25, DamageMult = 1 } },
 		},
 	},
 }

@@ -237,6 +237,7 @@ function StoreUI.Init(gui)
 	ui.Panel = panel
 	UIKit.Header(panel, "🛒 ร้านค้า", C.Green)
 	UIKit.CloseButton(panel, StoreUI.Close)
+	UIKit.RegisterWindow(panel, StoreUI.Close, { Dim = 0.55 })
 	-- Ruby ของเรา
 	local pill = UIKit.Frame(panel, { Size = UDim2.fromOffset(170, 42), Position = UDim2.new(1, -206, 0, 34), BackgroundColor3 = rgb(20, 24, 44), BackgroundTransparency = 0 })
 	local pc = Instance.new("UICorner")

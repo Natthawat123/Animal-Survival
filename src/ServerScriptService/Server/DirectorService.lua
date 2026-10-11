@@ -13,6 +13,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local Nights = require(ReplicatedStorage.Shared.Nights)
 local Animals = require(ReplicatedStorage.Shared.Animals)
 local Classes = require(ReplicatedStorage.Shared.Classes)
+local Analytics = require(script.Parent.Analytics)
 
 local DirectorService = {}
 
@@ -67,8 +68,10 @@ function DirectorService:SpawnRaid(id, plan, night)
 	local pos = layout:RaidSpawnPoint(self.rng, Config.RaidSpawnRadius.Min, Config.RaidSpawnRadius.Max, element)
 	local scale = Nights.Scale(night)
 	if info.Behaviour == "Boss" then
+		-- เลือดบอสเพิ่มตามจำนวนคนที่ยังรอดในรอบ (1 คน = x1.0 · +25% ต่อคนที่เพิ่ม)
+		local players = self.ctx.Services.SurvivalService:RunPlayerCount(true)
 		local a = animals:Spawn(id, pos, {
-			Kind = "Boss", HealthMult = 1 + night * 0.004, DamageMult = 1, Night = night,
+			Kind = "Boss", HealthMult = (1 + night * 0.004) * Nights.BossHealthMult(players), DamageMult = 1, Night = night,
 		})
 		if a then
 			a.Model:SetAttribute("IsBoss", true)
@@ -90,7 +93,9 @@ function DirectorService:RunNight(night, runId)
 	local s = ctx.State
 	local element = Nights.PickElement(night, self.rng, self.lastElement)
 	self.lastElement = element
-	local plan = Nights.Plan(night, self.rng, element)
+	-- งบฝูงบุกคูณตามจำนวนคนที่ยังรอดในรอบ (Nights.PlayerBudgetMult) — เพดาน Config.MaxRaidAnimals เท่าเดิม
+	local players = ctx.Services.SurvivalService:RunPlayerCount(true)
+	local plan = Nights.Plan(night, self.rng, element, players)
 	s:SetAttribute("NightElement", plan.Element)
 	s:SetAttribute("BloodMoon", plan.BloodMoon)
 	self:SetPhase("Night", Config.NightLength)
@@ -100,6 +105,7 @@ function DirectorService:RunNight(night, runId)
 	end
 	ctx.Remotes.Get("Cinematic"):FireAllClients("NightStart", {
 		Night = night, Element = plan.Element, BloodMoon = plan.BloodMoon, Boss = plan.Boss, Title = title, Endless = Nights.IsEndless(night),
+		Elements = plan.Elements,
 	})
 	local total = 0
 	for _, w in ipairs(plan.Waves) do
@@ -107,8 +113,20 @@ function DirectorService:RunNight(night, runId)
 	end
 	s:SetAttribute("RaidTotal", total)
 
-	-- กวางกลวงออกล่า
-	task.delay(Config.NightLength * 0.12, function()
+	-- กวางกลวงออกล่า (เตือนทุกคนในรอบล่วงหน้า 5 วินาที: ขอบจอแดง + ป้าย + เสียง)
+	local stalkerAt = Config.NightLength * 0.12
+	local warnAt = math.max(0.5, stalkerAt - 5)
+	task.delay(warnAt, function()
+		if runId ~= self.runId or s:GetAttribute("Phase") ~= "Night" or ctx.Services.AnimalService:CountKind("Stalker") > 0 then
+			return
+		end
+		for _, p in ipairs(Players:GetPlayers()) do
+			if p:GetAttribute("InRun") and not p:GetAttribute("Dead") then
+				ctx.Remotes.Get("Cinematic"):FireClient(p, "StalkerWarning", { In = math.max(0, stalkerAt - warnAt) })
+			end
+		end
+	end)
+	task.delay(stalkerAt, function()
 		if runId ~= self.runId or s:GetAttribute("Phase") ~= "Night" then
 			return
 		end
@@ -168,6 +186,7 @@ function DirectorService:Dawn(night)
 				ctx.Services.DataService:SetBestNight(p, night)
 				data.NightsTotal = (data.NightsTotal or 0) + 1
 				ctx.Services.DataService:AddClassStat(p, "Nights", 1)
+				Analytics.NightReached(p, night)
 			end
 			local bonus = Classes.NightRewards[night]
 			if bonus then
@@ -256,6 +275,12 @@ function DirectorService:GameOver()
 	self:SetPhase("Ended", 12)
 	ctx.State:SetAttribute("Ending", "Defeat")
 	local survived = self.night - 1
+	local teamSize = 0
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p:GetAttribute("InRun") then
+			teamSize += 1
+		end
+	end
 	for _, p in ipairs(Players:GetPlayers()) do
 		if p:GetAttribute("InRun") then
 			local data = ctx.Services.DataService:Get(p)
@@ -265,6 +290,9 @@ function DirectorService:GameOver()
 			ctx.Remotes.Get("Cinematic"):FireClient(p, "GameOver", {
 				Night = self.night, Survived = survived, Best = data and data.BestNight or survived, Conquered = ctx.State:GetAttribute("Conquered"),
 			})
+			Analytics.Custom(p, "GameOverNight", self.night, { p:GetAttribute("Class") or "Survivor", tostring(teamSize) })
+			Analytics.Custom(p, "TeamWipe", self.night, { tostring(teamSize) })
+			Analytics.NightFailed(p, self.night)
 			ctx.Services.DataService:Save(p)
 		end
 	end

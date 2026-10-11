@@ -103,6 +103,9 @@ local function dockButton(parent, order, icon, name, color, onClick)
 	dc.CornerRadius = UDim.new(1, 0)
 	dc.Parent = dot
 	UIKit.Stroke(dot, C(255, 255, 255), 2, 0)
+	if onClick then
+		UIKit.EnsureTouchSize(b, 44, onClick) -- แถบเมนูถูกย่อตามจอ: พื้นที่แตะไม่เล็กกว่า 44px
+	end
 	local dt = UIKit.Text(dot, { Size = UDim2.fromScale(1, 1), Text = "!", Font = UIKit.Fonts.Title, TextSize = 15, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 9 })
 	return b, dot, dt
 end
@@ -150,6 +153,7 @@ function LobbyUI.Build(gui, handlers)
 	ui.Gems = UIKit.Text(pill, { Size = UDim2.new(1, -80, 1, 0), Position = UDim2.fromOffset(34, 0), Text = "0", Font = UIKit.Fonts.Title, TextSize = 28 })
 	local plus = UIKit.ColorButton(pill, UIKit.Colors.Green, { Size = UDim2.fromOffset(36, 36), Position = UDim2.new(1, -41, 0, 5), Text = "+", TextSize = 28 }, handlers.Shop)
 	plus:FindFirstChildOfClass("UICorner").CornerRadius = UDim.new(1, 0)
+	UIKit.EnsureTouchSize(plus, 44, handlers.Shop)
 
 	-- หน้าต่างป้ายความสำเร็จ
 	local panel = UIKit.Card(root, { Visible = false, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.53), Size = UDim2.fromOffset(560, 520) })
@@ -157,6 +161,7 @@ function LobbyUI.Build(gui, handlers)
 	UIKit.CloseButton(panel, function()
 		panel.Visible = false
 	end)
+	UIKit.RegisterWindow(panel)
 	local scroll = Instance.new("ScrollingFrame")
 	scroll.BackgroundTransparency = 1
 	scroll.BorderSizePixel = 0

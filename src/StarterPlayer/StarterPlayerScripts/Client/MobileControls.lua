@@ -6,7 +6,7 @@
 	    🗺 แผนที่ = ปุ่มเล็กข้างปุ่ม ⚙ ใต้การ์ดกองไฟ (มุมขวาบน)
 	  โหมดสร้าง: ↻ หมุน · ⇄ เปลี่ยน · ✔ วาง · ✕ ยกเลิก (แถวล่างกลางจอ) — เล็งด้วยเป้ากลางจอ
 	  ตี/ตัด = แตะจอตอนถือเครื่องมือ (ระบบ Tool ของ Roblox) · เก็บของ = แตะปุ่ม E บนของ
-	ขนาดปุ่มปรับได้ในหน้าตั้งค่า (TouchSize)
+	ขนาดปุ่มปรับได้ในหน้าตั้งค่า (TouchSize) — ทุกปุ่มบนจอจริงไม่เล็กกว่า MIN_TOUCH (44px) เสมอ
 ]]
 
 local Players = game:GetService("Players")
@@ -19,6 +19,7 @@ local UIKit = require(script.Parent.UIKit)
 local ClientSettings = require(script.Parent.ClientSettings)
 
 local MobileControls = {}
+local MIN_TOUCH = 44 -- ขนาดปุ่มเล็กสุดที่นิ้วกดได้สบาย (px บนจอจริง)
 local player = Players.LocalPlayer
 local C = UIKit.Colors
 
@@ -70,12 +71,15 @@ function MobileControls.Init(deps)
 	-- แผนที่: ปุ่มเล็กใต้ปุ่ม ⚙ ข้างการ์ดกองไฟ (มุมขวาบน ไม่กินพื้นที่ปุ่มหลัก)
 	local mapB
 	if hud and hud.RightCard then
-		mapB = UIKit.ColorButton(hud.RightCard, C.Purple, { Size = UDim2.fromOffset(48, 48), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(0, -12, 0, 60), Text = "🗺", TextSize = 26 }, function()
+		local function toggleMap()
 			if map and map.Toggle then
 				map.Toggle()
 			end
-		end)
+		end
+		mapB = UIKit.ColorButton(hud.RightCard, C.Purple, { Size = UDim2.fromOffset(48, 48), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(0, -12, 0, 60), Text = "🗺", TextSize = 26 }, toggleMap)
 		mapB:FindFirstChildOfClass("UICorner").CornerRadius = UDim.new(1, 0)
+		-- การ์ดกองไฟถูกย่อตามจอ -> ขยายพื้นที่แตะให้ยังกดได้ ≥ 44px
+		UIKit.EnsureTouchSize(mapB, MIN_TOUCH, toggleMap)
 	end
 
 	-- โหมดสร้าง: เป้าเล็งกลางจอ + แถบปุ่มล่างกลางจอ
@@ -105,7 +109,7 @@ function MobileControls.Init(deps)
 		if not small then
 			jx, jy, jr = 110, 150, 60
 		end
-		local size = (small and 50 or 64) * k
+		local size = math.max(MIN_TOUCH, (small and 50 or 64) * k)
 		local r1 = jr + size * 0.5 + 18 * k
 		local r2 = r1 + size + 12 * k
 		for _, sl in ipairs(slots) do
@@ -114,7 +118,8 @@ function MobileControls.Init(deps)
 			b.Size = UDim2.fromOffset(size, size)
 			b.Position = UDim2.new(1, -(jx + r * math.cos(phi)), 1, -(jy + r * math.sin(phi)))
 		end
-		bscale.Scale = math.clamp(vp.Y / 420, 0.75, 1.15) * k
+		-- ปุ่มโหมดสร้างเล็กสุด 56px x สเกล -> ไม่ให้ต่ำกว่า 44px
+		bscale.Scale = math.max(math.clamp(vp.Y / 420, 0.75, 1.15) * k, MIN_TOUCH / 56)
 	end
 	layout()
 	ClientSettings.OnChanged(function(key)

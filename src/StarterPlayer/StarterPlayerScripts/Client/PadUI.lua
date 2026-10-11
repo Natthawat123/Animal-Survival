@@ -42,6 +42,7 @@ function PadUI.Init()
 		picker.Visible = false
 	end
 	UIKit.CloseButton(picker, close)
+	UIKit.RegisterWindow(picker, close) -- Esc / แตะนอกหน้าต่าง = ปิด (กด "เปลี่ยน" เพื่อเปิดใหม่)
 	local pickButtons = {}
 	for n = 1, 8 do
 		local b = UIKit.ColorButton(grid, Color3.fromRGB(58, 66, 104), { Text = n == 1 and "1 (เดี่ยว)" or (n .. " คน"), TextSize = 22, Font = UIKit.Fonts.Title, LayoutOrder = n }, function()

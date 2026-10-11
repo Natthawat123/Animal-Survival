@@ -18,6 +18,7 @@ local Items = require(Shared.Items)
 local MeshProps = require(Shared.MeshProps)
 local Remotes = require(Shared.Remotes)
 local ClassAvatars = require(script.Parent.ClassAvatars)
+local UIKit = require(script.Parent.UIKit)
 
 local ClassShop = {}
 
@@ -32,6 +33,10 @@ local stage = {}
 local GOLD_A, GOLD_B = C(255, 240, 140), C(244, 170, 36)
 local GREEN, RED, BLUE, GRAY = C(76, 200, 64), C(222, 64, 64), C(58, 160, 240), C(96, 96, 104)
 local LEVEL_COLOR = { C(90, 200, 90), C(70, 150, 245), C(180, 90, 245) }
+-- ป้ายสถิติขึ้นเลเวล (สั้น อ่านง่ายบนมือถือ)
+local STAT_LABEL = { Kills = "⚔ ฆ่า", Nights = "🌙 รอด" }
+local STAT_SHORT = { Kills = "ฆ่า %d/%d", Nights = "รอด %d/%d คืน" }
+local BAR_COLOR = { Kills = C(255, 120, 90), Nights = C(120, 170, 255) }
 local ITEM_EMOJI = {
 	Torch = "🔥", Bandage = "🩹", Medkit = "⛑", Berries = "🍇", Coal = "⚫", LogWall = "🧱", Bow = "🏹",
 	OldAxe = "🪓", StoneAxe = "🪓", IronAxe = "🪓", Spear = "🔱", Wood = "🪵", Stone = "🪨",
@@ -178,6 +183,24 @@ end
 
 local function gems()
 	return player:GetAttribute("Diamonds") or data().Diamonds or 0
+end
+
+-- ความคืบหน้าสู่เลเวลถัดไป: (req, stats, สัดส่วนเฉลี่ย 0..1) หรือ nil ถ้าเลเวลสูงสุดแล้ว
+local function progressOf(id)
+	local d = data()
+	local req = Classes.Requirement(id, levelOf(id) + 1)
+	if not req then
+		return nil
+	end
+	local stats = (d.ClassStats and d.ClassStats[id]) or {}
+	local sum, n = 0, 0
+	for _, k in ipairs(Classes.StatOrder) do
+		if req[k] then
+			sum += math.clamp((stats[k] or 0) / math.max(req[k], 1), 0, 1)
+			n += 1
+		end
+	end
+	return req, stats, n > 0 and sum / n or 1
 end
 
 ---------------------------------------------------------------- เวทีโชว์ตัวละคร (กล้องในเต็นท์)
@@ -533,7 +556,8 @@ function ClassShop.Refresh()
 			cd.Tag.Text, cd.Tag.TextColor3 = "♦️ " .. c.Price, C(150, 225, 255)
 		end
 		if owned then
-			setButton(cd.Button, "เลเวล " .. levelOf(id), BLUE)
+			local _, _, frac = progressOf(id)
+			setButton(cd.Button, frac and string.format("Lv.%d · %d%%", levelOf(id), math.floor(frac * 100)) or ("Lv.%d ⭐MAX"):format(levelOf(id)), BLUE)
 		elseif st[id] then
 			setButton(cd.Button, "มีในสต็อค", GREEN)
 		else
@@ -558,14 +582,19 @@ function ClassShop.Refresh()
 		ui.Info.Text = st[selected] and string.format("ราคา ♦️%d — มีในสต็อควันนี้", c.Price) or "ไม่มีสต๊อควันนี้ — รอรีสต็อกหรือกดรีโรล"
 		ui.Info.TextColor3 = st[selected] and C(140, 240, 100) or C(255, 130, 120)
 	elseif req then
-		ui.ProgTitle.Text = string.format("ความคืบหน้า → เลเวล %d", lv + 1)
+		-- สรุปบรรทัดเดียว: "Lv2: ฆ่า 12/60 · รอด 2/4 คืน" + แถบแยกของแต่ละเงื่อนไข (ครบแล้ว = เขียว ✔)
+		local parts = {}
 		for i, k in ipairs(Classes.StatOrder) do
 			local b = ui.Bars[i]
-			local have, need = stats[k] or 0, req[k]
-			b.Label.Text = Classes.StatNames[k]
-			b.Fill.Size = UDim2.fromScale(math.clamp(have / need, 0, 1), 1)
+			local have, need = stats[k] or 0, req[k] or 1
+			local done = have >= need
+			table.insert(parts, string.format(STAT_SHORT[k] or (k .. " %d/%d"), math.min(have, need), need))
+			b.Label.Text = (STAT_LABEL[k] or Classes.StatNames[k] or k) .. (done and " ✔" or "")
+			b.Fill.Size = UDim2.fromScale(math.clamp(have / math.max(need, 1), 0, 1), 1)
+			b.Fill.BackgroundColor3 = done and C(110, 225, 90) or (BAR_COLOR[k] or C(110, 225, 90))
 			b.Num.Text = string.format("%d / %d", math.min(have, need), need)
 		end
+		ui.ProgTitle.Text = string.format("Lv%d: %s", lv + 1, table.concat(parts, " · "))
 	else
 		ui.ProgTitle.Text = "⭐ เลเวลสูงสุดแล้ว"
 		ui.Info.Text = string.format("ล่าสัตว์ %d ตัว · รอด %d คืน กับคลาสนี้", stats.Kills or 0, stats.Nights or 0)
@@ -652,6 +681,18 @@ function ClassShop.Open()
 	cameraToStage()
 	showOnStage(selected)
 	ClassShop.Refresh()
+	-- ดึงสถิติล่าสุด (ฆ่า/รอดคืน นับระหว่างรอบโดยไม่ได้ส่งโปรไฟล์ทุกครั้ง)
+	task.spawn(function()
+		local ok, p = pcall(function()
+			return Remotes.Get("GetProfile"):InvokeServer()
+		end)
+		if ok and type(p) == "table" then
+			profile = p
+			if ClassShop.IsOpen() then
+				ClassShop.Refresh()
+			end
+		end
+	end)
 	if ClassShop.OnVisibility then
 		ClassShop.OnVisibility(true)
 	end
@@ -670,6 +711,8 @@ end
 
 function ClassShop.Init(gui)
 	ClassShop.Build(gui)
+	-- Esc = ปิด (หน้าเต็มจอ ไม่มี "นอกหน้าต่าง" ให้แตะ)
+	UIKit.RegisterWindow(ui.Root, ClassShop.Close, { Backdrop = false })
 	local function refreshIfOpen()
 		if ClassShop.IsOpen() then
 			ClassShop.Refresh()

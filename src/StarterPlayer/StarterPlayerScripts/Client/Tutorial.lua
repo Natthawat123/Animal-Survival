@@ -294,7 +294,9 @@ function Tutorial.Init(gui)
 		end
 	end)
 	local skip = UIKit.Button(card, { Size = UDim2.fromOffset(120, 34), Position = UDim2.new(1, -150, 1, -62), Text = "ข้าม", TextSize = 16 }, Tutorial.Close)
-	local _ = skip
+	UIKit.EnsureTouchSize(skip, 44, Tutorial.Close)
+	-- Esc = ข้าม (ไม่ปิดเมื่อแตะนอกการ์ด กันกดพลาดตอนอ่าน)
+	UIKit.RegisterWindow(root, Tutorial.Close, { Backdrop = false })
 end
 
 return Tutorial

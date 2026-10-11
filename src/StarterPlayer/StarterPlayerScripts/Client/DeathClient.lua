@@ -125,7 +125,16 @@ function DeathClient.Init()
 	local leave = UIKit.ColorButton(bar, C.Orange, { Size = UDim2.fromOffset(220, 34), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 88), Text = "🏠 กลับล็อบบี้", TextSize = 18 }, function()
 		Remotes.Get("LeaveRun"):FireServer()
 	end)
-	local _ = prev and nextB and leave
+	-- มือถือ: พื้นที่แตะอย่างน้อย 44px
+	UIKit.EnsureTouchSize(prev, 44, function()
+		cycle(-1)
+	end)
+	UIKit.EnsureTouchSize(nextB, 44, function()
+		cycle(1)
+	end)
+	UIKit.EnsureTouchSize(leave, 44, function()
+		Remotes.Get("LeaveRun"):FireServer()
+	end)
 
 	player:GetAttributeChangedSignal("Downed"):Connect(onDowned)
 	-- เกิดใหม่ (กลับล็อบบี้/เริ่มรอบใหม่) = เลิกดูเพื่อน

@@ -162,6 +162,12 @@ function MapUI.Init(state, hud, atmosphere)
 		end
 	end
 	MapUI.Toggle = toggle
+	local function close()
+		panel.Visible = false
+	end
+	MapUI.Close = close
+	UIKit.CloseButton(panel, close)
+	UIKit.RegisterWindow(panel, close)
 	UserInputService.InputBegan:Connect(function(input, processed)
 		if not processed and input.KeyCode == Enum.KeyCode.M then
 			toggle()

@@ -2,7 +2,8 @@
 	HUD — หน้าจอหลักระหว่างเล่น
 	  ซ้ายบน: เลือด / ความหิว / สตามิน่า
 	  กลางบน: คืนที่ X + เวลา + ธาตุประจำคืน + เข็มทิศ
-	  ขวาบน: กองไฟ + ลูกสัตว์ธาตุ 4 ดวง + Ruby
+	  ซ้าย (ใต้แถบค่า): เพื่อนร่วมทีม — ชื่อ + เลือด + สถานะล้ม/ตาย (เพื่อนบนเข็มทิศพร้อมระยะ)
+	  ขวาบน: กองไฟ (วงแหวนเชื้อเพลิง เขียว→เหลือง→แดง + เวลาที่เหลือ) + ลูกสัตว์ธาตุ 4 ดวง + Ruby
 	  ล่าง: ทรัพยากรในกระเป๋า + ปุ่มลัด / แถบเลือดบอส
 ]]
 
@@ -17,6 +18,7 @@ local Items = require(Shared.Items)
 local Animals = require(Shared.Animals)
 local Config = require(Shared.Config)
 local UIKit = require(script.Parent.UIKit)
+local SoundController = require(script.Parent.SoundController)
 
 local HUD = {}
 local player = Players.LocalPlayer
@@ -53,6 +55,15 @@ function HUD.Init(state)
 	HUD.StaminaBar = UIKit.Bar(stats, { Size = UDim2.fromOffset(180, 14), Position = UDim2.fromOffset(30, 82), Color = C.Stamina, Label = "" })
 	UIKit.IconBadge(stats, "⚡", C.Stamina, 28, { Position = UDim2.fromOffset(7, 75) })
 	HUD.ClassLabel = UIKit.Text(stats, { Size = UDim2.fromOffset(260, 18), Position = UDim2.fromOffset(6, 104), TextSize = 15, Font = UIKit.Fonts.Black, TextColor3 = C.Gold, Text = "" })
+	-- เพื่อนร่วมทีม (อยู่ในกรอบเดียวกับแถบค่า ย่อ/ขยายไปด้วยกัน)
+	local team = UIKit.Frame(stats, { Name = "Team", Size = UDim2.fromOffset(240, 0), Position = UDim2.fromOffset(4, 130), BackgroundTransparency = 1, AutomaticSize = Enum.AutomaticSize.Y, Visible = false })
+	local tl = Instance.new("UIListLayout")
+	tl.Padding = UDim.new(0, 4)
+	tl.SortOrder = Enum.SortOrder.LayoutOrder
+	tl.Parent = team
+	HUD.TeamFrame = team
+	HUD.TeamRows = {}
+	HUD.TeamMarks = {}
 
 	---------------------------------------------------------------- กลางบน: คืน
 	local top = UIKit.Frame(gui, { Size = UDim2.fromOffset(440, 84), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 10), BackgroundTransparency = 1 })
@@ -90,13 +101,29 @@ function HUD.Init(state)
 	local right = UIKit.Card(gui, { Size = UDim2.fromOffset(270, 116), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -20, 0, 18), BackgroundTransparency = 0.12 })
 	UIKit.AutoScale(right)
 	HUD.RightCard = right
-	UIKit.IconBadge(right, "🔥", C.Fire, 46, { Position = UDim2.fromOffset(-14, -14) })
-	HUD.FireLabel = UIKit.Text(right, { Size = UDim2.new(1, -46, 0, 22), Position = UDim2.fromOffset(38, 6), Text = "กองไฟ Lv.1", Font = UIKit.Fonts.Black, TextColor3 = C.Text, TextSize = 17 })
-	HUD.FireBar = UIKit.Bar(right, { Size = UDim2.new(1, -24, 0, 18), Position = UDim2.fromOffset(12, 34), Color = C.Fire, Label = "" })
-	HUD.SafeLabel = UIKit.Text(right, { Size = UDim2.new(1, -20, 0, 16), Position = UDim2.fromOffset(12, 56), Text = "", TextSize = 14, TextColor3 = C.TextDim })
+	-- วงแหวนเชื้อเพลิงรอบไอคอนกองไฟ (ขีดเรียงเป็นวง: เต็ม = เขียว · ครึ่ง = เหลือง · ใกล้หมด = แดงกะพริบ)
+	local ring = UIKit.Frame(right, { Name = "FuelRing", Size = UDim2.fromOffset(70, 70), Position = UDim2.fromOffset(6, 4), BackgroundTransparency = 1, ZIndex = 3 })
+	HUD.FuelSegs = {}
+	local SEGS, R = 24, 30
+	for i = 1, SEGS do
+		local a = (i - 0.5) / SEGS * math.pi * 2 -- เริ่มที่ 12 นาฬิกา วนตามเข็ม
+		local seg = UIKit.Frame(ring, {
+			Size = UDim2.fromOffset(5, 10), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromOffset(35 + math.sin(a) * R, 35 - math.cos(a) * R),
+			Rotation = math.deg(a), BackgroundColor3 = Color3.fromRGB(60, 60, 70), BackgroundTransparency = 0, ZIndex = 3,
+		})
+		UIKit.Corner(seg, 1)
+		HUD.FuelSegs[i] = seg
+	end
+	HUD.FireIcon = UIKit.IconBadge(right, "🔥", C.Fire, 40, { Position = UDim2.fromOffset(21, 19) })
+	HUD.FireIconScale = Instance.new("UIScale")
+	HUD.FireIconScale.Parent = HUD.FireIcon
+	HUD.FireLabel = UIKit.Text(right, { Size = UDim2.new(1, -90, 0, 20), Position = UDim2.fromOffset(82, 6), Text = "กองไฟ Lv.1", Font = UIKit.Fonts.Black, TextColor3 = C.Text, TextSize = 15 })
+	HUD.FuelText = UIKit.Text(right, { Size = UDim2.new(1, -90, 0, 26), Position = UDim2.fromOffset(82, 26), Text = "", Font = UIKit.Fonts.Title, TextColor3 = C.Good, TextSize = 22 })
+	HUD.SafeLabel = UIKit.Text(right, { Size = UDim2.new(1, -90, 0, 18), Position = UDim2.fromOffset(82, 54), Text = "", TextSize = 13, TextColor3 = C.TextDim })
+	HUD.FuelLowArmed = true
 	HUD.SpiritOrbs = {}
 	for i, el in ipairs({ "Earth", "Water", "Air", "Fire" }) do
-		local orb = UIKit.Frame(right, { Size = UDim2.fromOffset(28, 28), Position = UDim2.fromOffset(12 + (i - 1) * 34, 78), BackgroundColor3 = Color3.fromRGB(50, 50, 56), BackgroundTransparency = 0 })
+		local orb = UIKit.Frame(right, { Size = UDim2.fromOffset(28, 28), Position = UDim2.fromOffset(12 + (i - 1) * 34, 80), BackgroundColor3 = Color3.fromRGB(50, 50, 56), BackgroundTransparency = 0 })
 		local oc = Instance.new("UICorner")
 		oc.CornerRadius = UDim.new(1, 0)
 		oc.Parent = orb
@@ -104,8 +131,8 @@ function HUD.Init(state)
 		local t = UIKit.Text(orb, { Size = UDim2.fromScale(1, 1), Text = UIKit.ElementIcon[el], TextSize = 15, TextXAlignment = Enum.TextXAlignment.Center, TextTransparency = 0.6 })
 		HUD.SpiritOrbs[el] = { Frame = orb, Icon = t }
 	end
-	HUD.DiamondLabel = UIKit.Text(right, { Size = UDim2.fromOffset(100, 28), Position = UDim2.new(1, -144, 0, 78), Text = "0", Font = UIKit.Fonts.Title, TextSize = 22, TextXAlignment = Enum.TextXAlignment.Right, TextColor3 = Color3.fromRGB(255, 190, 190) })
-	UIKit.Icon(right, "Ruby", 32, { Position = UDim2.new(1, -42, 0, 74) })
+	HUD.DiamondLabel = UIKit.Text(right, { Size = UDim2.fromOffset(100, 28), Position = UDim2.new(1, -144, 0, 80), Text = "0", Font = UIKit.Fonts.Title, TextSize = 22, TextXAlignment = Enum.TextXAlignment.Right, TextColor3 = Color3.fromRGB(255, 190, 190) })
+	UIKit.Icon(right, "Ruby", 32, { Position = UDim2.new(1, -42, 0, 76) })
 
 	---------------------------------------------------------------- ล่าง: ทรัพยากร
 	local strip = UIKit.Frame(gui, { Size = UDim2.new(0, 760, 0, 40), Position = UDim2.new(0.5, -380, 1, -172), BackgroundTransparency = 0.45 })
@@ -285,7 +312,7 @@ function HUD.Update()
 	local lvl = s:GetAttribute("CampLevel") or 1
 	local fuel, maxFuel = s:GetAttribute("CampFuel") or 0, s:GetAttribute("CampMaxFuel") or 1
 	HUD.FireLabel.Text = string.format("กองไฟ Lv.%d  ·  โต๊ะ Lv.%d", lvl, s:GetAttribute("BenchLevel") or 1)
-	HUD.FireBar.Set(fuel / maxFuel, string.format("%d / %d", fuel, maxFuel))
+	HUD.UpdateFuel(fuel, maxFuel, inLobby, phase)
 	local campPos = s:GetAttribute("CampPos")
 	local safe = s:GetAttribute("CampSafeRadius") or 0
 	if campPos and char then
@@ -352,8 +379,166 @@ function HUD.Update()
 			local dist = (d * Vector3.new(1, 0, 1)).Magnitude
 			poi.Label.Text = poi.Icon .. (dist > 60 and string.format(" %dm", math.floor(dist * 0.28)) or "")
 		end
+		for p, mark in pairs(HUD.TeamMarks) do
+			local tp = HUD.TeammatePos(p)
+			if tp and not p:GetAttribute("Dead") then
+				local d = tp - pos
+				place(mark.Label, math.atan2(d.X, -d.Z))
+				mark.Label.Text = string.format("● %s %dm", mark.Short, math.floor((d * Vector3.new(1, 0, 1)).Magnitude * 0.28))
+			else
+				mark.Label.Visible = false
+			end
+		end
+	end
+	if os.clock() - (HUD.LastTeam or 0) > 0.25 then
+		HUD.LastTeam = os.clock()
+		HUD.UpdateTeam(inLobby, now)
 	end
 	local _ = width
+end
+
+---------------------------------------------------------------- กองไฟ: วงแหวนเชื้อเพลิง + เวลาที่เหลือ + เตือนเชื้อเพลิงต่ำ
+local GREEN, YELLOW, RED = Color3.fromRGB(96, 230, 110), Color3.fromRGB(255, 214, 60), Color3.fromRGB(255, 70, 60)
+local function fuelColor(frac)
+	if frac >= 0.5 then
+		return YELLOW:Lerp(GREEN, (frac - 0.5) / 0.5)
+	end
+	return RED:Lerp(YELLOW, math.max(frac, 0) / 0.5)
+end
+HUD.FuelColor = fuelColor
+
+function HUD.UpdateFuel(fuel, maxFuel, inLobby, phase)
+	local frac = math.clamp(fuel / math.max(maxFuel, 1), 0, 1)
+	local col = fuelColor(frac)
+	local low = frac < 0.2 and fuel > 0
+	local pulse = low and (0.5 + 0.5 * math.sin(os.clock() * 7)) or 0
+	local lit = math.ceil(frac * #HUD.FuelSegs - 0.001)
+	for i, seg in ipairs(HUD.FuelSegs) do
+		if i <= lit then
+			seg.BackgroundColor3 = col
+			seg.BackgroundTransparency = low and 0.35 * pulse or 0
+		else
+			seg.BackgroundColor3 = Color3.fromRGB(46, 46, 58)
+			seg.BackgroundTransparency = 0.25
+		end
+	end
+	HUD.FireIconScale.Scale = 1 + 0.14 * pulse
+	-- เวลาที่เหลือโดยประมาณ (จากอัตรากินเชื้อเพลิงจริงที่เซิร์ฟเวอร์ส่งมา)
+	local drain = HUD.State:GetAttribute("CampDrain") or 0
+	local est = ""
+	if fuel > 0 and drain > 0 then
+		est = "  ⏱ ~" .. fmtTime(fuel / drain)
+	end
+	HUD.FuelText.Text = fuel <= 0 and "ไฟดับ!" or (string.format("%d%%", math.floor(frac * 100 + 0.5)) .. est)
+	HUD.FuelText.TextColor3 = fuel <= 0 and C.Bad or col
+	-- เตือนครั้งเดียวต่อการลดลงต่ำกว่า 20% (เติมกลับถึง 25% ค่อยเตือนใหม่ได้)
+	local active = not inLobby and (phase == "Day" or phase == "Dusk" or phase == "Night")
+	if low and active and HUD.FuelLowArmed then
+		HUD.FuelLowArmed = false
+		SoundController.Play("FireLow")
+		HUD.Notify(string.format("🔥 ไฟใกล้มอด! เหลือราว %s — โยนไม้/ถ่านเข้ากองไฟด่วน", drain > 0 and fmtTime(fuel / drain) or "ไม่กี่นาที"), "Warn")
+	elseif frac >= 0.25 or not active then
+		HUD.FuelLowArmed = true
+	end
+end
+
+---------------------------------------------------------------- เพื่อนร่วมทีม
+local TEAM_COLORS = {
+	Color3.fromRGB(120, 210, 255), Color3.fromRGB(255, 170, 90), Color3.fromRGB(170, 255, 120), Color3.fromRGB(255, 130, 200),
+	Color3.fromRGB(200, 160, 255), Color3.fromRGB(255, 230, 110), Color3.fromRGB(120, 255, 220),
+}
+local MAX_TEAM_ROWS = 7
+
+-- ตำแหน่งเพื่อน: ตัวละครที่โหลดถึงเครื่องเรา หรือพิกัดคร่าวๆ ที่เซิร์ฟเวอร์ส่งมา (เพื่อนอยู่ไกล)
+function HUD.TeammatePos(p)
+	local c = p.Character
+	local root = c and c:FindFirstChild("HumanoidRootPart")
+	if root then
+		return root.Position
+	end
+	return p:GetAttribute("RunPos")
+end
+
+local function shortName(name)
+	local len = utf8.len(name)
+	if len and len > 10 then
+		local cut = utf8.offset(name, 10)
+		return cut and (name:sub(1, cut - 1) .. "…") or name
+	end
+	return name
+end
+
+local function makeTeamRow(p, color)
+	local row = UIKit.Frame(HUD.TeamFrame, { Size = UDim2.fromOffset(236, 30), BackgroundColor3 = Color3.fromRGB(20, 22, 40), BackgroundTransparency = 0.3 })
+	UIKit.Corner(row, 8)
+	UIKit.Stroke(row, C.Outline, 2, 0.2)
+	local icon = UIKit.Text(row, { Size = UDim2.fromOffset(24, 30), Position = UDim2.fromOffset(4, 0), Text = "❤", TextSize = 16, TextXAlignment = Enum.TextXAlignment.Center })
+	local name = UIKit.Text(row, { Size = UDim2.fromOffset(104, 30), Position = UDim2.fromOffset(30, 0), Text = shortName(p.DisplayName), TextSize = 14, Font = UIKit.Fonts.Black, TextColor3 = color })
+	local bar = UIKit.Bar(row, { Size = UDim2.fromOffset(92, 12), Position = UDim2.fromOffset(138, 9), Color = C.Health, Label = "" })
+	local status = UIKit.Text(row, {
+		Size = UDim2.fromOffset(92, 30), Position = UDim2.fromOffset(138, 0), Text = "", TextSize = 13, Font = UIKit.Fonts.Black, TextXAlignment = Enum.TextXAlignment.Center, Visible = false, ZIndex = 4,
+	})
+	local mark = UIKit.Text(HUD.Compass, { Size = UDim2.fromOffset(96, 26), TextSize = 12, Font = UIKit.Fonts.Black, TextColor3 = color, TextXAlignment = Enum.TextXAlignment.Center, Text = "" })
+	return { Row = row, Icon = icon, Name = name, Bar = bar, Status = status, Mark = mark, Health = 1 }
+end
+
+function HUD.UpdateTeam(inLobby, now)
+	local mates = {}
+	if not inLobby then
+		for _, p in ipairs(Players:GetPlayers()) do
+			if p ~= player and p:GetAttribute("InRun") then
+				table.insert(mates, p)
+			end
+		end
+	end
+	table.sort(mates, function(a, b)
+		return a.DisplayName:lower() < b.DisplayName:lower()
+	end)
+	local keep = {}
+	for i, p in ipairs(mates) do
+		if i > MAX_TEAM_ROWS then
+			break
+		end
+		keep[p] = true
+		local r = HUD.TeamRows[p]
+		if not r then
+			r = makeTeamRow(p, TEAM_COLORS[(p.UserId % #TEAM_COLORS) + 1])
+			HUD.TeamRows[p] = r
+			HUD.TeamMarks[p] = { Label = r.Mark, Short = shortName(p.DisplayName) }
+		end
+		r.Row.LayoutOrder = i
+		local hum = p.Character and p.Character:FindFirstChildOfClass("Humanoid")
+		if hum then
+			r.Health = hum.Health / math.max(hum.MaxHealth, 1)
+		end
+		local dead, downed = p:GetAttribute("Dead") == true, p:GetAttribute("Downed") == true
+		if dead then
+			r.Icon.Text = "💀"
+			r.Status.Text = "ตายแล้ว"
+			r.Status.TextColor3 = C.TextDim
+		elseif downed then
+			local left = math.max(0, math.ceil((p:GetAttribute("DownedUntil") or now) - now))
+			r.Icon.Text = "🩸"
+			r.Status.Text = string.format("ล้ม! %ds", left)
+			r.Status.TextColor3 = (math.floor(os.clock() * 3) % 2 == 0) and C.Bad or Color3.fromRGB(255, 220, 200)
+		else
+			r.Icon.Text = "❤"
+			r.Bar.Set(r.Health)
+		end
+		r.Status.Visible = dead or downed
+		r.Bar.Holder.Visible = not (dead or downed)
+		r.Row.BackgroundColor3 = downed and Color3.fromRGB(90, 20, 26) or Color3.fromRGB(20, 22, 40)
+		r.Name.TextTransparency = dead and 0.45 or 0
+	end
+	for p, r in pairs(HUD.TeamRows) do
+		if not keep[p] then
+			r.Row:Destroy()
+			r.Mark:Destroy()
+			HUD.TeamRows[p] = nil
+			HUD.TeamMarks[p] = nil
+		end
+	end
+	HUD.TeamFrame.Visible = next(HUD.TeamRows) ~= nil
 end
 
 -- จุดสำคัญบนเข็มทิศ

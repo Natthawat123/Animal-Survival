@@ -217,6 +217,7 @@ local EVENT_SFX = {
 	NightStart = "NightStart", Dusk = "Dusk", Dawn = "Dawn", WaveIncoming = "WaveIncoming", BossIntro = "BossIntro",
 	BossFelled = "BossFelled", Downed = "Downed", Revived = "Revive", Died = "Death", FireOut = "FireOut",
 	CampUpgrade = "CampUpgrade", SpiritFreed = "Spirit", SpiritRescued = "Spirit", Purchased = "Purchase", GameOver = "GameOver",
+	StalkerWarning = "StalkerWarn",
 }
 function SoundController.OnCinematic(kind, d)
 	local sfx = EVENT_SFX[kind]

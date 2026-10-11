@@ -572,6 +572,12 @@ function Menus.Init(state, hud)
 	craft.Build(gui)
 	bag.Build(gui)
 	trader.Build(gui)
+	-- Esc / แตะนอกหน้าต่าง = ปิด
+	UIKit.RegisterWindow(craft.Panel, Menus.CloseCraft)
+	UIKit.RegisterWindow(bag.Panel, function()
+		Menus.ToggleBag(false)
+	end)
+	UIKit.RegisterWindow(trader.Panel)
 	StoreUI.Init(UIKit.Screen("Store", 32))
 	-- ร้านคลาส (เต็มจอ) + ปุ่มล็อบบี้ด้านซ้าย
 	local shopGui = UIKit.Screen("ClassShop", 30)

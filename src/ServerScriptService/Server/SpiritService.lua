@@ -12,6 +12,7 @@ local CollectionService = game:GetService("CollectionService")
 
 local Animals = require(ReplicatedStorage.Shared.Animals)
 local Classes = require(ReplicatedStorage.Shared.Classes)
+local Nights = require(ReplicatedStorage.Shared.Nights)
 
 local SpiritService = {}
 
@@ -186,7 +187,7 @@ function SpiritService:WakeLair(lair, player)
 	local info = Animals.Data[({ Earth = "Terragon", Water = "Leviathan", Air = "TempestRoc", Fire = "Solfang" })[lair.Element]]
 	local id = ({ Earth = "Terragon", Water = "Leviathan", Air = "TempestRoc", Fire = "Solfang" })[lair.Element]
 	local a = self.ctx.Services.AnimalService:Spawn(id, lair.Pos + Vector3.new(0, 2, 0), {
-		Kind = "Guardian", Home = lair.Pos, Leash = 120, HealthMult = 0.7,
+		Kind = "Guardian", Home = lair.Pos, Leash = 120, HealthMult = 0.7 * Nights.BossHealthMult(self.ctx.Services.SurvivalService:RunPlayerCount(true)),
 	})
 	if not a then
 		return

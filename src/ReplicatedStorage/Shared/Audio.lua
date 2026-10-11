@@ -60,6 +60,8 @@ Audio.Sfx = {
 	CampUpgrade = { Id = S .. "impact_explosion_03.mp3", Volume = 0.5, Pitch = 1.3 },
 	Spirit = { Id = S .. "electronicpingshort.wav", Volume = 0.55, Pitch = 1.2 },
 	GameOver = { Id = S .. "uuhhh.mp3", Volume = 0.5, Pitch = 0.45 },
+	FireLow = { Id = S .. "electronicpingshort.wav", Volume = 0.55, Pitch = 0.55 }, -- เชื้อเพลิงกองไฟต่ำกว่า 20%
+	StalkerWarn = { Id = S .. "HalloweenGhost.wav", Volume = 0.7, Pitch = 0.4 }, -- กวางกลวงกำลังจะออกล่า (เตือนก่อน 5 วินาที)
 }
 
 return Audio

@@ -10,6 +10,7 @@ local Workspace = game:GetService("Workspace")
 local Config = require(ReplicatedStorage.Shared.Config)
 local Items = require(ReplicatedStorage.Shared.Items)
 local Classes = require(ReplicatedStorage.Shared.Classes)
+local Analytics = require(script.Parent.Analytics)
 
 local SurvivalService = {}
 local state = {} -- [player] = { Downed, DownedAt, Dead, Burn, LastHit }
@@ -37,6 +38,17 @@ function SurvivalService:IsAlive(player)
 	return hum and hum.Health > 0 and s and not s.Dead and not s.Downed
 end
 
+-- จำนวนผู้เล่นในรอบ (aliveOnly = เฉพาะคนที่ยังไม่ตาย) ขั้นต่ำ 1 — ใช้ปรับความยากตามจำนวนคน
+function SurvivalService:RunPlayerCount(aliveOnly)
+	local n = 0
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p:GetAttribute("InRun") and not (aliveOnly and p:GetAttribute("Dead")) then
+			n += 1
+		end
+	end
+	return math.max(1, n)
+end
+
 function SurvivalService:IsDowned(player)
 	return state[player] and state[player].Downed
 end
@@ -53,6 +65,7 @@ function SurvivalService:Damage(player, amount, source, opts)
 	end
 	amount *= self:Perk(player, "DamageTakenMult", 1)
 	s.LastHit = os.clock()
+	s.LastSource = source
 	self.ctx.Remotes.Get("HitFx"):FireClient(player, "Hurt", { Amount = amount, Source = source })
 	if hum.Health - amount <= 0 then
 		hum.Health = 1
@@ -126,6 +139,7 @@ function SurvivalService:Down(player, source)
 	end
 	s.Downed = true
 	s.DownedAt = os.clock()
+	s.DownSource = source or s.LastSource
 	player:SetAttribute("Downed", true)
 	player:SetAttribute("DownedUntil", Workspace:GetServerTimeNow() + Config.DownedTime)
 	hum.WalkSpeed = 0
@@ -227,6 +241,10 @@ function SurvivalService:Die(player)
 	end
 	self.ctx.Remotes.Get("Cinematic"):FireClient(player, "Died", { Night = self.ctx.State:GetAttribute("Night"), Alive = alive })
 	self.ctx.Broadcast(string.format("☠ %s สิ้นชีพแล้ว...", player.DisplayName), "Danger")
+	Analytics.Custom(player, "PlayerDied", self.ctx.State:GetAttribute("Night") or 1, {
+		tostring(s.DownSource or s.LastSource or "Unknown"), player:GetAttribute("Class") or "Survivor",
+	})
+	s.DownSource = nil
 	self:CheckWipe()
 end
 
@@ -373,6 +391,7 @@ function SurvivalService:GiveStartItems(player)
 		return
 	end
 	player:SetAttribute("StartItemsGiven", true)
+	Analytics.Custom(player, "ClassUsed", player:GetAttribute("ClassLevel") or 1, { player:GetAttribute("Class") or "Survivor" })
 	player:SetAttribute("Hunger", Config.HungerMax)
 	local inv = self.ctx.Services.InventoryService
 	inv:Add(player, "OldSack", 1, true)
@@ -458,11 +477,18 @@ function SurvivalService:Start(ctx)
 	-- ความหิว / ไฟไหม้ / หมดเวลาล้ม
 	task.spawn(function()
 		local dt = 0.5
+		local loops = 0
 		while true do
 			task.wait(dt)
+			loops += 1
 			for _, player in ipairs(Players:GetPlayers()) do
 				local s = state[player]
 				local hum, char = humanoidOf(player)
+				-- ตำแหน่งคร่าวๆ ให้เพื่อนร่วมทีมเห็นบนเข็มทิศ (ตัวละครไกลๆ อาจไม่ได้โหลดถึงเครื่องเพื่อน)
+				if loops % 2 == 0 and char and player:GetAttribute("InRun") then
+					local pv = char:GetPivot().Position
+					player:SetAttribute("RunPos", Vector3.new(math.floor(pv.X), math.floor(pv.Y), math.floor(pv.Z)))
+				end
 				if s and hum and char and hum.Health > 0 and not s.Dead and player:GetAttribute("InRun") then
 					if s.Downed then
 						if os.clock() - s.DownedAt > Config.DownedTime then

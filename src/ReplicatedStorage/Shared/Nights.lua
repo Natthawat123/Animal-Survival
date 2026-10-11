@@ -1,7 +1,8 @@
 --[[
 	Nights — ผู้กำกับฝูงบุก 99 คืน
 	- ทุกคืนสุ่ม "ธาตุประจำคืน" (สัตว์ธาตุนั้นบุก)
-	- ทุก 10 คืน = พระจันทร์เลือด (ทุกธาตุบุกพร้อมกัน งบ x1.5)
+	- ทุก 10 คืน = พระจันทร์เลือด (คืน 10 = ครั้งแรก: 2-3 ธาตุ งบ x1.25 · คืน 20 ขึ้นไป: ทุกธาตุ งบ x1.5)
+	- งบฝูงบุกคูณตามจำนวนคนที่ยังรอดในรอบ: x(0.7 + 0.3 × คน) (1 คน = x1.0) · เลือดบอส x(1 + 0.25 × (คน − 1))
 	- คืน 25 / 50 / 75 / 99 = บอสธาตุบุกฐาน
 	- หลังคืน 99 = โหมดไร้ขีดจำกัด (ฝูงแรงขึ้นเรื่อยๆ + บอสวนมาทุก 25 คืน)
 ]]
@@ -56,12 +57,27 @@ function Nights.Scale(night)
 	}
 end
 
-function Nights.Budget(night)
+-- พระจันทร์เลือดครั้งแรก (คืน 10) เบากว่า: งบ x1.25 และมาแค่ 2-3 ธาตุ
+Nights.FirstBloodMoon = 10
+Nights.FirstBloodMoonMult = 1.25
+Nights.BloodMoonMult = 1.5
+
+-- ตัวคูณงบฝูงบุกตามจำนวนผู้เล่นที่ยังรอดในรอบ (1 คน = 1.0, 2 = 1.3, 4 = 1.9, 8 = 3.1)
+function Nights.PlayerBudgetMult(players)
+	return 0.7 + 0.3 * math.max(1, players or 1)
+end
+
+-- ตัวคูณเลือดบอสตามจำนวนผู้เล่น (1 คน = 1.0, 2 = 1.25, 4 = 1.75)
+function Nights.BossHealthMult(players)
+	return 1 + 0.25 * (math.max(1, players or 1) - 1)
+end
+
+function Nights.Budget(night, players)
 	local b = 3 + night * 1.35 + (night / 10) ^ 2 * 2
 	if Nights.IsBloodMoon(night) then
-		b *= 1.5
+		b *= (night == Nights.FirstBloodMoon) and Nights.FirstBloodMoonMult or Nights.BloodMoonMult
 	end
-	return b
+	return b * Nights.PlayerBudgetMult(players)
 end
 
 -- ธาตุประจำคืน (ไม่ซ้ำกับคืนก่อน) — rng = Random object
@@ -83,11 +99,12 @@ end
 	{
 		Element = "Fire" | "All",
 		BloodMoon = bool,
+		Elements = { "Earth", "Fire" } | nil,  -- เฉพาะพระจันทร์เลือดครั้งแรก (ธาตุที่บุกจริง)
 		Boss = "Solfang" | nil,
 		Waves = { { At = 0.05, Spawns = { "EmberFox", "EmberFox", ... } }, ... }  -- At = สัดส่วนของเวลากลางคืน
 	}
 ]]
-function Nights.Plan(night, rng, element)
+function Nights.Plan(night, rng, element, players)
 	local plan = {
 		Element = element,
 		BloodMoon = Nights.IsBloodMoon(night),
@@ -95,7 +112,26 @@ function Nights.Plan(night, rng, element)
 		Waves = {},
 	}
 	local pools = {}
-	if plan.BloodMoon or night == 99 then
+	if plan.BloodMoon and night == Nights.FirstBloodMoon then
+		-- พระจันทร์เลือดครั้งแรก: ธาตุประจำคืน + อีก 1-2 ธาตุ (ไม่ใช่ทุกธาตุ)
+		plan.Element = "All"
+		local picked = { element or "Earth" }
+		local others = {}
+		for _, e in ipairs({ "Earth", "Water", "Air", "Fire" }) do
+			if e ~= picked[1] then
+				table.insert(others, e)
+			end
+		end
+		for _ = 1, rng:NextInteger(1, 2) do
+			table.insert(picked, table.remove(others, rng:NextInteger(1, #others)))
+		end
+		plan.Elements = picked
+		for _, e in ipairs(picked) do
+			for _, id in ipairs(Animals.RaidPool[e] or {}) do
+				table.insert(pools, id)
+			end
+		end
+	elseif plan.BloodMoon or night == 99 then
 		plan.Element = "All"
 		for _, list in pairs(Animals.RaidPool) do
 			for _, id in ipairs(list) do
@@ -120,7 +156,7 @@ function Nights.Plan(night, rng, element)
 	end
 
 	local waveCount = night < 5 and 2 or 3
-	local budget = Nights.Budget(night)
+	local budget = Nights.Budget(night, players)
 	for w = 1, waveCount do
 		local waveBudget = budget * (w == waveCount and 0.45 or (0.55 / (waveCount - 1)))
 		local spawns = {}

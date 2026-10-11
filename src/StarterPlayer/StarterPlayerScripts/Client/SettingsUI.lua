@@ -160,6 +160,7 @@ local function gearButton(gui, parent)
 		Size = UDim2.fromOffset(48, 48), AnchorPoint = Vector2.new(1, 0), Position = parent and UDim2.new(0, -12, 0, 4) or UDim2.new(1, -310, 0, 22), Text = "⚙", TextSize = 28,
 	}, SettingsUI.Toggle)
 	b:FindFirstChildOfClass("UICorner").CornerRadius = UDim.new(1, 0)
+	UIKit.EnsureTouchSize(b, 44, SettingsUI.Toggle)
 	if not parent then
 		UIKit.AutoScale(b)
 		local function upd()
@@ -178,6 +179,7 @@ function SettingsUI.Init(gui, handlers)
 	ui.Panel = panel
 	UIKit.Header(panel, "⚙ ตั้งค่า", C.Blue)
 	UIKit.CloseButton(panel, SettingsUI.Close)
+	UIKit.RegisterWindow(panel, SettingsUI.Close, { Dim = 0.55 })
 	local list = Instance.new("ScrollingFrame")
 	list.Size = UDim2.new(1, -40, 1, -120)
 	list.Position = UDim2.fromOffset(20, 40)

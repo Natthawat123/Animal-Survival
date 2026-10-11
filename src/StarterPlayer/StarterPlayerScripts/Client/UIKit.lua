@@ -323,7 +323,174 @@ function UIKit.CloseButton(panel, onClose)
 		Size = UDim2.fromOffset(44, 44), Position = UDim2.new(1, -30, 0, -14), BackgroundColor3 = UIKit.Colors.Red, Text = "✕", TextSize = 24, ZIndex = 10,
 	}, onClose)
 	b:FindFirstChildOfClass("UICorner").CornerRadius = UDim.new(1, 0)
+	UIKit.EnsureTouchSize(b, 44, onClose)
 	return b
+end
+
+---------------------------------------------------------------- ปุ่มนิ้วกดง่าย (มือถือ)
+-- ปุ่มที่อยู่ในกรอบที่ถูกย่อ (AutoScale) อาจเล็กกว่า 44px บนจอจริง -> ใส่พื้นที่แตะล่องหนรอบปุ่มให้ได้อย่างน้อย minPx บนจอเสมอ
+-- (เฉพาะเครื่องจอสัมผัส · onActivate = ฟังก์ชันเดียวกับที่ปุ่มทำ)
+function UIKit.EnsureTouchSize(button, minPx, onActivate)
+	if not (UIKit.IsTouch and button and onActivate) or button:FindFirstChild("TouchHit") then
+		return
+	end
+	minPx = minPx or 44
+	local hit = Instance.new("TextButton")
+	hit.Name = "TouchHit"
+	hit.Text = ""
+	hit.BackgroundTransparency = 1
+	hit.BorderSizePixel = 0
+	hit.AnchorPoint = Vector2.new(0.5, 0.5)
+	hit.Position = UDim2.fromScale(0.5, 0.5)
+	hit.Size = UDim2.fromScale(1, 1)
+	hit.ZIndex = button.ZIndex + 1
+	hit.Parent = button
+	local function fit()
+		local abs, off = button.AbsoluteSize, button.Size
+		if abs.X <= 0 or abs.Y <= 0 or off.X.Offset <= 0 or off.Y.Offset <= 0 then
+			return
+		end
+		-- ตัวคูณสเกลจริงบนจอ (รวม UIScale ของกรอบแม่ทุกชั้น)
+		local k = math.max(abs.X / off.X.Offset, 0.05)
+		local need = minPx / k
+		hit.Size = UDim2.fromOffset(math.max(off.X.Offset, need), math.max(off.Y.Offset, need))
+	end
+	button:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit)
+	task.defer(fit)
+	hit.Activated:Connect(function()
+		if not button.Visible then
+			return
+		end
+		if UIKit.OnAnyClick then
+			UIKit.OnAnyClick()
+		end
+		onActivate()
+	end)
+	return hit
+end
+
+---------------------------------------------------------------- หน้าต่าง: ปิดด้วย Esc / แตะนอกหน้าต่าง
+-- UIKit.RegisterWindow(frame, closeFn, opts)
+--   frame   = กรอบหน้าต่างที่สลับ Visible เปิด/ปิด
+--   closeFn = ฟังก์ชันปิด (ไม่ใส่ = frame.Visible = false)
+--   opts.Backdrop = false : ไม่ต้องปิดเมื่อแตะนอกหน้าต่าง (หน้าต่างเต็มจอ / หน้าสอนเล่น)
+--   opts.Dim = 0..1       : ความมืดของพื้นหลังด้านหลังหน้าต่าง (ค่าเริ่ม 1 = ใส)
+-- Esc ปิดหน้าต่างที่เปิดล่าสุดทีละบาน
+local windows = {}
+local escBound = false
+local lastEscClose = 0
+
+local function shownOnScreen(obj)
+	local o = obj
+	while o do
+		if o:IsA("GuiObject") then
+			if not o.Visible then
+				return false
+			end
+		elseif o:IsA("LayerCollector") then
+			return o.Enabled
+		end
+		o = o.Parent
+	end
+	return false
+end
+
+function UIKit.TopWindow()
+	local best
+	for _, w in ipairs(windows) do
+		if w.Frame.Parent and shownOnScreen(w.Frame) and (not best or w.Opened > best.Opened) then
+			best = w
+		end
+	end
+	return best
+end
+
+function UIKit.AnyWindowOpen()
+	return UIKit.TopWindow() ~= nil
+end
+
+function UIKit.CloseTopWindow()
+	local w = UIKit.TopWindow()
+	if not w then
+		return false
+	end
+	lastEscClose = os.clock()
+	local ok, err = pcall(w.Close)
+	if not ok then
+		warn("[AS] close window", err)
+		w.Frame.Visible = false
+	end
+	return true
+end
+
+local function bindEsc()
+	if escBound then
+		return
+	end
+	escBound = true
+	UserInputService.InputBegan:Connect(function(input)
+		if input.KeyCode == Enum.KeyCode.Escape or input.KeyCode == Enum.KeyCode.ButtonB then
+			if os.clock() - lastEscClose > 0.15 then
+				UIKit.CloseTopWindow()
+			end
+		end
+	end)
+end
+
+function UIKit.RegisterWindow(frame, closeFn, opts)
+	if not frame then
+		return
+	end
+	opts = opts or {}
+	local w = {
+		Frame = frame,
+		Close = closeFn or function()
+			frame.Visible = false
+		end,
+		Opened = frame.Visible and os.clock() or 0,
+	}
+	table.insert(windows, w)
+	bindEsc()
+	local backdrop
+	if opts.Backdrop ~= false and frame.Parent then
+		backdrop = Instance.new("TextButton")
+		backdrop.Name = frame.Name .. "_Backdrop"
+		backdrop.Text = ""
+		backdrop.AutoButtonColor = false
+		backdrop.BorderSizePixel = 0
+		backdrop.BackgroundColor3 = Color3.new(0, 0, 0)
+		backdrop.BackgroundTransparency = opts.Dim or 1
+		backdrop.Size = UDim2.fromScale(1, 1)
+		backdrop.AnchorPoint = Vector2.new(0, 0)
+		backdrop.Position = UDim2.fromScale(0, 0)
+		backdrop.ZIndex = frame.ZIndex - 1
+		backdrop.Visible = frame.Visible
+		backdrop.Parent = frame.Parent
+		backdrop.Activated:Connect(function()
+			if frame.Visible then
+				w.Close()
+			end
+		end)
+		w.Backdrop = backdrop
+	end
+	frame:GetPropertyChangedSignal("Visible"):Connect(function()
+		if frame.Visible then
+			w.Opened = os.clock()
+		end
+		if backdrop then
+			backdrop.Visible = frame.Visible
+		end
+	end)
+	frame.Destroying:Connect(function()
+		if backdrop then
+			backdrop:Destroy()
+		end
+		local i = table.find(windows, w)
+		if i then
+			table.remove(windows, i)
+		end
+	end)
+	return w
 end
 
 -- แถบหัวหน้าต่างสีสด (ริบบิ้น) วางทับขอบบนของการ์ด
