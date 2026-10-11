@@ -11,7 +11,7 @@ local Remotes = {}
 Remotes.Events = {
 	-- client -> server
 	"Attack", -- (aimDirection: Vector3)
-	"Craft", -- (recipeId)
+	"Craft", -- (recipeId, count?) count 1-20 (server ตรวจ/จำกัดเอง)
 	"PlaceStructure", -- (kitId, cframe)
 	"UseItem", -- (itemId)  กิน/ใช้ยา
 	"ChooseClass", -- (classId)
@@ -34,12 +34,15 @@ Remotes.Events = {
 	"ClaimAchievement", -- (achId) รับ Ruby จากความสำเร็จ (หน้า "ป้าย")
 	"ClaimSeason", -- (track "Free"/"Prem"/"All", tier) รับรางวัล Season Pass
 	"EquipCosmetic", -- (kind "Title"/"Color", id) ใส่ฉายา/สีฉายา ("" = ถอด)
+	"TeamPing", -- c->s (position, target?) ปิงจุดที่เล็ง · s->c ({ From, Name, Position, Kind, Target })
+	"RejoinAnswer", -- (accept: boolean) ตอบคำถาม "กลับเข้ารอบเดิม?"
 	-- server -> client
 	"Notify", -- (text, kind)
 	"Inventory", -- (table)
 	"Cinematic", -- (kind, data)
 	"HitFx", -- (kind, data)
 	"Profile", -- (profile table)
+	"RejoinOffer", -- ({ Left = วินาทีที่เหลือ, Local = bool }) มีรอบเดิมให้กลับเข้า
 }
 Remotes.Functions = {
 	"GetProfile",

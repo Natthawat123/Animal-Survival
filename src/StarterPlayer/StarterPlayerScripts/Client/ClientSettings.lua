@@ -24,6 +24,8 @@ ClientSettings.Defaults = {
 	ShowFPS = false,
 	UIScale = 1, -- 0.7 - 1.3 (คูณกับสเกลอัตโนมัติตามขนาดจอ)
 	TouchSize = 1, -- ขนาดปุ่มมือถือ 0.8 - 1.4
+	AutoTool = true, -- ตีต้นไม้/หิน/สัตว์ -> หยิบเครื่องมือที่เหมาะที่สุดขึ้นมือเอง
+	PinRecipe = "", -- สูตรที่ปักหมุดไว้ (แถบติดตามวัตถุดิบ)
 }
 
 local values = table.clone(ClientSettings.Defaults)

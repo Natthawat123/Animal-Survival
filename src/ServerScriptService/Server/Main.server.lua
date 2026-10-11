@@ -73,6 +73,7 @@ local order = {
 	"DataService", "DevService", "InventoryService", "DropService", "SurvivalService", "LobbyService", "MonetizationService", "ResourceService", "CampService", "BuildingService",
 	"CombatService", "AnimalService", "SpiritService", "LootService", "TraderService", "DirectorService",
 	"FriendService", "SeasonService", "QuestService",
+	"PingService", "RejoinService",
 }
 for _, name in ipairs(order) do
 	ctx.Services[name] = require(Server:WaitForChild(name))
@@ -93,7 +94,7 @@ end
 
 -- ช่วงที่ 1: ล็อบบี้พร้อมทันที (ผู้เล่นเกิดในล็อบบี้ระหว่างรอสร้างแมพ)
 ctx.Services.LobbyService:Build()
-start({ "DataService", "DevService", "InventoryService", "SurvivalService", "LobbyService", "MonetizationService" })
+start({ "DataService", "DevService", "InventoryService", "SurvivalService", "LobbyService", "MonetizationService", "RejoinService" })
 start({ "FriendService", "SeasonService", "QuestService" }) -- ภารกิจ / ล็อกอิน / Season Pass / โค้ด / โบนัสเพื่อน
 
 ---------------------------------------------------------------- สร้างโลก
@@ -128,7 +129,7 @@ for _, site in ipairs(layout.SiteList) do
 end
 
 -- ช่วงที่ 2: ระบบในแมพ
-start({ "DropService", "ResourceService", "CampService", "BuildingService", "CombatService", "AnimalService", "SpiritService", "LootService", "TraderService", "DirectorService" })
+start({ "DropService", "ResourceService", "CampService", "BuildingService", "CombatService", "AnimalService", "SpiritService", "LootService", "TraderService", "DirectorService", "PingService" })
 
 -- โหมดลองเล่น: ของเต็มกระเป๋า
 if ReplicatedStorage:FindFirstChild("ASSandbox") then

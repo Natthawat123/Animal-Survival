@@ -904,7 +904,12 @@ function LobbyService:DepartTeam(list)
 			self.ctx.Remotes.Get("Cinematic"):FireClient(p, "Teleporting", {})
 		end
 		local ok, err = pcall(function()
-			local code = TeleportService:ReserveServer(game.PlaceId)
+			local code, privateServerId = TeleportService:ReserveServer(game.PlaceId)
+			-- จำรหัสเซิร์ฟเวอร์ไว้ (RejoinService) ให้คนที่หลุดกลางรอบกลับเข้ามาได้
+			local rejoin = self.ctx.Services.RejoinService
+			if rejoin then
+				rejoin:RegisterServer(privateServerId, code)
+			end
 			local opts = Instance.new("TeleportOptions")
 			opts.ReservedServerAccessCode = code
 			opts:SetTeleportData({ Team = true })
@@ -1425,6 +1430,11 @@ function LobbyService:Start(ctx)
 			task.spawn(function()
 				while not ctx.State:GetAttribute("Ready") do
 					task.wait(0.5)
+				end
+				-- หลุดกลางรอบแล้วกลับมา: คืนสถานะเดิม (RejoinService) แทนการเริ่มใหม่
+				local rejoin = ctx.Services.RejoinService
+				if p.Parent and rejoin and rejoin:OnTeamArrive(p) then
+					return
 				end
 				self:Depart(p)
 			end)

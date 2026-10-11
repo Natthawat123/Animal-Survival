@@ -3,7 +3,7 @@
 	· เครื่องมือ/อาวุธ/กระสอบ = Tool ในช่องด้านล่างของ Roblox (1 ชิ้นต่อชนิด)
 	· ของอื่น (ไม้ หิน อาหาร ...) อยู่ใน "กระสอบ" มีความจุจำกัด (Items.Sacks)
 	· คลังแคมป์ (Camp) ใช้ร่วมกันทั้งเซิร์ฟเวอร์ — เทกระสอบลงที่โต๊ะคราฟต์
-	· คราฟต์/สร้าง/เติมไฟ ใช้ของจากกระสอบก่อน แล้วค่อยหยิบจากคลังแคมป์
+	· คราฟต์/สร้าง/เติมไฟ ใช้ของจากกระสอบก่อน แล้วค่อยหยิบจากคลังแคมป์ 
 ]]
 
 local Players = game:GetService("Players")
@@ -37,9 +37,22 @@ function InventoryService:Count(player, id)
 	return self:Get(player)[id] or 0
 end
 
--- รวมของในกระสอบ + คลังแคมป์
-function InventoryService:Available(player, id)
-	return (self:Get(player)[id] or 0) + (camp[id] or 0)
+-- คลังแคมป์ใช้ร่วมได้ทุกที่ (แบบเดิม: สร้างกำแพง/กับดักไกลแคมป์ก็หยิบของจากคลังได้) — ข้อจำกัดเรื่องระยะอยู่ที่โต๊ะคราฟต์ใน CampService
+function InventoryService:InCamp(_player)
+	return true
+end
+
+-- จำนวนในคลังแคมป์ที่ผู้เล่นคนนี้ใช้ได้ตอนนี้ (นอกแคมป์ = 0)
+function InventoryService:CampCount(player, id, inCamp)
+	if inCamp == nil then
+		inCamp = self:InCamp(player)
+	end
+	return inCamp and (camp[id] or 0) or 0
+end
+
+-- รวมของในกระสอบ + คลังแคมป์ (คลังแคมป์นับเฉพาะตอนอยู่ในแคมป์)
+function InventoryService:Available(player, id, inCamp)
+	return (self:Get(player)[id] or 0) + self:CampCount(player, id, inCamp)
 end
 
 local function markDirty(player)
@@ -184,10 +197,13 @@ function InventoryService:Remove(player, id, n)
 	return true
 end
 
-function InventoryService:Has(player, cost, mult)
+function InventoryService:Has(player, cost, mult, inCamp)
+	if inCamp == nil then
+		inCamp = self:InCamp(player)
+	end
 	for id, n in pairs(cost) do
 		local need = math.max(1, math.ceil(n * (mult or 1)))
-		if self:Available(player, id) < need then
+		if self:Available(player, id, inCamp) < need then
 			return false
 		end
 	end
@@ -196,7 +212,8 @@ end
 
 -- ใช้ของ: กระสอบก่อน แล้วค่อยคลังแคมป์
 function InventoryService:Spend(player, cost, mult)
-	if not self:Has(player, cost, mult) then
+	local inCamp = self:InCamp(player)
+	if not self:Has(player, cost, mult, inCamp) then
 		return false
 	end
 	local bag = self:Get(player)
@@ -209,8 +226,8 @@ function InventoryService:Spend(player, cost, mult)
 			bag[id] = nil
 		end
 		local rest = need - fromBag
-		if rest > 0 then
-			camp[id] -= rest
+		if rest > 0 and inCamp then
+			camp[id] = (camp[id] or 0) - rest
 			if camp[id] <= 0 then
 				camp[id] = nil
 			end
@@ -280,8 +297,13 @@ end
 
 function InventoryService:Start(ctx)
 	Players.PlayerRemoving:Connect(function(p)
-		inv[p] = nil
 		dirty[p] = nil
+		-- ล้างทีหลัง: ให้ระบบอื่น (RejoinService) อ่านของในกระสอบตอนออกเกมได้ก่อน
+		task.defer(function()
+			inv[p] = nil
+			dirty[p] = nil
+			self.order[p] = nil
+		end)
 	end)
 	-- ส่งข้อมูลเมื่อมีการเปลี่ยน (รวมเป็นรอบละครั้ง): { Bag, Camp, Cap, Used }
 	task.spawn(function()

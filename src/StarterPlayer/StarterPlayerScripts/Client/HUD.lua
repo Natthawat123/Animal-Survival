@@ -31,6 +31,7 @@ local ICON = {
 	Medkit = "⛑", BeastHeart = "❤‍🔥",
 }
 HUD.Icon = ICON
+HUD.ExtraPOI = {}
 
 local function fmtTime(sec)
 	sec = math.max(0, math.floor(sec))
@@ -559,7 +560,18 @@ function HUD.RefreshPOI()
 			wanted["Lair_" .. el] = { Position = lair, Icon = "💀", Color = C.Element[el] }
 		end
 	end
+	-- จุดชั่วคราวจากระบบอื่น (เช่น ปิงของเพื่อน): HUD.ExtraPOI[key] = { Position, Icon, Color, Expire = os.clock() }
+	for key, w in pairs(HUD.ExtraPOI) do
+		if w.Expire and w.Expire < os.clock() then
+			HUD.ExtraPOI[key] = nil
+		else
+			wanted[key] = w
+		end
+	end
 	for key, poi in pairs(HUD.CompassPOI) do
+		if wanted[key] then
+			poi.Position = wanted[key].Position
+		end
 		if not wanted[key] then
 			poi.Label:Destroy()
 			HUD.CompassPOI[key] = nil
