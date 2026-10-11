@@ -17,6 +17,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local ServerStorage = game:GetService("ServerStorage")
 local TeleportService = game:GetService("TeleportService")
+local TweenService = game:GetService("TweenService")
 local UserService = game:GetService("UserService")
 local Workspace = game:GetService("Workspace")
 
@@ -33,7 +34,7 @@ local CF = CFrame.new
 local ANG = CFrame.Angles
 local C = Color3.fromRGB
 
-LobbyService.Position = V(12000, 1800, 12000) -- ไกลนอกแมพ: มองจากแคมป์ไม่เห็นภูเขา/เกาะลอยของล็อบบี้
+LobbyService.Position = V(12000, 1799, 12000) -- ไกลนอกแมพ · Y 1799 = ผิวพื้น (y+1) ตรงเส้นตาราง voxel 4 studs ของ Terrain พอดี (หญ้าไม่ล้นขึ้นมาท่วมของ)
 local COUNTDOWN = 20
 local COUNTDOWN_FULL = 5
 local COUNTDOWN_JOIN = 4
@@ -511,15 +512,34 @@ local function portalHook(art, parent, i)
 		st.Parent = t
 		return t
 	end
-	local count = line(0.05, 0.55, "👤 0/4", Enum.Font.FredokaOne)
-	local sub = line(0.62, 0.3, "เดินขึ้นแท่นเพื่อเริ่ม", Enum.Font.GothamBold)
+	local count = line(0.0, 0.5, "👤 0/4", Enum.Font.FredokaOne)
+	local sub = line(0.52, 0.24, "เดินขึ้นแท่นเพื่อเริ่ม", Enum.Font.GothamBold)
+	local names = line(0.78, 0.2, "", Enum.Font.GothamBold)
+	names.TextColor3 = C(170, 245, 255)
+	-- วงฟ้าเรืองแสงบนลานหน้าประตู (เขตยืนรอ เห็นชัดว่าใครอยู่ในวง แบบเกมเอาชีวิตรอดซอมบี้) + ประกายลอยขึ้นจากวง
 	local cp = center.Position
+	local disc = P(parent, { Name = "PortalZone" .. i, Shape = Enum.PartType.Cylinder, Size = V(0.06, 19.6, 19.6), CFrame = CF(cp.X, cp.Y + 0.02, cp.Z) * ANG(0, 0, math.pi / 2),
+		Color = PORTAL_IDLE, Material = Enum.Material.Neon, Transparency = 0.62, CanCollide = false, CanQuery = false, CastShadow = false })
+	local edge = ring -- ขอบวงเรืองแสงรอบลาน (จากโมเดล)
+	TweenService:Create(disc, TweenInfo.new(1.4, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { Transparency = 0.8 }):Play()
+	local rise = Instance.new("ParticleEmitter")
+	rise.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+	rise.Shape = Enum.ParticleEmitterShape.Disc
+	rise.ShapeStyle = Enum.ParticleEmitterShapeStyle.Volume
+	rise.EmissionDirection = Enum.NormalId.Right -- แกนกระบอก = ขึ้นด้านบน
+	rise.Rate = 10
+	rise.Lifetime = NumberRange.new(1.6, 2.6)
+	rise.Speed = NumberRange.new(2.5, 4.5)
+	rise.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.3, 0.4), NumberSequenceKeypoint.new(1, 0) })
+	rise.LightEmission = 1
+	rise.Color = ColorSequence.new(C(170, 245, 255))
+	rise.Parent = disc
 	local zone = P(parent, { Name = "MatchBox" .. i, Size = V(21, 12, 21), CFrame = CF(cp.X, cp.Y + 5, cp.Z), Transparency = 1, CanCollide = false, CanQuery = false })
 	zone:SetAttribute("PadIndex", i)
 	zone:SetAttribute("Size", 4)
 	zone:SetAttribute("Count", 0)
 	zone:SetAttribute("Countdown", -1)
-	return { Index = i, Zone = zone, Size = 4, Text = count, Sub = sub, Countdown = nil, Pad = veil, Ring = ring, Runes = {}, Pillar = glow, Motes = motes }
+	return { Index = i, Zone = zone, Size = 4, Text = count, Sub = sub, Names = names, Countdown = nil, Pad = veil, Ring = ring, Disc = disc, Edge = edge, Rise = rise, Runes = {}, Pillar = glow, Motes = motes }
 end
 
 ---------------------------------------------------------------- สร้างล็อบบี้: ป่าโบราณศักดิ์สิทธิ์ (ประตูมิติหินโบราณ 4 ประตู + ซากรูน + ป่าดิบ + น้ำตก)
@@ -551,6 +571,10 @@ function LobbyService:Build()
 	src = src and src:FindFirstChild("LobbyRuins")
 	if src then
 		art = src:Clone()
+		local origin = art:FindFirstChild("Origin")
+		if origin then
+			art.PrimaryPart = origin -- จุด 0,0,0 ของฉาก = จุดกลางล็อบบี้ (กันโมเดลเลื่อน/จมจากจุดหมุนกลางกล่อง)
+		end
 		art:PivotTo(base)
 		art.Parent = m
 		for _, d in ipairs(art:GetDescendants()) do
@@ -602,14 +626,16 @@ function LobbyService:Build()
 	------------------------------------------------ พื้น Terrain: หญ้าจริง (มีใบหญ้าขึ้น) + ทางหินปูถนน/ลานหิน
 	local terrain = Workspace.Terrain
 	local GX, GZ, GR = 52, 8, 50 -- ลานประตูมิติ (ตรงกับ tools/lobby_art.py)
-	terrain:FillCylinder(base * CF(0, -1.5, 0), 5, 278, Enum.Material.Grass)
+	terrain:FillCylinder(base * CF(0, -1, 0), 4, 278, Enum.Material.Grass)
+	-- พื้นกันตกล่องหน (ใต้ผิวหญ้านิดเดียว) เผื่อ Terrain ยังสตรีมมาไม่ถึงเครื่องผู้เล่น
+	P(m, { Name = "SafetyFloor", Shape = Enum.PartType.Cylinder, Size = V(1, 556, 556), CFrame = base * CF(0, 0.4, 0) * ANG(0, 0, math.pi / 2), Transparency = 1, CanQuery = false })
 	local function road(x0, z0, x1, z1, w, mat)
 		local a, b = Vector3.new(x0, 0, z0), Vector3.new(x1, 0, z1)
 		local mid = (a + b) / 2
-		terrain:FillBlock(base * CFrame.lookAt(mid + Vector3.new(0, -1.5, 0), b + Vector3.new(0, -1.5, 0)), V(w, 5, (b - a).Magnitude + w * 0.5), mat or Enum.Material.Cobblestone)
+		terrain:FillBlock(base * CFrame.lookAt(mid + Vector3.new(0, -1, 0), b + Vector3.new(0, -1, 0)), V(w, 4, (b - a).Magnitude + w * 0.5), mat or Enum.Material.Cobblestone)
 	end
 	local function plaza(x, z, r, mat)
-		terrain:FillCylinder(base * CF(x, -1.5, z), 5, r, mat or Enum.Material.Cobblestone)
+		terrain:FillCylinder(base * CF(x, -1, z), 4, r, mat or Enum.Material.Cobblestone)
 	end
 	plaza(0, 88, 15)
 	road(0, 76, 0, -30, 10)
@@ -665,7 +691,7 @@ function LobbyService:Build()
 		end
 	end
 	-- ต้นไม้ใหญ่ในค่าย
-	for _, t in ipairs({ { -104, -40 }, { 106, -66 }, { -102, 94 }, { 40, 94 }, { -64, 22 }, { -106, -88 }, { 66, -96 }, { -30, -100 }, { 108, 96 }, { -40, 96 }, { 26, 64 }, { -26, 66 }, { 104, 30 }, { 100, -14 } }) do
+	for _, t in ipairs({ { -104, -40 }, { 106, -66 }, { -102, 94 }, { 40, 94 }, { -64, 22 }, { -106, -88 }, { 66, -96 }, { -30, -100 }, { 108, 96 }, { -40, 96 }, { 26, 64 }, { -26, 66 } }) do
 		plant(rng:NextNumber() < 0.6 and "AncientOak" or "Oak", t[1], t[2], rng:NextNumber(0.75, 0.95))
 	end
 	-- พุ่มไม้แน่นแนวกำแพงด้านใน
@@ -710,8 +736,6 @@ function LobbyService:Build()
 	for _, ad in ipairs({ -84, -40, 0, 40, 84 }) do
 		local a = math.rad(ad)
 		plant("Bush", GX + math.cos(a) * (GR + 2), GZ + math.sin(a) * (GR + 2), 1.6)
-		plant("Bush", GX + math.cos(a) * (GR - 6), GZ + math.sin(a) * (GR - 6), 1.2)
-		plant("Fern", GX + math.cos(a) * (GR - 14), GZ + math.sin(a) * (GR - 14), 1.4)
 		if ad ~= -84 and ad ~= 84 then
 			plant("AncientOak", GX + math.cos(a) * (GR + 14), GZ + math.sin(a) * (GR + 14), 0.85)
 		end
@@ -720,13 +744,6 @@ function LobbyService:Build()
 		local a = math.rad(ad)
 		for _, off in ipairs({ -0.22, 0.22 }) do
 			plant("Bush", GX + math.cos(a + off) * (GR + 15), GZ + math.sin(a + off) * (GR + 15), 1.7)
-			plant("Fern", GX + math.cos(a + off * 1.6) * (GR - 2), GZ + math.sin(a + off * 1.6) * (GR - 2), 1.3)
-		end
-		for _, rr in ipairs({ 22, 30 }) do
-			for _, sd in ipairs({ -1, 1 }) do
-				local b = a + sd * 5.2 / rr
-				plant("Fern", GX + math.cos(b) * rr, GZ + math.sin(b) * rr, 1.1)
-			end
 		end
 	end
 
@@ -1189,6 +1206,13 @@ function LobbyService:Tick(dt)
 		box.List = list
 		local n = #list
 		box.Text.Text = string.format("👤 %d/%d", n, box.Size)
+		if box.Names then
+			local nm = {}
+			for _, p in ipairs(list) do
+				table.insert(nm, p.DisplayName)
+			end
+			box.Names.Text = table.concat(nm, " · ")
+		end
 		box.Zone:SetAttribute("Size", box.Size)
 		box.Zone:SetAttribute("Count", n)
 		box.Zone:SetAttribute("Countdown", box.Countdown and math.max(0, math.ceil(box.Countdown)) or -1)
@@ -1204,6 +1228,9 @@ function LobbyService:Tick(dt)
 			box.Sub.Text = running and "⚔ ร่วมทีมที่เล่นอยู่" or "เดินขึ้นแท่นเพื่อเริ่ม"
 			box.Pad.Color = PORTAL_VEIL
 			box.Ring.Color = PORTAL_IDLE
+			if box.Disc then
+				box.Disc.Color, box.Edge.Color, box.Rise.Rate = PORTAL_IDLE, PORTAL_IDLE, 10
+			end
 			box.Pillar.Color = PORTAL_VEIL
 			box.Motes.Color = ColorSequence.new(C(190, 245, 255))
 			box.Motes.Rate = 8
@@ -1213,6 +1240,9 @@ function LobbyService:Tick(dt)
 			box.Sub.Text = string.format("ออกเดินทางใน %d", math.max(0, math.ceil(box.Countdown)))
 			box.Pad.Color = PORTAL_GO_VEIL
 			box.Ring.Color = PORTAL_GO
+			if box.Disc then
+				box.Disc.Color, box.Edge.Color, box.Rise.Rate = PORTAL_GO, PORTAL_GO, 30
+			end
 			box.Pillar.Color = PORTAL_GO_VEIL
 			box.Motes.Color = ColorSequence.new(C(170, 255, 180))
 			box.Motes.Rate = 24
