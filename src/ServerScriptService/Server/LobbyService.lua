@@ -885,6 +885,9 @@ function LobbyService:Depart(player)
 		end
 		data.PendingKits = {}
 	end
+	if ctx.Services.QuestService then
+		ctx.Services.QuestService:Progress(player, "Run", 1)
+	end
 	ctx.Remotes.Get("Cinematic"):FireClient(player, "Depart", {})
 	surv:Spawn(player)
 	if not ctx.Services.DirectorService:IsRunning() then
@@ -1008,8 +1011,10 @@ function LobbyService:RefreshTag(player)
 			st.Parent = t
 			return t
 		end
+		line("Title", 0, 15).Visible = false
 		line("VIP", 1, 16)
 		line("Best", 2, 22)
+		bb.Size = UDim2.fromOffset(220, 66)
 		bb.Parent = head
 	end
 	local best = player:GetAttribute("BestNight") or 0
@@ -1021,6 +1026,15 @@ function LobbyService:RefreshTag(player)
 	vip.Visible = player:GetAttribute("Pass_VIP") == true
 	vip.Text = "👑 VIP"
 	vip.TextColor3 = C(255, 214, 90)
+	-- ฉายาจาก Season Pass / โค้ด (SeasonService ตั้ง attribute "Title" + "TitleColor")
+	local titleL = bb:FindFirstChild("Title")
+	if titleL then
+		local title = player:GetAttribute("Title")
+		titleL.Visible = type(title) == "string" and title ~= ""
+		titleL.Text = titleL.Visible and title or ""
+		local tc = player:GetAttribute("TitleColor")
+		titleL.TextColor3 = typeof(tc) == "Color3" and tc or C(255, 236, 170)
+	end
 	-- โชว์เฉพาะในล็อบบี้ (ในแมพไม่รกจอ)
 	bb.Enabled = not player:GetAttribute("InRun")
 end
@@ -1071,6 +1085,7 @@ function LobbyService:BuildBoardGui(board, face)
 	ts.Thickness = 4
 	ts.Color = C(70, 34, 8)
 	ts.Parent = title
+	title.Name = "Title"
 	local sub = Instance.new("TextLabel")
 	sub.Name = "Sub"
 	sub.Size = UDim2.fromScale(1, 0.045)
@@ -1143,7 +1158,7 @@ function LobbyService:BuildBoardGui(board, face)
 		val.Parent = r
 		rows[i] = { Row = r, Face = face2, Name = name, Value = val }
 	end
-	return { Sub = sub, Rows = rows }
+	return { Sub = sub, Rows = rows, Title = title }
 end
 
 local nameCache, thumbCache = {}, {}
@@ -1172,12 +1187,17 @@ local function thumb(userId)
 	end
 	return thumbCache[userId]
 end
-local function rowsFromServer(self)
+local function rowsFromServer(self, weekly)
 	local list = {}
+	local qs = self.ctx.Services.QuestService
 	for _, p in ipairs(Players:GetPlayers()) do
 		local d = self.ctx.Services.DataService:Get(p)
 		if d and p.UserId > 0 then
-			table.insert(list, { UserId = p.UserId, Value = d.BestNight or 0 })
+			local v = d.BestNight or 0
+			if weekly then
+				v = qs and qs:WeekBestOf(p) or 0
+			end
+			table.insert(list, { UserId = p.UserId, Value = v })
 		end
 	end
 	table.sort(list, function(a, b)
@@ -1267,26 +1287,51 @@ function LobbyService:Tick(dt)
 	s:SetAttribute("PortalCountdown", anyCountdown)
 end
 
+-- ดึงอันดับใหม่ทั้ง 2 แบบ (ทั้งเกม + สัปดาห์นี้) แล้วโชว์แบบที่กำลังเปิดอยู่ (ป้ายสลับเองทุก BOARD_FLIP วินาที)
+local BOARD_FLIP = 12
 function LobbyService:RefreshBoard()
 	if not self.boardGuis then
 		return
 	end
 	local list = self.ctx.Services.DataService:GetTop(Config.LeaderboardSize)
-	local global = list ~= nil
-	list = list or rowsFromServer(self)
+	local qs = self.ctx.Services.QuestService
+	local week = qs and qs:GetTopWeekly(Config.LeaderboardSize)
+	self.boardLists = {
+		All = { List = list or rowsFromServer(self, false), Global = list ~= nil },
+		Week = { List = week or rowsFromServer(self, true), Global = week ~= nil },
+	}
+	self:ShowBoard()
+end
+
+function LobbyService:ShowBoard()
+	local mode = self.boardMode or "All"
+	local info = self.boardLists and self.boardLists[mode]
+	if not (self.boardGuis and info) then
+		return
+	end
+	local list, global = info.List, info.Global
 	local vipNames = {}
+	local nameColors = {}
 	for _, p in ipairs(Players:GetPlayers()) do
 		if p:GetAttribute("Pass_VIP") then
 			vipNames[p.UserId] = true
 		end
+		local nc = p:GetAttribute("NameColor")
+		if typeof(nc) == "Color3" then
+			nameColors[p.UserId] = nc
+		end
 	end
 	for _, gui in ipairs(self.boardGuis) do
-		gui.Sub.Text = global and "อันดับจากทุกเซิร์ฟเวอร์ · อัปเดตทุก 1 นาที" or "(ยังเชื่อมระบบเซฟไม่ได้ — โชว์เฉพาะคนในเซิร์ฟเวอร์นี้)"
+		if gui.Title then
+			gui.Title.Text = mode == "Week" and "📅 ผู้รอดนานสุดสัปดาห์นี้" or "🏆 ผู้รอดนานสุดทั้งเกม"
+		end
+		local tabs = mode == "Week" and "ทั้งเกม · [ สัปดาห์นี้ ]" or "[ ทั้งเกม ] · สัปดาห์นี้"
+		gui.Sub.Text = tabs .. "  —  " .. (global and "ทุกเซิร์ฟเวอร์ · อัปเดตทุก 1 นาที" or "เฉพาะคนในเซิร์ฟเวอร์นี้ (ยังเชื่อมระบบเซฟไม่ได้)")
 		for i, r in ipairs(gui.Rows) do
 			local e = list[i]
 			if e and (e.Value or 0) > 0 then
 				r.Name.Text = displayName(e.UserId)
-				r.Name.TextColor3 = vipNames[e.UserId] and Color3.fromRGB(255, 214, 90) or Color3.fromRGB(240, 240, 250)
+				r.Name.TextColor3 = vipNames[e.UserId] and Color3.fromRGB(255, 214, 90) or nameColors[e.UserId] or Color3.fromRGB(240, 240, 250)
 				r.Value.Text = string.format("%d วัน", e.Value)
 				r.Face.Image = thumb(e.UserId)
 				r.Row.Visible = true
@@ -1390,10 +1435,21 @@ function LobbyService:Start(ctx)
 		end
 	end
 	task.spawn(function()
-		local t = 0
+		local t, flip = 0, 0
 		while true do
 			local dt = task.wait(0.25)
 			t += dt
+			flip += dt
+			if flip >= BOARD_FLIP and self.boardLists then
+				flip = 0
+				self.boardMode = self.boardMode == "Week" and "All" or "Week"
+				task.spawn(function()
+					local ok, err = pcall(self.ShowBoard, self)
+					if not ok then
+						warn("[AS] board", err)
+					end
+				end)
+			end
 			local ok, err = pcall(self.Tick, self, dt)
 			if not ok then
 				warn("[AS] lobby", err)

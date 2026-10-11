@@ -261,7 +261,7 @@ function DropService:Spawn(id, n, pos, opts)
 		m.Parent = folder
 		root.AssemblyLinearVelocity = opts.Velocity or V(math.cos(a) * 7, 16, math.sin(a) * 7)
 		root.AssemblyAngularVelocity = V(rng:NextNumber() * 4, rng:NextNumber() * 4, rng:NextNumber() * 4)
-		drops[m] = { Id = id, Count = c, Born = os.clock() }
+		drops[m] = { Id = id, Count = c, Born = os.clock(), By = opts.By }
 		table.insert(order, m)
 		refresh(m)
 		root.Pickup.Triggered:Connect(function(player)
@@ -351,7 +351,7 @@ function DropService:Near(pos, radius, height)
 		if r then
 			local off = r.Position - pos
 			if Vector3.new(off.X, 0, off.Z).Magnitude < radius and math.abs(off.Y) < (height or radius) then
-				table.insert(out, { Model = m, Id = d.Id, Count = d.Count })
+				table.insert(out, { Model = m, Id = d.Id, Count = d.Count, By = d.By })
 			end
 		end
 	end
@@ -370,7 +370,7 @@ function DropService:Throw(player, id, n, target)
 	local g = workspace.Gravity
 	local d = target - from
 	local v = Vector3.new(d.X / T, (d.Y + 0.5 * g * T * T) / T, d.Z / T)
-	self:Spawn(id, n, from, { Velocity = v })
+	self:Spawn(id, n, from, { Velocity = v, By = player })
 end
 
 -- ทิ้งของจากกระสอบ: ถ้ายืนใกล้กองไฟ -> โยนเข้ากองไฟเลย ไม่งั้นวางหน้าตัว

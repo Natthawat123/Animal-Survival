@@ -72,6 +72,7 @@ end
 local order = {
 	"DataService", "DevService", "InventoryService", "DropService", "SurvivalService", "LobbyService", "MonetizationService", "ResourceService", "CampService", "BuildingService",
 	"CombatService", "AnimalService", "SpiritService", "LootService", "TraderService", "DirectorService",
+	"FriendService", "SeasonService", "QuestService",
 }
 for _, name in ipairs(order) do
 	ctx.Services[name] = require(Server:WaitForChild(name))
@@ -93,6 +94,7 @@ end
 -- ช่วงที่ 1: ล็อบบี้พร้อมทันที (ผู้เล่นเกิดในล็อบบี้ระหว่างรอสร้างแมพ)
 ctx.Services.LobbyService:Build()
 start({ "DataService", "DevService", "InventoryService", "SurvivalService", "LobbyService", "MonetizationService" })
+start({ "FriendService", "SeasonService", "QuestService" }) -- ภารกิจ / ล็อกอิน / Season Pass / โค้ด / โบนัสเพื่อน
 
 ---------------------------------------------------------------- สร้างโลก
 local t0 = os.clock()

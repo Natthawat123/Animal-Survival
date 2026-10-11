@@ -76,6 +76,7 @@ Config.GamePasses = {
 	{ Id = "GiantSack", PassId = 0, Robux = 149, Icon = "🎒", Name = "กระสอบยักษ์", Desc = "เริ่มทุกรอบด้วยกระสอบยักษ์ (ใส่ของได้มากสุด) แทนกระสอบเก่า" },
 	{ Id = "Medic", PassId = 0, Robux = 99, Icon = "🩹", Name = "หน่วยแพทย์", Desc = "เริ่มทุกรอบด้วยผ้าพันแผล 3 + ชุดปฐมพยาบาล 1 (ช่วยเพื่อนที่ล้มได้ทันที)" },
 	{ Id = "Torch", PassId = 0, Robux = 79, Icon = "🔥", Name = "คบเพลิงนิรันดร์", Desc = "เริ่มทุกรอบพร้อมคบเพลิง (ไล่กวางกลวง) + ถ่านหิน 5" },
+	{ Id = "SeasonPass", PassId = 0, Robux = 299, Icon = "🎟", Name = "Season Pass", Desc = "ปลดล็อกสายพรีเมียมของ Season Pass ทุกซีซั่น · Ruby มากขึ้น + ฉายา/สีฉายาพิเศษ" },
 }
 -- ป้าย Roblox: Stat = ค่าในเซฟที่ใช้เช็ก, Need = ต้องถึงเท่าไร
 Config.Badges = {

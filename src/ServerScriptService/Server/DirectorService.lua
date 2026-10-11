@@ -168,6 +168,9 @@ function DirectorService:Dawn(night)
 				ctx.Services.DataService:SetBestNight(p, night)
 				data.NightsTotal = (data.NightsTotal or 0) + 1
 				ctx.Services.DataService:AddClassStat(p, "Nights", 1)
+				if ctx.Services.QuestService then
+					ctx.Services.QuestService:Progress(p, "Night", 1, night)
+				end
 			end
 			local bonus = Classes.NightRewards[night]
 			if bonus then
