@@ -243,10 +243,16 @@ local function aimDirection()
 	return ray.Direction
 end
 
-local function onActivate(tool)
+local function onActivate(tool, noAuto)
 	local id = tool:GetAttribute("ItemId")
 	local spec = Items.Tools[id]
 	if not spec then
+		return
+	end
+	-- สลับเครื่องมืออัตโนมัติ (AutoTool): เล็งต้นไม้/หิน/สัตว์แต่ถือของไม่เหมาะ -> หยิบของที่ดีกว่าแล้วตีด้วยอันนั้น
+	if not noAuto and CombatClient.AutoTool and CombatClient.AutoTool.Before(tool, function(t)
+		onActivate(t, true)
+	end) then
 		return
 	end
 	local now = os.clock()
@@ -261,6 +267,11 @@ local function onActivate(tool)
 	anim.Value = (spec.Kind == "Spear") and "Lunge" or "Slash"
 	anim.Parent = tool
 	CombatClient.Sound("Slash", nil, 0.35, 0.9 + math.random() * 0.2)
+end
+
+-- ตีด้วยเครื่องมือนี้ทันที (ไม่ผ่าน AutoTool) — ใช้ตอนสลับให้อัตโนมัติ
+function CombatClient.Swing(tool)
+	onActivate(tool, true)
 end
 
 local function hookCharacter(char)

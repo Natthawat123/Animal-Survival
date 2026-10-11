@@ -26,6 +26,10 @@ local SoundController = require(Client:WaitForChild("SoundController"))
 local SettingsUI = require(Client:WaitForChild("SettingsUI"))
 local Tutorial = require(Client:WaitForChild("Tutorial"))
 local MobileControls = require(Client:WaitForChild("MobileControls"))
+local ItemTooltip = require(Client:WaitForChild("ItemTooltip"))
+local AutoTool = require(Client:WaitForChild("AutoTool"))
+local TeamPing = require(Client:WaitForChild("TeamPing"))
+local RejoinUI = require(Client:WaitForChild("RejoinUI"))
 
 local function safe(name, fn, ...)
 	local ok, err = pcall(fn, ...)
@@ -55,6 +59,15 @@ safe("Tutorial", Tutorial.Init, UIKit.Screen("Tutorial", 60))
 safe("Settings", SettingsUI.Init, UIKit.Screen("Settings", 45), { Tutorial = Tutorial.Open, GearParent = HUD.RightCard })
 Menus.OnSettings = SettingsUI.Toggle
 safe("Mobile", MobileControls.Init, { Menus = Menus, Map = MapUI, HUD = HUD, Combat = CombatClient })
+-- ความสะดวก: การ์ดรายละเอียดไอเทม / สลับเครื่องมืออัตโนมัติ / ปิงบอกทีม / กลับเข้ารอบเดิม
+safe("Tooltip", ItemTooltip.Init)
+CombatClient.AutoTool = AutoTool
+AutoTool.Blocked = function()
+	return Menus.IsBuilding()
+end
+safe("AutoTool", AutoTool.Init, CombatClient.Swing)
+safe("TeamPing", TeamPing.Init, state, HUD, MapUI, SoundController)
+safe("Rejoin", RejoinUI.Init)
 
 -- การตั้งค่า -> ระบบต่างๆ
 local function applySetting(key, value)

@@ -40,6 +40,25 @@ function CampService:IsLit()
 	return self.fuel > 0
 end
 
+-- รัศมี "ในแคมป์" (คราฟต์/ใช้คลังแคมป์ได้) = เขตกองไฟตามเลเวล (ไม่ขึ้นกับไฟติด/ดับ) อย่างน้อย 60
+CampService.CraftCap = 20 -- คราฟต์ทีเดียวได้สูงสุดกี่ชิ้น
+function CampService:CampRadius()
+	return math.max(self:Info().SafeRadius, 60)
+end
+
+function CampService:InCamp(player)
+	local char = player and player.Character
+	if not char or not player:GetAttribute("InRun") then
+		return false
+	end
+	local pos = char:GetPivot().Position
+	local campPos = self.ctx.CampPosition
+	if campPos and ((pos - campPos) * Vector3.new(1, 0, 1)).Magnitude <= self:CampRadius() then
+		return true
+	end
+	return self.benchPos ~= nil and (pos - self.benchPos).Magnitude <= 40
+end
+
 function CampService:Publish()
 	local s = self.ctx.State
 	local info = self:Info()
@@ -49,6 +68,7 @@ function CampService:Publish()
 	s:SetAttribute("CampSafeRadius", self:SafeRadius())
 	s:SetAttribute("CampReveal", info.Reveal)
 	s:SetAttribute("BenchLevel", self.bench)
+	s:SetAttribute("CampRadius", self:CampRadius())
 end
 
 -- หน้าตาไฟตามเชื้อเพลิง/เลเวล
@@ -196,14 +216,14 @@ function CampService:UpgradeBench(player)
 	self:RefreshPrompts()
 end
 
-function CampService:Craft(player, recipeId)
+-- คราฟต์ count ชิ้น (1..CraftCap) · ใช้ของในกระสอบก่อน แล้วค่อยคลังแคมป์ (ต้องอยู่ในแคมป์)
+function CampService:Craft(player, recipeId, count)
 	local r = Recipes.ById[recipeId]
 	if not r then
 		return
 	end
-	local char = player.Character
-	if not char or (char:GetPivot().Position - self.benchPos).Magnitude > 40 then
-		self.ctx.Notify(player, "ต้องอยู่ใกล้โต๊ะคราฟต์ที่แคมป์", "Error")
+	if not self:InCamp(player) then
+		self.ctx.Notify(player, "ต้องอยู่ในแคมป์ (ใกล้กองไฟ/โต๊ะคราฟต์) ถึงจะคราฟต์ได้", "Error")
 		return
 	end
 	if r.Bench > self.bench then
@@ -212,6 +232,9 @@ function CampService:Craft(player, recipeId)
 	end
 	local inv = self.ctx.Services.InventoryService
 	local item = Items.Data[r.Id]
+	if not item then
+		return
+	end
 	if item.Category == "Tool" and inv:Count(player, r.Id) > 0 then
 		self.ctx.Notify(player, "มี " .. Items.DisplayName(r.Id) .. " อยู่แล้ว", "Info")
 		return
@@ -220,12 +243,44 @@ function CampService:Craft(player, recipeId)
 	if item.Category == "Structure" then
 		mult = 1 - self.ctx.Services.SurvivalService:Perk(player, "BuildDiscount", 0)
 	end
-	if not inv:Spend(player, r.Cost, mult) then
+	-- จำนวนที่ขอ (ไม่เชื่อ client): จำนวนเต็ม 1..CraftCap · เครื่องมือได้ทีละ 1
+	local want = tonumber(count) or 1
+	if want ~= want then
+		want = 1
+	end
+	want = math.clamp(math.floor(want), 1, CampService.CraftCap)
+	if item.Category == "Tool" then
+		want = 1
+	end
+	local amount = r.Amount or 1
+	-- ของกินที่ในกระสอบ (ยา ฯลฯ): หลายชิ้นได้ไม่เกินที่ว่างในกระสอบ (ชิ้นเดียวทำได้เสมอเหมือนเดิม)
+	if want > 1 and Items.Bulk(r.Id) then
+		want = math.max(1, math.min(want, math.floor(inv:Space(player) / amount)))
+	end
+	-- ทำได้กี่ชิ้นจากของที่มี
+	local inCamp = true
+	local per = {}
+	local can = want
+	for id, n in pairs(r.Cost) do
+		local need = math.max(1, math.ceil(n * mult))
+		per[id] = need
+		can = math.min(can, math.floor(inv:Available(player, id, inCamp) / need))
+	end
+	if can <= 0 then
 		self.ctx.Notify(player, "วัตถุดิบไม่พอ", "Error")
 		return
 	end
-	inv:Add(player, r.Id, r.Amount or 1)
-	self.ctx.Notify(player, "🔨 คราฟต์สำเร็จ: " .. Items.DisplayName(r.Id) .. (item.Category == "Structure" and "  (กด B เพื่อวาง)" or ""), "Good")
+	local total = {}
+	for id, need in pairs(per) do
+		total[id] = need * can
+	end
+	if not inv:Spend(player, total) then
+		self.ctx.Notify(player, "วัตถุดิบไม่พอ", "Error")
+		return
+	end
+	inv:Add(player, r.Id, amount * can)
+	local suffix = can > 1 and (" x" .. can) or ""
+	self.ctx.Notify(player, "🔨 คราฟต์สำเร็จ: " .. Items.DisplayName(r.Id) .. suffix .. (item.Category == "Structure" and "  (กด B เพื่อวาง)" or ""), "Good")
 	self.ctx.Remotes.Get("HitFx"):FireAllClients("Craft", { Position = self.benchPos })
 end
 
@@ -461,14 +516,13 @@ function CampService:Start(ctx)
 	end)
 	self:RefreshPrompts()
 
-	ctx.Remotes.Get("Craft").OnServerEvent:Connect(function(player, recipeId)
+	ctx.Remotes.Get("Craft").OnServerEvent:Connect(function(player, recipeId, count)
 		if ctx.Services.SurvivalService:IsIncapacitated(player) then
 			return
 		end
 		if recipeId == "UpgradeFire" or recipeId == "UpgradeBench" then
 			-- อัปเกรดจากเมนูคราฟต์ (ต้องอยู่ในแคมป์)
-			local char = player.Character
-			if not char or (char:GetPivot().Position - self.benchPos).Magnitude > 60 then
+			if not self:InCamp(player) then
 				self.ctx.Notify(player, "ต้องอยู่ในแคมป์", "Error")
 			elseif recipeId == "UpgradeFire" then
 				self:UpgradeFire(player)
@@ -476,7 +530,7 @@ function CampService:Start(ctx)
 				self:UpgradeBench(player)
 			end
 		elseif type(recipeId) == "string" then
-			self:Craft(player, recipeId)
+			self:Craft(player, recipeId, count)
 		end
 	end)
 	-- ถือกระสอบแล้วคลิกกองไฟ = โยนเชื้อเพลิงจากกระสอบเข้าไป (ไม่มีก็โยนเนื้อดิบไปย่าง)
