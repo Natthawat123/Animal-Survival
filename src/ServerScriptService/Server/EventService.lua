@@ -43,8 +43,20 @@ local function P(parent, props)
 	for k, v in pairs(props) do
 		p[k] = v
 	end
+	if p.Material == Enum.Material.Neon then
+		p.Material = Enum.Material.SmoothPlastic -- เกมนี้ไม่ใช้นีออน
+	end
 	p.Parent = parent
 	return p
+end
+
+-- ความสูงพื้นจริง (ยิง ray ลง Terrain) — HeightAt เป็นค่าประมาณ ผิว Terrain จริงอาจสูงกว่า ทำให้ของจมดิน
+local function groundY(x, z, fallback)
+	local rp = RaycastParams.new()
+	rp.FilterType = Enum.RaycastFilterType.Include
+	rp.FilterDescendantsInstances = { workspace.Terrain }
+	local hit = workspace:Raycast(Vector3.new(x, (fallback or 0) + 120, z), Vector3.new(0, -400, 0), rp)
+	return hit and hit.Position.Y or fallback
 end
 
 local function light(part, color, range, brightness)
@@ -123,7 +135,7 @@ function EventService:FindSpot(minR, maxR, clearance)
 				end
 			end
 			if ok then
-				return Vector3.new(x, h, z), (biome ~= "Heart") and biome or main
+				return Vector3.new(x, groundY(x, z, h), z), (biome ~= "Heart") and biome or main
 			end
 		end
 	end
@@ -347,7 +359,7 @@ function EventService:Meteor(token)
 		for i = 1, (#pool > 0 and n or 0) do
 			local a = i / n * math.pi * 2
 			local p = spot + V(math.cos(a) * 19, 0, math.sin(a) * 19)
-			local h = ctx.Layout:HeightAt(p.X, p.Z)
+			local h = groundY(p.X, p.Z, ctx.Layout:HeightAt(p.X, p.Z))
 			local g = ctx.Services.AnimalService:Spawn(pool[self.rng:NextInteger(1, #pool)], V(p.X, math.max(h, spot.Y) + 3, p.Z), {
 				Kind = "Guardian", Home = spot, Leash = 55, HealthMult = scale.Health * 1.2, DamageMult = scale.Damage, Night = night,
 			})
@@ -444,7 +456,7 @@ function EventService:Migration(token)
 				ok = false
 				break
 			end
-			table.insert(pts, V(p.X, h + 2, p.Z))
+			table.insert(pts, V(p.X, groundY(p.X, p.Z, h) + 2, p.Z))
 		end
 		if ok then
 			path = pts
@@ -459,7 +471,7 @@ function EventService:Migration(token)
 		for _ = 1, n do
 			local off = V(self.rng:NextNumber(-14, 14), 0, self.rng:NextNumber(-14, 14))
 			local p = path[1] + off
-			local h = layout:HeightAt(p.X, p.Z)
+			local h = groundY(p.X, p.Z, layout:HeightAt(p.X, p.Z))
 			local a = animals:Spawn(id, V(p.X, h + 1.5, p.Z), { Kind = "Migrant", Home = path[1] })
 			if a then
 				a.Wp = 2

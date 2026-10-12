@@ -1403,36 +1403,7 @@ function PropBuilder.BuildCamp(position, parent)
 		wb:PivotTo(bcf * ANG(0, math.pi / 2, 0))
 		wb.Parent = bench
 	end
-	-- ของตกแต่งแคมป์: กองไม้ + ถัง
-	for i, info in ipairs({ { "LogPile", CF(-18, 0, -14), 0.8 }, { "Barrel", CF(25, 0, 6), 0 }, { "Barrel", CF(26.5, 0, 9), 1.2 }, { "LogPile", CF(10, 0, 24), 2.2 } }) do
-		if MeshProps.Has(info[1]) then
-			local d = MeshProps.Build(info[1])
-			d:PivotTo(base * info[2] * ANG(0, info[3], 0))
-			d.Parent = m
-		end
-	end
-
-	-- เต็นท์ผ้าใบ 3 หลัง (ประตูหันเข้ากองไฟ)
-	for i, ang in ipairs({ rad(150), rad(200), rad(250) }) do
-		local tcf = base * CF(math.cos(ang) * 26, 0, math.sin(ang) * 26) * ANG(0, -ang + math.pi / 2, 0)
-		local colors = { C(70, 104, 150), C(84, 120, 76), C(196, 110, 52) }
-		local tent = Instance.new("Model")
-		tent.Name = "Tent"
-		BaseDecor.CanvasTent(tent, tcf, colors[i])
-		tent.Parent = m
-	end
-	-- ที่นั่งท่อนไม้
-	for i = 0, 5 do
-		local ang = i / 6 * math.pi * 2 + 0.4
-		local bcf = base * CF(math.cos(ang) * 11, 0, math.sin(ang) * 11) * ANG(0, -ang, 0)
-		if not PropBuilder.StoreModel("LogBench", bcf, m) then
-			cylinderY(7, 2, bcf * CF(0, 1, 0) * ANG(0, 0, math.pi / 2), { Color = C(110, 78, 52), Material = Enum.Material.Wood }, m)
-		end
-	end
-	------------------------------------------------ แคมป์กลางป่า (สไตล์ 99 Nights)
-	local deco = Instance.new("Folder")
-	deco.Name = "Decor"
-	deco.Parent = m
+	-- แคมป์เรียบๆ: มีแค่กองไฟ + โต๊ะคราฟต์ + เครื่องบด (ไม่มีเต็นท์/บ้าน/รั้ว/ของตกแต่ง)
 	-- ลานดินโล่ง: เปลี่ยนหญ้า Terrain รอบกองไฟเป็นดิน (สี่เหลี่ยมซ้อนกันให้ขอบเกือบกลม)
 	pcall(function()
 		local t = workspace.Terrain
@@ -1443,66 +1414,6 @@ function PropBuilder.BuildCamp(position, parent)
 			t:ReplaceMaterial(Region3.new(lo, hi):ExpandToGrid(4), 4, Enum.Material.Grass, Enum.Material.Ground)
 		end
 	end)
-	-- ถุงนอนหน้าเต็นท์ + เป้
-	for i, ang in ipairs({ rad(150), rad(200), rad(250) }) do
-		local tcf = base * CF(math.cos(ang) * 26, 0, math.sin(ang) * 26) * ANG(0, -ang + math.pi / 2, 0)
-		local bagCols = { C(200, 90, 50), C(60, 110, 170), C(110, 150, 70) }
-		if not PropBuilder.StoreModel("SleepingBagStore", tcf * CF(2.2, 0, -9) * ANG(0, 0.25, 0), deco) then
-			BaseDecor.SleepingBag(deco, tcf * CF(2.2, 0, -9) * ANG(0, 0.25, 0), bagCols[i])
-		end
-		BaseDecor.Backpack(deco, tcf * CF(-3.6, 0, -6.5) * ANG(0, 0.6, 0), bagCols[(i % 3) + 1])
-	end
-	-- เสาตะเกียงรอบลาน
-	for _, ang in ipairs({ rad(95), rad(160), rad(225), rad(290), rad(330), rad(20) }) do
-		local lcf = base * CF(math.cos(ang) * 19, 0, math.sin(ang) * 19) * ANG(0, -ang - math.pi / 2, 0)
-		local lamp = PropBuilder.StoreModel("LampPost", lcf, deco)
-		if lamp then
-			local cf, size = lamp:GetBoundingBox()
-			local bulb = P("Part", { Name = "LampGlow", Size = V(0.6, 0.6, 0.6), CFrame = CF(cf.Position + V(0, size.Y * 0.28, 0)), Transparency = 1, CanCollide = false, CanQuery = false }, lamp)
-			light(bulb, C(255, 190, 110), 26, 1.6, false)
-		else
-			BaseDecor.LanternPost(deco, lcf, 7.5)
-		end
-	end
-	-- ตอผ่าฟืน, เก้าอี้, กล่องเย็น, ราวตากผ้า
-	BaseDecor.ChoppingStump(deco, base * CF(-6, 0, 21) * ANG(0, 0.8, 0))
-	for _, info in ipairs({ { rad(68), C(60, 120, 170) }, { rad(338), C(190, 70, 60) } }) do
-		local a = info[1]
-		BaseDecor.CampChair(deco, base * CF(math.cos(a) * 15, 0, math.sin(a) * 15) * ANG(0, -a - math.pi / 2, 0), info[2])
-	end
-	BaseDecor.Cooler(deco, base * CF(14, 0, 15) * ANG(0, 0.5, 0))
-	BaseDecor.Clothesline(deco, (base * CF(-33, 0, 8)).Position, (base * CF(-30, 0, -14)).Position)
-
-	-- บ้านพักนายพราน (บ้านของเรา) + โรงเก็บของ + ลังไม้ + กองฟืน
-	PropBuilder.StoreModel("CampLodge", base * CF(0, 0, -72), deco)
-	PropBuilder.StoreModel("CampShack", base * CF(36, 0, 22) * ANG(0, rad(-120), 0), deco)
-	for _, info in ipairs({ { CF(17, 0, -30), 0.3 }, { CF(20.5, 0, -29), 1.1 }, { CF(18.5, 3.6, -29.6), 0.7 }, { CF(-22, 0, -28), 0.2 }, { CF(30, 0, 16), 0.9 } }) do
-		PropBuilder.StoreModel("Crate", base * info[1] * ANG(0, info[2], 0), deco)
-	end
-	for _, info in ipairs({ { CF(-26, 0, -16), 0.6 }, { CF(-12, 0, -33), 1.6 }, { CF(26, 0, -10), 2.4 } }) do
-		PropBuilder.StoreModel("LogPileStore", base * info[1] * ANG(0, info[2], 0), deco)
-	end
-	-- รั้วไม้ล้อมลาน (เว้นทางเข้า 4 ทิศ)
-	local fenceR = 40
-	for i = 0, 23 do
-		local ang = (i + 0.5) / 24 * math.pi * 2
-		local deg = math.deg(ang) % 90
-		if deg > 12 and deg < 78 then
-			local fcf = base * CF(math.cos(ang) * fenceR, 0, math.sin(ang) * fenceR) * ANG(0, -ang, 0)
-			PropBuilder.StoreModel("Fence", fcf, deco)
-		end
-	end
-
-	-- เสาไฟสี่ทิศ (ธงธาตุ)
-	for i, el in ipairs({ "Earth", "Water", "Air", "Fire" }) do
-		local ang = (i - 1) / 4 * math.pi * 2 + math.pi / 4
-		local pcf = base * CF(math.cos(ang) * 40, 0, math.sin(ang) * 40)
-		P("Part", { Size = V(1.2, 14, 1.2), CFrame = pcf * CF(0, 7, 0), Color = C(70, 56, 44), Material = Enum.Material.Wood }, m)
-		local banner = P("Part", { Name = "Banner_" .. el, Size = V(3.6, 6, 0.2), CFrame = pcf * CF(1.9, 10.5, 0), Color = ELEMENT_COLOR[el], Material = Enum.Material.Fabric }, m)
-		banner:SetAttribute("Element", el)
-		local orb = ellipsoid(V(1.6, 1.6, 1.6), pcf * CF(0, 14.6, 0), { Name = "SpiritOrb_" .. el, Color = C(60, 60, 66), Material = Enum.Material.Glass, CanCollide = false }, m)
-		orb:SetAttribute("Element", el)
-	end
 	m.Parent = parent
 	return m
 end

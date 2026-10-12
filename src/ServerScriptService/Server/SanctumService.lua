@@ -73,6 +73,30 @@ function SanctumService:Build(el, sp, src, parent)
 	end
 	m.PrimaryPart = origin
 	local pos = sp.Position
+	-- วางบนผิว Terrain จริง (สูงสุดของจุดรอบลาน) กันวิหารจมดิน
+	do
+		local rp = RaycastParams.new()
+		rp.FilterType = Enum.RaycastFilterType.Include
+		rp.FilterDescendantsInstances = { workspace.Terrain }
+		local top
+		for _, o in ipairs({ { 0, 0 }, { 12, 0 }, { -12, 0 }, { 0, 12 }, { 0, -12 }, { 22, 22 }, { -22, -22 }, { 22, -22 }, { -22, 22 } }) do
+			local hit = workspace:Raycast(Vector3.new(pos.X + o[1], pos.Y + 150, pos.Z + o[2]), Vector3.new(0, -400, 0), rp)
+			if hit and (not top or hit.Position.Y > top) then
+				top = hit.Position.Y
+			end
+		end
+		if top and math.abs(top - pos.Y) < 40 then
+			pos = Vector3.new(pos.X, top, pos.Z)
+		end
+	end
+	-- เกมนี้ไม่ใช้นีออน: ลายรูน/คริสตัล = หินแกะสีตามธาตุ (ไม่เรืองแสง)
+	for _, d in ipairs(m:GetDescendants()) do
+		if d:IsA("BasePart") and d.Material == Enum.Material.Neon then
+			d.Material = Enum.Material.Slate
+			local c = d.Color
+			d.Color = Color3.new(c.R * 0.8, c.G * 0.8, c.B * 0.8)
+		end
+	end
 	local camp = self.ctx.CampPosition or Vector3.zero
 	local flat = Vector3.new(camp.X, pos.Y, camp.Z)
 	-- หันทางเข้า (-Z ของพรีแฟบ) ไปทางแคมป์
@@ -430,7 +454,7 @@ function SanctumService:Solve(site, player)
 	-- แสงพุ่ง: ลูกแสงขยาย + ไฟในห้อง + ลำแสงจากยอดวิหารขึ้นฟ้า
 	local burst = Instance.new("Part")
 	burst.Shape = Enum.PartType.Ball
-	burst.Material = Enum.Material.Neon
+	burst.Material = Enum.Material.SmoothPlastic
 	burst.Color = col
 	burst.Anchored = true
 	burst.CanCollide = false

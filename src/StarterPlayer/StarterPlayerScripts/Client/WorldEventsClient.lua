@@ -79,11 +79,11 @@ end
 
 ---------------------------------------------------------------- ☄ อุกกาบาต
 local function impact(pos, col, combat)
-	local ball = part({ Shape = Enum.PartType.Ball, Size = Vector3.new(4, 4, 4), Position = pos + Vector3.new(0, 3, 0), Color = col, Material = Enum.Material.Neon })
+	local ball = part({ Shape = Enum.PartType.Ball, Size = Vector3.new(4, 4, 4), Position = pos + Vector3.new(0, 3, 0), Color = col, Material = Enum.Material.SmoothPlastic })
 	TweenService:Create(ball, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = Vector3.new(70, 70, 70), Transparency = 1 }):Play()
-	local core = part({ Shape = Enum.PartType.Ball, Size = Vector3.new(24, 24, 24), Position = pos + Vector3.new(0, 3, 0), Color = Color3.new(1, 1, 1), Material = Enum.Material.Neon })
+	local core = part({ Shape = Enum.PartType.Ball, Size = Vector3.new(24, 24, 24), Position = pos + Vector3.new(0, 3, 0), Color = Color3.new(1, 1, 1), Material = Enum.Material.SmoothPlastic })
 	TweenService:Create(core, TweenInfo.new(0.5), { Size = Vector3.new(2, 2, 2), Transparency = 1 }):Play()
-	local ring = part({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.6, 8, 8), CFrame = CFrame.new(pos + Vector3.new(0, 1, 0)) * CFrame.Angles(0, 0, math.pi / 2), Color = col, Material = Enum.Material.Neon, Transparency = 0.15 })
+	local ring = part({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.6, 8, 8), CFrame = CFrame.new(pos + Vector3.new(0, 1, 0)) * CFrame.Angles(0, 0, math.pi / 2), Color = col, Material = Enum.Material.SmoothPlastic, Transparency = 0.15 })
 	TweenService:Create(ring, TweenInfo.new(1.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = Vector3.new(0.3, 170, 170), Transparency = 1 }):Play()
 	local l = Instance.new("PointLight")
 	l.Color = col
@@ -162,9 +162,9 @@ local function meteor(d, combat)
 	local yaw = d.Yaw or 0
 	local start = ground + Vector3.new(math.cos(yaw) * 950, 1150, math.sin(yaw) * 950)
 	local dir = (ground - start).Unit
-	local rock = part({ Shape = Enum.PartType.Ball, Size = Vector3.new(14, 14, 14), Position = start, Color = col, Material = Enum.Material.Neon })
+	local rock = part({ Shape = Enum.PartType.Ball, Size = Vector3.new(14, 14, 14), Position = start, Color = col, Material = Enum.Material.SmoothPlastic })
 	local shell = part({ Shape = Enum.PartType.Ball, Size = Vector3.new(11, 11, 11), Position = start, Color = Color3.fromRGB(40, 30, 28), Material = Enum.Material.Slate })
-	local halo = part({ Shape = Enum.PartType.Ball, Size = Vector3.new(30, 30, 30), Position = start, Color = col, Material = Enum.Material.Neon, Transparency = 0.75 })
+	local halo = part({ Shape = Enum.PartType.Ball, Size = Vector3.new(30, 30, 30), Position = start, Color = col, Material = Enum.Material.SmoothPlastic, Transparency = 0.75 })
 	local up = math.abs(dir.Y) < 0.99 and Vector3.yAxis or Vector3.xAxis
 	local side = dir:Cross(up).Unit
 	local a0 = Instance.new("Attachment")
@@ -299,7 +299,7 @@ function WorldEventsClient.Init(state, hud, mapUI, combat)
 				meteor(d, combat)
 			elseif kind == "MeteorClaimed" then
 				local col = C.Element[d.Element] or C.Gold
-				local b = part({ Shape = Enum.PartType.Ball, Size = Vector3.new(4, 4, 4), Position = d.Position, Color = col, Material = Enum.Material.Neon })
+				local b = part({ Shape = Enum.PartType.Ball, Size = Vector3.new(4, 4, 4), Position = d.Position, Color = col, Material = Enum.Material.SmoothPlastic })
 				TweenService:Create(b, TweenInfo.new(0.9, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = Vector3.new(26, 26, 26), Transparency = 1 }):Play()
 				task.delay(1, function()
 					b:Destroy()
