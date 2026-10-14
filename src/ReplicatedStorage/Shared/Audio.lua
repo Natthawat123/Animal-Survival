@@ -37,31 +37,31 @@ Audio.Ambient = {
 
 local S = "rbxasset://sounds/"
 Audio.Sfx = {
-	UiClick = { Id = S .. "button.wav", Volume = 0.35 },
-	UiOpen = { Id = S .. "clickfast.wav", Volume = 0.4, Pitch = 1.1 },
-	Notify = { Id = S .. "electronicpingshort.wav", Volume = 0.25 },
-	Reward = { Id = S .. "electronicpingshort.wav", Volume = 0.45, Pitch = 1.5 },
-	Purchase = { Id = S .. "electronicpingshort.wav", Volume = 0.6, Pitch = 1.8 },
-	Pickup = { Id = S .. "clickfast.wav", Volume = 0.35, Pitch = 1.35 },
-	Craft = { Id = S .. "unsheath.wav", Volume = 0.5 },
-	Build = { Id = S .. "collide.wav", Volume = 0.6, Pitch = 0.8 },
-	Eat = { Id = S .. "splat.wav", Volume = 0.35, Pitch = 1.4 },
+	UiClick = { Id = S .. "volume_slider.ogg", Volume = 0.35 },
+	UiOpen = { Id = S .. "volume_slider.ogg", Volume = 0.4, Pitch = 1.1 },
+	Notify = { Id = S .. "volume_slider.ogg", Volume = 0.25 },
+	Reward = { Id = S .. "volume_slider.ogg", Volume = 0.45, Pitch = 1.5 },
+	Purchase = { Id = S .. "volume_slider.ogg", Volume = 0.6, Pitch = 1.8 },
+	Pickup = { Id = S .. "volume_slider.ogg", Volume = 0.35, Pitch = 1.35 },
+	Craft = { Id = S .. "action_get_up.mp3", Volume = 0.5 },
+	Build = { Id = S .. "action_jump_land.mp3", Volume = 0.6, Pitch = 0.8 },
+	Eat = { Id = S .. "impact_water.mp3", Volume = 0.35, Pitch = 1.4 },
 	Heal = { Id = S .. "action_get_up.mp3", Volume = 0.5, Pitch = 1.2 },
-	Downed = { Id = S .. "uuhhh.mp3", Volume = 0.6, Pitch = 0.8 },
-	Death = { Id = S .. "uuhhh.mp3", Volume = 0.7, Pitch = 0.6 },
+	Downed = { Id = S .. "ouch.ogg", Volume = 0.6, Pitch = 0.8 },
+	Death = { Id = S .. "ouch.ogg", Volume = 0.7, Pitch = 0.6 },
 	Revive = { Id = S .. "action_get_up.mp3", Volume = 0.7 },
-	NightStart = { Id = S .. "HalloweenGhost.wav", Volume = 0.55, Pitch = 0.7 },
-	WaveIncoming = { Id = S .. "Rocket whoosh.wav", Volume = 0.45, Pitch = 0.45 },
-	Dusk = { Id = S .. "HalloweenGhost.wav", Volume = 0.35, Pitch = 0.55 },
-	Dawn = { Id = S .. "electronicpingshort.wav", Volume = 0.4, Pitch = 0.7 },
+	NightStart = { Id = S .. "action_falling.ogg", Volume = 0.55, Pitch = 0.7 },
+	WaveIncoming = { Id = S .. "action_falling.ogg", Volume = 0.45, Pitch = 0.45 },
+	Dusk = { Id = S .. "action_falling.ogg", Volume = 0.35, Pitch = 0.55 },
+	Dawn = { Id = S .. "volume_slider.ogg", Volume = 0.4, Pitch = 0.7 },
 	BossIntro = { Id = S .. "impact_explosion_03.mp3", Volume = 0.8, Pitch = 0.55 },
 	BossFelled = { Id = S .. "impact_explosion_03.mp3", Volume = 0.8, Pitch = 0.9 },
 	FireOut = { Id = S .. "impact_water.mp3", Volume = 0.7, Pitch = 0.7 },
 	CampUpgrade = { Id = S .. "impact_explosion_03.mp3", Volume = 0.5, Pitch = 1.3 },
-	Spirit = { Id = S .. "electronicpingshort.wav", Volume = 0.55, Pitch = 1.2 },
-	GameOver = { Id = S .. "uuhhh.mp3", Volume = 0.5, Pitch = 0.45 },
-	FireLow = { Id = S .. "electronicpingshort.wav", Volume = 0.55, Pitch = 0.55 }, -- เชื้อเพลิงกองไฟต่ำกว่า 20%
-	StalkerWarn = { Id = S .. "HalloweenGhost.wav", Volume = 0.7, Pitch = 0.4 }, -- กวางกลวงกำลังจะออกล่า (เตือนก่อน 5 วินาที)
+	Spirit = { Id = S .. "volume_slider.ogg", Volume = 0.55, Pitch = 1.2 },
+	GameOver = { Id = S .. "ouch.ogg", Volume = 0.5, Pitch = 0.45 },
+	FireLow = { Id = S .. "volume_slider.ogg", Volume = 0.55, Pitch = 0.55 }, -- เชื้อเพลิงกองไฟต่ำกว่า 20%
+	StalkerWarn = { Id = S .. "action_falling.ogg", Volume = 0.7, Pitch = 0.4 }, -- กวางกลวงกำลังจะออกล่า (เตือนก่อน 5 วินาที)
 }
 
 return Audio

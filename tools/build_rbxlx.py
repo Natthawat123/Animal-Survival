@@ -33,12 +33,13 @@ SHOTS = "--shots" in sys.argv  # เทสต์ + ถ่ายภาพฉา�
 SEED = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--seed=")), None)
 FETCH = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--fetch=")), None)  # ดึงโมเดล Creator Store: --fetch=id,id
 PROBE = "--probe" in sys.argv
+OUTFITS = "--outfits" in sys.argv  # ถ่ายรูปชุดตัวละครคลาสที่ให้เลือก (tests/ASOutfitGallery.*)
 GALLERY = "--gallery" in sys.argv  # สตูดิโอถ่ายภาพ: สัตว์/ไอเทม/คลาส ทีละตัว
 VFXSHOW = next((a.split("=", 1)[1] if "=" in a else "*" for a in sys.argv if a.startswith("--vfxshow")), None)  # เทสต์: เล่น VFX ทีละตัวแล้วถ่ายภาพ (--vfxshow=Massive = เฉพาะแพ็ก)
 
 if GALLERY or VFXSHOW:
     TEST = True
-if TEST or SHOTS:
+if TEST or SHOTS or OUTFITS:
     OUT = os.path.join(OUT_DIR, "AnimalSurvival_TEST.rbxlx")
 elif MAPSHOT:
     OUT = os.path.join(OUT_DIR, "AnimalSurvival_MAP.rbxlx")
@@ -167,6 +168,10 @@ def main():
             rs += value_item("BoolValue", "ASGallery", "true")
         if VFXSHOW:
             rs += value_item("StringValue", "ASVFXShow", VFXSHOW)
+    if OUTFITS:
+        rs += value_item("BoolValue", "ASAutoTest", "true")  # ข้ามหน้าโหลด
+        rs += value_item("BoolValue", "ASOutfitGallery", "true")
+        rs += value_item("BoolValue", "ASLobbyTest", "true")  # อยู่ล็อบบี้ ไม่ต้องออกเดินทาง
     if SANDBOX:
         rs += value_item("BoolValue", "ASSandbox", "true")
     if SEED:
@@ -181,6 +186,9 @@ def main():
     if TEST or SHOTS:
         sss += script_item(os.path.join(TESTS, "ASAutoTestServer.server.lua"))
         sps += script_item(os.path.join(TESTS, "ASAutoTestClient.client.lua"))
+    if OUTFITS:
+        sss += script_item(os.path.join(TESTS, "ASOutfitGallery.server.lua"))
+        sps += script_item(os.path.join(TESTS, "ASOutfitGallery.client.lua"))
 
     ss = item("Folder", "LobbyArt", model_items("LobbyArt"))  # ฉากล็อบบี้ป่าโบราณ (tools/lobby_art.py)
     ss += item("Folder", "WorldArt", model_items("WorldArt"))  # วิหารโบราณ 4 ธาตุ (tools/world_art.py)

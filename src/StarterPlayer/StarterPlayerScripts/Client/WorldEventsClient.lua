@@ -204,7 +204,7 @@ local function meteor(d, combat)
 	l.Brightness = 5
 	l.Parent = rock
 	local whoosh = Instance.new("Sound")
-	whoosh.SoundId = "rbxasset://sounds/Rocket whoosh.wav"
+	whoosh.SoundId = "rbxasset://sounds/action_falling.ogg"
 	whoosh.Volume = 2
 	whoosh.PlaybackSpeed = 0.5
 	whoosh.Looped = true
@@ -304,7 +304,7 @@ function WorldEventsClient.Init(state, hud, mapUI, combat)
 				task.delay(1, function()
 					b:Destroy()
 				end)
-				sound3d(d.Position, "rbxasset://sounds/electronicpingshort.wav", 1.5, 1.4, 300)
+				sound3d(d.Position, "rbxasset://sounds/volume_slider.ogg", 1.5, 1.4, 300)
 			elseif kind == "Migration" then
 				Cinematics.Banner("THE GREAT MIGRATION", "🦌 ฝูงกวางและกระต่ายกำลังเดินผ่านใกล้แคมป์ — โอกาสล่าเนื้อและหนังสัตว์!", Color3.fromRGB(230, 200, 140), 3.5, { Size = 54, Y = 0.2 })
 			elseif kind == "Supply" then

@@ -26,6 +26,7 @@ local MeshProps = require(ReplicatedStorage.Shared.MeshProps)
 local BaseDecor = require(ReplicatedStorage.Shared.BaseDecor)
 local PropBuilder = require(ReplicatedStorage.Shared.PropBuilder)
 local Config = require(ReplicatedStorage.Shared.Config)
+local Classes = require(ReplicatedStorage.Shared.Classes)
 
 local LobbyService = {}
 
@@ -188,6 +189,24 @@ local function crate(parent, cf, s)
 	P(parent, { Size = V(s * 1.42, 0.3, 0.32), CFrame = cf * CF(0, s / 2, -s / 2 - 0.05) * ANG(0, 0, math.rad(45)), Color = C(110, 78, 50), Material = Enum.Material.Wood })
 end
 
+-- กล่องชนของกระท่อม Classes: สแกนจากเมชจริงใน Blender (เสา ผนังหลัง ราวข้าง โต๊ะหน้า ชั้นวาง)
+-- { x0, x1, z0, z1 } เป็นสัดส่วนของขนาดกระท่อม (กลาง = 0, หน้า = -z) สูงจากพื้นไม้ ~7.5 stud
+local HUT_COLLIDERS = {
+	{ 0.365, 0.392, -0.417, -0.362 }, { 0.392, 0.419, -0.390, -0.224 }, { 0.338, 0.365, -0.390, -0.362 }, { -0.308, -0.227, -0.390, -0.362 },
+	{ 0.419, 0.446, -0.334, -0.307 }, { 0.311, 0.392, -0.334, -0.279 }, { -0.308, -0.281, -0.334, 0.301 }, { -0.254, -0.173, -0.307, -0.224 },
+	{ 0.419, 0.446, -0.279, -0.058 }, { 0.311, 0.365, -0.279, -0.252 }, { -0.120, 0.231, -0.279, -0.169 }, { -0.281, -0.254, -0.279, -0.252 },
+	{ -0.335, -0.308, -0.279, -0.252 }, { 0.446, 0.473, -0.252, -0.141 }, { 0.365, 0.392, -0.252, -0.196 }, { 0.338, 0.365, -0.224, -0.141 },
+	{ -0.443, -0.308, -0.224, -0.113 }, { 0.365, 0.392, -0.169, -0.003 }, { -0.173, -0.147, -0.169, -0.141 }, { 0.338, 0.365, -0.113, -0.003 },
+	{ -0.362, -0.308, -0.113, 0.301 }, { -0.443, -0.389, -0.113, -0.086 }, { -0.416, -0.362, -0.086, -0.058 }, { -0.416, -0.389, -0.058, 0.329 },
+	{ 0.392, 0.446, -0.030, 0.080 }, { 0.150, 0.177, -0.030, 0.025 }, { 0.338, 0.365, 0.025, 0.163 }, { -0.039, -0.012, 0.025, 0.053 },
+	{ -0.281, -0.254, 0.053, 0.301 }, { 0.392, 0.419, 0.080, 0.301 }, { -0.389, -0.362, 0.080, 0.329 }, { -0.443, -0.416, 0.135, 0.246 },
+	{ -0.254, -0.227, 0.163, 0.218 }, { 0.446, 0.473, 0.191, 0.274 }, { -0.200, -0.173, 0.218, 0.329 }, { 0.365, 0.392, 0.246, 0.274 },
+	{ 0.231, 0.284, 0.246, 0.329 }, { 0.123, 0.204, 0.246, 0.357 }, { -0.120, -0.012, 0.246, 0.301 }, { -0.173, -0.147, 0.246, 0.329 },
+	{ -0.227, -0.200, 0.246, 0.357 }, { 0.419, 0.446, 0.274, 0.301 }, { -0.012, 0.123, 0.274, 0.329 }, { -0.443, -0.416, 0.274, 0.329 },
+	{ 0.284, 0.392, 0.301, 0.329 }, { 0.204, 0.231, 0.301, 0.357 }, { -0.147, -0.039, 0.301, 0.357 }, { -0.470, -0.443, 0.301, 0.329 },
+	{ 0.069, 0.123, 0.329, 0.357 }, { -0.039, 0.042, 0.329, 0.357 },
+}
+
 -- เต็นท์ Classes (ผ้าใบสีเขียวขี้ม้า หน้าเปิด) + เวทีโชว์หุ่น
 local function classesTent(self, parent, cf)
 	local W, D, H, E = 40, 32, 22, 9
@@ -215,6 +234,18 @@ local function classesTent(self, parent, cf)
 		hutSize = hs
 		hutUnit = unit
 		P(parent, { Name = "HutFloor", Size = V(hs.X * 0.9, 1, hs.Z * 0.85), CFrame = cf * CF(0, hutDeck - 0.5, 0), Transparency = 1 })
+		-- ผนัง/เสา/โต๊ะ ชนได้จริง (เมชกระท่อมปิดการชนไว้ เพราะการชนแบบเมชจะอุดทางเข้าทั้งหลัง)
+		local walls = Instance.new("Folder")
+		walls.Name = "HutColliders"
+		for _, b in ipairs(HUT_COLLIDERS) do
+			local sx, sz = (b[2] - b[1]) * hs.X, (b[4] - b[3]) * hs.Z
+			P(walls, {
+				Name = "HutWall", Size = V(math.max(sx, 0.6), 7.5, math.max(sz, 0.6)),
+				CFrame = cf * CF((b[1] + b[2]) / 2 * hs.X, hutDeck + 3.75, (b[3] + b[4]) / 2 * hs.Z),
+				Transparency = 1, CanQuery = false, CanTouch = false,
+			})
+		end
+		walls.Parent = parent
 		tentFolder = Instance.new("Folder")
 		tentFolder.Name = "TentHidden"
 	end
@@ -284,9 +315,6 @@ local function classesTent(self, parent, cf)
 		t2.Parent = sg
 	end
 	light(board, C(120, 255, 120), 16, 1.2)
-	-- ไฟหน้าเต็นท์ (ตอไม้มีไฟ)
-	fireStump(parent, cf * CF(-W / 2 - 1, 1, -D / 2 - 8))
-	fireStump(parent, cf * CF(W / 2 + 1, 1, -D / 2 - 8))
 	-- ภายใน: เคาน์เตอร์ + คนดูแลคลาส + ไวท์บอร์ด + ลังไม้ + โคมแขวน
 	local counterCf = cf * CF(-11, 1.5, -6)
 	P(tentFolder, { Size = V(10, 3.2, 3), CFrame = counterCf * CF(0, 1.6, 0), Color = C(110, 78, 50), Material = Enum.Material.WoodPlanks })
@@ -614,14 +642,40 @@ function LobbyService:Build()
 	else
 		warn("[AS] ไม่พบ ServerStorage.LobbyArt.LobbyRuins (รัน python tools/lobby_art.py แล้ว build ใหม่)")
 	end
-	-- กำแพงล่องหนรอบค่าย (เว้นประตูทิศใต้ที่ปิดด้วย GateBlock)
-	for _, w in ipairs({
-		{ V(FX * 2 + 4, 40, 2), V(0, 20, FZ0) }, { V(2, 40, FZ1 - FZ0), V(FX, 20, (FZ0 + FZ1) / 2) }, { V(2, 40, FZ1 - FZ0), V(-FX, 20, (FZ0 + FZ1) / 2) },
-		{ V(FX - 14, 40, 2), V((FX + 14) / 2, 20, FZ1) }, { V(FX - 14, 40, 2), V(-(FX + 14) / 2, 20, FZ1) },
-	}) do
-		P(m, { Name = "Boundary", Size = w[1], CFrame = base * CF(w[2]), Transparency = 1, CanQuery = false })
+	-- กำแพงหินรอบค่าย (มองเห็นจริง สูง 11) + กำแพงล่องหนสูง 300 ทับอีกชั้น -> ปีน/กระโดดออกนอกค่ายไม่ได้ (กันตกแมพ)
+	local walls = Instance.new("Folder")
+	walls.Name = "CampWall"
+	walls.Parent = m
+	local WALL_H, WALL_T = 11, 3
+	local STONE, STONE2, CAP = C(112, 108, 100), C(96, 92, 86), C(132, 128, 118)
+	local function wallRun(x0, z0, x1, z1)
+		local a, b = V(x0, 0, z0), V(x1, 0, z1)
+		local len = (b - a).Magnitude
+		local dir = (b - a).Unit
+		local n = math.max(1, math.floor(len / 20 + 0.5))
+		for k = 0, n - 1 do
+			local p0, p1 = a + dir * (len * k / n), a + dir * (len * (k + 1) / n)
+			local mid = (p0 + p1) / 2
+			local cf = base * CFrame.lookAt(mid, mid + dir) -- แกน Z ตามแนวกำแพง
+			P(walls, { Name = "Wall", Size = V(WALL_T, WALL_H, (p1 - p0).Magnitude + 0.1), CFrame = cf * CF(0, 1 + WALL_H / 2, 0),
+				Color = (k % 2 == 0) and STONE or STONE2, Material = Enum.Material.Cobblestone })
+			P(walls, { Name = "WallCap", Size = V(WALL_T + 1, 0.8, (p1 - p0).Magnitude + 0.1), CFrame = cf * CF(0, 1 + WALL_H + 0.4, 0), Color = CAP, Material = Enum.Material.Slate })
+			-- เสาหินทุกช่วง
+			local post = base * CF(p0.X, 0, p0.Z)
+			P(walls, { Name = "WallPost", Size = V(WALL_T + 2, WALL_H + 3, WALL_T + 2), CFrame = post * CF(0, 1 + (WALL_H + 3) / 2, 0), Color = STONE2, Material = Enum.Material.Slate })
+		end
+		local mid = (a + b) / 2
+		P(m, { Name = "Boundary", Size = V(4, 300, len + 8), CFrame = base * CFrame.lookAt(mid, mid + dir) * CF(0, 150, 0), Transparency = 1, CanQuery = false })
 	end
-	P(m, { Name = "GateBlock", Size = V(30, 40, 1), CFrame = base * CF(0, 20, FZ1 + 6), Transparency = 1, CanQuery = false })
+	wallRun(-FX, FZ0, FX, FZ0)
+	wallRun(FX, FZ0, FX, FZ1)
+	wallRun(FX, FZ1, -FX, FZ1)
+	wallRun(-FX, FZ1, -FX, FZ0)
+	for _, c in ipairs({ { -FX, FZ0 }, { FX, FZ0 }, { FX, FZ1 }, { -FX, FZ1 } }) do
+		P(walls, { Name = "WallPost", Size = V(WALL_T + 3, WALL_H + 5, WALL_T + 3), CFrame = base * CF(c[1], 1 + (WALL_H + 5) / 2, c[2]), Color = STONE2, Material = Enum.Material.Slate })
+	end
+	-- เพดานล่องหนกันกระโดดจากหลังคาออกไป (สูงเกินที่ผู้เล่นจะไปถึง)
+	P(m, { Name = "Boundary", Size = V(FX * 2 + 20, 4, FZ1 - FZ0 + 20), CFrame = base * CF(0, 300, (FZ0 + FZ1) / 2), Transparency = 1, CanQuery = false })
 
 	------------------------------------------------ พื้น Terrain: หญ้าจริง (มีใบหญ้าขึ้น) + ทางหินปูถนน/ลานหิน
 	local terrain = Workspace.Terrain
@@ -669,18 +723,14 @@ function LobbyService:Build()
 		end
 		return inst
 	end
-	local function blocked(x, z)
-		return (math.abs(x) < 10 and z > -40 and z < 104) or (math.abs(z - 44) < 7.5 and x < GX - 14) or (math.abs(x + 42) < 7 and z > -10 and z < 44)
-			or math.sqrt(x * x + (z - 88) ^ 2) < 19 or (math.abs(x) < 34 and z > -90 and z < -18) or math.sqrt((x + 42) ^ 2 + (z + 16) ^ 2) < 13
-			or (x < -64 and x > -100 and math.abs(z - 6) < 22) or math.sqrt((x + 62) ^ 2 + (z - 74) ^ 2) < 16 or math.sqrt((x + 86) ^ 2 + (z - 86) ^ 2) < 16
-			or math.sqrt((x + 96) ^ 2 + (z + 70) ^ 2) < 13 or math.abs(z - 6) < 5 and x < -40 and x > -78 or math.abs(x + 62) < 5 and z > 44 and z < 66
-			or math.sqrt((x - GX) ^ 2 + (z - GZ) ^ 2) < GR + 18
+	local function outside(x, z)
+		return math.abs(x) > FX + 10 or z < FZ0 - 10 or z > FZ1 + 10
 	end
 	-- ป่ารอบนอกกำแพง (ทึบ บังขอบเกาะ)
 	for _ = 1, 90 do
 		local a, r = rng:NextNumber(0, math.pi * 2), rng:NextNumber(128, 232)
 		local x, z = math.cos(a) * r, math.sin(a) * r
-		if z > FZ0 - 30 and not (math.abs(x) < 26 and z > FZ1) then
+		if outside(x, z) and z > FZ0 - 30 and not (math.abs(x) < 26 and z > FZ1) then
 			local k = rng:NextNumber()
 			plant(k < 0.45 and "AncientOak" or (k < 0.85 and "Oak" or "Palm"), x, z, rng:NextNumber(0.9, 1.35))
 		end
@@ -688,68 +738,11 @@ function LobbyService:Build()
 	for _ = 1, 40 do -- พุ่มไม้ใต้ต้นไม้นอกกำแพง
 		local a, r = rng:NextNumber(0, math.pi * 2), rng:NextNumber(124, 160)
 		local x, z = math.cos(a) * r, math.sin(a) * r
-		if z > FZ0 - 20 and not (math.abs(x) < 26 and z > FZ1) then
+		if outside(x, z) and z > FZ0 - 20 and not (math.abs(x) < 26 and z > FZ1) then
 			plant("Bush", x, z, rng:NextNumber(1.2, 1.8))
 		end
 	end
-	-- ต้นไม้ใหญ่ในค่าย
-	for _, t in ipairs({ { -104, -40 }, { 106, -66 }, { -102, 94 }, { 40, 94 }, { -64, 22 }, { -106, -88 }, { 66, -96 }, { -30, -100 }, { 108, 96 }, { -40, 96 }, { 26, 64 }, { -26, 66 } }) do
-		if not blocked(t[1], t[2]) then
-			plant(rng:NextNumber() < 0.6 and "AncientOak" or "Oak", t[1], t[2], rng:NextNumber(0.75, 0.95))
-		end
-	end
-	-- พุ่มไม้แน่นแนวกำแพงด้านใน
-	for _ = 1, 70 do
-		local side = rng:NextInteger(1, 4)
-		local x, z
-		if side == 1 then
-			x, z = rng:NextNumber(-FX + 6, FX - 6), FZ0 + rng:NextNumber(4, 10)
-		elseif side == 2 then
-			x, z = FX - rng:NextNumber(4, 10), rng:NextNumber(FZ0, FZ1)
-		elseif side == 3 then
-			x, z = -FX + rng:NextNumber(4, 10), rng:NextNumber(FZ0, FZ1)
-		else
-			x, z = rng:NextNumber(-FX, FX), FZ1 - rng:NextNumber(4, 10)
-		end
-		if not blocked(x, z) then
-			plant("Bush", x, z, rng:NextNumber(1.1, 1.7))
-		end
-	end
-	-- พืชพื้นล่างทั่วค่าย
-	local placed, tries = 0, 0
-	while placed < 230 and tries < 3000 do
-		tries += 1
-		local x, z = rng:NextNumber(-FX + 6, FX - 6), rng:NextNumber(FZ0 + 6, FZ1 - 6)
-		if not blocked(x, z) then
-			placed += 1
-			local k = rng:NextNumber()
-			if k < 0.3 then
-				plant("Bush", x, z, rng:NextNumber(0.9, 1.5))
-			elseif k < 0.78 then
-				plant("Fern", x, z, rng:NextNumber(1.0, 1.6))
-			elseif k < 0.88 then
-				plant("MossRock", x, z, rng:NextNumber(0.5, 1.0))
-			elseif k < 0.96 then
-				plant("Mushrooms", x, z, rng:NextNumber(0.9, 1.4))
-			else
-				plant("GlowShroom", x, z, rng:NextNumber(0.5, 0.9))
-			end
-		end
-	end
-	-- ลานประตู: พุ่มไม้/ต้นไม้ล้อมระหว่างประตู + เฟิร์นริมทาง
-	for _, ad in ipairs({ -84, -40, 0, 40, 84 }) do
-		local a = math.rad(ad)
-		plant("Bush", GX + math.cos(a) * (GR + 2), GZ + math.sin(a) * (GR + 2), 1.6)
-		if ad ~= -84 and ad ~= 84 then
-			plant("AncientOak", GX + math.cos(a) * (GR + 14), GZ + math.sin(a) * (GR + 14), 0.85)
-		end
-	end
-	for _, ad in ipairs({ -60, -20, 20, 60 }) do
-		local a = math.rad(ad)
-		for _, off in ipairs({ -0.22, 0.22 }) do
-			plant("Bush", GX + math.cos(a + off) * (GR + 15), GZ + math.sin(a + off) * (GR + 15), 1.7)
-		end
-	end
+	-- ในค่าย: ไม่มีต้นไม้/พุ่มไม้ (บังทาง บังกล้อง) — มีแค่ป่าด้านนอกกำแพงเป็นฉากหลัง
 
 	-- ของตกแต่งโทนเดียวกับกระท่อม Classes (โมเดลจริง): ม้านั่งท่อนซุง ลังไม้ กองฟืน โรงเก็บของ
 	PropBuilder.StoreModel("CampShack", base * CF(-96, 1, -70) * ANG(0, math.rad(60), 0), deco)
@@ -805,8 +798,6 @@ function LobbyService:Build()
 	end
 	P(deco, { ClassName = "WedgePart", Size = V(30, 2.4, 3.2), CFrame = boardCf * CF(0, 21.6, 0), Color = C(120, 64, 40), Material = Enum.Material.WoodPlanks })
 	self.boardGuis = { self:BuildBoardGui(board, Enum.NormalId.Back), self:BuildBoardGui(board, Enum.NormalId.Front) }
-	lanternPost(deco, boardCf * CF(-16, 0, -2), 11)
-	lanternPost(deco, boardCf * CF(16, 0, -2), 11)
 	-- แคมป์ไฟเล็ก + ม้านั่งท่อนซุง + เต็นท์นอน
 	local fcf = base * CF(-62, 1, 74)
 	local ring = mesh("Campfire", fcf, deco)
@@ -841,6 +832,38 @@ function LobbyService:Build()
 	for _, info in ipairs({ { 24, -40 }, { 27, -44 }, { -26, -40 }, { 40, 60 }, { -102, 30 } }) do
 		crate(deco, base * CF(info[1], 1, info[2]) * ANG(0, rng:NextNumber(0, 1), 0))
 	end
+
+	------------------------------------------------ วางของให้แตะพื้นพอดี (โมเดลแต่ละชิ้นมีจุดหมุนต่างกัน -> บางชิ้นจม/ลอย)
+	local groundY = base.Y + 1
+	local SKIP = { ClassHut = true }
+	local function lowest(model)
+		local y
+		for _, p in ipairs(model:GetDescendants()) do
+			if p:IsA("BasePart") and p.Transparency < 1 then
+				local cf, s = p.CFrame, p.Size
+				local half = 0.5 * (math.abs(cf.XVector.Y) * s.X + math.abs(cf.YVector.Y) * s.Y + math.abs(cf.ZVector.Y) * s.Z)
+				y = math.min(y or math.huge, p.Position.Y - half)
+			end
+		end
+		return y
+	end
+	local function settle(container, embed)
+		for _, c in ipairs(container:GetChildren()) do
+			if c:IsA("Folder") then
+				settle(c, embed)
+			elseif c:IsA("Model") and not SKIP[c.Name] then
+				local bottom = lowest(c)
+				local _, size = c:GetBoundingBox()
+				local gap = bottom and bottom - groundY
+				-- แตะพื้นแค่ของที่ตั้งใจวางบนพื้น (ลอยไม่เกิน 4 stud / จมไม่เกินครึ่งตัว) · ของแขวน/ฝังตั้งใจไม่ยุ่ง
+				if gap and math.abs(gap + embed) > 0.1 and gap < 4 and gap > -size.Y * 0.5 then
+					c:PivotTo(c:GetPivot() - V(0, gap + embed, 0))
+				end
+			end
+		end
+	end
+	settle(deco, 0.05)
+	settle(veg, 0.5) -- ต้นไม้/พุ่ม: ฝังโคนลงดินนิดหน่อย (ไม่เห็นโคนลอย)
 
 	self.spawnCf = base * CF(0, 4, 88)
 	-- ส่งล็อบบี้ทั้งชุดถึงทุกเครื่องทันที (ไม่สตรีมทีละส่วน) + บอกจำนวนชิ้น ให้หน้าโหลดรอจนครบก่อนเข้า
@@ -1350,7 +1373,105 @@ function LobbyService:ShowBoard()
 	end
 end
 
+-- ตัวละครประจำคลาส: สร้างจากชุดในแคตตาล็อกจริง (HumanoidDescription) -> ReplicatedStorage.ClassModels/<Class>
+-- ใช้ทั้งรูปในร้านคลาส หุ่นบนเวทีในกระท่อม และหน้าเลือกคลาส (โหลดไม่ได้ -> ใช้โมเดลเก่าแทน)
+local function buildClassModels()
+	local ok, Outfits = pcall(require, ReplicatedStorage.Shared.ClassOutfits)
+	if not ok then
+		return
+	end
+	local folder = ReplicatedStorage:FindFirstChild("ClassModels") or Instance.new("Folder")
+	folder.Name = "ClassModels"
+	folder.Parent = ReplicatedStorage
+	-- สร้างทีละตัว (สร้างพร้อมกัน 10 ตัว Roblox โหลดของไม่ทัน -> หมวก/เป้หายแบบสุ่ม) + ตรวจว่าของครบ ไม่ครบสร้างใหม่
+	local order = Classes.Order
+	for _, id in ipairs(order) do
+		local o = Outfits[id]
+		if not o then
+			continue
+		end
+		do
+			local desc = Instance.new("HumanoidDescription")
+			for field, ids in pairs(o.Accessories or {}) do
+				desc[field] = table.concat(ids, ",")
+			end
+			desc.Shirt, desc.Pants, desc.Face = o.Shirt or 0, o.Pants or 0, o.Face or 0
+			for field, assetId in pairs(o.Body or {}) do
+				desc[field] = assetId
+			end
+			if o.Head then
+				desc.Head = o.Head
+			end
+			if o.Layered then
+				local list = {}
+				for i, l in ipairs(o.Layered) do
+					table.insert(list, { Order = i, AssetId = l[1], AccessoryType = Enum.AccessoryType[l[2]], IsLayered = true })
+				end
+				pcall(function()
+					desc:SetAccessories(list, false)
+				end)
+			end
+			local skin = o.Skin or Color3.fromRGB(234, 184, 146)
+			desc.HeadColor, desc.TorsoColor = skin, skin
+			desc.LeftArmColor, desc.RightArmColor, desc.LeftLegColor, desc.RightLegColor = skin, skin, skin, skin
+			local want = #(o.Layered or {})
+			for _, ids in pairs(o.Accessories or {}) do
+				want += #ids
+			end
+			local built, model, best
+			for attempt = 1, 4 do
+				built, model = pcall(Players.CreateHumanoidModelFromDescription, Players, desc, Enum.HumanoidRigType.R15)
+				if built and model then
+					local got = 0
+					for _, c in ipairs(model:GetChildren()) do
+						got += c:IsA("Accessory") and 1 or 0
+					end
+					if not best or got > best.got then
+						if best then
+							best.model:Destroy()
+						end
+						best = { model = model, got = got }
+					else
+						model:Destroy()
+					end
+					if got >= want then
+						break
+					end
+					warn(string.format("[AS] class model %s: ของไม่ครบ %d/%d (รอบ %d)", id, got, want, attempt))
+				end
+				task.wait(1.5 * attempt)
+			end
+			model = best and best.model
+			if not model then
+				warn("[AS] class model failed", id)
+				continue
+			end
+			model.Name = id
+			model.Archivable = true -- โมเดลจาก HumanoidDescription ตั้ง Archivable=false มา -> Clone() ได้ nil
+			for _, d in ipairs(model:GetDescendants()) do
+				d.Archivable = true
+			end
+			local hum = model:FindFirstChildOfClass("Humanoid")
+			if hum then
+				hum.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
+				hum.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOff
+			end
+			for _, d in ipairs(model:GetDescendants()) do
+				if d:IsA("BasePart") then
+					d.CanCollide, d.CanQuery, d.CanTouch = false, false, false
+					d.Anchored = d.Name == "HumanoidRootPart"
+				elseif d:IsA("Script") or d:IsA("LocalScript") then
+					d:Destroy()
+				end
+			end
+			model:PivotTo(CFrame.new(0, -500, 0))
+			model.Parent = folder
+		end
+	end
+end
+
 function LobbyService:Start(ctx)
+	task.spawn(buildClassModels)
 	ctx.Remotes.Get("LeaveRun").OnServerEvent:Connect(function(player)
 		self:LeaveRun(player)
 	end)

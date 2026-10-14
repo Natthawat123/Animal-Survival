@@ -43,6 +43,37 @@ local cam0 = Workspace.CurrentCamera
 local lobby = Workspace:WaitForChild("Lobby", 10)
 if lobby then
 	local lp = lobby:GetPivot().Position
+	-- ของในล็อบบี้ที่ลอย/จม (เทียบผิวหญ้า = จุดกลางล็อบบี้ + 1)
+	do
+		local groundY = lp.Y + 1
+		local bad = 0
+		local function lowest(model)
+			local y
+			for _, p in ipairs(model:GetDescendants()) do
+				if p:IsA("BasePart") and p.Transparency < 1 then
+					local cf, s = p.CFrame, p.Size
+					local half = 0.5 * (math.abs(cf.XVector.Y) * s.X + math.abs(cf.YVector.Y) * s.Y + math.abs(cf.ZVector.Y) * s.Z)
+					y = math.min(y or math.huge, p.Position.Y - half)
+				end
+			end
+			return y
+		end
+		for _, d in ipairs(lobby:GetDescendants()) do
+			if d:IsA("Model") and d.Name ~= "LobbyRuins" and not d.Parent:IsA("Model") or (d:IsA("Model") and d.Parent.Name == "LobbyRuins") then
+				local low = lowest(d)
+				local _, size = d:GetBoundingBox()
+				local gap = low and low - groundY
+				if gap and ((gap > 0.4 and gap < 6) or gap < -size.Y * 0.35) then
+					bad += 1
+					local pos = d:GetPivot().Position - lp
+					print(string.format("[TEST] lobby prop off-ground %s/%s gap=%.2f h=%.1f at %.0f,%.0f", d.Parent.Name, d.Name, gap, size.Y, pos.X, pos.Z))
+				end
+			end
+		end
+		print("[TEST] lobby off-ground count", bad)
+		local walls = lobby:FindFirstChild("HutColliders", true)
+		check("hut has colliders", walls ~= nil and #walls:GetChildren() > 20, walls and #walls:GetChildren())
+	end
 	cam0.CameraType = Enum.CameraType.Scriptable
 	cam0.CFrame = CFrame.lookAt(Vector3.new(lp.X + 70, lp.Y + 45, lp.Z + 85), Vector3.new(lp.X, lp.Y + 5, lp.Z - 10))
 	shot("lobby_overview", 2)
@@ -83,6 +114,72 @@ if lobby then
 		Menus.OpenShop("Passes")
 		shot("lobby_shop_passes", 1.2)
 		Menus.OpenShop("Classes")
+		do
+			local cm = game:GetService("ReplicatedStorage"):FindFirstChild("ClassModels")
+			local n, parts, clone = 0, 0, nil
+			for _, c in ipairs(cm and cm:GetChildren() or {}) do
+				n += 1
+				for _, d in ipairs(c:GetDescendants()) do
+					parts += d:IsA("BasePart") and 1 or 0
+				end
+				clone = clone or c:Clone()
+			end
+			print("[TEST] class models", n, "parts", parts, "clone ok", clone ~= nil)
+			local Outfits = require(game:GetService("ReplicatedStorage").Shared.ClassOutfits)
+			local missing = {}
+			for _, c in ipairs(cm and cm:GetChildren() or {}) do
+				local o = Outfits[c.Name]
+				local want = #(o and o.Layered or {})
+				for _, ids in pairs(o and o.Accessories or {}) do
+					want += #ids
+				end
+				local got = 0
+				for _, a in ipairs(c:GetChildren()) do
+					got += a:IsA("Accessory") and 1 or 0
+				end
+				if got < want then
+					table.insert(missing, string.format("%s %d/%d", c.Name, got, want))
+				end
+			end
+			check("class outfits complete", n == 10 and #missing == 0, n, table.concat(missing, ", "))
+			local okA, ClassAvatars = pcall(require, player.PlayerScripts:FindFirstChild("ClassAvatars", true))
+			if okA then
+				local okB, mb = pcall(ClassAvatars.Build, "Lumberjack", 10)
+				print("[TEST] avatar build", okB, okB and mb and mb:GetAttribute("Outfit"), not okB and mb or "")
+				if okB and mb then
+					mb:Destroy()
+					-- แถวตัวละครทุกคลาส (หันหน้าเข้ากล้อง)
+					local camx = Workspace.CurrentCamera
+					local prevType, prevCf = camx.CameraType, camx.CFrame
+					camx.CameraType = Enum.CameraType.Scriptable
+					local at = root.Position + Vector3.new(0, 60, 0)
+					local Classes = require(game:GetService("ReplicatedStorage").Shared.Classes)
+					local row = {}
+					for i, id in ipairs(Classes.Order) do
+						local okC, mc = pcall(ClassAvatars.Build, id, 10)
+						if okC and mc then
+							mc:PivotTo(CFrame.new(at + Vector3.new((i - 5.5) * 4.6, 0, 0)))
+							mc.Parent = Workspace
+							ClassAvatars.PlayIdle(mc)
+							table.insert(row, mc)
+						end
+					end
+					print("[TEST] avatar row", #row)
+
+					camx.CFrame = CFrame.lookAt(at + Vector3.new(0, 4, -30), at + Vector3.new(0, 3, 0))
+					shot("class_avatar_row", 4)
+					camx.CFrame = CFrame.lookAt(at + Vector3.new(-11.5, 4.2, -12), at + Vector3.new(-11.5, 3.2, 0))
+					shot("class_avatar_left", 1)
+					camx.CFrame = CFrame.lookAt(at + Vector3.new(11.5, 4.2, -12), at + Vector3.new(11.5, 3.2, 0))
+					shot("class_avatar_right", 1)
+					for _, mc in ipairs(row) do
+						mc:Destroy()
+					end
+
+					camx.CameraType, camx.CFrame = prevType, prevCf
+				end
+			end
+		end
 		shot("lobby_classes", 4)
 		task.wait(2)
 		local okCS, ClassShop = pcall(function()

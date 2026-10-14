@@ -29,7 +29,7 @@ local SOUND = {
 	Hurt = "rbxasset://sounds/ouch.ogg",
 	Land = "rbxasset://sounds/action_jump_land.mp3",
 	GetUp = "rbxasset://sounds/action_get_up.mp3",
-	Slash = "rbxasset://sounds/swordslash.wav",
+	Slash = "rbxasset://sounds/action_swim.mp3",
 }
 
 function CombatClient.Sound(name, at, volume, pitch)

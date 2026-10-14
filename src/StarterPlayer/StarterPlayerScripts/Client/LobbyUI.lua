@@ -1,5 +1,5 @@
 --[[
-	LobbyUI — ปุ่มเมนูล็อบบี้สไตล์เกมยุคใหม่: คลาส / ภารกิจ / ป้าย / ร้านค้า / ตั้งค่า + แคปซูล Ruby มุมขวาบน
+	LobbyUI — ปุ่มเมนูล็อบบี้ (ภาพวาดเหรียญไม้+ป้ายไม้ จาก Shared/MenuArt): คลาส / ภารกิจ / ป้าย / ร้านค้า / ตั้งค่า + แคปซูล Ruby มุมขวาบน
 	ป้าย = ความสำเร็จที่คำนวณจากสถิติจริงในเซฟ (Shared/Quests.lua Achievements) — ทำครบแล้วกดรับ Ruby ได้ครั้งเดียว
 	ภารกิจ = หน้าต่าง QuestUI (LobbyUI.OnQuests) · จุดแดง = มีรางวัลให้รับ (LobbyUI.SetQuestDot)
 ]]
@@ -11,6 +11,7 @@ local Classes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("C
 local Quests = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Quests"))
 local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes"))
 local UIKit = require(script.Parent.UIKit)
+local MenuArt = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("MenuArt"))
 
 local LobbyUI = {}
 
@@ -92,6 +93,55 @@ local function dockButton(parent, order, icon, name, color, onClick)
 	return b, dot, dt
 end
 
+-- ปุ่มเมนูแบบภาพวาด (เหรียญไม้ + ป้ายไม้ + ธง) จาก Shared/MenuArt — โหลดรูปไม่ได้คืน nil (ใช้ปุ่มแบบเดิมแทน)
+local ART_W = 270
+local function artButton(parent, order, art, onClick)
+	local ok, img = pcall(MenuArt.Image, art)
+	local size = MenuArt.Size[art]
+	if not ok or not img or not size then
+		return nil
+	end
+	local b = Instance.new("ImageButton")
+	b.Name = "Dock_" .. art
+	b.BackgroundTransparency = 1
+	b.AutoButtonColor = false
+	b.ImageContent = Content.fromObject(img)
+	b.Size = UDim2.fromOffset(ART_W, math.floor(ART_W * size.Y / size.X))
+	b.LayoutOrder = order
+	b.Parent = parent
+	local sc = Instance.new("UIScale")
+	sc.Parent = b
+	b.MouseEnter:Connect(function()
+		UIKit.Tween(sc, 0.15, { Scale = 1.05 })
+		UIKit.Tween(b, 0.15, { ImageColor3 = C(255, 255, 255) })
+	end)
+	b.MouseLeave:Connect(function()
+		UIKit.Tween(sc, 0.15, { Scale = 1 })
+	end)
+	b.MouseButton1Down:Connect(function()
+		UIKit.Tween(sc, 0.08, { Scale = 0.95 })
+		b.ImageColor3 = C(225, 225, 225)
+	end)
+	b.Activated:Connect(function()
+		UIKit.Tween(sc, 0.12, { Scale = 1 })
+		b.ImageColor3 = C(255, 255, 255)
+		if onClick then
+			onClick()
+		end
+	end)
+	-- จุดแจ้งเตือนบนขอบเหรียญ (มุมขวาบนของวงกลมด้านซ้าย)
+	local dot = UIKit.Frame(b, { Size = UDim2.fromOffset(24, 24), Position = UDim2.new(0.3, -4, 0, 0), BackgroundColor3 = UIKit.Colors.Red, BackgroundTransparency = 0, Visible = false, ZIndex = 8 })
+	local dc = Instance.new("UICorner")
+	dc.CornerRadius = UDim.new(1, 0)
+	dc.Parent = dot
+	UIKit.Stroke(dot, C(255, 255, 255), 2, 0)
+	local dt = UIKit.Text(dot, { Size = UDim2.fromScale(1, 1), Text = "!", Font = UIKit.Fonts.Title, TextSize = 15, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 9 })
+	if onClick then
+		UIKit.EnsureTouchSize(b, 44, onClick)
+	end
+	return b, dot, dt
+end
+
 function LobbyUI.Build(gui, handlers)
 	local root = Instance.new("Frame")
 	root.Name = "LobbyUI"
@@ -104,7 +154,8 @@ function LobbyUI.Build(gui, handlers)
 	side.BackgroundTransparency = 1
 	side.AnchorPoint = Vector2.new(0, 0.5)
 	side.Position = UDim2.new(0, 22, 0.52, 0)
-	side.Size = UDim2.fromOffset(90, 510)
+	local useArt = MenuArt.Image("Classes") ~= nil
+	side.Size = useArt and UDim2.fromOffset(ART_W + 10, 600) or UDim2.fromOffset(90, 510)
 	side.Parent = root
 	UIKit.AutoScale(side)
 	local layout = Instance.new("UIListLayout")
@@ -112,14 +163,24 @@ function LobbyUI.Build(gui, handlers)
 	layout.SortOrder = Enum.SortOrder.LayoutOrder
 	layout.VerticalAlignment = Enum.VerticalAlignment.Center
 	layout.Parent = side
-	dockButton(side, 1, "Shield", "คลาส", C(230, 132, 64), handlers.Classes)
-	local _, qdot, qdotText = dockButton(side, 2, "Scroll", "ภารกิจ", C(236, 178, 52), function()
+	-- ปุ่มภาพวาดก่อน ไม่ได้ค่อยใช้ปุ่มวงกลมแบบเดิม
+	local function menuButton(order, art, icon, name, color, onClick)
+		if useArt then
+			local b, d, t = artButton(side, order, art, onClick)
+			if b then
+				return b, d, t
+			end
+		end
+		return dockButton(side, order, icon, name, color, onClick)
+	end
+	menuButton(1, "Classes", "Shield", "คลาส", C(230, 132, 64), handlers.Classes)
+	local _, qdot, qdotText = menuButton(2, "Quests", "Scroll", "ภารกิจ", C(236, 178, 52), function()
 		if LobbyUI.OnQuests then
 			LobbyUI.OnQuests()
 		end
 	end)
 	ui.QuestDot, ui.QuestDotText = qdot, qdotText
-	local _, dot, dotText = dockButton(side, 3, "Trophy", "ป้าย", C(146, 104, 222), function()
+	local _, dot, dotText = menuButton(3, "Badges", "Trophy", "ป้าย", C(146, 104, 222), function()
 		ui.Badges.Visible = not ui.Badges.Visible
 		if ui.Badges.Visible then
 			UIKit.Pop(ui.Badges)
@@ -127,8 +188,8 @@ function LobbyUI.Build(gui, handlers)
 		LobbyUI.Refresh()
 	end)
 	ui.BadgeDot, ui.BadgeDotText = dot, dotText
-	dockButton(side, 4, "Ruby", "ร้านค้า", C(64, 182, 120), handlers.Shop)
-	dockButton(side, 5, "⚙", "ตั้งค่า", C(74, 132, 220), handlers.Settings)
+	menuButton(4, "Shop", "Ruby", "ร้านค้า", C(64, 182, 120), handlers.Shop)
+	menuButton(5, "Settings", "⚙", "ตั้งค่า", C(74, 132, 220), handlers.Settings)
 
 	-- Ruby: แคปซูลมุมซ้ายบน + ปุ่ม + (เปิดร้านค้า)
 	local pill = UIKit.Frame(root, { Size = UDim2.fromOffset(190, 46), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -24, 0, 20), BackgroundColor3 = Color3.fromRGB(26, 30, 54), BackgroundTransparency = 0 })

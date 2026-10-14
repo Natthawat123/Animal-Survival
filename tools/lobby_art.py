@@ -579,7 +579,7 @@ def build():
         a = k / 6 * math.tau
         crystal_lamp(gx + math.cos(a) * 20.5, gz + math.sin(a) * 20.5, 5.5)
     entrance_gate(FZ1)
-    for x, z in ((-9, 60), (9, 60), (-30, 50), (40, 50), (-50, 40), (-80, 40), (-38, 0), (12, -26), (-12, -26)):
+    for x, z in ((12, -26), (-12, -26)):  # เสาไฟแค่หน้าร้านคลาส (หน้าแท่น = 4 ต้นรอบลานประตูด้านบน)
         crystal_lamp(x, z)
     ruin_wall((-FX, FZ0), (FX, FZ0))
     ruin_wall((FX, FZ0), (FX, FZ1))

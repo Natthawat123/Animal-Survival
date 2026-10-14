@@ -28,7 +28,8 @@ end
 
 local errors = 0
 game:GetService("LogService").MessageOut:Connect(function(msg, t)
-	if t == Enum.MessageType.MessageError and not msg:find("TestService") then
+	-- HttpError: ConnectFail = ปลั๊กอิน Studio ต่อ localhost ไม่ติด (ไม่ใช่โค้ดเกม)
+	if t == Enum.MessageType.MessageError and not msg:find("TestService") and not msg:find("HttpError: ConnectFail") then
 		errors += 1
 	end
 end)

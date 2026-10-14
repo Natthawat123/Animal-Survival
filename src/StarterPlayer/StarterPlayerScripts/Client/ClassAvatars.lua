@@ -111,17 +111,98 @@ local function meshCharacter(classId)
 end
 
 -- (ตัวละครเป็นเมชนิ่งท่า idle — การขยับทำในร้านคลาส)
-function ClassAvatars.PlayIdle(_model) end
+-- ตัวละครชุดใหม่บนเวที: ยืนท่า idle ของ Roblox (หายใจ/โยกตัวเบาๆ) แทนยืนแข็งทื่อ
+-- ปลดยึดทุกชิ้นยกเว้น HumanoidRootPart -> ข้อต่อขยับตามแอนิเมชันได้
+local IDLE_ANIM = "rbxassetid://507766666" -- idle มาตรฐานของ R15 (ของ Roblox ใช้ได้ทุกเกม)
+function ClassAvatars.PlayIdle(model)
+	if not (model and model:GetAttribute("Outfit")) then
+		return
+	end
+	local hum = model:FindFirstChildOfClass("Humanoid")
+	local root = model:FindFirstChild("HumanoidRootPart")
+	if not (hum and root) then
+		return
+	end
+	for _, d in ipairs(model:GetDescendants()) do
+		if d:IsA("BasePart") then
+			d.Anchored = d == root
+		end
+	end
+	local animator = hum:FindFirstChildOfClass("Animator") or Instance.new("Animator")
+	animator.Parent = hum
+	local anim = Instance.new("Animation")
+	anim.AnimationId = IDLE_ANIM
+	local ok, track = pcall(animator.LoadAnimation, animator, anim)
+	if ok and track then
+		track.Looped = true
+		track:Play(0.2)
+	end
+end
 
--- ตัวละครสำเร็จรูปจาก Roblox Creator Store (ReplicatedStorage.Assets.Characters/<Class>)
-local function storeCharacter(classId)
-	local a = ReplicatedStorage:FindFirstChild("Assets")
-	local folder = a and a:FindFirstChild("Characters")
-	local src = folder and folder:FindFirstChild(classId)
+-- ตัวละครคลาสชุดใหม่ (เซิร์ฟเวอร์สร้างจากไอเทมแคตตาล็อกจริง -> ReplicatedStorage.ClassModels/<Class>)
+local function outfitTemplate(classId, waitSec)
+	local folder = ReplicatedStorage:FindFirstChild("ClassModels")
+	local deadline = os.clock() + (waitSec or 0)
+	while true do
+		folder = folder or ReplicatedStorage:FindFirstChild("ClassModels")
+		local src = folder and folder:FindFirstChild(classId)
+		if src or os.clock() >= deadline then
+			return src
+		end
+		task.wait(0.25)
+	end
+end
+
+-- ตัวละครสำเร็จรูป: ชุดใหม่ (ClassModels) ก่อน / โมเดลจาก Creator Store (Assets.Characters) สำรอง
+local function storeCharacter(classId, waitSec)
+	local src = outfitTemplate(classId, waitSec)
+	local outfit = src ~= nil
+	if not src then
+		local a = ReplicatedStorage:FindFirstChild("Assets")
+		local folder = a and a:FindFirstChild("Characters")
+		src = folder and folder:FindFirstChild(classId)
+	end
 	if not src then
 		return nil
 	end
 	local m = src:Clone()
+	if not m then
+		src.Archivable = true
+		m = src:Clone()
+	end
+	if not m then
+		return nil
+	end
+	m:SetAttribute("Outfit", outfit)
+	-- ร่างกายในแม่แบบยังไม่ถูกจัดตามข้อต่อ (อยู่นอก Workspace) -> ไล่จัดจาก HumanoidRootPart ตาม Motor6D (ท่ายืนปกติ)
+	local rootPart = m:FindFirstChild("HumanoidRootPart")
+	if outfit and rootPart then
+		local placed = { [rootPart] = true }
+		for _ = 1, 12 do
+			local moved = false
+			for _, j in ipairs(m:GetDescendants()) do
+				if j:IsA("Motor6D") and j.Part0 and j.Part1 and placed[j.Part0] and not placed[j.Part1] then
+					j.Part1.CFrame = j.Part0.CFrame * j.C0 * j.C1:Inverse()
+					placed[j.Part1] = true
+					moved = true
+				end
+			end
+			if not moved then
+				break
+			end
+		end
+	end
+	-- ของสวมใส่ (หมวก/เป้/เสื้อผ้า) ยังไม่ถูกดึงเข้าตัวจนกว่าจะอยู่ใน Workspace -> วางตามข้อต่อเองก่อนยึดนิ่ง
+	for _, w in ipairs(m:GetDescendants()) do
+		if w:IsA("Weld") and w.Part0 and w.Part1 then
+			local acc0 = w.Part0.Parent and w.Part0.Parent:IsA("Accessory")
+			if acc0 then
+				w.Part0.CFrame = w.Part1.CFrame * w.C1 * w.C0:Inverse()
+			elseif w.Part1.Parent and w.Part1.Parent:IsA("Accessory") then
+				w.Part1.CFrame = w.Part0.CFrame * w.C0 * w.C1:Inverse()
+			end
+		end
+	end
 	local list = {}
 	for _, d in ipairs(m:GetDescendants()) do
 		if d:IsA("BasePart") then
@@ -142,6 +223,19 @@ local function storeCharacter(classId)
 		end
 	end
 	local face = m:FindFirstChild("HumanoidRootPart") or m:FindFirstChild("Head") or list[1]
+	if outfit and face and face.Name == "HumanoidRootPart" then
+		-- ตัว R15: กึ่งกลาง = HumanoidRootPart · เท้า = ชิ้นร่างกายที่ต่ำสุด (ไม่นับของสวมใส่)
+		local feet = math.huge
+		for _, p in ipairs(m:GetChildren()) do
+			if p:IsA("BasePart") and p ~= face then
+				feet = math.min(feet, p.Position.Y - p.Size.Y / 2)
+			end
+		end
+		if feet < math.huge then
+			mn = Vector3.new(face.Position.X, feet, face.Position.Z)
+			mx = Vector3.new(face.Position.X, feet + 5.2, face.Position.Z)
+		end
+	end
 	local look = face and face.CFrame.LookVector or Vector3.new(0, 0, -1)
 	look = Vector3.new(look.X, 0, look.Z)
 	look = look.Magnitude > 0.01 and look.Unit or Vector3.new(0, 0, -1)
@@ -150,17 +244,17 @@ local function storeCharacter(classId)
 	local primary = m.PrimaryPart or face
 	m.PrimaryPart = primary
 	primary.PivotOffset = primary.CFrame:ToObjectSpace(pivot)
-	-- ย่อ/ขยายให้สูงเท่าตัวละครอื่น (5.6 studs)
+	-- ย่อ/ขยายให้สูงเท่าตัวละครอื่น (5.6 studs) · ชุดใหม่เป็นตัว R15 ขนาดจริงอยู่แล้ว (หมวกสูงไม่ทำให้ตัวหด)
 	local h = mx.Y - mn.Y
-	if h > 0.1 then
+	if h > 0.1 and not outfit then
 		m:ScaleTo(m:GetScale() * 5.6 / h)
 	end
 	m:PivotTo(CF(0, 0, 0))
 	return m
 end
 
-function ClassAvatars.Build(classId, _waitSec)
-	local store = storeCharacter(classId)
+function ClassAvatars.Build(classId, waitSec)
+	local store = storeCharacter(classId, waitSec)
 	if store then
 		return store, true
 	end
@@ -264,10 +358,13 @@ function ClassAvatars.Viewport(frame, classId, portrait, waitSec)
 	model:PivotTo(CF(0, 0, 0) * ANG(0, math.pi + 0.35, 0))
 	local cam = Instance.new("Camera")
 	cam.FieldOfView = portrait and 28 or 35
+	-- เล็งที่หัวจริงของโมเดล (ตัวแต่ละแบบสูงไม่เท่ากัน — เดิมเล็งความสูงตายตัวแล้วเห็นแต่หน้าอก)
+	local head = model:FindFirstChild("Head")
+	local headY = head and head:IsA("BasePart") and head.Position.Y or 4.6
 	if portrait then
-		cam.CFrame = CFrame.lookAt(V(0.9, 5.0, 8.6), V(0, 4.25, 0))
+		cam.CFrame = CFrame.lookAt(V(0.9, headY + 0.4, 8.6), V(0, headY - 0.35, 0))
 	else
-		cam.CFrame = CFrame.lookAt(V(1.5, 3.6, 13), V(0, 2.9, 0))
+		cam.CFrame = CFrame.lookAt(V(1.5, headY * 0.78, 13 * headY / 4.6), V(0, headY * 0.63, 0))
 	end
 	cam.Parent = frame
 	frame.CurrentCamera = cam

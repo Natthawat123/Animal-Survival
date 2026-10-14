@@ -319,7 +319,7 @@ function SanctumService:ShowSequence(site)
 					o.Billboard.Enabled = true
 				end
 				if o.Activator then
-					sound(o.Activator, "rbxasset://sounds/electronicpingshort.wav", 0.8, 0.7 + step * 0.15, 180)
+					sound(o.Activator, "rbxasset://sounds/volume_slider.ogg", 0.8, 0.7 + step * 0.15, 180)
 				end
 				task.wait(1.1)
 				self:SetObelisk(o, "Dim")
@@ -386,7 +386,7 @@ function SanctumService:Activate(site, idx, player)
 		self:SetObelisk(o, "Lit")
 		self:SetHints(site, site.Progress)
 		if o.Activator then
-			sound(o.Activator, "rbxasset://sounds/electronicpingshort.wav", 1, 0.9 + site.Progress * 0.2, 220)
+			sound(o.Activator, "rbxasset://sounds/volume_slider.ogg", 1, 0.9 + site.Progress * 0.2, 220)
 		end
 		if site.Progress >= #site.Order then
 			self:Solve(site, player)
@@ -407,7 +407,7 @@ function SanctumService:Fail(site, text)
 		o.Lit = false
 		self:SetObelisk(o, "Fail")
 		if o.Activator then
-			sound(o.Activator, "rbxasset://sounds/electronicpingshort.wav", 0.8, 0.45, 160)
+			sound(o.Activator, "rbxasset://sounds/volume_slider.ogg", 0.8, 0.45, 160)
 		end
 	end
 	self:SetHints(site, 0)
@@ -450,7 +450,7 @@ function SanctumService:Solve(site, player)
 	anchor.Parent = site.Model
 	site.Fx = { anchor }
 	sound(anchor, "rbxasset://sounds/impact_explosion_03.mp3", 1.2, 0.5, 600)
-	sound(anchor, "rbxasset://sounds/collide.wav", 1.5, 0.35, 300)
+	sound(anchor, "rbxasset://sounds/action_jump_land.mp3", 1.5, 0.35, 300)
 	-- แสงพุ่ง: ลูกแสงขยาย + ไฟในห้อง + ลำแสงจากยอดวิหารขึ้นฟ้า
 	local burst = Instance.new("Part")
 	burst.Shape = Enum.PartType.Ball
@@ -579,7 +579,7 @@ function SanctumService:OpenChest(site, player)
 	end
 	ctx.Remotes.Get("HitFx"):FireClient(player, "Loot", { Items = got, Position = pos, Chest = true })
 	if site.ChestBody then
-		sound(site.ChestBody, "rbxasset://sounds/electronicpingshort.wav", 1, 1.6, 200)
+		sound(site.ChestBody, "rbxasset://sounds/volume_slider.ogg", 1, 1.6, 200)
 	end
 end
 
