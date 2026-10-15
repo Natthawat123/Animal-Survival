@@ -13,7 +13,7 @@
 local Classes = {}
 
 Classes.Order = {
-	"Survivor", "Forager", "Lumberjack", "Medic", "Hunter", "Builder", "Scout", "Firekeeper", "Elementalist", "Beastwarden",
+	"Survivor", "Forager", "Lumberjack", "Medic", "Hunter", "Builder", "Scout", "Elementalist",
 }
 
 Classes.MaxLevel = 3
@@ -25,8 +25,8 @@ Classes.Data = {
 		StartItems = { OldAxe = 1, Torch = 1 },
 		Skills = {
 			{ Name = "ใจไม่ยอมแพ้", Text = "เลือดสูงสุด +15 · หิวช้าลง 10%", Perks = { MaxHealthBonus = 15, HungerMult = 0.9 } },
-			{ Name = "ฝีเท้าเบา", Text = "วิ่งเร็วขึ้น 5%", Perks = { SpeedMult = 1.05 } },
-			{ Name = "สัญชาตญาณรอด", Text = "ฟื้นเลือด 0.4 ต่อวินาทีตลอดเวลา", Perks = { Regen = 0.4 } },
+			{ Name = "นักเดินทาง", Text = "วิ่งเร็วขึ้น 5% · สตามิน่า +15%", Perks = { SpeedMult = 1.05, StaminaMult = 1.15 } },
+			{ Name = "สัญชาตญาณรอด", Text = "เลือดสูงสุด +25 · ฟื้นเลือด 0.3 ต่อวินาที", Perks = { MaxHealthBonus = 25, Regen = 0.3 } },
 		},
 	},
 	Forager = {
@@ -34,7 +34,7 @@ Classes.Data = {
 		StartItems = { OldAxe = 1, Berries = 6 },
 		Skills = {
 			{ Name = "ตะกร้าใหญ่", Text = "เก็บของ/ล่าสัตว์ ได้ของเพิ่ม +1 ชิ้น", Perks = { ExtraDrops = 1 } },
-			{ Name = "ท้องอิ่มนาน", Text = "หิวช้าลง 30%", Perks = { HungerMult = 0.7 } },
+			{ Name = "รู้จักของกิน", Text = "หิวช้าลง 25% · อาหาร/ยาฟื้นเลือดแรงขึ้น 20%", Perks = { HungerMult = 0.75, HealMult = 1.2 } },
 			{ Name = "เก็บเกี่ยวเต็มมือ", Text = "ได้ของเพิ่มเป็น +2 ชิ้น", Perks = { ExtraDrops = 2 } },
 		},
 	},
@@ -42,9 +42,9 @@ Classes.Data = {
 		Name = "Lumberjack", Thai = "คนตัดไม้", Role = "เก็บทรัพยากร", Stars = 2, Price = 35, Icon = "🪓",
 		StartItems = { StoneAxe = 1 },
 		Skills = {
-			{ Name = "แขนท่อนซุง", Text = "ตัดไม้แรง x1.75", Perks = { ChopMult = 1.75 } },
-			{ Name = "สิ่วทุบหิน", Text = "ทุบหินและแร่แรง x1.5", Perks = { MineMult = 1.5 } },
-			{ Name = "ล้มป่าในพริบตา", Text = "ตัดไม้แรง x2.5", Perks = { ChopMult = 2.5 } },
+			{ Name = "แขนท่อนซุง", Text = "ตัดไม้แรง x1.6", Perks = { ChopMult = 1.6 } },
+			{ Name = "ขวานคู่ใจ", Text = "ทุบหินและแร่แรง x1.4 · สตามิน่า +20%", Perks = { MineMult = 1.4, StaminaMult = 1.2 } },
+			{ Name = "ล้มป่าในพริบตา", Text = "ตัดไม้แรง x2.2 · ทุบหิน/แร่แรง x1.6", Perks = { ChopMult = 2.2, MineMult = 1.6 } },
 		},
 	},
 	Medic = {
@@ -52,8 +52,8 @@ Classes.Data = {
 		StartItems = { OldAxe = 1, Bandage = 3 },
 		Skills = {
 			{ Name = "มือหมอ", Text = "ผ้าพันแผล ยา และการชุบชีวิตเพื่อน ฮีลแรง x1.5", Perks = { HealMult = 1.5 } },
-			{ Name = "ร่างกายฟื้นตัว", Text = "ฟื้นเลือด 0.6 ต่อวินาทีตลอดเวลา", Perks = { Regen = 0.6 } },
-			{ Name = "แพทย์สนามรบ", Text = "ฮีลแรง x2 · เลือดสูงสุด +20", Perks = { HealMult = 2, MaxHealthBonus = 20 } },
+			{ Name = "ร่างกายฟื้นตัว", Text = "ฟื้นเลือด 0.5 ต่อวินาทีตลอดเวลา", Perks = { Regen = 0.5 } },
+			{ Name = "แพทย์สนามรบ", Text = "ฮีลแรง x2 · เลือดสูงสุด +15", Perks = { HealMult = 2, MaxHealthBonus = 15 } },
 		},
 	},
 	Hunter = {
@@ -61,8 +61,8 @@ Classes.Data = {
 		StartItems = { OldAxe = 1, Bow = 1 },
 		Skills = {
 			{ Name = "ตาเหยี่ยว", Text = "ดาเมจทุกอาวุธ +15%", Perks = { DamageMult = 1.15 } },
-			{ Name = "ล่าไม่พลาด", Text = "ดาเมจทุกอาวุธ +20% · ล่าสัตว์/เก็บของได้เพิ่ม +1 ชิ้น", Perks = { DamageMult = 1.2, ExtraDrops = 1 } },
-			{ Name = "นักล่าจ่าฝูง", Text = "ดาเมจทุกอาวุธ +35%", Perks = { DamageMult = 1.35 } },
+			{ Name = "ล่าไม่พลาด", Text = "ดาเมจ +25% · ล่าสัตว์/เก็บของได้เพิ่ม +1 ชิ้น", Perks = { DamageMult = 1.25, ExtraDrops = 1 } },
+			{ Name = "นักล่าจ่าฝูง", Text = "ดาเมจ +40% · วิ่งเร็วขึ้น 5%", Perks = { DamageMult = 1.4, SpeedMult = 1.05 } },
 		},
 	},
 	Builder = {
@@ -75,41 +75,25 @@ Classes.Data = {
 		},
 	},
 	Scout = {
-		Name = "Scout", Thai = "หน่วยลาดตระเวน", Role = "สำรวจ", Stars = 3, Price = 90, Icon = "🧭",
+		Name = "Scout", Thai = "หน่วยลาดตระเวน", Role = "สำรวจ", Stars = 4, Price = 120, Icon = "🧭",
 		StartItems = { OldAxe = 1, Torch = 1 },
 		Skills = {
 			{ Name = "ขาไว", Text = "วิ่งเร็วขึ้น 12%", Perks = { SpeedMult = 1.12 } },
-			{ Name = "ปอดเหล็ก", Text = "สตามิน่ามากขึ้น x1.6", Perks = { StaminaMult = 1.6 } },
-			{ Name = "เงาแห่งพงไพร", Text = "วิ่งเร็วขึ้น 20% · สตามิน่า x2", Perks = { SpeedMult = 1.2, StaminaMult = 2 } },
+			{ Name = "ปอดเหล็ก", Text = "สตามิน่า x1.6 · หิวช้าลง 10%", Perks = { StaminaMult = 1.6, HungerMult = 0.9 } },
+			{ Name = "เงาแห่งพงไพร", Text = "วิ่งเร็วขึ้น 20% · สตามิน่า x2 · ได้ของเพิ่ม +1 ชิ้น", Perks = { SpeedMult = 1.2, StaminaMult = 2, ExtraDrops = 1 } },
 		},
 	},
-	Firekeeper = {
-		Name = "Firekeeper", Thai = "ผู้พิทักษ์เปลวไฟ", Role = "รักษากองไฟ", Stars = 4, Price = 120, Icon = "🏮",
-		StartItems = { OldAxe = 1, Coal = 4 },
-		Skills = {
-			{ Name = "ถนอมไฟ", Text = "กองไฟกินเชื้อเพลิงช้าลง 20% (ช่วยทั้งทีม)", Perks = { FuelDrainMult = 0.8 } },
-			{ Name = "ไออุ่นในกาย", Text = "ฟื้นเลือด 0.5 ต่อวินาที · หิวช้าลง 15%", Perks = { Regen = 0.5, HungerMult = 0.85 } },
-			{ Name = "หัวใจเปลวเพลิง", Text = "เชื้อเพลิงช้าลง 35% · โดนดาเมจน้อยลง 10%", Perks = { FuelDrainMult = 0.65, DamageTakenMult = 0.9 } },
-		},
-	},
+
 	Elementalist = {
 		Name = "Elementalist", Thai = "จอมเวทธาตุ", Role = "เวทธาตุ", Stars = 5, Price = 180, Icon = "🔮",
 		StartItems = { OldAxe = 1 },
 		Skills = {
-			{ Name = "สัมผัสธาตุ", Text = "เก็บแก่นธาตุได้ x2 · แต่ร่างบาง เลือดสูงสุด -10", Perks = { EssenceMult = 2, MaxHealthBonus = -10 } },
-			{ Name = "พลังธาตุ", Text = "อาวุธธาตุแรงขึ้น 25%", Perks = { ElementDamageMult = 1.25 } },
-			{ Name = "ผู้ควบคุมธาตุ", Text = "แก่นธาตุ x3 · อาวุธธาตุแรงขึ้น 45%", Perks = { EssenceMult = 3, ElementDamageMult = 1.45 } },
+			{ Name = "สัมผัสธาตุ", Text = "เก็บแก่นธาตุได้ x2 · อาวุธธาตุแรงขึ้น 15% · ร่างบาง เลือดสูงสุด -10", Perks = { EssenceMult = 2, ElementDamageMult = 1.15, MaxHealthBonus = -10 } },
+			{ Name = "พลังธาตุ", Text = "อาวุธธาตุแรงขึ้น 35%", Perks = { ElementDamageMult = 1.35 } },
+			{ Name = "ผู้ควบคุมธาตุ", Text = "แก่นธาตุ x3 · อาวุธธาตุแรงขึ้น 60%", Perks = { EssenceMult = 3, ElementDamageMult = 1.6 } },
 		},
 	},
-	Beastwarden = {
-		Name = "Beastwarden", Thai = "ผู้คุมอสูร", Role = "แท็งก์", Stars = 5, Price = 300, Icon = "🐺",
-		StartItems = { StoneAxe = 1 },
-		Skills = {
-			{ Name = "กลิ่นอสูร", Text = "สัตว์ป่าไม่โจมตีก่อน (ฝูงบุกกลางคืนยังโจมตี) · ดาเมจเรา -10%", Perks = { WildPeace = true, DamageMult = 0.9 } },
-			{ Name = "หนังหนาดั่งหมี", Text = "โดนดาเมจน้อยลง 20%", Perks = { DamageTakenMult = 0.8 } },
-			{ Name = "ราชันย์อสูร", Text = "โดนดาเมจน้อยลง 30% · เลือดสูงสุด +25 · ดาเมจกลับเป็นปกติ", Perks = { DamageTakenMult = 0.7, MaxHealthBonus = 25, DamageMult = 1 } },
-		},
-	},
+
 }
 
 -- ใช้กับโค้ดเก่า: Perks / Desc = ทักษะเลเวล 1

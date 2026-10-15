@@ -149,6 +149,9 @@ def convert(aid, name, folder="Props"):
                 out.append(v3("InitialSize", it.get("MeshSize") or it["Size"]))
                 out.append('<token name="CollisionFidelity">2</token><token name="RenderFidelity">1</token>')
                 out.append(f'<bool name="DoubleSided">{"true" if it.get("DoubleSided") else "false"}</bool>')
+                # เมชผูกกระดูก: ต้องบอก Roblox ว่ามีข้อมูลผิว (ไม่งั้น Bone.Transform ไม่ขยับเมช)
+                if any(x.get("C") == "Bone" for x in items):
+                    out.append('<bool name="HasSkinnedMesh">true</bool>')
         elif c == "SpecialMesh":
             out.append(content("MeshId", it.get("MeshId")))
             out.append(content("TextureId", it.get("TextureId")))

@@ -1,11 +1,10 @@
 --[[
-	ClassAvatars — ตัวละครของแต่ละคลาส: โมเดลจริงจาก Blender (Char_<Class>) / หุ่นบล็อกสำรองถ้าไม่มีข้อมูลเมช
+	ClassAvatars — ตัวละครของแต่ละคลาส: โมเดล Import 3D (Assets.Characters) / ชุดแคตตาล็อก (ClassModels) / หุ่นบล็อกสำรอง
 	ใช้ทั้งรูปโปรไฟล์วงกลมในร้านคลาส (ViewportFrame) และหุ่นโชว์บนเวทีในเต็นท์ Classes
 	Build(classId) -> Model (เท้าอยู่ที่ y = 0, หันหน้า -Z)
 ]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local MeshProps = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("MeshProps"))
 
 local ClassAvatars = {}
 
@@ -25,9 +24,7 @@ local OUTFIT = {
 	Hunter = { Shirt = C(86, 108, 58), Pants = C(70, 60, 42), Hat = "Hood", HatColor = C(70, 92, 48), Extra = "Quiver", Accent = C(120, 84, 50) },
 	Builder = { Shirt = C(242, 140, 40), Pants = C(58, 70, 110), Hat = "HardHat", HatColor = C(250, 210, 40), Extra = "Belt", Accent = C(90, 70, 40) },
 	Scout = { Shirt = C(182, 162, 112), Pants = C(92, 82, 60), Hat = "Ranger", HatColor = C(120, 86, 52), Extra = "Bag", Accent = C(70, 110, 70) },
-	Firekeeper = { Shirt = C(70, 34, 30), Pants = C(44, 32, 30), Hat = "Hood", HatColor = C(200, 82, 32), Extra = "Ember", Accent = C(255, 140, 40) },
 	Elementalist = { Shirt = C(86, 50, 140), Pants = C(70, 40, 116), Hat = "Wizard", HatColor = C(96, 56, 156), Extra = "Orbs", Accent = C(120, 230, 255) },
-	Beastwarden = { Shirt = C(84, 70, 60), Pants = C(54, 46, 42), Hat = "Wolf", HatColor = C(124, 124, 134), Extra = "Fur", Accent = C(220, 220, 228) },
 }
 
 local function part(m, props)
@@ -95,113 +92,44 @@ local function hat(m, kind, color, head)
 	end
 end
 
--- ตัวละครโมเดลจริง (Quaternius CC0 -> blender/characters_export.py -> PropMeshData/Char_<Class>)
-local function meshCharacter(classId)
-	local kind = "Char_" .. tostring(classId)
-	if not MeshProps.Has(kind) then
-		return nil
-	end
-	local m = MeshProps.Build(kind, { Collide = "none" })
-	-- มี PrimaryPart แล้ว pivot = กลางชิ้น -> ย้าย pivot ไปที่เท้า (จุดกำเนิดของโมเดล)
-	local pp = m.PrimaryPart
-	if pp then
-		pp.PivotOffset = pp.CFrame:Inverse()
-	end
-	return m
-end
-
--- (ตัวละครเป็นเมชนิ่งท่า idle — การขยับทำในร้านคลาส)
--- ตัวละครชุดใหม่บนเวที: ยืนท่า idle ของ Roblox (หายใจ/โยกตัวเบาๆ) แทนยืนแข็งทื่อ
--- ปลดยึดทุกชิ้นยกเว้น HumanoidRootPart -> ข้อต่อขยับตามแอนิเมชันได้
-local IDLE_ANIM = "rbxassetid://507766666" -- idle มาตรฐานของ R15 (ของ Roblox ใช้ได้ทุกเกม)
-function ClassAvatars.PlayIdle(model)
-	if not (model and model:GetAttribute("Outfit")) then
+-- เอฟเฟกต์ประจำคลาสบนเวที (จอมเวท: ประกายเวท 4 ธาตุวนรอบตัว)
+function ClassAvatars.PlayIdle(model, classId)
+	if classId ~= "Elementalist" or not model then
 		return
 	end
-	local hum = model:FindFirstChildOfClass("Humanoid")
-	local root = model:FindFirstChild("HumanoidRootPart")
-	if not (hum and root) then
+	local host = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+	if not host then
 		return
 	end
-	for _, d in ipairs(model:GetDescendants()) do
-		if d:IsA("BasePart") then
-			d.Anchored = d == root
-		end
-	end
-	local animator = hum:FindFirstChildOfClass("Animator") or Instance.new("Animator")
-	animator.Parent = hum
-	local anim = Instance.new("Animation")
-	anim.AnimationId = IDLE_ANIM
-	local ok, track = pcall(animator.LoadAnimation, animator, anim)
-	if ok and track then
-		track.Looped = true
-		track:Play(0.2)
-	end
-end
-
--- ตัวละครคลาสชุดใหม่ (เซิร์ฟเวอร์สร้างจากไอเทมแคตตาล็อกจริง -> ReplicatedStorage.ClassModels/<Class>)
-local function outfitTemplate(classId, waitSec)
-	local folder = ReplicatedStorage:FindFirstChild("ClassModels")
-	local deadline = os.clock() + (waitSec or 0)
-	while true do
-		folder = folder or ReplicatedStorage:FindFirstChild("ClassModels")
-		local src = folder and folder:FindFirstChild(classId)
-		if src or os.clock() >= deadline then
-			return src
-		end
-		task.wait(0.25)
+	local att = Instance.new("Attachment")
+	att.Parent = host
+	for _, col in ipairs({ Color3.fromRGB(120, 230, 255), Color3.fromRGB(255, 140, 60), Color3.fromRGB(140, 240, 110), Color3.fromRGB(235, 240, 255) }) do
+		local e = Instance.new("ParticleEmitter")
+		e.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+		e.LightEmission, e.LightInfluence = 1, 0
+		e.Rate = 6
+		e.Lifetime = NumberRange.new(1.2, 2)
+		e.Speed = NumberRange.new(0.5, 1.5)
+		e.SpreadAngle = Vector2.new(180, 180)
+		e.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.35), NumberSequenceKeypoint.new(1, 0) })
+		e.Color = ColorSequence.new(col)
+		e.Shape = Enum.ParticleEmitterShape.Sphere
+		e.ShapeStyle = Enum.ParticleEmitterShapeStyle.Surface
+		e.Parent = att
 	end
 end
 
--- ตัวละครสำเร็จรูป: ชุดใหม่ (ClassModels) ก่อน / โมเดลจาก Creator Store (Assets.Characters) สำรอง
-local function storeCharacter(classId, waitSec)
-	local src = outfitTemplate(classId, waitSec)
-	local outfit = src ~= nil
-	if not src then
-		local a = ReplicatedStorage:FindFirstChild("Assets")
-		local folder = a and a:FindFirstChild("Characters")
-		src = folder and folder:FindFirstChild(classId)
-	end
+-- โมเดลประจำคลาส (Import 3D -> ReplicatedStorage.Assets.Characters/<Class>)
+local function storeCharacter(classId)
+	local a = ReplicatedStorage:FindFirstChild("Assets")
+	local folder = a and a:FindFirstChild("Characters")
+	local src = folder and folder:FindFirstChild(classId)
 	if not src then
 		return nil
 	end
 	local m = src:Clone()
 	if not m then
-		src.Archivable = true
-		m = src:Clone()
-	end
-	if not m then
 		return nil
-	end
-	m:SetAttribute("Outfit", outfit)
-	-- ร่างกายในแม่แบบยังไม่ถูกจัดตามข้อต่อ (อยู่นอก Workspace) -> ไล่จัดจาก HumanoidRootPart ตาม Motor6D (ท่ายืนปกติ)
-	local rootPart = m:FindFirstChild("HumanoidRootPart")
-	if outfit and rootPart then
-		local placed = { [rootPart] = true }
-		for _ = 1, 12 do
-			local moved = false
-			for _, j in ipairs(m:GetDescendants()) do
-				if j:IsA("Motor6D") and j.Part0 and j.Part1 and placed[j.Part0] and not placed[j.Part1] then
-					j.Part1.CFrame = j.Part0.CFrame * j.C0 * j.C1:Inverse()
-					placed[j.Part1] = true
-					moved = true
-				end
-			end
-			if not moved then
-				break
-			end
-		end
-	end
-	-- ของสวมใส่ (หมวก/เป้/เสื้อผ้า) ยังไม่ถูกดึงเข้าตัวจนกว่าจะอยู่ใน Workspace -> วางตามข้อต่อเองก่อนยึดนิ่ง
-	for _, w in ipairs(m:GetDescendants()) do
-		if w:IsA("Weld") and w.Part0 and w.Part1 then
-			local acc0 = w.Part0.Parent and w.Part0.Parent:IsA("Accessory")
-			if acc0 then
-				w.Part0.CFrame = w.Part1.CFrame * w.C1 * w.C0:Inverse()
-			elseif w.Part1.Parent and w.Part1.Parent:IsA("Accessory") then
-				w.Part1.CFrame = w.Part0.CFrame * w.C0 * w.C1:Inverse()
-			end
-		end
 	end
 	local list = {}
 	for _, d in ipairs(m:GetDescendants()) do
@@ -223,19 +151,6 @@ local function storeCharacter(classId, waitSec)
 		end
 	end
 	local face = m:FindFirstChild("HumanoidRootPart") or m:FindFirstChild("Head") or list[1]
-	if outfit and face and face.Name == "HumanoidRootPart" then
-		-- ตัว R15: กึ่งกลาง = HumanoidRootPart · เท้า = ชิ้นร่างกายที่ต่ำสุด (ไม่นับของสวมใส่)
-		local feet = math.huge
-		for _, p in ipairs(m:GetChildren()) do
-			if p:IsA("BasePart") and p ~= face then
-				feet = math.min(feet, p.Position.Y - p.Size.Y / 2)
-			end
-		end
-		if feet < math.huge then
-			mn = Vector3.new(face.Position.X, feet, face.Position.Z)
-			mx = Vector3.new(face.Position.X, feet + 5.2, face.Position.Z)
-		end
-	end
 	local look = face and face.CFrame.LookVector or Vector3.new(0, 0, -1)
 	look = Vector3.new(look.X, 0, look.Z)
 	look = look.Magnitude > 0.01 and look.Unit or Vector3.new(0, 0, -1)
@@ -244,23 +159,19 @@ local function storeCharacter(classId, waitSec)
 	local primary = m.PrimaryPart or face
 	m.PrimaryPart = primary
 	primary.PivotOffset = primary.CFrame:ToObjectSpace(pivot)
-	-- ย่อ/ขยายให้สูงเท่าตัวละครอื่น (5.6 studs) · ชุดใหม่เป็นตัว R15 ขนาดจริงอยู่แล้ว (หมวกสูงไม่ทำให้ตัวหด)
+	-- ย่อ/ขยายให้สูงเท่ากันทุกคลาส (5.6 studs)
 	local h = mx.Y - mn.Y
-	if h > 0.1 and not outfit then
+	if h > 0.1 then
 		m:ScaleTo(m:GetScale() * 5.6 / h)
 	end
 	m:PivotTo(CF(0, 0, 0))
 	return m
 end
 
-function ClassAvatars.Build(classId, waitSec)
-	local store = storeCharacter(classId, waitSec)
+function ClassAvatars.Build(classId, _waitSec)
+	local store = storeCharacter(classId)
 	if store then
 		return store, true
-	end
-	local real = meshCharacter(classId)
-	if real then
-		return real, true
 	end
 	local o = OUTFIT[classId] or OUTFIT.Survivor
 	local m = Instance.new("Model")

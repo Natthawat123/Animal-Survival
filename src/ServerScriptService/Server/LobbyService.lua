@@ -164,6 +164,57 @@ local function deck(parent, cf, w, d, rng)
 end
 
 -- เสาตะเกียง
+-- เปลวไฟวิญญาณสีฟ้า (VFX): แกนเปลวขาวฟ้า + เปลวฟ้าพลิ้ว + ประกายลอยขึ้น + ออร่าเรืองนุ่มๆ · ก้อนนีออนเดิมกลายเป็นคริสตัลโปร่ง
+local function seqN(t)
+	local ks = {}
+	for _, k in ipairs(t) do
+		table.insert(ks, NumberSequenceKeypoint.new(k[1], k[2]))
+	end
+	return NumberSequence.new(ks)
+end
+local function spiritFlame(host, scale)
+	scale = scale or 1
+	-- ก้อนคริสตัลเดิมซ่อน (ไม่มีแท่งนีออน) เหลือแค่เปลวไฟเกิดตรงฐานคริสตัล = บนหัวเสาหิน
+	host.Transparency = 1
+	host.CastShadow = false
+	local att = Instance.new("Attachment")
+	att.Parent = host
+	att.WorldCFrame = CFrame.new(host.Position - V(0, host.Size.Y * 0.45, 0))
+	-- เปลวไฟฟ้าจาก Creator Store (Assets.VFX.BlueSoul) ขยายตามสเกล · จำกัด Rate ไม่ให้หนักเครื่อง
+	local src = ReplicatedStorage:FindFirstChild("Assets") and ReplicatedStorage.Assets:FindFirstChild("VFX")
+	src = src and src:FindFirstChild("BlueSoul")
+	if src then
+		for _, e in ipairs(src:GetDescendants()) do
+			if e:IsA("ParticleEmitter") then
+				local c = e:Clone()
+				local ks = {}
+				for _, k in ipairs(e.Size.Keypoints) do
+					table.insert(ks, NumberSequenceKeypoint.new(k.Time, k.Value * 1.6 * scale, k.Envelope * 1.6 * scale))
+				end
+				c.Size = NumberSequence.new(ks)
+				c.Speed = NumberRange.new(e.Speed.Min * scale, e.Speed.Max * scale)
+				c.Rate = math.min(e.Rate, 220)
+				c.Enabled = true
+				c.Parent = att
+			end
+		end
+	end
+	-- ประกายลอยขึ้นช้าๆ รอบเปลว
+	local sp = Instance.new("ParticleEmitter")
+	sp.Name = "SpiritSparks"
+	sp.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+	sp.LightEmission, sp.LightInfluence = 1, 0
+	sp.Rate = 5
+	sp.Lifetime = NumberRange.new(1.4, 2.4)
+	sp.Speed = NumberRange.new(1.5 * scale, 3 * scale)
+	sp.SpreadAngle = Vector2.new(35, 35)
+	sp.Drag = 1
+	sp.Size = seqN({ { 0, 0.2 * scale }, { 1, 0 } })
+	sp.Color = ColorSequence.new(C(190, 245, 255), C(120, 160, 255))
+	sp.Parent = att
+	light(host, C(110, 210, 255), 18 * scale, 1.6)
+end
+
 local function lanternPost(parent, cf, h)
 	h = h or 8
 	P(parent, { Size = V(0.8, h, 0.8), CFrame = cf * CF(0, h / 2, 0), Color = C(70, 50, 36), Material = Enum.Material.Wood })
@@ -345,10 +396,22 @@ local function classesTent(self, parent, cf)
 			end
 		end
 		local face = npc:FindFirstChild("HumanoidRootPart") or npc:FindFirstChild("Head")
-		local look = face.CFrame.LookVector * Vector3.new(1, 0, 1)
 		local foot = Vector3.new((mn.X + mx.X) / 2, mn.Y, (mn.Z + mx.Z) / 2)
-		npc.PrimaryPart = face
-		face.PivotOffset = face.CFrame:ToObjectSpace(CFrame.lookAt(foot, foot + look.Unit))
+		if face then
+			local look = face.CFrame.LookVector * Vector3.new(1, 0, 1)
+			npc.PrimaryPart = face
+			face.PivotOffset = face.CFrame:ToObjectSpace(CFrame.lookAt(foot, foot + look.Unit))
+		else
+			-- โมเดล Import ชิ้นเดียว (ไม่มีหัว/ราก): จุดหมุน = กลางเท้า หน้าหัน -Z · ย่อ/ขยายให้สูงเท่าคน
+			npc.PrimaryPart = nil
+			npc.WorldPivot = CFrame.new(foot)
+			local h = mx.Y - mn.Y
+			if h > 0.1 then
+				pcall(function()
+					npc:ScaleTo(npc:GetScale() * 5.6 / h)
+				end)
+			end
+		end
 		npc:PivotTo(keeperCf)
 		npc.Parent = parent
 		for _, d in ipairs(keeper:GetDescendants()) do
@@ -368,9 +431,11 @@ local function classesTent(self, parent, cf)
 		board.CanCollide = false
 		board:ClearAllChildren()
 	end
-	prompt(board, "ร้านคลาส", "Classes", Enum.KeyCode.E, 30).Triggered:Connect(function(p)
-		self.ctx.Remotes.Get("Cinematic"):FireClient(p, "OpenClasses", {})
-	end)
+	if not hut then
+		prompt(board, "ร้านคลาส", "Classes", Enum.KeyCode.E, 30).Triggered:Connect(function(p)
+			self.ctx.Remotes.Get("Cinematic"):FireClient(p, "OpenClasses", {})
+		end)
+	end
 	-- ไวท์บอร์ดบนขาตั้ง (หลังเวที ซ้าย)
 	local wbCf = cf * CF(-9, 1.5, D / 2 - 4) * ANG(0, math.rad(15), 0)
 	local wb = P(tentFolder, { Size = V(9, 5.5, 0.3), CFrame = wbCf * CF(0, 6, 0), Color = C(196, 192, 200), Material = Enum.Material.SmoothPlastic })
@@ -409,11 +474,18 @@ end
 
 -- หม้อรางวัลประจำวัน (หม้อดำ น้ำเขียวเรืองแสง)
 local function dailyCauldron(self, parent, cf)
+	-- โมเดลบ่อทับทิม (Import 3D ชื่อ RubyWell) แทนหม้อ · ไม่มีโมเดล = หม้อเดิม
+	local well = PropBuilder.Imported("RubyWell", cf * ANG(0, math.pi, 0), 12, parent) -- หมุนกลับให้ด้านหน้าหันเข้าหาลาน
+	local pot
+	if well then
+		pot = P(parent, { Name = "WellAnchor", Size = V(6, 6, 6), CFrame = cf * CF(0, 3, 0), Transparency = 1, CanCollide = false, CanQuery = false })
+		light(pot, C(255, 90, 130), 18, 1.4)
+	else
 	for i = 0, 2 do
 		local a = i / 3 * math.pi * 2
 		P(parent, { Size = V(0.6, 3, 0.6), CFrame = cf * CF(math.cos(a) * 3, 1.4, math.sin(a) * 3) * ANG(math.sin(a) * 0.3, 0, -math.cos(a) * 0.3), Color = C(30, 30, 34), Material = Enum.Material.Metal })
 	end
-	local pot = cyl(parent, 4, 7.5, cf * CF(0, 4, 0), C(32, 32, 36), Enum.Material.Metal)
+	pot = cyl(parent, 4, 7.5, cf * CF(0, 4, 0), C(32, 32, 36), Enum.Material.Metal)
 	P(parent, { Shape = Enum.PartType.Ball, Size = V(7.8, 4, 7.8), CFrame = cf * CF(0, 2.6, 0), Color = C(32, 32, 36), Material = Enum.Material.Metal })
 	cyl(parent, 0.6, 8.2, cf * CF(0, 6, 0), C(46, 46, 52), Enum.Material.Metal)
 	local liquid = P(parent, { Shape = Enum.PartType.Cylinder, Size = V(0.3, 7, 7), CFrame = cf * CF(0, 5.9, 0) * ANG(0, 0, math.pi / 2), Color = C(90, 255, 110), Material = Enum.Material.Neon, CanCollide = false })
@@ -434,6 +506,7 @@ local function dailyCauldron(self, parent, cf)
 	fireOn(under, 3)
 	for i = 0, 3 do
 		cyl(parent, 4, 0.8, cf * CF(0, 0.5, 0) * ANG(0, i * math.pi / 4, 0) * ANG(0, 0, -math.pi / 2), C(90, 64, 44), Enum.Material.Wood)
+	end
 	end
 	local bb = Instance.new("BillboardGui")
 	bb.Size = UDim2.fromScale(15, 4.4)
@@ -514,7 +587,7 @@ local function portalHook(art, parent, i)
 	for _, tag in ipairs({ "L", "R" }) do
 		local lamp = art:FindFirstChild("PortalBrazier" .. i .. tag, true)
 		if lamp then
-			light(lamp, PORTAL_IDLE, 12, 1.4)
+			spiritFlame(lamp, 0.75)
 		end
 	end
 	-- ป้ายกลางม่าน (ตัวหนังสือขาวขอบเข้ม แบบภาพต้นแบบ)
@@ -608,7 +681,7 @@ function LobbyService:Build()
 		for _, d in ipairs(art:GetDescendants()) do
 			if d:IsA("BasePart") then
 				if d.Name == "CrystalLamp" then
-					light(d, C(110, 230, 255), 16, 1.3)
+					spiritFlame(d, 1)
 				elseif d.Name == "WaterfallFoam" then
 					local mist = Instance.new("ParticleEmitter")
 					mist.Texture = "rbxasset://textures/particles/smoke_main.dds"
@@ -632,7 +705,16 @@ function LobbyService:Build()
 			end
 		end
 		local groveSign = art:FindFirstChild("GroveSign", true)
-		if groveSign then
+		local signModel = groveSign and PropBuilder.Imported("LobbySign", CFrame.new(groveSign.Position.X, base.Y + 1, groveSign.Position.Z) * groveSign.CFrame.Rotation, 10.5, m)
+		if signModel then
+			-- ซ่อนป้ายหินเดิม + ฐานหิน
+			local gp = groveSign.Position
+			for _, d in ipairs(art:GetDescendants()) do
+				if d:IsA("BasePart") and ((d.Position - gp) * V(1, 0, 1)).Magnitude < 4.2 and d.Position.Y < gp.Y + 3 then
+					d.Transparency, d.CanCollide, d.CanQuery = 1, false, false
+				end
+			end
+		elseif groveSign then
 			for _, face in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back }) do
 				local t = label(groveSign, face, "⚔ เดินเข้าประตูมิติเพื่อเริ่มเกม", C(150, 240, 255), Enum.Font.GothamBlack)
 				local st = Instance.new("UIStroke")
@@ -680,6 +762,8 @@ function LobbyService:Build()
 	------------------------------------------------ พื้น Terrain: หญ้าจริง (มีใบหญ้าขึ้น) + ทางหินปูถนน/ลานหิน
 	local terrain = Workspace.Terrain
 	local GX, GZ, GR = 52, 8, 50 -- ลานประตูมิติ (ตรงกับ tools/lobby_art.py)
+	-- ดินหนา 3 ช่อง (ชั้นเดียวบางๆ มีอากาศใต้ล่าง Terrain จะวาดผิวโป่งขึ้น ~2 stud -> ของทั้งล็อบบี้ดูจม)
+	terrain:FillCylinder(base * CF(0, -5, 0), 12, 278, Enum.Material.Ground)
 	terrain:FillCylinder(base * CF(0, -1, 0), 4, 278, Enum.Material.Grass)
 	-- พื้นกันตกล่องหน (ใต้ผิวหญ้านิดเดียว) เผื่อ Terrain ยังสตรีมมาไม่ถึงเครื่องผู้เล่น
 	P(m, { Name = "SafetyFloor", Shape = Enum.PartType.Cylinder, Size = V(1, 556, 556), CFrame = base * CF(0, 0.4, 0) * ANG(0, 0, math.pi / 2), Transparency = 1, CanQuery = false })
@@ -706,8 +790,12 @@ function LobbyService:Build()
 		local a = math.rad(ad)
 		road(GX + math.cos(a) * 16, GZ + math.sin(a) * 16, GX + math.cos(a) * (GR - 10), GZ + math.sin(a) * (GR - 10), 7)
 	end
-	-- กันพลาด: ล้าง Terrain ทุกช่องที่สูงกว่าผิวพื้น (หญ้า/หินล้นขึ้นมาท่วมหม้อ เต็นท์ ประตู ไม่ได้อีก)
-	terrain:FillBlock(base * CF(0, 1 + 16, 0), V(600, 32, 600), Enum.Material.Air)
+	-- ล้าง Terrain ทุกช่องที่สูงกว่าผิวพื้น ด้วย FillRegion (ทั้งช่อง voxel พอดีกริด)
+	-- FillBlock/FillCylinder ที่ขอบตรงเส้นกริดจะเหลือช่องบนครึ่งๆ -> ผิวหญ้านูนขึ้นมา ~2 stud ทำให้ของทั้งล็อบบี้ดูจม
+	local top = base.Y + 1
+	local p0 = Vector3.new(base.X - 300, top, base.Z - 300)
+	local p1 = Vector3.new(base.X + 300, top + 32, base.Z + 300)
+	terrain:FillRegion(Region3.new(p0, p1):ExpandToGrid(4), 4, Enum.Material.Air)
 
 	------------------------------------------------ ต้นไม้/พุ่มไม้/เฟิร์น/หิน/เห็ด = โมเดลเมชชุดเดียวกับในแมพ (ไม่ใช่ลูกบอล)
 	local veg = Instance.new("Folder")
@@ -746,9 +834,6 @@ function LobbyService:Build()
 
 	-- ของตกแต่งโทนเดียวกับกระท่อม Classes (โมเดลจริง): ม้านั่งท่อนซุง ลังไม้ กองฟืน โรงเก็บของ
 	PropBuilder.StoreModel("CampShack", base * CF(-96, 1, -70) * ANG(0, math.rad(60), 0), deco)
-	for _, info in ipairs({ { -24, -36, 0.2 }, { 28, -40, 1.1 }, { -60, 30, 2.2 }, { 46, 70, 0.6 }, { -100, -40, 1.6 } }) do
-		PropBuilder.StoreModel("LogPileStore", base * CF(info[1], 1, info[2]) * ANG(0, info[3], 0), deco)
-	end
 	for _, info in ipairs({ { 22, -36, 0.4 }, { 25, -38, 1.2 }, { -30, 62, 0.3 }, { 110, 46, 0.9 }, { -104, 8, 0.2 } }) do
 		PropBuilder.StoreModel("Crate", base * CF(info[1], 1, info[2]) * ANG(0, info[3], 0), deco)
 	end
@@ -757,7 +842,7 @@ function LobbyService:Build()
 	classesTent(self, deco, base * CF(0, 0, -54) * ANG(0, math.pi, 0)) -- หน้าเต็นท์หันมาทางจุดเกิด
 
 	-- กระดานข่าว (ขวาของเต็นท์)
-	local nbCf = base * CF(30, 1, -30) * ANG(0, math.rad(-18), 0)
+	local nbCf = base * CF(30, 1, -30) * ANG(0, math.rad(162), 0) -- หน้าป้ายหันมาทางจุดเกิด
 	for _, x in ipairs({ -4, 4 }) do
 		P(deco, { Size = V(0.9, 12, 0.9), CFrame = nbCf * CF(x, 6, 0), Color = C(74, 52, 38), Material = Enum.Material.Wood })
 	end
@@ -835,7 +920,7 @@ function LobbyService:Build()
 
 	------------------------------------------------ วางของให้แตะพื้นพอดี (โมเดลแต่ละชิ้นมีจุดหมุนต่างกัน -> บางชิ้นจม/ลอย)
 	local groundY = base.Y + 1
-	local SKIP = { ClassHut = true }
+	local SKIP = { ClassHut = true, Counselor = true, CounselorModel = true } -- ที่ปรึกษายืนบนพื้นไม้กระท่อม ไม่ใช่พื้นหญ้า
 	local function lowest(model)
 		local y
 		for _, p in ipairs(model:GetDescendants()) do
@@ -865,7 +950,29 @@ function LobbyService:Build()
 	settle(deco, 0.05)
 	settle(veg, 0.5) -- ต้นไม้/พุ่ม: ฝังโคนลงดินนิดหน่อย (ไม่เห็นโคนลอย)
 
-	self.spawnCf = base * CF(0, 4, 88)
+	-- ผิวหญ้าที่ Roblox วาดจริงสูงกว่าขอบ voxel ~1.8-2 stud -> วัดผิวจริงแล้วยกทั้งล็อบบี้ขึ้นให้ของแตะพื้นพอดี (เดิมจมทั้งล็อบบี้)
+	local lift = 0
+	do
+		local rp = RaycastParams.new()
+		rp.FilterType = Enum.RaycastFilterType.Include
+		rp.FilterDescendantsInstances = { Workspace.Terrain }
+		local ys = {}
+		for _, xz in ipairs({ { 30, 30 }, { -60, 0 }, { 60, -60 }, { -100, 60 }, { 90, 80 } }) do
+			local o = base * CF(xz[1], 40, xz[2])
+			local hit = Workspace:Raycast(o.Position, V(0, -80, 0), rp)
+			if hit then
+				table.insert(ys, hit.Position.Y - groundY)
+			end
+		end
+		table.sort(ys)
+		lift = ys[math.ceil(#ys / 2)] or 0
+		-- วัดไม่ได้ (Terrain เพิ่งสร้าง ฟิสิกส์ยังไม่พร้อม) -> ใช้ค่าที่วัดจากในเกมจริง: หญ้า +2.0 ทางหิน +1.8
+		if lift < 0.15 or lift > 6 then
+			lift = 1.9
+		end
+		m:PivotTo(m:GetPivot() + V(0, lift, 0))
+	end
+	self.spawnCf = base * CF(0, 4 + lift, 88)
 	-- ส่งล็อบบี้ทั้งชุดถึงทุกเครื่องทันที (ไม่สตรีมทีละส่วน) + บอกจำนวนชิ้น ให้หน้าโหลดรอจนครบก่อนเข้า
 	pcall(function()
 		m.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
@@ -1373,105 +1480,7 @@ function LobbyService:ShowBoard()
 	end
 end
 
--- ตัวละครประจำคลาส: สร้างจากชุดในแคตตาล็อกจริง (HumanoidDescription) -> ReplicatedStorage.ClassModels/<Class>
--- ใช้ทั้งรูปในร้านคลาส หุ่นบนเวทีในกระท่อม และหน้าเลือกคลาส (โหลดไม่ได้ -> ใช้โมเดลเก่าแทน)
-local function buildClassModels()
-	local ok, Outfits = pcall(require, ReplicatedStorage.Shared.ClassOutfits)
-	if not ok then
-		return
-	end
-	local folder = ReplicatedStorage:FindFirstChild("ClassModels") or Instance.new("Folder")
-	folder.Name = "ClassModels"
-	folder.Parent = ReplicatedStorage
-	-- สร้างทีละตัว (สร้างพร้อมกัน 10 ตัว Roblox โหลดของไม่ทัน -> หมวก/เป้หายแบบสุ่ม) + ตรวจว่าของครบ ไม่ครบสร้างใหม่
-	local order = Classes.Order
-	for _, id in ipairs(order) do
-		local o = Outfits[id]
-		if not o then
-			continue
-		end
-		do
-			local desc = Instance.new("HumanoidDescription")
-			for field, ids in pairs(o.Accessories or {}) do
-				desc[field] = table.concat(ids, ",")
-			end
-			desc.Shirt, desc.Pants, desc.Face = o.Shirt or 0, o.Pants or 0, o.Face or 0
-			for field, assetId in pairs(o.Body or {}) do
-				desc[field] = assetId
-			end
-			if o.Head then
-				desc.Head = o.Head
-			end
-			if o.Layered then
-				local list = {}
-				for i, l in ipairs(o.Layered) do
-					table.insert(list, { Order = i, AssetId = l[1], AccessoryType = Enum.AccessoryType[l[2]], IsLayered = true })
-				end
-				pcall(function()
-					desc:SetAccessories(list, false)
-				end)
-			end
-			local skin = o.Skin or Color3.fromRGB(234, 184, 146)
-			desc.HeadColor, desc.TorsoColor = skin, skin
-			desc.LeftArmColor, desc.RightArmColor, desc.LeftLegColor, desc.RightLegColor = skin, skin, skin, skin
-			local want = #(o.Layered or {})
-			for _, ids in pairs(o.Accessories or {}) do
-				want += #ids
-			end
-			local built, model, best
-			for attempt = 1, 4 do
-				built, model = pcall(Players.CreateHumanoidModelFromDescription, Players, desc, Enum.HumanoidRigType.R15)
-				if built and model then
-					local got = 0
-					for _, c in ipairs(model:GetChildren()) do
-						got += c:IsA("Accessory") and 1 or 0
-					end
-					if not best or got > best.got then
-						if best then
-							best.model:Destroy()
-						end
-						best = { model = model, got = got }
-					else
-						model:Destroy()
-					end
-					if got >= want then
-						break
-					end
-					warn(string.format("[AS] class model %s: ของไม่ครบ %d/%d (รอบ %d)", id, got, want, attempt))
-				end
-				task.wait(1.5 * attempt)
-			end
-			model = best and best.model
-			if not model then
-				warn("[AS] class model failed", id)
-				continue
-			end
-			model.Name = id
-			model.Archivable = true -- โมเดลจาก HumanoidDescription ตั้ง Archivable=false มา -> Clone() ได้ nil
-			for _, d in ipairs(model:GetDescendants()) do
-				d.Archivable = true
-			end
-			local hum = model:FindFirstChildOfClass("Humanoid")
-			if hum then
-				hum.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
-				hum.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOff
-			end
-			for _, d in ipairs(model:GetDescendants()) do
-				if d:IsA("BasePart") then
-					d.CanCollide, d.CanQuery, d.CanTouch = false, false, false
-					d.Anchored = d.Name == "HumanoidRootPart"
-				elseif d:IsA("Script") or d:IsA("LocalScript") then
-					d:Destroy()
-				end
-			end
-			model:PivotTo(CFrame.new(0, -500, 0))
-			model.Parent = folder
-		end
-	end
-end
-
 function LobbyService:Start(ctx)
-	task.spawn(buildClassModels)
 	ctx.Remotes.Get("LeaveRun").OnServerEvent:Connect(function(player)
 		self:LeaveRun(player)
 	end)

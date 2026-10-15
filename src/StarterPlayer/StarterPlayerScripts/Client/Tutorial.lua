@@ -117,7 +117,7 @@ local SCENES = {
 	function(world) -- กองไฟ
 		place(asset("Props", "CampfireLogs"), 4, CF(0, 0, 0))
 		place(asset("Props", "LogPileStore"), 3, CF(6, 0, -3))
-		character("Firekeeper", CF(-4.5, 0, 2) * ANG(0, -math.pi / 2 - 0.8, 0))
+		character("Survivor", CF(-4.5, 0, 2) * ANG(0, -math.pi / 2 - 0.8, 0))
 		return { Yaw = 0.4, Pitch = 0.3, Zoom = 0.85, Sky = { rgb(60, 26, 14), rgb(20, 10, 10) }, Light = rgb(255, 170, 90) }
 	end,
 	function(world) -- เก็บของ
@@ -154,7 +154,7 @@ local SCENES = {
 	function(world) -- 99 คืน
 		place(asset("Props", "CampfireLogs"), 3.5, CF(0, 0, 0))
 		character("Elementalist", CF(-3.5, 0, 1) * ANG(0, math.pi + 0.6, 0))
-		character("Beastwarden", CF(3.5, 0, 1) * ANG(0, math.pi - 0.6, 0))
+		character("Hunter", CF(3.5, 0, 1) * ANG(0, math.pi - 0.6, 0))
 		character("Scout", CF(0, 0, -3.5) * ANG(0, 0, 0))
 		return { Yaw = 0, Pitch = 0.3, Zoom = 0.85, Sky = { rgb(90, 70, 20), rgb(30, 16, 6) }, Light = rgb(255, 210, 140) }
 	end,

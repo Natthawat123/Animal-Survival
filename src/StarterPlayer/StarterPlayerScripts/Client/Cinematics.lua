@@ -221,7 +221,7 @@ end
 
 -- โครงหน้าโหลด: ฉากแคมป์ 3 มิติ + หมอก/แสงไฟ + โลโก้สี่ธาตุ + ชื่อเกมเงาวิ่ง + แถบความคืบหน้าสี่ธาตุ + ขั้นตอน + เคล็ดลับ
 -- คืน { Root, Set(p, text), Close() }
-local function loadingScreen(title, subtitle)
+local function sceneLoadingScreen(title, subtitle)
 	local f = UIKit.Frame(gui, { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.fromRGB(6, 6, 14), BackgroundTransparency = 0, ZIndex = 100 })
 	UIKit.Gradient(f, Color3.fromRGB(30, 26, 70), Color3.fromRGB(6, 6, 14), 90)
 	pcall(campScene, f)
@@ -453,6 +453,186 @@ local function loadingScreen(title, subtitle)
 	return api
 end
 
+-- หน้าโหลดแบบภาพวาด (Shared/LoadingArt: ค่ายริมกองไฟ + โลโก้) เต็มจอแบบครอป + หลอดโหลด/เคล็ดลับจริงวางทับตำแหน่งในรูป
+local function artLoadingScreen(img)
+	local LoadingArt = require(ReplicatedStorage.Shared.LoadingArt)
+	local f = UIKit.Frame(gui, { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.fromRGB(8, 8, 18), BackgroundTransparency = 0, ZIndex = 100, ClipsDescendants = true })
+	local canvas = Instance.new("ImageLabel")
+	canvas.Name = "Art"
+	canvas.AnchorPoint = Vector2.new(0.5, 0.5)
+	canvas.Position = UDim2.fromScale(0.5, 0.5)
+	canvas.BackgroundTransparency = 1
+	canvas.ImageContent = Content.fromObject(img)
+	canvas.ZIndex = 101
+	canvas.Parent = f
+	-- ฉากหลัง: รูปเดียวกันขยายเต็มจอแบบมืด (เติมขอบจอที่ไม่ใช่ 16:9)
+	local backdrop = canvas:Clone()
+	backdrop.Name = "Backdrop"
+	backdrop.ZIndex = 100
+	backdrop.ImageColor3 = Color3.fromRGB(90, 90, 110)
+	backdrop.Parent = f
+	-- รูปหลักเห็นครบทั้งภาพเสมอ (โลโก้บน + หลอดโหลด/เคล็ดลับล่าง ไม่โดนตัด)
+	local function fit()
+		local sw, sh = f.AbsoluteSize.X, f.AbsoluteSize.Y
+		if sw < 2 or sh < 2 then
+			return
+		end
+		local w, h = sw, sw / LoadingArt.Aspect
+		if h > sh then
+			h, w = sh, sh * LoadingArt.Aspect
+		end
+		canvas.Size = UDim2.fromOffset(w, h)
+		local bw, bh = sw, sw / LoadingArt.Aspect
+		if bh < sh then
+			bh, bw = sh, sh * LoadingArt.Aspect
+		end
+		backdrop.Size = UDim2.fromOffset(bw * 1.08, bh * 1.08)
+	end
+	fit()
+	f:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit)
+	local zoom = Instance.new("UIScale")
+	zoom.Parent = canvas
+	local breathe = TweenService:Create(zoom, TweenInfo.new(9, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { Scale = 1.035 })
+	breathe:Play()
+	local function rect(r, props)
+		local o = UIKit.Frame(canvas, { Position = UDim2.fromScale(r[1], r[2]), Size = UDim2.fromScale(r[3] - r[1], r[4] - r[2]), BackgroundTransparency = 1, ZIndex = 103 })
+		for k, v in pairs(props or {}) do
+			o[k] = v
+		end
+		return o
+	end
+	-- แสงกองไฟวูบวาบ
+	local glow = UIKit.Frame(canvas, { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.49, 0.64), Size = UDim2.fromScale(0.3, 0.3), BackgroundColor3 = Color3.fromRGB(255, 140, 50), BackgroundTransparency = 0.85, ZIndex = 102 })
+	UIKit.Corner(glow, 600)
+	local gg = Instance.new("UIGradient")
+	gg.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.5, 0.3), NumberSequenceKeypoint.new(1, 1) })
+	gg.Parent = glow
+	-- ประกายไฟลอยขึ้นจากกองไฟ
+	for i = 1, 16 do
+		local sz = math.random(2, 4)
+		local sp = UIKit.Frame(canvas, { Size = UDim2.fromOffset(sz, sz), BackgroundColor3 = Color3.fromRGB(255, math.random(160, 220), 90), BackgroundTransparency = 1, ZIndex = 102 })
+		UIKit.Corner(sp, 3)
+		task.spawn(function()
+			task.wait(i * 0.2)
+			while sp.Parent do
+				sp.Position = UDim2.fromScale(0.47 + math.random() * 0.05, 0.66)
+				sp.BackgroundTransparency = 0.1
+				local t = 2 + math.random() * 2.5
+				TweenService:Create(sp, TweenInfo.new(t, Enum.EasingStyle.Sine), { Position = UDim2.fromScale(0.44 + math.random() * 0.12, 0.32 + math.random() * 0.2), BackgroundTransparency = 1 }):Play()
+				task.wait(t)
+			end
+		end)
+	end
+	-- หลอดโหลด (เขียวไล่สี + เงาวาว) ในรางของรูป
+	local bar = rect(LoadingArt.Bar, { ClipsDescendants = true })
+	local barCorner = Instance.new("UICorner")
+	barCorner.CornerRadius = UDim.new(1, 0)
+	barCorner.Parent = bar
+	local fill = UIKit.Frame(bar, { Size = UDim2.fromScale(0, 1), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0, ZIndex = 104 })
+	local fc = Instance.new("UICorner")
+	fc.CornerRadius = UDim.new(1, 0)
+	fc.Parent = fill
+	local fg = Instance.new("UIGradient")
+	fg.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(70, 200, 60)), ColorSequenceKeypoint.new(0.5, Color3.fromRGB(150, 240, 110)), ColorSequenceKeypoint.new(1, Color3.fromRGB(80, 215, 70)),
+	})
+	fg.Parent = fill
+	local sheen = UIKit.Frame(fill, { Size = UDim2.fromScale(1, 0.4), Position = UDim2.fromScale(0, 0.12), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.72, ZIndex = 105 })
+	local sc = Instance.new("UICorner")
+	sc.CornerRadius = UDim.new(1, 0)
+	sc.Parent = sheen
+	local pct = rect(LoadingArt.Pct)
+	local pctL = UIKit.Text(pct, { Size = UDim2.fromScale(1, 1), TextScaled = true, Font = UIKit.Fonts.Title, TextXAlignment = Enum.TextXAlignment.Center, Text = "0%", ZIndex = 104 })
+	local tipBox = rect(LoadingArt.Tip)
+	local tip = UIKit.Text(tipBox, { Size = UDim2.fromScale(1, 0.72), Position = UDim2.fromScale(0, 0.14), TextScaled = true, Font = UIKit.Fonts.Bold, TextXAlignment = Enum.TextXAlignment.Center, TextColor3 = Color3.fromRGB(240, 226, 200), Text = "💡 " .. TIPS[math.random(#TIPS)], ZIndex = 104 })
+	local status = UIKit.Text(canvas, { AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.fromScale(0.5, LoadingArt.Tip[4] + 0.012), Size = UDim2.fromScale(0.4, 0.024), TextScaled = true, Font = UIKit.Fonts.Bold, TextXAlignment = Enum.TextXAlignment.Center, TextColor3 = Color3.fromRGB(220, 206, 186), Text = "", ZIndex = 104 })
+	local t0 = os.clock()
+	local animConn = RunService.RenderStepped:Connect(function()
+		glow.BackgroundTransparency = 0.82 + math.noise((os.clock() - t0) * 2.3, 1.7) * 0.1
+	end)
+	task.spawn(function()
+		while f.Parent do
+			task.wait(5)
+			if not f.Parent then
+				break
+			end
+			UIKit.Tween(tip, 0.3, { TextTransparency = 1 })
+			task.wait(0.32)
+			tip.Text = "💡 " .. TIPS[math.random(#TIPS)]
+			UIKit.Tween(tip, 0.3, { TextTransparency = 0 })
+		end
+	end)
+	local shown, target = 0, 0
+	local smoothConn = RunService.RenderStepped:Connect(function(dt)
+		if math.abs(target - shown) > 0.0005 then
+			shown += (target - shown) * math.min(1, dt * 6)
+			fill.Size = UDim2.fromScale(math.max(shown, 0.04), 1)
+			pctL.Text = math.floor(shown * 100 + 0.5) .. "%"
+		end
+	end)
+	f.Destroying:Connect(function()
+		smoothConn:Disconnect()
+		animConn:Disconnect()
+		breathe:Cancel()
+	end)
+	local api = { Root = f }
+	function api.Set(p, text)
+		p = math.clamp(p, 0, 1)
+		if p > target then
+			target = p
+		end
+		if text then
+			status.Text = text
+		end
+	end
+	function api.Close()
+		task.delay(4, function()
+			if f.Parent then
+				f:Destroy()
+			end
+		end)
+		api.Set(1, "พร้อมแล้ว!")
+		local tw = os.clock()
+		while shown < 0.995 and os.clock() - tw < 1.2 do
+			task.wait()
+		end
+		task.wait(0.25)
+		for _, d in ipairs(f:GetDescendants()) do
+			if d:IsA("TextLabel") then
+				UIKit.Tween(d, 0.9, { TextTransparency = 1 })
+			elseif d:IsA("ImageLabel") then
+				UIKit.Tween(d, 0.9, { ImageTransparency = 1 })
+			elseif d:IsA("Frame") then
+				UIKit.Tween(d, 0.9, { BackgroundTransparency = 1 })
+			elseif d:IsA("UIStroke") then
+				UIKit.Tween(d, 0.9, { Transparency = 1 })
+			end
+		end
+		UIKit.Tween(f, 1, { BackgroundTransparency = 1 })
+		task.wait(1.05)
+		f:Destroy()
+	end
+	api.Set(0)
+	canvas.ImageTransparency = 1
+	UIKit.Tween(canvas, 0.5, { ImageTransparency = 0 })
+	return api
+end
+
+-- ใช้ภาพวาดเป็นหลัก · วาดรูปไม่ได้ (EditableImage ใช้ไม่ได้ในเครื่องนั้น) -> หน้าโหลดฉาก 3 มิติแบบเดิม
+local function loadingScreen(title, subtitle)
+	local ok, img = pcall(function()
+		return require(ReplicatedStorage.Shared.LoadingArt).Image()
+	end)
+	if ok and img then
+		local ok2, api = pcall(artLoadingScreen, img)
+		if ok2 and api then
+			return api
+		end
+		warn("[AS] art loading screen failed", api)
+	end
+	return sceneLoadingScreen(title, subtitle)
+end
+
 -- พื้นใต้เท้าโหลดมาถึงเครื่องแล้วหรือยัง
 local function groundReady()
 	local char = player.Character
@@ -471,17 +651,11 @@ function Cinematics.Loading(state)
 	local ui = loadingScreen(Config.GameName, Config.Subtitle)
 	Cinematics.IsLoading = true
 	task.spawn(function()
-		-- โหลดให้ครบทุกอย่างก่อนเข้าเกม (โลก -> ล็อบบี้ทั้งชุด -> โมเดล/พื้นผิว -> ตัวละคร) แต่แบ่งงานทีละน้อยต่อเฟรม หน้าโหลดจึงลื่น
-		-- 1) โลก (เซิร์ฟเวอร์สร้างแมพ) 0-30%
-		while (state:GetAttribute("LoadProgress") or 0) < 1 and not state:GetAttribute("Ready") do
-			local p = state:GetAttribute("LoadProgress") or 0
-			ui.Set(p * 0.3, string.format("กำลังสร้างโลกทั้ง 4 ธาตุ... %d%%", math.floor(p * 100)))
-			task.wait(0.1)
-		end
-		-- 2) ล็อบบี้ทั้งชุดมาถึงเครื่อง 30-45%
+		-- โหลดเฉพาะที่ต้องใช้ในล็อบบี้ แล้วเข้าเกมเลย · แมพใหญ่ (เซิร์ฟเวอร์สร้างต่อเบื้องหลัง) กับโมเดลอื่นๆ โหลดต่อระหว่างอยู่ในล็อบบี้
+		-- 1) ล็อบบี้ทั้งชุดมาถึงเครื่อง 0-40%
 		local w0 = os.clock()
 		local lobby = Workspace:FindFirstChild("Lobby")
-		while os.clock() - w0 < 40 do
+		while os.clock() - w0 < 25 do
 			lobby = Workspace:FindFirstChild("Lobby")
 			local want = lobby and lobby:GetAttribute("Parts")
 			local have = lobby and #lobby:GetDescendants() or 0
@@ -489,44 +663,47 @@ function Cinematics.Loading(state)
 				break
 			end
 			local k = want and math.clamp(have / want, 0, 1) or 0
-			ui.Set(0.3 + 0.15 * k, string.format("กำลังโหลดค่าย... %d%%", math.floor(k * 100)))
-			task.wait(0.15)
+			ui.Set(0.4 * k, string.format("กำลังโหลดค่าย... %d%%", math.floor(k * 100)))
+			task.wait(0.1)
 		end
-		ui.Set(0.45, "กำลังโหลดโมเดลและพื้นผิว...")
-		-- 3) โมเดล/พื้นผิว/เอฟเฟกต์ทั้งหมด 45-90% (ทีละ 12 ชิ้น พักทุกชุด = ไม่กระตุก)
-		local list = {}
-		local assets = ReplicatedStorage:FindFirstChild("Assets")
-		if assets then
-			table.insert(list, assets)
-		end
-		if lobby then
-			table.insert(list, lobby)
-		end
-		local items = {}
-		for _, root in ipairs(list) do
+		-- 2) พื้นผิว/โมเดลของล็อบบี้ 40-90% (ชุดละ 60 ชิ้น)
+		local CP = game:GetService("ContentProvider")
+		local function collect(root)
+			local items = {}
 			for _, d in ipairs(root:GetDescendants()) do
 				if d:IsA("MeshPart") or d:IsA("SurfaceAppearance") or d:IsA("Decal") or d:IsA("Texture") or d:IsA("ParticleEmitter")
 					or d:IsA("Beam") or d:IsA("SpecialMesh") or d:IsA("Sound") then
 					table.insert(items, d)
 				end
 			end
+			return items
 		end
+		local items = lobby and collect(lobby) or {}
 		local total = math.max(#items, 1)
-		local done = 0
-		local CP = game:GetService("ContentProvider")
-		local batch = 12
-		for i = 1, #items, batch do
-			local chunk = {}
-			for k = i, math.min(i + batch - 1, #items) do
-				table.insert(chunk, items[k])
+		local p0 = os.clock()
+		for i = 1, #items, 60 do
+			if os.clock() - p0 > 12 then
+				break -- เน็ตช้า: ไม่ค้างหน้าโหลด ที่เหลือโหลดต่อในเกม
 			end
 			pcall(function()
-				CP:PreloadAsync(chunk)
+				CP:PreloadAsync(table.move(items, i, math.min(i + 59, #items), 1, {}))
 			end)
-			done += #chunk
-			ui.Set(0.45 + 0.45 * done / total, string.format("กำลังโหลดทรัพยากร %d/%d", done, total))
-			task.wait()
+			local done = math.min(i + 59, #items)
+			ui.Set(0.4 + 0.5 * done / total, string.format("กำลังโหลดค่าย %d/%d", done, total))
 		end
+		-- โมเดลในแมพ/บอส/เอฟเฟกต์: โหลดเบื้องหลังหลังเข้าเกม (ไม่ให้ผู้เล่นรอ)
+		task.delay(3, function()
+			local assets = ReplicatedStorage:FindFirstChild("Assets")
+			if assets then
+				local rest = collect(assets)
+				for i = 1, #rest, 30 do
+					pcall(function()
+						CP:PreloadAsync(table.move(rest, i, math.min(i + 29, #rest), 1, {}))
+					end)
+					task.wait(0.2)
+				end
+			end
+		end)
 		-- 3) ตัวละคร + พื้นล็อบบี้ใต้เท้า 90-100%
 		ui.Set(0.9, "กำลังจุดกองไฟในค่าย...")
 		local t0 = os.clock()
@@ -898,6 +1075,11 @@ function Cinematics.Init(state)
 			Cinematics.Travel()
 		end
 	end)
+end
+
+-- ใช้ทดสอบหน้าตาหน้าโหลด (tests/ASLobbyProbe)
+Cinematics.PreviewLoading = function(title, subtitle)
+	return loadingScreen(title, subtitle)
 end
 
 return Cinematics

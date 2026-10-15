@@ -246,8 +246,9 @@ def crystal_cluster(cf, s=1.0, n=None):
         w = rng.uniform(0.35, 0.6) * s
         tilt = (rng.uniform(-0.45, 0.45), rng.uniform(-0.45, 0.45))
         c = cf @ T(rng.uniform(-0.5, 0.5) * s, 0, rng.uniform(-0.5, 0.5) * s) @ RX(tilt[0]) @ RZ(tilt[1]) @ T(0, h / 2, 0) @ RY(rng.uniform(0, 1.5))
-        block((w, h, w), c, rng.choice((C_CYAN, C_CYAN_SOFT, (110, 210, 255))), "Neon", collide=False, shadow=False)
-        block((w * 0.7, w * 0.7, w * 0.7), c @ T(0, h / 2, 0) @ RX(math.pi / 4) @ RZ(math.pi / 4), C_CYAN_SOFT, "Neon", collide=False, shadow=False)
+        # คริสตัลแก้วโปร่ง (ไม่ใช่แท่งนีออนเรืองแสง)
+        block((w, h, w), c, rng.choice(((120, 200, 230), (150, 215, 240), (110, 180, 225))), "Glass", tr=0.3, collide=False, shadow=False)
+        block((w * 0.7, w * 0.7, w * 0.7), c @ T(0, h / 2, 0) @ RX(math.pi / 4) @ RZ(math.pi / 4), (170, 225, 245), "Glass", tr=0.3, collide=False, shadow=False)
     ball(1.2 * s, cf @ T(0, 0.15, 0), jit(rng.choice(C_STONE), 6), "Slate", collide=False)
 
 
@@ -508,8 +509,6 @@ def crystal_lamp(x, z, h=6.5):
     block((1.0, h, 1.0), T(x, 2 + h / 2, z), jit(rng.choice(C_STONE), 6), "Slate")
     block((1.6, 0.5, 1.6), T(x, 2 + h + 0.25, z), C_STONE_L, "Slate")
     block((0.9, 1.9, 0.9), T(x, 2 + h + 1.4, z) @ RY(0.6) @ RX(0.2), C_CYAN, "Neon", name="CrystalLamp", collide=False, shadow=False)
-    block((0.5, 1.2, 0.5), T(x + 0.5, 2 + h + 1.0, z - 0.3) @ RZ(0.5), C_CYAN_SOFT, "Neon", collide=False, shadow=False)
-    leaf_cluster((x, 2 + h + 0.4, z), 2, 0.7)
 
 
 def entrance_gate(z):

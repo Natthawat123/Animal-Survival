@@ -186,7 +186,7 @@ if lobby then
 			return require(script.Parent:WaitForChild("Client"):WaitForChild("ClassShop"))
 		end)
 		if okCS then
-			ClassShop.Select("Beastwarden")
+			ClassShop.Select("Elementalist")
 			shot("lobby_classes_beast", 3)
 			task.wait(2)
 			ClassShop.Select("Medic")

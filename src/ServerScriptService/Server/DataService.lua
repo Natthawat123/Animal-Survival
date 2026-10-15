@@ -83,7 +83,7 @@ function DataService:Load(player)
 			self:PushBoard(player)
 		end
 	end)
-	local cls = data.Owned[data.Class] and data.Class or "Survivor"
+	local cls = (data.Owned[data.Class] and Classes.Data[data.Class]) and data.Class or "Survivor" -- คลาสที่ถูกลบออกจากเกม -> Survivor
 	player:SetAttribute("Class", cls)
 	player:SetAttribute("ClassLevel", data.ClassLevel[cls] or 1)
 	return data

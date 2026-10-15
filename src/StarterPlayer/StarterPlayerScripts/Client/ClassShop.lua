@@ -260,7 +260,8 @@ local function showOnStage(id)
 		stage.Base = st.CFrame * CFrame.new(0, st.Size.Y / 2, 0)
 		model:PivotTo(stage.Base)
 		model.Parent = Workspace
-		ClassAvatars.PlayIdle(model)
+		stage.Class = id
+		ClassAvatars.PlayIdle(model, id)
 		sparkle(stage.Base * CFrame.new(0, 3, 0), Classes.StarColor[Classes.Data[id].Stars])
 	end)
 end
@@ -279,13 +280,7 @@ local function cameraToStage()
 	if stage.Conn then
 		stage.Conn:Disconnect()
 	end
-	local t0 = os.clock()
-	stage.Conn = RunService.RenderStepped:Connect(function()
-		if stage.Model and stage.Base and stage.Model.Parent then
-			local t = os.clock() - t0
-			stage.Model:PivotTo(stage.Base * CFrame.Angles(0, math.sin(t * 0.6) * 0.4, 0) * CFrame.new(0, math.abs(math.sin(t * 1.6)) * 0.06, 0))
-		end
-	end)
+	-- ตัวละครยืนนิ่งบนเวที (ไม่ขยับ)
 end
 
 local function restoreCamera()
