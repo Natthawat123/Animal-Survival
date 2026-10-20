@@ -169,8 +169,15 @@ local MAIN_PARTS = { Body = true, Head = true, Jaw = true, LegFL = true, LegFR =
 -- ต่อกับ HumanoidRootPart (กล่องชนล่องหน) · กระดูกขยับฝั่ง client (BossAnimator)
 local function buildSkinned(model, custom, skin)
 	local src = custom:Clone()
+	-- Size = ความยาวด้านยาวสุดที่ต้องการ (stud) -> คำนวณสเกลจากขนาดตอน Import เอง
+	local scale = skin.Scale or 10
+	if skin.Size then
+		local m0 = src:FindFirstChildWhichIsA("MeshPart", true)
+		local big = m0 and math.max(m0.Size.X, m0.Size.Y, m0.Size.Z) or 1
+		scale = skin.Size / math.max(big, 0.01)
+	end
 	pcall(function()
-		src:ScaleTo(skin.Scale or 10)
+		src:ScaleTo(scale)
 	end)
 	local mesh = src:FindFirstChildWhichIsA("MeshPart", true)
 	if not mesh then
@@ -196,6 +203,7 @@ local function buildSkinned(model, custom, skin)
 	src:Destroy()
 	model:SetAttribute("Skinned", true)
 	model:SetAttribute("SkinRig", skin.Rig or "Biped")
+	model:SetAttribute("SkinScale", scale) -- ท่าจากไฟล์ (ClipAnimator) คูณตำแหน่งกระดูกตามนี้
 	return root, hip
 end
 
@@ -239,6 +247,10 @@ function AnimalModels.Build(id, opts)
 	hum.AutoJumpEnabled = true
 	hum.UseJumpPower = true
 	hum.JumpPower = 40
+	for _, st in ipairs({ Enum.HumanoidStateType.FallingDown, Enum.HumanoidStateType.Ragdoll, Enum.HumanoidStateType.Seated,
+		Enum.HumanoidStateType.Climbing, Enum.HumanoidStateType.PlatformStanding }) do
+		hum:SetStateEnabled(st, false)
+	end
 	hum.Parent = model
 
 	model:SetAttribute("AnimalId", id)

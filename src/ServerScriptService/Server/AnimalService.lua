@@ -94,6 +94,15 @@ function AnimalService:Spawn(id, position, opts)
 	end
 	local root = model.PrimaryPart
 	local hum = model:FindFirstChildOfClass("Humanoid")
+	do
+		local rp = RaycastParams.new()
+		rp.FilterType = Enum.RaycastFilterType.Include
+		rp.FilterDescendantsInstances = { workspace.Terrain }
+		local hit = workspace:Raycast(position + Vector3.new(0, 120, 0), Vector3.new(0, -260, 0), rp)
+		if hit and hit.Material ~= Enum.Material.Water then
+			position = Vector3.new(position.X, hit.Position.Y + 0.2, position.Z)
+		end
+	end
 	AnimalModels.PlaceAt(model, position, opts.Yaw or self.rng:NextNumber(0, math.pi * 2))
 	local healthMult = opts.HealthMult or 1
 	local maxHp = (info.Health == math.huge) and 1e9 or info.Health * healthMult
@@ -412,6 +421,11 @@ function AnimalService:MoveTo(a, pos, speedFactor)
 	local hum = a.Hum
 	local slow = (a.SlowUntil or 0) > os.clock() and 0.5 or 1
 	hum.WalkSpeed = (a.Info.Speed or 16) * a.SpeedMult * (speedFactor or 1) * slow
+	-- เดิน = ให้ Humanoid หันตามทางเดินเอง (นุ่ม) · ปิดตัวหมุนตอนยืน
+	if a.Turn and a.Turn.Enabled then
+		a.Turn.Enabled = false
+		hum.AutoRotate = true
+	end
 	hum:MoveTo(pos)
 	a.Moving = true
 end
@@ -426,10 +440,31 @@ function AnimalService:Face(a, pos)
 		return
 	end
 	local root = a.Root
-	local flat = Vector3.new(pos.X, root.Position.Y, pos.Z)
-	if (flat - root.Position).Magnitude > 0.5 then
-		root.CFrame = CFrame.lookAt(root.Position, flat)
+	local flat = Vector3.new(pos.X - root.Position.X, 0, pos.Z - root.Position.Z)
+	if flat.Magnitude < 0.5 then
+		return
 	end
+	if a.FaceAlign then
+		a.FaceAlign.CFrame = CFrame.lookAt(Vector3.zero, flat)
+		return
+	end
+	-- หันหาเป้าแบบค่อยๆ หมุน (เดิมตั้ง CFrame ทันทีทุกรอบคิด = ตัวกระตุก/วาปหันขวับ)
+	if not a.Turn then
+		local att = Instance.new("Attachment")
+		att.Name = "TurnAttachment"
+		att.Parent = root
+		local ao = Instance.new("AlignOrientation")
+		ao.Mode = Enum.OrientationAlignmentMode.OneAttachment
+		ao.Attachment0 = att
+		ao.MaxTorque = 1e8
+		ao.Responsiveness = 9
+		ao.Enabled = false
+		ao.Parent = root
+		a.Turn = ao
+	end
+	a.Hum.AutoRotate = false
+	a.Turn.CFrame = CFrame.lookAt(Vector3.zero, flat)
+	a.Turn.Enabled = true
 end
 
 function AnimalService:Wander(a, now, radius)
@@ -756,10 +791,23 @@ function AnimalService:ThinkHostile(a, now)
 			a.StateUntil = now + 1.3
 			a.Model:SetAttribute("State", "Charge")
 			local dir = a.ChargeDir
-			self:MoveTo(a, a.Root.Position + dir * 50, 2.6)
+			a.ChargeStart = now
+			self:MoveTo(a, a.Root.Position + dir * 50, 1.3)
 		end
 		return
 	elseif a.State == "Charge" then
+		do
+			local ahead = a.Root.Position + a.ChargeDir * (a.Radius + 6)
+			local rp = RaycastParams.new()
+			rp.FilterType = Enum.RaycastFilterType.Include
+			rp.FilterDescendantsInstances = { workspace.Terrain }
+			local hit = workspace:Raycast(ahead + Vector3.new(0, 6, 0), Vector3.new(0, -18, 0), rp)
+			if not hit or hit.Material == Enum.Material.Water then
+				a.StateUntil = now -- จบพุ่งทันที
+			end
+		end
+		local ramp = math.clamp((now - (a.ChargeStart or now)) / 0.5, 0, 1)
+		a.Hum.WalkSpeed = (info.Speed or 16) * a.SpeedMult * (1.3 + 1.3 * ramp)
 		for _, p in ipairs(Players:GetPlayers()) do
 			local r = charRoot(p)
 			if r and (r.Position - a.Root.Position).Magnitude < a.Radius + 4 and not a.ChargeHit[p] then
@@ -818,7 +866,8 @@ function AnimalService:ThinkHostile(a, now)
 			self:Face(a, r.Position)
 			self:AttackPlayer(a, target, now)
 			a.State = "Attack"
-		elseif b == "Charger" and dist > 10 and dist < 36 and now >= a.NextAttack then
+		elseif b == "Charger" and dist > 14 and dist < 30 and now >= a.NextAttack and now >= (a.NextCharge or 0) then
+			a.NextCharge = now + (info.ChargeCooldown or 7)
 			a.State = "Windup"
 			a.StateUntil = now + 0.8
 			a.ChargeHit = {}
@@ -835,7 +884,7 @@ function AnimalService:ThinkHostile(a, now)
 			if info.Leap and dist < 28 and dist > 10 and now >= (a.NextLeap or 0) then
 				a.NextLeap = now + 4
 				local d = (r.Position - a.Root.Position)
-				a.Root.AssemblyLinearVelocity = d.Unit * 70 + Vector3.new(0, 38, 0)
+				a.Root.AssemblyLinearVelocity = (d * Vector3.new(1, 0, 1)).Unit * 42 + Vector3.new(0, 24, 0)
 				self:MarkAttack(a, "Leap")
 			end
 			self:MoveTo(a, r.Position, 1)
@@ -998,6 +1047,19 @@ function AnimalService:Think(a, now)
 	if a.Root.Position.Y < -120 then
 		self:Remove(a)
 		return
+	end
+	if not a.Flying and a.Kind ~= "Boss" and now >= (a.NextGroundCheck or 0) then
+		a.NextGroundCheck = now + 1
+		local p = a.Root.Position
+		local rp = RaycastParams.new()
+		rp.FilterType = Enum.RaycastFilterType.Include
+		rp.FilterDescendantsInstances = { workspace.Terrain }
+		local below = workspace:Raycast(p, Vector3.new(0, -40, 0), rp)
+		local surface = not below and workspace:Raycast(p + Vector3.new(0, 150, 0), Vector3.new(0, -150, 0), rp)
+		if surface and surface.Material ~= Enum.Material.Water and surface.Position.Y > p.Y + 1 then
+			a.Root.AssemblyLinearVelocity = Vector3.zero
+			a.Model:PivotTo(CFrame.new(p.X, surface.Position.Y + a.Root.Size.Y / 2 + a.Hum.HipHeight + 0.5, p.Z) * a.Root.CFrame.Rotation)
+		end
 	end
 	if a.Kind == "Spirit" then
 		if a.FollowPlayer then

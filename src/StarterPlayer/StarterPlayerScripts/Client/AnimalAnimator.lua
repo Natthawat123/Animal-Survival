@@ -18,6 +18,7 @@ local ANG = CFrame.Angles
 local CF = CFrame.new
 
 local BossAnimator = require(script.Parent:WaitForChild("BossAnimator"))
+local ClipAnimator = require(script.Parent:WaitForChild("ClipAnimator"))
 
 local function collect(model)
 	local root = model:FindFirstChild("HumanoidRootPart")
@@ -68,6 +69,8 @@ local function add(model)
 			-- โมเดลมีผิว+กระดูก (บอสจาก Import 3D): รอผิวโหลดแล้วผูกกระดูก
 			if BossAnimator.Has(model) and model:WaitForChild("Skin", 10) then
 				pcall(BossAnimator.Attach, rig)
+			elseif ClipAnimator.Has(model) and model:WaitForChild("Skin", 10) then
+				pcall(ClipAnimator.Attach, rig) -- ท่าจากไฟล์ (Meshy) เล่นเอง
 			end
 		end
 	end)
@@ -261,6 +264,9 @@ function AnimalAnimator.Init()
 				if not ok then
 					rigs[model] = nil
 					warn("[AS] anim", err)
+				elseif rig.Clip and not rig.DeadT then
+					local vel = rig.Root.AssemblyLinearVelocity
+					ClipAnimator.Animate(rig, dt, Vector3.new(vel.X, 0, vel.Z).Magnitude)
 				elseif rig.Boss then
 					local vel = rig.Root.AssemblyLinearVelocity
 					local okB, errB = pcall(BossAnimator.Animate, rig, {

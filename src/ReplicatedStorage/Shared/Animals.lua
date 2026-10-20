@@ -45,33 +45,36 @@ Animals.Data = {
 
 	------------------------------------------------------------ ธาตุดิน
 	MossWolf = {
-		Name = "Mossback Wolf", Thai = "หมาป่าหลังตะไคร่", Element = "Earth", Behaviour = "Hunter",
-		Health = 70, Damage = 10, Speed = 25, AttackRange = 6, AttackCooldown = 1.1, Aggro = 80, StructureDamage = 1,
+		Name = "Crystal Stag", Thai = "กวางผลึกปฐพี", Element = "Earth", Behaviour = "Hunter",
+		Health = 70, Damage = 10, Speed = 23, AttackRange = 6, AttackCooldown = 1.7, Aggro = 42, StructureDamage = 1,
 		RaidCost = 2, MinNight = 1, Pack = { 2, 4 },
 		Drops = { { Item = "RawMeat", Min = 1, Max = 2 }, { Item = "Pelt", Min = 1, Max = 1 }, { Item = "Bone", Min = 1, Max = 1 }, { Item = "TerraCore", Chance = 0.08 } },
 		Model = {
+			Skin = { Scale = 2.1, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
 			Template = "Quadruped", Body = V(2.4, 2.4, 5.2), Head = V(1.7, 1.6, 1.8), Snout = V(1.0, 0.8, 1.4), LegLen = 2.6, LegThick = 0.7,
 			Neck = 1.0, Colors = { Main = C(70, 80, 66), Belly = C(132, 140, 112), Dark = C(38, 44, 36), Eye = C(170, 255, 110), Glow = C(120, 220, 80), Moss = C(84, 150, 56) },
 			Ears = "Pointy", Tail = "Bushy", Extras = { "Moss", "Ruff" },
 		},
 	},
 	Thornboar = {
-		Name = "Thornback Boar", Thai = "หมูป่าหนามพฤกษ์", Element = "Earth", Behaviour = "Charger",
-		Health = 110, Damage = 16, Speed = 22, AttackRange = 6, AttackCooldown = 2.2, Aggro = 60, StructureDamage = 2,
+		Name = "Earth Crocodile", Thai = "จระเข้ศิลา", Element = "Earth", Behaviour = "Charger",
+		Health = 110, Damage = 16, Speed = 22, AttackRange = 6, AttackCooldown = 2.4, Aggro = 38, ChargeCooldown = 8, StructureDamage = 2,
 		RaidCost = 3, MinNight = 3,
 		Drops = { { Item = "RawMeat", Min = 2, Max = 3 }, { Item = "Pelt", Min = 1, Max = 2 }, { Item = "Fiber", Min = 1, Max = 3 }, { Item = "TerraCore", Chance = 0.12 } },
 		Model = {
+			Skin = { Scale = 7, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
 			Template = "Quadruped", Body = V(3.0, 2.8, 4.8), Head = V(2.0, 1.9, 2.0), Snout = V(1.2, 1.0, 1.0), LegLen = 1.6, LegThick = 0.8,
 			Neck = 0.3, Colors = { Main = C(92, 62, 48), Belly = C(124, 92, 70), Dark = C(54, 36, 28), Eye = C(255, 140, 60), Horn = C(238, 228, 204), Glow = C(130, 220, 70), Spike = C(66, 104, 44) },
 			Ears = "Round", Tail = "Thin", Extras = { "Tusks", "BackThorns" },
 		},
 	},
 	StoneBear = {
-		Name = "Granite Bear", Thai = "หมีศิลาหยก", Element = "Earth", Behaviour = "Brute",
-		Health = 260, Damage = 26, Speed = 19, AttackRange = 8, AttackCooldown = 1.8, Aggro = 70, StructureDamage = 4,
+		Name = "Earth Turtle", Thai = "เต่าหินภูผา", Element = "Earth", Behaviour = "Brute",
+		Health = 260, Damage = 26, Speed = 15, AttackRange = 8, AttackCooldown = 2.6, Aggro = 36, StructureDamage = 4,
 		RaidCost = 7, MinNight = 8,
 		Drops = { { Item = "RawMeat", Min = 3, Max = 5 }, { Item = "Pelt", Min = 2, Max = 3 }, { Item = "Stone", Min = 3, Max = 6 }, { Item = "TerraCore", Min = 1, Max = 2 } },
 		Model = {
+			Skin = { Scale = 3.8, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
 			Template = "Quadruped", Body = V(4.6, 4.4, 7.6), Head = V(2.8, 2.6, 2.6), Snout = V(1.4, 1.2, 1.2), LegLen = 3.0, LegThick = 1.5,
 			Neck = 0.6, Colors = { Main = C(98, 94, 92), Belly = C(70, 66, 64), Dark = C(48, 46, 46), Eye = C(150, 255, 110), Glow = C(110, 230, 90), Crystal = C(120, 230, 110) },
 			Ears = "Round", Tail = "Stub", Extras = { "Crystals", "Hump" }, Material = "Slate",
@@ -104,32 +107,35 @@ Animals.Data = {
 
 	------------------------------------------------------------ ธาตุลม
 	GaleHawk = {
-		Name = "Gale Hawk", Thai = "เหยี่ยววายุ", Element = "Air", Behaviour = "Flyer",
-		Health = 45, Damage = 9, Speed = 46, AttackRange = 7, AttackCooldown = 2.0, Aggro = 120, StructureDamage = 0.5,
-		RaidCost = 2, MinNight = 2, Pack = { 2, 3 },
-		Drops = { { Item = "RawMeat", Min = 1, Max = 1 }, { Item = "GaleFeather", Min = 1, Max = 2 } },
+		Name = "Frostfang Bear", Thai = "หมีเขี้ยวน้ำแข็ง", Element = "Air", Behaviour = "Brute",
+		Health = 170, Damage = 20, Speed = 18, AttackRange = 7, AttackCooldown = 2.5, Aggro = 38, StructureDamage = 3,
+		RaidCost = 4, MinNight = 4,
+		Drops = { { Item = "RawMeat", Min = 2, Max = 4 }, { Item = "Pelt", Min = 1, Max = 2 }, { Item = "GaleFeather", Min = 1, Max = 2 } },
 		Model = {
-			Template = "Bird", Body = V(1.8, 1.8, 3.2), Head = V(1.2, 1.2, 1.3), Wing = V(5.5, 0.3, 2.4),
+			Skin = { Size = 8.5, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
+			Template = "Quadruped", Body = V(1.8, 1.8, 3.2), Head = V(1.2, 1.2, 1.3), Wing = V(5.5, 0.3, 2.4),
 			Colors = { Main = C(226, 232, 244), Belly = C(250, 250, 255), Dark = C(72, 102, 160), Eye = C(130, 225, 255), Beak = C(250, 196, 70), Glow = C(150, 220, 255) },
 		},
 	},
 	SkyLynx = {
-		Name = "Cirrus Lynx", Thai = "แมวป่าเมฆา", Element = "Air", Behaviour = "Hunter",
-		Health = 85, Damage = 14, Speed = 30, AttackRange = 7, AttackCooldown = 1.0, Aggro = 90, StructureDamage = 1,
+		Name = "Ice Tiger", Thai = "เสือน้ำแข็ง", Element = "Air", Behaviour = "Hunter",
+		Health = 85, Damage = 14, Speed = 26, AttackRange = 7, AttackCooldown = 1.7, Aggro = 42, StructureDamage = 1,
 		RaidCost = 3, MinNight = 5, Leap = true,
 		Drops = { { Item = "RawMeat", Min = 1, Max = 2 }, { Item = "Pelt", Min = 1, Max = 2 }, { Item = "GaleFeather", Chance = 0.3 } },
 		Model = {
+			Skin = { Size = 7.5, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
 			Template = "Quadruped", Body = V(2.2, 2.2, 5.0), Head = V(1.7, 1.6, 1.6), Snout = V(0.9, 0.7, 0.6), LegLen = 2.8, LegThick = 0.65,
 			Neck = 0.8, Colors = { Main = C(212, 218, 234), Belly = C(250, 250, 255), Dark = C(110, 122, 168), Eye = C(150, 235, 255), Glow = C(170, 230, 255) },
 			Ears = "Tufted", Tail = "Long", Extras = { "Spots", "WindRibbons" },
 		},
 	},
 	StormRam = {
-		Name = "Thunderwool Ram", Thai = "แกะขนเมฆอัสนี", Element = "Air", Behaviour = "Charger",
-		Health = 130, Damage = 18, Speed = 23, AttackRange = 6, AttackCooldown = 2.4, Aggro = 60, StructureDamage = 3, Knockback = 90,
+		Name = "Snow Bull", Thai = "กระทิงหิมะ", Element = "Air", Behaviour = "Charger",
+		Health = 140, Damage = 18, Speed = 21, AttackRange = 6, AttackCooldown = 2.5, Aggro = 38, ChargeCooldown = 8, StructureDamage = 3, Knockback = 90,
 		RaidCost = 4, MinNight = 7,
 		Drops = { { Item = "RawMeat", Min = 2, Max = 3 }, { Item = "Fiber", Min = 3, Max = 6 }, { Item = "GaleFeather", Min = 0, Max = 2 } },
 		Model = {
+			Skin = { Size = 8.5, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
 			Template = "Quadruped", Body = V(3.2, 3.0, 4.6), Head = V(1.6, 1.8, 1.8), Snout = V(1.0, 1.0, 0.8), LegLen = 2.2, LegThick = 0.6,
 			Neck = 0.6, Colors = { Main = C(236, 240, 250), Belly = C(210, 216, 232), Dark = C(54, 60, 80), Eye = C(140, 220, 255), Horn = C(214, 190, 130), Glow = C(160, 220, 255) },
 			Ears = "Floppy", Tail = "Puff", Extras = { "Wool", "CurledHorns", "Sparks" },
@@ -138,34 +144,37 @@ Animals.Data = {
 
 	------------------------------------------------------------ ธาตุไฟ
 	EmberFox = {
-		Name = "Ember Fox", Thai = "จิ้งจอกถ่านเพลิง", Element = "Fire", Behaviour = "Hunter",
-		Health = 55, Damage = 9, Speed = 31, AttackRange = 6, AttackCooldown = 0.9, Aggro = 90, StructureDamage = 1, Burn = 3,
+		Name = "Ember Wolf", Thai = "หมาป่าถ่านเพลิง", Element = "Fire", Behaviour = "Hunter",
+		Health = 60, Damage = 9, Speed = 25, AttackRange = 6, AttackCooldown = 1.6, Aggro = 42, StructureDamage = 1, Burn = 3,
 		RaidCost = 2, MinNight = 3, Pack = { 2, 5 },
 		Drops = { { Item = "RawMeat", Min = 1, Max = 1 }, { Item = "Pelt", Min = 1, Max = 1 }, { Item = "EmberShard", Chance = 0.2 }, { Item = "Coal", Min = 0, Max = 1 } },
 		Model = {
+			Skin = { Size = 6.5, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
 			Template = "Quadruped", Body = V(1.8, 1.8, 4.0), Head = V(1.5, 1.3, 1.5), Snout = V(0.8, 0.6, 1.2), LegLen = 2.0, LegThick = 0.45,
 			Neck = 0.8, Colors = { Main = C(236, 92, 30), Belly = C(255, 226, 180), Dark = C(60, 30, 24), Eye = C(255, 236, 90), Glow = C(255, 150, 40) },
 			Ears = "Big", Tail = "FlameBushy", Extras = { "FlameTips" },
 		},
 	},
 	MagmaRhino = {
-		Name = "Magma Rhino", Thai = "แรดลาวาหลอมเหลว", Element = "Fire", Behaviour = "Charger",
-		Health = 320, Damage = 30, Speed = 20, AttackRange = 8, AttackCooldown = 2.6, Aggro = 60, StructureDamage = 6, Knockback = 120,
+		Name = "Fire Ram", Thai = "แกะเพลิงลาวา", Element = "Fire", Behaviour = "Charger",
+		Health = 300, Damage = 28, Speed = 19, AttackRange = 7, AttackCooldown = 2.8, Aggro = 38, ChargeCooldown = 9, StructureDamage = 6, Knockback = 120,
 		RaidCost = 9, MinNight = 12,
 		Drops = { { Item = "RawMeat", Min = 4, Max = 6 }, { Item = "Pelt", Min = 2, Max = 3 }, { Item = "Coal", Min = 2, Max = 5 }, { Item = "EmberShard", Min = 1, Max = 2 } },
 		Model = {
+			Skin = { Size = 7.5, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
 			Template = "Quadruped", Body = V(5.0, 4.4, 8.4), Head = V(2.6, 2.4, 3.0), Snout = V(1.8, 1.4, 1.4), LegLen = 2.6, LegThick = 1.6,
 			Neck = 0.3, Colors = { Main = C(52, 42, 42), Belly = C(84, 60, 52), Dark = C(26, 20, 20), Eye = C(255, 210, 80), Horn = C(28, 24, 30), Glow = C(255, 104, 20) },
 			Ears = "Round", Tail = "Thin", Extras = { "NoseHorn", "LavaCracks", "BackSpikes" }, Material = "Basalt",
 		},
 	},
 	LavaSalamander = {
-		Name = "Lava Salamander", Thai = "ซาลาแมนเดอร์ลาวา", Element = "Fire", Behaviour = "Spitter",
-		Health = 80, Damage = 12, Speed = 17, AttackRange = 70, AttackCooldown = 2.4, Aggro = 90, StructureDamage = 2, Burn = 5,
+		Name = "Emberclaw Scorpion", Thai = "แมงป่องก้ามถ่าน", Element = "Fire", Behaviour = "Spitter",
+		Health = 90, Damage = 12, Speed = 16, AttackRange = 70, AttackCooldown = 2.8, Aggro = 45, StructureDamage = 2, Burn = 5,
 		RaidCost = 3, MinNight = 5,
 		Drops = { { Item = "RawMeat", Min = 1, Max = 2 }, { Item = "EmberShard", Chance = 0.35 }, { Item = "Coal", Min = 1, Max = 2 } },
 		Model = {
-			Template = "Reptile", Body = V(2.2, 1.4, 4.6), Head = V(1.7, 1.0, 1.6), Snout = V(1.2, 0.6, 1.0), LegLen = 1.0, LegThick = 0.55,
+			Skin = { Size = 8, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
+			Template = "Quadruped", Body = V(2.2, 1.4, 4.6), Head = V(1.7, 1.0, 1.6), Snout = V(1.2, 0.6, 1.0), LegLen = 1.0, LegThick = 0.55,
 			TailLen = 4.5, Colors = { Main = C(38, 28, 30), Belly = C(255, 140, 40), Dark = C(18, 12, 14), Eye = C(255, 240, 120), Glow = C(255, 110, 20) },
 			Extras = { "GlowSpots", "Frills" },
 		},
