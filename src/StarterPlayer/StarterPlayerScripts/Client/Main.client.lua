@@ -225,6 +225,60 @@ do
 			refreshPickupPrompts()
 		end
 	end)
+	-- กรอบขาวรอบของบนพื้นที่ "เก็บได้ตอนนี้": เมาส์ชี้ (ตอนถือกระสอบ ในระยะ) หรือปุ่ม E/R ขึ้นอยู่
+	do
+		local PICK_RANGE = 20 -- ตรงกับ DropService
+		local hl = Instance.new("Highlight")
+		hl.Name = "PickupHighlight"
+		hl.FillColor, hl.FillTransparency = Color3.new(1, 1, 1), 0.85
+		hl.OutlineColor, hl.OutlineTransparency = Color3.new(1, 1, 1), 0
+		hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+		hl.Enabled = false
+		hl.Parent = Workspace.CurrentCamera
+		local shown = {}
+		local PPS = game:GetService("ProximityPromptService")
+		local function dropOf(inst)
+			local drops = Workspace:FindFirstChild("Drops")
+			while inst and drops and inst.Parent ~= drops do
+				inst = inst.Parent
+			end
+			return drops and inst and inst:IsA("Model") and inst or nil
+		end
+		PPS.PromptShown:Connect(function(prompt)
+			if prompt.Name == "Pickup" or prompt.Name == "Use" then
+				shown[prompt] = true
+			end
+		end)
+		PPS.PromptHidden:Connect(function(prompt)
+			shown[prompt] = nil
+		end)
+		game:GetService("RunService").RenderStepped:Connect(function()
+			local target
+			local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+			if holdingSack and root then
+				local m = dropOf(mouse.Target)
+				if m and m.PrimaryPart and (m.PrimaryPart.Position - root.Position).Magnitude <= PICK_RANGE then
+					target = m
+				end
+			end
+			if not target then
+				for prompt in pairs(shown) do
+					if prompt.Parent and prompt.Enabled then
+						target = dropOf(prompt)
+						if target then
+							break
+						end
+					else
+						shown[prompt] = nil
+					end
+				end
+			end
+			if hl.Adornee ~= target then
+				hl.Adornee = target
+			end
+			hl.Enabled = target ~= nil
+		end)
+	end
 	-- F = เอาของออกจากกระสอบ (ชิ้นล่าสุด) · ยืนใกล้กองไฟ = โยนเข้ากองไฟ
 	game:GetService("UserInputService").InputBegan:Connect(function(input, gp)
 		if gp or input.KeyCode ~= Enum.KeyCode.F then

@@ -247,32 +247,36 @@ Animals.Data = {
 
 	------------------------------------------------------------ ลูกสัตว์ธาตุ (ภารกิจช่วยเหลือ)
 	TerraPup = {
-		Name = "Terra Pup", Thai = "ลูกจิ้งจอกปฐพี", Element = "Earth", Behaviour = "Spirit", Health = math.huge, Speed = 26,
+		Name = "Terra Pup", Thai = "ลูกหมีปฐพี", Element = "Earth", Behaviour = "Spirit", Health = math.huge, Speed = 26,
 		Model = {
+			Skin = { Size = 4.2, Rig = "Static", Yaw = -90 }, -- หมี (Creator Store) · ไม่มีกระดูก -> กระโดดดุ๊กดิ๊ก (AnimalAnimator)
 			Template = "Quadruped", Body = V(1.4, 1.4, 2.2), Head = V(1.5, 1.4, 1.4), Snout = V(0.6, 0.5, 0.6), LegLen = 1.0, LegThick = 0.4, Neck = 0.3,
 			Colors = { Main = C(140, 210, 100), Belly = C(230, 250, 210), Dark = C(60, 110, 50), Eye = C(255, 255, 255), Glow = C(150, 255, 110) },
 			Ears = "Big", Tail = "Bushy", Extras = { "SpiritGlow", "Sprout" },
 		},
 	},
 	TidePup = {
-		Name = "Tide Pup", Thai = "ลูกจิ้งจอกวารี", Element = "Water", Behaviour = "Spirit", Health = math.huge, Speed = 26,
+		Name = "Tide Pup", Thai = "ลูกฉลามวารี", Element = "Water", Behaviour = "Spirit", Health = math.huge, Speed = 26,
 		Model = {
+			Skin = { Size = 4.4, Rig = "Static" }, -- ฉลาม (Creator Store) · ไม่มีกระดูก -> กระโดดดุ๊กดิ๊ก (AnimalAnimator)
 			Template = "Quadruped", Body = V(1.4, 1.4, 2.2), Head = V(1.5, 1.4, 1.4), Snout = V(0.6, 0.5, 0.6), LegLen = 1.0, LegThick = 0.4, Neck = 0.3,
 			Colors = { Main = C(90, 180, 255), Belly = C(220, 244, 255), Dark = C(40, 90, 160), Eye = C(255, 255, 255), Glow = C(110, 230, 255) },
 			Ears = "Big", Tail = "Bushy", Extras = { "SpiritGlow", "Fins" },
 		},
 	},
 	GalePup = {
-		Name = "Gale Pup", Thai = "ลูกจิ้งจอกวายุ", Element = "Air", Behaviour = "Spirit", Health = math.huge, Speed = 26,
+		Name = "Gale Pup", Thai = "ลูกเพนกวินวายุ", Element = "Air", Behaviour = "Spirit", Health = math.huge, Speed = 26,
 		Model = {
+			Skin = { Size = 3.4, Rig = "Static", Yaw = 90 }, -- เพนกวิน (Creator Store) · ไม่มีกระดูก -> กระโดดดุ๊กดิ๊ก (AnimalAnimator)
 			Template = "Quadruped", Body = V(1.4, 1.4, 2.2), Head = V(1.5, 1.4, 1.4), Snout = V(0.6, 0.5, 0.6), LegLen = 1.0, LegThick = 0.4, Neck = 0.3,
 			Colors = { Main = C(236, 242, 255), Belly = C(255, 255, 255), Dark = C(140, 160, 210), Eye = C(90, 140, 255), Glow = C(200, 230, 255) },
 			Ears = "Big", Tail = "Bushy", Extras = { "SpiritGlow", "WindRibbons" },
 		},
 	},
 	EmberPup = {
-		Name = "Ember Pup", Thai = "ลูกจิ้งจอกอัคคี", Element = "Fire", Behaviour = "Spirit", Health = math.huge, Speed = 26,
+		Name = "Ember Pup", Thai = "ลูกมังกรอัคคี", Element = "Fire", Behaviour = "Spirit", Health = math.huge, Speed = 26,
 		Model = {
+			Skin = { Size = 3.6, Rig = "Static", Yaw = 45 }, -- ลูกมังกร (Creator Store) · ไม่มีกระดูก -> กระโดดดุ๊กดิ๊ก (AnimalAnimator)
 			Template = "Quadruped", Body = V(1.4, 1.4, 2.2), Head = V(1.5, 1.4, 1.4), Snout = V(0.6, 0.5, 0.6), LegLen = 1.0, LegThick = 0.4, Neck = 0.3,
 			Colors = { Main = C(255, 120, 50), Belly = C(255, 230, 190), Dark = C(150, 50, 20), Eye = C(255, 255, 255), Glow = C(255, 170, 60) },
 			Ears = "Big", Tail = "FlameBushy", Extras = { "SpiritGlow", "FlameTips" },

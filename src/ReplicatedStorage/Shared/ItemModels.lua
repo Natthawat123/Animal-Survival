@@ -1,7 +1,7 @@
 --[[
 	ItemModels — โมเดลไอเทมจาก Creator Store (ReplicatedStorage.Assets.Items.<ItemId>)
 	ItemModels.Has(id)
-	ItemModels.Clone(id, size, opts) -> Model (ด้านยาวสุด = size stud) · opts.Ground = จุดหมุนที่พื้นตรงกลาง (ไม่งั้นกึ่งกลางกล่อง)
+	ItemModels.Clone(id, size, opts) -> Model (ด้านยาวสุด = size stud) · opts.Ground = จุดหมุนที่พื้นตรงกลาง (ไม่งั้นกึ่งกลางกล่อง) · opts.Yaw = หมุน (องศา)
 	คืนค่า model, ขนาดกล่องหลังย่อขยาย
 ]]
 
@@ -34,6 +34,15 @@ function ItemModels.Clone(id, size, opts)
 	for _, d in ipairs(m:GetDescendants()) do
 		if d:IsA("LuaSourceContainer") or d:IsA("Sound") or d:IsA("GuiBase") or d:IsA("ProximityPrompt") or d:IsA("ClickDetector") then
 			d:Destroy()
+		end
+	end
+	if opts.Yaw then
+		-- หมุนรอบแกนตั้งก่อนจัดตำแหน่ง (ให้ด้านหน้าของโมเดลตรงกับทิศที่เกมใช้)
+		local r = CFrame.Angles(0, math.rad(opts.Yaw), 0)
+		for _, p in ipairs(m:GetDescendants()) do
+			if p:IsA("BasePart") then
+				p.CFrame = r * p.CFrame
+			end
 		end
 	end
 	local _, box = m:GetBoundingBox()

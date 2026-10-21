@@ -640,9 +640,21 @@ end
 --   [CHECK] <id> OK <parts> <meshparts> <unions> <humanoids> <x> <y> <z>   หรือ   [CHECK] <id> ERROR
 local function runCheck(ids)
 	for _, id in ipairs(ids) do
-		local ok, objs = pcall(function()
-			return game:GetObjects("rbxassetid://" .. id)
+		-- บางโมเดลโหลดค้างไม่จบ -> รอสูงสุด 15 วินาทีแล้วข้าม
+		local ok, objs, done = false, nil, false
+		task.spawn(function()
+			ok, objs = pcall(function()
+				return game:GetObjects("rbxassetid://" .. id)
+			end)
+			done = true
 		end)
+		local t0 = os.clock()
+		while not done and os.clock() - t0 < 15 do
+			task.wait(0.1)
+		end
+		if not done then
+			ok, objs = false, "timeout"
+		end
 		if not ok or not objs or #objs == 0 then
 			print("[CHECK] " .. id .. " ERROR")
 			continue

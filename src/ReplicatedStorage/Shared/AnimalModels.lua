@@ -207,6 +207,58 @@ local function buildSkinned(model, custom, skin)
 	return root, hip
 end
 
+-- โมเดลนิ่งจาก Creator Store (ไม่มีกระดูก, กี่ชิ้นก็ได้): ด้านยาวสุด = Skin.Size · Skin.Yaw หมุนให้หน้าหัน -Z
+-- ทุกชิ้นเชื่อมกับชิ้นใหญ่สุด ("Skin") ซึ่งต่อกับ root ด้วย Motor6D -> client ทำท่ากระโดดดุ๊กดิ๊ก (AnimalAnimator)
+local function buildStatic(model, custom, skin)
+	local src = custom:Clone()
+	local parts = {}
+	for _, d in ipairs(src:GetDescendants()) do
+		if d:IsA("BasePart") then
+			table.insert(parts, d)
+		elseif d:IsA("JointInstance") or d:IsA("WeldConstraint") or d:IsA("LuaSourceContainer") or d:IsA("Sound") then
+			d:Destroy()
+		end
+	end
+	if #parts == 0 then
+		src:Destroy()
+		return nil
+	end
+	local r = ANG(0, math.rad(skin.Yaw or 0), 0)
+	for _, p in ipairs(parts) do
+		p.CFrame = r * p.CFrame
+	end
+	local _, box = src:GetBoundingBox()
+	pcall(function()
+		src:ScaleTo((skin.Size or 4) / math.max(box.X, box.Y, box.Z, 0.01))
+	end)
+	local bcf, size = src:GetBoundingBox()
+	local shift = V(bcf.Position.X, bcf.Position.Y - size.Y / 2, bcf.Position.Z)
+	local main = parts[1]
+	for _, p in ipairs(parts) do
+		p.CFrame = p.CFrame - shift
+		p.Anchored, p.CanCollide, p.CanTouch, p.Massless = false, false, false, true
+		if p.Size.Magnitude > main.Size.Magnitude then
+			main = p
+		end
+	end
+	local hip = size.Y * 0.2
+	local rootSize = V(math.max(size.X, 2) * 0.55, size.Y * 0.5, math.max(size.Z, 2) * 0.55)
+	local root = newPart(model, "HumanoidRootPart", rootSize, CF(0, hip + rootSize.Y / 2, 0), Color3.new(1, 1, 1))
+	root.Transparency, root.CanCollide, root.Massless, root.CastShadow = 1, true, false, false
+	for _, p in ipairs(parts) do
+		p.Parent = model
+		if p ~= main then
+			weld(main, p)
+		end
+	end
+	main.Name = "Skin"
+	motor("SkinJoint", root, main, main.CFrame)
+	src:Destroy()
+	model:SetAttribute("Skinned", true)
+	model:SetAttribute("SkinRig", "Static")
+	return root, hip
+end
+
 function AnimalModels.Build(id, opts)
 	opts = opts or {}
 	local info = Animals.Data[id]
@@ -220,7 +272,9 @@ function AnimalModels.Build(id, opts)
 	local model = Instance.new("Model")
 	model.Name = id
 	local root, hip
-	if spec.Skin and custom:FindFirstChildWhichIsA("Bone", true) then
+	if spec.Skin and spec.Skin.Rig == "Static" then
+		root, hip = buildStatic(model, custom, spec.Skin)
+	elseif spec.Skin and custom:FindFirstChildWhichIsA("Bone", true) then
 		root, hip = buildSkinned(model, custom, spec.Skin)
 	else
 		for _, c in ipairs(custom:GetChildren()) do

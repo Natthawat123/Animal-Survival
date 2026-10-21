@@ -144,7 +144,8 @@ end
 -- ขนาดของตก (ด้านยาวสุด, stud) เมื่อใช้โมเดลจาก Creator Store
 local STORE_SIZE = {
 	Fiber = 1.8, Bone = 1.9, Berries = 1.9, RawMeat = 1.6, CookedMeat = 1.6, Stew = 1.6, Bandage = 1.4,
-	Wood = 2.6, Pelt = 2, TerraCore = 1.4, TidePearl = 1.3, GaleFeather = 1.8,
+	Wood = 2.4, Pelt = 2, TerraCore = 1.4, TidePearl = 1.3, GaleFeather = 1.8,
+	Stone = 1.8, Iron = 1.7, Coal = 1.8, BeastHeart = 1.5, Medkit = 1.4, EmberShard = 1.5,
 }
 
 -- โมเดลจาก Store: กล่องใส (Root ชนพื้น) + ชิ้นโมเดลเชื่อมติด

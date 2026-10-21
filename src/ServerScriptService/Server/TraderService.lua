@@ -33,6 +33,18 @@ end
 
 -- ตัวพ่อค้า: ผู้ชายผ้าคลุมแบกเป้ใหญ่ + โคมไฟ (สร้างจากชิ้นส่วน)
 local function buildTrader(cf)
+	-- พ่อค้าเร่จาก Creator Store (คนคลุมผ้า) + ตัวชนใสไว้ติดปุ่มแลกของ
+	local PropBuilder = require(game:GetService("ReplicatedStorage").Shared.PropBuilder)
+	local store = Instance.new("Model")
+	store.Name = "Trader"
+	if PropBuilder.Imported("TraderNPC", cf, 3.8, store) then
+		local body = part(store, { Name = "Body", Size = V(2.6, 6.6, 2), CFrame = cf * CF(0, 3.3, 0), Transparency = 1 })
+		local l = Instance.new("PointLight")
+		l.Color, l.Range, l.Brightness = C(255, 200, 120), 18, 1.5
+		l.Parent = body
+		return store, body
+	end
+	store:Destroy()
 	local m = Instance.new("Model")
 	m.Name = "Trader"
 	local cloak = C(110, 80, 52)

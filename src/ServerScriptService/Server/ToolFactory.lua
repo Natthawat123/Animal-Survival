@@ -35,7 +35,7 @@ local MESH_FRONT = {
 -- Length = ความยาวในมือ (stud) · Head/Front = แกนของชิ้น Handle (วัดจากโมเดลจริง) ที่เป็นหัว/คม · ไม่มี = เดาจากรูปทรง
 -- Aura = ออร่าธาตุรอบอาวุธ: "Earth" | "Water" | "Wind" | "Fire" | "Rainbow" (เปลวอนิเมะ + ประกาย + เส้นแสงตามรอยฟัน)
 local STORE_WEAPONS = {
-	OldAxe = { Length = 3.2, Front = Vector3.new(0, 0, -1) }, StoneAxe = { Length = 3.2 }, Pickaxe = { Length = 3.4, Head = Vector3.new(0, 1, 0) },
+	OldAxe = { Length = 3.2, Front = Vector3.new(0, 0, -1) }, StoneAxe = { Length = 3.2 }, IronAxe = { Length = 3.6 }, Pickaxe = { Length = 3.4, Head = Vector3.new(0, 1, 0) },
 	Torch = { Length = 3, Fire = true }, Spear = { Length = 6 },
 	Bow = { Length = 4.2, Front = Vector3.new(0, 0, 1), Flip = true },
 	TerraHammer = { Length = 4.2, Aura = "Earth" },

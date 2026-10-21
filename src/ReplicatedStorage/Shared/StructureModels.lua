@@ -193,18 +193,32 @@ Builders.SunBeacon = function(m)
 end
 
 -- สิ่งก่อสร้างที่ใช้โมเดลจาก Creator Store (ด้านยาวสุด, stud)
-local STORE_STRUCT = { CookPot = 7, SpikeTrap = 8, FarmPlot = 10, EmberTotem = 9 }
+local STORE_STRUCT = { CookPot = 7, SpikeTrap = 8, FarmPlot = 10, EmberTotem = 9, Lantern = 9, Bed = 8, TerraTotem = 14, TideTotem = 7, Ballista = 8, SunBeacon = 40, LogWall = 11, StoneWall = 12, GaleTotem = 14 }
+local STORE_YAW = { Bed = 90, LogWall = 90 }
 
 function StructureModels.Build(kind)
 	if STORE_STRUCT[kind] and ItemModels.Has(kind) then
-		local m = ItemModels.Clone(kind, STORE_STRUCT[kind], { Ground = true })
+		if kind == "Ballista" then
+			return StructureModels.StoreBallista()
+		end
+		local m, box = ItemModels.Clone(kind, STORE_STRUCT[kind], { Ground = true, Yaw = STORE_YAW[kind] })
 		m.Name = kind
 		for _, p in ipairs(m:GetDescendants()) do
 			if p:IsA("BasePart") then
 				p.Anchored = true
 			end
 		end
-		if kind == "CookPot" then
+		if kind == "SunBeacon" then
+			-- แสงสุริยะบนยอดหอ (ส่องไกล)
+			local glow = P(m, V(2, 2, 2), CF(0, box.Y * 0.82, 0), C(0, 0, 0))
+			glow.Name, glow.Transparency, glow.CanCollide = "Glow", 1, false
+			light(glow, C(255, 230, 160), Items.Structures.SunBeacon.Light, 3, false)
+		elseif kind == "Lantern" then
+			-- ไฟในโคม (ส่วนบนของเสา)
+			local glow = P(m, V(1, 1, 1), CF(0, box.Y * 0.62, 0), C(0, 0, 0))
+			glow.Name, glow.Transparency, glow.CanCollide = "Glow", 1, false
+			light(glow, C(255, 200, 120), Items.Structures.Lantern.Light, 2.2, true)
+		elseif kind == "CookPot" then
 			-- จุดกดทำสตูว์ + ไฟใต้หม้อ
 			local pot = P(m, V(3, 3, 3), CF(0, 2.5, 0), C(0, 0, 0))
 			pot.Name, pot.Transparency, pot.CanCollide = "Pot", 1, false
@@ -227,6 +241,49 @@ function StructureModels.Build(kind)
 	local m = Instance.new("Model")
 	m.Name = kind
 	b(m)
+	m.WorldPivot = CF(0, 0, 0)
+	return m
+end
+
+-- หน้าไม้ยักษ์: ฐานไม้ + หน้าไม้จาก Creator Store (Turret หมุนเล็งสัตว์ได้)
+function StructureModels.StoreBallista()
+	local m = Instance.new("Model")
+	m.Name = "Ballista"
+	cylY(m, 2.4, 6, CF(0, 1.2, 0), C(100, 74, 50), Enum.Material.WoodPlanks)
+	P(m, V(1.2, 1.4, 1.2), CF(0, 3.1, 0), C(80, 60, 42), Enum.Material.Wood)
+	local turret = ItemModels.Clone("Ballista", STORE_STRUCT.Ballista)
+	turret.Name = "Turret"
+	-- หันลูกศรไปทาง -Z (ทิศหน้าที่ BuildingService ใช้เล็ง)
+	local arrow = turret:FindFirstChild("Arrow", true)
+	if arrow then
+		local s = arrow.Size
+		local axis = (s.X >= s.Y and s.X >= s.Z) and arrow.CFrame.RightVector or (s.Y >= s.Z and arrow.CFrame.UpVector or arrow.CFrame.LookVector)
+		local flat = Vector3.new(axis.X, 0, axis.Z)
+		if flat.Magnitude > 0.1 then
+			local yaw = math.atan2(-flat.X, -flat.Z)
+			local r = CFrame.Angles(0, -yaw, 0)
+			for _, p in ipairs(turret:GetDescendants()) do
+				if p:IsA("BasePart") then
+					p.CFrame = r * p.CFrame
+				end
+			end
+		end
+	end
+	for _, p in ipairs(turret:GetDescendants()) do
+		if p:IsA("BasePart") then
+			p.CFrame = CF(0, 4.3, 0) * p.CFrame
+			p.Anchored = true
+		end
+	end
+	local pivot = P(turret, V(0.5, 0.5, 0.5), CF(0, 4.3, 0), C(0, 0, 0))
+	pivot.Name, pivot.Transparency, pivot.CanCollide = "Pivot", 1, false
+	turret.PrimaryPart = pivot
+	turret.Parent = m
+	for _, p in ipairs(m:GetChildren()) do
+		if p:IsA("BasePart") then
+			p.Anchored = true
+		end
+	end
 	m.WorldPivot = CF(0, 0, 0)
 	return m
 end

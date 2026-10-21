@@ -678,19 +678,19 @@ local STORE = {
 	Mushrooms = { Models = { "Mushrooms" }, Height = 2.6 },
 	GlowShroom = { Models = { "Mushrooms" }, Height = 4.5, Color = C(70, 170, 150), Material = Enum.Material.SmoothPlastic,
 		Light = { Color = C(90, 230, 190), Range = 10, Brightness = 0.6 } },
-	CoalRock = { Models = { "RockLP" }, Split = "Parts", Height = 6, Solid = true, Color = C(40, 36, 38), Material = Enum.Material.Basalt },
-	IronRock = { Models = { "RockLP" }, Split = "Parts", Height = 7, Solid = true, Color = C(120, 98, 86), Material = Enum.Material.Slate },
-	ObsidianSpire = { Models = { "RockLP" }, Split = "Parts", Height = 16, Solid = true, Color = C(34, 28, 36), Material = Enum.Material.Basalt, Stretch = 1.8 },
-	IceSpire = { Models = { "RockLP" }, Split = "Parts", Height = 15, Solid = true, Color = C(170, 215, 240), Material = Enum.Material.Ice, Stretch = 1.8 },
-	-- คริสตัลธาตุ: ผลึกจริง (หินโปร่งแสงสีธาตุ) + แสงอ่อน + ประกายเล็กๆ
-	TerraCrystal = { Models = { "RockLP" }, Split = "Parts", Height = 9, Solid = true, Color = C(110, 210, 90), Material = Enum.Material.Glass, Stretch = 1.6,
-		Light = { Color = C(130, 240, 100), Range = 14, Brightness = 0.9 }, Sparkle = C(170, 255, 140) },
-	TideCrystal = { Models = { "RockLP" }, Split = "Parts", Height = 9, Solid = true, Color = C(80, 180, 240), Material = Enum.Material.Glass, Stretch = 1.6,
-		Light = { Color = C(90, 210, 255), Range = 14, Brightness = 0.9 }, Sparkle = C(160, 230, 255) },
-	GaleCrystal = { Models = { "RockLP" }, Split = "Parts", Height = 9, Solid = true, Color = C(200, 225, 250), Material = Enum.Material.Glass, Stretch = 1.6,
-		Light = { Color = C(210, 235, 255), Range = 14, Brightness = 0.9 }, Sparkle = C(235, 245, 255) },
-	EmberCrystal = { Models = { "RockLP" }, Split = "Parts", Height = 9, Solid = true, Color = C(230, 110, 40), Material = Enum.Material.Glass, Stretch = 1.6,
-		Light = { Color = C(255, 120, 40), Range = 14, Brightness = 1 }, Sparkle = C(255, 190, 90) },
+	BerryBush = { Models = { "BerryBushLP" }, Height = 5 },
+	Flowers = { Models = { "FlowerBed" }, Height = 1.4 },
+	Coral = { Models = { "CoralSet" }, Split = "Models", Height = 5 },
+	Kelp = { Models = { "KelpLP" }, Height = 8 },
+	LavaVent = { Models = { "VolcanoLP" }, Height = 10, Solid = true },
+	CoalRock = { Models = { "CoalOreLP" }, Height = 5, Solid = true },
+	IronRock = { Models = { "IronOreLP" }, Height = 6, Solid = true },
+	ObsidianSpire = { Models = { "ObsidianEgg" }, Height = 9, Solid = true },
+	IceSpire = { Models = { "IceSpikeLP" }, Height = 15, Solid = true },
+	TerraCrystal = { Models = { "CrystalGreen" }, Height = 10, Solid = true, Light = { Color = C(130, 240, 100), Range = 14, Brightness = 0.9 }, Sparkle = C(170, 255, 140) },
+	TideCrystal = { Models = { "CrystalBlue" }, Height = 9, Solid = true, Light = { Color = C(90, 210, 255), Range = 14, Brightness = 0.9 }, Sparkle = C(160, 230, 255) },
+	GaleCrystal = { Models = { "CrystalWhite" }, Height = 7, Solid = true, Light = { Color = C(210, 235, 255), Range = 14, Brightness = 0.9 }, Sparkle = C(235, 245, 255) },
+	EmberCrystal = { Models = { "CrystalRed" }, Height = 10, Solid = true, Light = { Color = C(255, 120, 40), Range = 14, Brightness = 1 }, Sparkle = C(255, 190, 90) },
 }
 PropBuilder.Store = STORE
 local storeVariants = {}
@@ -1480,7 +1480,17 @@ function PropBuilder.BuildLair(sp, parent)
 	local R = sp.Floating and 52 or 62
 	local stoneColor = ({ Earth = C(96, 100, 90), Water = C(190, 206, 200), Air = C(120, 132, 168), Fire = C(40, 34, 36) })[el]
 	local stoneMat = ({ Earth = Enum.Material.Slate, Water = Enum.Material.Limestone, Air = Enum.Material.Slate, Fire = Enum.Material.Basalt })[el]
-	for i = 0, 9 do
+	-- ฉากหลังจาก Creator Store (ต่อธาตุ) -> แทนวงเสาหินปั้น
+	--   { ชื่อโมเดล, ความกว้าง, ระยะถอยหลังจากกลางลาน (0 = ล้อมลานไว้ตรงกลาง) }
+	local LAIR_STORE = {
+		Earth = { "Colosseum", 176, 0 }, -- โคลอสเซียมล้อมลานสู้
+		Water = { "StoneyHeights", 150, R + 66 }, -- เมืองหินยอดแหลมกลางน้ำ
+		Air = { "IcePalace", 140, R + 58 }, -- พระราชวังน้ำแข็ง
+		Fire = { "DragonCastle", 95, R + 40 }, -- หอปราสาทมังกร
+	}
+	local ls = LAIR_STORE[el]
+	local backdrop = ls and PropBuilder.Imported(ls[1], base * CF(0, -1, ls[3]) * ANG(0, math.pi, 0), ls[2], m)
+	for i = 0, backdrop and -1 or 9 do
 		local ang = i / 10 * math.pi * 2
 		local h = 18 + (i % 3) * 6
 		local scf = base * CF(math.cos(ang) * R, 0, math.sin(ang) * R) * ANG(rad(math.sin(i) * 6), -ang, rad(math.cos(i) * 5))
@@ -1497,11 +1507,13 @@ function PropBuilder.BuildLair(sp, parent)
 		end
 	end
 	-- ซี่โครงยักษ์ (ซากเหยื่อ)
-	for i = 0, 5 do
+	for i = 0, backdrop and -1 or 5 do
 		local z = -12 + i * 5
 		cylinderY(22 - math.abs(i - 2.5) * 3, 1.6, base * CF(-24, 6, z) * ANG(0, 0, rad(-38)), { Color = C(226, 218, 196), Material = Enum.Material.SmoothPlastic }, m)
 	end
-	ellipsoid(V(9, 7, 11), base * CF(-30, 3.5, -22) * ANG(0.3, 0.5, 0.2), { Color = C(232, 226, 206), Material = Enum.Material.SmoothPlastic }, m)
+	if not backdrop then
+		ellipsoid(V(9, 7, 11), base * CF(-30, 3.5, -22) * ANG(0.3, 0.5, 0.2), { Color = C(232, 226, 206), Material = Enum.Material.SmoothPlastic }, m)
+	end
 	-- วงเวทกลางลาน
 	local sigil = cylinderY(0.3, 36, base * CF(0, 0.2, 0), { Name = "Sigil", Color = col, Material = Enum.Material.Slate, Transparency = 1, CanCollide = false }, m)
 	do
@@ -1539,8 +1551,10 @@ function PropBuilder.BuildRuins(sp, parent, rng)
 	m.Name = "Ruins_" .. el
 	local base = CF(sp.Position) * ANG(0, rng:NextNumber(0, 6.28), 0)
 	local stone = ({ Earth = C(130, 126, 116), Water = C(200, 214, 206), Air = C(170, 178, 200), Fire = C(110, 70, 56) })[el]
+	-- ซากปรักหักพังจาก Creator Store (เกาะบ้านร้าง) -> ไม่ต้องปั้นเสา/ซุ้ม/พื้นแตก
+	local storeRuins = PropBuilder.Imported("RuinsIsland", base * CF(0, -0.5, 14), 40, m)
 	-- เสา
-	for i = 0, 5 do
+	for i = 0, storeRuins and -1 or 5 do
 		local x = (i % 3 - 1) * 12
 		local z = (i < 3) and -8 or 8
 		local h = rng:NextNumber(4, 16)
@@ -1551,11 +1565,13 @@ function PropBuilder.BuildRuins(sp, parent, rng)
 		end
 	end
 	-- ซุ้มประตู
-	P("Part", { Size = V(3, 14, 3), CFrame = base * CF(-6, 7, -18), Color = stone, Material = Enum.Material.Brick }, m)
-	P("Part", { Size = V(3, 14, 3), CFrame = base * CF(6, 7, -18), Color = stone, Material = Enum.Material.Brick }, m)
-	P("Part", { Size = V(16, 3, 3.4), CFrame = base * CF(0, 15, -18), Color = stone, Material = Enum.Material.Brick }, m)
+	if not storeRuins then
+		P("Part", { Size = V(3, 14, 3), CFrame = base * CF(-6, 7, -18), Color = stone, Material = Enum.Material.Brick }, m)
+		P("Part", { Size = V(3, 14, 3), CFrame = base * CF(6, 7, -18), Color = stone, Material = Enum.Material.Brick }, m)
+		P("Part", { Size = V(16, 3, 3.4), CFrame = base * CF(0, 15, -18), Color = stone, Material = Enum.Material.Brick }, m)
+	end
 	-- พื้นแตก
-	for _ = 1, 8 do
+	for _ = 1, storeRuins and 0 or 8 do
 		P("Part", {
 			Size = V(rng:NextNumber(3, 6), 0.8, rng:NextNumber(3, 6)),
 			CFrame = base * CF(rng:NextNumber(-14, 14), 0.2, rng:NextNumber(-12, 12)) * ANG(rng:NextNumber(-0.1, 0.1), rng:NextNumber(0, 3), rng:NextNumber(-0.1, 0.1)),
@@ -1565,13 +1581,22 @@ function PropBuilder.BuildRuins(sp, parent, rng)
 	-- หีบ
 	local chest = Instance.new("Model")
 	chest.Name = "Chest"
-	local ccf = base * CF(0, 0, 0)
+	local ccf = base * CF(0, 0, storeRuins and -10 or 0)
 	local body = P("Part", { Name = "Body", Size = V(4, 2.6, 2.8), CFrame = ccf * CF(0, 1.3, 0), Color = C(110, 72, 40), Material = Enum.Material.WoodPlanks }, chest)
 	P("Part", { Name = "Lid", Size = V(4.1, 1, 2.9), CFrame = ccf * CF(0, 3.1, 0), Color = C(130, 86, 48), Material = Enum.Material.WoodPlanks }, chest)
 	P("Part", { Size = V(4.2, 0.4, 3), CFrame = ccf * CF(0, 2.6, 0), Color = C(210, 170, 70), Material = Enum.Material.Metal }, chest)
 	P("Part", { Size = V(0.6, 0.8, 0.2), CFrame = ccf * CF(0, 2.4, -1.5), Color = C(230, 190, 80), Material = Enum.Material.Neon }, chest)
 	chest.PrimaryPart = body
-	if MeshProps.Has("Chest") then
+	local assetsProps = ReplicatedStorage:FindFirstChild("Assets") and ReplicatedStorage.Assets:FindFirstChild("Props")
+	if assetsProps and assetsProps:FindFirstChild("ChestLP") then
+		-- หีบสมบัติจาก Creator Store (ชิ้นปั้นเดิมซ่อนไว้เป็นตัวชน/จุดอ้างอิง)
+		for _, d in ipairs(chest:GetChildren()) do
+			if d:IsA("BasePart") then
+				d.Transparency = 1
+			end
+		end
+		PropBuilder.Imported("ChestLP", ccf, 4.6, chest)
+	elseif MeshProps.Has("Chest") then
 		for _, d in ipairs(chest:GetChildren()) do
 			if d:IsA("BasePart") then
 				d.Transparency = 1

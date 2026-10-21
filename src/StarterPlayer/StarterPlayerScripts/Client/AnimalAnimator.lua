@@ -267,6 +267,17 @@ function AnimalAnimator.Init()
 				elseif rig.Clip and not rig.DeadT then
 					local vel = rig.Root.AssemblyLinearVelocity
 					ClipAnimator.Animate(rig, dt, Vector3.new(vel.X, 0, vel.Z).Magnitude)
+				elseif model:GetAttribute("SkinRig") == "Static" then
+					-- โมเดลนิ่งจาก Store: กระโดดดุ๊กดิ๊กตอนเดิน / หายใจเบาๆ ตอนยืน
+					local j = rig.Root:FindFirstChild("SkinJoint")
+					if j then
+						local vel = rig.Root.AssemblyLinearVelocity
+						local moving = Vector3.new(vel.X, 0, vel.Z).Magnitude > 1.5
+						rig.HopT = (rig.HopT or 0) + dt * (moving and 11 or 2.2)
+						local s = math.sin(rig.HopT)
+						local hop = moving and math.abs(s) * 0.45 or (s + 1) * 0.04
+						j.Transform = CFrame.new(0, hop, 0) * CFrame.Angles(moving and -0.08 or 0, 0, moving and s * 0.1 or 0)
+					end
 				elseif rig.Boss then
 					local vel = rig.Root.AssemblyLinearVelocity
 					local okB, errB = pcall(BossAnimator.Animate, rig, {

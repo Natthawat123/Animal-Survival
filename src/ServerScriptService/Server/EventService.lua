@@ -306,6 +306,32 @@ function EventService:Meteor(token)
 				Color = col, Material = Enum.Material.Neon, CanCollide = false,
 			}))
 		end
+		do
+			-- ก้อนอุกกาบาตจาก Creator Store (ลูกกลม/ผลึกปั้นเดิมซ่อนไว้เป็นตัวชน/จุดอ้างอิง)
+			local PropBuilder = require(game:GetService("ReplicatedStorage").Shared.PropBuilder)
+			local met = PropBuilder.Imported("MeteorLP", base * CF(0, 0.5, 0), 13, model)
+			if met then
+				-- กล่องรวมของโมเดลรวมหางเอฟเฟกต์ด้วย -> วางก้อนหิน (ชิ้นใหญ่สุด) ให้จมหลุมนิดๆ
+				local big
+				for _, d in ipairs(met:GetDescendants()) do
+					if d:IsA("BasePart") and (not big or d.Size.Magnitude > big.Size.Magnitude) then
+						big = d
+					end
+				end
+				if big then
+					met:PivotTo(met:GetPivot() + V(0, spot.Y + 2 - (big.Position.Y - big.Size.Y / 2), 0))
+				end
+				for _, n in ipairs({ "Rock", "Core" }) do
+					local rp = model:FindFirstChild(n)
+					if rp then
+						rp.Transparency = 1
+					end
+				end
+				for _, sh in ipairs(shards) do
+					sh.Transparency = 1
+				end
+			end
+		end
 		light(core, col, 46, 3.5)
 		local sparks = Instance.new("ParticleEmitter")
 		sparks.Texture = "rbxasset://textures/particles/sparkles_main.dds"
