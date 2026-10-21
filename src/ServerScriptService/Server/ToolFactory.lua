@@ -7,6 +7,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Items = require(ReplicatedStorage.Shared.Items)
 local MeshProps = require(ReplicatedStorage.Shared.MeshProps)
+local ItemModels = require(ReplicatedStorage.Shared.ItemModels)
 -- อาวุธ/เครื่องมือที่ใช้โมเดลจริง (ที่เหลือปั้นเอง: คบเพลิง หอก ตรีศูล)
 local MESH_TOOLS = { OldAxe = true, StoneAxe = true, IronAxe = true, Pickaxe = true, Bow = true, GaleBow = true, TerraHammer = true, EmberBlade = true, FourfoldBlade = true }
 -- ด้าน "หน้า" ของโมเดลจริงแต่ละชิ้น (แกนของชิ้น Handle) = ด้านที่ต้องหันออกไปข้างหน้าตัวละคร (ทิศที่ฟัน/ยิง)
@@ -405,6 +406,26 @@ local function buildSack(itemId)
 	local s = itemId == "GiantSack" and 1.35 or (itemId == "GoodSack" and 1.15 or 1)
 	local color = Items.SackColor[itemId]
 	local h = part(tool, "Handle", V(0.4, 1.2, 0.4), C(120, 90, 60), Enum.Material.Fabric)
+	if ItemModels.Has(itemId) then
+		-- โมเดลจาก Creator Store: ห้อยใต้มือ (Handle ใส)
+		h.Transparency = 1
+		local src, box = ItemModels.Clone(itemId, 2.6 * s)
+		for _, p in ipairs(src:GetDescendants()) do
+			if p:IsA("BasePart") then
+				p.CFrame = h.CFrame * CF(0, -0.4 - box.Y / 2, 0) * p.CFrame
+				p.Anchored, p.CanCollide, p.CanTouch, p.Massless = false, false, false, true
+				local w = Instance.new("WeldConstraint")
+				w.Part0, w.Part1 = h, p
+				w.Parent = p
+			end
+		end
+		for _, c in ipairs(src:GetChildren()) do
+			c.Parent = tool
+		end
+		src:Destroy()
+		tool.GripPos = V(0, 0.3, 0)
+		return tool
+	end
 	local body = part(tool, "Bag", V(2.2, 2.4, 2.2) * s, color, Enum.Material.Fabric, "Ball")
 	attach(h, body, CF(0, -1.6 * s, 0))
 	local neck = part(tool, "Neck", V(0.9, 0.5, 0.9) * s, color:Lerp(Color3.new(0, 0, 0), 0.15), Enum.Material.Fabric, "Cylinder")

@@ -8,6 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local Items = require(ReplicatedStorage.Shared.Items)
+local ItemModels = require(ReplicatedStorage.Shared.ItemModels)
 
 local DropService = {}
 
@@ -140,23 +141,112 @@ local function bundle(m, color)
 	return r
 end
 
+-- ขนาดของตก (ด้านยาวสุด, stud) เมื่อใช้โมเดลจาก Creator Store
+local STORE_SIZE = {
+	Fiber = 1.8, Bone = 1.9, Berries = 1.9, RawMeat = 1.6, CookedMeat = 1.6, Stew = 1.6, Bandage = 1.4,
+	Wood = 2.6, Pelt = 2, TerraCore = 1.4, TidePearl = 1.3, GaleFeather = 1.8,
+}
+
+-- โมเดลจาก Store: กล่องใส (Root ชนพื้น) + ชิ้นโมเดลเชื่อมติด
+local function storeLook(m, id)
+	local src, box = ItemModels.Clone(id, STORE_SIZE[id] or 1.7)
+	local root = piece(m, Vector3.new(math.max(box.X, 0.4), math.max(box.Y, 0.4), math.max(box.Z, 0.4)), C(255, 255, 255))
+	root.Transparency = 1
+	for _, p in ipairs(src:GetDescendants()) do
+		if p:IsA("BasePart") then
+			p.Anchored, p.CanCollide, p.CanTouch, p.Massless = false, false, false, true
+		end
+	end
+	for _, c in ipairs(src:GetChildren()) do
+		c.Parent = m
+	end
+	src:Destroy()
+	-- พลังธาตุ/ของหายาก: เรืองแสงสีของไอเทม (มองเห็นตอนกลางคืน)
+	local item = Items.Data[id]
+	if item.Category == "Essence" or item.Category == "Relic" then
+		local l = Instance.new("PointLight")
+		l.Color, l.Range, l.Brightness, l.Shadows = item.Color or C(255, 255, 255), 10, 1.5, false
+		l.Parent = root
+	end
+	return root
+end
+
+-- ออร่าของพลังธาตุ: เปลวไฟอนิเมะเกาะตัว + ประกายดาว (เหมือนอาวุธธาตุ)
+local ESSENCE_AURA = {
+	TerraCore = { C(255, 200, 90), C(170, 110, 40) },
+	GaleFeather = { C(235, 250, 255), C(150, 215, 255) },
+	EmberShard = { C(255, 140, 40), C(255, 40, 20) },
+	BeastHeart = { C(255, 90, 140), C(200, 20, 60) },
+}
+local function essenceAura(root, id)
+	local col = ESSENCE_AURA[id]
+	if not col then
+		return
+	end
+	local seq = ColorSequence.new(col[1], col[2])
+	local s = math.max(root.Size.X, root.Size.Y, root.Size.Z)
+	local f = Instance.new("ParticleEmitter")
+	f.Texture = "rbxassetid://16676455805" -- เปลวไฟ 4x4 (VFXPack Fire-Aura)
+	f.FlipbookLayout, f.FlipbookMode = Enum.ParticleFlipbookLayout.Grid4x4, Enum.ParticleFlipbookMode.OneShot
+	f.Color, f.LightEmission, f.LightInfluence, f.Brightness = seq, 0.8, 0, 2
+	f.Shape, f.LockedToPart, f.ZOffset = Enum.ParticleEmitterShape.Box, true, -0.3
+	f.Rate, f.Lifetime, f.Speed = 16, NumberRange.new(0.4, 0.6), NumberRange.new(0.4, 0.9)
+	f.EmissionDirection, f.SpreadAngle, f.Acceleration = Enum.NormalId.Top, Vector2.new(15, 15), V(0, 3, 0)
+	f.Rotation = NumberRange.new(-20, 20)
+	f.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, s * 0.45), NumberSequenceKeypoint.new(0.5, s * 0.6), NumberSequenceKeypoint.new(1, s * 0.2) })
+	f.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.6), NumberSequenceKeypoint.new(0.2, 0.1), NumberSequenceKeypoint.new(0.7, 0.3), NumberSequenceKeypoint.new(1, 1) })
+	f.Parent = root
+	local st = Instance.new("ParticleEmitter")
+	st.Texture = "rbxassetid://17087151546" -- ประกายดาว (VFXPack RNG-Aura)
+	st.Color, st.LightEmission, st.LightInfluence, st.Brightness = seq, 1, 0, 3
+	st.Shape, st.Rate, st.Lifetime = Enum.ParticleEmitterShape.Box, 6, NumberRange.new(0.6, 1)
+	st.Speed, st.SpreadAngle, st.Drag = NumberRange.new(0.8, 2), Vector2.new(180, 180), 3
+	st.Rotation = NumberRange.new(-180, 180)
+	st.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.3, 0.3), NumberSequenceKeypoint.new(1, 0) })
+	st.Parent = root
+end
+
+-- เศษอัคคี: กระจุกคริสตัลแดงแหลม (โมเดลที่เลือกเป็น Union ดึงมาใช้ไม่ได้ เลยปั้นทรงเดียวกัน)
+local function emberCrystal(m)
+	local glass, core = C(235, 45, 35), C(255, 120, 60)
+	local root = piece(m, V(0.42, 1.9, 0.42), glass, Enum.Material.Glass, nil, CF(0, 0.15, 0) * ANG(0, math.rad(45), 0))
+	root.Transparency = 0.1
+	piece(m, V(0.18, 1.5, 0.18), core, Enum.Material.Neon, nil, CF(0, 0.1, 0))
+	for i = 0, 4 do
+		local a = i / 5 * math.pi * 2
+		local h = 0.8 + (i % 2) * 0.35
+		local p = piece(m, V(0.26, h, 0.26), glass, Enum.Material.Glass, nil,
+			CF(math.cos(a) * 0.3, -0.75 + h / 2, math.sin(a) * 0.3) * ANG(math.sin(a) * 0.5, a, -math.cos(a) * 0.5))
+		p.Transparency = 0.1
+	end
+	return root
+end
+
 local function build(id, n)
 	local item = Items.Data[id]
 	local m = Instance.new("Model")
 	m.Name = "Drop_" .. id
 	local look = LOOKS[id]
 	local root
-	if look then
+	if ItemModels.Has(id) then
+		root = storeLook(m, id)
+	elseif id == "EmberShard" then
+		root = emberCrystal(m)
+		local l = Instance.new("PointLight")
+		l.Color, l.Range, l.Brightness, l.Shadows = item.Color, 10, 1.5, false
+		l.Parent = root
+	elseif look then
 		root = look(m, n)
 	elseif item.Category == "Essence" or item.Category == "Relic" then
 		root = gem(m, item.Color or C(255, 255, 255))
 	else
 		root = bundle(m, item.Color or C(200, 190, 170))
 	end
+	essenceAura(root, id)
 	root.Name = "Root"
 	root.CanCollide = true
 	root.Massless = false
-	for _, p in ipairs(m:GetChildren()) do
+	for _, p in ipairs(m:GetDescendants()) do
 		if p:IsA("BasePart") and p ~= root then
 			local w = Instance.new("WeldConstraint")
 			w.Part0 = root

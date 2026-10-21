@@ -5,6 +5,7 @@
 
 local Items = require(script.Parent.Items)
 local MeshProps = require(script.Parent.MeshProps)
+local ItemModels = require(script.Parent.ItemModels)
 local MESH_STRUCT = { LogWall = "LogWall", Bed = "Bed" }
 
 local StructureModels = {}
@@ -191,7 +192,29 @@ Builders.SunBeacon = function(m)
 	l2.Parent = sun
 end
 
+-- สิ่งก่อสร้างที่ใช้โมเดลจาก Creator Store (ด้านยาวสุด, stud)
+local STORE_STRUCT = { CookPot = 7, SpikeTrap = 8, FarmPlot = 10, EmberTotem = 9 }
+
 function StructureModels.Build(kind)
+	if STORE_STRUCT[kind] and ItemModels.Has(kind) then
+		local m = ItemModels.Clone(kind, STORE_STRUCT[kind], { Ground = true })
+		m.Name = kind
+		for _, p in ipairs(m:GetDescendants()) do
+			if p:IsA("BasePart") then
+				p.Anchored = true
+			end
+		end
+		if kind == "CookPot" then
+			-- จุดกดทำสตูว์ + ไฟใต้หม้อ
+			local pot = P(m, V(3, 3, 3), CF(0, 2.5, 0), C(0, 0, 0))
+			pot.Name, pot.Transparency, pot.CanCollide = "Pot", 1, false
+			local fire = Instance.new("Fire")
+			fire.Size, fire.Heat = 3, 4
+			fire.Parent = P(m, V(1, 0.4, 1), CF(0, 0.4, 0), C(0, 0, 0))
+			fire.Parent.Transparency, fire.Parent.CanCollide = 1, false
+		end
+		return m
+	end
 	if MESH_STRUCT[kind] and MeshProps.Has(MESH_STRUCT[kind]) then
 		local m = MeshProps.Build(MESH_STRUCT[kind], { Collide = "box" })
 		m.Name = kind

@@ -636,6 +636,44 @@ local function runFetch(ids)
 	print("[AS] FETCH DONE")
 end
 
+-- ASFetch = "check:id,id" -> เช็กอย่างเดียว (ไม่ถ่ายภาพ): ดึงได้ไหม + นับชิ้น/Union/สัตว์เลี้ยง
+--   [CHECK] <id> OK <parts> <meshparts> <unions> <humanoids> <x> <y> <z>   หรือ   [CHECK] <id> ERROR
+local function runCheck(ids)
+	for _, id in ipairs(ids) do
+		local ok, objs = pcall(function()
+			return game:GetObjects("rbxassetid://" .. id)
+		end)
+		if not ok or not objs or #objs == 0 then
+			print("[CHECK] " .. id .. " ERROR")
+			continue
+		end
+		local m = Instance.new("Model")
+		for _, o in ipairs(objs) do
+			o.Parent = m
+		end
+		local parts, meshes, unions, hums = 0, 0, 0, 0
+		for _, d in ipairs(m:GetDescendants()) do
+			if d:IsA("UnionOperation") then
+				unions += 1
+			elseif d:IsA("MeshPart") then
+				meshes += 1
+			elseif d:IsA("BasePart") then
+				parts += 1
+			elseif d:IsA("Humanoid") or d:IsA("AnimationController") then
+				hums += 1
+			end
+		end
+		local size = Vector3.zero
+		pcall(function()
+			local _, sz = m:GetBoundingBox()
+			size = sz
+		end)
+		print(string.format("[CHECK] %s OK %d %d %d %d %.2f %.2f %.2f", id, parts, meshes, unions, hums, size.X, size.Y, size.Z))
+		m:Destroy()
+	end
+	print("[AS] FETCH DONE")
+end
+
 -- ถ่ายภาพโมเดลทุกตัวใน ReplicatedStorage.Assets.Creatures / Characters (เช็กว่าแปลงมาแล้วแสดงผลถูก)
 local function runProbe()
 	local stage = Instance.new("Folder")
@@ -697,7 +735,11 @@ task.defer(function()
 		for id in string.gmatch(fetch.Value, "%d+") do
 			table.insert(ids, id)
 		end
-		runFetch(ids)
+		if string.sub(fetch.Value, 1, 6) == "check:" then
+			runCheck(ids)
+		else
+			runFetch(ids)
+		end
 		return
 	end
 	if ReplicatedStorage:FindFirstChild("ASAutoTest") then

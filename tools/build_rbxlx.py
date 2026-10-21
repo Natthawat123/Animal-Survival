@@ -156,6 +156,7 @@ def main():
     assets = item("Folder", "Animals", model_items("Animals"))
     assets += item("Folder", "Props", model_items("Props"))
     assets += item("Folder", "Weapons", model_items("Weapons"))
+    assets += item("Folder", "Items", model_items("Items"))
     assets += item("Folder", "Characters", model_items("Characters"))
     assets += item("Folder", "VFX", model_items("VFX"))  # เอฟเฟกต์อนุภาคจาก Creator Store (ใช้กับสกิลบอส)
     rs += item("Folder", "Assets", assets)
