@@ -228,6 +228,7 @@ end
 
 ---------------------------------------------------------------- ตี / ยิง
 local lastSwing = 0
+local spearThrust
 local function aimDirection()
 	local mouse = UserInputService:GetMouseLocation()
 	local ray = camera:ViewportPointToRay(mouse.X, mouse.Y)
@@ -241,6 +242,31 @@ local function aimDirection()
 		return (target - head.Position).Unit
 	end
 	return ray.Direction
+end
+
+-- แทงหอก: ดันไหล่ขวาไปข้างหน้าแล้วดึงกลับ (ปรับ C0 ของข้อไหล่ ทับบนท่าถือของ)
+local thrusting = false
+spearThrust = function(char)
+	local m = char and (char:FindFirstChild("RightShoulder", true) or char:FindFirstChild("Right Shoulder", true))
+	if not m or not m:IsA("Motor6D") or thrusting then
+		return
+	end
+	thrusting = true
+	local base = m.C0
+	local back = base * CFrame.new(0, 0.1, 0.5) * CFrame.Angles(math.rad(10), 0, 0)
+	local out = base * CFrame.new(0, -0.1, -1.6) * CFrame.Angles(math.rad(-8), 0, 0)
+	local t1 = TweenService:Create(m, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { C0 = back })
+	local t2 = TweenService:Create(m, TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { C0 = out })
+	local t3 = TweenService:Create(m, TweenInfo.new(0.22, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), { C0 = base })
+	t1:Play()
+	t1.Completed:Wait()
+	t2:Play()
+	t2.Completed:Wait()
+	task.wait(0.06)
+	t3:Play()
+	t3.Completed:Wait()
+	m.C0 = base
+	thrusting = false
 end
 
 local function onActivate(tool, noAuto)
@@ -261,11 +287,16 @@ local function onActivate(tool, noAuto)
 	end
 	lastSwing = now
 	Remotes.Get("Attack"):FireServer(aimDirection())
-	-- ท่าฟันของ Roblox (Animate อ่าน toolanim)
-	local anim = Instance.new("StringValue")
-	anim.Name = "toolanim"
-	anim.Value = (spec.Kind == "Spear") and "Lunge" or "Slash"
-	anim.Parent = tool
+	if spec.Kind == "Spear" then
+		-- หอก/ตรีศูล: แทงไปข้างหน้า (ท่า Lunge ของ Roblox ยกขา ไม่เหมือนแทง)
+		task.spawn(spearThrust, player.Character)
+	elseif spec.Kind ~= "Bow" then
+		-- ท่าฟันของ Roblox (Animate อ่าน toolanim) · ธนูยิงอย่างเดียว ไม่ต้องเหวี่ยง
+		local anim = Instance.new("StringValue")
+		anim.Name = "toolanim"
+		anim.Value = "Slash"
+		anim.Parent = tool
+	end
 	CombatClient.Sound("Slash", nil, 0.35, 0.9 + math.random() * 0.2)
 end
 

@@ -30,7 +30,203 @@ local MESH_FRONT = {
 	FourfoldBlade = Vector3.new(1, 0, 0),
 }
 
+-- อาวุธจาก Roblox Creator Store (assets/rbxm/Weapons/<ItemId>.rbxmx -> ReplicatedStorage.Assets.Weapons)
+-- Length = ความยาวในมือ (stud) · Head/Front = แกนของชิ้น Handle (วัดจากโมเดลจริง) ที่เป็นหัว/คม · ไม่มี = เดาจากรูปทรง
+-- Aura = ออร่าธาตุรอบอาวุธ: "Earth" | "Water" | "Wind" | "Fire" | "Rainbow" (เปลวอนิเมะ + ประกาย + เส้นแสงตามรอยฟัน)
+local STORE_WEAPONS = {
+	OldAxe = { Length = 3.2, Front = Vector3.new(0, 0, -1) }, StoneAxe = { Length = 3.2 }, Pickaxe = { Length = 3.4, Head = Vector3.new(0, 1, 0) },
+	Torch = { Length = 3, Fire = true }, Spear = { Length = 6 },
+	Bow = { Length = 4.2, Front = Vector3.new(0, 0, 1), Flip = true },
+	TerraHammer = { Length = 4.2, Aura = "Earth" },
+	TidalTrident = { Length = 5.6, Aura = "Water" },
+	GaleBow = { Length = 4.4, Aura = "Wind" },
+	EmberBlade = { Length = 4.6, Head = Vector3.new(0, 0, -1), Flip = true, Aura = "Fire" },
+	FourfoldBlade = { Length = 4.8, Front = Vector3.new(0, 0, 1), Aura = "Rainbow" },
+}
+
+-- ออร่าธาตุ: ประกายลอยรอบตัวอาวุธ + หมอกเรืองแสงบางๆ + แสงส่อง
+local RAINBOW = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 70, 70)), ColorSequenceKeypoint.new(0.2, Color3.fromRGB(255, 180, 60)),
+	ColorSequenceKeypoint.new(0.4, Color3.fromRGB(255, 255, 90)), ColorSequenceKeypoint.new(0.6, Color3.fromRGB(80, 230, 120)),
+	ColorSequenceKeypoint.new(0.8, Color3.fromRGB(70, 160, 255)), ColorSequenceKeypoint.new(1, Color3.fromRGB(190, 90, 255)),
+})
+-- ออร่าธาตุแบบอนิเมะ: เปลวไฟ flipbook ห่อตัวอาวุธ + ประกายดาว + เส้นแสงตามรอยฟัน + แสงเรือง
+local FLAME_TEX = "rbxassetid://16676455805" -- เปลวไฟ 4x4 (VFXPack/Auras/Fire-Aura-01)
+local STAR_TEX = "rbxassetid://17087151546" -- ประกายดาว (VFXPack/Auras/RNG-Aura-02)
+local function seq2(a, b)
+	return ColorSequence.new(a, b)
+end
+local AURAS = {
+	Earth = { Tex = FLAME_TEX, Color = seq2(Color3.fromRGB(255, 190, 90), Color3.fromRGB(150, 90, 40)), Light = Color3.fromRGB(230, 150, 70), Emission = 0.6 },
+	Water = { Tex = FLAME_TEX, Color = seq2(Color3.fromRGB(80, 200, 255), Color3.fromRGB(20, 90, 255)), Light = Color3.fromRGB(70, 180, 255), Emission = 0.8 },
+	Wind = { Tex = FLAME_TEX, Color = seq2(Color3.fromRGB(225, 250, 255), Color3.fromRGB(140, 210, 255)), Light = Color3.fromRGB(220, 240, 255), Emission = 0.45 },
+	Fire = { Tex = FLAME_TEX, Color = seq2(Color3.fromRGB(255, 120, 40), Color3.fromRGB(255, 40, 20)), Light = Color3.fromRGB(255, 80, 40), Emission = 0.9 },
+	Rainbow = { Tex = FLAME_TEX, Color = RAINBOW, Light = Color3.fromRGB(230, 200, 255), Emission = 1 },
+}
+local function addAura(handle, kind, tool)
+	local A = AURAS[kind] or AURAS.Fire
+	-- ขอบเขตของอาวุธทั้งชิ้นในพิกัดของ Handle -> แกนยาว + ความหนา
+	local lo, hi = Vector3.new(math.huge, math.huge, math.huge), -Vector3.new(math.huge, math.huge, math.huge)
+	for _, p in ipairs(tool:GetDescendants()) do
+		if p:IsA("BasePart") then
+			local cf = handle.CFrame:ToObjectSpace(p.CFrame)
+			for _, sx in ipairs({ -0.5, 0.5 }) do
+				for _, sy in ipairs({ -0.5, 0.5 }) do
+					for _, sz in ipairs({ -0.5, 0.5 }) do
+						local v = cf * (p.Size * Vector3.new(sx, sy, sz))
+						lo, hi = lo:Min(v), hi:Max(v)
+					end
+				end
+			end
+		end
+	end
+	local size, mid = hi - lo, (hi + lo) / 2
+	local axis = size.X >= size.Y and size.X >= size.Z and Vector3.xAxis or (size.Y >= size.Z and Vector3.yAxis or Vector3.zAxis)
+	local len = size:Dot(axis)
+	local thick = math.clamp((size.X + size.Y + size.Z - len) / 2, 0.4, 1.4)
+
+	-- กล่องปล่อยอนุภาค (Part ใส ไม่ชน) ครอบตัวอาวุธทั้งชิ้น
+	local box = Instance.new("Part")
+	box.Name = "AuraBox"
+	box.Transparency, box.CanCollide, box.CanQuery, box.CanTouch, box.Massless = 1, false, false, false, true
+	box.Size = Vector3.new(math.max(size.X, 0.3), math.max(size.Y, 0.3), math.max(size.Z, 0.3))
+	box.CFrame = handle.CFrame * CFrame.new(mid)
+	local w = Instance.new("WeldConstraint")
+	w.Part0, w.Part1 = handle, box
+	w.Parent = box
+	box.Parent = tool
+
+	local function emitter(props)
+		local e = Instance.new("ParticleEmitter")
+		e.LightInfluence, e.Shape = 0, Enum.ParticleEmitterShape.Box
+		e.Color = A.Color
+		for k, v in pairs(props) do
+			e[k] = v
+		end
+		e.Parent = box
+		return e
+	end
+	local fs = math.clamp(thick, 0.55, 1)
+	-- เปลวออร่าเคลื่อนไหว (flipbook) ลุกท่วมตัวอาวุธ อยู่หลังตัวอาวุธเล็กน้อย
+	emitter({
+		Texture = A.Tex, FlipbookLayout = Enum.ParticleFlipbookLayout.Grid4x4, FlipbookMode = Enum.ParticleFlipbookMode.OneShot,
+		Rate = math.floor(18 + len * 10), Lifetime = NumberRange.new(0.35, 0.55), Speed = NumberRange.new(0.3, 0.8), LockedToPart = true,
+		EmissionDirection = Enum.NormalId.Top, SpreadAngle = Vector2.new(15, 15), Acceleration = Vector3.new(0, 3, 0),
+		Rotation = NumberRange.new(-20, 20), LightEmission = A.Emission, Brightness = 2, ZOffset = -0.4,
+		Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, fs * 0.7), NumberSequenceKeypoint.new(0.5, fs), NumberSequenceKeypoint.new(1, fs * 0.3) }),
+		Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.5), NumberSequenceKeypoint.new(0.2, 0.05), NumberSequenceKeypoint.new(0.7, 0.2), NumberSequenceKeypoint.new(1, 1) }),
+	})
+	-- ประกายดาวลอยวิบวับ
+	emitter({
+		Texture = STAR_TEX, Rate = math.floor(3 + len), Lifetime = NumberRange.new(0.6, 1), Speed = NumberRange.new(0.8, 2),
+		SpreadAngle = Vector2.new(180, 180), Drag = 3, LightEmission = 1, Brightness = 2.5, Rotation = NumberRange.new(-180, 180), ZOffset = 0.5,
+		Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.3, 0.32), NumberSequenceKeypoint.new(1, 0) }),
+		Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(1, 0.6) }),
+	})
+	-- เส้นแสงตามรอยฟัน (เห็นตอนเหวี่ยงอาวุธ)
+	local a0, a1 = Instance.new("Attachment"), Instance.new("Attachment")
+	a0.Position, a1.Position = -axis * (len * 0.45), axis * (len * 0.45)
+	a0.Parent, a1.Parent = box, box
+	local tr = Instance.new("Trail")
+	tr.Attachment0, tr.Attachment1 = a0, a1
+	tr.Color, tr.LightEmission, tr.LightInfluence, tr.Brightness = A.Color, 1, 0, 2
+	tr.Lifetime, tr.MinLength, tr.FaceCamera = 0.22, 0.05, false
+	tr.Texture, tr.TextureMode = "rbxassetid://16664715772", Enum.TextureMode.Stretch
+	tr.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.25), NumberSequenceKeypoint.new(1, 1) })
+	tr.WidthScale = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(1, 0.3) })
+	tr.Parent = box
+	-- ขอบเรืองแสงสีธาตุรอบตัวอาวุธ
+	local hl = Instance.new("Highlight")
+	hl.Adornee, hl.DepthMode = tool, Enum.HighlightDepthMode.Occluded
+	hl.FillColor, hl.FillTransparency = A.Light, 0.8
+	hl.OutlineColor, hl.OutlineTransparency = A.Light, 0.1
+	hl.Parent = box
+	local l = Instance.new("PointLight")
+	l.Color, l.Range, l.Brightness = A.Light, 9, 1.2
+	l.Parent = box
+end
+
 local ToolFactory = {}
+ToolFactory.StoreWeapons = STORE_WEAPONS
+
+-- โมเดลอาวุธจาก Store -> ชิ้นทั้งหมดเชื่อมกับ Handle (ชิ้นใหญ่สุด) + ย่อขยายให้ยาวตาม Length
+local function buildStore(itemId, tool)
+	local cfg = STORE_WEAPONS[itemId]
+	local assets = ReplicatedStorage:FindFirstChild("Assets")
+	local src = cfg and assets and assets:FindFirstChild("Weapons") and assets.Weapons:FindFirstChild(itemId)
+	if not src then
+		return nil
+	end
+	local m = Instance.new("Model")
+	for _, c in ipairs(src:GetChildren()) do
+		c:Clone().Parent = m
+	end
+	local parts, big = {}, nil
+	for _, d in ipairs(m:GetDescendants()) do
+		if d:IsA("BasePart") then
+			table.insert(parts, d)
+			if not big or d.Size.Magnitude > big.Size.Magnitude then
+				big = d
+			end
+		elseif d:IsA("Script") or d:IsA("LocalScript") or d:IsA("Sound") then
+			d:Destroy()
+		end
+	end
+	if not big then
+		return nil
+	end
+	local _, size = m:GetBoundingBox()
+	pcall(function()
+		m:ScaleTo(m:GetScale() * cfg.Length / math.max(size.X, size.Y, size.Z))
+	end)
+	for _, p in ipairs(parts) do
+		p.Anchored = false
+		p.CanCollide, p.CanTouch, p.CanQuery = false, false, false
+		p.Massless = true
+		if p ~= big then
+			local w = Instance.new("WeldConstraint")
+			w.Part0, w.Part1 = big, p
+			w.Parent = big
+		end
+	end
+	big.Name = "Handle"
+	-- ย้ายทุกชิ้นขึ้นมาอยู่ใต้ Tool ตรงๆ (Handle ต้องเป็นลูกของ Tool โดยตรง · บางโมเดลซ้อน Model ไว้ข้างใน)
+	for _, p in ipairs(parts) do
+		p.Parent = tool
+	end
+	m:Destroy()
+	if cfg.Fire then
+		-- ไฟที่ปลายคบ: ใส่ในชิ้นหัว (ชิ้นที่ไม่ใช่ด้าม) ถ้ามี · ไม่มีก็ใส่ที่ปลายด้านยาวของด้าม
+		local head
+		for _, p in ipairs(parts) do
+			if p ~= big then
+				head = p
+			end
+		end
+		local host = head
+		if not host then
+			host = Instance.new("Attachment")
+			local axis = big.Size.X >= big.Size.Y and big.Size.X >= big.Size.Z and Vector3.xAxis or (big.Size.Y >= big.Size.Z and Vector3.yAxis or Vector3.zAxis)
+			host.Position = axis * (big.Size:Dot(axis) / 2)
+			host.Parent = big
+		end
+		local f = Instance.new("Fire")
+		f.Size, f.Heat = 2.5, 6
+		f.Parent = host
+		-- หัวคบ (ชิ้นที่มีไฟ) ต้องชี้ขึ้นตอนถือ: บอกทิศหัวตามแกนหลักของด้าม
+		if head then
+			local rel = big.CFrame:PointToObjectSpace(head.Position)
+			local a = Vector3.new(math.abs(rel.X), math.abs(rel.Y), math.abs(rel.Z))
+			if a.X >= a.Y and a.X >= a.Z then
+				return big, Vector3.new(math.sign(rel.X), 0, 0)
+			elseif a.Y >= a.Z then
+				return big, Vector3.new(0, math.sign(rel.Y), 0)
+			end
+			return big, Vector3.new(0, 0, math.sign(rel.Z))
+		end
+	end
+	return big
+end
 
 local V = Vector3.new
 local CF = CFrame.new
@@ -361,7 +557,21 @@ function ToolFactory.Build(itemId)
 	tool.RequiresHandle = true
 	tool:SetAttribute("ItemId", itemId)
 	tool:SetAttribute("Kind", spec.Kind)
-	local handle
+	local handle, headDir = buildStore(itemId, tool)
+	if handle then
+		local cfg = STORE_WEAPONS[itemId]
+		if cfg.Aura then
+			addAura(handle, cfg.Aura, tool)
+		elseif spec.Light then
+			glow(handle, C(255, 245, 220), spec.Light)
+		end
+		tool.Grip = ToolFactory.GripFor(tool, handle, spec.Kind, cfg.Front, cfg.Head or headDir)
+		if cfg.Flip then
+			-- หันกลับด้าน 180° รอบแกนด้าม (โมเดลบางชิ้นวางหน้า-หลังสลับกัน)
+			tool.Grip *= CFrame.Angles(0, math.pi, 0)
+		end
+		return tool
+	end
 	if MESH_TOOLS[itemId] and MeshProps.Has(itemId) then
 		handle = MeshProps.BuildTool(itemId, tool)
 		if spec.Light then

@@ -188,6 +188,7 @@ def main():
         sps += script_item(os.path.join(TESTS, "ASAutoTestClient.client.lua"))
     if LOBBYPROBE:
         sps += script_item(os.path.join(TESTS, "ASLobbyProbe.client.lua"))
+        sss += script_item(os.path.join(TESTS, "ASWeaponProbe.server.lua"))
 
     ss = item("Folder", "LobbyArt", model_items("LobbyArt"))  # ฉากล็อบบี้ป่าโบราณ (tools/lobby_art.py)
     ss += item("Folder", "WorldArt", model_items("WorldArt"))  # วิหารโบราณ 4 ธาตุ (tools/world_art.py)
