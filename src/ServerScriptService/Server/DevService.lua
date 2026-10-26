@@ -141,6 +141,9 @@ end
 -- วาร์ป
 function C.tp(self, p, target)
 	local s = self.ctx.State
+	if target ~= "camp" then
+		p:SetAttribute("FogPass", true) -- วาร์ปไกล: ทะลุกำแพงหมอกให้อัตโนมัติ
+	end
 	if target == "camp" then
 		local cp = self.ctx.CampPosition or s:GetAttribute("CampPos")
 		return self:Teleport(p, cp + Vector3.new(10, 0, 10))
@@ -198,6 +201,7 @@ function C.spawnBoss(self, p, id)
 	s:SetAttribute("BossId", id)
 	s:SetAttribute("BossHP", a.Hum.MaxHealth)
 	s:SetAttribute("BossMaxHP", a.Hum.MaxHealth)
+	self.ctx.Services.AnimalService:BeginIntro(a) -- ฉากเปิดตัว: ตรึงไว้ ~7 วิ
 	self.ctx.FireRun("Cinematic", "BossIntro", { Model = a.Model, Id = id, Name = info.Name, Thai = info.Thai, Element = info.Element })
 	return "👑 เรียก " .. info.Thai
 end
@@ -280,6 +284,12 @@ function C.fireLevel(self, _, d)
 	camp:Publish()
 	camp:RefreshPrompts()
 	return "🔥 กองไฟเลเวล " .. camp.level
+end
+
+function C.fogPass(self, p)
+	local on = not p:GetAttribute("FogPass")
+	p:SetAttribute("FogPass", on)
+	return on and "🌫 ทะลุกำแพงหมอก: เปิด" or "🌫 ทะลุกำแพงหมอก: ปิด"
 end
 
 function C.benchLevel(self, _, d)

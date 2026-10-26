@@ -33,6 +33,8 @@ SHOTS = "--shots" in sys.argv  # เทสต์ + ถ่ายภาพฉา�
 SEED = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--seed=")), None)
 FETCH = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--fetch=")), None)  # ดึงโมเดล Creator Store: --fetch=id,id
 PROBE = "--probe" in sys.argv
+FOGPROBE = "--fogprobe" in sys.argv  # เช็กกำแพงหมอกตามเลเวลกองไฟ (tests/ASFogProbe.*.lua)
+BOSSPROBE = "--bossprobe" in sys.argv  # ถ่ายภาพฉากเปิดตัวบอสทั้ง 4 (tests/ASBossProbe.*.lua)
 CLASSPROBE = "--classprobe" in sys.argv  # ถ่ายภาพร้านคลาสทีละคลาส (tests/ASClassProbe.client.lua)
 PROPPROBE = "--propprobe" in sys.argv  # วัดขนาดพุ่ม/เห็ด/ต้นไม้ในแมพจริง + ถ่ายภาพ (tests/ASPropProbe.server.lua)
 UIPROBE = "--uiprobe" in sys.argv  # ถ่ายภาพหน้าต่าง ภารกิจ/ป้าย/ร้านค้า/ตั้งค่า (tests/ASUIProbe.client.lua)
@@ -44,7 +46,7 @@ VFXSHOW = next((a.split("=", 1)[1] if "=" in a else "*" for a in sys.argv if a.s
 
 if GALLERY or VFXSHOW:
     TEST = True
-if TEST or SHOTS or DROPPROBE or LOBBYPROBE or SITEPROBE or CLASSPROBE or UIPROBE or PROPPROBE:
+if TEST or SHOTS or DROPPROBE or LOBBYPROBE or SITEPROBE or CLASSPROBE or UIPROBE or PROPPROBE or BOSSPROBE or FOGPROBE:
     OUT = os.path.join(OUT_DIR, "AnimalSurvival_TEST.rbxlx")
 elif MAPSHOT:
     OUT = os.path.join(OUT_DIR, "AnimalSurvival_MAP.rbxlx")
@@ -205,6 +207,12 @@ def main():
         rs += value_item("BoolValue", "ASDropProbe", "true")
         rs += value_item("BoolValue", "ASAutoTest", "true")
         rs += value_item("BoolValue", "ASLobbyTest", "true")
+    if FOGPROBE:
+        rs += value_item("BoolValue", "ASFogProbe", "true")
+        rs += value_item("BoolValue", "ASAutoTest", "true")
+    if BOSSPROBE:
+        rs += value_item("BoolValue", "ASBossProbe", "true")
+        rs += value_item("BoolValue", "ASAutoTest", "true")
     if SITEPROBE:
         rs += value_item("BoolValue", "ASSiteProbe", "true")
         rs += value_item("BoolValue", "ASAutoTest", "true")
@@ -229,6 +237,12 @@ def main():
         sss += script_item(os.path.join(TESTS, "ASPropProbe.server.lua"))
     if UIPROBE:
         sps += script_item(os.path.join(TESTS, "ASUIProbe.client.lua"))
+    if FOGPROBE:
+        sps += script_item(os.path.join(TESTS, "ASFogProbe.client.lua"))
+        sss += script_item(os.path.join(TESTS, "ASFogProbe.server.lua"))
+    if BOSSPROBE:
+        sps += script_item(os.path.join(TESTS, "ASBossProbe.client.lua"))
+        sss += script_item(os.path.join(TESTS, "ASBossProbe.server.lua"))
     if SITEPROBE:
         sps += script_item(os.path.join(TESTS, "ASSiteProbe.client.lua"))
         sss += script_item(os.path.join(TESTS, "ASSiteProbe.server.lua"))

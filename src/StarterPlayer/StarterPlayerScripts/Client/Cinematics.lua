@@ -748,60 +748,312 @@ function Cinematics.Travel()
 end
 
 ---------------------------------------------------------------- เปิดตัวบอส
+-- ฉากเปิดตัวบอส (แต่ละธาตุไม่เหมือนกัน) — เซิร์ฟเวอร์ตรึงบอสไว้ ~7 วิ เครื่องเราขยับตัวบอสเอง แล้วคืนที่เดิมตอนจบ
+--   ดิน: แผ่นดินสั่น แตก -> โผล่พุ่งขึ้นจากดิน -> กระแทกลงพื้น -> คำราม
+--   น้ำ: น้ำวน -> พุ่งกระโดดขึ้นจากทะเล โค้งกลางอากาศ -> ตกน้ำสาดกระจาย -> คำราม
+--   น้ำแข็ง: ถูกแช่ในก้อนน้ำแข็ง -> ร้าว สั่น -> น้ำแข็งแตกกระจาย -> คำราม
+--   ไฟ: ดิ่งลงมาจากฟ้า -> บินวนกระพือปีกครู่หนึ่ง -> ลงพื้นไฟระเบิด -> คำราม
+local function ease(x)
+	x = math.clamp(x, 0, 1)
+	return x * x * (3 - 2 * x)
+end
+local function easeOut(x)
+	x = math.clamp(x, 0, 1)
+	return 1 - (1 - x) * (1 - x)
+end
+local function easeIn(x)
+	x = math.clamp(x, 0, 1)
+	return x * x
+end
+
+local function bossNameCard(d, color)
+	local f = UIKit.Frame(gui, { Size = UDim2.new(1, 0, 0, 200), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0.6, 0), BackgroundTransparency = 1, ZIndex = 60 })
+	UIKit.AutoScale(f)
+	UIKit.Text(f, {
+		Size = UDim2.new(1, 0, 0, 26), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 20, Font = UIKit.Fonts.Bold,
+		Text = "— บอสประจำธาตุ —", TextColor3 = color, TextTransparency = 1, TextStrokeTransparency = 1, ZIndex = 61,
+	})
+	local name = UIKit.Text(f, {
+		Size = UDim2.new(1, 0, 0, 78), Position = UDim2.fromOffset(0, 26), TextXAlignment = Enum.TextXAlignment.Center, Font = UIKit.Fonts.Title, TextSize = 64,
+		Text = d.Name, TextColor3 = Color3.fromRGB(250, 242, 226), TextTransparency = 1, TextStrokeTransparency = 1, ZIndex = 61,
+	})
+	UIKit.TextStroke(name, 3, 0.1)
+	local ng = Instance.new("UIGradient")
+	ng.Color = ColorSequence.new(Color3.fromRGB(255, 252, 240), color:Lerp(Color3.new(1, 1, 1), 0.35))
+	ng.Rotation = 90
+	ng.Parent = name
+	local line = UIKit.Frame(f, { Size = UDim2.new(0, 760, 0, 3), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 108), BackgroundColor3 = color, BackgroundTransparency = 1, ZIndex = 61 })
+	line:SetAttribute("Line", true)
+	local lg = Instance.new("UIGradient")
+	lg.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.5, 0), NumberSequenceKeypoint.new(1, 1) })
+	lg.Parent = line
+	UIKit.Text(f, {
+		Size = UDim2.new(1, 0, 0, 34), Position = UDim2.fromOffset(0, 116), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 26,
+		Text = d.Thai, TextColor3 = color, TextTransparency = 1, TextStrokeTransparency = 1, ZIndex = 61,
+	})
+	local sc = Instance.new("UIScale")
+	sc.Scale = 1.35
+	sc.Parent = f
+	local api = {}
+	function api.Show()
+		fadeTexts(f, 0, 0.5)
+		UIKit.Tween(sc, 0.45, { Scale = 1 }, Enum.EasingStyle.Back)
+	end
+	function api.Hide()
+		fadeTexts(f, 1, 1)
+		task.delay(1.1, function()
+			f:Destroy()
+		end)
+	end
+	return api
+end
+
+-- ก้อนน้ำแข็งแช่บอส + แตกกระจาย
+local function iceBlock(model)
+	local BossFX = require(script.Parent:WaitForChild("BossFX"))
+	local cf, size = model:GetBoundingBox()
+	local block = BossFX.Part({ Name = "IntroIce", Size = size * Vector3.new(1.12, 1.06, 1.12), CFrame = cf, Material = Enum.Material.Glass, Color = Color3.fromRGB(170, 225, 255), Transparency = 0.35, Reflectance = 0.15 })
+	local hl = Instance.new("Highlight")
+	hl.FillTransparency = 1
+	hl.OutlineColor = Color3.fromRGB(220, 245, 255)
+	hl.DepthMode = Enum.HighlightDepthMode.Occluded
+	hl.Parent = block
+	local api = { Part = block }
+	-- รอยร้าว: เศษน้ำแข็งเล็กๆ ปลิว + ก้อนสั่น
+	function api.Crack(k)
+		BossFX.Emit(cf.Position + Vector3.new((math.random() - 0.5) * size.X, (math.random() - 0.3) * size.Y, (math.random() - 0.5) * size.Z), {
+			Texture = "rbxasset://textures/particles/sparkles_main.dds", Color = ColorSequence.new(Color3.fromRGB(230, 248, 255)), LightEmission = 1,
+			Lifetime = NumberRange.new(0.4, 0.8), Speed = NumberRange.new(8, 20), SpreadAngle = Vector2.new(180, 180),
+			Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1.2), NumberSequenceKeypoint.new(1, 0) }),
+		}, math.floor(6 + 14 * k), 2)
+		local j = 0.15 + 0.6 * k
+		block.CFrame = cf * CFrame.new((math.random() - 0.5) * j, 0, (math.random() - 0.5) * j)
+	end
+	function api.Shatter()
+		local rng = Random.new()
+		for _ = 1, 26 do
+			local s = Vector3.new(rng:NextNumber(0.12, 0.3) * size.X, rng:NextNumber(0.1, 0.28) * size.Y, rng:NextNumber(0.12, 0.3) * size.Z)
+			local p = BossFX.Part({ Size = s, CFrame = cf * CFrame.new(rng:NextNumber(-0.45, 0.45) * size.X, rng:NextNumber(-0.45, 0.45) * size.Y, rng:NextNumber(-0.45, 0.45) * size.Z)
+				* CFrame.Angles(rng:NextNumber(0, 6), rng:NextNumber(0, 6), 0), Material = Enum.Material.Glass, Color = Color3.fromRGB(190, 232, 255), Transparency = 0.25 })
+			p.Anchored = false
+			local out = (p.Position - cf.Position)
+			out = Vector3.new(out.X, math.abs(out.Y) * 0.4 + size.Y * 0.2, out.Z).Unit
+			p.AssemblyLinearVelocity = out * rng:NextNumber(40, 90)
+			p.AssemblyAngularVelocity = Vector3.new(rng:NextNumber(-10, 10), rng:NextNumber(-10, 10), rng:NextNumber(-10, 10))
+			task.delay(1.6, function()
+				if p.Parent then
+					BossFX.TweenObj(p, 0.8, { Transparency = 1, Size = p.Size * 0.3 })
+				end
+			end)
+			game:GetService("Debris"):AddItem(p, 2.6)
+		end
+		block:Destroy()
+	end
+	return api
+end
+
 function Cinematics.BossIntro(d)
 	local model = d.Model
 	local cam = Workspace.CurrentCamera
 	if not (model and model.Parent) then
 		model = nil
 	end
-	letterbox(true)
+	local root = model and (model:FindFirstChild("HumanoidRootPart") or model.PrimaryPart)
 	local color = C.Element[d.Element] or C.Gold
-	local f = UIKit.Frame(gui, { Size = UDim2.new(1, 0, 0, 160), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0.62, 0), BackgroundTransparency = 1, ZIndex = 60 })
-	UIKit.AutoScale(f)
-	local name = UIKit.Text(f, {
-		Size = UDim2.new(1, 0, 0, 70), TextXAlignment = Enum.TextXAlignment.Center, Font = UIKit.Fonts.Title, TextSize = 56,
-		Text = d.Name, TextColor3 = Color3.fromRGB(245, 236, 220), TextTransparency = 1, TextStrokeTransparency = 1, ZIndex = 61,
-	})
-	local line = UIKit.Frame(f, { Size = UDim2.new(0, 700, 0, 2), Position = UDim2.new(0.5, -350, 0, 72), BackgroundColor3 = color, BackgroundTransparency = 1, ZIndex = 61 })
-	line:SetAttribute("Line", true)
-	UIKit.Text(f, {
-		Size = UDim2.new(1, 0, 0, 34), Position = UDim2.fromOffset(0, 80), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 24,
-		Text = d.Thai, TextColor3 = color, TextTransparency = 1, TextStrokeTransparency = 1, ZIndex = 61,
-	})
-	local _ = name
-	fadeTexts(f, 0, 1)
-	if model then
-		local root = model:FindFirstChild("HumanoidRootPart") or model.PrimaryPart
-		if not root then
-			model = nil
+	letterbox(true)
+	local card = bossNameCard(d, color)
+	if not root then
+		card.Show()
+		task.delay(4, function()
+			letterbox(false)
+			card.Hide()
+		end)
+		return
+	end
+	local BossFX = require(script.Parent:WaitForChild("BossFX"))
+	local okA, BossAnimator = pcall(require, script.Parent:FindFirstChild("BossAnimator"))
+	local el = d.Element
+	local rest = model:GetPivot() -- ตำแหน่งจริงที่เซิร์ฟเวอร์ตรึงไว้
+	local size = model:GetExtentsSize()
+	local H = math.max(size.Y, 8)
+	local Rr = math.max(size.Magnitude * 0.55, 18)
+	local fwd = rest.LookVector * Vector3.new(1, 0, 1)
+	fwd = fwd.Magnitude > 0.01 and fwd.Unit or Vector3.new(0, 0, -1)
+	local feet = rest.Position - Vector3.new(0, H * 0.45, 0)
+	local function shake(p, t)
+		if BossFX.Shake then
+			BossFX.Shake(p, t)
 		end
 	end
-	if model then
-		local root = model:FindFirstChild("HumanoidRootPart") or model.PrimaryPart
-		local size = model:GetExtentsSize()
-		local prevType = cam.CameraType
-		cam.CameraType = Enum.CameraType.Scriptable
-		local t0 = os.clock()
-		local conn
-		conn = RunService.RenderStepped:Connect(function()
-			local t = os.clock() - t0
-			if t > 3.6 or not root.Parent or not model.Parent then
-				conn:Disconnect()
-				cam.CameraType = prevType
-				return
-			end
-			local ang = t * 0.35 + 0.6
-			local dist = math.max(size.Magnitude * 1.1, 30) * (1.15 - t * 0.06)
-			local center = root.Position + Vector3.new(0, size.Y * 0.35, 0)
-			local pos = center + Vector3.new(math.cos(ang) * dist, size.Y * 0.25 + 4, math.sin(ang) * dist)
-			cam.CFrame = CFrame.lookAt(pos, center)
-		end)
+	local function pose(off)
+		if model.Parent then
+			model:PivotTo(rest * off)
+		end
 	end
-	task.delay(4.2, function()
+	-- ตาราง: จบฉาก (วิ) / จังหวะคำราม (วิ) / ฟังก์ชันท่าทางตามเวลา / เหตุการณ์ (เอฟเฟกต์) ตามเวลา
+	local DUR, ROAR = 5.6, 3.1
+	local shapeFn, events
+	local ice
+	local savedFly, savedGround
+	if el == "Earth" then
+		-- ใต้ดิน -> แผ่นดินแตก -> พุ่งขึ้น -> ลงกระแทก
+		DUR, ROAR = 5.8, 3.2
+		shapeFn = function(t)
+			if t < 1.6 then
+				return CFrame.new(0, -H * 1.05 + math.sin(t * 30) * 0.15, 0)
+			elseif t < 2.25 then
+				local k = easeOut((t - 1.6) / 0.65)
+				return CFrame.new(0, -H * 1.05 + (H * 1.6) * k, 0) * CFrame.Angles(-0.25 * (1 - k), 0, 0)
+			elseif t < 2.75 then
+				local k = easeIn((t - 2.25) / 0.5)
+				return CFrame.new(0, H * 0.55 * (1 - k), 0)
+			end
+			return CFrame.new()
+		end
+		events = {
+			{ 0.1, function()
+				BossFX.Play("Crack", CFrame.new(feet), { Scale = math.clamp(H / 4, 2, 12), Duration = 1.4, Tint = Color3.fromRGB(255, 190, 110) })
+			end },
+			{ 0.3, function() shake(0.5, 1.4) BossFX.Dust(feet, H * 0.8, el, 20) end },
+			{ 0.9, function() BossFX.Dust(feet, H, el, 26) BossFX.Debris(feet, H * 0.6, el, 6) end },
+			{ 1.6, function() BossFX.IntroBurst(feet, math.clamp(H * 0.9, 16, 44), el) BossFX.Play("RockRing", CFrame.new(feet), { Scale = math.clamp(H / 5, 2, 10), Duration = 0.5 }) end },
+			{ 2.75, function() BossFX.IntroBurst(feet, math.clamp(H, 18, 48), el) shake(1.6, 0.8) end },
+		}
+	elseif el == "Water" then
+		-- ใต้น้ำ -> พุ่งกระโดดโค้งขึ้นจากทะเลเข้าหาผู้เล่น -> ตกน้ำสาด
+		DUR, ROAR = 5.4, 3.0
+		shapeFn = function(t)
+			if t < 0.8 then
+				return CFrame.new(0, -H * 1.6, Rr * 0.9)
+			elseif t < 2.3 then
+				local k = (t - 0.8) / 1.5
+				local y = -H * 1.6 + H * 1.6 * k + H * 2.4 * math.sin(math.pi * k)
+				local z = Rr * 0.9 * (1 - ease(k))
+				local pitch = 0.9 * math.cos(math.pi * k)
+				return CFrame.new(0, y, z) * CFrame.Angles(pitch, 0, math.sin(math.pi * k) * 0.2)
+			end
+			return CFrame.new()
+		end
+		local surf = rest.Position
+		events = {
+			{ 0.05, function() BossFX.Play("WaterSwirl", CFrame.new(surf + fwd * -Rr * 0.9), { Scale = math.clamp(H / 3, 3, 12), Duration = 1.2 }) end },
+			{ 0.8, function() BossFX.IntroBurst(surf + rest.LookVector * -Rr * 0.9, math.clamp(H, 16, 44), el) shake(0.7, 0.6) end },
+			{ 2.3, function() BossFX.IntroBurst(surf, math.clamp(H * 1.1, 18, 50), el) shake(1.4, 0.8) end },
+		}
+	elseif el == "Air" then
+		-- แช่น้ำแข็ง -> ร้าวสั่น -> แตกกระจาย
+		DUR, ROAR = 5.2, 2.6
+		ice = iceBlock(model)
+		shapeFn = function()
+			return CFrame.new()
+		end
+		events = {
+			{ 0.6, function() ice.Crack(0.2) shake(0.2, 0.3) end },
+			{ 1.0, function() ice.Crack(0.4) shake(0.3, 0.3) end },
+			{ 1.35, function() ice.Crack(0.6) shake(0.4, 0.3) end },
+			{ 1.65, function() ice.Crack(0.8) shake(0.6, 0.3) end },
+			{ 1.9, function() ice.Crack(1) shake(0.8, 0.3) end },
+			{ 2.15, function()
+				ice.Shatter()
+				BossFX.IntroBurst(feet, math.clamp(H, 18, 48), el)
+				BossFX.Play("Ice", CFrame.new(feet), { Scale = math.clamp(H / 4, 2, 10), Duration = 0.6 })
+				shake(1.5, 0.8)
+			end },
+		}
+	else
+		-- ไฟ: ดิ่งจากฟ้า -> บินวนกระพือปีก -> ลงพื้น
+		DUR, ROAR = 6.4, 4.2
+		savedFly, savedGround = model:GetAttribute("Flying"), model:GetAttribute("Grounded")
+		model:SetAttribute("Flying", true)
+		model:SetAttribute("Grounded", false)
+		local high = CFrame.new(0, H * 7, Rr * 3.2)
+		local hover = CFrame.new(0, H * 1.4, 0)
+		shapeFn = function(t)
+			if t < 1.9 then
+				local k = easeOut(t / 1.9)
+				local p = high.Position:Lerp(hover.Position, k) + Vector3.new(math.sin(k * math.pi) * Rr * 0.8, 0, 0)
+				return CFrame.new(p) * CFrame.Angles(-0.55 * (1 - k), 0, -0.35 * math.sin(k * math.pi))
+			elseif t < 3.3 then
+				local k = t - 1.9
+				return hover * CFrame.new(math.sin(k * 2.2) * 2, math.sin(k * 3.6) * H * 0.06, 0) * CFrame.Angles(0, math.sin(k * 1.4) * 0.15, 0)
+			elseif t < 3.9 then
+				local k = ease((t - 3.3) / 0.6)
+				return hover:Lerp(CFrame.new(), k)
+			end
+			return CFrame.new()
+		end
+		events = {
+			{ 0.0, function() BossFX.Play("FireBall", CFrame.new(rest.Position + Vector3.new(0, H * 7, 0) + rest.LookVector * -Rr * 3.2), { Scale = math.clamp(H / 5, 2, 8), Duration = 0.8 }) end },
+			{ 1.9, function() BossFX.Play("Fire2", CFrame.new(rest.Position + Vector3.new(0, H * 1.4, 0)), { Scale = math.clamp(H / 4, 2, 10), Duration = 1.0 }) shake(0.5, 0.5) end },
+			{ 3.0, function() BossFX.Dust(feet, H * 1.2, el, 30) end },
+			{ 3.85, function()
+				model:SetAttribute("Grounded", true)
+				BossFX.IntroBurst(feet, math.clamp(H * 1.1, 18, 50), el)
+				shake(1.6, 0.8)
+			end },
+		}
+	end
+	pose(shapeFn(0))
+	-- คำราม: ท่าคำราม/ทุบ + คลื่นลม + จอสั่น + ป้ายชื่อขึ้น
+	local wind = 0.55
+	table.insert(events, { ROAR, function()
+		if okA and BossAnimator then
+			pcall(BossAnimator.PlayIntro, model, wind)
+		end
+	end })
+	table.insert(events, { ROAR + wind, function()
+		BossFX.Play("BlastWind", CFrame.new(rest.Position), { Scale = math.clamp(H / 14, 1, 4), Duration = 0.5 })
+		shake(1.2, 1.0)
+		card.Show()
+	end })
+	table.sort(events, function(a, b)
+		return a[1] < b[1]
+	end)
+	-- กล้อง: ตามตัวบอสตลอด จากด้านหน้ามุมต่ำ ค่อยๆ วนข้าง · ช่วงคำรามดันเข้าใกล้หน้า
+	local prevType, prevFov = cam.CameraType, cam.FieldOfView
+	cam.CameraType = Enum.CameraType.Scriptable
+	local baseAng = math.atan2(fwd.Z, fwd.X)
+	local camPos, camLook
+	local t0 = os.clock()
+	local nextEv = 1
+	local conn
+	conn = RunService.RenderStepped:Connect(function(dt)
+		local t = os.clock() - t0
+		if t > DUR or not model.Parent then
+			conn:Disconnect()
+			if model.Parent then
+				model:PivotTo(rest)
+				if savedFly ~= nil or el == "Fire" then
+					model:SetAttribute("Flying", savedFly)
+					model:SetAttribute("Grounded", savedGround)
+				end
+			end
+			if ice and ice.Part.Parent then
+				ice.Part:Destroy()
+			end
+			cam.CameraType = prevType
+			cam.FieldOfView = prevFov
+			return
+		end
+		while events[nextEv] and t >= events[nextEv][1] do
+			pcall(events[nextEv][2])
+			nextEv += 1
+		end
+		pose(shapeFn(t))
+		local body = model:GetPivot().Position
+		local roarK = ease((t - ROAR) / 0.8)
+		local orbit = baseAng + math.rad(25) * ease(t / DUR) - math.rad(12)
+		local dist = Rr * (1.75 - 0.45 * roarK)
+		local want = rest.Position + Vector3.new(math.cos(orbit) * dist, H * (0.12 + 0.18 * (1 - roarK)), math.sin(orbit) * dist)
+		local look = body + Vector3.new(0, H * 0.25, 0)
+		camPos = camPos and camPos:Lerp(want, 1 - math.exp(-dt * 5)) or want
+		camLook = camLook and camLook:Lerp(look, 1 - math.exp(-dt * 7)) or look
+		cam.FieldOfView = 58 - 10 * roarK
+		cam.CFrame = CFrame.lookAt(camPos, camLook)
+	end)
+	task.delay(DUR + 0.2, function()
 		letterbox(false)
-		fadeTexts(f, 1, 1)
-		task.wait(1.1)
-		f:Destroy()
+		card.Hide()
 	end)
 end
 
@@ -987,7 +1239,19 @@ function Cinematics.Handle(kind, d, menus, combat)
 	elseif kind == "WaveIncoming" then
 		combat.Shake(0.15, 0.6)
 	elseif kind == "BossIntro" then
-		Cinematics.BossIntro(d)
+		task.spawn(function()
+			local t0 = os.clock()
+			while not (d.Model and d.Model.Parent and (d.Model:FindFirstChild("HumanoidRootPart") or d.Model.PrimaryPart)) and os.clock() - t0 < 3 do
+				local animals = Workspace:FindFirstChild("Animals")
+				for _, m in ipairs(animals and animals:GetChildren() or {}) do
+					if m:GetAttribute("AnimalId") == d.Id and m:GetAttribute("IsBoss") then
+						d.Model = m
+					end
+				end
+				task.wait(0.1)
+			end
+			Cinematics.BossIntro(d)
+		end)
 	elseif kind == "BossFelled" then
 		Cinematics.Banner("BEAST VANQUISHED", "ปราบ " .. (d.Thai or "") .. " สำเร็จ! · ได้หัวใจอสูร", Color3.fromRGB(255, 214, 120), 4.5, { Size = 76 })
 	elseif kind == "Died" then

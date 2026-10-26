@@ -53,6 +53,17 @@ local function smooth(x)
 	return x * x * (3 - 2 * x)
 end
 
+-- ท่าเปิดตัว (เล่นบนเครื่องเราตอนฉากเปิดตัวบอส): model -> { Start, Kind, Wind }
+local intro = setmetatable({}, { __mode = "k" })
+local INTRO_KIND = { Biped = "Roar", Dragon = "Roar", Mosasaur = "Rear" }
+function BossAnimator.PlayIntro(model, wind)
+	local kind = model:GetAttribute("SkinRig") or "Biped"
+	-- โกเลมดิน: ทุบพื้น · ที่เหลือ: คำราม/ยกตัว
+	local k = (model:GetAttribute("AnimalId") == "Terragon") and "Slam" or INTRO_KIND[kind] or "Roar"
+	intro[model] = { Start = os.clock(), Kind = k, Wind = wind or 0.9 }
+	return k
+end
+
 function BossAnimator.Has(model)
 	return model:GetAttribute("Skinned") == true and ROLES[model:GetAttribute("AnimalId")] ~= nil
 end
@@ -292,7 +303,7 @@ end
 
 ---------------------------------------------------------------- ใส่ท่าลงกระดูก (นุ่ม)
 local function apply(B, P, dt)
-	local a = 1 - exp(-dt * 9)
+	local a = 1 - exp(-dt * 7.5)
 	for role, e in pairs(B.Bones) do
 		local p = P[role]
 		local cur = e.Cur
@@ -318,7 +329,7 @@ local function lookAt(P, B, rig, dt)
 		yaw = clamp(atan2(-rel.X, -rel.Z), -1.0, 1.0)
 		pitch = clamp(atan2(rel.Y - B.H * 0.4, V(rel.X, 0, rel.Z).Magnitude), -0.45, 0.3)
 	end
-	local a = 1 - exp(-dt * 4)
+	local a = 1 - exp(-dt * 3)
 	B.Look[1] += (yaw - B.Look[1]) * a
 	B.Look[2] += (pitch - B.Look[2]) * a
 	yaw, pitch = B.Look[1], B.Look[2]
@@ -362,8 +373,12 @@ function BossAnimator.Animate(rig, ctx)
 		apply(B, P, dt)
 		return
 	end
-	local w = clamp(ctx.Speed / 12, 0, 1)
-	B.Phase += dt * (ctx.Speed / math.max(B.H * 0.5, 4)) * math.pi * 2 * 0.5
+	-- ความเร็วที่วัดจากเครื่องเรากระตุกขึ้นลง -> ทำให้นุ่มก่อน (ไม่สลับท่าเดิน/ยืนไปมา, ก้าวไม่สะดุด)
+	B.SpeedS = (B.SpeedS or ctx.Speed) + (ctx.Speed - (B.SpeedS or ctx.Speed)) * (1 - exp(-dt * 4))
+	local speed = B.SpeedS < 0.6 and 0 or B.SpeedS
+	B.W = (B.W or 0) + (clamp(speed / 12, 0, 1) - (B.W or 0)) * (1 - exp(-dt * 3))
+	local w = B.W
+	B.Phase += dt * (speed / math.max(B.H * 0.5, 4)) * math.pi * 2 * 0.5
 	local cast = model:GetAttribute("Cast")
 	local age, cw = 0, 1
 	if cast then
@@ -371,6 +386,15 @@ function BossAnimator.Animate(rig, ctx)
 		cw = model:GetAttribute("CastTime") or 1
 		if age > cw + 1.2 then
 			cast = nil
+		end
+	end
+	local it = intro[model]
+	if not cast and it then
+		age = os.clock() - it.Start
+		if age < it.Wind + 1.6 then
+			cast, cw = it.Kind, it.Wind
+		else
+			intro[model] = nil
 		end
 	end
 	if B.Kind == "Dragon" then

@@ -1811,39 +1811,6 @@ function PropBuilder.BuildCamp(position, parent)
 			-- ช่องโยนของ (บนเครื่องย่อย) + จุดของออก (หน้าเครื่อง)
 			P("Part", { Name = "Hopper", Size = V(fs.X * 0.5, fs.Y * 0.45, fs.Z * 0.5), CFrame = fgCf * CF(0, fs.Y * 0.55, 0), Transparency = 1, CanCollide = false, CanQuery = true }, bench)
 			P("Part", { Name = "GrindOut", Size = V(1, 1, 1), CFrame = fgCf * CF(0, fs.Y * 0.3, -fs.Z * 0.55), Transparency = 1, CanCollide = false, CanQuery = false }, bench)
-			-- ป้ายไม้หน้าเครื่องย่อย: จำนวน ไม้ | เหล็ก ในคลังแคมป์
-			local signCf = fgCf * CF(0, 0, -fs.Z * 0.5 - 2.2)
-			P("Part", { Size = V(0.5, 3.2, 0.5), CFrame = signCf * CF(-2.6, 1.6, 0.3), Color = C(92, 60, 38), Material = Enum.Material.Wood }, bench)
-			P("Part", { Size = V(0.5, 3.2, 0.5), CFrame = signCf * CF(2.6, 1.6, 0.3), Color = C(92, 60, 38), Material = Enum.Material.Wood }, bench)
-			local board = P("Part", { Name = "StockBoard", Size = V(6.4, 2.4, 0.3), CFrame = signCf * CF(0, 3, 0), Color = C(140, 98, 62), Material = Enum.Material.WoodPlanks }, bench)
-			for _, info in ipairs({ { "StockWood", "ไม้", -1.6 }, { "StockIron", "เหล็ก", 1.6 } }) do
-				local num = P("Part", { Name = info[1], Size = V(2.8, 2.2, 0.05), CFrame = board.CFrame * CF(info[3], 0, -0.18), Transparency = 1, CanCollide = false, CanQuery = false }, bench)
-				local sg = Instance.new("SurfaceGui")
-				sg.Face = Enum.NormalId.Front
-				sg.PixelsPerStud = 50
-				sg.LightInfluence = 0.5
-				sg.Parent = num
-				local cap = Instance.new("TextLabel")
-				cap.Size = UDim2.fromScale(1, 0.4)
-				cap.BackgroundTransparency = 1
-				cap.Font = Enum.Font.GothamBold
-				cap.TextScaled = true
-				cap.TextColor3 = C(255, 226, 170)
-				cap.Text = info[2]
-				cap.Parent = sg
-				local t = Instance.new("TextLabel")
-				t.Name = "Label"
-				t.Size = UDim2.fromScale(1, 0.6)
-				t.Position = UDim2.fromScale(0, 0.4)
-				t.BackgroundTransparency = 1
-				t.Font = Enum.Font.GothamBlack
-				t.TextScaled = true
-				t.TextColor3 = C(255, 255, 240)
-				t.Text = "0"
-				t.Parent = sg
-				local st = Instance.new("UIStroke")
-				st.Color, st.Thickness, st.Parent = C(58, 32, 16), 2, t
-			end
 			bench.PrimaryPart = top
 		end
 	end
@@ -2043,9 +2010,9 @@ function PropBuilder.BuildLair(sp, parent)
 	--   { ชื่อโมเดล, เท่าของความกว้างมาตรฐาน (SiteSpec), หมุนแก้ทิศ } · ตั้งฝั่งตรงข้ามแคมป์ หน้าหันเข้าลาน (ดิน = ล้อมลาน)
 	local LAIR_STORE = {
 		Earth = { "Colosseum", 1, 0 }, -- โคลอสเซียมล้อมลานสู้
-		Water = { "StoneyHeights", 1.1, 0 }, -- เมืองหินยอดแหลมกลางลากูน
+		-- น้ำ: ไม่มีอาคาร -> ห้วงน้ำลึก + แท่นหินโผล่พ้นน้ำ (สร้างด้านล่าง)
 		Air = { "IcePalace", 1, 0, { "Ceiling", "Pre_Ceiling" } }, -- ห้องโถงพระราชวังน้ำแข็ง (บนเกาะลอยฟ้า) ไม่เอาเปลือกพีระมิด
-		-- ไฟ: ไม่ใช้ปราสาทมังกร (ผนัง/หน้าผารอบรังบังทางเข้า) -> ลานเปิดวงหินตั้ง + เตาไฟ
+		Fire = { "FireThrone", 1, 0 }, -- อารีนาบัลลังก์นรก (3D Model/Biome Fire/Solfang/Throne) · ยังไม่ Import = ลานเปิดวงหินตั้ง
 	}
 	local ls = LAIR_STORE[el]
 	local spec = SiteSpec.Get("Lair", el)
@@ -2056,17 +2023,86 @@ function PropBuilder.BuildLair(sp, parent)
 			Material = SEAT_MAT[el],
 			WaterLevel = el == "Water" and sp.Position.Y + 2 or nil, -- ลานรังน้ำอยู่ใต้ผิวน้ำ 2 stud (MapGenerator)
 		})
+	-- รังน้ำ: แท่นหินโผล่พ้นน้ำ 2 วงรอบห้วงลึก (ผู้เล่นยืน/กระโดดข้ามได้) · บอสว่ายอยู่กลางน้ำ
+	if el == "Water" then
+		local terrain = workspace.Terrain
+		local wl = base.Position.Y + 16 -- ระดับผิวน้ำ (MapGenerator ขุดแอ่งลึก 16 ใต้ผิวน้ำ)
+		local floorY = base.Position.Y
+		local rngW = Random.new(math.floor(base.Position.X + base.Position.Z))
+		for ring, info in ipairs({ { 64, 9, 11 }, { 104, 12, 14 } }) do
+			local n = info[2]
+			for i = 0, n - 1 do
+				local a = (i + (ring == 2 and 0.5 or 0)) / n * math.pi * 2 + rngW:NextNumber(-0.12, 0.12)
+				local rad2 = info[1] + rngW:NextNumber(-6, 6)
+				local px, pz = base.Position.X + math.cos(a) * rad2, base.Position.Z + math.sin(a) * rad2
+				local r = info[3] * rngW:NextNumber(0.8, 1.15)
+				local top = wl + rngW:NextNumber(1.2, 3.2)
+				pcall(function()
+					terrain:FillCylinder(CF(px, (floorY - 4 + top) / 2, pz), top - floorY + 4, r, Enum.Material.Slate)
+					terrain:FillCylinder(CF(px, top - 0.6, pz), 1.6, r * 0.92, Enum.Material.Sand)
+				end)
+			end
+		end
+		-- จุดเกิดบอส: กลางห้วงน้ำ ที่ผิวน้ำ
+		base = CF(base.Position.X, wl - 1.5, base.Position.Z) * (base - base.Position)
+	end
+	-- รังไฟ: วงลาวาล้อมรอบฐาน (พื้นหินแตกลาวาเรืองแสง + แสงส้มวูบ + ประกายไฟ)
+	if el == "Fire" then
+		local terrain = workspace.Terrain
+		local rb = spec.Width / 2
+		if backdrop then
+			local _, bs = backdrop:GetBoundingBox()
+			rb = math.max(bs.X, bs.Z) / 2
+		end
+		local r0, gy = rb + 10, base.Position.Y
+		local seg = math.ceil(math.pi * 2 * r0 / 10)
+		for i = 0, seg - 1 do
+			local a = i / seg * math.pi * 2
+			local cf = CF(base.Position.X + math.cos(a) * r0, gy - 2.5, base.Position.Z + math.sin(a) * r0) * ANG(0, -a, 0)
+			pcall(function()
+				terrain:FillBlock(cf, V(18, 5, 12), Enum.Material.CrackedLava)
+			end)
+			if i % 4 == 0 then
+				local glowPart = P("Part", { Name = "LavaGlow", Size = V(1, 1, 1), CFrame = cf * CF(0, 3.5, 0), Transparency = 1, CanCollide = false, CanQuery = false }, m)
+				light(glowPart, C(255, 110, 30), 26, 1.6)
+				local e = Instance.new("ParticleEmitter")
+				e.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+				e.Color = ColorSequence.new(C(255, 180, 60), C(255, 70, 20))
+				e.LightEmission, e.LightInfluence = 1, 0
+				e.Rate = 6
+				e.Lifetime = NumberRange.new(1.5, 2.6)
+				e.Speed = NumberRange.new(2, 5)
+				e.SpreadAngle = Vector2.new(25, 25)
+				e.Acceleration = V(0, 2, 0)
+				e.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.45), NumberSequenceKeypoint.new(1, 0) })
+				e.Parent = glowPart
+			end
+		end
+	end
 	-- ลานสู้บอส = พื้นโล่งข้างในรังที่ใกล้กลางที่สุด (ไม่ไปเกิดบนหลังคา/ยอดตึก)
 	if backdrop then
 		local home = backdrop.Parent
 		backdrop.Parent = workspace
-		local spot = openFloor(backdrop, base.Position, base.Position.Y, spec.Width * 0.3)
+		-- พื้นจริงของอาคาร (วังน้ำแข็ง/บัลลังก์ไฟ พื้นยกสูงกว่าดิน ~20) -> หาลานบนพื้นนั้น ไม่ใช่ดินข้างนอก
+		local floorY = base.Position.Y
+		local rpF = RaycastParams.new()
+		rpF.FilterType = Enum.RaycastFilterType.Include
+		rpF.FilterDescendantsInstances = { backdrop }
+		local best
+		for _, off in ipairs({ V(0, 0, 0), V(12, 0, 0), V(-12, 0, 0), V(0, 0, 12), V(0, 0, -12) }) do
+			local hit = workspace:Raycast(base.Position + off + V(0, 60, 0), V(0, -90, 0), rpF)
+			if hit and hit.Position.Y > floorY - 6 and hit.Position.Y < floorY + 40 then
+				best = best and math.min(best, hit.Position.Y) or hit.Position.Y
+			end
+		end
+		floorY = best or floorY
+		local spot = openFloor(backdrop, base.Position, floorY, spec.Width * (best and 0.18 or 0.3))
 		backdrop.Parent = home
 		if spot then
 			base = CF(spot) * (base - base.Position)
 		end
 	end
-	for i = 0, backdrop and -1 or 9 do
+	for i = 0, (backdrop or el == "Water") and -1 or 9 do
 		local ang = i / 10 * math.pi * 2
 		local h = 18 + (i % 3) * 6
 		local scf = base * CF(math.cos(ang) * R, 0, math.sin(ang) * R) * ANG(rad(math.sin(i) * 6), -ang, rad(math.cos(i) * 5))
@@ -2083,11 +2119,11 @@ function PropBuilder.BuildLair(sp, parent)
 		end
 	end
 	-- ซี่โครงยักษ์ (ซากเหยื่อ)
-	for i = 0, backdrop and -1 or 5 do
+	for i = 0, (backdrop or el == "Water") and -1 or 5 do
 		local z = -12 + i * 5
 		cylinderY(22 - math.abs(i - 2.5) * 3, 1.6, base * CF(-24, 6, z) * ANG(0, 0, rad(-38)), { Color = C(226, 218, 196), Material = Enum.Material.SmoothPlastic }, m)
 	end
-	if not backdrop then
+	if not backdrop and el ~= "Water" then
 		ellipsoid(V(9, 7, 11), base * CF(-30, 3.5, -22) * ANG(0.3, 0.5, 0.2), { Color = C(232, 226, 206), Material = Enum.Material.SmoothPlastic }, m)
 	end
 	-- วงเวทกลางลาน

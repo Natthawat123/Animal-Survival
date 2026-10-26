@@ -1098,8 +1098,9 @@ local function rebuildMeshCollisions()
 	local n = 0
 	for _, d in ipairs(props:GetDescendants()) do
 		if d:IsA("MeshPart") then
-			local big = math.max(d.Size.X, d.Size.Y, d.Size.Z)
-			local want = big > 6 and Enum.CollisionFidelity.PreciseConvexDecomposition or Enum.CollisionFidelity.Hull
+			-- ชิ้นเล็กในไฟล์ก็อาจถูกขยายเป็นร้อยเท่าในเกม (เช่น FireThrone ชิ้นละ ~2 stud) -> ใช้แบบละเอียดทุกชิ้น
+			-- (Hull = กล่องนูนครอบทั้งชิ้น -> เดินลอย/ชนกำแพงล่องหน)
+			local want = Enum.CollisionFidelity.PreciseConvexDecomposition
 			pcall(function()
 				d.CollisionFidelity = Enum.CollisionFidelity.Box
 				d.CollisionFidelity = want

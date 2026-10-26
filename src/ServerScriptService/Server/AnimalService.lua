@@ -1032,9 +1032,31 @@ function AnimalService:ThinkSpirit(a, now)
 	end
 end
 
+-- ฉากเปิดตัวบอส: ตรึงไว้ที่จุดเกิด ~7 วิ (เครื่องผู้เล่นขยับตัวบอสเล่นฉากเอง) แล้วปล่อยสู้
+--   โมเดลส่งถึงทุกเครื่องเสมอ (Persistent) -> ฉากไม่หลุดเพราะบอสยังโหลดมาไม่ถึง
+AnimalService.IntroTime = 7.2
+function AnimalService:BeginIntro(a)
+	pcall(function()
+		a.Model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
+	end)
+	a.IntroUntil = os.clock() + AnimalService.IntroTime
+	a.Root.Anchored = true
+	a.Root.AssemblyLinearVelocity = Vector3.zero
+	a.Model:SetAttribute("Intro", true)
+	task.delay(AnimalService.IntroTime, function()
+		if a.Root.Parent and not a.Dead then
+			a.Root.Anchored = false
+			a.Model:SetAttribute("Intro", false)
+		end
+	end)
+end
+
 function AnimalService:Think(a, now)
 	if a.Dead or a.Removed or not a.Model.Parent then
 		return
+	end
+	if a.IntroUntil and os.clock() < a.IntroUntil then
+		return -- ฉากเปิดตัวบอส: ยืนนิ่งให้เครื่องผู้เล่นเล่นฉาก
 	end
 	-- ไฟไหม้
 	if a.BurnUntil and now < a.BurnUntil then

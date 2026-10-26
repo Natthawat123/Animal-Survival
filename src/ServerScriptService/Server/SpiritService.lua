@@ -197,6 +197,7 @@ function SpiritService:WakeLair(lair, player)
 	end
 	a.Model:SetAttribute("IsBoss", true)
 	a.Model:SetAttribute("Lair", lair.Element)
+	self.ctx.Services.AnimalService:BeginIntro(a) -- ฉากเปิดตัว: ตรึงไว้ ~7 วิ
 	lair.Boss = a
 	lair.LastSeen = os.clock()
 	local s = self.ctx.State

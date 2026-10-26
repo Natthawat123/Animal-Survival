@@ -10,7 +10,7 @@ local SiteSpec = {}
 --   ฐานบอส = อาคารใหญ่ล้อมลานสู้ (บอสเกิด/สู้ข้างในรัง) · ศาลเจ้า/วิหาร/ซาก = อาคารใหญ่หลังลาน เดินเข้าได้
 local SPEC = {
 	Shrine = { Gap = 12, Width = 130 },
-	Lair = { Center = true, Width = 300, Air = { Center = true, Width = 280 } },
+	Lair = { Center = true, Width = 300, Air = { Center = true, Width = 400 } }, -- เยติ: พระราชวังน้ำแข็งใหญ่บนพื้น
 	Sanctum = { Gap = 26, Width = 200 },
 	Ruins = { Gap = 4, Width = 100 },
 }

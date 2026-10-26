@@ -79,6 +79,7 @@ function DirectorService:SpawnRaid(id, plan, night)
 			s:SetAttribute("BossId", id)
 			s:SetAttribute("BossHP", a.Hum.MaxHealth)
 			s:SetAttribute("BossMaxHP", a.Hum.MaxHealth)
+			animals:BeginIntro(a) -- ฉากเปิดตัว: ตรึงไว้ ~7 วิ
 			self.ctx.FireRun("Cinematic", "BossIntro", { Model = a.Model, Id = id, Name = info.Name, Thai = info.Thai, Element = info.Element })
 		end
 		return a

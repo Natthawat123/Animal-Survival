@@ -543,6 +543,24 @@ BossFX.Handlers = {
 	BossBlizzard = blizzardFx,
 }
 
+BossFX.Play = function(name, cf, opts)
+	return play(name, cf, opts)
+end
+BossFX.Dust = function(pos, r, el, count)
+	dust(pos, r, el, count)
+end
+BossFX.Debris = function(pos, r, el, n)
+	debris(pos, r, el, n)
+end
+BossFX.Emit = emitAt
+BossFX.Part = part
+BossFX.TweenObj = tween
+
+-- ฉากเปิดตัวบอส: ระเบิดกระแทกประจำธาตุที่ตีนบอส (น้ำ = น้ำพุ่งเป็นเสา)
+function BossFX.IntroBurst(pos, radius, element)
+	impactFx({ Pos = pos, Radius = radius, Element = element, Style = element == "Water" and "Geyser" or nil })
+end
+
 function BossFX.Init(shake)
 	BossFX.Shake = shake
 end

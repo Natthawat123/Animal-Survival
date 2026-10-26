@@ -257,6 +257,7 @@ local TABS = {
 		btn(page, "💨 ดับกองไฟ", C(80, 80, 90), function() run("extinguish") end)
 		btn(page, "🔥 กองไฟ +1 เลเวล", C(150, 90, 40), function() run("fireLevel", 1) end)
 		btn(page, "🔥 กองไฟ -1 เลเวล", nil, function() run("fireLevel", -1) end)
+		btn(page, "🌫 ทะลุกำแพงหมอก เปิด/ปิด", nil, function() run("fogPass") end)
 		btn(page, "🔨 โต๊ะคราฟต์ +1", C(110, 80, 50), function() run("benchLevel", 1) end)
 		btn(page, "🔨 โต๊ะคราฟต์ -1", nil, function() run("benchLevel", -1) end)
 	end },

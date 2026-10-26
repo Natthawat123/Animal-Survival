@@ -29,6 +29,11 @@ function CampService:Info()
 	return Recipes.Campfire[self.level]
 end
 
+-- รัศมีกำแพงหมอก (สตัด จากกลางแมพ = แคมป์)
+function CampService:RevealRadius()
+	return math.floor(self:Info().Reveal * Config.MapSize / 2)
+end
+
 function CampService:SafeRadius()
 	if self.fuel <= 0 then
 		return 0
@@ -66,7 +71,7 @@ function CampService:Publish()
 	s:SetAttribute("CampFuel", math.floor(self.fuel))
 	s:SetAttribute("CampMaxFuel", info.MaxFuel)
 	s:SetAttribute("CampSafeRadius", self:SafeRadius())
-	s:SetAttribute("CampReveal", info.Reveal)
+	s:SetAttribute("CampReveal", self:RevealRadius())
 	s:SetAttribute("BenchLevel", self.bench)
 	s:SetAttribute("CampRadius", self:CampRadius())
 end
@@ -197,7 +202,7 @@ function CampService:UpgradeFire(player)
 	end
 	self.level += 1
 	self.fuel = math.max(self.fuel, nextInfo.MaxFuel * 0.6)
-	self.ctx.Broadcast(string.format("🔥 กองไฟอัปเกรดเป็นเลเวล %d! เขตปลอดภัยกว้างขึ้น หมอกจางลง", self.level), "Reward")
+	self.ctx.Broadcast(string.format("🔥 กองไฟอัปเกรดเป็นเลเวล %d! หมอกถอยออกไป สำรวจได้ไกลขึ้น", self.level), "Reward")
 	self.ctx.FireRun("Cinematic", "CampUpgrade", { Level = self.level })
 	self:UpdateVisual()
 	self:Publish()
@@ -390,6 +395,10 @@ function CampService:UpdateStockSign()
 		return
 	end
 	local camp = self.ctx.Services.InventoryService.Camp
+	-- จำนวนในคลังแคมป์ -> HUD มุมขวาบน (ใต้การ์ดกองไฟ)
+	for _, id in ipairs({ "Wood", "Stone", "Iron" }) do
+		self.ctx.State:SetAttribute("Stock" .. id, camp[id] or 0)
+	end
 	for name, id in pairs({ StockWood = "Wood", StockIron = "Iron" }) do
 		local part = bench:FindFirstChild(name)
 		local gui = part and part:FindFirstChildOfClass("SurfaceGui")
@@ -503,6 +512,42 @@ local function prompt(parent, name, action, object, key, hold, dist)
 	return p
 end
 
+-- กำแพงหมอก: ฝั่งผู้เล่นกันไว้นุ่มๆ อยู่แล้ว (FogWall.lua) · เซิร์ฟเวอร์กันซ้ำถ้าหลุดไปไกล (แลค/โกง)
+function CampService:StartFogWall(ctx)
+	local RS = game:GetService("ReplicatedStorage")
+	if RS:FindFirstChild("ASAutoTest") and not RS:FindFirstChild("ASFogProbe") then
+		return
+	end
+	local rp = RaycastParams.new()
+	rp.FilterType = Enum.RaycastFilterType.Include
+	rp.FilterDescendantsInstances = { workspace.Terrain }
+	local warned = {}
+	task.spawn(function()
+		while true do
+			task.wait(0.5)
+			local reveal = self:RevealRadius()
+			for _, p in ipairs(game:GetService("Players"):GetPlayers()) do
+				local char = p.Character
+				local root = char and char:FindFirstChild("HumanoidRootPart")
+				if root and p:GetAttribute("InRun") and not p:GetAttribute("FogPass") then
+					local flat = root.Position * Vector3.new(1, 0, 1)
+					if flat.Magnitude > reveal + 25 then
+						local to = flat.Unit * (reveal - 8)
+						local hit = workspace:Raycast(Vector3.new(to.X, 1500, to.Z), Vector3.new(0, -3000, 0), rp)
+						local y = math.max(hit and hit.Position.Y or root.Position.Y, Config.WaterLevel) + 4
+						char:PivotTo(CFrame.new(Vector3.new(to.X, y, to.Z), Vector3.new(0, y, 0)))
+						root.AssemblyLinearVelocity = Vector3.zero
+						if not warned[p] or os.clock() - warned[p] > 5 then
+							warned[p] = os.clock()
+							ctx.Notify(p, "🌫 หมอกหนาเกินไป — อัปเกรดกองไฟเพื่อสำรวจต่อ", "Error")
+						end
+					end
+				end
+			end
+		end
+	end)
+end
+
 function CampService:Start(ctx)
 	local camp = workspace.World.Sites:WaitForChild("Camp")
 	self.campModel = camp
@@ -527,6 +572,7 @@ function CampService:Start(ctx)
 		self:FeedGrinder(p, true)
 	end)
 	self:RefreshPrompts()
+	self:StartFogWall(ctx)
 
 	ctx.Remotes.Get("Craft").OnServerEvent:Connect(function(player, recipeId, count)
 		if ctx.Services.SurvivalService:IsIncapacitated(player) then

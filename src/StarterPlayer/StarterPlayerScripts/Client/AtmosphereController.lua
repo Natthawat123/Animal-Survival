@@ -78,7 +78,7 @@ function AtmosphereController.Init(state)
 			-- หมอกนอกเขตที่กองไฟเปิดไว้
 			local reveal = state:GetAttribute("CampReveal") or 99999
 			local d = math.sqrt(pos.X * pos.X + pos.Z * pos.Z)
-			veil = inLobby and 0 or math.clamp((d - reveal) / 300, 0, 1)
+			veil = inLobby and 0 or math.clamp((d - (reveal - 220)) / 260, 0, 1) -- ใกล้กำแพงหมอก = ฟ้าขมุกขมัว
 		end
 		local mode = state:GetAttribute("BloodMoon") and "BloodMoon" or nil
 		local target = Atmosphere.Values(biome, night, mode)

@@ -54,14 +54,15 @@ Recipes.BenchUpgrade = {
 	[5] = { Iron = 40, Pelt = 10, BeastHeart = 1 },
 }
 
--- เลเวลกองไฟ: MaxFuel, SafeRadius (สัตว์ป่า/สตอล์กเกอร์ไม่กล้าเข้า), Light, Reveal (หมอกเปิดกว้างเท่าไร)
+-- เลเวลกองไฟ: MaxFuel, SafeRadius (สัตว์ป่า/สตอล์กเกอร์ไม่กล้าเข้า), Light,
+--   Reveal = กำแพงหมอกอยู่ห่างแคมป์เท่าไร (สัดส่วนของครึ่งแมพ) — เลยออกไปเดินไม่ได้ อัปเกรดไฟเพื่อดันหมอกออก
 Recipes.Campfire = {
-	[1] = { MaxFuel = 300, SafeRadius = 42, Light = 60, Reveal = 900 },
-	[2] = { MaxFuel = 450, SafeRadius = 56, Light = 70, Reveal = 1400, Cost = { Wood = 30, Stone = 10 } },
-	[3] = { MaxFuel = 620, SafeRadius = 70, Light = 80, Reveal = 1900, Cost = { Wood = 60, Stone = 30, Coal = 6 } },
-	[4] = { MaxFuel = 800, SafeRadius = 84, Light = 90, Reveal = 2500, Cost = { Wood = 100, Coal = 18, Iron = 14, TerraCore = 1, TidePearl = 1, GaleFeather = 1, EmberShard = 1 } },
-	[5] = { MaxFuel = 1000, SafeRadius = 98, Light = 100, Reveal = 3200, Cost = { Wood = 160, Coal = 40, Iron = 30, TerraCore = 3, TidePearl = 3, GaleFeather = 3, EmberShard = 3 } },
-	[6] = { MaxFuel = 1300, SafeRadius = 120, Light = 120, Reveal = 99999, Cost = { Wood = 250, Coal = 80, BeastHeart = 2 } },
+	[1] = { MaxFuel = 300, SafeRadius = 42, Light = 60, Reveal = 0.22 },
+	[2] = { MaxFuel = 450, SafeRadius = 56, Light = 70, Reveal = 0.36, Cost = { Wood = 30, Stone = 10 } },
+	[3] = { MaxFuel = 620, SafeRadius = 70, Light = 80, Reveal = 0.52, Cost = { Wood = 60, Stone = 30, Coal = 6 } },
+	[4] = { MaxFuel = 800, SafeRadius = 84, Light = 90, Reveal = 0.68, Cost = { Wood = 100, Coal = 18, Iron = 14, TerraCore = 1, TidePearl = 1, GaleFeather = 1, EmberShard = 1 } },
+	[5] = { MaxFuel = 1000, SafeRadius = 98, Light = 100, Reveal = 0.86, Cost = { Wood = 160, Coal = 40, Iron = 30, TerraCore = 3, TidePearl = 3, GaleFeather = 3, EmberShard = 3 } },
+	[6] = { MaxFuel = 1300, SafeRadius = 120, Light = 120, Reveal = 99, Cost = { Wood = 250, Coal = 80, BeastHeart = 2 } },
 }
 Recipes.CampfireDrainDay = 1.0 -- เชื้อเพลิงต่อวินาที
 Recipes.CampfireDrainNight = 1.7

@@ -45,19 +45,45 @@ function HUD.Init(state)
 	HUD.Gui = gui
 
 	---------------------------------------------------------------- ซ้ายบน: แถบค่า
-	-- การ์ดกระจกมุมซ้ายบน: เลือด / หิว / สตามิน่า + คลาส
-	-- ไม่มีพื้นการ์ด: แถบหนาลอยบนจอ + ไอคอนวงกลมสีสดหน้าแถบ (แบบเกมยุคใหม่)
-	local stats = UIKit.Frame(gui, { Size = UDim2.fromOffset(300, 120), Position = UDim2.fromOffset(20, 66), BackgroundTransparency = 1 })
+	-- การ์ดกระจกมุมซ้ายบน: หัวการ์ด = คลาส · 3 แถว เลือด / หิว / สตามิน่า (ไอคอนช่องเหลี่ยมมน + แถบยาวเท่ากัน ตัวเลขชิดขวา)
+	local stats = UIKit.Frame(gui, { Size = UDim2.fromOffset(310, 160), Position = UDim2.fromOffset(16, 74), BackgroundTransparency = 1 })
 	UIKit.AutoScale(stats)
-	HUD.HealthBar = UIKit.Bar(stats, { Size = UDim2.fromOffset(250, 28), Position = UDim2.fromOffset(30, 6), Color = C.Health, Label = "100" })
-	UIKit.IconBadge(stats, "❤", C.Health, 42, { Position = UDim2.fromOffset(0, -1) })
-	HUD.HungerBar = UIKit.Bar(stats, { Size = UDim2.fromOffset(210, 20), Position = UDim2.fromOffset(30, 48), Color = C.Hunger, Label = "" })
-	UIKit.IconBadge(stats, "🍖", C.Hunger, 34, { Position = UDim2.fromOffset(4, 41) })
-	HUD.StaminaBar = UIKit.Bar(stats, { Size = UDim2.fromOffset(180, 14), Position = UDim2.fromOffset(30, 82), Color = C.Stamina, Label = "" })
-	UIKit.IconBadge(stats, "⚡", C.Stamina, 28, { Position = UDim2.fromOffset(7, 75) })
-	HUD.ClassLabel = UIKit.Text(stats, { Size = UDim2.fromOffset(260, 18), Position = UDim2.fromOffset(6, 104), TextSize = 15, Font = UIKit.Fonts.Black, TextColor3 = C.Gold, Text = "" })
+	local card = UIKit.Frame(stats, { Size = UDim2.fromOffset(294, 150), BackgroundColor3 = Color3.fromRGB(16, 14, 26), BackgroundTransparency = 0.22 })
+	UIKit.Corner(card, 12)
+	local cs = UIKit.Stroke(card, C.Gold, 1, 0.2)
+	cs.Thickness = 1.2
+	cs.Transparency = 0.45
+	UIKit.Gradient(card, Color3.fromRGB(255, 255, 255), Color3.fromRGB(150, 150, 170), 90)
+	-- หัวการ์ด: โล่ + ชื่อคลาส + เส้นทองบางๆ
+	pcall(UIKit.Icon, card, "Shield", 20, { Position = UDim2.fromOffset(14, 10) })
+	HUD.ClassLabel = UIKit.Text(card, { Size = UDim2.fromOffset(240, 20), Position = UDim2.fromOffset(42, 10), TextSize = 16, Font = UIKit.Fonts.Black, TextColor3 = C.Gold, Text = "" })
+	local line = UIKit.Frame(card, { Size = UDim2.new(1, -28, 0, 1), Position = UDim2.fromOffset(14, 38), BackgroundColor3 = C.Gold, BackgroundTransparency = 0.3 })
+	local lg = Instance.new("UIGradient")
+	lg.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.7, 0.4), NumberSequenceKeypoint.new(1, 1) })
+	lg.Parent = line
+	local function row(y, icon, color, h)
+		local badge = UIKit.Frame(card, { Size = UDim2.fromOffset(28, 28), Position = UDim2.fromOffset(14, y), BackgroundColor3 = color:Lerp(Color3.new(0, 0, 0), 0.55), ZIndex = 4 })
+		UIKit.Corner(badge, 7)
+		local bs = UIKit.Stroke(badge, color, 1, 0.1)
+		bs.Thickness = 1.5
+		UIKit.Text(badge, { Size = UDim2.fromScale(1, 1), Text = icon, TextSize = 16, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 5 })
+		local bar = UIKit.Bar(card, { Size = UDim2.fromOffset(222, h), Position = UDim2.fromOffset(54, y + (28 - h) / 2), Color = color, Label = "" })
+		local st = bar.Holder:FindFirstChildOfClass("UIStroke")
+		if st then
+			st.Thickness = 1.5
+			st.Transparency = 0.15
+		end
+		bar.Label.TextXAlignment = Enum.TextXAlignment.Right
+		bar.Label.Size = UDim2.new(1, -16, 1, 0)
+		bar.Label.Position = UDim2.fromOffset(8, 0)
+		bar.Badge, bar.BadgeStroke = badge, bs
+		return bar
+	end
+	HUD.HealthBar = row(48, "❤", C.Health, 22)
+	HUD.HungerBar = row(82, "🍖", C.Hunger, 18)
+	HUD.StaminaBar = row(114, "⚡", C.Stamina, 14)
 	-- เพื่อนร่วมทีม (อยู่ในกรอบเดียวกับแถบค่า ย่อ/ขยายไปด้วยกัน)
-	local team = UIKit.Frame(stats, { Name = "Team", Size = UDim2.fromOffset(240, 0), Position = UDim2.fromOffset(4, 130), BackgroundTransparency = 1, AutomaticSize = Enum.AutomaticSize.Y, Visible = false })
+	local team = UIKit.Frame(stats, { Name = "Team", Size = UDim2.fromOffset(240, 0), Position = UDim2.fromOffset(4, 158), BackgroundTransparency = 1, AutomaticSize = Enum.AutomaticSize.Y, Visible = false })
 	local tl = Instance.new("UIListLayout")
 	tl.Padding = UDim.new(0, 4)
 	tl.SortOrder = Enum.SortOrder.LayoutOrder
@@ -134,6 +160,20 @@ function HUD.Init(state)
 	end
 	HUD.DiamondLabel = UIKit.Text(right, { Size = UDim2.fromOffset(100, 28), Position = UDim2.new(1, -144, 0, 80), Text = "0", Font = UIKit.Fonts.Title, TextSize = 22, TextXAlignment = Enum.TextXAlignment.Right, TextColor3 = Color3.fromRGB(255, 190, 190) })
 	UIKit.Icon(right, "Ruby", 32, { Position = UDim2.new(1, -42, 0, 76) })
+	-- คลังแคมป์ (ของที่ย่อยแล้ว ใช้ร่วมกันทั้งทีม): รูปไอเทม + จำนวน ใต้การ์ดกองไฟ
+	local ItemIcon = require(script.Parent.ItemIcon)
+	local stock = UIKit.Frame(right, { Name = "CampStock", Size = UDim2.new(1, 0, 0, 44), Position = UDim2.fromOffset(0, 124), BackgroundColor3 = Color3.fromRGB(16, 14, 26), BackgroundTransparency = 0.22 })
+	UIKit.Corner(stock, 10)
+	local ss = UIKit.Stroke(stock, C.Gold, 1, 0.2)
+	ss.Thickness = 1.2
+	ss.Transparency = 0.45
+	UIKit.Text(stock, { Size = UDim2.fromOffset(60, 44), Position = UDim2.fromOffset(12, 0), Text = "คลังแคมป์", TextSize = 13, Font = UIKit.Fonts.Black, TextColor3 = C.Gold })
+	HUD.StockLabels = {}
+	for i, id in ipairs({ "Wood", "Stone", "Iron" }) do
+		local x = 78 + (i - 1) * 62
+		ItemIcon.Make(stock, id, { Size = UDim2.fromOffset(30, 30), Position = UDim2.fromOffset(x, 7), ZIndex = 3 })
+		HUD.StockLabels[id] = UIKit.Text(stock, { Size = UDim2.fromOffset(30, 44), Position = UDim2.fromOffset(x + 31, 0), Text = "0", TextSize = 17, Font = UIKit.Fonts.Black, TextColor3 = C.Text })
+	end
 
 	---------------------------------------------------------------- ล่าง: ทรัพยากร
 	local strip = UIKit.Frame(gui, { Size = UDim2.new(0, 760, 0, 40), Position = UDim2.new(0.5, -380, 1, -172), BackgroundTransparency = 0.45 })
@@ -243,13 +283,19 @@ function HUD.Update()
 	local char = player.Character
 	local hum = char and char:FindFirstChildOfClass("Humanoid")
 	if hum then
-		HUD.HealthBar.Set(hum.Health / math.max(hum.MaxHealth, 1), string.format("%d / %d", math.ceil(hum.Health), math.ceil(hum.MaxHealth)))
+		local hf = hum.Health / math.max(hum.MaxHealth, 1)
+		HUD.HealthBar.Set(hf, string.format("%d / %d", math.ceil(hum.Health), math.ceil(hum.MaxHealth)))
+		-- เลือดต่ำ: ไอคอนกระพริบแดง
+		local pulse = hf < 0.3 and (0.5 + 0.5 * math.sin(os.clock() * 8)) or 0
+		HUD.HealthBar.BadgeStroke.Thickness = 1.5 + pulse * 2
+		HUD.HealthBar.Badge.BackgroundColor3 = C.Health:Lerp(Color3.new(0, 0, 0), 0.55 - pulse * 0.4)
 	end
 	local hunger = player:GetAttribute("Hunger") or 100
-	HUD.HungerBar.Set(hunger / Config.HungerMax, hunger < 25 and "หิวมาก!" or "")
+	HUD.HungerBar.Set(hunger / Config.HungerMax, hunger < 25 and "หิวมาก!" or string.format("%d%%", math.floor(hunger / Config.HungerMax * 100 + 0.5)))
 	HUD.StaminaBar.Set((HUD.Stamina or 100) / 100)
 	local cls = player:GetAttribute("Class")
-	HUD.ClassLabel.Text = cls and ("คลาส: " .. cls) or ""
+	local lv = player:GetAttribute("ClassLevel")
+	HUD.ClassLabel.Text = cls and (string.upper(cls) .. (lv and ("  ·  Lv." .. lv) or "")) or "SURVIVOR"
 
 	-- เวลา
 	local now = Workspace:GetServerTimeNow()
@@ -314,6 +360,11 @@ function HUD.Update()
 	local fuel, maxFuel = s:GetAttribute("CampFuel") or 0, s:GetAttribute("CampMaxFuel") or 1
 	HUD.FireLabel.Text = string.format("กองไฟ Lv.%d  ·  โต๊ะ Lv.%d", lvl, s:GetAttribute("BenchLevel") or 1)
 	HUD.UpdateFuel(fuel, maxFuel, inLobby, phase)
+	for id, l in pairs(HUD.StockLabels or {}) do
+		local n = s:GetAttribute("Stock" .. id) or 0
+		l.Text = n >= 1000 and string.format("%.1fk", n / 1000) or tostring(n)
+		l.TextColor3 = n > 0 and C.Text or C.TextDim
+	end
 	local campPos = s:GetAttribute("CampPos")
 	local safe = s:GetAttribute("CampSafeRadius") or 0
 	if campPos and char then

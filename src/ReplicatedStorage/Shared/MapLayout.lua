@@ -166,18 +166,13 @@ function MapLayout:_heightFor(biome, x, z)
 		local dx, dz = x - s.X, z - s.Z
 		local d = sqrt(dx * dx + dz * dz)
 		local lava = false
-		-- ภูเขาไฟ + ปล่อง
-		local cone = math.max(0, 1 - d / 720) ^ 1.7 * 320
-		if d < 130 then
-			cone -= (1 - d / 130) ^ 1.4 * 190
-			if d < 96 then
-				lava = true
-			end
-		end
-		h += cone
+		-- (เดิมมีภูเขาไฟ+ปล่องตรงกลาง -> รังบอสไฟจมในปล่อง มีผนังภูเขาล้อมรอบเข้าไม่ได้)
+		-- ตอนนี้: ลานราบเปิดโล่งรอบรังบอสไฟ ค่อยๆ ไล่ขึ้นเป็นเนินเตี้ยๆ ไกลออกไป
+		local open = smooth((d - 260) / 260)
+		h = lerp(base, h, open)
 		-- แม่น้ำลาวา
 		local river = abs(self:_n(x + 1234, z - 777, 1 / 380))
-		if river < 0.05 and d > 160 then
+		if river < 0.05 and d > 330 then -- ไม่ผ่านลานรังบอสไฟ
 			h -= (0.05 - river) / 0.05 * 12
 			lava = true
 		end
@@ -303,15 +298,7 @@ function MapLayout:_placeSpecials(rng)
 
 	-- เกาะลอยฟ้าในเขตธาตุลม
 	local air = self.Sites.Air
-	local nest = { X = air.X, Y = 430, Z = air.Z, R = 180, Nest = true }
-	table.insert(self.FloatingIslands, nest)
-	-- รังบอสธาตุลมอยู่บนเกาะสูงสุด
-	for _, sp in ipairs(self.Specials) do
-		if sp.Kind == "Lair" and sp.Element == "Air" then
-			sp.Position = Vector3.new(nest.X, nest.Y, nest.Z) -- กลางยอดเกาะที่ตัดแบน (พระราชวังน้ำแข็งล้อมลานสู้)
-			sp.Floating = true
-		end
-	end
+	-- รังบอสธาตุลม (เยติ) อยู่บนพื้นปกติ — ไม่มีเกาะลอยฟ้าแล้ว · เกาะลอยเล็กๆ รอบไบโอมยังมีเป็นฉาก
 	local count = 0
 	for _ = 1, 200 do
 		if count >= 22 then
@@ -341,9 +328,6 @@ function MapLayout:_placeSpecials(rng)
 			end
 		end
 	end
-	-- ลมพัดขึ้นสู่รังบอส (ต้องผ่านเกาะ)
-	local nh = self:HeightAt(air.X + nest.R + 30, air.Z)
-	table.insert(self.Updrafts, { Position = Vector3.new(air.X + nest.R + 30, nh, air.Z), Height = nest.Y - nh + 40 })
 end
 
 -- วิหารโบราณศักดิ์สิทธิ์ (Sanctum) ธาตุละ 1 แห่ง: หาที่ราบ ห่างแคมป์/ศาลเจ้า/รังบอส/ซาก/น้ำ/ลาวา
