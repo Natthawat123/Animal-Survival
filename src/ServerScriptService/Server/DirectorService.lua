@@ -79,7 +79,7 @@ function DirectorService:SpawnRaid(id, plan, night)
 			s:SetAttribute("BossId", id)
 			s:SetAttribute("BossHP", a.Hum.MaxHealth)
 			s:SetAttribute("BossMaxHP", a.Hum.MaxHealth)
-			self.ctx.Remotes.Get("Cinematic"):FireAllClients("BossIntro", { Model = a.Model, Id = id, Name = info.Name, Thai = info.Thai, Element = info.Element })
+			self.ctx.FireRun("Cinematic", "BossIntro", { Model = a.Model, Id = id, Name = info.Name, Thai = info.Thai, Element = info.Element })
 		end
 		return a
 	end
@@ -103,10 +103,28 @@ function DirectorService:RunNight(night, runId)
 	if Nights.IsEndless(night) then
 		title = "♾ ไร้ขีดจำกัด · " .. title
 	end
-	ctx.Remotes.Get("Cinematic"):FireAllClients("NightStart", {
+	ctx.FireRun("Cinematic", "NightStart", {
 		Night = night, Element = plan.Element, BloodMoon = plan.BloodMoon, Boss = plan.Boss, Title = title, Endless = Nights.IsEndless(night),
 		Elements = plan.Elements,
 	})
+	-- ฝูงสัตว์บุกแคมป์ทุกๆ 5 คืน (คืน 5, 10, 15, ...) — คืนอื่นเงียบ เหลือแค่ระลอกบอส (ถ้ามี)
+	local raidNight = night % 5 == 0
+	if not raidNight then
+		local waves = {}
+		for _, w in ipairs(plan.Waves) do
+			if w.Boss then
+				table.insert(waves, w)
+			end
+		end
+		plan.Waves = waves
+		local left = 5 - night % 5
+		task.delay(6, function()
+			if runId == self.runId then
+				ctx.Broadcast(string.format("🌙 คืนนี้ค่อนข้างสงบ... ฝูงสัตว์จะบุกแคมป์ในอีก %d คืน เตรียมตัวไว้!", left), "Info")
+			end
+		end)
+	end
+	s:SetAttribute("NextRaidNight", night + (5 - night % 5) % 5)
 	local total = 0
 	for _, w in ipairs(plan.Waves) do
 		total += #w.Spawns
@@ -146,7 +164,7 @@ function DirectorService:RunNight(night, runId)
 			end
 			if not wave.Boss then
 				ctx.Broadcast(string.format("🐾 ฝูงสัตว์ระลอกที่ %d กำลังมุ่งหน้ามาที่กองไฟ!", wi), "Danger")
-				ctx.Remotes.Get("Cinematic"):FireAllClients("WaveIncoming", { Wave = wi, Element = plan.Element })
+				ctx.FireRun("Cinematic", "WaveIncoming", { Wave = wi, Element = plan.Element })
 			end
 			for i, id in ipairs(wave.Spawns) do
 				if runId ~= self.runId or s:GetAttribute("Phase") ~= "Night" then
@@ -177,7 +195,7 @@ function DirectorService:Dawn(night)
 	animals:ClearKind("Boss", true)
 	ctx.State:SetAttribute("BossId", "")
 	ctx.State:SetAttribute("BloodMoon", false)
-	ctx.Remotes.Get("Cinematic"):FireAllClients("Dawn", { Night = night })
+	ctx.FireRun("Cinematic", "Dawn", { Night = night })
 	-- รางวัล: เฉพาะคนที่ยังรอดอยู่ในรอบ (คนที่ตายแล้วไม่ได้ และไม่ได้เกิดใหม่)
 	for _, p in ipairs(Players:GetPlayers()) do
 		if p:GetAttribute("InRun") and not p:GetAttribute("Dead") then
@@ -212,14 +230,14 @@ function DirectorService:Loop(runId)
 		-- กลางวัน
 		local dayLen = Config.DayLength + (night == 1 and Config.FirstDayBonus or 0)
 		self:SetPhase("Day", dayLen - Config.DuskLength)
-		ctx.Remotes.Get("Cinematic"):FireAllClients("DayStart", { Day = night })
+		ctx.FireRun("Cinematic", "DayStart", { Day = night })
 		ctx.Services.TraderService:OnDay(night)
 		if not self:Wait(dayLen - Config.DuskLength, runId) then
 			return
 		end
 		self:SetPhase("Dusk", Config.DuskLength)
 		ctx.Broadcast("🌅 พระอาทิตย์กำลังตก... กลับไปที่กองไฟ!", "Warn")
-		ctx.Remotes.Get("Cinematic"):FireAllClients("Dusk", { Night = night })
+		ctx.FireRun("Cinematic", "Dusk", { Night = night })
 		if not self:Wait(Config.DuskLength, runId) then
 			return
 		end
@@ -251,7 +269,7 @@ function DirectorService:Complete()
 	local spirits = self:SpiritCount()
 	local kind = spirits >= 4 and "True" or "Survived"
 	ctx.State:SetAttribute("Conquered", true)
-	ctx.Remotes.Get("Cinematic"):FireAllClients("Ending", { Kind = kind, Spirits = spirits, Nights = Config.TotalNights, Continue = true })
+	ctx.FireRun("Cinematic", "Ending", { Kind = kind, Spirits = spirits, Nights = Config.TotalNights, Continue = true })
 	for _, p in ipairs(Players:GetPlayers()) do
 		if p:GetAttribute("InRun") and not p:GetAttribute("Dead") then
 			local data = ctx.Services.DataService:Get(p)
@@ -277,6 +295,7 @@ function DirectorService:GameOver()
 	self.runId += 1
 	self:SetPhase("Ended", 12)
 	ctx.State:SetAttribute("Ending", "Defeat")
+	ctx.State:SetAttribute("BossId", "")
 	local survived = self.night - 1
 	local teamSize = 0
 	for _, p in ipairs(Players:GetPlayers()) do

@@ -59,8 +59,10 @@ end
 safe("Tutorial", Tutorial.Init, UIKit.Screen("Tutorial", 60))
 safe("Settings", SettingsUI.Init, UIKit.Screen("Settings", 45), { Tutorial = Tutorial.Open, GearParent = HUD.RightCard })
 Menus.OnSettings = SettingsUI.Toggle
+-- เมนูซ้ายในล็อบบี้เปิดได้ทีละหน้า (กดเมนูอื่น = ปิดหน้าตั้งค่า)
+require(Client:WaitForChild("LobbyUI")).Closers.Settings = SettingsUI.Close
 safe("Mobile", MobileControls.Init, { Menus = Menus, Map = MapUI, HUD = HUD, Combat = CombatClient })
--- ภารกิจ / ล็อกอิน 7 วัน / Season Pass / โค้ด / ชวนเพื่อน (ปุ่ม "ภารกิจ" ในล็อบบี้)
+-- ภารกิจ / ล็อกอิน 7 วัน / Season Pass / โค้ด (ปุ่ม "ภารกิจ" ในล็อบบี้)
 local QuestUI = require(Client:WaitForChild("QuestUI"))
 safe("Quests", QuestUI.Init, UIKit.Screen("Quests", 33))
 -- ความสะดวก: การ์ดรายละเอียดไอเทม / สลับเครื่องมืออัตโนมัติ / ปิงบอกทีม / กลับเข้ารอบเดิม
@@ -197,86 +199,128 @@ do
 	end
 end
 
-local holdingSack, refreshPickupPrompts
+local holdingSack
 -- ถือกระสอบ: คลิกของบนพื้น/กองไฟ/เครื่องบด + E เก็บ + F ทิ้ง (แบบ 99 Nights · ไม่มีหน้ารายการของ)
 do
 	local Players = game:GetService("Players")
 	local Workspace = game:GetService("Workspace")
 	local player = Players.LocalPlayer
 	local mouse = player:GetMouse()
-	-- ปุ่ม "เก็บใส่กระสอบ" บนของที่ตก: ขึ้นเฉพาะตอนถือกระสอบ (เปิด/ปิดเฉพาะเครื่องนี้)
 	holdingSack = false
-	function refreshPickupPrompts()
-		local drops = Workspace:FindFirstChild("Drops")
-		for _, d in ipairs(drops and drops:GetDescendants() or {}) do
-			if d:IsA("ProximityPrompt") and d.Name == "Pickup" then
-				d.Enabled = holdingSack
+	-- ปุ่ม E/R บนของที่ตก: เปิดเฉพาะชิ้นที่โฟกัส (กรอบขาว) ชิ้นเดียว -> กดแล้วได้ชิ้นที่เห็นแน่ ๆ
+	local focus
+	local function isDropPrompt(d)
+		return d:IsA("ProximityPrompt") and (d.Name == "Pickup" or d.Name == "Use")
+	end
+	-- ปุ่ม E เก็บ = เฉพาะตอนถือกระสอบในมือ (แบบ 99 Nights) · ปุ่มกิน/ใช้ = ได้ตลอด
+	local function setPrompts(m, on)
+		for _, d in ipairs(m and m:GetDescendants() or {}) do
+			if isDropPrompt(d) then
+				d.Enabled = on and (d.Name ~= "Pickup" or holdingSack)
 			end
 		end
+	end
+	local function hasUse(m)
+		for _, d in ipairs(m and m:GetDescendants() or {}) do
+			if d:IsA("ProximityPrompt") and d.Name == "Use" then
+				return true
+			end
+		end
+		return false
+	end
+	local function dropOf(inst)
+		local drops = Workspace:FindFirstChild("Drops")
+		while inst and drops and inst.Parent ~= drops do
+			inst = inst.Parent
+		end
+		return drops and inst and inst:IsA("Model") and inst or nil
 	end
 	task.spawn(function()
 		local drops = Workspace:WaitForChild("Drops", 60)
 		if drops then
 			drops.DescendantAdded:Connect(function(d)
-				if d:IsA("ProximityPrompt") and d.Name == "Pickup" then
-					d.Enabled = holdingSack
+				if isDropPrompt(d) then
+					d.Enabled = focus ~= nil and d:IsDescendantOf(focus) and (d.Name ~= "Pickup" or holdingSack)
 				end
 			end)
-			refreshPickupPrompts()
+			for _, d in ipairs(drops:GetDescendants()) do
+				if isDropPrompt(d) then
+					d.Enabled = false
+				end
+			end
 		end
 	end)
-	-- กรอบขาวรอบของบนพื้นที่ "เก็บได้ตอนนี้": เมาส์ชี้ (ตอนถือกระสอบ ในระยะ) หรือปุ่ม E/R ขึ้นอยู่
+	-- กรอบขาวรอบของบนพื้นที่ "โฟกัสอยู่" (แบบเกมเอาชีวิตรอดซอมบี้) — ขึ้นตลอด ไม่ต้องถือกระสอบ
+	-- เมาส์ชี้ของในระยะเก็บ > ไม่งั้นเลือกชิ้นใกล้สุดที่หันหน้ากล้องไปหา
 	do
 		local PICK_RANGE = 20 -- ตรงกับ DropService
-		local hl = Instance.new("Highlight")
-		hl.Name = "PickupHighlight"
-		hl.FillColor, hl.FillTransparency = Color3.new(1, 1, 1), 0.85
-		hl.OutlineColor, hl.OutlineTransparency = Color3.new(1, 1, 1), 0
-		hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-		hl.Enabled = false
-		hl.Parent = Workspace.CurrentCamera
-		local shown = {}
-		local PPS = game:GetService("ProximityPromptService")
-		local function dropOf(inst)
-			local drops = Workspace:FindFirstChild("Drops")
-			while inst and drops and inst.Parent ~= drops do
-				inst = inst.Parent
-			end
-			return drops and inst and inst:IsA("Model") and inst or nil
+		local FOCUS_RANGE = 12 -- ระยะเลือกอัตโนมัติ = ระยะปุ่ม E (PROMPT_RANGE ใน DropService)
+		-- Highlight ใส่ไว้ในโมเดลของที่โฟกัสเลย (ใส่ใน Camera แล้วไม่ขึ้น) · ของโดนเก็บ/ลบ = กรอบหายตาม แล้วสร้างใหม่
+		local hl
+		local function makeHighlight()
+			hl = Instance.new("Highlight")
+			hl.Name = "PickupHighlight"
+			hl.FillColor, hl.FillTransparency = Color3.new(1, 1, 1), 0.9
+			hl.OutlineColor, hl.OutlineTransparency = Color3.new(1, 1, 1), 0
+			hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+			hl.Enabled = false
 		end
-		PPS.PromptShown:Connect(function(prompt)
-			if prompt.Name == "Pickup" or prompt.Name == "Use" then
-				shown[prompt] = true
-			end
-		end)
-		PPS.PromptHidden:Connect(function(prompt)
-			shown[prompt] = nil
-		end)
+		makeHighlight()
+		local target, nextScan, t0 = nil, 0, os.clock()
 		game:GetService("RunService").RenderStepped:Connect(function()
-			local target
+			local now = os.clock()
 			local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-			if holdingSack and root then
+			if not root or player:GetAttribute("Dead") or player:GetAttribute("Downed") then
+				target = nil
+			elseif now >= nextScan then
+				nextScan = now + 0.1
+				target = nil
 				local m = dropOf(mouse.Target)
 				if m and m.PrimaryPart and (m.PrimaryPart.Position - root.Position).Magnitude <= PICK_RANGE then
 					target = m
-				end
-			end
-			if not target then
-				for prompt in pairs(shown) do
-					if prompt.Parent and prompt.Enabled then
-						target = dropOf(prompt)
-						if target then
-							break
+				else
+					local drops = Workspace:FindFirstChild("Drops")
+					local look = Workspace.CurrentCamera.CFrame.LookVector
+					look = Vector3.new(look.X, 0, look.Z).Unit
+					local best = math.huge
+					for _, d in ipairs(drops and drops:GetChildren() or {}) do
+						local p = d:IsA("Model") and d.PrimaryPart
+						if p then
+							local off = p.Position - root.Position
+							local flat = Vector3.new(off.X, 0, off.Z)
+							local dist = flat.Magnitude
+							if dist <= FOCUS_RANGE and math.abs(off.Y) < 8 then
+								-- ของที่อยู่ตรงหน้าได้เปรียบ ของข้างหลังโดนลดคะแนน
+								local facing = dist > 0.5 and look:Dot(flat.Unit) or 1
+								local score = dist * (1.6 - facing)
+								if score < best then
+									best, target = score, d
+								end
+							end
 						end
-					else
-						shown[prompt] = nil
 					end
 				end
 			end
-			if hl.Adornee ~= target then
-				hl.Adornee = target
+			if target and not (target.Parent and target.PrimaryPart) then
+				target = nil
 			end
-			hl.Enabled = target ~= nil
+			if not hl.Parent and focus ~= nil then
+				-- โมเดลเดิมถูกทำลาย (เก็บไปแล้ว) กรอบหายไปด้วย
+				focus = nil
+				makeHighlight()
+			end
+			if focus ~= target then
+				setPrompts(focus, false)
+				focus = target
+				setPrompts(focus, true)
+				hl.Adornee = target
+				hl.Parent = target
+				t0 = now
+			end
+			-- กรอบขาว: ถือกระสอบ หรือของชิ้นนั้นกิน/ใช้ได้
+			hl.Enabled = target ~= nil and (holdingSack or hasUse(target))
+			-- กระพริบขอบเบา ๆ ให้สะดุดตา
+			hl.OutlineTransparency = 0.15 - 0.15 * math.cos((now - t0) * 5)
 		end)
 	end
 	-- F = เอาของออกจากกระสอบ (ชิ้นล่าสุด) · ยืนใกล้กองไฟ = โยนเข้ากองไฟ
@@ -295,11 +339,11 @@ do
 		tool:SetAttribute("SackHooked", true)
 		tool.Equipped:Connect(function()
 			holdingSack = true
-			refreshPickupPrompts()
+			setPrompts(focus, true) -- เปิดปุ่ม E เก็บของชิ้นที่โฟกัสอยู่ทันที
 		end)
 		tool.Unequipped:Connect(function()
 			holdingSack = false
-			refreshPickupPrompts()
+			setPrompts(focus, true)
 		end)
 		tool.Activated:Connect(function()
 			local target = mouse.Target
@@ -319,11 +363,9 @@ do
 				Remotes.Get("ThrowGrind"):FireServer()
 				return
 			end
-			local drops = Workspace:FindFirstChild("Drops")
-			while target and drops and target.Parent ~= drops do
-				target = target.Parent
-			end
-			if target and drops and target:IsA("Model") then
+			-- คลิก = เก็บชิ้นที่มีกรอบขาวอยู่ (ไม่ต้องเล็งโดนเป๊ะ ๆ)
+			target = focus or dropOf(target)
+			if target then
 				Remotes.Get("PickupDrop"):FireServer(target)
 			end
 		end)

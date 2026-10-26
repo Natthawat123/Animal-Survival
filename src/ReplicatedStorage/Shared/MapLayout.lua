@@ -9,6 +9,7 @@
 	  - ธาตุลมมีเกาะลอยฟ้า (FloatingIslands)
 ]]
 
+local SiteSpec = require(script.Parent.SiteSpec)
 local MapLayout = {}
 MapLayout.__index = MapLayout
 
@@ -148,10 +149,11 @@ function MapLayout:_heightFor(biome, x, z)
 		end
 		return h, false
 	elseif biome == "Air" then
-		local h = 74 + self:_fbm(x, z, 1 / 800, 4) * 52
+		-- ทุ่งหิมะเนินเตี้ยๆ (เดิมเป็นยอดเขาสูงชัน ปีนแล้วไม่ได้อะไร) · ยกเว้นเนินเล็กๆ ไม่เกิน ~16 stud
+		local h = 42 + self:_fbm(x, z, 1 / 800, 4) * 16
 		local mask = smooth((self:_fbm(x - 7000, z + 300, 1 / 900, 2) + 0.05) / 0.4)
-		local spire = self:_ridged(x, z, 1 / 300, 2)
-		h += spire ^ 5 * 330 * mask
+		local bump = self:_ridged(x, z, 1 / 300, 2)
+		h += bump ^ 3 * 14 * mask
 		return h, false
 	elseif biome == "Fire" then
 		local base = 40 + self:_fbm(x, z, 1 / 650, 4) * 40
@@ -228,6 +230,55 @@ function MapLayout:_randomPointIn(rng, element, minR, maxR, tries)
 	return s.X, h, s.Z
 end
 
+-- สุ่มหลายจุดแล้วเลือกที่พื้นเรียบสุด: วัดความต่างความสูงรอบลานกิจกรรม + ใต้อาคารใหญ่ (SiteSpec) · ห้ามจมน้ำ/ข้ามไบโอม
+function MapLayout:_flatSiteIn(rng, element, kind, minR, maxR)
+	local best, bestScore
+	for _ = 1, 40 do
+		local x, h, z = self:_randomPointIn(rng, element, minR, maxR, 20)
+		local pos = Vector3.new(x, h, z)
+		local pts = {}
+		for i = 0, 7 do
+			local a = i / 8 * math.pi * 2
+			table.insert(pts, Vector3.new(x + math.cos(a) * 26, 0, z + math.sin(a) * 26))
+		end
+		local padC, padR = SiteSpec.Pad(kind, element, pos)
+		if padC then
+			table.insert(pts, padC)
+			for i = 0, 7 do
+				local a = i / 8 * math.pi * 2
+				table.insert(pts, Vector3.new(padC.X + math.cos(a) * padR * 0.8, 0, padC.Z + math.sin(a) * padR * 0.8))
+			end
+		end
+		local lo, hi, penalty = h, h, 0
+		-- ห้ามทับจุดสำคัญที่วางไปแล้ว (ศาลเจ้า/ซาก/รังบอส ฯลฯ)
+		local reach = SiteSpec.Reach(kind, element)
+		for _, o in ipairs(self.Specials) do
+			local d = math.sqrt((o.Position.X - x) ^ 2 + (o.Position.Z - z) ^ 2)
+			if d < reach + SiteSpec.Reach(o.Kind, o.Element) + 12 then
+				penalty += 300
+			end
+		end
+		for _, p in ipairs(pts) do
+			local hh, b = self:HeightAt(p.X, p.Z)
+			lo, hi = math.min(lo, hh), math.max(hi, hh)
+			if hh < self.WaterLevel + 2 then
+				penalty += 25
+			end
+			if b ~= element then
+				penalty += 10
+			end
+		end
+		local score = (hi - lo) + penalty
+		if not bestScore or score < bestScore then
+			best, bestScore = pos, score
+		end
+		if score < 6 then
+			break
+		end
+	end
+	return best.X, best.Y, best.Z
+end
+
 function MapLayout:_placeSpecials(rng)
 	self.Specials = {}
 	self.FloatingIslands = {}
@@ -236,12 +287,12 @@ function MapLayout:_placeSpecials(rng)
 		local s = self.Sites[el]
 		local lairH = self:HeightAt(s.X, s.Z)
 		local lair = { Kind = "Lair", Element = el, Position = Vector3.new(s.X, lairH, s.Z) }
-		local sx, sh, sz = self:_randomPointIn(rng, el, s.Dist * 0.5, s.Dist * 0.85)
+		local sx, sh, sz = self:_flatSiteIn(rng, el, "Shrine", s.Dist * 0.5, s.Dist * 0.85)
 		local shrine = { Kind = "Shrine", Element = el, Position = Vector3.new(sx, sh, sz) }
 		table.insert(self.Specials, lair)
 		table.insert(self.Specials, shrine)
 		for _ = 1, 3 do
-			local rx, rh, rz = self:_randomPointIn(rng, el, s.Dist * 0.45, s.Dist * 1.35)
+			local rx, rh, rz = self:_flatSiteIn(rng, el, "Ruins", s.Dist * 0.45, s.Dist * 1.35)
 			table.insert(self.Specials, { Kind = "Ruins", Element = el, Position = Vector3.new(rx, rh, rz) })
 		end
 		for _ = 1, 4 do
@@ -252,12 +303,12 @@ function MapLayout:_placeSpecials(rng)
 
 	-- เกาะลอยฟ้าในเขตธาตุลม
 	local air = self.Sites.Air
-	local nest = { X = air.X, Y = 430, Z = air.Z, R = 70, Nest = true }
+	local nest = { X = air.X, Y = 430, Z = air.Z, R = 180, Nest = true }
 	table.insert(self.FloatingIslands, nest)
 	-- รังบอสธาตุลมอยู่บนเกาะสูงสุด
 	for _, sp in ipairs(self.Specials) do
 		if sp.Kind == "Lair" and sp.Element == "Air" then
-			sp.Position = Vector3.new(nest.X, nest.Y + nest.R * 0.18, nest.Z)
+			sp.Position = Vector3.new(nest.X, nest.Y, nest.Z) -- กลางยอดเกาะที่ตัดแบน (พระราชวังน้ำแข็งล้อมลานสู้)
 			sp.Floating = true
 		end
 	end
@@ -291,8 +342,8 @@ function MapLayout:_placeSpecials(rng)
 		end
 	end
 	-- ลมพัดขึ้นสู่รังบอส (ต้องผ่านเกาะ)
-	local nh = self:HeightAt(air.X + 120, air.Z)
-	table.insert(self.Updrafts, { Position = Vector3.new(air.X + 120, nh, air.Z), Height = nest.Y - nh + 40 })
+	local nh = self:HeightAt(air.X + nest.R + 30, air.Z)
+	table.insert(self.Updrafts, { Position = Vector3.new(air.X + nest.R + 30, nh, air.Z), Height = nest.Y - nh + 40 })
 end
 
 -- วิหารโบราณศักดิ์สิทธิ์ (Sanctum) ธาตุละ 1 แห่ง: หาที่ราบ ห่างแคมป์/ศาลเจ้า/รังบอส/ซาก/น้ำ/ลาวา
@@ -302,13 +353,14 @@ function MapLayout:_placeSanctums()
 	local rng = Random.new(self.Seed + 31337)
 	local R = MapLayout.SanctumRadius
 	self.Sanctums = {}
-	local function clearOf(x, z)
+	local function clearOf(x, z, k)
+		k = k or 1
 		if x * x + z * z < (self.HeartRadius + 420) ^ 2 then
 			return false
 		end
 		for _, sp in ipairs(self.Specials) do
-			local need = (sp.Kind == "Lair" and 260) or (sp.Kind == "Sanctum" and 500) or 150
-			if (sp.Position.X - x) ^ 2 + (sp.Position.Z - z) ^ 2 < need * need then
+			local need = (sp.Kind == "Lair" and 420) or (sp.Kind == "Sanctum" and 500) or 300
+			if (sp.Position.X - x) ^ 2 + (sp.Position.Z - z) ^ 2 < (need * k) ^ 2 then
 				return false
 			end
 		end
@@ -328,7 +380,7 @@ function MapLayout:_placeSanctums()
 			local dist = s.Dist * rng:NextNumber(0.4, 1.25)
 			local x, z = math.cos(ang) * dist, math.sin(ang) * dist
 			local h, biome, lava = self:HeightAt(x, z)
-			if biome == el and not lava and h > self.WaterLevel + 6 and h < 260 and clearOf(x, z) then
+			if biome == el and not lava and h > self.WaterLevel + 6 and h < 260 and clearOf(x, z, try > 100 and 0.7 or 1) then -- หาไม่ได้ -> ผ่อนระยะห่างลง (ไบโอมน้ำมีพื้นดินน้อย)
 				-- คะแนน (น้อย = ดี): ความต่างระดับรอบลาน + โทษจุดที่เป็นน้ำ/ลาวา/นอกไบโอม (ปรับพื้นทับได้ แต่ไม่สวย)
 				local lo, hi, penalty = h, h, 0
 				for k = 0, 7 do

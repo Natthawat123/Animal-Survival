@@ -23,6 +23,8 @@ local LobbyUI = require(script.Parent.LobbyUI)
 local StoreUI = require(script.Parent.StoreUI)
 local ItemTooltip = require(script.Parent.ItemTooltip)
 local PinTracker = require(script.Parent.PinTracker)
+local ItemIcon = require(script.Parent.ItemIcon)
+local Backpack = require(script.Parent.Backpack)
 local ClientSettings = require(script.Parent.ClientSettings)
 
 local Menus = {}
@@ -209,7 +211,7 @@ function craft.Build(gui)
 	scroll.CanvasSize = UDim2.new()
 	scroll.Parent = panel
 	local grid = Instance.new("UIGridLayout")
-	grid.CellSize = UDim2.fromOffset(350, 150)
+	grid.CellSize = UDim2.fromOffset(350, 172)
 	grid.CellPadding = UDim2.fromOffset(10, 10)
 	grid.SortOrder = Enum.SortOrder.LayoutOrder
 	grid.Parent = scroll
@@ -232,7 +234,7 @@ end
 
 -- ป้ายวัตถุดิบทีละชิ้น (เขียว = พอ, แดง = ขาด · มี/ต้องใช้) ชี้/กดค้างดูรายละเอียดได้
 local function costChips(parent, cost, r, pos)
-	local holder = UIKit.Frame(parent, { Size = UDim2.new(1, -24, 0, 48), Position = pos, BackgroundTransparency = 1 })
+	local holder = UIKit.Frame(parent, { Size = UDim2.new(1, -24, 0, 56), Position = pos, BackgroundTransparency = 1 })
 	local l = Instance.new("UIListLayout")
 	l.FillDirection = Enum.FillDirection.Horizontal
 	l.Wraps = true
@@ -251,12 +253,23 @@ local function costChips(parent, cost, r, pos)
 		local h = have(cn[1])
 		local ok = h >= cn[2]
 		all = all and ok
-		local chip = UIKit.Text(holder, {
-			Size = UDim2.fromOffset(0, 22), AutomaticSize = Enum.AutomaticSize.X, LayoutOrder = i, TextSize = 13, Font = UIKit.Fonts.Bold,
+		-- ป้าย = รูปวัตถุดิบ + ชื่อ มี/ต้องใช้
+		local chip = UIKit.Frame(holder, {
+			Size = UDim2.fromOffset(0, 26), AutomaticSize = Enum.AutomaticSize.X, LayoutOrder = i,
 			BackgroundTransparency = 0.35, BackgroundColor3 = ok and Color3.fromRGB(28, 70, 40) or Color3.fromRGB(80, 30, 30),
-			TextColor3 = ok and GOOD_C or BAD_C, Text = string.format(" %s %d/%d ", Items.DisplayName(cn[1]), h, cn[2]),
 		})
-		UIKit.Corner(chip, 4)
+		UIKit.Corner(chip, 5)
+		local cl = Instance.new("UIListLayout")
+		cl.FillDirection = Enum.FillDirection.Horizontal
+		cl.VerticalAlignment = Enum.VerticalAlignment.Center
+		cl.SortOrder = Enum.SortOrder.LayoutOrder
+		cl.Padding = UDim.new(0, 2)
+		cl.Parent = chip
+		ItemIcon.Make(chip, cn[1], { Size = UDim2.fromOffset(24, 24), LayoutOrder = 1 })
+		UIKit.Text(chip, {
+			Size = UDim2.fromOffset(0, 24), AutomaticSize = Enum.AutomaticSize.X, LayoutOrder = 2, TextSize = 13, Font = UIKit.Fonts.Bold,
+			BackgroundTransparency = 1, TextColor3 = ok and GOOD_C or BAD_C, Text = string.format("%s %d/%d ", Items.DisplayName(cn[1]), h, cn[2]),
+		})
 		ItemTooltip.Attach(chip, cn[1])
 	end
 	return all
@@ -330,9 +343,13 @@ function craft.Refresh()
 			UIKit.Corner(card, 10)
 			UIKit.Stroke(card, can and GOOD_C or (locked and Color3.fromRGB(80, 70, 70) or (item.Element and C.Element[item.Element] or C.GoldDim)), can and 2 or 1, can and 0 or 0.3)
 			ItemTooltip.Attach(card, r.Id)
-			UIKit.Text(card, { Size = UDim2.new(1, -70, 0, 22), Position = UDim2.fromOffset(12, 8), Text = item.Thai .. (can and "  ✔" or ""), TextSize = 17, TextColor3 = locked and C.TextDim or (can and GOOD_C or C.Text) })
-			UIKit.Text(card, { Size = UDim2.new(1, -70, 0, 16), Position = UDim2.fromOffset(12, 30), Text = item.Name, TextSize = 12, TextColor3 = C.TextDim, Font = UIKit.Fonts.Body })
-			UIKit.Text(card, { Size = UDim2.new(1, -70, 0, 16), Position = UDim2.fromOffset(12, 46), Text = itemDesc(r.Id), TextSize = 12, TextColor3 = Color3.fromRGB(200, 190, 170), Font = UIKit.Fonts.Body, TextTruncate = Enum.TextTruncate.AtEnd })
+			-- รูปของที่จะคราฟต์ (โมเดลจริง)
+			local pic = UIKit.Frame(card, { Size = UDim2.fromOffset(62, 62), Position = UDim2.fromOffset(10, 8), BackgroundColor3 = Color3.fromRGB(24, 26, 44), BackgroundTransparency = 0.25 })
+			UIKit.Corner(pic, 8)
+			ItemIcon.Make(pic, r.Id, { Size = UDim2.fromScale(1, 1) })
+			UIKit.Text(card, { Size = UDim2.new(1, -140, 0, 22), Position = UDim2.fromOffset(80, 8), Text = item.Thai .. (can and "  ✔" or ""), TextSize = 17, TextColor3 = locked and C.TextDim or (can and GOOD_C or C.Text) })
+			UIKit.Text(card, { Size = UDim2.new(1, -140, 0, 16), Position = UDim2.fromOffset(80, 30), Text = item.Name, TextSize = 12, TextColor3 = C.TextDim, Font = UIKit.Fonts.Body })
+			UIKit.Text(card, { Size = UDim2.new(1, -140, 0, 16), Position = UDim2.fromOffset(80, 46), Text = itemDesc(r.Id), TextSize = 12, TextColor3 = Color3.fromRGB(200, 190, 170), Font = UIKit.Fonts.Body, TextTruncate = Enum.TextTruncate.AtEnd })
 			-- 📌 ปักหมุดสูตร (แถบติดตามบนจอ)
 			local pin = UIKit.Button(card, { Size = UDim2.fromOffset(44, 44), Position = UDim2.new(1, -52, 0, 6), Text = "📌", TextSize = 20 }, function()
 				PinTracker.Toggle(r.Id)
@@ -340,7 +357,7 @@ function craft.Refresh()
 			end)
 			pin.BackgroundColor3 = (pinned == r.Id) and C.Gold or Color3.fromRGB(58, 66, 104)
 			-- วัตถุดิบ
-			costChips(card, r.Cost, r, UDim2.fromOffset(12, 64))
+			costChips(card, r.Cost, r, UDim2.fromOffset(12, 76))
 			-- ปุ่มคราฟต์: x1 / x5 / สูงสุด
 			local row = UIKit.Frame(card, { Size = UDim2.new(1, -20, 0, 44), Position = UDim2.new(0, 10, 1, -50), BackgroundTransparency = 1 })
 			local rl = Instance.new("UIListLayout")
@@ -596,6 +613,10 @@ function Menus.IsBuilding()
 	return build.Active
 end
 
+function Menus.BuildKind()
+	return build.Active and build.Kind or nil
+end
+
 function Menus.RotateBuild()
 	if build.Active then
 		build.Yaw += math.rad(45)
@@ -621,7 +642,7 @@ function Menus.ToggleCraft()
 end
 
 ---------------------------------------------------------------- ร้านค้า (ล็อบบี้)
--- ร้านคลาส = ClassShop · ร้านค้า (เติม Ruby/Game Pass/ชุดเริ่มต้น) = StoreUI
+-- ร้านคลาส = ClassShop · ร้านค้า (เติม Ruby) = StoreUI
 function Menus.OpenShop(tab)
 	if tab == nil or tab == "Classes" then
 		StoreUI.Close()
@@ -660,7 +681,7 @@ function trader.Build(gui)
 	scroll.CanvasSize = UDim2.new()
 	scroll.Parent = panel
 	local grid = Instance.new("UIGridLayout")
-	grid.CellSize = UDim2.fromOffset(350, 80)
+	grid.CellSize = UDim2.fromOffset(350, 108)
 	grid.CellPadding = UDim2.fromOffset(10, 10)
 	grid.Parent = scroll
 	trader.Panel = panel
@@ -694,10 +715,39 @@ function trader.Refresh()
 		local f = UIKit.Frame(trader.Scroll, { BackgroundColor3 = Color3.fromRGB(50, 56, 94), BackgroundTransparency = 0.05, LayoutOrder = i })
 		UIKit.Corner(f, 10)
 		UIKit.Stroke(f, C.GoldDim, 1, 0.3)
-		UIKit.Text(f, { Size = UDim2.new(1, -120, 0, 24), Position = UDim2.fromOffset(12, 8), Text = "ได้: " .. listText(o.Give), TextSize = 15, TextColor3 = C.Gold, TextTruncate = Enum.TextTruncate.AtEnd })
-		local cost = UIKit.Text(f, { Size = UDim2.new(1, -120, 0, 36), Position = UDim2.fromOffset(12, 34), RichText = true, TextWrapped = true, Text = "จ่าย: " .. listText(o.Cost, true), TextSize = 13, TextYAlignment = Enum.TextYAlignment.Top })
-		local _ = cost
-		UIKit.Button(f, { Size = UDim2.fromOffset(96, 36), Position = UDim2.new(1, -106, 0.5, -18), Text = "แลก", TextSize = 15, BackgroundColor3 = Color3.fromRGB(72, 190, 96) }, function()
+		-- รูปของที่ได้ (ชิ้นแรก) + ชื่อ
+		local giveId = next(o.Give)
+		local pic = UIKit.Frame(f, { Size = UDim2.fromOffset(60, 60), Position = UDim2.fromOffset(8, 8), BackgroundColor3 = Color3.fromRGB(24, 26, 44), BackgroundTransparency = 0.25 })
+		UIKit.Corner(pic, 8)
+		if giveId then
+			ItemIcon.Make(pic, giveId, { Size = UDim2.fromScale(1, 1) })
+		end
+		UIKit.Text(f, { Size = UDim2.new(1, -184, 0, 24), Position = UDim2.fromOffset(76, 8), Text = "ได้: " .. listText(o.Give), TextSize = 15, TextColor3 = C.Gold, TextTruncate = Enum.TextTruncate.AtEnd })
+		-- ป้ายของที่ต้องจ่าย (รูป + มี/ต้องใช้ จากกระสอบ)
+		local holder = UIKit.Frame(f, { Size = UDim2.new(1, -184, 0, 56), Position = UDim2.fromOffset(76, 36), BackgroundTransparency = 1 })
+		local hl = Instance.new("UIListLayout")
+		hl.FillDirection = Enum.FillDirection.Horizontal
+		hl.Wraps = true
+		hl.Padding = UDim.new(0, 4)
+		hl.Parent = holder
+		local okAll = true
+		for id, n in pairs(o.Cost) do
+			local h = inventory[id] or 0
+			local ok = h >= n
+			okAll = okAll and ok
+			local chip = UIKit.Frame(holder, { Size = UDim2.fromOffset(0, 26), AutomaticSize = Enum.AutomaticSize.X, BackgroundTransparency = 0.35, BackgroundColor3 = ok and Color3.fromRGB(28, 70, 40) or Color3.fromRGB(80, 30, 30) })
+			UIKit.Corner(chip, 5)
+			local cl = Instance.new("UIListLayout")
+			cl.FillDirection = Enum.FillDirection.Horizontal
+			cl.VerticalAlignment = Enum.VerticalAlignment.Center
+			cl.Padding = UDim.new(0, 2)
+			cl.SortOrder = Enum.SortOrder.LayoutOrder
+			cl.Parent = chip
+			ItemIcon.Make(chip, id, { Size = UDim2.fromOffset(24, 24), LayoutOrder = 1 })
+			UIKit.Text(chip, { Size = UDim2.fromOffset(0, 24), AutomaticSize = Enum.AutomaticSize.X, LayoutOrder = 2, TextSize = 13, BackgroundTransparency = 1, TextColor3 = ok and GOOD_C or BAD_C, Text = string.format("%s %d/%d ", Items.DisplayName(id), h, n) })
+			ItemTooltip.Attach(chip, id)
+		end
+		UIKit.Button(f, { Size = UDim2.fromOffset(96, 40), Position = UDim2.new(1, -106, 0.5, -20), Text = "แลก", TextSize = 15, BackgroundColor3 = okAll and Color3.fromRGB(72, 190, 96) or Color3.fromRGB(50, 56, 94) }, function()
 			Remotes.Get("Trade"):FireServer(o.Id)
 		end)
 	end
@@ -741,6 +791,7 @@ function Menus.Init(state, hud)
 	Menus.State = state
 	Menus.Hud = hud
 	local gui = UIKit.Screen("Menus", 20)
+	task.spawn(Backpack.Build) -- แถบเครื่องมือ + กระเป๋า (แบบ Roblox ปุ่มกระเป๋าโชว์ตลอด จัดลำดับได้)
 	craft.Build(gui)
 	bag.Build(gui)
 	trader.Build(gui)
@@ -768,6 +819,8 @@ function Menus.Init(state, hud)
 			end
 		end,
 	})
+	LobbyUI.Closers.Classes = ClassShop.Close
+	LobbyUI.Closers.Shop = StoreUI.Close
 	ClassShop.OnVisibility = function(open)
 		if hud and hud.Gui then
 			hud.Gui.Enabled = not open
@@ -785,6 +838,11 @@ function Menus.Init(state, hud)
 		Size = UDim2.new(0, 700, 0, 30), AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -120), TextXAlignment = Enum.TextXAlignment.Center,
 		TextSize = 16, TextColor3 = C.Gold, Visible = false, BackgroundTransparency = 0.4, BackgroundColor3 = C.Panel,
 	})
+	-- ปุ่มหมุนสิ่งก่อสร้าง (คอม: นอกจากปุ่ม R) — มือถือมีปุ่มหมุนในแถบโหมดสร้างอยู่แล้ว
+	local rot = UIKit.Button(Menus.BuildHint, { Size = UDim2.fromOffset(120, 36), AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 0, -6), Text = "⟳ หมุน (R)", TextSize = 16, BackgroundColor3 = Color3.fromRGB(72, 120, 200) }, function()
+		Menus.RotateBuild()
+	end)
+	rot.Visible = not UIKit.IsTouch
 	UIKit.Corner(Menus.BuildHint, 8)
 	state:GetAttributeChangedSignal("CampLevel"):Connect(function()
 		if craft.Panel and craft.Panel.Visible then
@@ -853,6 +911,36 @@ function Menus.Init(state, hud)
 		end
 	end)
 
+	-- Tool สิ่งก่อสร้างในแถบเครื่องมือ Roblox: ถือ = เข้าโหมดวาง, คลิก/แตะ = วาง, เก็บ = ออก
+	local function hookChar(char)
+		char.ChildAdded:Connect(function(t)
+			local kind = t:IsA("Tool") and t:GetAttribute("StructureKind")
+			if kind then
+				Menus.StartBuild(kind)
+				if not t:GetAttribute("BuildHooked") then
+					t:SetAttribute("BuildHooked", true)
+					t.Activated:Connect(function()
+						Menus.PlaceBuild()
+					end)
+				end
+			end
+		end)
+		char.ChildRemoved:Connect(function(t)
+			local kind = t:IsA("Tool") and t:GetAttribute("StructureKind")
+			if kind and build.Active and build.Kind == kind then
+				-- เปลี่ยนชื่อ (จำนวนลด) ไม่นับ: ยังถืออยู่ = ยังไม่ออก
+				task.defer(function()
+					if t.Parent ~= char then
+						Menus.StopBuild()
+					end
+				end)
+			end
+		end)
+	end
+	if player.Character then
+		hookChar(player.Character)
+	end
+	player.CharacterAdded:Connect(hookChar)
 	RunService.RenderStepped:Connect(function()
 		if not build.Active or not build.Ghost then
 			return

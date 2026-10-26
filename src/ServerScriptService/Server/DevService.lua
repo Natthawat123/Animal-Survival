@@ -68,6 +68,21 @@ function DevService:Teleport(player, pos)
 	pcall(function()
 		player:RequestStreamAroundAsync(Vector3.new(pos.X, y, pos.Z), 5)
 	end)
+	-- หาพื้นจริง (Terrain + สิ่งก่อสร้าง) ด้วยการยิงลงจากฟ้า -> ไม่วาร์ปจมดิน/ตกแมพ
+	if pos.Y < 1000 then
+		local rp = RaycastParams.new()
+		rp.FilterType = Enum.RaycastFilterType.Exclude
+		local ex = { player.Character }
+		local an = workspace:FindFirstChild("Animals")
+		if an then
+			table.insert(ex, an)
+		end
+		rp.FilterDescendantsInstances = ex
+		local hit = workspace:Raycast(Vector3.new(pos.X, y + 600, pos.Z), Vector3.new(0, -1400, 0), rp)
+		if hit then
+			y = math.max(hit.Position.Y, Config.WaterLevel) + 4
+		end
+	end
 	root.AssemblyLinearVelocity = Vector3.zero
 	root.CFrame = CFrame.new(pos.X, y, pos.Z)
 	return "วาร์ปแล้ว"
@@ -119,6 +134,7 @@ end
 
 function C.lobby(self, p)
 	self.ctx.Services.SurvivalService:ResetPlayer(p)
+	self.ctx.Services.SurvivalService:CheckWipe()
 	return "กลับล็อบบี้"
 end
 
@@ -182,7 +198,7 @@ function C.spawnBoss(self, p, id)
 	s:SetAttribute("BossId", id)
 	s:SetAttribute("BossHP", a.Hum.MaxHealth)
 	s:SetAttribute("BossMaxHP", a.Hum.MaxHealth)
-	self.ctx.Remotes.Get("Cinematic"):FireAllClients("BossIntro", { Model = a.Model, Id = id, Name = info.Name, Thai = info.Thai, Element = info.Element })
+	self.ctx.FireRun("Cinematic", "BossIntro", { Model = a.Model, Id = id, Name = info.Name, Thai = info.Thai, Element = info.Element })
 	return "👑 เรียก " .. info.Thai
 end
 

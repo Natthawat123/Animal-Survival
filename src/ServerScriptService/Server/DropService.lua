@@ -1,11 +1,14 @@
 --[[
 	DropService — ของตกบนพื้นแบบ 99 Nights
 	ตัดไม้/ทุบหิน/ล่าสัตว์/เปิดหีบ -> ของเด้งออกมากองบนพื้น -> กด E (หรือคลิกตอนถือกระสอบ) เก็บใส่กระสอบ
-	DropService:Spawn(id, n, pos)  ·  ของกองเดียวกันใกล้ๆ รวมเป็นกองเดียว · หายเองหลัง 10 นาที
+	DropService:Spawn(id, n, pos)  ·  ของกองเดียวกันใกล้ๆ รวมเป็นกองเดียว
+	· ฟิสิกส์คิดบนเซิร์ฟเวอร์ (กันตกทะลุพื้นที่เครื่องผู้เล่นยังโหลดไม่ถึง) แล้วตรึงลงพื้นด้วย raycast
+	· ของในแคมป์ไม่หาย · นอกแคมป์หายเองหลัง 15 นาที
 ]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
+local Players = game:GetService("Players")
 
 local Items = require(ReplicatedStorage.Shared.Items)
 local ItemModels = require(ReplicatedStorage.Shared.ItemModels)
@@ -17,15 +20,115 @@ local CF = CFrame.new
 local ANG = CFrame.Angles
 local C = Color3.fromRGB
 
-local LIFETIME = 600
+local LIFETIME = 900
 local MAX_DROPS = 350
 local STACK_MAX = 10
 local MERGE_RADIUS = 3.5
 local PICK_RANGE = 20
+local PROMPT_RANGE = 12 -- ตรงกับ FOCUS_RANGE ฝั่ง client
+local SETTLE_MAX = 4 -- วินาที: ปล่อยฟิสิกส์เด้งได้นานสุดก่อนตรึง
+local FALL_LIMIT = 40 -- ตกต่ำกว่าจุดเกิดเกินนี้ = ทะลุโลก -> ย้ายกลับขึ้นพื้น
 
 local folder
 local drops = {} -- model -> { Id, Count, Born }
 local order = {}
+
+---------------------------------------------------------------- หาพื้นใต้ของ
+local rayParams = RaycastParams.new()
+rayParams.FilterType = Enum.RaycastFilterType.Exclude
+rayParams.RespectCanCollide = true
+rayParams.IgnoreWater = false -- ตกน้ำ = ลอยบนผิวน้ำ ไม่จมหาย
+
+local function groundBelow(x, z, top)
+	local ex = { folder }
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p.Character then
+			table.insert(ex, p.Character)
+		end
+	end
+	local animals = Workspace:FindFirstChild("Animals")
+	if animals then
+		table.insert(ex, animals)
+	end
+	rayParams.FilterDescendantsInstances = ex
+	return Workspace:Raycast(Vector3.new(x, top, z), Vector3.new(0, -300, 0), rayParams)
+end
+
+-- ผิวดินจริง (Terrain อย่างเดียว ไม่สนกิ่งไม้/หลังคา/โต๊ะ) · น้ำ = ผิวน้ำ
+local terrainParams = RaycastParams.new()
+terrainParams.FilterType = Enum.RaycastFilterType.Include
+terrainParams.IgnoreWater = false
+local function terrainTop(x, z, top)
+	terrainParams.FilterDescendantsInstances = { Workspace.Terrain }
+	return Workspace:Raycast(Vector3.new(x, top, z), Vector3.new(0, -600, 0), terrainParams)
+end
+
+-- พื้นที่ของควรวาง: ของที่ชนได้ใต้ตัวของ (พื้นอาคาร/โต๊ะ) ถ้าอยู่ไม่ต่ำกว่าผิวดิน · ไม่งั้น = ผิวดิน
+--   ของจมดิน/ทะลุลงไป -> ได้ผิวดินเสมอ (ไม่วางไว้ใต้ดิน) · ใต้กิ่งไม้/หลังคา -> ไม่ไปค้างข้างบน
+local function surfaceFor(pos, origin)
+	local T = terrainTop(pos.X, pos.Z, math.max(pos.Y, origin.Y) + 60)
+	if T and T.Position.Y > pos.Y + 8 then
+		-- เหนือหัวเป็นเพดานดิน (ถ้ำ/เกาะลอย) -> หาผิวที่ใกล้ระดับตัวของแทน
+		T = terrainTop(pos.X, pos.Z, pos.Y + 2) or T
+	end
+	local S = groundBelow(pos.X, pos.Z, pos.Y + 1.5)
+	if S and (not T or S.Position.Y >= T.Position.Y - 0.5) then
+		return S
+	end
+	return T
+end
+
+-- ตรึงของลงพื้น: ถ้าวางอยู่บนพื้นดีแล้วไม่ขยับ (ท่าล้มตามธรรมชาติ) · ลอย/จมดิน/ทะลุโลก -> วางใหม่บนผิวพื้น
+local function place(m, origin, force)
+	local root = m.PrimaryPart
+	if not (root and m.Parent) then
+		return
+	end
+	root.Anchored = true
+	root.AssemblyLinearVelocity = Vector3.zero
+	root.AssemblyAngularVelocity = Vector3.zero
+	local pos = root.Position
+	local hit = pos.Y > origin.Y - FALL_LIMIT and surfaceFor(pos, origin)
+	if not hit then
+		pos = origin
+		hit = surfaceFor(origin, origin)
+	end
+	if hit then
+		local half = root.Size.Y / 2
+		local gap = pos.Y - (hit.Position.Y + half)
+		-- จมดินแม้นิดเดียว / ลอยเกินครึ่งตัว -> วางใหม่บนผิว (นอนเอียงตามธรรมชาติบนพื้นปล่อยไว้)
+		if force or pos ~= root.Position or gap < -0.35 or gap > math.max(root.Size.X, root.Size.Y, root.Size.Z) * 0.6 then
+			local _, ry = root.CFrame:ToEulerAnglesYXZ()
+			m:PivotTo(CF(hit.Position + V(0, half, 0)) * ANG(0, ry, 0))
+		end
+	end
+	-- ตรึงแล้วไม่ต้องชนกับผู้เล่น (กล่องใสของโมเดล Store จะได้ไม่ขวางทาง) · เมาส์ยังชี้โดน
+	root.CanCollide = false
+end
+
+local function settle(m, origin)
+	task.spawn(function()
+		local root = m.PrimaryPart
+		local t0 = os.clock()
+		local still = 0
+		while m.Parent and root.Parent and not root.Anchored do
+			task.wait(0.2)
+			local t = os.clock() - t0
+			if root.Position.Y < origin.Y - FALL_LIMIT or t > SETTLE_MAX then
+				break
+			end
+			if t > 0.6 and root.AssemblyLinearVelocity.Magnitude < 1 then
+				still += 1
+				if still >= 2 then
+					break
+				end
+			else
+				still = 0
+			end
+		end
+		place(m, origin)
+	end)
+end
 
 ---------------------------------------------------------------- หน้าตาของแต่ละชนิด
 local function piece(model, size, color, material, shape, cf)
@@ -227,6 +330,8 @@ local function build(id, n)
 	local item = Items.Data[id]
 	local m = Instance.new("Model")
 	m.Name = "Drop_" .. id
+	-- สตรีมมิ่งส่งทั้งโมเดลทีเดียว (ไม่งั้น client อาจได้ชิ้นส่วนแต่ไม่ได้ Root -> ชี้/เก็บไม่ได้)
+	m.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 	local look = LOOKS[id]
 	local root
 	if ItemModels.Has(id) then
@@ -279,9 +384,10 @@ local function build(id, n)
 	pr.ActionText = "เก็บใส่กระสอบ"
 	pr.KeyboardKeyCode = Enum.KeyCode.E
 	pr.HoldDuration = 0
-	pr.MaxActivationDistance = 10
+	pr.MaxActivationDistance = PROMPT_RANGE
 	pr.RequiresLineOfSight = false
 	pr.Style = Enum.ProximityPromptStyle.Default
+	pr.Enabled = false -- client เปิดเฉพาะชิ้นที่โฟกัส (กรอบขาว)
 	pr.Parent = root
 	if item.Category == "Food" or item.Category == "Medical" then
 		local use = Instance.new("ProximityPrompt")
@@ -289,8 +395,9 @@ local function build(id, n)
 		use.ActionText = item.Category == "Food" and "กิน" or "ใช้"
 		use.KeyboardKeyCode = Enum.KeyCode.R
 		use.HoldDuration = 0.4
-		use.MaxActivationDistance = 10
+		use.MaxActivationDistance = PROMPT_RANGE
 		use.RequiresLineOfSight = false
+		use.Enabled = false
 		use.UIOffset = Vector2.new(0, 60)
 		use.Parent = root
 	end
@@ -323,7 +430,7 @@ function DropService:Spawn(id, n, pos, opts)
 	end
 	opts = opts or {}
 	-- รวมกับกองเดิมที่อยู่ใกล้ (ของที่โยนไม่รวม จะได้ลอยไปถึงเป้า)
-	for m, d in pairs(opts.Velocity and {} or drops) do
+	for m, d in pairs((opts.Velocity or opts.Arc) and {} or drops) do
 		if d.Id == id and d.Count < STACK_MAX and m.PrimaryPart and (m.PrimaryPart.Position - pos).Magnitude < MERGE_RADIUS then
 			local add = math.min(n, STACK_MAX - d.Count)
 			d.Count += add
@@ -343,13 +450,17 @@ function DropService:Spawn(id, n, pos, opts)
 		local rng = self.rng
 		local a = rng:NextNumber() * math.pi * 2
 		local spread = opts.Spread or 2.5
-		if opts.Velocity then
-			root.CFrame = CF(pos) * ANG(0, rng:NextNumber() * 6.28, 0)
+		-- ย้ายทั้งโมเดล (PivotTo) ไม่ใช่แค่ Root: ตอนยังไม่อยู่ใน Workspace รอยเชื่อมยังไม่ทำงาน
+		-- ถ้าย้ายแค่ Root ชิ้นที่มองเห็นจะค้างอยู่ที่จุด 0,0,0 ใต้ดิน (เห็นแต่ป้ายชื่อ)
+		if opts.Velocity or opts.Arc then
+			m:PivotTo(CF(pos) * ANG(0, rng:NextNumber() * 6.28, 0))
 		else
-			root.CFrame = CF(pos + V(math.cos(a) * spread * rng:NextNumber(), 2.2, math.sin(a) * spread * rng:NextNumber())) * ANG(0, rng:NextNumber() * 6.28, 0)
+			m:PivotTo(CF(pos + V(math.cos(a) * spread * rng:NextNumber(), 2.2, math.sin(a) * spread * rng:NextNumber())) * ANG(0, rng:NextNumber() * 6.28, 0))
 		end
 		m:SetAttribute("ItemId", id)
 		m.Parent = folder
+		-- เซิร์ฟเวอร์คิดฟิสิกส์เอง: ถ้าให้เครื่องผู้เล่นคิด ของจะตกทะลุพื้นที่ยังสตรีมมาไม่ถึง
+		pcall(root.SetNetworkOwner, root, nil)
 		root.AssemblyLinearVelocity = opts.Velocity or V(math.cos(a) * 7, 16, math.sin(a) * 7)
 		root.AssemblyAngularVelocity = V(rng:NextNumber() * 4, rng:NextNumber() * 4, rng:NextNumber() * 4)
 		drops[m] = { Id = id, Count = c, Born = os.clock(), By = opts.By }
@@ -364,37 +475,92 @@ function DropService:Spawn(id, n, pos, opts)
 				self:UseDrop(player, m)
 			end)
 		end
-		-- ตกถึงพื้นแล้วตรึงไว้ (ประหยัดฟิสิกส์ + ผู้เล่นเตะไม่กระเด็น)
-		task.delay(2.5, function()
-			if m.Parent and m.PrimaryPart then
-				m.PrimaryPart.Anchored = true
-			end
-		end)
+		-- โยนเข้าเป้า (กองไฟ/เครื่องบด): ลอยเป็นเส้นโค้งด้วยสคริปต์ ไม่ใช้ฟิสิกส์
+		--   (เดิมใช้ความเร็ว -> ชนตัวผู้เล่น/กระสอบในมือ/ท่อนฟืนแล้วพุ่งขึ้นฟ้า)
+		if opts.Arc then
+			root.Anchored = true
+			root.CanCollide = false
+			root.AssemblyLinearVelocity = Vector3.zero
+			root.AssemblyAngularVelocity = Vector3.zero
+			local from, to = pos, opts.Arc
+			local dur = math.clamp((to - from).Magnitude / 22, 0.35, 0.9)
+			local h = 2.5 + (to - from).Magnitude * 0.12
+			local spin = rng:NextNumber() * 6.28
+			task.spawn(function()
+				local t0 = os.clock()
+				while m.Parent and root.Parent do
+					local k = math.min((os.clock() - t0) / dur, 1)
+					local p = from:Lerp(to, k) + V(0, 4 * h * k * (1 - k), 0)
+					m:PivotTo(CF(p) * ANG(k * 4, spin, k * 2))
+					if k >= 1 then
+						break
+					end
+					task.wait()
+				end
+				place(m, to, true)
+			end)
+			last = m
+			continue
+		end
+		-- หยุดเด้งแล้วตรึงลงพื้น (ประหยัดฟิสิกส์ + ผู้เล่นเตะไม่กระเด็น + กันลอย/จมดิน)
+		if opts.Place then
+			-- วางลงพื้นทันที ไม่ปล่อยฟิสิกส์ (ของที่ผู้เล่นทิ้ง: ไม่ชนตัว/กระสอบแล้วกระเด็น)
+			root.AssemblyLinearVelocity = Vector3.zero
+			root.AssemblyAngularVelocity = Vector3.zero
+			place(m, pos + V(0, 1, 0), true)
+		else
+			settle(m, pos + V(0, 1, 0))
+		end
 		last = m
 	end
-	-- จำกัดจำนวนรวม
-	while #order > MAX_DROPS do
-		local old = table.remove(order, 1)
-		if drops[old] then
-			self:Remove(old)
+	-- จำกัดจำนวนรวม: ทิ้งของเก่านอกแคมป์ก่อน (ของที่กองไว้ในแคมป์ไม่โดน)
+	if #order > MAX_DROPS then
+		local keep = {}
+		local over = -MAX_DROPS
+		for _ in pairs(drops) do
+			over += 1
 		end
+		for _, old in ipairs(order) do
+			if drops[old] and over > 0 and not self:InCamp(old) then
+				over -= 1
+				self:Remove(old)
+			elseif drops[old] then
+				table.insert(keep, old)
+			end
+		end
+		while #keep > MAX_DROPS do
+			self:Remove(table.remove(keep, 1))
+		end
+		order = keep
 	end
 	return last
+end
+
+function DropService:InCamp(m)
+	local camp = self.ctx.CampPosition
+	local r = m.PrimaryPart
+	if not (camp and r) then
+		return false
+	end
+	local cs = self.ctx.Services.CampService
+	local radius = cs and cs.CampRadius and cs:CampRadius() or 60
+	return ((r.Position - camp) * V(1, 0, 1)).Magnitude <= radius + 10
 end
 
 ---------------------------------------------------------------- เก็บ
 function DropService:Pickup(player, m)
 	local d = drops[m]
 	local char = player.Character
-	if not (d and char and m.PrimaryPart) then
+	if not (d and char and m.PrimaryPart) or self.ctx.Services.SurvivalService:IsIncapacitated(player) then
 		return
 	end
 	if (char:GetPivot().Position - m.PrimaryPart.Position).Magnitude > PICK_RANGE then
 		return
 	end
+	-- ต้องถือกระสอบในมือก่อนถึงจะเก็บได้ (แบบ 99 Nights)
 	local inv = self.ctx.Services.InventoryService
 	if not inv:HoldingSack(player) then
-		self.ctx.Notify(player, "🎒 ถือกระสอบก่อนถึงจะเก็บของได้", "Info")
+		self.ctx.Notify(player, "🎒 ถือกระสอบก่อน (เลือกกระสอบในแถบเครื่องมือ) แล้วค่อยเก็บของ", "Info")
 		return
 	end
 	local got = inv:AddToSack(player, d.Id, d.Count)
@@ -414,7 +580,8 @@ end
 function DropService:UseDrop(player, m)
 	local d = drops[m]
 	local char = player.Character
-	if not (d and char and m.PrimaryPart) or (char:GetPivot().Position - m.PrimaryPart.Position).Magnitude > PICK_RANGE then
+	if not (d and char and m.PrimaryPart) or self.ctx.Services.SurvivalService:IsIncapacitated(player)
+		or (char:GetPivot().Position - m.PrimaryPart.Position).Magnitude > PICK_RANGE then
 		return
 	end
 	local inv = self.ctx.Services.InventoryService
@@ -457,11 +624,7 @@ function DropService:Throw(player, id, n, target)
 		return
 	end
 	local from = head.Position + Vector3.new(0, 1, 0)
-	local T = 0.75
-	local g = workspace.Gravity
-	local d = target - from
-	local v = Vector3.new(d.X / T, (d.Y + 0.5 * g * T * T) / T, d.Z / T)
-	self:Spawn(id, n, from, { Velocity = v, By = player })
+	self:Spawn(id, n, from, { Arc = target, By = player })
 end
 
 -- ทิ้งของจากกระสอบ: ถ้ายืนใกล้กองไฟ -> โยนเข้ากองไฟเลย ไม่งั้นวางหน้าตัว
@@ -489,7 +652,7 @@ function DropService:DropFromPlayer(player, id, n)
 	if fire and (cf.Position - fire).Magnitude < 18 then
 		self:Throw(player, id, n, fire + Vector3.new(0, 1, 0))
 	else
-		self:Spawn(id, n, cf.Position + cf.LookVector * 4, { Spread = 0.5 })
+		self:Spawn(id, n, cf.Position + cf.LookVector * 5, { Spread = 0.5, Place = true })
 	end
 end
 
@@ -518,14 +681,23 @@ function DropService:Start(ctx)
 			self:DropFromPlayer(player, id, n)
 		end
 	end)
-	-- หายเองเมื่อเก่าเกิน
+	-- หายเองเมื่อเก่าเกิน (ยกเว้นในแคมป์) + เช็กของที่ตรึงแล้วลอยค้าง (เช่นพื้นเดิมเป็นต้นไม้ที่โดนตัดไป)
 	task.spawn(function()
 		while true do
 			task.wait(15)
 			local now = os.clock()
 			for m, d in pairs(drops) do
-				if now - d.Born > LIFETIME or not m.Parent then
+				local r = m.PrimaryPart
+				if not (m.Parent and r) then
 					self:Remove(m)
+				elseif now - d.Born > LIFETIME and not self:InCamp(m) then
+					self:Remove(m)
+				elseif r.Anchored then
+					local surf = surfaceFor(r.Position, r.Position)
+					local gap = surf and (r.Position.Y - r.Size.Y / 2 - surf.Position.Y)
+					if not surf or gap > 1.5 or gap < -1 then
+						place(m, r.Position, true) -- ลอย/จมดิน -> วางใหม่บนผิว
+					end
 				end
 			end
 			local keep = {}

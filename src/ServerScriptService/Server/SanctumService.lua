@@ -13,6 +13,8 @@ local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Animals = require(ReplicatedStorage.Shared.Animals)
+local PropBuilder = require(ReplicatedStorage.Shared.PropBuilder)
+local SiteSpec = require(ReplicatedStorage.Shared.SiteSpec)
 
 local SanctumService = {}
 
@@ -102,6 +104,114 @@ function SanctumService:Build(el, sp, src, parent)
 	-- หันทางเข้า (-Z ของพรีแฟบ) ไปทางแคมป์
 	local cf = (flat - pos).Magnitude > 1 and CFrame.lookAt(pos, flat) or CFrame.new(pos)
 	m:PivotTo(cf)
+	-- วิหารใหญ่จาก Creator Store ตั้งตระหง่านหลังลานปริศนา หน้าหันมาทางแคมป์ เดินเข้าไปข้างในได้
+	--   { ชื่อโมเดล, เท่าของความกว้างมาตรฐาน (SiteSpec), หมุนแก้ทิศ }
+	local SANCTUM_STORE = {
+		Earth = { "SanctumEarth", 1, 0 }, -- ซากวิหารหอคอยกลางป่า
+		Fire = { "SanctumFire", 1, 0 }, -- ปราสาทหินป้อมปราการ
+		Air = { "SanctumAir", 1, 0 }, -- วิหารหิมะแดนเหนือ
+		Water = { "SanctumWater", 1, 0 }, -- วิหารริมน้ำ
+	}
+	local SEAT = { Earth = Enum.Material.Ground, Water = Enum.Material.Sand, Air = Enum.Material.Snow, Fire = Enum.Material.Basalt }
+	local ss = SANCTUM_STORE[el]
+	local temple
+	if ss then
+		local spec = SiteSpec.Get("Sanctum", el)
+		temple = PropBuilder.Backdrop(ss[1], cf, spec.Width * ss[2], spec.Gap, m, { Yaw = ss[3], Material = SEAT[el] })
+	end
+	if temple then
+		-- ทิ้งฉากหินปั้นเดิมทั้งหมด เหลือเฉพาะชิ้นที่ใช้เล่น (เสารูน 3 ต้น, หีบ, ช่องรูน, คริสตัล, ลำแสง)
+		local KEEP = {
+			Origin = true, Obelisk1 = true, Obelisk2 = true, Obelisk3 = true, VaultChest = true, ChestLid = true,
+			AltarCrystal = true, Beacon = true, VaultLight = true, HintSlot1 = true, HintSlot2 = true, HintSlot3 = true,
+		}
+		for _, ch in ipairs(m:GetChildren()) do
+			if ch ~= temple and not KEEP[ch.Name] then
+				ch:Destroy()
+			end
+		end
+		m.Parent = parent
+		local rp = RaycastParams.new()
+		rp.FilterType = Enum.RaycastFilterType.Include
+		rp.FilterDescendantsInstances = { workspace.Terrain, temple }
+		local function bottomOf(o)
+			if o:IsA("Model") then
+				local bcf, size = o:GetBoundingBox()
+				return bcf.Position, bcf.Position.Y - size.Y / 2
+			end
+			return o.Position, o.Position.Y - o.Size.Y / 2
+		end
+		-- ย้ายกลุ่มชิ้นทั้งหมดตาม delta เดียวกัน แล้ววางลงบนพื้นจริง (ไม่ลอย)
+		local function place(group, target)
+			local p0, b0 = bottomOf(group[1])
+			local flatTarget = target or p0
+			local dy
+			if target and target.Y then
+				dy = target.Y - b0 -- จุดบนลานของวิหาร (รู้ความสูงพื้นแล้ว)
+			else
+				local hit = workspace:Raycast(Vector3.new(flatTarget.X, b0 + 60, flatTarget.Z), Vector3.new(0, -160, 0), rp)
+				dy = hit and (hit.Position.Y - b0) or 0
+			end
+			local delta = Vector3.new(flatTarget.X - p0.X, dy, flatTarget.Z - p0.Z)
+			for _, o in ipairs(group) do
+				if o:IsA("Model") then
+					o:PivotTo(o:GetPivot() + delta)
+				else
+					o.CFrame += delta
+				end
+			end
+		end
+		-- หีบศักดิ์สิทธิ์ตั้งหน้าประตูวิหาร (ลานปริศนาอยู่ฝั่งแคมป์)
+		local chestGroup = {}
+		for _, n in ipairs({ "VaultChest", "ChestLid", "VaultLight", "Beacon" }) do
+			local o = m:FindFirstChild(n)
+			if o then
+				table.insert(chestGroup, o)
+			end
+		end
+		-- เสารูนใหญ่ขึ้น (เห็นชัดบนวิหารใหญ่)
+		for i = 1, 3 do
+			local o = m:FindFirstChild("Obelisk" .. i)
+			if o then
+				pcall(function()
+					o:ScaleTo(o:GetScale() * 1.6)
+				end)
+			end
+		end
+		-- ลานเล่นบนตัววิหาร (ชั้นบน/แท่นยก) -> เสารูน 3 ต้นกระจายบนลาน หีบกลางลาน ช่องรูนข้างหีบ + บันไดขึ้น
+		local area = PropBuilder.PlayArea(temple, cf, { MinCells = 14, Headroom = 12 })
+		if area then
+			local spots = PropBuilder.SpreadCells(area, 4)
+			if #chestGroup > 0 then
+				place(chestGroup, spots[1])
+			end
+			for i = 1, 3 do
+				local o = m:FindFirstChild("Obelisk" .. i)
+				if o and spots[i + 1] then
+					place({ o }, spots[i + 1])
+				end
+			end
+			local extra = PropBuilder.SpreadCells(area, 4, spots)
+			for i, n in ipairs({ "AltarCrystal", "HintSlot1", "HintSlot2", "HintSlot3" }) do
+				local o = m:FindFirstChild(n)
+				if o and extra[i] then
+					place({ o }, extra[i])
+				end
+			end
+			PropBuilder.BuildAccess(area, cf, temple, m, nil)
+			pos = area.Center -- จุดศูนย์กลางกิจกรรม (ระยะโชว์ลำดับเสา/แจ้งเตือน) = บนลานวิหาร
+		else
+			if #chestGroup > 0 then
+				place(chestGroup, (cf * CFrame.new(0, 0, SiteSpec.Get("Sanctum", el).Gap - 10)).Position)
+			end
+			for _, n in ipairs({ "Obelisk1", "Obelisk2", "Obelisk3", "AltarCrystal", "HintSlot1", "HintSlot2", "HintSlot3" }) do
+				local o = m:FindFirstChild(n)
+				if o then
+					place({ o }, nil)
+				end
+			end
+		end
+	end
 	pcall(function()
 		m.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 	end)
@@ -153,6 +263,37 @@ function SanctumService:Build(el, sp, src, parent)
 	for i = 1, 3 do
 		local ob = m:FindFirstChild("Obelisk" .. i)
 		if ob then
+			-- ขอบเรืองสีธาตุ + ลำแสงขึ้นฟ้า: มองเห็นเสาได้จากไกล/ในหมอก
+			local hl = Instance.new("Highlight")
+			hl.FillTransparency = 0.85
+			hl.FillColor = col
+			hl.OutlineColor = col
+			hl.OutlineTransparency = 0
+			hl.DepthMode = Enum.HighlightDepthMode.Occluded
+			hl.Parent = ob
+			local base = ob:GetPivot().Position
+			local _, osz = ob:GetBoundingBox()
+			local a0 = Instance.new("Attachment")
+			local anchorPart = ob:FindFirstChildWhichIsA("BasePart", true)
+			if anchorPart then
+				a0.WorldPosition = base + Vector3.new(0, osz.Y * 0.5, 0)
+				a0.Parent = anchorPart
+				local skyPart = Instance.new("Part")
+				skyPart.Anchored, skyPart.CanCollide, skyPart.CanQuery, skyPart.Transparency = true, false, false, 1
+				skyPart.Size = Vector3.one
+				skyPart.CFrame = CFrame.new(base + Vector3.new(0, 140, 0))
+				skyPart.Parent = ob
+				local a1 = Instance.new("Attachment")
+				a1.Parent = skyPart
+				local beam = Instance.new("Beam")
+				beam.Attachment0, beam.Attachment1 = a0, a1
+				beam.Width0, beam.Width1 = 2.2, 4
+				beam.LightEmission = 1
+				beam.FaceCamera = true
+				beam.Color = ColorSequence.new(col)
+				beam.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.35), NumberSequenceKeypoint.new(1, 1) })
+				beam.Parent = anchorPart
+			end
 			local o = { Index = i, Model = ob, Glow = {}, Lit = false }
 			for _, d in ipairs(ob:GetDescendants()) do
 				if d:IsA("BasePart") and (d.Name == "Glyph" or d.Name == "Crystal") then
@@ -506,7 +647,7 @@ function SanctumService:Solve(site, player)
 		table.insert(site.Fx, top)
 		table.insert(site.Fx, beam)
 	end
-	self.ctx.Remotes.Get("WorldEvent"):FireAllClients("SanctumOpened", { Element = el, Position = doorPos, By = player and player.DisplayName })
+	self.ctx.FireRun("WorldEvent", "SanctumOpened", { Element = el, Position = doorPos, By = player and player.DisplayName })
 	self.ctx.Broadcast(string.format("🏛 ผนึกวิหาร%sคลายแล้ว! หีบศักดิ์สิทธิ์ในห้องผนึกเปิดได้", THAI[el]), "Reward")
 	task.delay(3.5, function()
 		if site.State == "Solved" and not site.Opened and site.ChestPrompt then

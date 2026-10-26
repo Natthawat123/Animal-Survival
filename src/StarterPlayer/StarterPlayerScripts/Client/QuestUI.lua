@@ -1,17 +1,15 @@
 --[[
-	QuestUI — หน้าต่าง "ภารกิจ" ในล็อบบี้ (ปุ่ม 📜 ภารกิจ ที่แถบซ้าย)
+	QuestUI — หน้าต่าง "ภารกิจ & รางวัล" ในล็อบบี้ (ปุ่ม 📜 ภารกิจ ที่แถบซ้าย) · ธีมกรอบไม้ (WoodKit)
 	  แท็บ 📜 ภารกิจ      : รายวัน 3 + รายสัปดาห์ 3 (ความคืบหน้านับฝั่ง server) กดรับ Ruby + Season XP
 	  แท็บ 📅 ล็อกอิน 7 วัน : รับวันละครั้ง (ใช้ร่วมกับหม้อรางวัลประจำวัน) ขาดวันเดียวเริ่มใหม่ · เด้งขึ้นเองตอนเข้าเกมถ้ายังไม่รับ
-	  แท็บ 🎟 Season Pass  : 30 ขั้น สายฟรี + สายพรีเมียม (Game Pass "SeasonPass") + เลือกใส่ฉายา/สีฉายา
+	  แท็บ ✨ Season Pass  : 30 ขั้น สายฟรี + สายพรีเมียม (Game Pass "SeasonPass") + เลือกใส่ฉายา/สีฉายา
 	  แท็บ 🎁 โค้ด          : กรอกโค้ดแลกรางวัล (server ตรวจ)
-	  แท็บ 🤝 ชวนเพื่อน     : SocialService:PromptGameInvite + โบนัส Ruby +10% เมื่อเล่นรอบเดียวกับเพื่อน
 	จุดแดงบนปุ่มแถบซ้าย/แท็บ = มีรางวัลให้กดรับ
 ]]
 
 local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local SocialService = game:GetService("SocialService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
@@ -21,25 +19,25 @@ local Config = require(Shared.Config)
 local Remotes = require(Shared.Remotes)
 local Quests = require(Shared.Quests)
 local UIKit = require(script.Parent.UIKit)
+local WoodKit = require(script.Parent.WoodKit)
 local LobbyUI = require(script.Parent.LobbyUI)
 local Tutorial = require(script.Parent.Tutorial)
 
 local QuestUI = {}
 local player = Players.LocalPlayer
 local C = UIKit.Colors
+local W = WoodKit.Colors
 local RS = utf8.char(0xE002) -- ไอคอน Robux ในฟอนต์ของ Roblox
 local ui = { Tab = "Quests", Pages = {}, TabButtons = {}, TabDots = {}, Timers = {} }
 local profile
 local loginShown = false
 
 local TABS = {
-	{ Id = "Quests", Text = "📜 ภารกิจ", Color = C.Orange },
-	{ Id = "Login", Text = "📅 ล็อกอิน 7 วัน", Color = C.Cyan },
-	{ Id = "Season", Text = "🎟 Season Pass", Color = C.Purple },
-	{ Id = "Codes", Text = "🎁 โค้ด", Color = C.Pink },
-	{ Id = "Invite", Text = "🤝 ชวนเพื่อน", Color = C.Green },
+	{ Id = "Quests", Text = "📜 ภารกิจ" },
+	{ Id = "Login", Text = "📅 ล็อกอิน 7 วัน" },
+	{ Id = "Season", Text = "✨ Season Pass" },
+	{ Id = "Codes", Text = "🎁 โค้ด" },
 }
-local GREY = Color3.fromRGB(84, 90, 120)
 
 local function rgb(r, g, b)
 	return Color3.fromRGB(r, g, b)
@@ -57,46 +55,13 @@ local function clear(frame)
 	end
 end
 
--- การ์ดไล่สี (สีจริงมาจาก UIGradient คูณพื้นขาว แบบ StoreUI)
-local function card(parent, props, top, bottom)
-	local f = UIKit.Card(parent, props)
-	f.BackgroundColor3 = Color3.new(1, 1, 1)
-	f:FindFirstChildOfClass("UIGradient").Color = ColorSequence.new(top, bottom)
-	return f
-end
-
--- แสงวิ้งวิ่งผ่าน (การ์ดที่กดรับได้)
-local function shine(frame, delayT)
-	local g = Instance.new("UIGradient")
-	g.Rotation = 20
-	g.Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.45, 1), NumberSequenceKeypoint.new(0.5, 0.6),
-		NumberSequenceKeypoint.new(0.55, 1), NumberSequenceKeypoint.new(1, 1),
-	})
-	g.Offset = Vector2.new(-1, 0)
-	local sheen = UIKit.Frame(frame, { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0, ZIndex = 9, Active = false })
-	UIKit.Corner(sheen, 14)
-	g.Parent = sheen
-	task.spawn(function()
-		task.wait(delayT or 0)
-		while sheen.Parent do
-			g.Offset = Vector2.new(-1, 0)
-			TweenService:Create(g, TweenInfo.new(1.1, Enum.EasingStyle.Sine), { Offset = Vector2.new(1, 0) }):Play()
-			task.wait(3)
-		end
-	end)
-end
-
-local function button(parent, color, enabled, props, onClick)
-	local b = UIKit.ColorButton(parent, enabled and color or GREY, props, function()
+-- ปุ่มธีมไม้: กดไม่ได้ = สไตล์ "Off" (ไม่ทำอะไร)
+local function button(parent, style, enabled, props, onClick)
+	return WoodKit.Button(parent, enabled and style or "Off", props, function()
 		if enabled and onClick then
 			onClick()
 		end
 	end)
-	if not enabled then
-		b.TextColor3 = rgb(215, 215, 230)
-	end
-	return b
 end
 
 ---------------------------------------------------------------- สถานะจากโปรไฟล์
@@ -146,7 +111,7 @@ local function seasonState()
 end
 
 local function counts()
-	local n = { Quests = 0, Login = 0, Season = 0, Codes = 0, Invite = 0 }
+	local n = { Quests = 0, Login = 0, Season = 0, Codes = 0 }
 	if not profile then
 		return n
 	end
@@ -200,30 +165,26 @@ local function questCard(parent, order, e, scope, index)
 	local prog, need = e.Prog or 0, math.max(1, e.Need or 1)
 	local done = prog >= need
 	local claimed = e.Claimed == true
-	local top, bottom = rgb(66, 74, 124), rgb(34, 38, 66)
-	if claimed then
-		top, bottom = rgb(46, 92, 62), rgb(22, 44, 30)
-	elseif done then
-		top, bottom = rgb(150, 112, 34), rgb(76, 50, 16)
-	end
-	local f = card(parent, { Size = UDim2.new(1, 0, 0, 132), LayoutOrder = order }, top, bottom)
+	local tint = claimed and rgb(206, 216, 168) or (done and rgb(255, 228, 150) or nil)
+	local f = WoodKit.Parchment(parent, { Size = UDim2.new(1, 0, 0, 132), LayoutOrder = order }, tint)
 	local icon, text = Quests.Describe(e)
-	UIKit.IconBadge(f, icon, scope == "Daily" and C.Orange or C.Purple, 62, { Position = UDim2.fromOffset(14, 14) })
-	UIKit.Text(f, { Position = UDim2.fromOffset(90, 12), Size = UDim2.new(1, -104, 0, 30), Text = text, Font = UIKit.Fonts.Title, TextSize = 22 })
-	local bar = UIKit.Bar(f, { Size = UDim2.new(1, -104, 0, 22), Position = UDim2.fromOffset(90, 48), Color = done and C.Green or C.Gold, Label = string.format("%d / %d", math.min(prog, need), need) })
+	WoodKit.Medallion(f, icon, 74, { Position = UDim2.fromOffset(12, 14), ZIndex = 2 }, scope == "Daily" and rgb(96, 40, 22) or W.Night)
+	WoodKit.Ink(f, { Position = UDim2.fromOffset(98, 10), Size = UDim2.new(1, -110, 0, 30), Text = text, TextSize = 21 })
+	local bar = UIKit.Bar(f, { Size = UDim2.new(1, -112, 0, 22), Position = UDim2.fromOffset(98, 46), Color = done and rgb(110, 200, 80) or W.Gold, Label = string.format("%d / %d", math.min(prog, need), need) })
 	bar.Set(math.min(prog / need, 1))
-	UIKit.Icon(f, "Ruby", 40, { Position = UDim2.fromOffset(84, 80), ZIndex = 3 })
+	UIKit.Icon(f, "Ruby", 36, { Position = UDim2.fromOffset(92, 84), ZIndex = 3 })
 	local xp = scope == "Daily" and Quests.DailyXP or Quests.WeeklyXP
-	UIKit.Text(f, {
-		Position = UDim2.fromOffset(124, 84), Size = UDim2.new(1, -290, 0, 34), Text = string.format("%d Ruby   ⭐ %d XP", e.Ruby or 0, xp),
-		Font = UIKit.Fonts.Title, TextSize = 20, TextColor3 = rgb(255, 214, 120),
-	})
+	WoodKit.Ink(f, { Position = UDim2.fromOffset(128, 88), Size = UDim2.fromOffset(84, 28), Text = (e.Ruby or 0) .. " Ruby", TextSize = 18, TextColor3 = W.Bad })
+	WoodKit.Ink(f, { Position = UDim2.fromOffset(214, 88), Size = UDim2.fromOffset(100, 28), Text = "⭐ " .. xp .. " XP", TextSize = 18, TextColor3 = rgb(150, 96, 20) })
 	local label = claimed and "✔ รับแล้ว" or (done and "🎁 รับรางวัล" or "กำลังทำ...")
-	button(f, C.Green, done and not claimed, { Size = UDim2.fromOffset(140, 44), Position = UDim2.new(1, -152, 1, -54), Text = label, TextSize = 19, Font = UIKit.Fonts.Title, ZIndex = 11 }, function()
-		Remotes.Get("ClaimQuest"):FireServer(scope, index)
+	local style = claimed and "Green" or (done and "Red" or "Wood")
+	WoodKit.Button(f, style, { Size = UDim2.fromOffset(134, 40), Position = UDim2.new(1, -146, 1, -52), Text = label, TextSize = 18, ZIndex = 4 }, function()
+		if done and not claimed then
+			Remotes.Get("ClaimQuest"):FireServer(scope, index)
+		end
 	end)
 	if done and not claimed then
-		shine(f, order * 0.3)
+		WoodKit.Shine(f, order * 0.3)
 	end
 end
 
@@ -231,17 +192,13 @@ local function buildQuests(page)
 	clear(page)
 	local d, w = questLists()
 	local cols = {
-		{ "Daily", "☀️ ภารกิจรายวัน", d, C.Orange },
-		{ "Weekly", "📅 ภารกิจรายสัปดาห์", w, C.Purple },
+		{ "Daily", "☀️ ภารกิจรายวัน", d, W.Red },
+		{ "Weekly", "📅 ภารกิจรายสัปดาห์", w, W.Night },
 	}
 	for i, info in ipairs(cols) do
 		local col = UIKit.Frame(page, { BackgroundTransparency = 1, Size = UDim2.new(0.5, -8, 1, 0), Position = UDim2.new((i - 1) * 0.5, (i - 1) * 8, 0, 0) })
-		local head = UIKit.Frame(col, { Size = UDim2.new(1, 0, 0, 42), BackgroundColor3 = info[4], BackgroundTransparency = 0 })
-		UIKit.Corner(head, 12)
-		UIKit.Stroke(head, UIKit.Darker(info[4], 0.4), 2, 0)
-		UIKit.Gradient(head, Color3.new(1, 1, 1), rgb(180, 180, 180), 90)
-		UIKit.Text(head, { Position = UDim2.fromOffset(14, 0), Size = UDim2.new(0.55, 0, 1, 0), Text = info[2], Font = UIKit.Fonts.Title, TextSize = 22 })
-		ui.Timers[info[1]] = UIKit.Text(head, { Position = UDim2.new(0.5, 0, 0, 0), Size = UDim2.new(0.5, -14, 1, 0), Text = "", Font = UIKit.Fonts.Bold, TextSize = 16, TextXAlignment = Enum.TextXAlignment.Right })
+		local head = WoodKit.Ribbon(col, { Size = UDim2.new(1, 0, 0, 44) }, info[4], info[2], 22)
+		ui.Timers[info[1]] = UIKit.Text(head, { Position = UDim2.new(0.45, 0, 0, 0), Size = UDim2.new(0.55, -14, 1, 0), Text = "", Font = UIKit.Fonts.Bold, TextSize = 16, TextColor3 = rgb(255, 230, 190), TextXAlignment = Enum.TextXAlignment.Right })
 		local list = UIKit.Frame(col, { BackgroundTransparency = 1, Position = UDim2.fromOffset(0, 54), Size = UDim2.new(1, 0, 1, -54) })
 		local ll = Instance.new("UIListLayout")
 		ll.Padding = UDim.new(0, 10)
@@ -251,7 +208,7 @@ local function buildQuests(page)
 			questCard(list, k, e, info[1], k)
 		end
 		if #info[3] == 0 then
-			UIKit.Text(list, { Size = UDim2.new(1, 0, 0, 60), Text = "กำลังโหลดภารกิจ...", TextSize = 20, TextColor3 = C.TextDim, TextXAlignment = Enum.TextXAlignment.Center })
+			UIKit.Text(list, { Size = UDim2.new(1, 0, 0, 60), Text = "กำลังโหลดภารกิจ...", TextSize = 20, TextColor3 = rgb(226, 206, 176), TextXAlignment = Enum.TextXAlignment.Center })
 		end
 	end
 end
@@ -261,12 +218,13 @@ local function buildLogin(page)
 	clear(page)
 	local st = loginState()
 	local total = #Quests.LoginRewards
-	UIKit.Text(page, { Size = UDim2.new(1, 0, 0, 34), Position = UDim2.fromOffset(0, 2), Text = "ล็อกอินทุกวัน รับ Ruby เพิ่มขึ้นเรื่อยๆ — วันที่ 7 รับรางวัลใหญ่! 🎁", Font = UIKit.Fonts.Title, TextSize = 26, TextXAlignment = Enum.TextXAlignment.Center })
-	UIKit.Text(page, {
-		Size = UDim2.new(1, 0, 0, 22), Position = UDim2.fromOffset(0, 40), TextSize = 16, TextColor3 = C.TextDim, TextXAlignment = Enum.TextXAlignment.Center,
+	local head = WoodKit.Parchment(page, { Size = UDim2.new(1, 0, 0, 74) })
+	WoodKit.Ink(head, { Size = UDim2.new(1, -20, 0, 34), Position = UDim2.fromOffset(10, 6), Text = "ล็อกอินทุกวัน รับ Ruby เพิ่มขึ้นเรื่อยๆ — วันที่ 7 รับรางวัลใหญ่!", TextSize = 26, TextXAlignment = Enum.TextXAlignment.Center })
+	WoodKit.Ink(head, {
+		Size = UDim2.new(1, -20, 0, 22), Position = UDim2.fromOffset(10, 44), TextSize = 15, Font = UIKit.Fonts.Bold, TextColor3 = W.InkDim, TextXAlignment = Enum.TextXAlignment.Center,
 		Text = "ขาดวันเดียวเริ่มนับวันที่ 1 ใหม่ · รับที่นี่หรือที่หม้อรางวัลประจำวันในล็อบบี้ก็ได้ (วันละครั้ง)",
 	})
-	local row = UIKit.Frame(page, { BackgroundTransparency = 1, Position = UDim2.fromOffset(0, 84), Size = UDim2.new(1, 0, 0, 236) })
+	local row = UIKit.Frame(page, { BackgroundTransparency = 1, Position = UDim2.fromOffset(0, 86), Size = UDim2.new(1, 0, 0, 258) })
 	local rl = Instance.new("UIListLayout")
 	rl.FillDirection = Enum.FillDirection.Horizontal
 	rl.HorizontalAlignment = Enum.HorizontalAlignment.Center
@@ -278,79 +236,78 @@ local function buildLogin(page)
 		local big = i == total
 		local claimed = i <= st.Count
 		local isToday = i == st.Today and not st.Claimed
-		local top, bottom = rgb(60, 68, 116), rgb(30, 34, 60)
+		local status, scol = "🔒", W.InkDim
 		if claimed then
-			top, bottom = rgb(50, 110, 70), rgb(22, 52, 32)
+			status, scol = "✔ รับแล้ว", W.Good
 		elseif isToday then
-			top, bottom = rgb(196, 146, 40), rgb(110, 64, 16)
-		elseif big then
-			top, bottom = rgb(128, 70, 190), rgb(56, 26, 96)
-		end
-		local f = card(row, { Size = UDim2.fromOffset(big and 156 or 118, big and 230 or 206), LayoutOrder = i }, top, bottom)
-		UIKit.Text(f, { Size = UDim2.new(1, 0, 0, 30), Position = UDim2.fromOffset(0, 8), Text = "วันที่ " .. i, Font = UIKit.Fonts.Title, TextSize = 22, TextXAlignment = Enum.TextXAlignment.Center })
-		if big then
-			UIKit.Text(f, { Size = UDim2.new(1, 0, 0, 60), Position = UDim2.fromOffset(0, 36), Text = "🎁", TextSize = 50, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 4 })
-			UIKit.Icon(f, "Ruby", 58, { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(0.5, 0, 0, 120), ZIndex = 5 })
-		else
-			UIKit.Icon(f, "Ruby", 66, { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(0.5, 0, 0, 82), ZIndex = 4 })
-		end
-		UIKit.Text(f, {
-			Size = UDim2.new(1, 0, 0, 30), Position = UDim2.new(0, 0, 1, big and -86 or -82), Text = ruby .. " Ruby", Font = UIKit.Fonts.Title, TextSize = big and 26 or 22,
-			TextXAlignment = Enum.TextXAlignment.Center, TextColor3 = rgb(255, 210, 210), ZIndex = 6,
-		})
-		local status, scol = "🔒", C.TextDim
-		if claimed then
-			status, scol = "✔ รับแล้ว", rgb(150, 255, 150)
-		elseif isToday then
-			status, scol = "วันนี้!", rgb(255, 240, 150)
+			status, scol = "วันนี้!", W.Bad
 		elseif st.Claimed and i == st.Today + 1 then
-			status, scol = "พรุ่งนี้", rgb(200, 220, 255)
+			status, scol = "พรุ่งนี้", W.InkDim
 		end
-		UIKit.Text(f, { Size = UDim2.new(1, 0, 0, 30), Position = UDim2.new(0, 0, 1, -44), Text = status, Font = UIKit.Fonts.Title, TextSize = 20, TextXAlignment = Enum.TextXAlignment.Center, TextColor3 = scol, ZIndex = 6 })
+		local f
+		if big then
+			-- วันที่ 7: ป้ายไม้แดงเข้มขอบทอง + หีบสมบัติ
+			f = WoodKit.Board(row, { Size = UDim2.fromOffset(180, 256), LayoutOrder = i }, claimed and rgb(52, 92, 50) or rgb(92, 22, 36), W.Gold)
+			UIKit.Text(f, { Size = UDim2.new(1, 0, 0, 34), Position = UDim2.fromOffset(0, 8), Text = "วันที่ " .. i, Font = UIKit.Fonts.Title, TextSize = 26, TextXAlignment = Enum.TextXAlignment.Center, TextColor3 = W.Gold })
+			if not WoodKit.Art(f, "Pack3", 150, { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(0.5, 0, 0, 112), ZIndex = 3 }) then
+				UIKit.Icon(f, "Ruby", 80, { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(0.5, 0, 0, 112), ZIndex = 3 })
+			end
+			UIKit.Text(f, { Size = UDim2.new(1, 0, 0, 34), Position = UDim2.new(0, 0, 1, -84), Text = ruby .. " Ruby", Font = UIKit.Fonts.Title, TextSize = 28, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 5 })
+			UIKit.Text(f, { Size = UDim2.new(1, 0, 0, 28), Position = UDim2.new(0, 0, 1, -44), Text = status, Font = UIKit.Fonts.Title, TextSize = 20, TextXAlignment = Enum.TextXAlignment.Center, TextColor3 = isToday and rgb(255, 236, 140) or rgb(240, 224, 200), ZIndex = 5 })
+		else
+			local tint = claimed and rgb(200, 220, 160) or (isToday and rgb(255, 226, 140) or nil)
+			f = WoodKit.Parchment(row, { Size = UDim2.fromOffset(118, 220), LayoutOrder = i }, tint)
+			WoodKit.Ink(f, { Size = UDim2.new(1, 0, 0, 30), Position = UDim2.fromOffset(0, 10), Text = "วันที่ " .. i, TextSize = 22, TextXAlignment = Enum.TextXAlignment.Center })
+			UIKit.Icon(f, "Ruby", 70, { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(0.5, 0, 0, 90), ZIndex = 3 })
+			WoodKit.Ink(f, { Size = UDim2.new(1, 0, 0, 28), Position = UDim2.new(0, 0, 1, -80), Text = ruby .. " Ruby", TextSize = 21, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 5 })
+			WoodKit.Ink(f, { Size = UDim2.new(1, 0, 0, 28), Position = UDim2.new(0, 0, 1, -44), Text = status, TextSize = 19, TextXAlignment = Enum.TextXAlignment.Center, TextColor3 = scol, ZIndex = 5 })
+		end
 		if isToday then
-			shine(f, 0.2)
+			WoodKit.Shine(f, 0.2)
 		end
 	end
+	local foot = WoodKit.Parchment(page, { Size = UDim2.fromOffset(620, 128), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 356) })
 	local streakText = string.format("🔥 ต่อเนื่อง %d วัน   ·   สถิติสูงสุด %d วัน", st.Streak, profile and tonumber(profile.BestStreak) or 0)
-	UIKit.Text(page, { Size = UDim2.new(1, 0, 0, 28), Position = UDim2.fromOffset(0, 338), Text = streakText, Font = UIKit.Fonts.Title, TextSize = 22, TextXAlignment = Enum.TextXAlignment.Center, TextColor3 = rgb(255, 196, 120) })
+	WoodKit.Ink(foot, { Size = UDim2.new(1, -20, 0, 30), Position = UDim2.fromOffset(10, 10), Text = streakText, TextSize = 22, TextXAlignment = Enum.TextXAlignment.Center })
 	local text
 	if st.Claimed then
 		text = "✔ รับแล้ว — มาใหม่ใน " .. Quests.FormatTime(Quests.SecondsToDayReset(now()))
 	else
 		text = string.format("🎁 รับรางวัลวันที่ %d  (%d Ruby)", st.Today, Quests.LoginRewards[st.Today] or 0)
 	end
-	local b = button(page, C.Green, not st.Claimed, {
-		Size = UDim2.fromOffset(440, 60), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 380), Text = text, TextSize = 24, Font = UIKit.Fonts.Title,
+	local b = button(foot, "Red", not st.Claimed, {
+		Size = UDim2.fromOffset(460, 56), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 52), Text = text, TextSize = 22,
 	}, function()
 		Remotes.Get("ClaimDaily"):FireServer()
 	end)
+	if st.Claimed then
+		WoodKit.Style(b, "Green")
+	end
 	ui.LoginButton = st.Claimed and b or nil
 end
 
 ---------------------------------------------------------------- แท็บ: Season Pass
-local TIER_W = 108
+local TIER_W = 98
 
 local function rewardVisual(cell, reward)
 	if reward.Title and Quests.Titles[reward.Title] then
 		local t = Quests.Titles[reward.Title]
-		UIKit.Text(cell, { Size = UDim2.new(1, 0, 0, 44), Position = UDim2.fromOffset(0, 8), Text = t.Icon, TextSize = 36, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 4 })
-		UIKit.Text(cell, { Size = UDim2.new(1, -8, 0, 18), Position = UDim2.fromOffset(4, 54), Text = "ฉายา", TextSize = 13, TextColor3 = C.TextDim, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 4 })
-		UIKit.Text(cell, { Size = UDim2.new(1, -8, 0, 20), Position = UDim2.fromOffset(4, 70), Text = t.Text, Font = UIKit.Fonts.Title, TextSize = 15, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 4 })
+		UIKit.Text(cell, { Size = UDim2.new(1, 0, 0, 40), Position = UDim2.fromOffset(0, 6), Text = t.Icon, TextSize = 32, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 4 })
+		UIKit.Text(cell, { Size = UDim2.new(1, -8, 0, 16), Position = UDim2.fromOffset(4, 48), Text = "ฉายา", TextSize = 13, TextColor3 = rgb(226, 210, 186), TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 4 })
+		UIKit.Text(cell, { Size = UDim2.new(1, -8, 0, 20), Position = UDim2.fromOffset(4, 64), Text = t.Text, Font = UIKit.Fonts.Title, TextSize = 15, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 4 })
 	elseif reward.Color and Quests.Colors[reward.Color] then
 		local col = Quests.Colors[reward.Color]
-		local sw = UIKit.Frame(cell, { Size = UDim2.fromOffset(40, 40), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 10), BackgroundColor3 = col.Color, BackgroundTransparency = 0, ZIndex = 4 })
-		local sc = Instance.new("UICorner")
-		sc.CornerRadius = UDim.new(1, 0)
-		sc.Parent = sw
-		UIKit.Stroke(sw, C.Outline, 2, 0)
-		UIKit.Text(cell, { Size = UDim2.new(1, -8, 0, 18), Position = UDim2.fromOffset(4, 54), Text = "สีฉายา", TextSize = 13, TextColor3 = C.TextDim, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 4 })
-		UIKit.Text(cell, { Size = UDim2.new(1, -8, 0, 20), Position = UDim2.fromOffset(4, 70), Text = col.Text, Font = UIKit.Fonts.Title, TextSize = 15, TextColor3 = col.Color, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 4 })
+		local sw = UIKit.Frame(cell, { Size = UDim2.fromOffset(36, 36), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 10), BackgroundColor3 = col.Color, BackgroundTransparency = 0, ZIndex = 4 })
+		WoodKit.Corner(sw, "round")
+		WoodKit.Stroke(sw, W.WoodDark, 2, 0)
+		UIKit.Text(cell, { Size = UDim2.new(1, -8, 0, 16), Position = UDim2.fromOffset(4, 48), Text = "สีฉายา", TextSize = 13, TextColor3 = rgb(226, 210, 186), TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 4 })
+		UIKit.Text(cell, { Size = UDim2.new(1, -8, 0, 20), Position = UDim2.fromOffset(4, 64), Text = col.Text, Font = UIKit.Fonts.Title, TextSize = 15, TextColor3 = col.Color, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 4 })
 	else
-		UIKit.Icon(cell, "Ruby", 50, { AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 6), ZIndex = 4 })
-		UIKit.Text(cell, { Size = UDim2.new(1, -8, 0, 24), Position = UDim2.fromOffset(4, 62), Text = (reward.Ruby or 0) .. " Ruby", Font = UIKit.Fonts.Title, TextSize = 18, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 4 })
+		UIKit.Icon(cell, "Ruby", 48, { AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 6), ZIndex = 4 })
+		UIKit.Text(cell, { Size = UDim2.new(1, -8, 0, 24), Position = UDim2.fromOffset(4, 58), Text = (reward.Ruby or 0) .. " Ruby", Font = UIKit.Fonts.Title, TextSize = 17, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 4 })
 	end
 	if reward.Ruby and (reward.Title or reward.Color) then
-		UIKit.Text(cell, { Size = UDim2.new(1, -8, 0, 16), Position = UDim2.fromOffset(4, 90), Text = "+ " .. reward.Ruby .. " Ruby", TextSize = 13, TextColor3 = rgb(255, 200, 200), TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 4 })
+		UIKit.Text(cell, { Size = UDim2.new(1, -8, 0, 16), Position = UDim2.fromOffset(4, 86), Text = "+ " .. reward.Ruby .. " Ruby", TextSize = 13, TextColor3 = rgb(255, 200, 200), TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 4 })
 	end
 end
 
@@ -367,31 +324,30 @@ local function tierCell(parent, y, track, t, reward, s, prem)
 	local reached = t <= s.Tier
 	local locked = track == "Prem" and not prem
 	local ready = reached and not claimed and not locked
-	local base = track == "Prem" and rgb(96, 62, 30) or rgb(48, 56, 98)
+	local base = track == "Prem" and rgb(120, 76, 30) or rgb(40, 44, 78)
 	if claimed then
-		base = rgb(40, 96, 58)
+		base = rgb(46, 96, 52)
 	elseif ready then
-		base = rgb(176, 130, 36)
+		base = rgb(186, 136, 40)
 	end
 	local cell = Instance.new("TextButton")
 	cell.Text = ""
 	cell.AutoButtonColor = false
 	cell.BorderSizePixel = 0
 	cell.BackgroundColor3 = base
-	cell.Size = UDim2.fromOffset(TIER_W - 8, 112)
+	cell.Size = UDim2.fromOffset(TIER_W - 8, 108)
 	cell.Position = UDim2.fromOffset(0, y)
 	cell.Parent = parent
-	UIKit.Corner(cell, 10)
-	local st = UIKit.Stroke(cell, ready and rgb(255, 236, 140) or C.Outline, ready and 2.4 or 2, 0)
-	UIKit.Gradient(cell, Color3.new(1, 1, 1), rgb(170, 170, 180), 90)
+	WoodKit.Corner(cell, 8)
+	local st = WoodKit.Stroke(cell, ready and rgb(255, 236, 140) or (track == "Prem" and W.Gold or rgb(120, 110, 160)), ready and 3 or 2, 0)
+	UIKit.Gradient(cell, Color3.new(1, 1, 1), rgb(160, 150, 150), 90)
 	rewardVisual(cell, reward)
-	local veil
 	if claimed or locked or not reached then
-		veil = UIKit.Frame(cell, { Size = UDim2.fromScale(1, 1), BackgroundColor3 = rgb(8, 8, 18), BackgroundTransparency = claimed and 0.45 or 0.55, ZIndex = 6 })
-		UIKit.Corner(veil, 10)
+		local veil = UIKit.Frame(cell, { Size = UDim2.fromScale(1, 1), BackgroundColor3 = rgb(14, 8, 6), BackgroundTransparency = claimed and 0.45 or 0.55, ZIndex = 6 })
+		WoodKit.Corner(veil, 8)
 		local mark = claimed and "✔" or (locked and "🔒" or "")
 		if mark ~= "" then
-			UIKit.Text(veil, { Size = UDim2.fromScale(1, 1), Text = mark, TextSize = 34, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 7, TextColor3 = claimed and rgb(150, 255, 150) or rgb(255, 255, 255) })
+			UIKit.Text(veil, { Size = UDim2.fromScale(1, 1), Text = mark, TextSize = 32, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 7, TextColor3 = claimed and rgb(150, 255, 150) or rgb(255, 230, 160) })
 		end
 	end
 	if ready then
@@ -417,7 +373,7 @@ local function tierCell(parent, y, track, t, reward, s, prem)
 	end)
 end
 
--- ตัวเลือกฉายา/สี: [◀] ชื่อ [▶] วนเฉพาะที่มี (+ "ไม่ใส่")
+-- ตัวเลือกฉายา/สี: [◀ ก่อนหน้า] ชื่อ [ถัดไป ▶] วนเฉพาะที่มี (+ "ไม่ใส่")
 local function selector(parent, x, label, kind, order, defs, owned, equipped)
 	local list = { "" }
 	for _, id in ipairs(order) do
@@ -426,14 +382,12 @@ local function selector(parent, x, label, kind, order, defs, owned, equipped)
 		end
 	end
 	local idx = table.find(list, equipped) or 1
-	local box = UIKit.Frame(parent, { Size = UDim2.new(0.5, -8, 1, 0), Position = UDim2.new(x, x > 0 and 8 or 0, 0, 0), BackgroundColor3 = rgb(26, 30, 54), BackgroundTransparency = 0 })
-	UIKit.Corner(box, 12)
-	UIKit.Stroke(box, C.Outline, 2, 0)
-	UIKit.Text(box, { Position = UDim2.fromOffset(14, 0), Size = UDim2.new(0, 110, 1, 0), Text = label, Font = UIKit.Fonts.Title, TextSize = 20 })
+	local box = WoodKit.Board(parent, { Size = UDim2.new(0.5, -6, 1, 0), Position = UDim2.new(x, x > 0 and 6 or 0, 0, 0) }, rgb(40, 28, 20))
+	UIKit.Text(box, { Position = UDim2.fromOffset(12, 0), Size = UDim2.new(0, 96, 1, 0), Text = label, Font = UIKit.Fonts.Title, TextSize = 18, TextColor3 = W.Gold })
 	local id = list[idx]
 	local def = id ~= "" and defs[id] or nil
-	local name = def and ((def.Icon and (def.Icon .. " ") or "") .. def.Text) or (#list > 1 and "ไม่ใส่" or "ยังไม่มี — ปลดจาก Season Pass/โค้ด")
-	local nameL = UIKit.Text(box, { Position = UDim2.new(0, 186, 0, 0), Size = UDim2.new(1, -252, 1, 0), Text = name, Font = UIKit.Fonts.Title, TextSize = 19, TextXAlignment = Enum.TextXAlignment.Center })
+	local name = def and ((def.Icon and (def.Icon .. " ") or "") .. def.Text) or (#list > 1 and "ไม่ใส่" or "ยังไม่ปลดล็อก — ได้จาก Season Pass/โค้ด")
+	local nameL = UIKit.Text(box, { Position = UDim2.new(0, 160, 0, 0), Size = UDim2.new(1, -218, 1, 0), Text = name, Font = UIKit.Fonts.Title, TextSize = 17, TextXAlignment = Enum.TextXAlignment.Center })
 	if kind == "Color" and def then
 		nameL.TextColor3 = def.Color
 	elseif kind == "Title" and def then
@@ -447,10 +401,10 @@ local function selector(parent, x, label, kind, order, defs, owned, equipped)
 		local n = ((idx - 1 + step) % #list) + 1
 		Remotes.Get("EquipCosmetic"):FireServer(kind, list[n])
 	end
-	button(box, C.Blue, #list > 1, { Size = UDim2.fromOffset(48, 48), Position = UDim2.new(0, 128, 0.5, -24), Text = "◀", TextSize = 22 }, function()
+	button(box, "Wood", #list > 1, { Size = UDim2.fromOffset(48, 42), Position = UDim2.new(0, 106, 0.5, -21), Text = "◀", TextSize = 20 }, function()
 		go(-1)
 	end)
-	button(box, C.Blue, #list > 1, { Size = UDim2.fromOffset(48, 48), Position = UDim2.new(1, -60, 0.5, -24), Text = "▶", TextSize = 22 }, function()
+	button(box, "Wood", #list > 1, { Size = UDim2.fromOffset(48, 42), Position = UDim2.new(1, -56, 0.5, -21), Text = "▶", TextSize = 20 }, function()
 		go(1)
 	end)
 end
@@ -461,56 +415,58 @@ local function buildSeason(page)
 	local s = seasonState()
 	local prem = hasPremium()
 	local season = Quests.Season(now())
-	-- แถบบน: ซีซั่น / ขั้น + XP / พรีเมียม / รับทั้งหมด
-	local top = card(page, { Size = UDim2.new(1, 0, 0, 96) }, rgb(88, 58, 150), rgb(38, 24, 72))
-	local sname = UIKit.Text(top, { Position = UDim2.fromOffset(18, 8), Size = UDim2.fromOffset(200, 40), Text = "ซีซั่น " .. season, Font = UIKit.Fonts.Title, TextSize = 34 })
-	UIKit.Gradient(sname, rgb(255, 250, 200), rgb(255, 190, 60), 90)
-	ui.Timers.Season = UIKit.Text(top, { Position = UDim2.fromOffset(18, 52), Size = UDim2.fromOffset(200, 26), Text = "", TextSize = 16, TextColor3 = rgb(220, 210, 255) })
+	-- ธงซีซั่นด้านซ้าย: ผ้าแดงขอบทอง + หัวหมาป่า
+	local flag = WoodKit.Board(page, { Size = UDim2.new(0, 180, 1, -20) }, rgb(120, 24, 28), W.Gold)
+	local sname = UIKit.Text(flag, { Position = UDim2.fromOffset(0, 12), Size = UDim2.new(1, 0, 0, 44), Text = "ซีซั่น " .. season, Font = UIKit.Fonts.Title, TextSize = 36, TextXAlignment = Enum.TextXAlignment.Center })
+	UIKit.Gradient(sname, rgb(255, 250, 210), rgb(240, 180, 70), 90)
+	if not WoodKit.Art(flag, "Wolf", 168, { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.45), ZIndex = 3 }) then
+		UIKit.Text(flag, { Size = UDim2.new(1, 0, 0, 90), Position = UDim2.fromScale(0, 0.32), Text = "🐺", TextSize = 72, TextXAlignment = Enum.TextXAlignment.Center })
+	end
+	ui.Timers.Season = UIKit.Text(flag, { Position = UDim2.new(0, 8, 1, -64), Size = UDim2.new(1, -16, 0, 50), Text = "", TextSize = 16, TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Center, TextColor3 = rgb(255, 226, 190) })
+	local right = UIKit.Frame(page, { BackgroundTransparency = 1, Position = UDim2.fromOffset(194, 0), Size = UDim2.new(1, -194, 1, 0) })
+	-- แถบบน: ขั้น + XP / พรีเมียม / รับทั้งหมด
+	local top = WoodKit.Board(right, { Size = UDim2.new(1, 0, 0, 80) }, rgb(46, 36, 70), rgb(150, 130, 210))
 	UIKit.Text(top, {
-		Position = UDim2.fromOffset(236, 10), Size = UDim2.fromOffset(360, 30), Font = UIKit.Fonts.Title, TextSize = 24,
+		Position = UDim2.fromOffset(16, 6), Size = UDim2.fromOffset(330, 32), Font = UIKit.Fonts.Title, TextSize = 26,
 		Text = s.Tier >= Quests.SeasonTiers and ("ขั้น " .. s.Tier .. " / " .. Quests.SeasonTiers .. "  ·  ครบแล้ว! 🎉") or ("ขั้น " .. s.Tier .. " / " .. Quests.SeasonTiers),
 	})
 	local within = s.Tier >= Quests.SeasonTiers and Quests.XPPerTier or (s.XP % Quests.XPPerTier)
-	local bar = UIKit.Bar(top, { Size = UDim2.fromOffset(360, 24), Position = UDim2.fromOffset(236, 50), Color = C.Gold, Label = string.format("⭐ %d / %d XP", within, Quests.XPPerTier) })
+	local bar = UIKit.Bar(top, { Size = UDim2.fromOffset(330, 24), Position = UDim2.fromOffset(16, 44), Color = W.Gold, Label = string.format("⭐ %d / %d XP", within, Quests.XPPerTier) })
 	bar.Set(within / Quests.XPPerTier)
 	local pass = seasonPass()
 	if prem then
-		UIKit.Text(top, { Position = UDim2.new(1, -420, 0, 0), Size = UDim2.fromOffset(220, 96), Text = "👑 พรีเมียม ✔", Font = UIKit.Fonts.Title, TextSize = 24, TextColor3 = rgb(255, 214, 90), TextXAlignment = Enum.TextXAlignment.Center })
+		UIKit.Text(top, { Position = UDim2.new(1, -404, 0, 0), Size = UDim2.fromOffset(210, 80), Text = "👑 พรีเมียม ✔", Font = UIKit.Fonts.Title, TextSize = 24, TextColor3 = rgb(255, 214, 90), TextXAlignment = Enum.TextXAlignment.Center })
 	else
 		local ready = pass ~= nil and (pass.PassId or 0) > 0
-		button(top, C.Orange, ready, {
-			Size = UDim2.fromOffset(210, 52), Position = UDim2.new(1, -420, 0.5, -26), Font = UIKit.Fonts.Title, TextSize = 19,
+		WoodKit.Button(top, "Wood", {
+			Size = UDim2.fromOffset(200, 52), Position = UDim2.new(1, -400, 0.5, -26), TextSize = 18,
 			Text = ready and ("👑 พรีเมียม  " .. RS .. " " .. pass.Robux) or "👑 พรีเมียม (เร็วๆ นี้)",
 		}, promptPremium)
 	end
 	local claimable = counts().Season
-	button(top, C.Green, claimable > 0, {
-		Size = UDim2.fromOffset(180, 52), Position = UDim2.new(1, -196, 0.5, -26), Font = UIKit.Fonts.Title, TextSize = 20,
+	button(top, "Red", claimable > 0, {
+		Size = UDim2.fromOffset(180, 52), Position = UDim2.new(1, -192, 0.5, -26), TextSize = 19,
 		Text = claimable > 0 and ("🎁 รับทั้งหมด (" .. claimable .. ")") or "🎁 รับทั้งหมด",
 	}, function()
 		Remotes.Get("ClaimSeason"):FireServer("All")
 	end)
 	-- ป้ายแถว
-	local labels = UIKit.Frame(page, { BackgroundTransparency = 1, Position = UDim2.fromOffset(0, 108), Size = UDim2.fromOffset(96, 290) })
-	for i, info in ipairs({ { "ฟรี", rgb(70, 82, 140) }, { "พรีเมียม", rgb(150, 96, 30) } }) do
-		local l = UIKit.Frame(labels, { Size = UDim2.fromOffset(92, 112), Position = UDim2.fromOffset(0, 44 + (i - 1) * 120), BackgroundColor3 = info[2], BackgroundTransparency = 0 })
-		UIKit.Corner(l, 10)
-		UIKit.Stroke(l, C.Outline, 2, 0)
-		UIKit.Gradient(l, Color3.new(1, 1, 1), rgb(170, 170, 180), 90)
-		UIKit.Text(l, { Size = UDim2.fromScale(1, 1), Text = (i == 2 and "👑\n" or "🎟\n") .. info[1], Font = UIKit.Fonts.Title, TextSize = 18, TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Center })
+	for i, info in ipairs({ { "🎟\nฟรี", rgb(40, 44, 78), rgb(120, 110, 160) }, { "👑\nพรีเมียม", rgb(120, 76, 30), W.Gold } }) do
+		local l = WoodKit.Board(right, { Size = UDim2.fromOffset(84, 108), Position = UDim2.fromOffset(0, 132 + (i - 1) * 116) }, info[2], info[3])
+		UIKit.Text(l, { Size = UDim2.fromScale(1, 1), Text = info[1], Font = UIKit.Fonts.Title, TextSize = 17, TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Center })
 	end
 	-- รางวัล 30 ขั้น (เลื่อนแนวนอน)
 	local scroll = Instance.new("ScrollingFrame")
 	scroll.BackgroundTransparency = 1
 	scroll.BorderSizePixel = 0
-	scroll.Position = UDim2.fromOffset(104, 108)
-	scroll.Size = UDim2.new(1, -104, 0, 296)
+	scroll.Position = UDim2.fromOffset(92, 90)
+	scroll.Size = UDim2.new(1, -92, 0, 286)
 	scroll.ScrollingDirection = Enum.ScrollingDirection.X
 	scroll.AutomaticCanvasSize = Enum.AutomaticSize.X
 	scroll.CanvasSize = UDim2.new()
 	scroll.ScrollBarThickness = 8
-	scroll.ScrollBarImageColor3 = C.Purple
-	scroll.Parent = page
+	scroll.ScrollBarImageColor3 = W.Gold
+	scroll.Parent = right
 	ui.SeasonScroll = scroll
 	local hl = Instance.new("UIListLayout")
 	hl.FillDirection = Enum.FillDirection.Horizontal
@@ -518,16 +474,14 @@ local function buildSeason(page)
 	hl.Padding = UDim.new(0, 0)
 	hl.Parent = scroll
 	for t = 1, Quests.SeasonTiers do
-		local col = UIKit.Frame(scroll, { BackgroundTransparency = 1, Size = UDim2.fromOffset(TIER_W, 284), LayoutOrder = t })
+		local col = UIKit.Frame(scroll, { BackgroundTransparency = 1, Size = UDim2.fromOffset(TIER_W, 274), LayoutOrder = t })
 		local reached = t <= s.Tier
-		local num = UIKit.Frame(col, { Size = UDim2.fromOffset(38, 38), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, -4, 0, 0), BackgroundColor3 = reached and C.Gold or rgb(60, 64, 96), BackgroundTransparency = 0 })
-		local nc = Instance.new("UICorner")
-		nc.CornerRadius = UDim.new(1, 0)
-		nc.Parent = num
-		UIKit.Stroke(num, C.Outline, 2, 0)
-		UIKit.Text(num, { Size = UDim2.fromScale(1, 1), Text = tostring(t), Font = UIKit.Fonts.Title, TextSize = 18, TextXAlignment = Enum.TextXAlignment.Center })
-		tierCell(col, 44, "Free", t, Quests.Track.Free[t], s, prem)
-		tierCell(col, 164, "Prem", t, Quests.Track.Prem[t], s, prem)
+		local num = WoodKit.Frame(col, { Size = UDim2.fromOffset(34, 34), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, -4, 0, 2), BackgroundColor3 = reached and W.Gold or rgb(70, 50, 34) })
+		WoodKit.Corner(num, "round")
+		WoodKit.Stroke(num, W.WoodDark, 2, 0)
+		UIKit.Text(num, { Size = UDim2.fromScale(1, 1), Text = tostring(t), Font = UIKit.Fonts.Title, TextSize = 17, TextXAlignment = Enum.TextXAlignment.Center })
+		tierCell(col, 42, "Free", t, Quests.Track.Free[t], s, prem)
+		tierCell(col, 158, "Prem", t, Quests.Track.Prem[t], s, prem)
 	end
 	task.defer(function()
 		if scroll.Parent then
@@ -535,32 +489,36 @@ local function buildSeason(page)
 		end
 	end)
 	-- ฉายา / สีฉายา ที่ใส่อยู่ (โชว์บนหัวในล็อบบี้)
-	local strip = UIKit.Frame(page, { BackgroundTransparency = 1, Position = UDim2.new(0, 0, 1, -72), Size = UDim2.new(1, 0, 0, 68) })
+	local strip = UIKit.Frame(right, { BackgroundTransparency = 1, Position = UDim2.new(0, 0, 1, -64), Size = UDim2.new(1, 0, 0, 60) })
 	selector(strip, 0, "🏷 ฉายา", "Title", Quests.TitleOrder, Quests.Titles, (profile and profile.Titles) or {}, profile and profile.EquipTitle or "")
 	selector(strip, 0.5, "🎨 สีฉายา", "Color", Quests.ColorOrder, Quests.Colors, (profile and profile.NameColors) or {}, profile and profile.EquipColor or "")
 end
 
 ---------------------------------------------------------------- แท็บ: โค้ด (สร้างครั้งเดียว ไม่ล้างข้อความที่พิมพ์ค้างไว้)
 local function buildCodes(page)
-	local f = card(page, { Size = UDim2.fromOffset(660, 360), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 20) }, rgb(150, 50, 110), rgb(60, 18, 50))
-	UIKit.Text(f, { Size = UDim2.new(1, 0, 0, 40), Position = UDim2.fromOffset(0, 18), Text = "🎁 แลกโค้ดรับของรางวัล", Font = UIKit.Fonts.Title, TextSize = 32, TextXAlignment = Enum.TextXAlignment.Center })
-	UIKit.Text(f, { Size = UDim2.new(1, -40, 0, 22), Position = UDim2.fromOffset(20, 62), Text = "ใส่โค้ดแล้วกด \"แลกโค้ด\" · แต่ละโค้ดใช้ได้คนละครั้ง", TextSize = 16, TextColor3 = rgb(240, 210, 230), TextXAlignment = Enum.TextXAlignment.Center })
+	-- ของประดับสองข้าง (หีบ Ruby / ถุง Ruby)
+	WoodKit.Art(page, "Pack3", 170, { AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 0, 1, -40), ZIndex = 1 })
+	WoodKit.Art(page, "Pack1", 140, { AnchorPoint = Vector2.new(1, 1), Position = UDim2.new(1, 0, 1, -40), ZIndex = 1 })
+	local f = WoodKit.Parchment(page, { Size = UDim2.fromOffset(640, 380), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 14), ZIndex = 2 })
+	WoodKit.Ink(f, { Size = UDim2.new(1, 0, 0, 44), Position = UDim2.fromOffset(0, 22), Text = "🎁 แลกโค้ดรับของรางวัล", TextSize = 34, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 3 })
+	WoodKit.Ink(f, { Size = UDim2.new(1, -40, 0, 22), Position = UDim2.fromOffset(20, 70), Text = "ใส่โค้ดแล้วกด \"แลกโค้ด\" · แต่ละโค้ดใช้ได้คนละครั้ง", TextSize = 17, Font = UIKit.Fonts.Bold, TextColor3 = W.InkDim, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 3 })
 	local box = Instance.new("TextBox")
-	box.Size = UDim2.new(1, -80, 0, 64)
-	box.Position = UDim2.fromOffset(40, 102)
-	box.BackgroundColor3 = rgb(20, 22, 40)
+	box.Size = UDim2.new(1, -80, 0, 66)
+	box.Position = UDim2.fromOffset(40, 110)
+	box.BackgroundColor3 = rgb(32, 24, 20)
 	box.BorderSizePixel = 0
 	box.ClearTextOnFocus = false
 	box.Text = ""
 	box.PlaceholderText = "พิมพ์โค้ดที่นี่..."
-	box.PlaceholderColor3 = rgb(140, 140, 170)
-	box.TextColor3 = rgb(255, 255, 255)
+	box.PlaceholderColor3 = rgb(150, 134, 116)
+	box.TextColor3 = rgb(255, 244, 224)
 	box.Font = UIKit.Fonts.Title
 	box.TextSize = 30
+	box.ZIndex = 3
 	box.Parent = f
-	UIKit.Corner(box, 12)
-	UIKit.Stroke(box, C.Outline, 3, 0)
-	local result = UIKit.Text(f, { Size = UDim2.new(1, -40, 0, 28), Position = UDim2.fromOffset(20, 252), Text = "", Font = UIKit.Fonts.Title, TextSize = 20, TextXAlignment = Enum.TextXAlignment.Center })
+	WoodKit.Corner(box, 8)
+	WoodKit.Stroke(box, W.GoldDark, 3, 0)
+	local result = WoodKit.Ink(f, { Size = UDim2.new(1, -40, 0, 28), Position = UDim2.fromOffset(20, 272), Text = "", TextSize = 20, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 3 })
 	local busy = false
 	local function redeem()
 		local code = box.Text
@@ -569,7 +527,7 @@ local function buildCodes(page)
 		end
 		busy = true
 		result.Text = "⏳ กำลังตรวจสอบ..."
-		result.TextColor3 = C.TextDim
+		result.TextColor3 = W.InkDim
 		task.spawn(function()
 			local ok, res = pcall(function()
 				return Remotes.Get("RedeemCode"):InvokeServer(code)
@@ -577,73 +535,27 @@ local function buildCodes(page)
 			busy = false
 			if ok and type(res) == "table" then
 				result.Text = tostring(res.Text or "")
-				result.TextColor3 = res.Ok and rgb(140, 255, 140) or rgb(255, 150, 140)
+				result.TextColor3 = res.Ok and W.Good or W.Bad
 				if res.Ok then
 					box.Text = ""
 				end
 			else
 				result.Text = "เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ลองใหม่อีกครั้ง"
-				result.TextColor3 = rgb(255, 150, 140)
+				result.TextColor3 = W.Bad
 			end
 		end)
 	end
-	button(f, C.Green, true, { Size = UDim2.fromOffset(260, 56), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 184), Text = "✨ แลกโค้ด", TextSize = 24, Font = UIKit.Fonts.Title }, redeem)
+	WoodKit.Button(f, "Red", { Size = UDim2.fromOffset(300, 60), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 196), Text = "🐾 แลกโค้ด", TextSize = 26, ZIndex = 4 }, redeem)
 	box.FocusLost:Connect(function(enter)
 		if enter then
 			redeem()
 		end
 	end)
-	ui.CodesUsed = UIKit.Text(f, { Size = UDim2.new(1, -40, 0, 22), Position = UDim2.new(0, 20, 1, -40), Text = "", TextSize = 15, TextColor3 = rgb(230, 200, 220), TextXAlignment = Enum.TextXAlignment.Center })
+	ui.CodesUsed = WoodKit.Ink(f, { Size = UDim2.new(1, -40, 0, 22), Position = UDim2.new(0, 20, 1, -40), Text = "", TextSize = 16, Font = UIKit.Fonts.Bold, TextColor3 = W.InkDim, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 3 })
 	UIKit.Text(page, {
-		Size = UDim2.new(1, 0, 0, 24), Position = UDim2.fromOffset(0, 400), TextSize = 16, TextColor3 = C.TextDim, TextXAlignment = Enum.TextXAlignment.Center,
+		Size = UDim2.new(1, 0, 0, 24), Position = UDim2.fromOffset(0, 408), TextSize = 16, TextColor3 = rgb(226, 206, 176), TextXAlignment = Enum.TextXAlignment.Center,
 		Text = "ติดตามโค้ดใหม่ๆ ได้จากหน้าเกมและกลุ่มของเกม · ลองโค้ด WELCOME ดูสิ!",
 	})
-end
-
----------------------------------------------------------------- แท็บ: ชวนเพื่อน (สร้างครั้งเดียว)
-local function invite(status)
-	task.spawn(function()
-		local ok, can = pcall(SocialService.CanSendGameInviteAsync, SocialService, player)
-		if not (ok and can) then
-			status.Text = "ตอนนี้ส่งคำชวนไม่ได้ (บัญชี/อุปกรณ์นี้อาจปิดการเชิญไว้ หรือกำลังทดสอบใน Studio)"
-			status.TextColor3 = rgb(255, 170, 150)
-			return
-		end
-		local shown = pcall(function()
-			local opts = Instance.new("ExperienceInviteOptions")
-			opts.PromptMessage = "มาเอาชีวิตรอด 99 คืนในป่าด้วยกัน! 🔥"
-			SocialService:PromptGameInvite(player, opts)
-		end)
-		if not shown then
-			shown = pcall(SocialService.PromptGameInvite, SocialService, player)
-		end
-		status.Text = shown and "📨 เลือกเพื่อนที่จะชวนได้เลย!" or "เปิดหน้าชวนเพื่อนไม่ได้ ลองใหม่อีกครั้ง"
-		status.TextColor3 = shown and rgb(150, 255, 150) or rgb(255, 170, 150)
-	end)
-end
-
-local function buildInvite(page)
-	local left = card(page, { Size = UDim2.new(0.5, -10, 1, -20), Position = UDim2.fromOffset(0, 10) }, rgb(48, 140, 92), rgb(18, 58, 40))
-	UIKit.Text(left, { Size = UDim2.new(1, 0, 0, 90), Position = UDim2.fromOffset(0, 16), Text = "🤝", TextSize = 76, TextXAlignment = Enum.TextXAlignment.Center })
-	UIKit.Text(left, { Size = UDim2.new(1, 0, 0, 40), Position = UDim2.fromOffset(0, 110), Text = "ชวนเพื่อนมาเล่น", Font = UIKit.Fonts.Title, TextSize = 32, TextXAlignment = Enum.TextXAlignment.Center })
-	UIKit.Text(left, {
-		Size = UDim2.new(1, -48, 0, 70), Position = UDim2.fromOffset(24, 156), TextSize = 18, TextWrapped = true, TextColor3 = rgb(220, 245, 230),
-		TextXAlignment = Enum.TextXAlignment.Center, TextYAlignment = Enum.TextYAlignment.Top, Text = "ส่งคำชวนให้เพื่อน Roblox เข้ามาเซิร์ฟเวอร์เดียวกัน แล้วขึ้นประตูมิติบานเดียวกันเพื่อไปรอบเดียวกัน",
-	})
-	local status = UIKit.Text(left, { Size = UDim2.new(1, -40, 0, 44), Position = UDim2.new(0, 20, 1, -58), Text = "", TextSize = 15, TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Center })
-	button(left, C.Blue, true, { Size = UDim2.fromOffset(280, 60), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 244), Text = "📨 ชวนเพื่อน", TextSize = 26, Font = UIKit.Fonts.Title }, function()
-		invite(status)
-	end)
-	local right = card(page, { Size = UDim2.new(0.5, -10, 1, -20), Position = UDim2.new(0.5, 10, 0, 10) }, rgb(170, 110, 30), rgb(70, 40, 12))
-	local big = UIKit.Text(right, { Size = UDim2.new(1, 0, 0, 80), Position = UDim2.fromOffset(0, 24), Text = "+10% Ruby", Font = UIKit.Fonts.Title, TextSize = 60, TextXAlignment = Enum.TextXAlignment.Center })
-	UIKit.Gradient(big, rgb(255, 250, 200), rgb(255, 180, 60), 90)
-	UIKit.Text(right, { Size = UDim2.new(1, 0, 0, 36), Position = UDim2.fromOffset(0, 106), Text = "โบนัสเล่นกับเพื่อน", Font = UIKit.Fonts.Title, TextSize = 28, TextXAlignment = Enum.TextXAlignment.Center })
-	UIKit.Text(right, {
-		Size = UDim2.new(1, -48, 0, 90), Position = UDim2.fromOffset(24, 150), TextSize = 18, TextWrapped = true, TextColor3 = rgb(250, 235, 210),
-		TextXAlignment = Enum.TextXAlignment.Center, TextYAlignment = Enum.TextYAlignment.Top,
-		Text = "มีเพื่อน Roblox อยู่ในรอบเดียวกัน = Ruby ทุกอย่างที่ได้ระหว่างเล่น +10%\nแถมภารกิจ \"รอดผ่านคืนพร้อมเพื่อน\" ก็นับด้วย!",
-	})
-	ui.FriendStatus = UIKit.Text(right, { Size = UDim2.new(1, -40, 0, 40), Position = UDim2.new(0, 20, 1, -70), Text = "", Font = UIKit.Fonts.Title, TextSize = 22, TextXAlignment = Enum.TextXAlignment.Center })
 end
 
 local function refreshStatic()
@@ -653,11 +565,6 @@ local function refreshStatic()
 			n += 1
 		end
 		ui.CodesUsed.Text = n > 0 and string.format("ใช้โค้ดไปแล้ว %d โค้ด", n) or ""
-	end
-	if ui.FriendStatus then
-		local n = player:GetAttribute("FriendsHere") or 0
-		ui.FriendStatus.Text = n > 0 and string.format("👥 เพื่อนในเซิร์ฟเวอร์นี้: %d คน ✔", n) or "👥 ยังไม่มีเพื่อนในเซิร์ฟเวอร์นี้"
-		ui.FriendStatus.TextColor3 = n > 0 and rgb(150, 255, 150) or rgb(255, 230, 200)
 	end
 end
 
@@ -692,8 +599,7 @@ function QuestUI.Refresh()
 	ui.Gems.Text = tostring(player:GetAttribute("Diamonds") or (profile and profile.Diamonds) or 0)
 	for id, b in pairs(ui.TabButtons) do
 		local on = id == ui.Tab
-		b.BackgroundColor3 = on and b:GetAttribute("OnColor") or rgb(58, 66, 104)
-		b.Size = on and UDim2.fromOffset(160, 46) or UDim2.fromOffset(150, 40)
+		WoodKit.SetTab(b, on)
 		ui.Pages[id].Visible = on
 	end
 	local build = BUILDERS[ui.Tab]
@@ -772,44 +678,34 @@ function QuestUI.OnLoaded()
 end
 
 function QuestUI.Init(gui)
-	local panel = UIKit.Card(gui, {
-		Size = UDim2.fromOffset(1080, 620), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.52), BackgroundColor3 = rgb(36, 40, 70), Visible = false,
-	})
-	ui.Panel = panel
-	UIKit.Header(panel, "📜 ภารกิจ & รางวัล", C.Gold)
-	UIKit.CloseButton(panel, QuestUI.Close)
+	local win = WoodKit.Window(gui, { Name = "QuestWindow", Size = Vector2.new(1080, 620), Title = "ภารกิจ & รางวัล", OnClose = QuestUI.Close })
+	ui.Panel = win.Frame
+	local body = win.Body
 	-- Ruby ของเรา
-	local pill = UIKit.Frame(panel, { Size = UDim2.fromOffset(170, 42), Position = UDim2.new(1, -206, 0, 34), BackgroundColor3 = rgb(20, 24, 44), BackgroundTransparency = 0 })
-	local pc = Instance.new("UICorner")
-	pc.CornerRadius = UDim.new(1, 0)
-	pc.Parent = pill
-	UIKit.Stroke(pill, C.Outline, 2, 0)
-	UIKit.Icon(pill, "Ruby", 54, { Position = UDim2.fromOffset(-26, -8), ZIndex = 3 })
-	ui.Gems = UIKit.Text(pill, { Size = UDim2.new(1, -40, 1, 0), Position = UDim2.fromOffset(34, 0), Text = "0", Font = UIKit.Fonts.Title, TextSize = 26 })
+	ui.Gems = WoodKit.RubyPill(body, { Position = UDim2.new(1, -206, 0, 42) })
 	-- แท็บ
-	local tabs = UIKit.Frame(panel, { Size = UDim2.new(1, -250, 0, 52), Position = UDim2.fromOffset(20, 30), BackgroundTransparency = 1 })
+	local tabs = UIKit.Frame(body, { Size = UDim2.new(1, -260, 0, 52), Position = UDim2.fromOffset(32, 40), BackgroundTransparency = 1 })
 	local tl = Instance.new("UIListLayout")
 	tl.FillDirection = Enum.FillDirection.Horizontal
 	tl.VerticalAlignment = Enum.VerticalAlignment.Center
 	tl.SortOrder = Enum.SortOrder.LayoutOrder
-	tl.Padding = UDim.new(0, 8)
+	tl.Padding = UDim.new(0, 10)
 	tl.Parent = tabs
-	local content = UIKit.Frame(panel, { BackgroundTransparency = 1, Position = UDim2.fromOffset(24, 96), Size = UDim2.new(1, -48, 1, -116) })
+	local content = UIKit.Frame(body, { BackgroundTransparency = 1, Position = UDim2.fromOffset(32, 104), Size = UDim2.new(1, -64, 1, -126) })
 	for i, t in ipairs(TABS) do
-		local b = UIKit.ColorButton(tabs, t.Color, { Size = UDim2.fromOffset(150, 40), Text = t.Text, TextSize = 17, Font = UIKit.Fonts.Title, LayoutOrder = i }, function()
+		local b = WoodKit.Tab(tabs, t.Text, i, 180, function()
 			ui.Tab = t.Id
 			QuestUI.Refresh()
 		end)
-		b:SetAttribute("OnColor", t.Color)
 		ui.TabButtons[t.Id] = b
 		ui.TabDots[t.Id] = dotOn(b)
 		local page = UIKit.Frame(content, { BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Visible = false })
 		ui.Pages[t.Id] = page
 	end
 	buildCodes(ui.Pages.Codes)
-	buildInvite(ui.Pages.Invite)
 
 	LobbyUI.OnQuests = QuestUI.Toggle
+	LobbyUI.Closers.Quests = QuestUI.Close
 	LobbyUI.OnHidden = QuestUI.Close
 	Remotes.Get("Profile").OnClientEvent:Connect(QuestUI.SetProfile)
 	player:GetAttributeChangedSignal("InRun"):Connect(function()
@@ -817,9 +713,7 @@ function QuestUI.Init(gui)
 			QuestUI.Close()
 		end
 	end)
-	for _, attr in ipairs({ "Pass_" .. Quests.SeasonPassKey, "FriendsHere" }) do
-		player:GetAttributeChangedSignal(attr):Connect(QuestUI.Refresh)
-	end
+	player:GetAttributeChangedSignal("Pass_" .. Quests.SeasonPassKey):Connect(QuestUI.Refresh)
 	player:GetAttributeChangedSignal("Diamonds"):Connect(function()
 		if QuestUI.IsOpen() then
 			ui.Gems.Text = tostring(player:GetAttribute("Diamonds") or 0)

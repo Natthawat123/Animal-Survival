@@ -11,6 +11,7 @@
 ]]
 
 local Biomes = require(script.Parent.Biomes)
+local SiteSpec = require(script.Parent.SiteSpec)
 
 local MapGenerator = {}
 
@@ -233,33 +234,66 @@ function MapGenerator.BuildFloatingIslands(layout, terrain)
 end
 
 -- ปรับพื้นที่ลานพิเศษ (แคมป์ / รังบอส / ศาลเจ้า)
-function MapGenerator.FlattenPad(terrain, position, radius, material, clearHeight)
+function MapGenerator.FlattenPad(terrain, position, radius, material, clearHeight, skirt)
+	skirt = skirt or material
 	local top = position.Y
 	terrain:FillCylinder(CFrame.new(position.X, top + (clearHeight or 60) / 2 + 0.5, position.Z), clearHeight or 60, radius, Enum.Material.Air)
 	terrain:FillCylinder(CFrame.new(position.X, top - 10, position.Z), 20, radius, material)
 	-- ฐานลาดลงกันลอย
-	terrain:FillCylinder(CFrame.new(position.X, top - 34, position.Z), 30, radius * 1.15, Enum.Material.Rock)
+	terrain:FillCylinder(CFrame.new(position.X, top - 34, position.Z), 30, radius * 1.15, skirt)
+	-- ขอบลาดเป็นเนินรอบลาน (ไม่เป็นแท่นขอบชันเมื่อพื้นรอบๆ ต่ำกว่า) — เติมแค่ใต้ระดับลาน
+	for i = 1, 6 do
+		terrain:FillCylinder(CFrame.new(position.X, top - 1 - i * 3.2, position.Z), 3.4, radius * (1 + 0.14 * i), skirt)
+	end
+end
+
+-- ลานเรียบใต้อาคารใหญ่ (ระดับเดียวกับลานกิจกรรม) -> อาคารไม่ลอย/ไม่จมเนิน
+function MapGenerator.FlattenBuildingPad(terrain, sp, material)
+	local center, radius = SiteSpec.Pad(sp.Kind, sp.Element, sp.Position)
+	if center then
+		local top = MapGenerator.TopMaterial(sp.Element)
+		MapGenerator.FlattenPad(terrain, Vector3.new(center.X, sp.Position.Y, center.Z), radius, material or top, 160, top)
+	end
+end
+
+-- ดินผิวของไบโอม (หญ้า/ทราย/หิมะ/หินภูเขาไฟ)
+function MapGenerator.TopMaterial(el)
+	local top = Biomes.Data[el] and Biomes.Data[el].Terrain.Top
+	return (top and Enum.Material[top]) or Enum.Material.Ground
 end
 
 function MapGenerator.BuildSpecialPads(layout, terrain)
 	-- แคมป์กลาง
 	local campY = layout:HeightAt(0, 0)
-	MapGenerator.FlattenPad(terrain, Vector3.new(0, campY, 0), 48, Enum.Material.Grass, 40)
+	MapGenerator.FlattenPad(terrain, Vector3.new(0, campY, 0), 100, Enum.Material.Grass, 40) -- ลานราบกว้างไว้สร้างฐาน
 	terrain:FillCylinder(CFrame.new(0, campY - 0.5, 0), 1.2, 10, Enum.Material.Cobblestone)
 	for _, sp in ipairs(layout.Specials) do
 		if sp.Kind == "Lair" and not sp.Floating then
 			local pos = sp.Position
-			local y = math.max(pos.Y, layout.WaterLevel + 6)
+			local inWater = sp.Element == "Water"
+			-- รังบอสน้ำ = ลากูนน้ำตื้นกลางทะเล (ลุยน้ำสู้ได้) · ธาตุอื่นยกพ้นน้ำ
+			local y = inWater and (layout.WaterLevel - 2) or math.max(pos.Y, layout.WaterLevel + 6)
 			local mat = ({ Earth = Enum.Material.Mud, Water = Enum.Material.Sand, Fire = Enum.Material.Basalt })[sp.Element] or Enum.Material.Rock
-			MapGenerator.FlattenPad(terrain, Vector3.new(pos.X, y, pos.Z), sp.Element == "Water" and 50 or 75, mat, 120)
+			MapGenerator.FlattenPad(terrain, Vector3.new(pos.X, y, pos.Z), 75, mat, 120, MapGenerator.TopMaterial(sp.Element))
 			sp.Position = Vector3.new(pos.X, y, pos.Z)
+			MapGenerator.FlattenBuildingPad(terrain, sp, mat)
+			if inWater then
+				local _, padR = SiteSpec.Pad(sp.Kind, sp.Element, sp.Position)
+				terrain:FillCylinder(CFrame.new(pos.X, (y + layout.WaterLevel) / 2, pos.Z), layout.WaterLevel - y, padR or 75, Enum.Material.Water)
+			end
 		elseif sp.Kind == "Shrine" then
 			local pos = sp.Position
-			MapGenerator.FlattenPad(terrain, pos, 26, Enum.Material.Cobblestone, 50)
+			local top = MapGenerator.TopMaterial(sp.Element)
+			MapGenerator.FlattenPad(terrain, pos, 30, top, 50)
+			MapGenerator.FlattenBuildingPad(terrain, sp, nil)
+		elseif sp.Kind == "Ruins" then
+			MapGenerator.FlattenPad(terrain, sp.Position, 24, MapGenerator.TopMaterial(sp.Element), 40)
+			MapGenerator.FlattenBuildingPad(terrain, sp, nil)
 		elseif sp.Kind == "Sanctum" then -- วิหารโบราณ (SanctumService วางพรีแฟบทับ)
 			local top = Biomes.Data[sp.Element] and Biomes.Data[sp.Element].Terrain.Top
 			local mat = (top and Enum.Material[top]) or Enum.Material.Ground
 			MapGenerator.FlattenPad(terrain, sp.Position, sp.Radius or 56, mat, 90)
+			MapGenerator.FlattenBuildingPad(terrain, sp, mat)
 		end
 	end
 end

@@ -203,9 +203,13 @@ function StructureModels.Build(kind)
 		end
 		local m, box = ItemModels.Clone(kind, STORE_STRUCT[kind], { Ground = true, Yaw = STORE_YAW[kind] })
 		m.Name = kind
+		local walkThrough = kind == "SpikeTrap" or kind == "FarmPlot"
 		for _, p in ipairs(m:GetDescendants()) do
 			if p:IsA("BasePart") then
 				p.Anchored = true
+				-- โมเดล Store แปลงมาแบบทะลุได้ -> สิ่งก่อสร้างต้องชนจริง
+				p.CanCollide = not walkThrough and p.Transparency < 0.95
+				p.CanQuery = true
 			end
 		end
 		if kind == "SunBeacon" then

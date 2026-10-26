@@ -84,7 +84,7 @@ function MobileControls.Init(deps)
 
 	-- โหมดสร้าง: เป้าเล็งกลางจอ + แถบปุ่มล่างกลางจอ
 	local cross = UIKit.Text(gui, { Size = UDim2.fromOffset(40, 40), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Text = "⊕", TextSize = 38, TextXAlignment = Enum.TextXAlignment.Center, Visible = false })
-	local buildBar = UIKit.Frame(gui, { Size = UDim2.fromOffset(300, 66), AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -12), BackgroundTransparency = 1, Visible = false })
+	local buildBar = UIKit.Frame(gui, { Size = UDim2.fromOffset(300, 66), AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -96), BackgroundTransparency = 1, Visible = false }) -- เหนือแถบไอเทม 10 ช่อง
 	local bl = Instance.new("UIListLayout")
 	bl.FillDirection = Enum.FillDirection.Horizontal
 	bl.HorizontalAlignment = Enum.HorizontalAlignment.Center

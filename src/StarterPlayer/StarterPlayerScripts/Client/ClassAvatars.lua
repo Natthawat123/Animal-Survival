@@ -279,8 +279,8 @@ function ClassAvatars.Viewport(frame, classId, portrait, waitSec)
 	end
 	cam.Parent = frame
 	frame.CurrentCamera = cam
-	frame.Ambient = C(215, 210, 205)
-	frame.LightColor = C(255, 250, 240)
+	frame.Ambient = C(232, 228, 224)
+	frame.LightColor = C(255, 252, 245)
 	frame.LightDirection = V(-0.4, -1, -0.6)
 	return model
 end

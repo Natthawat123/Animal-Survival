@@ -6,6 +6,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Items = require(ReplicatedStorage.Shared.Items)
+local ItemThumbs = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("ItemThumbs"))
 local MeshProps = require(ReplicatedStorage.Shared.MeshProps)
 local ItemModels = require(ReplicatedStorage.Shared.ItemModels)
 -- อาวุธ/เครื่องมือที่ใช้โมเดลจริง (ที่เหลือปั้นเอง: คบเพลิง หอก ตรีศูล)
@@ -401,6 +402,7 @@ local function buildSack(itemId)
 	tool.CanBeDropped = false
 	tool.RequiresHandle = true
 	tool:SetAttribute("ItemId", itemId)
+	tool.TextureId = ItemThumbs.Url(itemId) -- รูปในแถบเครื่องมือ
 	tool:SetAttribute("Kind", "Sack")
 	tool.ToolTip = string.format("ความจุ %d ชิ้น · คลิกของบนพื้นเพื่อเก็บ", Items.Sacks[itemId])
 	local s = itemId == "GiantSack" and 1.35 or (itemId == "GoodSack" and 1.15 or 1)
@@ -577,6 +579,7 @@ function ToolFactory.Build(itemId)
 	tool.CanBeDropped = false
 	tool.RequiresHandle = true
 	tool:SetAttribute("ItemId", itemId)
+	tool.TextureId = ItemThumbs.Url(itemId) -- รูปในแถบเครื่องมือ
 	tool:SetAttribute("Kind", spec.Kind)
 	local handle, headDir = buildStore(itemId, tool)
 	if handle then

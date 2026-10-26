@@ -320,7 +320,7 @@ function ClassShop.MakeCard(id, order)
 	corner(accent, 3)
 	-- รูปวงกลม (CanvasGroup ตัดขอบให้กลมจริง)
 	local holder = Instance.new("CanvasGroup")
-	holder.BackgroundColor3 = C(74, 80, 126)
+	holder.BackgroundColor3 = C(236, 240, 252)
 	holder.Size = UDim2.fromScale(0.84, 0.84)
 	holder.Position = UDim2.new(0, 18, 0.08, 0)
 	holder.Parent = card
@@ -329,7 +329,8 @@ function ClassShop.MakeCard(id, order)
 	ar.Parent = holder
 	corner(holder, UDim.new(0.5, 0))
 	border(holder, rare, 3, 0)
-	gradient(holder, rare:Lerp(C(255, 255, 255), 0.4), rare:Lerp(C(0, 0, 0), 0.55), 90)
+	-- พื้นหลังสว่าง (ตัวละครใส่ชุดโทนเข้ม -> ไม่กลืนกับพื้น) ไล่จากขาวอมสีดาวลงมาเป็นสีดาวอ่อน
+	gradient(holder, rare:Lerp(C(255, 255, 255), 0.85), rare:Lerp(C(255, 255, 255), 0.45), 90)
 	local vp = Instance.new("ViewportFrame")
 	vp.BackgroundTransparency = 1
 	vp.Size = UDim2.fromScale(1, 1)

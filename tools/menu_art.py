@@ -46,16 +46,16 @@ def cut_sheet(path):
         print(name, piece.size)
 
 
-def encode(path):
+def encode(path, width=WIDTH):
     im = Image.open(path).convert("RGBA")
-    h = round(im.height * WIDTH / im.width)
-    im = im.resize((WIDTH, h), Image.LANCZOS)
+    h = round(im.height * width / im.width)
+    im = im.resize((width, h), Image.LANCZOS)
     arr = np.array(im)
     arr[arr[:, :, 3] < 16] = 0  # ขอบโปร่งเกือบหมด = โปร่งใส
     q = Image.fromarray(arr, "RGBA").quantize(colors=255, method=Image.Quantize.FASTOCTREE, dither=Image.Dither.NONE)
     pal = q.getpalette(rawmode="RGBA")[: 255 * 4]
     idx = np.array(q).flatten()
-    out = bytearray(struct.pack("<HHB", WIDTH, h, 255)) + bytes(pal)
+    out = bytearray(struct.pack("<HHB", width, h, 255)) + bytes(pal)
     i, n = 0, len(idx)
     while i < n:
         j = i
@@ -63,25 +63,24 @@ def encode(path):
             j += 1
         out += bytes((j - i, int(idx[i])))
         i = j
-    return base64.b64encode(bytes(out)).decode(), (WIDTH, h)
+    return base64.b64encode(bytes(out)).decode(), (width, h)
 
 
-def main():
-    if len(sys.argv) > 1:
-        cut_sheet(sys.argv[1])
+def write_lua(out_path, mod, doc, items):
+    """items = [(ชื่อ, path png, ความกว้างที่เก็บ)] -> โมดูล Lua ที่ถอดรหัสเป็น EditableImage (ใช้ร่วมกับ panel_art.py)"""
     lines = [
         "--[[",
-        "\tMenuArt — รูปปุ่มเมนูซ้ายในล็อบบี้ (สร้างโดย tools/menu_art.py — อย่าแก้มือ)",
-        "\tMenuArt.Image(name) -> EditableImage (แคชไว้) · MenuArt.Size[name] = Vector2 ขนาดรูป",
+        f"\t{mod} — {doc}",
+        f"\t{mod}.Image(name) -> EditableImage (แคชไว้) · {mod}.Size[name] = Vector2 ขนาดรูป",
         "]]",
         "",
         'local AssetService = game:GetService("AssetService")',
         "",
-        "local MenuArt = { Size = {} }",
+        f"local {mod} = {{ Size = {{}} }}",
         "local DATA = {",
     ]
-    for name in NAMES:
-        data, (w, h) = encode(os.path.join(ART, name + ".png"))
+    for name, path, width in items:
+        data, (w, h) = encode(path, width)
         lines.append(f'\t{name} = "{data}",')
         lines.append(f"\t-- {name}: {w}x{h}")
         print(name, w, h, len(data))
@@ -110,7 +109,7 @@ def main():
         "end",
         "",
         "local cache = {}",
-        "function MenuArt.Image(name)",
+        f"function {mod}.Image(name)",
         "\tif cache[name] ~= nil then",
         "\t\treturn cache[name] or nil",
         "\tend",
@@ -142,16 +141,24 @@ def main():
         "\tend",
         "\timg:WritePixelsBuffer(Vector2.zero, Vector2.new(w, h), out)",
         "\tcache[name] = img",
-        "\tMenuArt.Size[name] = Vector2.new(w, h)",
+        f"\t{mod}.Size[name] = Vector2.new(w, h)",
         "\treturn img",
         "end",
         "",
-        "return MenuArt",
+        f"return {mod}",
         "",
     ]
-    with open(OUT, "w", encoding="utf-8", newline="\n") as f:
+    with open(out_path, "w", encoding="utf-8", newline="\n") as f:
         f.write("\n".join(lines))
-    print("wrote", OUT, os.path.getsize(OUT))
+    print("wrote", out_path, os.path.getsize(out_path))
 
 
-main()
+def main():
+    if len(sys.argv) > 1:
+        cut_sheet(sys.argv[1])
+    items = [(n, os.path.join(ART, n + ".png"), WIDTH) for n in NAMES]
+    write_lua(OUT, "MenuArt", "รูปปุ่มเมนูซ้ายในล็อบบี้ (สร้างโดย tools/menu_art.py — อย่าแก้มือ)", items)
+
+
+if __name__ == "__main__":
+    main()

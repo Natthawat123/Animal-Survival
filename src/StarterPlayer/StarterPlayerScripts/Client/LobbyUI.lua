@@ -1,6 +1,6 @@
 --[[
 	LobbyUI — ปุ่มเมนูล็อบบี้ (ภาพวาดเหรียญไม้+ป้ายไม้ จาก Shared/MenuArt): คลาส / ภารกิจ / ป้าย / ร้านค้า / ตั้งค่า + แคปซูล Ruby มุมขวาบน
-	ป้าย = ความสำเร็จที่คำนวณจากสถิติจริงในเซฟ (Shared/Quests.lua Achievements) — ทำครบแล้วกดรับ Ruby ได้ครั้งเดียว
+	ป้าย = ความสำเร็จที่คำนวณจากสถิติจริงในเซฟ (Shared/Quests.lua Achievements) — ทำครบแล้วกดรับ Ruby ได้ครั้งเดียว (หน้าต่างธีมไม้ WoodKit)
 	ภารกิจ = หน้าต่าง QuestUI (LobbyUI.OnQuests) · จุดแดง = มีรางวัลให้รับ (LobbyUI.SetQuestDot)
 ]]
 
@@ -11,6 +11,7 @@ local Classes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("C
 local Quests = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Quests"))
 local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes"))
 local UIKit = require(script.Parent.UIKit)
+local WoodKit = require(script.Parent.WoodKit)
 local MenuArt = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("MenuArt"))
 
 local LobbyUI = {}
@@ -22,6 +23,21 @@ local ui = {}
 
 -- ความสำเร็จ: Quests.Achievements { Id, Text, Stat, Need, Ruby } (server ตรวจซ้ำตอนกดรับ)
 local BADGES = Quests.Achievements
+
+-- ปุ่มเมนูซ้ายเปิดได้ทีละหน้า: กดเมนูใหม่ = ปิดหน้าอื่นก่อน
+-- แต่ละหน้าลงทะเบียนตัวปิดไว้ที่ LobbyUI.Closers[ชื่อปุ่ม] (Classes / Quests / Badges / Shop / Settings)
+LobbyUI.Closers = {}
+
+function LobbyUI.CloseMenus(except)
+	for name, fn in pairs(LobbyUI.Closers) do
+		if name ~= except then
+			local ok, err = pcall(fn)
+			if not ok then
+				warn("[AS] close menu", name, err)
+			end
+		end
+	end
+end
 
 local function statOf(key)
 	return Quests.StatOf(profile, key)
@@ -164,7 +180,13 @@ function LobbyUI.Build(gui, handlers)
 	layout.VerticalAlignment = Enum.VerticalAlignment.Center
 	layout.Parent = side
 	-- ปุ่มภาพวาดก่อน ไม่ได้ค่อยใช้ปุ่มวงกลมแบบเดิม
-	local function menuButton(order, art, icon, name, color, onClick)
+	local function menuButton(order, art, icon, name, color, handler)
+		local function onClick()
+			LobbyUI.CloseMenus(art)
+			if handler then
+				handler()
+			end
+		end
 		if useArt then
 			local b, d, t = artButton(side, order, art, onClick)
 			if b then
@@ -192,35 +214,36 @@ function LobbyUI.Build(gui, handlers)
 	menuButton(5, "Settings", "⚙", "ตั้งค่า", C(74, 132, 220), handlers.Settings)
 
 	-- Ruby: แคปซูลมุมซ้ายบน + ปุ่ม + (เปิดร้านค้า)
-	local pill = UIKit.Frame(root, { Size = UDim2.fromOffset(190, 46), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -24, 0, 20), BackgroundColor3 = Color3.fromRGB(26, 30, 54), BackgroundTransparency = 0 })
+	-- (ธีมไม้เดียวกับหน้าต่างร้านค้า: ไม้เข้มขอบทอง + ปุ่ม + แดง)
+	local pill = WoodKit.Frame(root, { Size = UDim2.fromOffset(190, 46), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -24, 0, 20), BackgroundColor3 = Color3.fromRGB(42, 28, 18) })
 	UIKit.AutoScale(pill)
-	local pc = Instance.new("UICorner")
-	pc.CornerRadius = UDim.new(1, 0)
-	pc.Parent = pill
-	UIKit.Stroke(pill, UIKit.Colors.Outline, 2, 0)
+	WoodKit.Corner(pill, "round")
+	WoodKit.Stroke(pill, WoodKit.Colors.GoldDark, 3, 0)
 	UIKit.Icon(pill, "Ruby", 60, { Position = UDim2.fromOffset(-30, -9), ZIndex = 3 })
 	ui.Gems = UIKit.Text(pill, { Size = UDim2.new(1, -80, 1, 0), Position = UDim2.fromOffset(34, 0), Text = "0", Font = UIKit.Fonts.Title, TextSize = 28 })
-	local plus = UIKit.ColorButton(pill, UIKit.Colors.Green, { Size = UDim2.fromOffset(36, 36), Position = UDim2.new(1, -41, 0, 5), Text = "+", TextSize = 28 }, handlers.Shop)
+	local plus = WoodKit.Button(pill, "Red", { Size = UDim2.fromOffset(36, 36), Position = UDim2.new(1, -41, 0, 5), Text = "+", TextSize = 28 }, handlers.Shop)
 	plus:FindFirstChildOfClass("UICorner").CornerRadius = UDim.new(1, 0)
 	UIKit.EnsureTouchSize(plus, 44, handlers.Shop)
 
-	-- หน้าต่างป้ายความสำเร็จ
-	local panel = UIKit.Card(root, { Visible = false, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.53), Size = UDim2.fromOffset(640, 540) })
-	UIKit.Header(panel, "🏅 ป้ายความสำเร็จ", UIKit.Colors.Purple)
-	UIKit.CloseButton(panel, function()
-		panel.Visible = false
-	end)
+	-- หน้าต่างป้ายความสำเร็จ (ธีมกรอบไม้)
+	local win = WoodKit.Window(root, { Name = "BadgeWindow", Size = Vector2.new(760, 600), Title = "🏅 ป้ายความสำเร็จ", OnClose = function()
+		ui.Badges.Visible = false
+	end })
+	local panel = win.Frame
 	UIKit.RegisterWindow(panel)
+	LobbyUI.Closers.Badges = function()
+		panel.Visible = false
+	end
 	local scroll = Instance.new("ScrollingFrame")
 	scroll.BackgroundTransparency = 1
 	scroll.BorderSizePixel = 0
-	scroll.Position = UDim2.fromOffset(20, 40)
-	scroll.Size = UDim2.new(1, -40, 1, -58)
+	scroll.Position = UDim2.fromOffset(30, 50)
+	scroll.Size = UDim2.new(1, -60, 1, -78)
 	scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
 	scroll.CanvasSize = UDim2.new()
 	scroll.ScrollBarThickness = 6
-	scroll.ScrollBarImageColor3 = UIKit.Colors.Purple
-	scroll.Parent = panel
+	scroll.ScrollBarImageColor3 = WoodKit.Colors.Gold
+	scroll.Parent = win.Body
 	local ll = Instance.new("UIListLayout")
 	ll.Padding = UDim.new(0, 10)
 	ll.SortOrder = Enum.SortOrder.LayoutOrder
@@ -230,13 +253,12 @@ function LobbyUI.Build(gui, handlers)
 	sp.Parent = scroll
 	ui.BadgeRows = {}
 	for i, b in ipairs(BADGES) do
-		local row = UIKit.Frame(scroll, { Size = UDim2.new(1, 0, 0, 64), BackgroundColor3 = Color3.fromRGB(46, 52, 86), BackgroundTransparency = 0, LayoutOrder = i })
-		UIKit.Corner(row, 12)
-		UIKit.Stroke(row, UIKit.Colors.Outline, 2, 0)
-		local name = UIKit.Text(row, { Position = UDim2.fromOffset(14, 6), Size = UDim2.new(1, -250, 0, 28), Text = b.Text, Font = UIKit.Fonts.Black, TextSize = 20 })
-		local bar = UIKit.Bar(row, { Size = UDim2.new(1, -250, 0, 16), Position = UDim2.fromOffset(14, 38), Color = UIKit.Colors.Purple, Label = "" })
-		local prog = UIKit.Text(row, { Position = UDim2.new(1, -230, 0, 0), Size = UDim2.fromOffset(96, 64), Text = "", Font = UIKit.Fonts.Title, TextSize = 18, TextXAlignment = Enum.TextXAlignment.Center })
-		local claim = UIKit.ColorButton(row, UIKit.Colors.Green, { Size = UDim2.fromOffset(120, 44), Position = UDim2.new(1, -128, 0.5, -22), Text = "♦️ " .. b.Ruby, TextSize = 18, Font = UIKit.Fonts.Title }, function()
+		local row = WoodKit.Parchment(scroll, { Size = UDim2.new(1, 0, 0, 76), LayoutOrder = i })
+		WoodKit.Medallion(row, "Trophy", 56, { AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 10, 0.5, 0), ZIndex = 2 }, C(96, 40, 22))
+		local name = WoodKit.Ink(row, { Position = UDim2.fromOffset(80, 8), Size = UDim2.new(1, -300, 0, 28), Text = b.Text, TextSize = 20 })
+		local bar = UIKit.Bar(row, { Size = UDim2.new(1, -300, 0, 18), Position = UDim2.fromOffset(80, 44), Color = WoodKit.Colors.Gold, Label = "" })
+		local prog = WoodKit.Ink(row, { Position = UDim2.new(1, -214, 0, 0), Size = UDim2.fromOffset(84, 76), Text = "", TextSize = 18, TextXAlignment = Enum.TextXAlignment.Center })
+		local claim = WoodKit.Button(row, "Off", { Size = UDim2.fromOffset(120, 44), Position = UDim2.new(1, -130, 0.5, -22), Text = "♦️ " .. b.Ruby, TextSize = 18, ZIndex = 4 }, function()
 			local r = ui.BadgeRows[i]
 			if r and r.Ready then
 				r.Ready = false
@@ -268,20 +290,21 @@ function LobbyUI.Refresh()
 		r.Row.LayoutOrder = (canClaim and 0 or (got and 2000 or 1000)) + i
 		if ui.Badges.Visible then
 			r.Prog.Text = done and "✅ สำเร็จ" or string.format("%d/%d", math.min(v, need), need)
-			r.Prog.TextColor3 = done and C(130, 240, 90) or C(235, 235, 255)
-			r.Name.TextTransparency = done and 0 or 0.25
+			r.Prog.TextColor3 = done and WoodKit.Colors.Good or WoodKit.Colors.Ink
+			r.Name.TextTransparency = done and 0 or 0.2
 			r.Bar.Set(math.min(v / need, 1))
-			r.Bar.Fill.BackgroundColor3 = done and UIKit.Colors.Green or UIKit.Colors.Purple
-			r.Row.BackgroundColor3 = canClaim and C(92, 78, 30) or (done and C(40, 92, 60) or C(46, 52, 86))
+			r.Bar.Fill.BackgroundColor3 = done and C(110, 200, 80) or WoodKit.Colors.Gold
+			-- กระดาษ: รับได้ = ทองสว่าง · สำเร็จแล้ว = เขียวอ่อน · ยังไม่ครบ = กระดาษปกติ
+			r.Row.BackgroundColor3 = canClaim and C(255, 228, 150) or (done and C(206, 216, 168) or WoodKit.Colors.Parch)
 			if got then
 				r.Claim.Text = "✔ รับแล้ว"
-				r.Claim.BackgroundColor3 = C(78, 84, 112)
+				WoodKit.Style(r.Claim, "Green")
 			elseif canClaim then
 				r.Claim.Text = "รับ ♦️ " .. b.Ruby
-				r.Claim.BackgroundColor3 = UIKit.Colors.Green
+				WoodKit.Style(r.Claim, "Red")
 			else
 				r.Claim.Text = "♦️ " .. b.Ruby
-				r.Claim.BackgroundColor3 = C(78, 84, 112)
+				WoodKit.Style(r.Claim, "Off")
 			end
 		end
 	end

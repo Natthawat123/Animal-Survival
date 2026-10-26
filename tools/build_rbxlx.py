@@ -33,13 +33,18 @@ SHOTS = "--shots" in sys.argv  # เทสต์ + ถ่ายภาพฉา�
 SEED = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--seed=")), None)
 FETCH = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--fetch=")), None)  # ดึงโมเดล Creator Store: --fetch=id,id
 PROBE = "--probe" in sys.argv
+CLASSPROBE = "--classprobe" in sys.argv  # ถ่ายภาพร้านคลาสทีละคลาส (tests/ASClassProbe.client.lua)
+PROPPROBE = "--propprobe" in sys.argv  # วัดขนาดพุ่ม/เห็ด/ต้นไม้ในแมพจริง + ถ่ายภาพ (tests/ASPropProbe.server.lua)
+UIPROBE = "--uiprobe" in sys.argv  # ถ่ายภาพหน้าต่าง ภารกิจ/ป้าย/ร้านค้า/ตั้งค่า (tests/ASUIProbe.client.lua)
+SITEPROBE = "--siteprobe" in sys.argv  # ถ่ายภาพศาลเจ้า/ฐานบอส/วิหาร ทุกธาตุ (tests/ASSiteProbe.*.lua)
+DROPPROBE = "--dropprobe" in sys.argv  # เสกของตกหน้าผู้เล่น เช็กว่ามองเห็น/อยู่บนพื้น/เก็บได้ (tests/ASDropProbe.*.lua)
 LOBBYPROBE = "--lobbyprobe" in sys.argv  # วัดของจม/ลอยในล็อบบี้เทียบพื้นจริง (tests/ASLobbyProbe.client.lua)
 GALLERY = "--gallery" in sys.argv  # สตูดิโอถ่ายภาพ: สัตว์/ไอเทม/คลาส ทีละตัว
 VFXSHOW = next((a.split("=", 1)[1] if "=" in a else "*" for a in sys.argv if a.startswith("--vfxshow")), None)  # เทสต์: เล่น VFX ทีละตัวแล้วถ่ายภาพ (--vfxshow=Massive = เฉพาะแพ็ก)
 
 if GALLERY or VFXSHOW:
     TEST = True
-if TEST or SHOTS or LOBBYPROBE:
+if TEST or SHOTS or DROPPROBE or LOBBYPROBE or SITEPROBE or CLASSPROBE or UIPROBE or PROPPROBE:
     OUT = os.path.join(OUT_DIR, "AnimalSurvival_TEST.rbxlx")
 elif MAPSHOT:
     OUT = os.path.join(OUT_DIR, "AnimalSurvival_MAP.rbxlx")
@@ -106,6 +111,9 @@ def dir_children(path):
     return out
 
 
+SHARED = {}  # SharedStrings จากโมเดล Import 3D (ข้อมูลเมช/รูปทรงชน) -> รวมไว้ท้ายไฟล์ place
+
+
 def model_items(sub):
     """โมเดล .rbxmx ใน assets/rbxm/<sub>/ -> ใส่ไว้ใน ReplicatedStorage.Assets.<sub>"""
     folder = os.path.join(MODELS, sub)
@@ -118,6 +126,13 @@ def model_items(sub):
             start = xml.index("<Item ")
             end = xml.rindex("</roblox>")
             body = xml[start:end]
+            # SharedStrings ต้องอยู่ระดับบนสุดของไฟล์ ไม่ใช่ในโฟลเดอร์ -> แยกเก็บไว้ใส่ท้ายไฟล์
+            m = re.search(r"<SharedStrings>(.*?)</SharedStrings>", body, re.S)
+            if m:
+                # รวมแบบปิดตัวเอง <SharedString md5="..." /> (สตริงว่าง) ด้วย -> ไม่งั้น Studio เปิดไม่ได้ (Unknown referenced shared string)
+                for ss in re.finditer(r'<SharedString md5="([^"]+)"\s*(?:/>|>(.*?)</SharedString>)', m.group(1), re.S):
+                    SHARED[ss.group(1)] = f'<SharedString md5="{ss.group(1)}">{ss.group(2) or ""}</SharedString>'
+                body = body[: m.start()] + body[m.end():]
             body = re.sub(r'referent="([^"]+)"', lambda m: f'referent="{sub}{i}_{m.group(1)}"', body)
             body = re.sub(r'(<Ref name="[^"]+">)(RBX[^<]+)(</Ref>)', lambda m: f"{m.group(1)}{sub}{i}_{m.group(2)}{m.group(3)}", body)
             out += body
@@ -173,6 +188,27 @@ def main():
         rs += value_item("BoolValue", "ASAutoTest", "true")
         rs += value_item("BoolValue", "ASLobbyTest", "true")
         rs += value_item("BoolValue", "ASLobbyProbe", "true")
+    if PROPPROBE:
+        rs += value_item("BoolValue", "ASPropProbe", "true")
+        rs += value_item("BoolValue", "ASSiteProbe", "true")
+        rs += value_item("BoolValue", "ASAutoTest", "true")
+        rs += value_item("BoolValue", "ASLobbyTest", "true")
+    if UIPROBE:
+        rs += value_item("BoolValue", "ASUIProbe", "true")
+        rs += value_item("BoolValue", "ASAutoTest", "true")
+        rs += value_item("BoolValue", "ASLobbyTest", "true")
+    if CLASSPROBE:
+        rs += value_item("BoolValue", "ASClassProbe", "true")
+        rs += value_item("BoolValue", "ASAutoTest", "true")
+        rs += value_item("BoolValue", "ASLobbyTest", "true")
+    if DROPPROBE:
+        rs += value_item("BoolValue", "ASDropProbe", "true")
+        rs += value_item("BoolValue", "ASAutoTest", "true")
+        rs += value_item("BoolValue", "ASLobbyTest", "true")
+    if SITEPROBE:
+        rs += value_item("BoolValue", "ASSiteProbe", "true")
+        rs += value_item("BoolValue", "ASAutoTest", "true")
+        rs += value_item("BoolValue", "ASLobbyTest", "true")
     if SANDBOX:
         rs += value_item("BoolValue", "ASSandbox", "true")
     if SEED:
@@ -187,6 +223,18 @@ def main():
     if TEST or SHOTS:
         sss += script_item(os.path.join(TESTS, "ASAutoTestServer.server.lua"))
         sps += script_item(os.path.join(TESTS, "ASAutoTestClient.client.lua"))
+    if CLASSPROBE:
+        sps += script_item(os.path.join(TESTS, "ASClassProbe.client.lua"))
+    if PROPPROBE:
+        sss += script_item(os.path.join(TESTS, "ASPropProbe.server.lua"))
+    if UIPROBE:
+        sps += script_item(os.path.join(TESTS, "ASUIProbe.client.lua"))
+    if SITEPROBE:
+        sps += script_item(os.path.join(TESTS, "ASSiteProbe.client.lua"))
+        sss += script_item(os.path.join(TESTS, "ASSiteProbe.server.lua"))
+    if DROPPROBE:
+        sps += script_item(os.path.join(TESTS, "ASDropProbe.client.lua"))
+        sss += script_item(os.path.join(TESTS, "ASDropProbe.server.lua"))
     if LOBBYPROBE:
         sps += script_item(os.path.join(TESTS, "ASLobbyProbe.client.lua"))
         sss += script_item(os.path.join(TESTS, "ASWeaponProbe.server.lua"))
@@ -237,7 +285,9 @@ def main():
         '<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" '
         'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
         'xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">\n'
-        "<External>null</External><External>nil</External>\n" + body + "</roblox>\n"
+        "<External>null</External><External>nil</External>\n" + body
+        + (("<SharedStrings>" + "".join(SHARED.values()) + "</SharedStrings>\n") if SHARED else "")
+        + "</roblox>\n"
     )
     os.makedirs(OUT_DIR, exist_ok=True)
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:

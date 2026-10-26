@@ -173,13 +173,13 @@ function HUD.Init(state)
 	---------------------------------------------------------------- แจ้งเตือน
 	-- มือถือ: กล่องแจ้งเตือนเตี้ยลง/ขึ้นใกล้การ์ดกองไฟ ไม่ลงไปทับปุ่มมือถือมุมขวาล่าง
 	local feed = UIKit.Frame(gui, {
-		Size = UDim2.new(0, 380, 0, HUD.Touch and 200 or 300), AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, -20, 0, HUD.Touch and 96 or 150), BackgroundTransparency = 1, ClipsDescendants = HUD.Touch,
+		Size = UDim2.new(0, 680, 0, HUD.Touch and 150 or 220), AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0, HUD.Touch and 150 or 198), BackgroundTransparency = 1, -- ใต้แถบวัน/เข็มทิศ/แถบเลือดบอส
 	})
 	UIKit.AutoScale(feed)
 	local fl = Instance.new("UIListLayout")
-	fl.Padding = UDim.new(0, 6)
-	fl.HorizontalAlignment = Enum.HorizontalAlignment.Right
+	fl.Padding = UDim.new(0, 4)
+	fl.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	fl.SortOrder = Enum.SortOrder.LayoutOrder
 	fl.Parent = feed
 	HUD.Feed = feed
@@ -338,7 +338,18 @@ function HUD.Update()
 
 	-- บอส
 	local bossId = s:GetAttribute("BossId")
-	if bossId and bossId ~= "" and Animals.Data[bossId] then
+	local bossNear = false
+	if bossId and bossId ~= "" and player:GetAttribute("InRun") then
+		local animals = Workspace:FindFirstChild("Animals")
+		local myPos = player.Character and player.Character:GetPivot().Position
+		for _, m in ipairs(animals and animals:GetChildren() or {}) do
+			if m:GetAttribute("IsBoss") and myPos and (m:GetPivot().Position - myPos).Magnitude < 350 then
+				bossNear = true
+				break
+			end
+		end
+	end
+	if bossNear and Animals.Data[bossId] then
 		HUD.BossFrame.Visible = true
 		HUD.BossName.Text = Animals.Data[bossId].Name
 		HUD.BossBar.Set((s:GetAttribute("BossHP") or 0) / math.max(s:GetAttribute("BossMaxHP") or 1, 1))
@@ -604,59 +615,81 @@ function HUD.SetInventory(inv)
 end
 
 local KIND_COLOR = {
-	Info = Color3.fromRGB(230, 226, 214), Good = Color3.fromRGB(140, 235, 150), Reward = Color3.fromRGB(255, 214, 110),
-	Warn = Color3.fromRGB(255, 180, 80), Danger = Color3.fromRGB(255, 100, 90), Error = Color3.fromRGB(255, 130, 120),
+	Info = Color3.fromRGB(240, 236, 224), Good = Color3.fromRGB(150, 245, 165), Reward = Color3.fromRGB(255, 220, 120),
+	Warn = Color3.fromRGB(255, 190, 95), Danger = Color3.fromRGB(255, 104, 92), Error = Color3.fromRGB(255, 136, 124),
 }
+local KIND_GLYPH = { Info = "✦", Good = "✔", Reward = "★", Warn = "⚠", Danger = "☠", Error = "✖" }
+local GOLD = Color3.fromRGB(236, 196, 112)
+-- แถบจางหัวท้าย (ตรงกลางเข้ม -> ขอบใส)
+local function ribbonFade(alpha)
+	return NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.18, alpha), NumberSequenceKeypoint.new(0.82, alpha), NumberSequenceKeypoint.new(1, 1),
+	})
+end
 
+-- แจ้งเตือนกลางจอ (สไตล์เกมเอาชีวิตรอด): ตัวหนังสือใหญ่ขอบเข้ม บนแถบสีจางตามประเภท + เส้นทองบน/ล่าง · ขึ้นแล้วค่อยจางหายขึ้นด้านบน
 function HUD.Notify(text, kind)
 	if not HUD.Feed then
 		return
 	end
+	kind = KIND_COLOR[kind] and kind or "Info"
+	local col = KIND_COLOR[kind]
+	local big = kind == "Danger" or kind == "Reward"
 	HUD.FeedOrder += 1
-	-- การ์ดแจ้งเตือน: พื้นเข้ม ขอบดำ + แถบสีซ้ายตามประเภท + เด้งเข้า
-	local f = UIKit.Frame(HUD.Feed, { Size = UDim2.new(1, 0, 0, 34), BackgroundColor3 = Color3.fromRGB(26, 28, 50), BackgroundTransparency = 0.08, LayoutOrder = -HUD.FeedOrder, AutomaticSize = Enum.AutomaticSize.Y })
-	UIKit.Corner(f, 10)
-	UIKit.Stroke(f, C.Outline, 2, 0)
-	local accent = UIKit.Frame(f, { Size = UDim2.new(0, 6, 1, 0), Position = UDim2.fromOffset(-12, 0), BackgroundColor3 = KIND_COLOR[kind] or KIND_COLOR.Info, BackgroundTransparency = 0 })
-	UIKit.Corner(accent, 2)
-	local sc = Instance.new("UIScale")
-	sc.Scale = 0.6
-	sc.Parent = f
-	UIKit.Tween(sc, 0.3, { Scale = 1 }, Enum.EasingStyle.Back)
+	local slot = UIKit.Frame(HUD.Feed, { Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1, LayoutOrder = HUD.FeedOrder })
+	local band = UIKit.Frame(slot, { Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, BackgroundColor3 = col:Lerp(Color3.new(0, 0, 0), 0.72), BackgroundTransparency = 0 })
+	local bg = Instance.new("UIGradient")
+	bg.Transparency = ribbonFade(0.25)
+	bg.Parent = band
+	for _, y in ipairs({ 0, 1 }) do
+		local line = UIKit.Frame(band, { Size = UDim2.new(1, 0, 0, 2), AnchorPoint = Vector2.new(0, y), Position = UDim2.fromScale(0, y), BackgroundColor3 = kind == "Info" and GOLD or col, BackgroundTransparency = 0 })
+		local lg = Instance.new("UIGradient")
+		lg.Transparency = ribbonFade(0)
+		lg.Parent = line
+	end
 	local pad = Instance.new("UIPadding")
-	pad.PaddingLeft = UDim.new(0, 20)
-	pad.PaddingRight = UDim.new(0, 10)
-	pad.PaddingTop = UDim.new(0, 5)
-	pad.PaddingBottom = UDim.new(0, 5)
-	pad.Parent = f
-	UIKit.Text(f, {
-		Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, TextWrapped = true, TextSize = 16,
-		Text = text, TextColor3 = KIND_COLOR[kind] or KIND_COLOR.Info,
+	pad.PaddingTop = UDim.new(0, 6)
+	pad.PaddingBottom = UDim.new(0, 6)
+	pad.PaddingLeft = UDim.new(0, 60)
+	pad.PaddingRight = UDim.new(0, 60)
+	pad.Parent = band
+	local g = KIND_GLYPH[kind]
+	local label = UIKit.Text(band, {
+		Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Center,
+		TextSize = big and 25 or 21, Font = UIKit.Fonts.Black, Text = g .. "  " .. text .. "  " .. g, TextColor3 = col, TextTransparency = 1,
 	})
+	UIKit.TextStroke(label, 2.4, 0.05)
+	local sc = Instance.new("UIScale")
+	sc.Scale = 1.25
+	sc.Parent = slot
+	UIKit.Tween(sc, 0.35, { Scale = 1 }, Enum.EasingStyle.Back)
+	UIKit.Tween(label, 0.25, { TextTransparency = 0 })
+	-- เก็บไว้แค่ไม่กี่อันล่าสุด
 	local children = {}
 	for _, c in ipairs(HUD.Feed:GetChildren()) do
 		if c:IsA("Frame") then
 			table.insert(children, c)
 		end
 	end
-	if #children > (HUD.Touch and 4 or 6) then
+	if #children > (HUD.Touch and 3 or 4) then
 		table.sort(children, function(a, b)
-			return a.LayoutOrder > b.LayoutOrder
+			return a.LayoutOrder < b.LayoutOrder
 		end)
 		children[1]:Destroy()
 	end
-	task.delay(7, function()
-		if f.Parent then
-			UIKit.Tween(f, 0.5, { BackgroundTransparency = 1 })
-			for _, d in ipairs(f:GetDescendants()) do
-				if d:IsA("TextLabel") then
-					UIKit.Tween(d, 0.5, { TextTransparency = 1 })
+	task.delay(big and 6 or 4.5, function()
+		if slot.Parent then
+			UIKit.Tween(label, 0.6, { TextTransparency = 1 })
+			UIKit.Tween(band, 0.6, { BackgroundTransparency = 1 })
+			for _, d in ipairs(band:GetDescendants()) do
+				if d:IsA("Frame") then
+					UIKit.Tween(d, 0.6, { BackgroundTransparency = 1 })
 				elseif d:IsA("UIStroke") then
-					UIKit.Tween(d, 0.5, { Transparency = 1 })
+					UIKit.Tween(d, 0.6, { Transparency = 1 })
 				end
 			end
-			task.wait(0.55)
-			f:Destroy()
+			task.wait(0.65)
+			slot:Destroy()
 		end
 	end)
 end

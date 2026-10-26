@@ -94,7 +94,7 @@ function AnimalService:Spawn(id, position, opts)
 	end
 	local root = model.PrimaryPart
 	local hum = model:FindFirstChildOfClass("Humanoid")
-	do
+	if not opts.NoSnap then -- NoSnap: วางตรงจุดที่ให้มา (เช่นลูกสัตว์ในกรงบนลานศาลเจ้า)
 		local rp = RaycastParams.new()
 		rp.FilterType = Enum.RaycastFilterType.Include
 		rp.FilterDescendantsInstances = { workspace.Terrain }
@@ -345,7 +345,7 @@ function AnimalService:Kill(a, attacker)
 			end
 		end
 		self.ctx.State:SetAttribute("BossId", "")
-		self.ctx.Remotes.Get("Cinematic"):FireAllClients("BossFelled", { Name = a.Info.Name, Thai = a.Info.Thai, Element = a.Info.Element })
+		self.ctx.FireRun("Cinematic", "BossFelled", { Name = a.Info.Name, Thai = a.Info.Thai, Element = a.Info.Element })
 		self.ctx.Services.SpiritService:OnBossKilled(a)
 	else
 		self:GiveDrops(a, receiver)

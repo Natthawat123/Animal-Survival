@@ -1,5 +1,5 @@
 --[[
-	PadUI — ยืนบนแท่นเริ่มเกมในล็อบบี้
+	PadUI — ยืนบนแท่นเริ่มเกมในล็อบบี้ · ธีมกรอบไม้ (WoodKit)
 	  หัวหน้าแท่น (คนแรกที่ขึ้น): หน้าต่างกลางจอให้เลือกจำนวนผู้เล่น 1-8 → กดแล้วปิดเองทันที
 	  ทุกคนบนแท่น: แถบสถานะเล็กๆ ด้านบนจอ (จำนวนคน + นับถอยหลัง) · หัวหน้ากด "เปลี่ยน" เพื่อเลือกใหม่ได้
 	อ่านสถานะจาก attribute ของ Lobby/MatchBox<i> (Size, Count, Countdown, Host) · เลือกจำนวน -> Remotes.PadSize
@@ -12,10 +12,10 @@ local Workspace = game:GetService("Workspace")
 
 local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes"))
 local UIKit = require(script.Parent.UIKit)
+local WoodKit = require(script.Parent.WoodKit)
 
 local PadUI = {}
 local player = Players.LocalPlayer
-local C = UIKit.Colors
 
 local function inside(zone, pos)
 	local rel = zone.CFrame:PointToObjectSpace(pos)
@@ -25,42 +25,53 @@ end
 function PadUI.Init()
 	local gui = UIKit.Screen("PadUI", 30)
 
-	-------------------------------------------------- หน้าต่างเลือกจำนวน (กลางจอ)
-	local picker = UIKit.Card(gui, { Size = UDim2.fromOffset(560, 250), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Visible = false })
+	-------------------------------------------------- หน้าต่างเลือกจำนวน (กลางจอ) · ธีมกรอบไม้
+	local current = { Zone = nil, Picked = {} }
+	local function close()
+		current.PickerFrame.Visible = false
+	end
+	local win = WoodKit.Window(gui, { Name = "PadPicker", Size = Vector2.new(780, 330), Title = "👥 เลือกจำนวนผู้เล่น", TitleWidth = 470, BannerHeight = 120, OnClose = close })
+	local picker = win.Frame
+	current.PickerFrame = picker
+	picker.Position = UDim2.fromScale(0.5, 0.52)
 	UIKit.AutoScale(picker)
-	local _, pickTitle = UIKit.Header(picker, "👥 เลือกจำนวนผู้เล่น", C.Green)
-	UIKit.Text(picker, { Size = UDim2.new(1, -40, 0, 22), Position = UDim2.fromOffset(20, 36), TextSize = 17, TextColor3 = C.TextDim, TextXAlignment = Enum.TextXAlignment.Center, Text = "ทีมจะออกเดินทางเมื่อคนครบ หรือเมื่อหมดเวลา" })
-	local grid = UIKit.Frame(picker, { Size = UDim2.new(1, -40, 0, 140), Position = UDim2.fromOffset(20, 70), BackgroundTransparency = 1 })
+	local pickTitle = win.Title
+	UIKit.Text(win.Body, { Size = UDim2.new(1, -60, 0, 24), Position = UDim2.fromOffset(30, 46), TextSize = 18, TextColor3 = WoodKit.Colors.Gold, TextXAlignment = Enum.TextXAlignment.Center, Text = "—  ทีมจะออกเดินทางเมื่อคนครบ หรือเมื่อหมดเวลา  —" })
+	local grid = UIKit.Frame(win.Body, { Size = UDim2.new(1, -60, 0, 190), Position = UDim2.fromOffset(30, 86), BackgroundTransparency = 1 })
 	local gl = Instance.new("UIGridLayout")
-	gl.CellSize = UDim2.fromOffset(112, 60)
-	gl.CellPadding = UDim2.fromOffset(14, 14)
+	gl.CellSize = UDim2.fromOffset(164, 84)
+	gl.CellPadding = UDim2.fromOffset(16, 18)
 	gl.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	gl.SortOrder = Enum.SortOrder.LayoutOrder
 	gl.Parent = grid
-	local current = { Zone = nil, Picked = {} }
-	local function close()
-		picker.Visible = false
-	end
-	UIKit.CloseButton(picker, close)
 	UIKit.RegisterWindow(picker, close) -- Esc / แตะนอกหน้าต่าง = ปิด (กด "เปลี่ยน" เพื่อเปิดใหม่)
 	local pickButtons = {}
 	for n = 1, 8 do
-		local b = UIKit.ColorButton(grid, Color3.fromRGB(58, 66, 104), { Text = n == 1 and "1 (เดี่ยว)" or (n .. " คน"), TextSize = 22, Font = UIKit.Fonts.Title, LayoutOrder = n }, function()
+		local icon = n == 1 and "👤" or "👥"
+		local b = WoodKit.Button(grid, "Parch", { Text = icon .. "  " .. (n == 1 and "1 (เดี่ยว)" or (n .. " คน")), TextSize = 26, LayoutOrder = n }, function()
 			if current.Zone then
 				Remotes.Get("PadSize"):FireServer(current.Zone:GetAttribute("PadIndex"), n)
 				current.Picked[current.Zone] = true
 			end
 			close() -- เลือกแล้วปิดทันที ไปรอคน/รอเวลาที่แถบด้านบน
 		end)
+		-- หมุดทองกลางขอบบน (แบบป้ายไม้ในภาพอ้างอิง)
+		local stud = WoodKit.Frame(b, { Size = UDim2.fromOffset(12, 12), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0), Rotation = 45, BackgroundColor3 = WoodKit.Colors.Gold, ZIndex = 3 })
+		WoodKit.Stroke(stud, WoodKit.Colors.WoodDark, 1.5, 0)
 		pickButtons[n] = b
 	end
 
-	-------------------------------------------------- แถบสถานะ (ด้านบนจอ ใต้ชื่อค่าย)
-	local bar = UIKit.Card(gui, { Size = UDim2.fromOffset(440, 64), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 92), Visible = false })
+	-------------------------------------------------- แถบสถานะ (ด้านบนจอ ใต้ชื่อค่าย) · ป้ายไม้ + หมาป่า/อินทรี + ตราอุ้งเท้า
+	local barWin = WoodKit.Window(gui, { Name = "PadBar", Size = Vector2.new(640, 104), Plaque = false, Lanterns = false, TitleWidth = 436, BannerHeight = 72 })
+	local bar = barWin.Frame
+	bar.AnchorPoint = Vector2.new(0.5, 0)
+	bar.Position = UDim2.new(0.5, 0, 0, 104)
 	UIKit.AutoScale(bar)
-	local status = UIKit.Text(bar, { Size = UDim2.new(1, -140, 0, 30), Position = UDim2.fromOffset(18, 6), Font = UIKit.Fonts.Title, TextSize = 24, Text = "" })
-	local sub = UIKit.Text(bar, { Size = UDim2.new(1, -140, 0, 20), Position = UDim2.fromOffset(18, 36), TextSize = 15, TextColor3 = C.TextDim, Text = "" })
-	local change = UIKit.ColorButton(bar, C.Blue, { Size = UDim2.fromOffset(104, 42), AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -12, 0.5, 0), Text = "เปลี่ยน", TextSize = 19, Font = UIKit.Fonts.Title }, function()
+	WoodKit.Medallion(bar, "🐾", 52, { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0), ZIndex = 12 }, Color3.fromRGB(110, 70, 34))
+	local info = WoodKit.Board(barWin.Body, { Size = UDim2.new(1, -206, 1, -30), Position = UDim2.fromOffset(18, 15), ZIndex = 2 }, Color3.fromRGB(96, 30, 22), WoodKit.Colors.GoldDark)
+	local status = UIKit.Text(info, { Size = UDim2.new(1, -20, 0, 34), Position = UDim2.fromOffset(12, 4), Font = UIKit.Fonts.Title, TextSize = 28, Text = "", TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 3 })
+	local sub = UIKit.Text(info, { Size = UDim2.new(1, -20, 0, 22), Position = UDim2.fromOffset(12, 40), TextSize = 16, TextColor3 = Color3.fromRGB(245, 226, 196), Text = "", TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 3 })
+	local change = WoodKit.Button(barWin.Body, "Green", { Size = UDim2.fromOffset(160, 64), AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -18, 0.5, 0), Text = "เปลี่ยน", TextSize = 28, ZIndex = 3 }, function()
 		if current.Zone then
 			picker.Visible = true
 			UIKit.Pop(picker)
@@ -105,11 +116,14 @@ function PadUI.Init()
 		local size, count, cd = zone:GetAttribute("Size") or 4, zone:GetAttribute("Count") or 0, zone:GetAttribute("Countdown") or -1
 		local host = zone:GetAttribute("Host") == player.UserId
 		pickTitle.Text = "👥 แท่น " .. (zone:GetAttribute("PadIndex") or "") .. " · เลือกจำนวนผู้เล่น"
-		status.Text = cd >= 0 and string.format("👥 %d/%d คน  ·  ⏳ %d วิ", count, size, cd) or string.format("👥 %d/%d คน", count, size)
+		status.Text = cd >= 0 and string.format("👥 %d/%d คน   •   ⏳ %d วิ", count, size, cd) or string.format("👥 %d/%d คน", count, size)
 		sub.Text = count >= size and "ทีมครบแล้ว! กำลังออกเดินทาง" or (host and "คุณเป็นหัวหน้าแท่น · รอเพื่อนหรือรอหมดเวลา" or "รอหัวหน้าแท่น / รอเพื่อน")
 		change.Visible = host
 		for n, b in ipairs(pickButtons) do
-			b.BackgroundColor3 = n == size and C.Green or Color3.fromRGB(58, 66, 104)
+			local style = n == size and "Green" or "Parch"
+			if b:GetAttribute("Style") ~= style then
+				WoodKit.Style(b, style)
+			end
 		end
 	end)
 end

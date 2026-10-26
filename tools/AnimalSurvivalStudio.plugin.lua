@@ -664,7 +664,10 @@ local function runCheck(ids)
 			o.Parent = m
 		end
 		local parts, meshes, unions, hums = 0, 0, 0, 0
-		for _, d in ipairs(m:GetDescendants()) do
+		for i, d in ipairs(m:GetDescendants()) do
+			if i % 2000 == 0 then
+				task.wait() -- โมเดลยักษ์ (ปราสาทหลายหมื่นชิ้น) -> พักกัน Script timeout
+			end
 			if d:IsA("UnionOperation") then
 				unions += 1
 			elseif d:IsA("MeshPart") then
@@ -722,12 +725,401 @@ local function runProbe()
 	print("[AS] FETCH DONE")
 end
 
+-- อ่านลายพื้นผิว (TextureID) ทีละรูปแล้วพิมพ์ออก log แบบย่อ 256x256 (hex RGB) -> tools ประกอบเป็น PNG ไว้ตรวจ
+function runTexDump(ids)
+	local AssetService = game:GetService("AssetService")
+	local N = 256
+	for _, id in ipairs(ids) do
+		local ok, img = pcall(function()
+			return AssetService:CreateEditableImageAsync(Content.fromUri("rbxassetid://" .. id))
+		end)
+		if not ok or not img then
+			print("[TEX] " .. id .. " ERROR " .. tostring(img))
+			continue
+		end
+		local w, h = img.Size.X, img.Size.Y
+		local buf = img:ReadPixelsBuffer(Vector2.zero, img.Size)
+		local hex = table.create(N * N)
+		for y = 0, N - 1 do
+			local sy = math.floor((y + 0.5) * h / N)
+			for x = 0, N - 1 do
+				local sx = math.floor((x + 0.5) * w / N)
+				local o = (sy * w + sx) * 4
+				hex[y * N + x + 1] = string.format("%02x%02x%02x", buffer.readu8(buf, o), buffer.readu8(buf, o + 1), buffer.readu8(buf, o + 2))
+			end
+			if y % 32 == 0 then
+				task.wait()
+			end
+		end
+		local all = table.concat(hex)
+		local CH = 900 -- log ตัดบรรทัดที่ ~1000 ตัวอักษร
+		local n = math.ceil(#all / CH)
+		print(string.format("[TEX] %s SIZE %d %d", id, w, h))
+		for k = 1, n do
+			print(string.format("[TEXD] %s %d/%d %s", id, k, n, string.sub(all, (k - 1) * CH + 1, k * CH)))
+			if k % 20 == 0 then
+				task.wait()
+			end
+		end
+		img:Destroy()
+	end
+	print("[AS] FETCH DONE")
+end
+
+-- ซ่อมลายพื้นผิวโมเดลตัวละคร AI (ทำใน Studio ผ่าน EditableMesh/EditableImage)
+--   1) จุดด่าง: กลุ่มหน้าโมเดลสีเดียวกันที่เล็กและสีต่างจากผิวรอบข้างมาก (เช่นด่างขาวบนกางเกงดำ) -> ทาสีรอบข้างทับ (เว้นหัว)
+--   2) รอยต่อ UV: เติมสีเกาะ UV ออกไปในช่องว่างรอบเกาะ กันสีเกาะข้างๆ ซึมตอนย่อภาพ
+--   entries = { { Name, MeshId, TexId } } · upload = true -> อัปโหลดรูปที่ซ่อมแล้วขึ้นบัญชี (พิมพ์ [TEXNEW] Name texId newId)
+function runTexClean(entries, upload)
+	local AssetService = game:GetService("AssetService")
+	local stage = Instance.new("Folder")
+	stage.Name = "TexCleanStage"
+	stage.Parent = workspace
+	local floorPart = Instance.new("Part")
+	floorPart.Anchored = true
+	floorPart.Size = Vector3.new(400, 1, 400)
+	floorPart.CFrame = CFrame.new(0, -0.5, 0)
+	floorPart.Color = Color3.fromRGB(90, 110, 90)
+	floorPart.Parent = stage
+	Lighting.ClockTime = 14
+	for _, e in ipairs(entries) do
+		local name, meshId, texId = e[1], e[2], e[3]
+		local okM, mesh = pcall(function()
+			return AssetService:CreateEditableMeshAsync(Content.fromUri("rbxassetid://" .. meshId))
+		end)
+		local okI, img = pcall(function()
+			return AssetService:CreateEditableImageAsync(Content.fromUri("rbxassetid://" .. texId))
+		end)
+		if not okM or not okI or not mesh or not img then
+			print("[TEXC] " .. name .. " ERROR " .. tostring(mesh) .. " | " .. tostring(img))
+			continue
+		end
+		local W, H = img.Size.X, img.Size.Y
+		local buf = img:ReadPixelsBuffer(Vector2.zero, img.Size)
+		-- ---- อ่านหน้าโมเดล
+		local faces = mesh:GetFaces()
+		local F = #faces
+		local fv, fuv = table.create(F), table.create(F)
+		local keyOf, nKey = {}, 0
+		local vkey = {}
+		local minY, maxY = math.huge, -math.huge
+		local fy = table.create(F)
+		local farea = table.create(F)
+		for i, f in ipairs(faces) do
+			local vs = mesh:GetFaceVertices(f)
+			local us = mesh:GetFaceUVs(f)
+			local ks, ps = {}, {}
+			for j = 1, 3 do
+				local vid = vs[j]
+				local k = vkey[vid]
+				local p = mesh:GetPosition(vid)
+				if not k then
+					local s = string.format("%.4f,%.4f,%.4f", p.X, p.Y, p.Z) -- เชื่อมจุดซ้ำตรงรอยต่อ UV ด้วยตำแหน่ง
+					k = keyOf[s]
+					if not k then
+						nKey += 1
+						k = nKey
+						keyOf[s] = k
+					end
+					vkey[vid] = k
+				end
+				ks[j] = k
+				ps[j] = p
+			end
+			fv[i] = ks
+			fuv[i] = { mesh:GetUV(us[1]), mesh:GetUV(us[2]), mesh:GetUV(us[3]) }
+			local cy = (ps[1].Y + ps[2].Y + ps[3].Y) / 3
+			fy[i] = cy
+			minY, maxY = math.min(minY, cy), math.max(maxY, cy)
+			farea[i] = (ps[2] - ps[1]):Cross(ps[3] - ps[1]).Magnitude / 2
+			if i % 4000 == 0 then
+				task.wait()
+			end
+		end
+		local vf = {}
+		for i = 1, F do
+			for j = 1, 3 do
+				local k = fv[i][j]
+				local t = vf[k]
+				if not t then
+					t = {}
+					vf[k] = t
+				end
+				table.insert(t, i)
+			end
+		end
+		local function neighbors(i)
+			local out, seen = {}, { [i] = true }
+			for j = 1, 3 do
+				for _, n in ipairs(vf[fv[i][j]]) do
+					if not seen[n] then
+						seen[n] = true
+						table.insert(out, n)
+					end
+				end
+			end
+			return out
+		end
+		local nb = table.create(F)
+		for i = 1, F do
+			nb[i] = neighbors(i)
+			if i % 4000 == 0 then
+				task.wait()
+			end
+		end
+		-- ---- สีของแต่ละหน้า (ลองทั้ง UV แบบกลับแกน V/ไม่กลับ เลือกแบบที่สีหน้าข้างเคียงเข้ากันกว่า)
+		local function readPx(x, y)
+			local o = (y * W + x) * 4
+			return buffer.readu8(buf, o), buffer.readu8(buf, o + 1), buffer.readu8(buf, o + 2)
+		end
+		local function faceColors(flip)
+			local cols = table.create(F)
+			for i = 1, F do
+				local u = fuv[i]
+				local r, g, b = 0, 0, 0
+				local c = (u[1] + u[2] + u[3]) / 3
+				for _, q in ipairs({ c, c:Lerp(u[1], 0.5), c:Lerp(u[2], 0.5), c:Lerp(u[3], 0.5) }) do
+					local x = math.clamp(math.floor(q.X * W), 0, W - 1)
+					local y = math.clamp(math.floor((flip and (1 - q.Y) or q.Y) * H), 0, H - 1)
+					local rr, gg, bb = readPx(x, y)
+					r, g, b = r + rr, g + gg, b + bb
+				end
+				cols[i] = { r / 4, g / 4, b / 4 }
+			end
+			return cols
+		end
+		local function dist(a, b)
+			return math.sqrt((a[1] - b[1]) ^ 2 + (a[2] - b[2]) ^ 2 + (a[3] - b[3]) ^ 2)
+		end
+		local function smooth(cols)
+			local s, n = 0, 0
+			for i = 1, F, 7 do
+				for _, j in ipairs(nb[i]) do
+					s += dist(cols[i], cols[j])
+					n += 1
+				end
+			end
+			return s / math.max(n, 1)
+		end
+		local cA, cB = faceColors(false), faceColors(true)
+		local sA, sB = smooth(cA), smooth(cB)
+		local flip = sB < sA
+		local col = flip and cB or cA
+		print(string.format("[TEXC] %s faces=%d verts=%d flip=%s smooth %.1f/%.1f", name, F, nKey, tostring(flip), sA, sB))
+		task.wait()
+		-- ---- กลุ่มสีเดียวกัน (ต่อกันบนผิวโมเดล)
+		local comp = table.create(F, 0)
+		local comps = {}
+		for i = 1, F do
+			if comp[i] == 0 then
+				local id = #comps + 1
+				local list, area = { i }, 0
+				comp[i] = id
+				local qi = 1
+				while qi <= #list do
+					local a = list[qi]
+					qi += 1
+					area += farea[a]
+					for _, n in ipairs(nb[a]) do
+						if comp[n] == 0 and dist(col[a], col[n]) < 38 then
+							comp[n] = id
+							table.insert(list, n)
+						end
+					end
+				end
+				comps[id] = { Faces = list, Area = area }
+			end
+			if i % 4000 == 0 then
+				task.wait()
+			end
+		end
+		local total = 0
+		for i = 1, F do
+			total += farea[i]
+		end
+		local headY = minY + (maxY - minY) * 0.80 -- หัว/หน้า (บนสุด 20%) ไม่แตะ
+		-- ---- ทาสีทับจุดด่าง
+		local fixColor = {}
+		local nFix = 0
+		for id, c in ipairs(comps) do
+			if c.Area < total * 0.012 then
+				local inHead = false
+				local mean = { 0, 0, 0 }
+				for _, f in ipairs(c.Faces) do
+					if fy[f] > headY then
+						inHead = true
+					end
+					mean = { mean[1] + col[f][1], mean[2] + col[f][2], mean[3] + col[f][3] }
+				end
+				if not inHead then
+					local k = #c.Faces
+					mean = { mean[1] / k, mean[2] / k, mean[3] / k }
+					-- สีขอบรอบกลุ่ม (ถ่วงด้วยพื้นที่)
+					local br, bg, bb, bw = 0, 0, 0, 0
+					for _, f in ipairs(c.Faces) do
+						for _, n in ipairs(nb[f]) do
+							if comp[n] ~= id then
+								local w = farea[n]
+								br, bg, bb, bw = br + col[n][1] * w, bg + col[n][2] * w, bb + col[n][3] * w, bw + w
+							end
+						end
+					end
+					if bw > 0 then
+						local edge = { br / bw, bg / bw, bb / bw }
+						if dist(mean, edge) > 70 then
+							for _, f in ipairs(c.Faces) do
+								fixColor[f] = edge
+							end
+							nFix += k
+						end
+					end
+				end
+			end
+		end
+		-- ---- วาดลงรูป: หน้าที่ซ่อม = ทาสีขอบ · แผนที่ว่าพิกเซลไหนมีหน้าโมเดลทับ (ไว้เติมรอยต่อ)
+		local cover = buffer.create(W * H)
+		local function raster(i, fill)
+			local u = fuv[i]
+			local p = table.create(3)
+			for j = 1, 3 do
+				p[j] = Vector2.new(u[j].X * W, (flip and (1 - u[j].Y) or u[j].Y) * H)
+			end
+			local x0 = math.max(0, math.floor(math.min(p[1].X, p[2].X, p[3].X) - 1))
+			local x1 = math.min(W - 1, math.ceil(math.max(p[1].X, p[2].X, p[3].X) + 1))
+			local y0 = math.max(0, math.floor(math.min(p[1].Y, p[2].Y, p[3].Y) - 1))
+			local y1 = math.min(H - 1, math.ceil(math.max(p[1].Y, p[2].Y, p[3].Y) + 1))
+			local d = (p[2].Y - p[3].Y) * (p[1].X - p[3].X) + (p[3].X - p[2].X) * (p[1].Y - p[3].Y)
+			if math.abs(d) < 1e-9 then
+				return
+			end
+			for y = y0, y1 do
+				for x = x0, x1 do
+					local px, py = x + 0.5, y + 0.5
+					local a = ((p[2].Y - p[3].Y) * (px - p[3].X) + (p[3].X - p[2].X) * (py - p[3].Y)) / d
+					local b = ((p[3].Y - p[1].Y) * (px - p[3].X) + (p[1].X - p[3].X) * (py - p[3].Y)) / d
+					local g = 1 - a - b
+					if a > -0.08 and b > -0.08 and g > -0.08 then
+						buffer.writeu8(cover, y * W + x, 1)
+						if fill then
+							local o = (y * W + x) * 4
+							buffer.writeu8(buf, o, math.floor(fill[1]))
+							buffer.writeu8(buf, o + 1, math.floor(fill[2]))
+							buffer.writeu8(buf, o + 2, math.floor(fill[3]))
+						end
+					end
+				end
+			end
+		end
+		for i = 1, F do
+			raster(i, fixColor[i])
+			if i % 1500 == 0 then
+				task.wait()
+			end
+		end
+		-- ---- เติมรอยต่อ: พิกเซลว่าง (ไม่มีหน้าโมเดล) รับสีจากพิกเซลข้างๆ ที่มีแล้ว 6 รอบ
+		local filled = 0
+		for _ = 1, 6 do
+			local add = {}
+			for y = 0, H - 1 do
+				for x = 0, W - 1 do
+					if buffer.readu8(cover, y * W + x) == 0 then
+						for _, o in ipairs({ { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } }) do
+							local nx, ny = x + o[1], y + o[2]
+							if nx >= 0 and nx < W and ny >= 0 and ny < H and buffer.readu8(cover, ny * W + nx) == 1 then
+								table.insert(add, { y * W + x, ny * W + nx })
+								break
+							end
+						end
+					end
+				end
+				if y % 64 == 0 then
+					task.wait()
+				end
+			end
+			for _, a in ipairs(add) do
+				local o, s = a[1] * 4, a[2] * 4
+				buffer.writeu8(buf, o, buffer.readu8(buf, s))
+				buffer.writeu8(buf, o + 1, buffer.readu8(buf, s + 1))
+				buffer.writeu8(buf, o + 2, buffer.readu8(buf, s + 2))
+				buffer.writeu8(cover, a[1], 1)
+			end
+			filled += #add
+		end
+		img:WritePixelsBuffer(Vector2.zero, img.Size, buf)
+		print(string.format("[TEXC] %s fixed faces=%d (%.1f%%) seam px=%d", name, nFix, nFix / F * 100, filled))
+		-- ---- ภาพเทียบ ก่อน (ซ้าย) / หลัง (ขวา)
+		local chars = ReplicatedStorage:FindFirstChild("Assets") and ReplicatedStorage.Assets:FindFirstChild("Characters")
+		local src = chars and chars:FindFirstChild(name)
+		if src then
+			local models = {}
+			-- ซ้าย = ของเดิม · กลาง = ลายเดิมผ่าน EditableImage (ไม่แก้) · ขวา = ซ่อมแล้ว
+			local raw = AssetService:CreateEditableImageAsync(Content.fromUri("rbxassetid://" .. texId))
+			for side = -1, 1 do
+				local m = src:Clone()
+				for _, d in ipairs(m:GetDescendants()) do
+					if d:IsA("BasePart") then
+						d.Anchored = true
+						if d:IsA("MeshPart") and side ~= -1 then
+							d.TextureContent = Content.fromObject(side == 1 and img or raw)
+						end
+					end
+				end
+				local bcf, size = m:GetBoundingBox()
+				m:PivotTo(m:GetPivot() + (Vector3.new(side * size.X * 1.3, size.Y / 2, 0) - bcf.Position))
+				m.Parent = stage
+				table.insert(models, { m, size })
+			end
+			local size = models[1][2]
+			shot("texclean_" .. name, CFrame.lookAt(Vector3.new(0, size.Y * 0.6, -size.Y * 2.6), Vector3.new(0, size.Y * 0.5, 0)), 40)
+			shot("texcleanfar_" .. name, CFrame.lookAt(Vector3.new(0, size.Y * 0.6, -size.Y * 14), Vector3.new(0, size.Y * 0.5, 0)), 40) -- ไกล = ตัวเล็กแบบรูปวงกลมในร้าน
+			for _, mm in ipairs(models) do
+				mm[1]:Destroy()
+			end
+		end
+		if upload then
+			local ok, res, newId = pcall(function()
+				return AssetService:CreateAssetAsync(img, Enum.AssetType.Image, { Name = "AS_" .. name .. "_skin", Description = "Animal Survival class skin (cleaned)" })
+			end)
+			print(string.format("[TEXNEW] %s %s %s %s %s", name, texId, tostring(ok), tostring(res), tostring(newId)))
+		end
+	end
+	stage:Destroy()
+	print("[AS] FETCH DONE")
+end
+
+-- เมชจาก Creator Store ที่แปลงผ่านไฟล์ไม่มีข้อมูลรูปทรงชน (ชนเป็นกล่อง/ทะลุ) -> สั่ง Studio คำนวณใหม่ตามรูปจริง
+-- (อาคารใหญ่ = ละเอียดเดินเข้าข้างในได้) ค่าที่คำนวณแล้วติดไปกับไฟล์ตอนเซฟ/Publish
+local function rebuildMeshCollisions()
+	local assets = ReplicatedStorage:FindFirstChild("Assets")
+	local props = assets and assets:FindFirstChild("Props")
+	if not props then
+		return
+	end
+	local n = 0
+	for _, d in ipairs(props:GetDescendants()) do
+		if d:IsA("MeshPart") then
+			local big = math.max(d.Size.X, d.Size.Y, d.Size.Z)
+			local want = big > 6 and Enum.CollisionFidelity.PreciseConvexDecomposition or Enum.CollisionFidelity.Hull
+			pcall(function()
+				d.CollisionFidelity = Enum.CollisionFidelity.Box
+				d.CollisionFidelity = want
+			end)
+			n += 1
+			if n % 40 == 0 then
+				task.wait()
+			end
+		end
+	end
+	print("[AS] rebuilt mesh collisions: " .. n)
+end
+
 ---------------------------------------------------------------- เริ่มอัตโนมัติ
 task.defer(function()
 	task.wait(2)
 	if not isOurGame() then
 		return
 	end
+	rebuildMeshCollisions()
 	setupLighting(nil)
 	if ServerStorage:FindFirstChild("ASMapShot") then
 		runMapShot()
@@ -747,7 +1139,16 @@ task.defer(function()
 		for id in string.gmatch(fetch.Value, "%d+") do
 			table.insert(ids, id)
 		end
-		if string.sub(fetch.Value, 1, 6) == "check:" then
+		if string.sub(fetch.Value, 1, 5) == "clean" then
+			-- clean:Name:mesh:tex,... (ซ่อมแล้วถ่ายภาพเทียบ) · cleanup:... (ซ่อม + อัปโหลด)
+			local entries = {}
+			for n, mid, tid in string.gmatch(fetch.Value, "(%a+):(%d+):(%d+)") do
+				table.insert(entries, { n, mid, tid })
+			end
+			runTexClean(entries, string.sub(fetch.Value, 1, 8) == "cleanup:")
+		elseif string.sub(fetch.Value, 1, 4) == "tex:" then
+			runTexDump(ids)
+		elseif string.sub(fetch.Value, 1, 6) == "check:" then
 			runCheck(ids)
 		else
 			runFetch(ids)

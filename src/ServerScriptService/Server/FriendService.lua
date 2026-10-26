@@ -3,7 +3,7 @@
 	  · มีเพื่อน Roblox อยู่ในรอบเดียวกัน (ทั้งคู่อยู่ในแมพ เซิร์ฟเวอร์เดียวกัน) = Ruby ที่ได้ระหว่างรอบ +10%
 	    (DataService:AddDiamonds เรียก Extra) · เศษทศนิยมสะสมไว้ ไม่ปัดทิ้ง
 	  · เช็กเพื่อนด้วย player:IsFriendsWith (pcall + จำผลไว้) · player attribute "FriendsHere" = จำนวนเพื่อนในเซิร์ฟเวอร์
-	  · ปุ่มชวนเพื่อน (SocialService:PromptGameInvite) อยู่ฝั่ง client (QuestUI)
+	  · (หน้าชวนเพื่อนใน QuestUI ถูกเอาออกแล้ว — โบนัส +10% ยังทำงานเมื่อเล่นรอบเดียวกับเพื่อน)
 ]]
 
 local Players = game:GetService("Players")

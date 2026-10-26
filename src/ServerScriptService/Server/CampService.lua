@@ -143,7 +143,7 @@ function CampService:DamageFire(amount)
 	self.fuel = math.max(0, self.fuel - amount)
 	if before > 0 and self.fuel <= 0 then
 		self.ctx.Broadcast("⚠ กองไฟดับแล้ว!! เติมไฟด่วน ก่อนกวางกลวงจะมา", "Danger")
-		self.ctx.Remotes.Get("Cinematic"):FireAllClients("FireOut", {})
+		self.ctx.FireRun("Cinematic", "FireOut", {})
 	end
 	self:UpdateVisual()
 	self:Publish()
@@ -198,7 +198,7 @@ function CampService:UpgradeFire(player)
 	self.level += 1
 	self.fuel = math.max(self.fuel, nextInfo.MaxFuel * 0.6)
 	self.ctx.Broadcast(string.format("🔥 กองไฟอัปเกรดเป็นเลเวล %d! เขตปลอดภัยกว้างขึ้น หมอกจางลง", self.level), "Reward")
-	self.ctx.Remotes.Get("Cinematic"):FireAllClients("CampUpgrade", { Level = self.level })
+	self.ctx.FireRun("Cinematic", "CampUpgrade", { Level = self.level })
 	self:UpdateVisual()
 	self:Publish()
 	self:RefreshPrompts()
@@ -282,12 +282,13 @@ function CampService:Craft(player, recipeId, count)
 		self.ctx.Notify(player, "วัตถุดิบไม่พอ", "Error")
 		return
 	end
+	-- ของที่คราฟต์เสร็จเข้าแถบไอเทมล่างจอ (เครื่องมือ/สิ่งก่อสร้าง/ยา) — ช่องเต็มก็อยู่ในกระเป๋า
 	inv:Add(player, r.Id, amount * can)
 	if self.ctx.Services.QuestService then
 		self.ctx.Services.QuestService:Progress(player, "Craft", can)
 	end
 	local suffix = can > 1 and (" x" .. can) or ""
-	self.ctx.Notify(player, "🔨 คราฟต์สำเร็จ: " .. Items.DisplayName(r.Id) .. suffix .. (item.Category == "Structure" and "  (กด B เพื่อวาง)" or ""), "Good")
+	self.ctx.Notify(player, "🔨 คราฟต์สำเร็จ: " .. Items.DisplayName(r.Id) .. suffix .. (item.Category == "Structure" and "  (อยู่ในแถบไอเทมล่างจอ กดเพื่อวาง)" or ""), "Good")
 	self.ctx.Remotes.Get("HitFx"):FireAllClients("Craft", { Position = self.benchPos })
 end
 
@@ -602,7 +603,7 @@ function CampService:Start(ctx)
 				self.fuel = math.max(0, self.fuel - drain * dt)
 				if before > 0 and self.fuel <= 0 then
 					ctx.Broadcast("⚠ กองไฟมอดดับ! เติมไม้ด่วน", "Danger")
-					ctx.Remotes.Get("Cinematic"):FireAllClients("FireOut", {})
+					ctx.FireRun("Cinematic", "FireOut", {})
 				end
 				-- เชื้อเพลิงต่ำกว่า 20%: HUD ของผู้เล่นในรอบเตือนเอง (กะพริบ + เสียง + ข้อความพร้อมเวลาที่เหลือ)
 				self:UpdateVisual()

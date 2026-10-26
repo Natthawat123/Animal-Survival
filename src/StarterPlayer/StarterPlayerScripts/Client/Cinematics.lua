@@ -646,70 +646,77 @@ local function groundReady()
 	return Workspace:Raycast(root.Position, Vector3.new(0, -60, 0), rp) ~= nil
 end
 
--- เข้าเกม: โหลดโลก -> โหลดทรัพยากร (โมเดล/พื้นผิว/เอฟเฟกต์) -> ตัวละคร + พื้นใต้เท้า -> ค่อยปิด
+-- เข้าเกม: โหลดให้ครบก่อนค่อยเปิดจอ (ไม่เข้าไปเจอของค้าง/พื้นยังไม่มา/แมพยังสร้างไม่เสร็จ)
+--   ค่าย 0-25% -> พื้นผิว/โมเดลค่าย 25-50% -> เซิร์ฟเวอร์สร้างแมพ 50-85% -> โมเดลในแมพ/บอส/เอฟเฟกต์ 85-97% -> ตัวละคร+พื้นใต้เท้า 97-100%
+--   ทุกช่วงมีเวลากันค้างยาวๆ (เน็ตช้ามากก็ยังเข้าได้ในที่สุด) · หลอดเดินหน้าอย่างเดียว ไม่ถอยหลัง
 function Cinematics.Loading(state)
 	local ui = loadingScreen(Config.GameName, Config.Subtitle)
 	Cinematics.IsLoading = true
 	task.spawn(function()
-		-- โหลดเฉพาะที่ต้องใช้ในล็อบบี้ แล้วเข้าเกมเลย · แมพใหญ่ (เซิร์ฟเวอร์สร้างต่อเบื้องหลัง) กับโมเดลอื่นๆ โหลดต่อระหว่างอยู่ในล็อบบี้
-		-- 1) ล็อบบี้ทั้งชุดมาถึงเครื่อง 0-40%
-		local w0 = os.clock()
-		local lobby = Workspace:FindFirstChild("Lobby")
-		while os.clock() - w0 < 25 do
-			lobby = Workspace:FindFirstChild("Lobby")
-			local want = lobby and lobby:GetAttribute("Parts")
-			local have = lobby and #lobby:GetDescendants() or 0
-			if want and have >= want * 0.97 then
-				break
-			end
-			local k = want and math.clamp(have / want, 0, 1) or 0
-			ui.Set(0.4 * k, string.format("กำลังโหลดค่าย... %d%%", math.floor(k * 100)))
-			task.wait(0.1)
-		end
-		-- 2) พื้นผิว/โมเดลของล็อบบี้ 40-90% (ชุดละ 60 ชิ้น)
 		local CP = game:GetService("ContentProvider")
 		local function collect(root)
 			local items = {}
 			for _, d in ipairs(root:GetDescendants()) do
 				if d:IsA("MeshPart") or d:IsA("SurfaceAppearance") or d:IsA("Decal") or d:IsA("Texture") or d:IsA("ParticleEmitter")
-					or d:IsA("Beam") or d:IsA("SpecialMesh") or d:IsA("Sound") then
+					or d:IsA("Beam") or d:IsA("SpecialMesh") or d:IsA("Sound") or d:IsA("ImageLabel") or d:IsA("ImageButton") then
 					table.insert(items, d)
 				end
 			end
 			return items
 		end
-		local items = lobby and collect(lobby) or {}
-		local total = math.max(#items, 1)
-		local p0 = os.clock()
-		for i = 1, #items, 60 do
-			if os.clock() - p0 > 12 then
-				break -- เน็ตช้า: ไม่ค้างหน้าโหลด ที่เหลือโหลดต่อในเกม
-			end
-			pcall(function()
-				CP:PreloadAsync(table.move(items, i, math.min(i + 59, #items), 1, {}))
-			end)
-			local done = math.min(i + 59, #items)
-			ui.Set(0.4 + 0.5 * done / total, string.format("กำลังโหลดค่าย %d/%d", done, total))
-		end
-		-- โมเดลในแมพ/บอส/เอฟเฟกต์: โหลดเบื้องหลังหลังเข้าเกม (ไม่ให้ผู้เล่นรอ)
-		task.delay(3, function()
-			local assets = ReplicatedStorage:FindFirstChild("Assets")
-			if assets then
-				local rest = collect(assets)
-				for i = 1, #rest, 30 do
-					pcall(function()
-						CP:PreloadAsync(table.move(rest, i, math.min(i + 29, #rest), 1, {}))
-					end)
-					task.wait(0.2)
+		-- โหลดทรัพยากรเป็นชุด (เดินหลอดจาก a ถึง b) · เกินเวลาที่กำหนด = ไปต่อ
+		local function preload(items, a, b, label, limit)
+			local total = math.max(#items, 1)
+			local p0 = os.clock()
+			for i = 1, #items, 40 do
+				if os.clock() - p0 > limit then
+					break
 				end
+				pcall(function()
+					CP:PreloadAsync(table.move(items, i, math.min(i + 39, #items), 1, {}))
+				end)
+				local done = math.min(i + 39, #items)
+				ui.Set(a + (b - a) * done / total, string.format("%s %d/%d", label, done, total))
 			end
-		end)
-		-- 3) ตัวละคร + พื้นล็อบบี้ใต้เท้า 90-100%
-		ui.Set(0.9, "กำลังจุดกองไฟในค่าย...")
-		local t0 = os.clock()
-		while not (player.Character and groundReady()) and os.clock() - t0 < 20 do
+			ui.Set(b)
+		end
+		-- 1) ค่ายทั้งชุดมาถึงเครื่อง 0-25%
+		local w0 = os.clock()
+		local lobby
+		while os.clock() - w0 < 90 do
+			lobby = Workspace:FindFirstChild("Lobby")
+			local want = lobby and lobby:GetAttribute("Parts")
+			local have = lobby and #lobby:GetDescendants() or 0
+			if want and have >= want * 0.98 then
+				break
+			end
+			local k = want and math.clamp(have / want, 0, 1) or 0
+			ui.Set(0.25 * k, string.format("กำลังโหลดค่าย... %d%%", math.floor(k * 100)))
 			task.wait(0.1)
 		end
+		-- 2) พื้นผิว/โมเดลของค่าย 25-50%
+		preload(lobby and collect(lobby) or {}, 0.25, 0.5, "กำลังโหลดค่าย", 60)
+		-- 3) รอเซิร์ฟเวอร์สร้างแมพเสร็จ 50-85%
+		local g0 = os.clock()
+		while os.clock() - g0 < 240 do
+			local lp = state and state:GetAttribute("LoadProgress") or 1
+			if lp >= 1 then
+				break
+			end
+			ui.Set(0.5 + 0.35 * lp, string.format("กำลังสร้างโลก... %d%%", math.floor(lp * 100)))
+			task.wait(0.2)
+		end
+		ui.Set(0.85, "สร้างโลกเสร็จแล้ว")
+		-- 4) โมเดลในแมพ/สัตว์/บอส/อาวุธ/เอฟเฟกต์ 85-97%
+		local assets = ReplicatedStorage:FindFirstChild("Assets")
+		preload(assets and collect(assets) or {}, 0.85, 0.97, "กำลังโหลดโมเดล", 90)
+		-- 5) ตัวละคร + พื้นใต้เท้า 97-100%
+		ui.Set(0.97, "กำลังจุดกองไฟในค่าย...")
+		local t0 = os.clock()
+		while not (player.Character and groundReady()) and os.clock() - t0 < 60 do
+			task.wait(0.1)
+		end
+		task.wait(0.4) -- ให้เฟรมแรกในค่ายวาดเสร็จก่อนค่อยเปิดจอ
 		ui.Close()
 		Cinematics.IsLoading = false
 		if Cinematics.OnLoaded then

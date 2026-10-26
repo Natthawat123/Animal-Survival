@@ -10,7 +10,7 @@ local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared.Config)
-if ReplicatedStorage:FindFirstChild("ASAutoTest") then
+if ReplicatedStorage:FindFirstChild("ASAutoTest") and not ReplicatedStorage:FindFirstChild("ASSiteProbe") then -- ถ่ายเช็กจุดสำคัญใช้แมพขนาดจริง
 	Config.ApplyTestOverrides()
 end
 local Remotes = require(Shared.Remotes)
@@ -65,8 +65,17 @@ State:SetAttribute("CampPos", ctx.CampPosition)
 function ctx.Notify(player, text, kind)
 	Remotes.Get("Notify"):FireClient(player, text, kind or "Info")
 end
+-- ส่งให้เฉพาะผู้เล่นที่อยู่ในรอบ (ในแมพ) — คนในล็อบบี้ไม่ต้องเห็นเหตุการณ์ในเกม
+function ctx.FireRun(remoteName, ...)
+	local remote = Remotes.Get(remoteName)
+	for _, p in ipairs(game:GetService("Players"):GetPlayers()) do
+		if p:GetAttribute("InRun") then
+			remote:FireClient(p, ...)
+		end
+	end
+end
 function ctx.Broadcast(text, kind)
-	Remotes.Get("Notify"):FireAllClients(text, kind or "Info")
+	ctx.FireRun("Notify", text, kind or "Info")
 end
 
 local order = {
@@ -121,7 +130,7 @@ end
 State:SetAttribute("LoadProgress", 1)
 print(string.format("[AS] world ready %.1fs props=%d", os.clock() - t0, world:GetAttribute("PropCount") or 0))
 for _, sp in ipairs(layout.Specials) do
-	if sp.Kind == "Shrine" or sp.Kind == "Lair" then
+	if sp.Kind == "Shrine" or sp.Kind == "Lair" or sp.Kind == "Ruins" then
 		State:SetAttribute(sp.Kind .. "_" .. sp.Element, sp.Position)
 	end
 end

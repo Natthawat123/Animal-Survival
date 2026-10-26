@@ -180,7 +180,6 @@ Biomes.Data = {
 		Props = {
 			{ Kind = "CharredTree", Weight = 4 },
 			{ Kind = "ObsidianSpire", Weight = 3 },
-			{ Kind = "LavaVent", Weight = 2 },
 			{ Kind = "CoalRock", Weight = 2 },
 			{ Kind = "EmberCrystal", Weight = 0.6 },
 		},

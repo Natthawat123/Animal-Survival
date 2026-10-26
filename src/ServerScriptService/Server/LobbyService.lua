@@ -296,6 +296,25 @@ local function classesTent(self, parent, cf)
 				Transparency = 1, CanQuery = false, CanTouch = false,
 			})
 		end
+		-- หลังคาจั่ว (สันหลังคาวิ่งหน้า-หลัง) ชนได้: วัดจากเมชใน Blender เป็นสัดส่วนของกล่องกระท่อม
+		-- ชายคาซ้าย x -0.50 สูง 0.55 · สัน x -0.05 สูง 0.91 · ชายคาขวา x 0.42 สูง 0.52 · ยาว z -0.44..0.47
+		local bcf = hut:GetBoundingBox()
+		local by = bcf.Y - hs.Y / 2
+		for _, s in ipairs({ { -0.50, 0.55, -0.05, 0.91 }, { -0.05, 0.91, 0.42, 0.52 } }) do
+			local p0 = V(s[1] * hs.X, by - cf.Y + s[2] * hs.Y, 0)
+			local p1 = V(s[3] * hs.X, by - cf.Y + s[4] * hs.Y, 0)
+			local d = p1 - p0
+			local n = V(-d.Y, d.X, 0).Unit
+			if n.Y < 0 then
+				n = -n
+			end
+			local mid = (p0 + p1) / 2 - n * 0.6 + V(0, 0, 0.015 * hs.Z)
+			P(walls, {
+				Name = "HutRoof", Size = V(d.Magnitude + 1, 1.2, 0.91 * hs.Z),
+				CFrame = cf * CF(mid) * ANG(0, 0, math.atan2(d.Y, d.X)),
+				Transparency = 1, CanQuery = false, CanTouch = false,
+			})
+		end
 		walls.Parent = parent
 		tentFolder = Instance.new("Folder")
 		tentFolder.Name = "TentHidden"
@@ -475,7 +494,7 @@ end
 -- หม้อรางวัลประจำวัน (หม้อดำ น้ำเขียวเรืองแสง)
 local function dailyCauldron(self, parent, cf)
 	-- โมเดลบ่อทับทิม (Import 3D ชื่อ RubyWell) แทนหม้อ · ไม่มีโมเดล = หม้อเดิม
-	local well = PropBuilder.Imported("RubyWell", cf * ANG(0, math.pi, 0), 12, parent) -- หมุนกลับให้ด้านหน้าหันเข้าหาลาน
+	local well = PropBuilder.Imported("RubyWell", cf * ANG(0, math.pi, 0), 12, parent, true) -- หมุนกลับให้ด้านหน้าหันเข้าหาลาน · ชนได้ (ไม่เดินทะลุ)
 	local pot
 	if well then
 		pot = P(parent, { Name = "WellAnchor", Size = V(6, 6, 6), CFrame = cf * CF(0, 3, 0), Transparency = 1, CanCollide = false, CanQuery = false })
@@ -698,14 +717,61 @@ function LobbyService:Build()
 		end
 		local campSign = art:FindFirstChild("CampSign", true)
 		if campSign then
+			-- ป้ายไม้แขวนใต้คานซุ้ม (สไตล์ป้ายแคมป์ 99 Nights) แทนแผ่นหินเดิม: ซ่อนแผ่นหิน + เถาวัลย์ที่ห้อยบังตัวหนังสือ
+			local sp = campSign.Position
+			for _, d in ipairs(art:GetDescendants()) do
+				if d:IsA("BasePart") then
+					local o = d.Position - sp
+					if d == campSign or (math.abs(o.X) < 12 and o.Y > -4.5 and o.Y < 2.6 and math.abs(o.Z) < 3) then
+						d.Transparency, d.CanCollide, d.CanQuery = 1, false, false
+					end
+				end
+			end
+			local sc = CF(sp.X, sp.Y - 0.3, sp.Z)
+			local WOOD, LOG, ROPE = C(158, 104, 62), C(92, 60, 38), C(196, 168, 120)
+			local board = P(deco, { Name = "CampSignBoard", Size = V(22, 5, 0.6), CFrame = sc, Color = WOOD, Material = Enum.Material.WoodPlanks })
+			for _, y in ipairs({ -2.7, 2.7 }) do
+				P(deco, { Size = V(23.4, 0.6, 0.9), CFrame = sc * CF(0, y, 0), Color = LOG, Material = Enum.Material.Wood })
+			end
+			for _, x in ipairs({ -11.4, 11.4 }) do
+				P(deco, { Size = V(0.6, 6, 0.9), CFrame = sc * CF(x, 0, 0), Color = LOG, Material = Enum.Material.Wood })
+				P(deco, { Size = V(0.25, 1.4, 0.25), CFrame = sc * CF(x * 0.8, 3.6, 0), Color = ROPE, Material = Enum.Material.Fabric, CanCollide = false })
+			end
 			for _, face in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back }) do
-				local t = label(campSign, face, "WILDHEART CAMP", C(150, 240, 255), Enum.Font.FredokaOne)
+				local sg = Instance.new("SurfaceGui")
+				sg.Face = face
+				sg.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+				sg.PixelsPerStud = 40
+				sg.Parent = board
+				local title = Instance.new("TextLabel")
+				-- ตัวอักษรบรรทัดเดียว (ไม่ตัดขึ้นบรรทัดใหม่) อยู่กลางป้าย เว้นขอบที่เสาซุ้มบัง
+				title.Size = UDim2.fromScale(0.72, 0.5)
+				title.Position = UDim2.fromScale(0.14, 0.1)
+				title.TextWrapped = false
+				title.BackgroundTransparency = 1
+				title.Text = "WILDHEART CAMP"
+				title.TextScaled = true
+				title.Font = Enum.Font.FredokaOne
+				title.TextColor3 = C(255, 236, 190)
+				title.Parent = sg
 				local st = Instance.new("UIStroke")
-				st.Color, st.Thickness, st.Parent = C(8, 40, 60), 3, t
+				st.Color, st.Thickness, st.Parent = C(58, 32, 16), 3, title
+				local sub = Instance.new("TextLabel")
+				sub.Size = UDim2.fromScale(0.56, 0.2)
+				sub.Position = UDim2.fromScale(0.22, 0.66)
+				sub.TextWrapped = false
+				sub.BackgroundTransparency = 1
+				sub.Text = "~ SURVIVE 99 NIGHTS ~"
+				sub.TextScaled = true
+				sub.Font = Enum.Font.FredokaOne
+				sub.TextColor3 = C(255, 200, 110)
+				sub.Parent = sg
+				local st2 = Instance.new("UIStroke")
+				st2.Color, st2.Thickness, st2.Parent = C(58, 32, 16), 2, sub
 			end
 		end
 		local groveSign = art:FindFirstChild("GroveSign", true)
-		local signModel = groveSign and PropBuilder.Imported("LobbySign", CFrame.new(groveSign.Position.X, base.Y + 1, groveSign.Position.Z) * groveSign.CFrame.Rotation, 10.5, m)
+		local signModel = groveSign and PropBuilder.Imported("LobbySign", CFrame.new(groveSign.Position.X, base.Y + 1, groveSign.Position.Z) * groveSign.CFrame.Rotation, 10.5, m, true) -- ชนได้ (ไม่เดินทะลุ)
 		if signModel then
 			-- ซ่อนป้ายหินเดิม + ฐานหิน
 			local gp = groveSign.Position
@@ -843,25 +909,30 @@ function LobbyService:Build()
 
 	-- กระดานข่าว (ขวาของเต็นท์)
 	local nbCf = base * CF(30, 1, -30) * ANG(0, math.rad(162), 0) -- หน้าป้ายหันมาทางจุดเกิด
-	for _, x in ipairs({ -4, 4 }) do
+	for _, x in ipairs({ -6, 6 }) do
 		P(deco, { Size = V(0.9, 12, 0.9), CFrame = nbCf * CF(x, 6, 0), Color = C(74, 52, 38), Material = Enum.Material.Wood })
 	end
-	local nb = P(deco, { Size = V(9.5, 8, 0.5), CFrame = nbCf * CF(0, 7.6, 0), Color = C(150, 96, 56), Material = Enum.Material.WoodPlanks })
-	P(deco, { ClassName = "WedgePart", Size = V(11, 1.5, 2), CFrame = nbCf * CF(0, 12.4, 0), Color = C(90, 60, 40), Material = Enum.Material.Wood })
+	local nb = P(deco, { Size = V(12.5, 8, 0.5), CFrame = nbCf * CF(0, 7.6, 0), Color = C(150, 96, 56), Material = Enum.Material.WoodPlanks })
+	P(deco, { ClassName = "WedgePart", Size = V(14, 1.5, 2), CFrame = nbCf * CF(0, 12.4, 0), Color = C(90, 60, 40), Material = Enum.Material.Wood })
 	local nbg = Instance.new("SurfaceGui")
 	nbg.Face = Enum.NormalId.Front
-	nbg.PixelsPerStud = 36
+	nbg.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud -- ค่าเริ่มต้นคือ FixedSize 800x600 → ตัวหนังสือเล็กจิ๋ว
+	nbg.PixelsPerStud = 40 -- ป้าย 12.5x8 = 500x320 px
 	nbg.Parent = nb
 	local nt = Instance.new("TextLabel")
 	nt.Size = UDim2.fromScale(0.9, 0.9)
 	nt.Position = UDim2.fromScale(0.05, 0.05)
 	nt.BackgroundTransparency = 1
 	nt.RichText = true
-	nt.TextScaled = true
+	-- TextScaled วัดความกว้างอักษรไทย/อีโมจิพลาด ทำให้ล้นขอบป้าย → ใช้ขนาดคงที่ + ตัดบรรทัดเอง
+	nt.TextScaled = false
+	nt.TextSize = 30
 	nt.TextWrapped = true
 	nt.Font = Enum.Font.GothamBold
 	nt.TextColor3 = C(255, 240, 200)
-	nt.Text = '<font color="#FFE066">กระดานข่าวค่าย</font>\n\nรอดคืนสำคัญ (ทุก 5-25 คืน)\n= รับ Ruby ♦️\n\nช่วยลูกสัตว์ธาตุ = ♦️15\n<font color="#8CFF8C">รับ Ruby ฟรีที่หม้อเขียวทุกวัน!</font>'
+	local nst = Instance.new("UIStroke")
+	nst.Color, nst.Thickness, nst.Parent = C(70, 40, 20), 2, nt
+	nt.Text = '<font color="#FFE066" size="40">กระดานข่าวค่าย</font>\n\nรอดคืนสำคัญ (ทุก 5-25 คืน)\n= รับ Ruby ♦️\n\nช่วยลูกสัตว์ธาตุ = ♦️15\n<font color="#8CFF8C">รับ Ruby ฟรีที่หม้อเขียวทุกวัน!</font>'
 	nt.Parent = nbg
 	local nlamp = P(deco, { Size = V(0.9, 0.9, 0.9), CFrame = nbCf * CF(0, 12, -1.6), Color = C(255, 214, 150), Material = Enum.Material.Neon, CanCollide = false })
 	light(nlamp, C(255, 196, 130), 14, 1.6)

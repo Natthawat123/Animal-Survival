@@ -10,6 +10,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Items = require(ReplicatedStorage.Shared.Items)
+local ItemThumbs = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("ItemThumbs"))
 local ToolFactory = require(script.Parent.ToolFactory)
 
 local InventoryService = {}
@@ -108,6 +109,45 @@ function InventoryService:GiveTool(player, id)
 	local tool = ToolFactory.Build(id)
 	if tool then
 		tool.Parent = backpack
+	end
+end
+
+-- สิ่งก่อสร้างที่มีอยู่ -> Tool 1 อันต่อชนิดในแถบเครื่องมือ (ชื่อ + จำนวน + รูป) · หมดแล้วลบ Tool
+function InventoryService:SyncStructureTools(player)
+	local backpack = player:FindFirstChild("Backpack")
+	if not backpack then
+		return
+	end
+	local bag = self:Get(player)
+	local have = {}
+	for _, holder in ipairs({ backpack, player.Character }) do
+		for _, t in ipairs(holder and holder:GetChildren() or {}) do
+			local kind = t:IsA("Tool") and t:GetAttribute("StructureKind")
+			if kind then
+				if (bag[kind] or 0) <= 0 or have[kind] then
+					t:Destroy()
+				else
+					have[kind] = t
+				end
+			end
+		end
+	end
+	for id, n in pairs(bag) do
+		local item = Items.Data[id]
+		if n > 0 and item and item.Category == "Structure" then
+			local t = have[id]
+			if not t then
+				t = Instance.new("Tool")
+				t.RequiresHandle = false
+				t.CanBeDropped = false
+				t.TextureId = ItemThumbs.Url(id)
+				t:SetAttribute("StructureKind", id)
+				t.Parent = backpack
+			end
+			t.Name = string.format("%s x%d", item.Thai, n)
+			t:SetAttribute("Count", n)
+			t.ToolTip = string.format("%s x%d · คลิก = วาง · R = หมุน", item.Thai, n)
+		end
 	end
 end
 
@@ -313,6 +353,7 @@ function InventoryService:Start(ctx)
 			for p in pairs(dirty) do
 				dirty[p] = nil
 				if p.Parent then
+					self:SyncStructureTools(p)
 					local cap, used = self:Capacity(p), self:Used(p)
 					remote:FireClient(p, { Bag = self:Get(p), Camp = camp, Cap = cap, Used = used })
 					-- โชว์จำนวนในกระสอบบนช่องเครื่องมือ เช่น "กระสอบเก่า 3/10"
@@ -321,6 +362,7 @@ function InventoryService:Start(ctx)
 							local id = t:IsA("Tool") and t:GetAttribute("ItemId")
 							if id and Items.Sacks[id] then
 								t.Name = string.format("%s %d/%d", Items.DisplayName(id), used, Items.Sacks[id])
+								t:SetAttribute("Fill", string.format("%d/%d", used, Items.Sacks[id]))
 							end
 						end
 					end

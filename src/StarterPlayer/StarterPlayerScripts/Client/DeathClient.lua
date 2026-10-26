@@ -8,7 +8,6 @@
 local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local StarterGui = game:GetService("StarterGui")
 local Workspace = game:GetService("Workspace")
 
 local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes"))
@@ -21,9 +20,8 @@ local ui = {}
 local target -- ผู้เล่นที่กำลังดูอยู่
 
 local function setBackpack(on)
-	pcall(function()
-		StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, on)
-	end)
+	-- แถบเครื่องมือของเกม (Backpack.lua) แทนของ Roblox ที่ปิดไว้
+	require(script.Parent.Backpack).SetVisible(on)
 end
 
 -- คนที่ยังอยู่ในรอบและยังไม่ตาย (ล้มอยู่ก็ดูได้)

@@ -54,7 +54,7 @@ function SpiritService:SetupShrine(model)
 	local cage = model:FindFirstChild("Cage")
 	local seal = cage and cage:FindFirstChild("Seal")
 	local base = model:GetPivot().Position
-	local sh = { Model = model, Element = el, Base = base, Guardians = {}, Freed = false, Rescued = false }
+	local sh = { Model = model, Element = el, Base = base, SitePos = model:GetAttribute("SitePos") or base, Guardians = {}, Freed = false, Rescued = false }
 	self.shrines[el] = sh
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = "Unseal"
@@ -77,7 +77,7 @@ function SpiritService:SpawnPup(sh)
 		sh.Pup.Model:Destroy()
 	end
 	local id = Animals.Spirits[sh.Element]
-	local a = self.ctx.Services.AnimalService:Spawn(id, sh.Base + Vector3.new(0, 1.5, 0), { Kind = "Spirit" })
+	local a = self.ctx.Services.AnimalService:Spawn(id, sh.Base + Vector3.new(0, 0.3, 0), { Kind = "Spirit", NoSnap = true })
 	if a then
 		a.Root.Anchored = true
 		a.Model:SetAttribute("State", "Caged")
@@ -134,7 +134,7 @@ function SpiritService:Free(el, player)
 	end)
 	a.FollowPlayer = player
 	a.Model:SetAttribute("State", "Follow")
-	self.ctx.Remotes.Get("Cinematic"):FireAllClients("SpiritFreed", { Element = el, Name = a.Info.Thai, Player = player.DisplayName })
+	self.ctx.FireRun("Cinematic", "SpiritFreed", { Element = el, Name = a.Info.Thai, Player = player.DisplayName })
 	self.ctx.Broadcast(string.format("✨ %s ปลดปล่อย %s แล้ว! พามันกลับไปที่กองไฟ", player.DisplayName, a.Info.Thai), "Reward")
 end
 
@@ -170,7 +170,7 @@ function SpiritService:Rescue(a, player)
 		end
 	end
 	s:SetAttribute("SpiritCount", count)
-	self.ctx.Remotes.Get("Cinematic"):FireAllClients("SpiritRescued", { Element = el, Name = a.Info.Thai, Buff = BUFF_TEXT[el], Count = count })
+	self.ctx.FireRun("Cinematic", "SpiritRescued", { Element = el, Name = a.Info.Thai, Buff = BUFF_TEXT[el], Count = count })
 	for _, p in ipairs(Players:GetPlayers()) do
 		self.ctx.Services.DataService:AddDiamonds(p, Classes.SpiritReward, "ช่วย " .. a.Info.Thai)
 		if self.ctx.Services.QuestService then
@@ -190,7 +190,7 @@ function SpiritService:WakeLair(lair, player)
 	local info = Animals.Data[({ Earth = "Terragon", Water = "Leviathan", Air = "TempestRoc", Fire = "Solfang" })[lair.Element]]
 	local id = ({ Earth = "Terragon", Water = "Leviathan", Air = "TempestRoc", Fire = "Solfang" })[lair.Element]
 	local a = self.ctx.Services.AnimalService:Spawn(id, lair.Pos + Vector3.new(0, 2, 0), {
-		Kind = "Guardian", Home = lair.Pos, Leash = 120, HealthMult = 0.7 * Nights.BossHealthMult(self.ctx.Services.SurvivalService:RunPlayerCount(true)),
+		Kind = "Guardian", Home = lair.Pos, Leash = 60, HealthMult = 0.7 * Nights.BossHealthMult(self.ctx.Services.SurvivalService:RunPlayerCount(true)),
 	})
 	if not a then
 		return
@@ -314,7 +314,7 @@ function SpiritService:Reset()
 	local PropBuilder = require(ReplicatedStorage.Shared.PropBuilder)
 	local sites = workspace.World.Sites
 	for el, sh in pairs(self.shrines) do
-		local sp = { Kind = "Shrine", Element = el, Position = sh.Base }
+		local sp = { Kind = "Shrine", Element = el, Position = sh.SitePos or sh.Base }
 		sh.Model:Destroy()
 		local m = PropBuilder.BuildShrine(sp, sites)
 		self:SetupShrine(m)

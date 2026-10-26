@@ -187,7 +187,7 @@ end
 
 Abilities.MeteorRoar = function(ctx, a)
 	cast(ctx, a, "Roar", 1.5, "อุกกาบาตเพลิง!")
-	ctx.Remotes.Get("Cinematic"):FireAllClients("Shake", { Power = 0.7, Time = 1.6 })
+	ctx.FireRun("Cinematic", "Shake", { Power = 0.7, Time = 1.6 })
 	task.wait(0.4)
 	rain(ctx, a, 11, 12, a.Info.Damage * a.DamageMult * 0.7, Color3.fromRGB(60, 40, 36), true, 8)
 end

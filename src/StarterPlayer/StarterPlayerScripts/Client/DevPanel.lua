@@ -267,6 +267,8 @@ local TABS = {
 			btn(page, "🗺 ไบโอม" .. ELEMENT_TH[el], nil, function() run("tp", "Site_" .. el) end)
 			btn(page, "⛩ ศาลเจ้า" .. ELEMENT_TH[el], nil, function() run("tp", "Shrine_" .. el) end)
 			btn(page, "👑 รังบอส" .. ELEMENT_TH[el], C(130, 50, 80), function() run("tp", "Lair_" .. el) end)
+			btn(page, "🏚 ซากปรักหักพัง" .. ELEMENT_TH[el], nil, function() run("tp", "Ruins_" .. el) end)
+			btn(page, "🏛 วิหาร" .. ELEMENT_TH[el], C(110, 90, 50), function() run("tp", "Sanctum_" .. el) end)
 		end
 	end },
 	{ "โปรไฟล์", function(page)
