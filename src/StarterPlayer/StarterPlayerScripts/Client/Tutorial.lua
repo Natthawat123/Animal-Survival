@@ -272,6 +272,7 @@ function Tutorial.Init(gui)
 		Size = UDim2.fromOffset(1220, 560), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), BackgroundColor3 = rgb(26, 26, 34),
 	})
 	ui.Card = card
+	UIKit.AutoScale(card)
 	UIKit.Header(card, "📖 วิธีเอาชีวิตรอด", C.Orange)
 	local row = UIKit.Frame(card, { Size = UDim2.new(1, -60, 1, -150), Position = UDim2.fromOffset(30, 44), BackgroundTransparency = 1 })
 	local grid = Instance.new("UIGridLayout")

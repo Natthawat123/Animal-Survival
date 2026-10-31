@@ -7,9 +7,11 @@
 
 local Players = game:GetService("Players")
 local StarterGui = game:GetService("StarterGui")
+local GuiService = game:GetService("GuiService")
 local UserInputService = game:GetService("UserInputService")
 
 local ItemIcon = require(script.Parent.ItemIcon)
+local UIKit = require(script.Parent.UIKit)
 
 local Backpack = {}
 local player = Players.LocalPlayer
@@ -30,16 +32,39 @@ local BG = Color3.fromRGB(25, 27, 29)
 local BG_T = 0.3
 local SEL = Color3.fromRGB(255, 255, 255)
 
+-- Tool ทั้งหมด (ตัวละครก่อน = อันที่ถือ) · ไอเทมเดียวกันโชว์ช่องเดียว (กันช่องซ้ำตอน server ยังลบ Tool ซ้ำไม่ทัน)
 local function tools()
-	local list = {}
-	for _, holder in ipairs({ player.Character, player:FindFirstChild("Backpack") }) do
-		for _, t in ipairs(holder and holder:GetChildren() or {}) do
+	local list, seen = {}, {}
+	local holders = { player.Character }
+	for _, c in ipairs(player:GetChildren()) do
+		if c:IsA("Backpack") then
+			table.insert(holders, c)
+		end
+	end
+	for _, holder in ipairs(holders) do
+		for _, t in ipairs(holder:GetChildren()) do
 			if t:IsA("Tool") then
-				table.insert(list, t)
+				local key = t:GetAttribute("StructureKind") or t:GetAttribute("ItemId") or t
+				if not seen[key] then
+					seen[key] = true
+					table.insert(list, t)
+				end
 			end
 		end
 	end
 	return list
+end
+
+-- ช่องที่ Tool นี้อยู่ (ไล่ครบทุกช่อง 1..N)
+--   ห้ามใช้ table.find กับ slots: slots มีช่องว่าง (nil) -> table.find หยุดที่ช่องว่างแรก หาไม่เจอ
+--   -> เคยใส่ Tool เดิมซ้ำลงช่องว่างทุกครั้งที่ Refresh (ไอเทมงอกเป็นแถวยาว ขวาน/กระสอบหลายช่อง)
+local function slotOf(t)
+	for i = 1, N do
+		if slots[i] == t then
+			return i
+		end
+	end
+	return nil
 end
 
 local function equipped(t)
@@ -111,7 +136,7 @@ end
 
 -- ใส่ Tool ลงช่อง i (ของเดิมในช่องสลับไปช่องเก่าของ Tool นี้)
 local function assign(t, i)
-	local from = table.find(slots, t)
+	local from = slotOf(t)
 	local old = slots[i]
 	slots[i] = t
 	if from and from ~= i then
@@ -120,13 +145,35 @@ local function assign(t, i)
 	Backpack.Refresh()
 end
 
+-- ลบรูปลากที่ค้างทั้งหมด (มือถือ: นิ้วหลุดจอ/ถูกขัดจังหวะ InputEnded ไม่มา -> กล่องดำค้างบนแถบ)
+local function clearGhosts(keep)
+	for _, c in ipairs(ui.Gui and ui.Gui:GetChildren() or {}) do
+		if c.Name == "DragGhost" and c ~= keep then
+			c:Destroy()
+		end
+	end
+end
+
+-- มือถือ: ลากตามนิ้วที่กดช่องเท่านั้น (Input เดียวกัน) — เดิมนิ้วที่จับจอยเดินนับเป็นการลากด้วย + แตะรัวๆ ทับ drag เก่า
+--   -> รูปของ (Ghost) ค้างจอ งอกเพิ่มทุกครั้งที่แตะ เห็นเป็นอาวุธ/กระสอบเต็มจอ
 local function startPress(t, fromSlot, input)
-	drag = { Tool = t, From = fromSlot, Start = Vector2.new(input.Position.X, input.Position.Y), Moved = false }
+	if drag and drag.Ghost then
+		drag.Ghost:Destroy()
+	end
+	clearGhosts()
+	drag = { Tool = t, From = fromSlot, Start = Vector2.new(input.Position.X, input.Position.Y), Moved = false,
+		Input = input.UserInputType == Enum.UserInputType.Touch and input or nil }
+end
+local function sameFinger(input)
+	return not (drag and drag.Input) or input == drag.Input
 end
 
 local function makeGhost(t)
+	clearGhosts()
 	local g = Instance.new("Frame")
-	g.Size = UDim2.fromOffset(SLOT, SLOT)
+	g.Name = "DragGhost"
+	local k = ui.Scale and ui.Scale.Scale or 1 -- ขนาดเท่าช่องจริง (แถบถูกย่อตามจอ)
+	g.Size = UDim2.fromOffset(SLOT * k, SLOT * k)
 	g.AnchorPoint = Vector2.new(0.5, 0.5)
 	g.BackgroundColor3 = BG
 	g.BackgroundTransparency = 0.15
@@ -176,15 +223,16 @@ local function buildSlot(i)
 	key.TextSize = 13
 	key.TextColor3 = Color3.new(1, 1, 1)
 	key.Text = tostring(i % 10)
+	key.Visible = not UIKit.IsTouch -- เลขปุ่มลัดคีย์บอร์ด: จอสัมผัสไม่ต้องใช้
 	key.ZIndex = 2
 	key.Parent = b
 	local count = Instance.new("TextLabel")
 	count.BackgroundTransparency = 1
-	count.Size = UDim2.new(1, -6, 0, 14)
+	count.Size = UDim2.new(1, -6, 0, UIKit.IsTouch and 17 or 14)
 	count.AnchorPoint = Vector2.new(0, 1)
 	count.Position = UDim2.new(0, 3, 1, -1)
 	count.Font = Enum.Font.BuilderSansBold
-	count.TextSize = 12
+	count.TextSize = UIKit.IsTouch and 15 or 12
 	count.TextXAlignment = Enum.TextXAlignment.Right
 	count.TextColor3 = Color3.new(1, 1, 1)
 	count.TextStrokeTransparency = 0.4
@@ -218,14 +266,32 @@ function Backpack.Build()
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "ASBackpack"
 	gui.ResetOnSpawn = false
-	gui.DisplayOrder = 5
+	gui.DisplayOrder = 6 -- เหนือ HUD: กระเป๋าไม่โดนการ์ดเลือดบัง
 	gui.Parent = player:WaitForChild("PlayerGui")
 	ui.Gui = gui
 	local scale = Instance.new("UIScale")
-	local function rescale()
-		local vp = workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(1280, 720)
-		scale.Scale = math.clamp(math.min(vp.X / ((SLOT + 5) * N + 140), 1), 0.55, 1)
+	-- สเกลแถบคิดจาก "จำนวนช่องที่โชว์อยู่" (โชว์เฉพาะช่องที่มีของ) -> มือถือของน้อยช่องก็ใหญ่กดง่าย
+	-- กระเป๋า (โชว์ครบ 10 ช่อง) ใช้สเกลของแถบเต็มแยกกัน
+	local invScale
+	local function fitFor(n)
+		local vp = UIKit.Viewport()
+		local w = (SLOT + 5) * n + SLOT
+		local s = math.min((vp.X - 80) / w, 1)
+		if UIKit.IsTouch then
+			-- จอสัมผัส: เว้นจอยสติ๊ก (ซ้ายล่าง) + ปุ่มกระโดด/ปุ่มกลม (ขวาล่าง) · แถบสูงไม่เกิน ~15% ของจอ
+			local side = (ui.Inv and ui.Inv.Visible) and 20 or (UIKit.IsPhone() and 175 or 270) -- เปิดกระเป๋า: ไม่ต้องเว้นจอยสติ๊ก ช่องใหญ่กดง่าย
+			s = math.min(s, (vp.X - 2 * side) / w, vp.Y * 0.15 / SLOT)
+		end
+		return math.clamp(s, 0.45, 1) * UIKit.BigScale()
 	end
+	local function rescale()
+		scale.Scale = fitFor(math.max(ui.Shown or N, 3))
+		if invScale then
+			invScale.Scale = fitFor(N)
+			ui.Inv.Position = UDim2.new(0.5, 0, 1, -(SLOT * scale.Scale + 16))
+		end
+	end
+	ui.Rescale = rescale
 	-- แถบช่อง (ล่างกลาง) + ปุ่มกระเป๋าท้ายแถบ
 	local bar = Instance.new("Frame")
 	bar.Name = "Hotbar"
@@ -235,10 +301,9 @@ function Backpack.Build()
 	bar.Size = UDim2.fromOffset((SLOT + 5) * N + SLOT, SLOT)
 	bar.Parent = gui
 	scale.Parent = bar
+	ui.Scale = scale
 	rescale()
-	if workspace.CurrentCamera then
-		workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(rescale)
-	end
+	UIKit.OnResize(rescale)
 	local l = Instance.new("UIListLayout")
 	l.FillDirection = Enum.FillDirection.Horizontal
 	l.HorizontalAlignment = Enum.HorizontalAlignment.Center
@@ -250,19 +315,25 @@ function Backpack.Build()
 		buildSlot(i)
 	end
 	-- ปุ่มกระเป๋า: วงกลมเข้ม + ไอคอนกระเป๋าของ Roblox เอง (ตัวเดียวกับแถบบน) · เปิดอยู่ = ไอคอนทึบ
-	-- อยู่มุมขวาบนสุด ในแถวเดียวกับปุ่ม Roblox ด้านบน (ScreenGui แยก ไม่เว้นที่แถบบน)
+	-- อยู่มุมซ้ายบน ต่อจากปุ่มเมนู/แชทของ Roblox (TopbarInset.Min.X) ในแถวเดียวกัน (ScreenGui แยก ไม่เว้นที่แถบบน)
 	local topGui = Instance.new("ScreenGui")
 	topGui.Name = "ASBackpackButton"
 	topGui.ResetOnSpawn = false
 	topGui.IgnoreGuiInset = true
-	topGui.DisplayOrder = 6
+	topGui.DisplayOrder = 7
 	topGui.Parent = gui.Parent
 	ui.TopGui = topGui
 	local bagBtn = Instance.new("ImageButton")
 	bagBtn.Name = "InventoryButton"
 	bagBtn.Size = UDim2.fromOffset(44, 44)
-	bagBtn.AnchorPoint = Vector2.new(1, 0)
-	bagBtn.Position = UDim2.new(1, -16, 0, 12)
+	local function placeBag()
+		local inset = GuiService.TopbarInset
+		local x = (inset.Min.X > 0 and inset.Min.X or 104) + 8
+		local h = inset.Height > 0 and inset.Height or 58
+		bagBtn.Position = UDim2.fromOffset(x, inset.Min.Y + math.max(0, (h - 44) / 2))
+	end
+	placeBag()
+	GuiService:GetPropertyChangedSignal("TopbarInset"):Connect(placeBag)
 	bagBtn.BackgroundColor3 = Color3.fromRGB(18, 18, 21)
 	bagBtn.BackgroundTransparency = 0.3
 	bagBtn.Image = ""
@@ -291,17 +362,16 @@ function Backpack.Build()
 	inv.Position = UDim2.new(0.5, 0, 1, -(SLOT + 16))
 	inv.Size = UDim2.fromOffset((SLOT + 5) * N + SLOT, 250)
 	inv.BackgroundColor3 = BG
-	inv.BackgroundTransparency = BG_T
+	inv.BackgroundTransparency = UIKit.IsTouch and 0.06 or BG_T -- จอสัมผัส: ทึบ (จอเล็ก กระเป๋าซ้อนการ์ดเลือด)
 	inv.Visible = false
 	inv.Parent = gui
 	local ic = Instance.new("UICorner")
 	ic.CornerRadius = UDim.new(0, 8)
 	ic.Parent = inv
-	local is = scale:Clone()
-	is.Parent = inv
-	scale:GetPropertyChangedSignal("Scale"):Connect(function()
-		is.Scale = scale.Scale
-	end)
+	invScale = Instance.new("UIScale")
+	invScale.Parent = inv
+	ui.Inv = inv
+	rescale()
 	local title = Instance.new("TextLabel")
 	title.BackgroundTransparency = 1
 	title.Size = UDim2.new(1, -20, 0, 28)
@@ -334,7 +404,8 @@ function Backpack.Build()
 		if not drag then
 			return
 		end
-		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+		if (input.UserInputType == Enum.UserInputType.MouseMovement and not drag.Input)
+			or (input.UserInputType == Enum.UserInputType.Touch and sameFinger(input)) then
 			local p = Vector2.new(input.Position.X, input.Position.Y)
 			if not drag.Moved and (p - drag.Start).Magnitude > 8 then
 				drag.Moved = true
@@ -353,11 +424,15 @@ function Backpack.Build()
 		if input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.Touch then
 			return
 		end
+		if input.UserInputType == Enum.UserInputType.Touch and not sameFinger(input) then
+			return -- ปล่อยนิ้วอื่น (จอยเดิน/กล้อง) ไม่ใช่การปล่อยช่องนี้
+		end
 		local d = drag
 		drag = nil
 		if d.Ghost then
 			d.Ghost:Destroy()
 		end
+		clearGhosts()
 		local p = Vector2.new(input.Position.X, input.Position.Y)
 		if d.Moved then
 			local i = slotAt(p)
@@ -410,7 +485,15 @@ function Backpack.Build()
 	task.spawn(function()
 		while gui.Parent do
 			task.wait(0.5)
-			Backpack.Refresh() -- จำนวน/ชื่อเปลี่ยน (Count, กระสอบ 3/10)
+			-- กันรูปลากค้าง: ไม่ได้ลากอยู่ = ไม่ควรมีกล่องลากบนจอ · ลากค้างนานผิดปกติ (นิ้วหลุด) = ยกเลิก
+			if drag and drag.Input and drag.Input.UserInputState == Enum.UserInputState.End then
+				drag = nil
+			end
+			clearGhosts(drag and drag.Ghost)
+			local ok, err = pcall(Backpack.Refresh) -- จำนวน/ชื่อเปลี่ยน (Count, กระสอบ 3/10) · error ห้ามทำลูปตาย (ช่องค้างของเก่า)
+			if not ok then
+				warn("[Backpack] refresh error: " .. tostring(err))
+			end
 		end
 	end)
 	Backpack.Refresh()
@@ -420,18 +503,33 @@ function Backpack.Refresh()
 	if not ui.Bar then
 		return
 	end
+	-- กันพลาด: รูปลากที่ไม่มีเจ้าของแล้ว (ไม่ได้ลากอยู่) ลบทิ้ง
+	for _, c in ipairs(ui.Gui:GetChildren()) do
+		if c.Name == "DragGhost" and not (drag and drag.Ghost == c) then
+			c:Destroy()
+		end
+	end
 	local list = tools()
 	local present = {}
 	for _, t in ipairs(list) do
 		present[t] = true
 	end
+	-- ล้างช่อง: Tool ที่ไม่มีแล้ว / Tool เดียวกันซ้ำหลายช่อง / ไอเทมชนิดเดียวกันซ้ำ (เก็บช่องแรก)
+	local used, usedKey = {}, {}
 	for i = 1, N do
-		if slots[i] and not present[slots[i]] then
-			slots[i] = nil
+		local t = slots[i]
+		if t then
+			local key = t:GetAttribute("StructureKind") or t:GetAttribute("ItemId") or t
+			if not present[t] or used[t] or usedKey[key] then
+				slots[i] = nil
+			else
+				used[t] = true
+				usedKey[key] = true
+			end
 		end
 	end
 	for _, t in ipairs(list) do
-		if not table.find(slots, t) then
+		if not slotOf(t) then
 			for i = 1, N do
 				if not slots[i] then
 					slots[i] = t
@@ -459,6 +557,18 @@ function Backpack.Refresh()
 		-- โชว์เฉพาะช่องที่มีของ (ช่องว่างโผล่ตอนเปิดกระเป๋า/กำลังลาก/เลือกของไว้ จะได้มีที่วาง)
 		s.Button.Visible = t ~= nil or ui.Inv.Visible or drag ~= nil or picked ~= nil
 	end
+	local n = 0
+	for _, s in pairs(ui.Slots) do
+		if s.Button.Visible then
+			n += 1
+		end
+	end
+	if n ~= ui.Shown then
+		ui.Shown = n
+		if ui.Rescale then
+			ui.Rescale()
+		end
+	end
 	ui.Bar.Visible = shown and (#list > 0 or player:GetAttribute("InRun") == true)
 	ui.TopGui.Enabled = ui.Bar.Visible
 	if not ui.Bar.Visible then
@@ -485,7 +595,7 @@ function Backpack.RefreshInventory(list)
 		b.Text = ""
 		b.AutoButtonColor = false
 		b.BackgroundColor3 = BG
-		b.BackgroundTransparency = table.find(slots, t) and 0.55 or 0.15
+		b.BackgroundTransparency = slotOf(t) and 0.55 or 0.15
 		b.LayoutOrder = k
 		b.Parent = ui.InvScroll
 		local c = Instance.new("UICorner")
@@ -529,6 +639,7 @@ function Backpack.ToggleInventory(force)
 		force = not ui.Inv.Visible
 	end
 	ui.Inv.Visible = force and ui.Bar.Visible
+	ui.Rescale() -- เปิดกระเป๋า = ใช้เต็มความกว้าง
 	ui.BagIcon.Image = ui.Inv.Visible and "rbxasset://textures/ui/TopBar/inventoryOn@3x.png" or "rbxasset://textures/ui/TopBar/inventoryOff@3x.png"
 	if not ui.Inv.Visible then
 		picked = nil

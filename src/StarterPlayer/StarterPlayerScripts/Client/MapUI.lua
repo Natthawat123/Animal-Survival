@@ -40,7 +40,21 @@ function MapUI.Init(state, hud, atmosphere)
 		Size = UDim2.new(1, -20, 0, 40), Position = UDim2.new(0, 10, 1, -46), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 13, TextWrapped = true,
 		TextColor3 = C.TextDim, Text = "🔥 แคมป์   ⛩ ศาลเจ้าลูกสัตว์ธาตุ   💀 รังบอส   🏛 วิหารโบราณ   ☄📦 เหตุการณ์   ▲ คุณ   ● เพื่อน   (สถานที่จะปรากฏเมื่อค้นพบ · หมอกเปิดเมื่ออัปเกรดกองไฟ/เดินสำรวจ)",
 	})
-	local _ = legend
+	local legendText = legend.Text
+	local function layoutMap()
+		local phone = UIKit.IsPhone()
+		panel.Size = UDim2.fromOffset(phone and 830 or 620, phone and 620 or 660)
+		mapFrame.Position = UDim2.fromOffset(phone and 20 or 30, 50)
+		legend.Size = phone and UDim2.fromOffset(220, 560) or UDim2.new(1, -20, 0, 40)
+		legend.Position = phone and UDim2.fromOffset(594, 50) or UDim2.new(0, 10, 1, -46)
+		legend.TextSize = phone and 24 or 13
+		legend.TextXAlignment = phone and Enum.TextXAlignment.Left or Enum.TextXAlignment.Center
+		legend.TextYAlignment = phone and Enum.TextYAlignment.Top or Enum.TextYAlignment.Center
+		legend.Text = phone and legendText:gsub("%s%s+", "\n\n") or legendText
+		UIKit.AutoScale(panel)
+	end
+	layoutMap()
+	UIKit.OnResize(layoutMap)
 	MapUI.Panel = panel
 	MapUI.MapFrame = mapFrame
 

@@ -18,6 +18,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared.Config)
 local Remotes = require(Shared.Remotes)
 local Quests = require(Shared.Quests)
+local Classes = require(Shared.Classes)
 local UIKit = require(script.Parent.UIKit)
 local WoodKit = require(script.Parent.WoodKit)
 local LobbyUI = require(script.Parent.LobbyUI)
@@ -295,6 +296,12 @@ local function rewardVisual(cell, reward)
 		UIKit.Text(cell, { Size = UDim2.new(1, 0, 0, 40), Position = UDim2.fromOffset(0, 6), Text = t.Icon, TextSize = 32, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 4 })
 		UIKit.Text(cell, { Size = UDim2.new(1, -8, 0, 16), Position = UDim2.fromOffset(4, 48), Text = "ฉายา", TextSize = 13, TextColor3 = rgb(226, 210, 186), TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 4 })
 		UIKit.Text(cell, { Size = UDim2.new(1, -8, 0, 20), Position = UDim2.fromOffset(4, 64), Text = t.Text, Font = UIKit.Fonts.Title, TextSize = 15, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 4 })
+	elseif reward.Class and Classes.Data[reward.Class] then
+		local c = Classes.Data[reward.Class]
+		local sc = Classes.StarColor[c.Stars]
+		UIKit.Text(cell, { Size = UDim2.new(1, 0, 0, 40), Position = UDim2.fromOffset(0, 6), Text = c.Icon, TextSize = 32, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 4 })
+		UIKit.Text(cell, { Size = UDim2.new(1, -8, 0, 16), Position = UDim2.fromOffset(4, 48), Text = "คลาส " .. string.rep("★", c.Stars), TextSize = 13, TextColor3 = sc, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 4 })
+		UIKit.Text(cell, { Size = UDim2.new(1, -8, 0, 20), Position = UDim2.fromOffset(4, 64), Text = c.Thai, Font = UIKit.Fonts.Title, TextSize = 15, TextColor3 = sc, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 4 })
 	elseif reward.Color and Quests.Colors[reward.Color] then
 		local col = Quests.Colors[reward.Color]
 		local sw = UIKit.Frame(cell, { Size = UDim2.fromOffset(36, 36), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 10), BackgroundColor3 = col.Color, BackgroundTransparency = 0, ZIndex = 4 })
@@ -306,7 +313,7 @@ local function rewardVisual(cell, reward)
 		UIKit.Icon(cell, "Ruby", 48, { AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 6), ZIndex = 4 })
 		UIKit.Text(cell, { Size = UDim2.new(1, -8, 0, 24), Position = UDim2.fromOffset(4, 58), Text = (reward.Ruby or 0) .. " Ruby", Font = UIKit.Fonts.Title, TextSize = 17, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 4 })
 	end
-	if reward.Ruby and (reward.Title or reward.Color) then
+	if reward.Ruby and (reward.Title or reward.Color or reward.Class) then
 		UIKit.Text(cell, { Size = UDim2.new(1, -8, 0, 16), Position = UDim2.fromOffset(4, 86), Text = "+ " .. reward.Ruby .. " Ruby", TextSize = 13, TextColor3 = rgb(255, 200, 200), TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 4 })
 	end
 end
@@ -678,7 +685,7 @@ function QuestUI.OnLoaded()
 end
 
 function QuestUI.Init(gui)
-	local win = WoodKit.Window(gui, { Name = "QuestWindow", Size = Vector2.new(1080, 620), Title = "ภารกิจ & รางวัล", OnClose = QuestUI.Close })
+	local win = WoodKit.Window(gui, { Name = "QuestWindow", Size = Vector2.new(1080, 620), Title = "ภารกิจ & รางวัล", Shrink = false, OnClose = QuestUI.Close })
 	ui.Panel = win.Frame
 	local body = win.Body
 	-- Ruby ของเรา

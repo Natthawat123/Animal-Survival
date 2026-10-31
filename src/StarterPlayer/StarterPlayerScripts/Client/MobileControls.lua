@@ -1,8 +1,7 @@
 --[[
 	MobileControls — ปุ่มบนจอสำหรับมือถือ/แท็บเล็ต (แทนปุ่มคีย์บอร์ดทั้งหมด)
 	  วางเป็นวงรอบปุ่มกระโดดของ Roblox (มุมขวาล่าง) แบบเกมมือถือทั่วไป — ไม่ลอยทับกลางจอ ไม่ทับกันเอง
-	    วงใน : 🏃 วิ่ง (แตะ = เปิด/ปิด) · 🔨 คราฟต์ · 🏗 สร้าง
-	    วงนอก: 🎒 กระสอบ · 📤 เอาของออก (เฉพาะตอนถือกระสอบ)
+	    วิ่ง (แตะ = เปิด/ปิด) · เอาของออก (เฉพาะตอนถือกระสอบ) · ล็อกกล้อง — ปุ่มตัวหนังสือล้วน ไม่มีไอคอน
 	    🗺 แผนที่ = ปุ่มเล็กข้างปุ่ม ⚙ ใต้การ์ดกองไฟ (มุมขวาบน)
 	  โหมดสร้าง: ↻ หมุน · ⇄ เปลี่ยน · ✔ วาง · ✕ ยกเลิก (แถวล่างกลางจอ) — เล็งด้วยเป้ากลางจอ
 	  ตี/ตัด = แตะจอตอนถือเครื่องมือ (ระบบ Tool ของ Roblox) · เก็บของ = แตะปุ่ม E บนของ
@@ -24,15 +23,20 @@ local player = Players.LocalPlayer
 local C = UIKit.Colors
 
 function MobileControls.IsTouch()
-	return UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+	return UIKit.IsTouch
 end
 
--- ปุ่มกลม: ไอคอนใหญ่ + ชื่อเล็กใต้ไอคอน (ตัวหนังสือย่อเองตามขนาดปุ่ม)
+-- ปุ่มกลม: ไอคอนใหญ่ + ชื่อเล็กใต้ไอคอน · icon = nil -> ตัวหนังสืออย่างเดียวกลางปุ่ม (ปุ่มรอบปุ่มกระโดด)
 local function roundButton(parent, icon, label, color, onClick)
 	local b = UIKit.ColorButton(parent, color, { Size = UDim2.fromOffset(52, 52), Text = "", AnchorPoint = Vector2.new(0.5, 0.5) }, onClick)
 	b:FindFirstChildOfClass("UICorner").CornerRadius = UDim.new(1, 0)
-	local ic = UIKit.Text(b, { Size = UDim2.fromScale(1, 0.58), Position = UDim2.fromScale(0, 0.06), Text = icon, TextScaled = true, TextXAlignment = Enum.TextXAlignment.Center })
-	local lb = UIKit.Text(b, { Size = UDim2.fromScale(1, 0.3), Position = UDim2.fromScale(0, 0.62), Text = label, TextScaled = true, Font = UIKit.Fonts.Title, TextXAlignment = Enum.TextXAlignment.Center })
+	local ic, lb
+	if icon then
+		ic = UIKit.Text(b, { Size = UDim2.fromScale(1, 0.58), Position = UDim2.fromScale(0, 0.06), Text = icon, TextScaled = true, TextXAlignment = Enum.TextXAlignment.Center })
+		lb = UIKit.Text(b, { Size = UDim2.fromScale(1, 0.3), Position = UDim2.fromScale(0, 0.62), Text = label, TextScaled = true, Font = UIKit.Fonts.Title, TextXAlignment = Enum.TextXAlignment.Center })
+	else
+		lb = UIKit.Text(b, { Size = UDim2.fromScale(1, 0.42), AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.fromScale(0, 0.5), Text = label, TextScaled = true, Font = UIKit.Fonts.Title, TextXAlignment = Enum.TextXAlignment.Center })
+	end
 	local pad = Instance.new("UIPadding")
 	pad.PaddingLeft, pad.PaddingRight = UDim.new(0.1, 0), UDim.new(0.1, 0)
 	pad.Parent = b
@@ -49,23 +53,61 @@ function MobileControls.Init(deps)
 
 	-- ปุ่มรอบปุ่มกระโดด (ตำแหน่งคำนวณใหม่ทุกครั้งที่จอเปลี่ยนขนาด)
 	local ring = UIKit.Frame(gui, { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1 })
-	local sprint, _, sprintLabel = roundButton(ring, "🏃", "วิ่ง", C.Cyan, function()
+	local sprint, _, sprintLabel = roundButton(ring, nil, "วิ่ง", C.Cyan, function()
 		if combat then
 			combat.SetSprint(not combat.IsSprinting())
 		end
 	end)
-	local craftB = roundButton(ring, "🔨", "คราฟต์", C.Orange, menus.ToggleCraft)
-	local buildB = roundButton(ring, "🏗", "สร้าง", C.Blue, menus.ToggleBuildPicker)
-	local bagB = roundButton(ring, "🎒", "กระสอบ", C.Green, function()
-		menus.ToggleBag()
-	end)
-	local dropB = roundButton(ring, "📤", "เอาออก", C.Pink, function()
+	-- คราฟต์ = กด E ที่โต๊ะ · สร้าง = เลือกของในแถบไอเทม · กระสอบ = ปุ่มกระเป๋ามุมขวาบน -> ไม่ต้องมีปุ่มซ้ำ
+	local dropB = roundButton(ring, nil, "เอาออก", C.Pink, function()
 		Remotes.Get("DropItem"):FireServer(nil, 1)
+	end)
+	-- 🔒 ล็อกกล้อง (Shift Lock แบบมือถือ): ตัวละครหันตามกล้องตลอด + กล้องเยื้องข้างไหล่ · ปัดจอหมุนกล้อง = หมุนตัว
+	local RunService = game:GetService("RunService")
+	local locked = false
+	local lockB, _, lockLabel
+	local function hum()
+		local c = player.Character
+		return c and c:FindFirstChildOfClass("Humanoid"), c and c:FindFirstChild("HumanoidRootPart")
+	end
+	local function setLock(on)
+		locked = on
+		local h = hum()
+		if h then
+			h.CameraOffset = on and Vector3.new(1.75, 0, 0) or Vector3.zero
+			if not on and not (player:GetAttribute("Downed") or player:GetAttribute("Dead")) then
+				h.AutoRotate = true
+			end
+		end
+		if lockB then
+			lockB.BackgroundColor3 = on and C.Gold or C.Blue
+			lockLabel.Text = on and "ล็อกอยู่" or "ล็อก"
+		end
+	end
+	lockB, _, lockLabel = roundButton(ring, nil, "ล็อก", C.Blue, function()
+		setLock(not locked)
+	end)
+	RunService:BindToRenderStep("ASMobileLock", Enum.RenderPriority.Camera.Value + 1, function()
+		if not locked then
+			return
+		end
+		local h, root = hum()
+		if not (h and root) or h.Health <= 0 or root.Anchored or player:GetAttribute("Downed") or player:GetAttribute("Dead") then
+			return
+		end
+		h.AutoRotate = false
+		h.CameraOffset = Vector3.new(1.75, 0, 0)
+		local look = Workspace.CurrentCamera.CFrame.LookVector * Vector3.new(1, 0, 1)
+		if look.Magnitude > 0.01 then
+			root.CFrame = CFrame.lookAt(root.Position, root.Position + look.Unit)
+		end
+	end)
+	player.CharacterAdded:Connect(function()
+		task.defer(setLock, locked)
 	end)
 	-- φ = 0 (ซ้ายของปุ่มกระโดด) .. 90 (เหนือปุ่มกระโดด)
 	local slots = {
-		{ sprint, 1, 0 }, { craftB, 1, 45 }, { buildB, 1, 90 },
-		{ dropB, 2, 4 }, { bagB, 2, 52 },
+		{ sprint, 1, 0 }, { dropB, 1, 60 }, { lockB, 2, 30 },
 	}
 
 	-- แผนที่: ปุ่มเล็กใต้ปุ่ม ⚙ ข้างการ์ดกองไฟ (มุมขวาบน ไม่กินพื้นที่ปุ่มหลัก)
@@ -101,7 +143,7 @@ function MobileControls.Init(deps)
 	end
 
 	local function layout()
-		local vp = Workspace.CurrentCamera.ViewportSize
+		local vp = UIKit.Viewport()
 		local k = ClientSettings.Get("TouchSize") or 1
 		local small = math.min(vp.X, vp.Y) <= 500
 		-- ตำแหน่ง/ขนาดปุ่มกระโดดของ Roblox (TouchJump) นับจากมุมขวาล่าง
@@ -127,7 +169,7 @@ function MobileControls.Init(deps)
 			layout()
 		end
 	end)
-	Workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(layout)
+	UIKit.OnResize(layout)
 
 	-- โชว์/ซ่อนตามสถานะ (ในแมพ / ล้ม / ตาย / กำลังสร้าง / ถือกระสอบ)
 	local holding = false

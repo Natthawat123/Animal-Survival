@@ -14,10 +14,27 @@ local UIKit = {}
 ---------------------------------------------------------------- สเกลอัตโนมัติตามขนาดจอ (มือถือจอเล็ก = ย่อ UI ลง)
 -- UIKit.AutoScale(frame): ใส่ UIScale ที่ปรับเองเมื่อจอเปลี่ยนขนาด · UIKit.UserScale = ตัวคูณจากหน้าตั้งค่า
 --   หน้าต่างกลางจอ (AnchorPoint 0.5,0.5 + ขนาดเป็นพิกเซล) จะถูกย่อเพิ่มจน "พอดีจอเสมอ" (ปุ่มปิด/หัวหน้าต่างไม่หลุดขอบ)
+--   แผงชิดขอบจอ (มุม/ข้าง) ถูกบีบไม่ให้กินจอเกิน maxW/maxH (สัดส่วนของจอ) -> ไม่ล้นจอ/ไม่ทับกันบนมือถือ
+--   UIKit.AutoScale(frame, { w = กว้างจริง(px), h = สูงจริง(px), maxW = 0.3, maxH = 0.5, phoneMaxW = 0.25 }) — ไม่ใส่ = ใช้ Size ของกรอบ / พอดีจอ
 UIKit.UserScale = 1
-UIKit.IsTouch = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
-local scaled = setmetatable({}, { __mode = "k" })
-local function viewport()
+-- เทสต์ --uiaudit=touch: จำลองเครื่องจอสัมผัสใน Studio (ปุ่มมือถือ/ข้อความแบบมือถือขึ้นครบ)
+UIKit.SimTouch = game:GetService("ReplicatedStorage"):FindFirstChild("ASSimTouch") ~= nil
+UIKit.IsTouch = UIKit.SimTouch or (UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled)
+-- UIKit.Sim = { Size = Vector2, Device = "Phone"|"Tablet"|"Desktop" } -> ทุกอย่างคิดเหมือนจอขนาดนั้น (ใช้เฉพาะเทสต์)
+UIKit.Sim = nil
+local resized = Instance.new("BindableEvent")
+-- ห้ามใช้ weak table: ตัวอ้างอิง Instance ใน Lua ถูกเก็บขยะได้แม้กรอบยังอยู่ในเกม (กรอบที่ไม่มีใครถือ เช่นเมนูซ้าย จะหลุดจากการปรับสเกล)
+local scaled = {} -- frame -> opts (ลบตอน Destroying)
+local watchedGuis = {}
+local function viewport(frame)
+	if UIKit.Sim then
+		return UIKit.Sim.Size
+	end
+	-- ใช้พื้นที่จริงของ ScreenGui (หักติ่งกล้อง/ขอบโค้งแล้ว) ก่อน · ยังไม่มีขนาดค่อยใช้กล้อง
+	local gui = frame and frame:FindFirstAncestorOfClass("ScreenGui")
+	if gui and gui.AbsoluteSize.X > 50 and gui.AbsoluteSize.Y > 50 then
+		return gui.AbsoluteSize
+	end
 	local cam = Workspace.CurrentCamera
 	local vp = cam and cam.ViewportSize or Vector2.new(1280, 720)
 	if vp.X < 50 or vp.Y < 50 then
@@ -25,18 +42,72 @@ local function viewport()
 	end
 	return vp
 end
-function UIKit.GetScale(frame)
-	local vp = viewport()
-	-- มือถือ: อ้างอิงจอเล็กกว่า (UI ใหญ่ขึ้นนิด ปุ่มกดง่าย) — หน้าต่างใหญ่ยังถูกบีบให้พอดีจอด้านล่าง
-	local refX, refY = 1280, 720
-	if UIKit.IsTouch then
-		refX, refY = 1100, 620
+-- ชนิดจอ: "Phone" (จอสัมผัส ด้านสั้น < 520) · "Tablet" (จอสัมผัสใหญ่ เช่น iPad) · "Desktop" (คอม/โน้ตบุ๊ก)
+function UIKit.DeviceClass(vp)
+	if UIKit.Sim then
+		return UIKit.Sim.Device
 	end
-	local base = math.clamp(math.min(vp.X / refX, vp.Y / refY), 0.4, 1) * UIKit.UserScale
-	if frame and frame:IsA("GuiObject") and frame.AnchorPoint == Vector2.new(0.5, 0.5) and frame.Size.X.Scale == 0 and frame.Size.Y.Scale == 0 then
-		-- เผื่อขอบ: แถบหัวหน้าต่าง (ยื่นขึ้น ~24) + ปุ่มปิด (ยื่นออก ~30) + ระยะห่างจากขอบจอ
-		local w, h = frame.Size.X.Offset + 70, frame.Size.Y.Offset + 70
-		base = math.min(base, (vp.X - 16) / w, (vp.Y - 16) / h)
+	vp = vp or viewport()
+	local touch = UIKit.SimTouch or UserInputService.TouchEnabled
+	if touch and math.min(vp.X, vp.Y) < 520 then
+		return "Phone"
+	end
+	if touch and not UserInputService.MouseEnabled then
+		return "Tablet"
+	end
+	return "Desktop"
+end
+function UIKit.IsPhone()
+	return UIKit.DeviceClass() == "Phone"
+end
+-- ขนาดจอที่ UI ใช้ (หักติ่งกล้องแล้ว · โหมดเทสต์ = จอจำลอง) — ใช้แทน CurrentCamera.ViewportSize ในโค้ด UI
+function UIKit.Viewport()
+	if UIKit.Sim then
+		return UIKit.Sim.Size
+	end
+	local pg = Players.LocalPlayer and Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")
+	local hud = pg and pg:FindFirstChild("HUD")
+	return viewport(hud and hud:IsA("ScreenGui") and hud:FindFirstChildWhichIsA("GuiObject") or nil)
+end
+-- fn() ถูกเรียกทุกครั้งที่จอเปลี่ยนขนาด/สเกลผู้ใช้เปลี่ยน
+function UIKit.OnResize(fn)
+	return resized.Event:Connect(fn)
+end
+-- จอสูงเกิน 1080 (2K/4K): ขยาย UI ตามจอ ไม่งั้นเล็กจิ๋ว (สูงสุด 2 เท่า)
+function UIKit.BigScale()
+	local y = viewport().Y
+	return y > 1100 and math.min(y / 1080, 2) or 1
+end
+function UIKit.GetScale(frame)
+	local vp = viewport(frame)
+	local dev = UIKit.DeviceClass(vp)
+	-- มือถือ/แท็บเล็ต: อ้างอิงจอเล็กกว่านิด (ปุ่มกดง่าย) — แต่ทุกกรอบยังถูกบีบให้พอดีจอด้านล่าง
+	local refX, refY = 1280, 720
+	if dev == "Phone" then
+		refX, refY = 1100, 560 -- มือถือ: HUD ใหญ่ขึ้นให้อ่านออก (แผงชิดขอบถูกบีบด้วย maxW/maxH ไม่ให้ชนกัน)
+	elseif dev == "Tablet" then
+		refX, refY = 1180, 700
+	end
+	local base = math.clamp(math.min(vp.X / refX, vp.Y / refY), 0.4, 1) * UIKit.BigScale() * UIKit.UserScale
+	if frame and frame:IsA("GuiObject") then
+		local o = type(scaled[frame]) == "table" and scaled[frame] or {}
+		local w = (dev == "Phone" and o.phoneW) or o.w or (frame.Size.X.Scale == 0 and frame.Size.X.Offset) or 0
+		local h = o.h or (frame.Size.Y.Scale == 0 and frame.Size.Y.Offset) or 0
+		if o.envW then
+			-- หน้าต่างที่บอกขอบเขตจริงมา (รวมป้ายชื่อ/ธง/หัวสัตว์ที่ยื่นออกนอกกรอบ) -> พอดีจอแบบเป๊ะ
+			return math.max(math.min(base, (vp.X - 12) / o.envW, (vp.Y - 12) / o.envH), 0.3)
+		end
+		if frame.AnchorPoint == Vector2.new(0.5, 0.5) and w > 0 and h > 0 and not o.maxW then
+			-- หน้าต่างกลางจอ — เผื่อขอบ: แถบหัวหน้าต่าง (ยื่นขึ้น ~24) + ปุ่มปิด (ยื่นออก ~30) + ระยะห่างจากขอบจอ
+			base = math.min(base, (vp.X - 16) / (w + 70), (vp.Y - 16) / (h + 70))
+		else
+			if w > 0 then
+				base = math.min(base, vp.X * ((dev == "Phone" and o.phoneMaxW) or o.maxW or 0.96) / w)
+			end
+			if h > 0 then
+				base = math.min(base, vp.Y * (o.maxH or 0.94) / h)
+			end
+		end
 	end
 	return math.max(base, 0.3)
 end
@@ -49,22 +120,64 @@ local function scaler(frame)
 	end
 	return sc
 end
-function UIKit.AutoScale(frame)
-	scaler(frame).Scale = UIKit.GetScale(frame)
-	scaled[frame] = true
+-- จอเปลี่ยนขนาด (หมุนจอ/ย่อหน้าต่าง/ติ่งกล้อง) -> ปรับใหม่ทุกกรอบ
+local function watchGui(frame)
+	local gui = frame:FindFirstAncestorOfClass("ScreenGui")
+	if gui and not watchedGuis[gui] then
+		watchedGuis[gui] = true
+		gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+			UIKit.RefreshScale()
+		end)
+	end
+end
+local function apply(frame)
+	local s = UIKit.GetScale(frame)
+	scaler(frame).Scale = s
+	local o = scaled[frame]
+	if type(o) == "table" and o.envTop then
+		-- ของตกแต่งยื่นขึ้นด้านบน -> เลื่อนหน้าต่างลงครึ่งหนึ่ง ให้ "ทั้งชุด" อยู่กลางจอ
+		frame.Position = UDim2.new(0.5, 0, 0.5, math.floor(o.envTop * s / 2))
+	end
+	watchGui(frame)
+end
+local function track(frame, opts)
+	if scaled[frame] == nil then
+		frame.Destroying:Once(function()
+			scaled[frame] = nil
+		end)
+	end
+	scaled[frame] = opts or scaled[frame] or true
+end
+function UIKit.AutoScale(frame, opts)
+	track(frame, opts)
+	apply(frame)
 	return frame
 end
 function UIKit.RefreshScale()
 	for f in pairs(scaled) do
 		if f.Parent then
-			scaler(f).Scale = UIKit.GetScale(f)
+			apply(f)
 		end
 	end
+	resized:Fire()
 end
 task.defer(function()
-	local cam = Workspace.CurrentCamera
-	if cam then
-		cam:GetPropertyChangedSignal("ViewportSize"):Connect(UIKit.RefreshScale)
+	local conn
+	local function hook()
+		if conn then
+			conn:Disconnect()
+		end
+		local cam = Workspace.CurrentCamera
+		if cam then
+			conn = cam:GetPropertyChangedSignal("ViewportSize"):Connect(UIKit.RefreshScale)
+		end
+		UIKit.RefreshScale()
+	end
+	hook()
+	Workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(hook) -- กล้องถูกสร้างใหม่ตอนเริ่ม -> ไม่ให้สเกลค้างค่าเริ่มต้น
+	-- มือถือบางรุ่นรายงานขนาดจอช้าตอนเปิดเกม -> เช็กซ้ำช่วงแรก
+	for _, t in ipairs({ 1, 3, 6 }) do
+		task.delay(t, UIKit.RefreshScale)
 	end
 end)
 
@@ -209,16 +322,36 @@ function UIKit.FitText(obj)
 	if h.Scale == 0 and h.Offset < size * 0.85 then
 		return -- กรอบเตี้ยกว่าตัวอักษร (ตั้งใจให้ล้นขึ้นลง) ไม่ยุ่ง
 	end
+	-- จอสัมผัส: ตัวหนังสือเล็ก (< 18) โตได้อีก 20% ถ้ากรอบยังมีที่ (จอเล็ก UI ถูกย่อ อ่านยาก)
+	local function cap(v)
+		return math.floor(v * ((UIKit.IsTouch and v < 18) and 1.2 or 1))
+	end
 	local c = Instance.new("UITextSizeConstraint")
-	c.MaxTextSize = size
+	c.MaxTextSize = cap(size)
 	c.MinTextSize = math.max(8, math.floor(size * 0.5))
 	c.Parent = obj
 	obj.TextScaled = true
 	-- โค้ดที่ตั้ง/ทวีน TextSize ทีหลัง (เช่น ป้ายใหญ่กลางจอ) ยังได้ขนาดตามที่ตั้ง
 	obj:GetPropertyChangedSignal("TextSize"):Connect(function()
-		c.MaxTextSize = math.max(1, obj.TextSize)
+		c.MaxTextSize = math.max(1, cap(obj.TextSize))
 		c.MinTextSize = math.min(c.MaxTextSize, math.max(8, math.floor(obj.TextSize * 0.5)))
 	end)
+end
+
+-- ตัดไอคอน/อีโมจิออกจากข้อความแจ้งเตือน (ข้อความจากเซิร์ฟเวอร์มีไอคอนนำหน้าเยอะ) · ลูกศร/ขีด/ตัวอักษรไม่โดน
+function UIKit.StripIcons(text)
+	if type(text) ~= "string" or not utf8.len(text) then
+		return text
+	end
+	local out = {}
+	for _, c in utf8.codes(text) do
+		local icon = (c >= 0x2300 and c <= 0x2BFF) or (c >= 0x1F000 and c <= 0x1FAFF) or c == 0xFE0F or c == 0x200D or c == 0x20E3 or c == 0x21A9
+		if not icon then
+			table.insert(out, utf8.char(c))
+		end
+	end
+	local result = table.concat(out):gsub("  +", " "):gsub("^%s+", ""):gsub("%s+$", "")
+	return result
 end
 
 function UIKit.Text(parent, props)
@@ -306,6 +439,7 @@ function UIKit.Button(parent, props, onClick)
 	end)
 	if onClick then
 		b.Activated:Connect(onClick)
+		UIKit.EnsureTouchSize(b, 42, onClick, 12) -- จอสัมผัส: พื้นที่แตะขั้นต่ำ (โตเกินปุ่มไม่เกิน 12px/ด้าน)
 	end
 	return b
 end
@@ -320,9 +454,14 @@ end
 -- ปุ่มปิด X วงกลมแดงมุมขวาบน
 function UIKit.CloseButton(panel, onClose)
 	local b = UIKit.Button(panel, {
-		Size = UDim2.fromOffset(44, 44), Position = UDim2.new(1, -30, 0, -14), BackgroundColor3 = UIKit.Colors.Red, Text = "✕", TextSize = 24, ZIndex = 10,
+		Size = UDim2.fromOffset(44, 44), Position = UDim2.new(1, -30, 0, -14), BackgroundColor3 = UIKit.Colors.Red, Text = "", ZIndex = 10,
 	}, onClose)
 	b:FindFirstChildOfClass("UICorner").CornerRadius = UDim.new(1, 0)
+	-- กากบาทวาดจาก Frame (ฟอนต์ Fredoka ไม่มีตัว ✕)
+	for _, rot in ipairs({ 45, -45 }) do
+		local bar = UIKit.Frame(b, { Size = UDim2.fromOffset(24, 5), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Rotation = rot, BackgroundColor3 = UIKit.Colors.Text, BackgroundTransparency = 0, ZIndex = 11 })
+		UIKit.Corner(bar, 2)
+	end
 	UIKit.EnsureTouchSize(b, 44, onClose)
 	return b
 end
@@ -330,12 +469,23 @@ end
 ---------------------------------------------------------------- ปุ่มนิ้วกดง่าย (มือถือ)
 -- ปุ่มที่อยู่ในกรอบที่ถูกย่อ (AutoScale) อาจเล็กกว่า 44px บนจอจริง -> ใส่พื้นที่แตะล่องหนรอบปุ่มให้ได้อย่างน้อย minPx บนจอเสมอ
 -- (เฉพาะเครื่องจอสัมผัส · onActivate = ฟังก์ชันเดียวกับที่ปุ่มทำ)
-function UIKit.EnsureTouchSize(button, minPx, onActivate)
-	if not (UIKit.IsTouch and button and onActivate) or button:FindFirstChild("TouchHit") then
+-- maxGrow = ขยายเกินตัวปุ่มได้สูงสุดกี่ px ต่อด้าน (บนจอจริง) — ปุ่มทั่วไปใส่อัตโนมัติแบบจำกัด ไม่ให้ทับปุ่มข้าง ๆ
+function UIKit.EnsureTouchSize(button, minPx, onActivate, maxGrow)
+	if not (UIKit.IsTouch and button and onActivate) then
 		return
 	end
-	minPx = minPx or 44
+	local old = button:FindFirstChild("TouchHit")
+	if old then
+		-- เรียกซ้ำแบบไม่จำกัด (ปุ่มสำคัญ เช่น ปุ่มปิด) -> ปลดเพดานของตัวอัตโนมัติ
+		if not maxGrow and old:GetAttribute("MaxGrow") then
+			old:SetAttribute("MinPx", minPx or 44)
+			old:SetAttribute("MaxGrow", nil)
+		end
+		return old
+	end
 	local hit = Instance.new("TextButton")
+	hit:SetAttribute("MinPx", minPx or 44)
+	hit:SetAttribute("MaxGrow", maxGrow)
 	hit.Name = "TouchHit"
 	hit.Text = ""
 	hit.BackgroundTransparency = 1
@@ -346,16 +496,30 @@ function UIKit.EnsureTouchSize(button, minPx, onActivate)
 	hit.ZIndex = button.ZIndex + 1
 	hit.Parent = button
 	local function fit()
-		local abs, off = button.AbsoluteSize, button.Size
-		if abs.X <= 0 or abs.Y <= 0 or off.X.Offset <= 0 or off.Y.Offset <= 0 then
+		local abs = button.AbsoluteSize
+		if abs.X <= 0 or abs.Y <= 0 then
 			return
 		end
 		-- ตัวคูณสเกลจริงบนจอ (รวม UIScale ของกรอบแม่ทุกชั้น)
-		local k = math.max(abs.X / off.X.Offset, 0.05)
-		local need = minPx / k
-		hit.Size = UDim2.fromOffset(math.max(off.X.Offset, need), math.max(off.Y.Offset, need))
+		local k, p = 1, button
+		while p and not p:IsA("LayerCollector") do
+			local sc = p:FindFirstChildOfClass("UIScale")
+			if sc then
+				k *= sc.Scale
+			end
+			p = p.Parent
+		end
+		k = math.max(k, 0.05)
+		local need = (hit:GetAttribute("MinPx") or 44) / k
+		local grow = hit:GetAttribute("MaxGrow")
+		local function side(o)
+			local n = math.max(o, need)
+			return grow and math.min(n, o + grow * 2 / k) or n
+		end
+		hit.Size = UDim2.fromOffset(side(abs.X / k), side(abs.Y / k))
 	end
 	button:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit)
+	hit:GetAttributeChangedSignal("MaxGrow"):Connect(fit)
 	task.defer(fit)
 	hit.Activated:Connect(function()
 		if not button.Visible then
@@ -466,8 +630,22 @@ function UIKit.RegisterWindow(frame, closeFn, opts)
 		backdrop.ZIndex = frame.ZIndex - 1
 		backdrop.Visible = frame.Visible
 		backdrop.Parent = frame.Parent
-		backdrop.Activated:Connect(function()
-			if frame.Visible then
+		-- ปิดเฉพาะตอนแตะ "นอก" หน้าต่างจริง ๆ: ชิ้นในหน้าต่างที่ไม่ Active (ปุ่มแถบเลื่อน/แผ่นพื้นหลัง) ปล่อยคลิกทะลุลงมาถึงฉากหลัง
+		-- -> เช็กตำแหน่งทั้งตอนกดและตอนปล่อย (ลากแถบเสียงแล้วปล่อยนอกหน้าต่างก็ไม่ปิด)
+		local function outside(input)
+			local p, a, s = input.Position, frame.AbsolutePosition, frame.AbsoluteSize
+			return p.X < a.X or p.Y < a.Y or p.X > a.X + s.X or p.Y > a.Y + s.Y
+		end
+		local pressedOutside = false
+		backdrop.InputBegan:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+				pressedOutside = outside(input)
+			end
+		end)
+		backdrop.Activated:Connect(function(input)
+			local ok = pressedOutside and (not input or outside(input))
+			pressedOutside = false
+			if ok and frame.Visible then
 				w.Close()
 			end
 		end)
@@ -529,7 +707,7 @@ end
 function UIKit.Pop(frame)
 	local target = UIKit.GetScale(frame)
 	local sc = scaler(frame)
-	scaled[frame] = true
+	track(frame) -- อย่าลบค่าตั้ง (maxW/maxH) ของกรอบ
 	sc.Scale = target * 0.82
 	TweenService:Create(sc, TweenInfo.new(0.32, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = target }):Play()
 	if UIKit.OnPop then

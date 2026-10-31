@@ -35,10 +35,11 @@ local function build()
 	end
 	local gui = UIKit.Screen("Rejoin", 55)
 	local panel = UIKit.Card(gui, { Size = UDim2.fromOffset(480, 250), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.45), Visible = false })
+	UIKit.AutoScale(panel)
 	UIKit.Header(panel, "↩ กลับเข้ารอบเดิม?", C.Purple)
 	UIKit.Text(panel, {
 		Size = UDim2.new(1, -40, 0, 56), Position = UDim2.fromOffset(20, 36), TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Center, TextSize = 18,
-		Text = "คุณหลุดออกจากรอบที่ทีมยังเล่นอยู่ — กลับไปเล่นต่อพร้อมของเดิมได้",
+		Text = "คุณออกจากรอบกลางทาง — กลับไปเล่นรอบเดิมต่อได้ (คืนเดิม กองไฟ สิ่งก่อสร้าง และของในกระสอบอยู่ครบ)",
 	})
 	ui.Time = UIKit.Text(panel, { Size = UDim2.new(1, -40, 0, 30), Position = UDim2.fromOffset(20, 96), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 22, Font = UIKit.Fonts.Title, TextColor3 = C.Gold, Text = "" })
 	local row = UIKit.Frame(panel, { Size = UDim2.new(1, -40, 0, 56), Position = UDim2.new(0, 20, 1, -76), BackgroundTransparency = 1 })

@@ -42,6 +42,58 @@ local ITEM_EMOJI = {
 	OldAxe = "🪓", StoneAxe = "🪓", IronAxe = "🪓", Spear = "🔱", Wood = "🪵", Stone = "🪨",
 }
 
+-- โมเดลของไอคอน: เมชในเกม (MeshProps) ก่อน ไม่มีก็ใช้โมเดลจริงจาก Store (Assets.Weapons / Assets.Items) เช่น คทาเพลิง
+local function iconModel(itemId)
+	local assets = game:GetService("ReplicatedStorage"):FindFirstChild("Assets")
+	-- อาวุธ/เครื่องมือ: โมเดลเดียวกับที่ถือในมือจริง (Assets.Weapons) ก่อน -> เมชในเกม -> โมเดลไอเทม
+	local function store(folder)
+		local src = assets and assets:FindFirstChild(folder) and assets[folder]:FindFirstChild(itemId)
+		if not src then
+			return nil
+		end
+		local m = Instance.new("Model")
+		for _, c in ipairs(src:GetChildren()) do
+			c:Clone().Parent = m
+		end
+		for _, d in ipairs(m:GetDescendants()) do
+			if d:IsA("LuaSourceContainer") or d:IsA("Sound") or d:IsA("ParticleEmitter") or d:IsA("Fire") then
+				d:Destroy()
+			elseif d:IsA("BasePart") then
+				d.Anchored = true
+			end
+		end
+		return m
+	end
+	local w = store("Weapons")
+	if w then
+		return w
+	end
+	if MeshProps.Has(itemId) then
+		local ok, model = pcall(MeshProps.Build, itemId)
+		if ok and model then
+			return model
+		end
+	end
+	for _, folder in ipairs({ "Items" }) do
+		local src = assets and assets:FindFirstChild(folder) and assets[folder]:FindFirstChild(itemId)
+		if src then
+			local m = Instance.new("Model")
+			for _, c in ipairs(src:GetChildren()) do
+				c:Clone().Parent = m
+			end
+			for _, d in ipairs(m:GetDescendants()) do
+				if d:IsA("LuaSourceContainer") or d:IsA("Sound") or d:IsA("ParticleEmitter") or d:IsA("Fire") then
+					d:Destroy()
+				elseif d:IsA("BasePart") then
+					d.Anchored = true
+				end
+			end
+			return m
+		end
+	end
+	return nil
+end
+
 ---------------------------------------------------------------- ตัวช่วย UI
 local function corner(obj, r)
 	local c = Instance.new("UICorner")
@@ -80,6 +132,22 @@ local function frame(parent, props)
 	return f
 end
 
+-- เพดานขนาดตัวหนังสือโตตามจอใหญ่ (2K/4K)
+local limits = {}
+local function limit(lim, size)
+	lim.MaxTextSize = size * UIKit.BigScale()
+	limits[lim] = size
+	lim.Destroying:Once(function()
+		limits[lim] = nil
+	end)
+end
+UIKit.OnResize(function()
+	local big = UIKit.BigScale()
+	for lim, size in pairs(limits) do
+		lim.MaxTextSize = size * big
+	end
+end)
+
 -- ตัวหนังสือหนา ขอบดำ ปรับขนาดอัตโนมัติ
 local function text(parent, props, maxSize, strokeThickness)
 	local t = Instance.new("TextLabel")
@@ -92,7 +160,7 @@ local function text(parent, props, maxSize, strokeThickness)
 	end
 	t.Parent = parent
 	local lim = Instance.new("UITextSizeConstraint")
-	lim.MaxTextSize = maxSize or 32
+	limit(lim, maxSize or 32)
 	lim.MinTextSize = 7
 	lim.Parent = t
 	if (strokeThickness or 2) > 0 then
@@ -125,7 +193,7 @@ local function button(parent, props, color, onClick, maxSize)
 	ts.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
 	ts.Parent = b
 	local lim = Instance.new("UITextSizeConstraint")
-	lim.MaxTextSize = maxSize or 30
+	limit(lim, maxSize or 30)
 	lim.MinTextSize = 7
 	lim.Parent = b
 	local pad = Instance.new("UIPadding")
@@ -134,6 +202,7 @@ local function button(parent, props, color, onClick, maxSize)
 	pad.Parent = b
 	if onClick then
 		b.Activated:Connect(onClick)
+		UIKit.EnsureTouchSize(b, 42, onClick, 10)
 	end
 	return b
 end
@@ -300,7 +369,7 @@ end
 
 ---------------------------------------------------------------- การ์ดคลาส (ซ้าย)
 local function cardHeight()
-	return math.clamp(math.floor(Workspace.CurrentCamera.ViewportSize.Y * 0.105), 72, 132)
+	return math.clamp(math.floor(UIKit.Viewport().Y * 0.105), 72, 132 * UIKit.BigScale())
 end
 
 function ClassShop.MakeCard(id, order)
@@ -351,6 +420,7 @@ function ClassShop.MakeCard(id, order)
 	end
 	card.Activated:Connect(pick)
 	btn.Activated:Connect(pick)
+	UIKit.EnsureTouchSize(btn, 42, pick, 10)
 	ui.Cards[id] = { Card = card, Stroke = stroke, Tag = tag, Button = btn }
 end
 
@@ -502,21 +572,46 @@ local function drawTools(c)
 		icon.Position = UDim2.fromScale(0.1, 0.05)
 		icon.BackgroundTransparency = 1
 		icon.Parent = tile
-		local emoji = text(tile, { Size = UDim2.fromScale(0.8, 0.6), Position = UDim2.fromScale(0.1, 0.05), Text = ITEM_EMOJI[itemId] or "📦" }, 54, 0)
+		-- ไอคอน = โมเดลจริงของของชิ้นนั้น · อีโมจิใช้เฉพาะตอนหาโมเดลไม่เจอจริงๆ เท่านั้น
+		local emoji = text(tile, { Size = UDim2.fromScale(0.8, 0.6), Position = UDim2.fromScale(0.1, 0.05), Text = ITEM_EMOJI[itemId] or "📦", Visible = false }, 54, 0)
 		text(tile, { Position = UDim2.fromScale(0.55, 0.02), Size = UDim2.fromScale(0.42, 0.26), Text = "x" .. n, TextXAlignment = Enum.TextXAlignment.Right }, 24)
 		text(tile, { Position = UDim2.fromScale(0.04, 0.68), Size = UDim2.fromScale(0.92, 0.26), Text = Items.DisplayName(itemId) }, 18, 1.5)
-		if MeshProps.Has(itemId) then
+		do
 			task.spawn(function()
-				local ok, model = pcall(MeshProps.Build, itemId)
-				if ok and model and icon.Parent then
+				local model = iconModel(itemId)
+				if not model then
+					emoji.Visible = true
+				end
+				if model and icon.Parent then
 					local wm = Instance.new("WorldModel")
 					wm.Parent = icon
 					model.Parent = wm
 					local cf, size = model:GetBoundingBox()
 					local cam = Instance.new("Camera")
 					cam.FieldOfView = 30
-					local dist = size.Magnitude * 1.7
-					cam.CFrame = CFrame.lookAt(cf.Position + Vector3.new(dist * 0.6, dist * 0.35, dist * 0.7), cf.Position)
+					local long = math.max(size.X, size.Y, size.Z)
+					local thin = long > 2.2 * (size.X + size.Y + size.Z - long) / 2
+					if thin then
+						-- ของยาวผอม (คทา/ขวาน/คบเพลิง/ธนู): ตั้งแกนยาวเอียง 50° ให้เต็มช่องไอคอน (ช่องกว้างกว่าสูง)
+						-- แกนยาว -> ขึ้น (Y) · แกนกลาง -> ข้าง (X) · แกนบางสุด -> หันเข้ากล้อง (Z) = เห็นด้านแบน (หัวขวาน/หัวคทา) เต็มๆ
+						local axes = { { Vector3.xAxis, size.X }, { Vector3.yAxis, size.Y }, { Vector3.zAxis, size.Z } }
+						table.sort(axes, function(p, q)
+							return p[2] > q[2]
+						end)
+						local wl, wm, ws = cf:VectorToWorldSpace(axes[1][1]), cf:VectorToWorldSpace(axes[2][1]), cf:VectorToWorldSpace(axes[3][1])
+						if wm:Cross(wl):Dot(ws) < 0 then
+							ws = -ws
+						end
+						local center = CFrame.new(cf.Position)
+						local rot = CFrame.Angles(0, 0, math.rad(-50)) * CFrame.fromMatrix(Vector3.zero, wm, wl, ws):Inverse()
+						model:PivotTo(center * rot * center:ToObjectSpace(model:GetPivot()))
+						cf, size = model:GetBoundingBox()
+						local dist = math.max(size.X / 1.33, size.Y) * 0.5 / math.tan(math.rad(15)) * 1.12 + size.Z / 2
+						cam.CFrame = CFrame.lookAt(cf.Position + Vector3.new(0, 0, dist), cf.Position)
+					else
+						local dist = size.Magnitude * 1.7
+						cam.CFrame = CFrame.lookAt(cf.Position + Vector3.new(dist * 0.6, dist * 0.35, dist * 0.7), cf.Position)
+					end
 					cam.Parent = icon
 					icon.CurrentCamera = cam
 					emoji.Visible = false

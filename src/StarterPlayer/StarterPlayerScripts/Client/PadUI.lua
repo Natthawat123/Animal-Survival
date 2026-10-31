@@ -17,11 +17,6 @@ local WoodKit = require(script.Parent.WoodKit)
 local PadUI = {}
 local player = Players.LocalPlayer
 
-local function inside(zone, pos)
-	local rel = zone.CFrame:PointToObjectSpace(pos)
-	return math.abs(rel.X) < zone.Size.X / 2 and math.abs(rel.Y) < zone.Size.Y / 2 and math.abs(rel.Z) < zone.Size.Z / 2
-end
-
 function PadUI.Init()
 	local gui = UIKit.Screen("PadUI", 30)
 
@@ -61,11 +56,18 @@ function PadUI.Init()
 		pickButtons[n] = b
 	end
 
+	-------------------------------------------------- ปุ่มออกจากกลุ่ม (ขึ้นแท่นแล้วเดินออกเองไม่ได้ ต้องกดปุ่มนี้)
+	local leave -- สร้างหลังแถบสถานะ (เป็นลูกของแถบ โชว์/ซ่อนตามกัน)
+
 	-------------------------------------------------- แถบสถานะ (ด้านบนจอ ใต้ชื่อค่าย) · ป้ายไม้ + หมาป่า/อินทรี + ตราอุ้งเท้า
 	local barWin = WoodKit.Window(gui, { Name = "PadBar", Size = Vector2.new(640, 104), Plaque = false, Lanterns = false, TitleWidth = 436, BannerHeight = 72 })
 	local bar = barWin.Frame
 	bar.AnchorPoint = Vector2.new(0.5, 0)
-	bar.Position = UDim2.new(0.5, 0, 0, 104)
+	local function placeBar()
+		bar.Position = UDim2.new(0.5, 0, 0, 104 * UIKit.BigScale())
+	end
+	placeBar()
+	UIKit.OnResize(placeBar)
 	UIKit.AutoScale(bar)
 	WoodKit.Medallion(bar, "🐾", 52, { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0), ZIndex = 12 }, Color3.fromRGB(110, 70, 34))
 	local info = WoodKit.Board(barWin.Body, { Size = UDim2.new(1, -206, 1, -30), Position = UDim2.fromOffset(18, 15), ZIndex = 2 }, Color3.fromRGB(96, 30, 22), WoodKit.Colors.GoldDark)
@@ -78,23 +80,46 @@ function PadUI.Init()
 		end
 	end)
 
-	RunService.Heartbeat:Connect(function()
-		local char = player.Character
-		local root = char and char:FindFirstChild("HumanoidRootPart")
-		local lobby = Workspace:FindFirstChild("Lobby")
-		local zone
-		if root and lobby and not player:GetAttribute("InRun") then
-			for i = 1, 8 do
-				local z = lobby:FindFirstChild("MatchBox" .. i, true)
-				if not z then
-					break
-				end
-				if inside(z, root.Position) then
-					zone = z
-					break
-				end
+	-- กดออก: หยุดคุมวงทันที (ไม่งั้นระหว่างรอ attribute Pad ถูกลบ วงจะดึงตัวกลับเข้าแท่น แล้วถูกจับเข้ากลุ่มใหม่)
+	local leftAt = -10
+	leave = WoodKit.Button(bar, "Red", { Size = UDim2.fromOffset(230, 56), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 1, 10), Text = "ออกจากกลุ่ม", TextSize = 26, ZIndex = 3 }, function()
+		leftAt = os.clock()
+		bar.Visible = false
+		Remotes.Get("LeavePad"):FireServer()
+	end)
+
+	-- อยู่ในกลุ่มแท่น (เซิร์ฟเวอร์ตั้ง attribute Pad) = คุมตัวละครไว้ในวง เดินชนขอบวงแล้วออกไม่ได้
+	local PAD_R = 8.6
+	RunService.PreSimulation:Connect(function()
+		if os.clock() - leftAt < 2 then
+			return
+		end
+		local pad = player:GetAttribute("Pad")
+		local root = pad and player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+		local lobby = root and Workspace:FindFirstChild("Lobby")
+		local z = lobby and lobby:FindFirstChild("MatchBox" .. pad, true)
+		if not z then
+			return
+		end
+		local c = z.Position
+		local off = (root.Position - c) * Vector3.new(1, 0, 1)
+		local d = off.Magnitude
+		if d > PAD_R then
+			local dir = off / d
+			local p = c + dir * PAD_R
+			root.CFrame = CFrame.new(p.X, root.Position.Y, p.Z) * root.CFrame.Rotation
+			local v = root.AssemblyLinearVelocity
+			local out = v:Dot(dir)
+			if out > 0 then
+				root.AssemblyLinearVelocity = v - dir * out
 			end
 		end
+	end)
+
+	RunService.Heartbeat:Connect(function()
+		local lobby = Workspace:FindFirstChild("Lobby")
+		local pad = not player:GetAttribute("InRun") and player:GetAttribute("Pad")
+		local zone = pad and lobby and lobby:FindFirstChild("MatchBox" .. pad, true) or nil
 		if zone ~= current.Zone then
 			current.Zone = zone
 			bar.Visible = zone ~= nil
@@ -113,14 +138,29 @@ function PadUI.Init()
 		if not zone then
 			return
 		end
+		-- เปิดหน้าต่างเลือกจำนวนอยู่ = ซ่อนแถบสถานะ+ปุ่มออก (จอมือถือเตี้ย สองอันซ้อนทับกันจนอ่านไม่ออก)
+		local showBar = not picker.Visible and os.clock() - leftAt > 1.5
+		if bar.Visible ~= showBar then
+			bar.Visible = showBar
+		end
 		local size, count, cd = zone:GetAttribute("Size") or 4, zone:GetAttribute("Count") or 0, zone:GetAttribute("Countdown") or -1
 		local host = zone:GetAttribute("Host") == player.UserId
+		local picked = zone:GetAttribute("Picked") == true
 		pickTitle.Text = "👥 แท่น " .. (zone:GetAttribute("PadIndex") or "") .. " · เลือกจำนวนผู้เล่น"
-		status.Text = cd >= 0 and string.format("👥 %d/%d คน   •   ⏳ %d วิ", count, size, cd) or string.format("👥 %d/%d คน", count, size)
-		sub.Text = count >= size and "ทีมครบแล้ว! กำลังออกเดินทาง" or (host and "คุณเป็นหัวหน้าแท่น · รอเพื่อนหรือรอหมดเวลา" or "รอหัวหน้าแท่น / รอเพื่อน")
+		if not picked then
+			-- ยังไม่เลือกจำนวน = ยังไม่นับเวลา
+			status.Text = string.format("%d คนบนแท่น", count)
+			sub.Text = host and "เลือกจำนวนผู้เล่นก่อน แล้วถึงจะเริ่มนับถอยหลัง" or "รอหัวหน้าแท่นเลือกจำนวนคน..."
+		else
+			status.Text = cd >= 0 and string.format("%d/%d คน   •   ⏳ %d วิ", count, size, cd) or string.format("%d/%d คน", count, size)
+			sub.Text = count >= size and "ทีมครบแล้ว! กำลังออกเดินทาง" or (host and "คุณเป็นหัวหน้าแท่น · รอเพื่อนหรือรอหมดเวลา" or "รอหัวหน้าแท่น / รอเพื่อน")
+		end
 		change.Visible = host
+		if change.Text ~= (picked and "เปลี่ยน" or "เลือก") then
+			change.Text = picked and "เปลี่ยน" or "เลือก"
+		end
 		for n, b in ipairs(pickButtons) do
-			local style = n == size and "Green" or "Parch"
+			local style = (picked and n == size) and "Green" or "Parch" -- ยังไม่เลือก = ไม่ไฮไลต์ค่าเริ่มต้น
 			if b:GetAttribute("Style") ~= style then
 				WoodKit.Style(b, style)
 			end

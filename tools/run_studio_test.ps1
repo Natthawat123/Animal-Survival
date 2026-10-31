@@ -1,10 +1,11 @@
-﻿param([switch]$ShowMinimized, [int]$TimeoutSec = 480, [string]$PlaceName = "AnimalSurvival_TEST.rbxlx", [string]$DonePattern = "\[AS\] (MAP|ANIMAL)SHOT DONE|\[AS\] FETCH DONE|\[TEST\] DONE|\[AS\] เทสต์จบ")
+﻿param([switch]$ShowMinimized, [int]$TimeoutSec = 480, [string]$PlaceName = "AnimalSurvival_TEST.rbxlx", [string]$ShotsDir = "", [string]$DonePattern = "\[AS\] (MAP|ANIMAL)SHOT DONE|\[AS\] FETCH DONE|\[TEST\] DONE|\[AS\] เทสต์จบ")
 $ErrorActionPreference = "Continue"
 # รันเทสต์อัตโนมัติใน Studio + ถ่ายภาพ -> build/test_screenshots
 # ไม่ปิด Studio ที่เปิดอยู่ก่อน: เปิดหน้าต่างใหม่ของตัวเอง แล้วปิดเฉพาะหน้าต่างที่เปิดเอง
 # ถ่ายภาพด้วย PrintWindow เฉพาะหน้าต่าง Studio ของเทสต์ (ไม่ติดหน้าต่างอื่นของผู้ใช้)
 $root = Split-Path -Parent $PSScriptRoot
-$shots = Join-Path $root "build\test_screenshots"
+# -ShotsDir = โฟลเดอร์รูปแยก (หลายเซสชันรันพร้อมกัน ไม่ลบรูปของกันและกัน)
+$shots = if ($ShotsDir) { Join-Path $root $ShotsDir } else { Join-Path $root "build\test_screenshots" }
 New-Item -ItemType Directory -Force $shots | Out-Null
 Get-ChildItem $shots -Filter *.png -ErrorAction SilentlyContinue | Remove-Item -Force
 $exe = (Get-ChildItem "$env:LOCALAPPDATA\Roblox\Versions" -Recurse -Filter RobloxStudioBeta.exe | Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName

@@ -6,6 +6,7 @@
 
 ## คำสั่ง build
 - `python tools/build_rbxlx.py` → สร้าง `build/AnimalSurvival.rbxlx` (ไฟล์หลักที่ผู้เล่นเปิดเล่นจริง) **ต้องรันคำสั่งนี้แบบไม่ใส่ flag หลังแก้โค้ดทุกครั้ง** เพื่ออัปเดตไฟล์นี้
+- ตรวจ UI ทุกขนาดจอ: `python tools/build_rbxlx.py --uiaudit` (คอม/โน้ตบุ๊ก) หรือ `--uiaudit=touch` (มือถือ/แท็บเล็ต) แล้วรัน `powershell -File tools/run_studio_test.ps1 -TimeoutSec 1300 -ShowMinimized -PlaceName AnimalSurvival_UIAUDIT.rbxlx -ShotsDir build/uiaudit_touch -DonePattern "\[TEST\] DONE uiaudit"` → ดูสรุป `[AS] UI TOTAL` / `[AS] UI ISSUE` และภาพจอจำลองในโฟลเดอร์ `-ShotsDir`
 - flag อื่น ๆ ที่มี: `--test` (build เป็น `AnimalSurvival_TEST.rbxlx`), `--probe`, `--creatures`/`--gallery` (โชว์เคสโมเดล/ถ่ายชีท), `--fetch=id,id` (ดึงโมเดลจาก Creator Store), `--seed=`, `--sandbox`, `--mapshot`, `--animalshot`, `--shots`, `--vfxshow[=ชื่อแพ็ก]`
 
 ## คำสั่งเทส

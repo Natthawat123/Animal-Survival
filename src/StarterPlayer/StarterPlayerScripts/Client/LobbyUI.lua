@@ -169,11 +169,11 @@ function LobbyUI.Build(gui, handlers)
 	local side = Instance.new("Frame")
 	side.BackgroundTransparency = 1
 	side.AnchorPoint = Vector2.new(0, 0.5)
-	side.Position = UDim2.new(0, 22, 0.52, 0)
+	side.Position = UDim2.new(0, 22, 0.56, 0)
 	local useArt = MenuArt.Image("Classes") ~= nil
 	side.Size = useArt and UDim2.fromOffset(ART_W + 10, 600) or UDim2.fromOffset(90, 510)
 	side.Parent = root
-	UIKit.AutoScale(side)
+	UIKit.AutoScale(side, { maxW = 0.3, maxH = 0.74 })
 	local layout = Instance.new("UIListLayout")
 	layout.Padding = UDim.new(0, 4)
 	layout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -216,7 +216,7 @@ function LobbyUI.Build(gui, handlers)
 	-- Ruby: แคปซูลมุมซ้ายบน + ปุ่ม + (เปิดร้านค้า)
 	-- (ธีมไม้เดียวกับหน้าต่างร้านค้า: ไม้เข้มขอบทอง + ปุ่ม + แดง)
 	local pill = WoodKit.Frame(root, { Size = UDim2.fromOffset(190, 46), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -24, 0, 20), BackgroundColor3 = Color3.fromRGB(42, 28, 18) })
-	UIKit.AutoScale(pill)
+	UIKit.AutoScale(pill, { w = 230, maxW = 0.25 })
 	WoodKit.Corner(pill, "round")
 	WoodKit.Stroke(pill, WoodKit.Colors.GoldDark, 3, 0)
 	UIKit.Icon(pill, "Ruby", 60, { Position = UDim2.fromOffset(-30, -9), ZIndex = 3 })

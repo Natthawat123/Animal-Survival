@@ -23,20 +23,40 @@ local CombatClient = {}
 local player = Players.LocalPlayer
 local camera = Workspace.CurrentCamera
 
+-- เสียงในโลก (ProSoundEffects ใช้ได้ทุกเกม) · หลายไฟล์ = สุ่มทีละครั้ง
+local function ids(...)
+	local t = {}
+	for _, n in ipairs({ ... }) do
+		table.insert(t, "rbxassetid://" .. n)
+	end
+	return t
+end
 local SOUND = {
-	Boom = "rbxasset://sounds/impact_explosion_03.mp3",
-	Splash = "rbxasset://sounds/impact_water.mp3",
-	Hurt = "rbxasset://sounds/ouch.ogg",
-	Land = "rbxasset://sounds/action_jump_land.mp3",
-	GetUp = "rbxasset://sounds/action_get_up.mp3",
-	Slash = "rbxasset://sounds/action_swim.mp3",
+	Boom = ids(9125404320),
+	Splash = ids(9120584388),
+	Hurt = ids(9113502506, 9113568548),
+	Land = ids(9113225735),
+	GetUp = ids(17208327798),
+	Slash = ids(9120972444, 9120972457, 9120972323), -- ฟันลม
+	Flesh = ids(9113502506, 9113568548), -- โดนตัวสัตว์
+	Chop = ids(9120806888, 9120807060, 9120807255), -- ขวานเข้าเนื้อไม้
+	Mine = ids(9114084950, 9118597103, 9118598240), -- ทุบหิน/แร่
+	Crystal = ids(9116394545, 9116395089),
+	Bush = ids(17208405682),
+	TreeFall = ids(9113225734, 9113225979),
+	Build = ids(9114753310, 9114753327),
+	Craft = ids(9114753327),
+	Refuel = ids(9114439997, 9114439868),
+	Break = ids(9113974103),
+	WoodHit = ids(9113225985),
 }
 
 function CombatClient.Sound(name, at, volume, pitch)
-	local id = SOUND[name]
-	if not id then
+	local list = SOUND[name]
+	if not list then
 		return
 	end
+	local id = list[math.random(1, #list)]
 	local s = Instance.new("Sound")
 	s.SoundId = id
 	s.Volume = volume or 0.6
@@ -226,6 +246,43 @@ local function hurtVignette(power)
 	TweenService:Create(vignette, TweenInfo.new(0.7), { GroupTransparency = 1 }):Play()
 end
 
+-- เลือดต่ำจริง (< 25%): ขอบจอแดงเต้นช้าๆ ค้างไว้จนเลือดกลับมา (ไม่ขึ้นตอนเลือดยังเยอะ)
+local lowVignette
+RunService.Heartbeat:Connect(function()
+	local char = player.Character
+	local hum = char and char:FindFirstChildOfClass("Humanoid")
+	local frac = hum and hum.Health > 0 and hum.Health / math.max(hum.MaxHealth, 1) or 1
+	local low = frac < 0.25 and player:GetAttribute("InRun") == true and not player:GetAttribute("Dead")
+	if not low then
+		if lowVignette then
+			lowVignette.GroupTransparency = 1
+		end
+		return
+	end
+	if not lowVignette then
+		local gui = UIKit.Screen("LowHealthFX", 29, true)
+		lowVignette = Instance.new("CanvasGroup")
+		lowVignette.Size = UDim2.fromScale(1, 1)
+		lowVignette.BackgroundTransparency = 1
+		lowVignette.Parent = gui
+		for _, rot in ipairs({ 0, 90 }) do
+			local f = Instance.new("Frame")
+			f.Size = UDim2.fromScale(1, 1)
+			f.BorderSizePixel = 0
+			f.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+			f.Parent = lowVignette
+			local grad = Instance.new("UIGradient")
+			grad.Rotation = rot
+			grad.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.2), NumberSequenceKeypoint.new(0.18, 1), NumberSequenceKeypoint.new(0.82, 1), NumberSequenceKeypoint.new(1, 0.2) })
+			grad.Parent = f
+		end
+	end
+	-- ยิ่งเลือดน้อยยิ่งเข้ม · เต้นตามจังหวะหัวใจ
+	local depth = 1 - frac / 0.25
+	local beat = 0.5 + 0.5 * math.sin(os.clock() * (4 + depth * 4))
+	lowVignette.GroupTransparency = 0.88 - depth * 0.3 - beat * 0.12
+end)
+
 ---------------------------------------------------------------- ตี / ยิง
 local lastSwing = 0
 local spearThrust
@@ -248,16 +305,23 @@ end
 local thrusting = false
 spearThrust = function(char)
 	local m = char and (char:FindFirstChild("RightShoulder", true) or char:FindFirstChild("Right Shoulder", true))
-	if not m or not m:IsA("Motor6D") or thrusting then
+	-- ตัวละครแบบใหม่ใช้ AnimationConstraint: ฐานของข้อต่อ = CFrame ของ Attachment0 (แบบเก่า Motor6D = C0)
+	local obj, prop = m, "C0"
+	if m and m:IsA("AnimationConstraint") then
+		obj, prop = m.Attachment0, "CFrame"
+	elseif not m or not m:IsA("Motor6D") then
+		obj = nil
+	end
+	if not obj or thrusting then
 		return
 	end
 	thrusting = true
-	local base = m.C0
+	local base = obj[prop]
 	local back = base * CFrame.new(0, 0.1, 0.5) * CFrame.Angles(math.rad(10), 0, 0)
 	local out = base * CFrame.new(0, -0.1, -1.6) * CFrame.Angles(math.rad(-8), 0, 0)
-	local t1 = TweenService:Create(m, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { C0 = back })
-	local t2 = TweenService:Create(m, TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { C0 = out })
-	local t3 = TweenService:Create(m, TweenInfo.new(0.22, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), { C0 = base })
+	local t1 = TweenService:Create(obj, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { [prop] = back })
+	local t2 = TweenService:Create(obj, TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { [prop] = out })
+	local t3 = TweenService:Create(obj, TweenInfo.new(0.22, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), { [prop] = base })
 	t1:Play()
 	t1.Completed:Wait()
 	t2:Play()
@@ -265,7 +329,7 @@ spearThrust = function(char)
 	task.wait(0.06)
 	t3:Play()
 	t3.Completed:Wait()
-	m.C0 = base
+	obj[prop] = base
 	thrusting = false
 end
 
@@ -300,18 +364,45 @@ local function onActivate(tool, noAuto)
 	CombatClient.Sound("Slash", nil, 0.35, 0.9 + math.random() * 0.2)
 end
 
+-- กดค้าง = ตีต่อเนื่อง (ตามคูลดาวน์ของอาวุธ) จนกว่าจะปล่อยปุ่ม/นิ้ว หรือเก็บของออกจากมือ
+local heldTool = nil
+local RELEASE = { [Enum.UserInputType.MouseButton1] = true, [Enum.UserInputType.Touch] = true }
+UserInputService.InputEnded:Connect(function(input)
+	if RELEASE[input.UserInputType] or input.KeyCode == Enum.KeyCode.ButtonR2 then
+		heldTool = nil
+	end
+end)
+
 -- ตีด้วยเครื่องมือนี้ทันที (ไม่ผ่าน AutoTool) — ใช้ตอนสลับให้อัตโนมัติ
 function CombatClient.Swing(tool)
 	onActivate(tool, true)
+	if UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
+		heldTool = tool
+	end
+end
+
+local function hookTool(c)
+	c:SetAttribute("Hooked", true)
+	c.Activated:Connect(function()
+		heldTool = c
+		onActivate(c)
+	end)
+	c.Deactivated:Connect(function()
+		if heldTool == c then
+			heldTool = nil
+		end
+	end)
+	c.Unequipped:Connect(function()
+		if heldTool == c then
+			heldTool = nil
+		end
+	end)
 end
 
 local function hookCharacter(char)
 	char.ChildAdded:Connect(function(c)
 		if c:IsA("Tool") and not c:GetAttribute("Hooked") then
-			c:SetAttribute("Hooked", true)
-			c.Activated:Connect(function()
-				onActivate(c)
-			end)
+			hookTool(c)
 		end
 	end)
 end
@@ -319,6 +410,9 @@ end
 ---------------------------------------------------------------- วิ่ง / สตามิน่า
 local stamina = 100
 local sprinting = false
+player:GetAttributeChangedSignal("StaminaRefill"):Connect(function()
+	stamina = 100 -- ดื่มน้ำเบอร์รี่
+end)
 function CombatClient.SetSprint(on)
 	sprinting = on == true
 end
@@ -347,14 +441,29 @@ Handlers.Hit = function(d)
 		floatText(d.Position + Vector3.new(0, 5, 0), "ต้านทาน", Color3.fromRGB(170, 170, 180), 16, 6)
 	end
 	burst(d.Position, Color3.fromRGB(255, 230, 200), 8, 18, 0.4)
+	CombatClient.Sound("Flesh", d.Position, 0.5, 0.9 + math.random() * 0.2)
 	local char = player.Character
 	if char and (char:GetPivot().Position - d.Position).Magnitude < 30 then
 		CombatClient.Shake(0.15, 0.12)
 	end
 end
 
+-- ดาเมจต่อเนื่อง (หิว/ไฟไหม้/ลาวา) มาทีละนิดทุกเฟรม -> ห้ามจอแดง/สั่นทุกครั้ง (เคยกะพริบแดงทั้งที่เลือดแทบไม่ลด)
+--   สะสมไว้ ลดจริงครบ 8 ค่อยกะพริบเบาๆ ทีเดียว · ดาเมจโดนตีจริง (ก้อนเดียว >= 3) = จอแดงตามแรง
+local TICK_SOURCES = { Hunger = true, Burn = true, Lava = true }
+local tickDamage, lastTickFlash = 0, 0
 Handlers.Hurt = function(d)
-	hurtVignette(math.clamp(d.Amount / 40, 0.2, 0.7))
+	local amount = tonumber(d.Amount) or 0
+	if TICK_SOURCES[d.Source] or amount < 3 then
+		tickDamage += amount
+		if tickDamage >= 8 and os.clock() - lastTickFlash > 1.5 then
+			tickDamage = 0
+			lastTickFlash = os.clock()
+			hurtVignette(0.22)
+		end
+		return
+	end
+	hurtVignette(math.clamp(amount / 40, 0.2, 0.7))
 	CombatClient.Shake(math.clamp(d.Amount / 60, 0.15, 0.8), 0.25)
 	if d.Amount >= 8 then
 		CombatClient.Sound("Hurt", nil, 0.4)
@@ -379,9 +488,12 @@ Handlers.Pull = function(d)
 			return
 		end
 		local dir = (d.Center - root.Position) * Vector3.new(1, 0, 1)
-		if dir.Magnitude > 3 then
+		-- หยุดดูดที่ขอบตัวบอส (เดิมดูดเข้ากลางตัว -> ชนกล่องชนยักษ์ของเยติแล้วฟิสิกส์ดีดผู้เล่นกระเด็นไกลเป็นพันสตั๊ด)
+		local stop = d.Stop or 3
+		if dir.Magnitude > stop then
 			local v = root.AssemblyLinearVelocity
-			root.AssemblyLinearVelocity = Vector3.new(0, v.Y, 0) + dir.Unit * 34 + dir.Unit:Cross(Vector3.new(0, 1, 0)) * 22
+			local k = math.clamp((dir.Magnitude - stop) / 10, 0.2, 1)
+			root.AssemblyLinearVelocity = Vector3.new(0, math.min(v.Y, 30), 0) + dir.Unit * 34 * k + dir.Unit:Cross(Vector3.new(0, 1, 0)) * 22 * k
 		end
 	end)
 end
@@ -484,8 +596,34 @@ end
 Handlers.Immune = function(d)
 	floatText(d.Position, "ฆ่าไม่ตาย... ใช้แสงไฟไล่!", Color3.fromRGB(200, 200, 220), 20, 5)
 end
+-- ขอบจอมืดแวบ (ความหลอน ไม่ใช่เจ็บ — สีแดงสงวนไว้ให้ดาเมจ/เลือดต่ำ)
+local dread
+local function dreadVignette(power)
+	if not dread then
+		local gui = UIKit.Screen("DreadFX", 28, true)
+		dread = Instance.new("CanvasGroup")
+		dread.Size = UDim2.fromScale(1, 1)
+		dread.BackgroundTransparency = 1
+		dread.GroupTransparency = 1
+		dread.Parent = gui
+		for _, rot in ipairs({ 0, 90 }) do
+			local f = Instance.new("Frame")
+			f.Size = UDim2.fromScale(1, 1)
+			f.BorderSizePixel = 0
+			f.BackgroundColor3 = Color3.fromRGB(6, 2, 14)
+			f.Parent = dread
+			local grad = Instance.new("UIGradient")
+			grad.Rotation = rot
+			grad.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.25, 1), NumberSequenceKeypoint.new(0.75, 1), NumberSequenceKeypoint.new(1, 0) })
+			grad.Parent = f
+		end
+	end
+	dread.GroupTransparency = 1 - power
+	TweenService:Create(dread, TweenInfo.new(1.6), { GroupTransparency = 1 }):Play()
+end
+
 Handlers.StalkerStare = function(d)
-	hurtVignette(0.45)
+	dreadVignette(0.6)
 	CombatClient.Shake(0.2, 2)
 	local hb = Instance.new("Sound")
 	hb.SoundId = SOUND.Land
@@ -509,6 +647,10 @@ end
 Handlers.NodeHit = function(d)
 	local colors = { Tree = Color3.fromRGB(150, 110, 70), Rock = Color3.fromRGB(170, 170, 170), Crystal = Color3.fromRGB(200, 240, 255), Bush = Color3.fromRGB(110, 200, 90) }
 	burst(d.Position + Vector3.new(0, 3, 0), colors[d.Kind] or Color3.new(1, 1, 1), 8, 14, 0.5, "rbxasset://textures/particles/smoke_main.dds")
+	local snd = ({ Tree = "Chop", Rock = "Mine", Crystal = "Crystal", Bush = "Bush" })[d.Kind]
+	if snd then
+		CombatClient.Sound(snd, d.Position, 0.55, 0.92 + math.random() * 0.16)
+	end
 	local node = d.Node
 	if node and node.Parent then
 		local cf = node:GetPivot()
@@ -520,25 +662,25 @@ Handlers.NodeHit = function(d)
 		end)
 	end
 end
-Handlers.TreeFall = function(d)
-	task.delay(1.3, function()
-		smoke(d.Position, Color3.fromRGB(160, 140, 110), 20, 10)
-		CombatClient.Shake(0.25, 0.25)
-	end)
-end
-Handlers.Shatter = function(d)
-	burst(d.Position + Vector3.new(0, 2, 0), Color3.fromRGB(200, 200, 200), 18, 24, 0.7, "rbxasset://textures/particles/smoke_main.dds")
-end
-Handlers.Build = function(d)
-	smoke(d.Position, Color3.fromRGB(180, 160, 130), 12, 5)
-	ring(d.Position, 8, Color3.fromRGB(255, 220, 140), 0.4, 0.4)
+-- พัง/วางของ: ท่าแยกตามวัสดุ (BreakFX)
+local BreakFX = require(script.Parent:WaitForChild("BreakFX"))
+BreakFX.Init({
+	Sound = CombatClient.Sound, Shake = CombatClient.Shake, Burst = burst, Smoke = smoke, Ring = ring, Flash = flashLight,
+	ElementColors = UIKit.Colors.Element,
+})
+for _, name in ipairs({ "NodeBreak", "StructureBreak", "Build" }) do
+	Handlers[name] = function(d)
+		task.spawn(BreakFX[name], d)
+	end
 end
 Handlers.Craft = function(d)
 	burst(d.Position + Vector3.new(0, 4, 0), Color3.fromRGB(255, 220, 140), 16, 12, 0.4)
+	CombatClient.Sound("Craft", d.Position, 0.55)
 end
 Handlers.Refuel = function(d)
 	burst(d.Position + Vector3.new(0, 4, 0), Color3.fromRGB(255, 160, 60), 30, 22, 0.6)
 	flashLight(d.Position + Vector3.new(0, 4, 0), Color3.fromRGB(255, 170, 80), 50, 0.8)
+	CombatClient.Sound("Refuel", d.Position, 0.6)
 end
 Handlers.FireHit = function(d)
 	burst(d.Position + Vector3.new(0, 3, 0), Color3.fromRGB(255, 120, 40), 6, 10, 0.4)
@@ -666,7 +808,7 @@ Handlers.Grind = function(d)
 			model:PivotTo(base)
 		end
 	end)
-	CombatClient.Sound("Land", hopper.Position, 0.8, 0.55)
+	CombatClient.Sound("Land", hopper.Position, 0.6, 0.8)
 end
 
 -- เอฟเฟกต์จากคลัง VFX (แพ็ก Creator Store) สำหรับตี/ตัด/ทุบ/คราฟต์
@@ -678,6 +820,17 @@ local VFX_NAMES = {
 	RockRing = "VFXPack/vfx pack/f", Crack = "VFXPack/Anime/Crack-01", Shiny = "VFXPack/Anime/Shiny-01", Charge = "VFXPack/Anime/Charge-01",
 	ShieldBreak = "VFXPack/Anime/Shield-Break-01", Fire = "VFXPack/Anime/Fire-02", Punch = "VFXPack/Anime/Blood-Punch-01", Ice = "IceStomp",
 }
+
+-- ระเบิดของกระสุนที่มีเอฟเฟกต์เฉพาะ (คทาเพลิง: Store "ExplosionCharge") แทนลูกระเบิดพื้นฐาน
+local baseExplosion = Handlers.Explosion
+Handlers.Explosion = function(d)
+	if d.Fx then
+		vfx(d.Fx, d.Position, { Scale = d.FxScale or 0.3, Duration = 0.35, Burst = 1 })
+		CombatClient.Sound("Boom", d.Position, 0.6, 1.15)
+		return
+	end
+	baseExplosion(d)
+end
 
 -- เอฟเฟกต์สกิลบอส (BossFX)
 local BossFX = require(script.Parent:WaitForChild("BossFX"))
@@ -709,25 +862,8 @@ wrap("NodeHit", function(d)
 		burst(p + Vector3.new(0, 3, 0), Color3.fromRGB(90, 150, 70), 10, 12, 0.5)
 	end
 end)
-wrap("TreeFall", function(d)
-	task.delay(1.3, function()
-		vfx(VFX_NAMES.RockRing, d.Position, { Scale = 2.2, Duration = 0.3 })
-	end)
-end)
-wrap("Shatter", function(d)
-	if d.Kind == "Crystal" then
-		vfx(VFX_NAMES.ShieldBreak, d.Position + Vector3.new(0, 3, 0), { Scale = 2.4, Duration = 0.2 })
-	else
-		vfx(VFX_NAMES.RockRing, d.Position, { Scale = 1.6, Duration = 0.3 })
-		vfx(VFX_NAMES.Crack, d.Position + Vector3.new(0, 1, 0), { Scale = 1.8, Duration = 0.2 })
-	end
-end)
 wrap("Craft", function(d)
 	vfx(VFX_NAMES.Shiny, d.Position + Vector3.new(0, 4, 0), { Scale = 2, Duration = 0.25 })
-end)
-wrap("Build", function(d)
-	vfx(VFX_NAMES.RockRing, d.Position, { Scale = 1.2, Duration = 0.25 })
-	vfx(VFX_NAMES.Shiny, d.Position + Vector3.new(0, 3, 0), { Scale = 1.6, Duration = 0.2 })
 end)
 wrap("Refuel", function(d)
 	vfx(VFX_NAMES.Fire, d.Position + Vector3.new(0, 2, 0), { Scale = 3.5, Duration = 0.4 })
@@ -763,17 +899,28 @@ function CombatClient.Init(state, hud)
 	if player.Character then
 		hookCharacter(player.Character)
 		for _, c in ipairs(player.Character:GetChildren()) do
-			if c:IsA("Tool") then
-				c:SetAttribute("Hooked", true)
-				c.Activated:Connect(function()
-					onActivate(c)
-				end)
+			if c:IsA("Tool") and not c:GetAttribute("Hooked") then
+				hookTool(c)
 			end
 		end
 	end
 	player.CharacterAdded:Connect(hookCharacter)
+	-- กดค้าง: ตีซ้ำทุกครั้งที่คูลดาวน์หมด (onActivate กันตีถี่เอง)
+	RunService.Heartbeat:Connect(function()
+		local t = heldTool
+		if not t then
+			return
+		end
+		local char = player.Character
+		local hum = char and char:FindFirstChildOfClass("Humanoid")
+		if t.Parent ~= char or not hum or hum.Health <= 0 or player:GetAttribute("Downed") then
+			heldTool = nil
+			return
+		end
+		onActivate(t, true)
+	end)
 	-- มือถือใช้ปุ่ม "วิ่ง" ของ MobileControls (จัดวางรอบปุ่มกระโดด ไม่ซ้อนกัน) แทนปุ่มอัตโนมัติของ ContextActionService
-	local touchOnly = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+	local touchOnly = UIKit.IsTouch
 	ContextActionService:BindAction("ASSprint", sprintAction, not touchOnly, Enum.KeyCode.LeftShift, Enum.KeyCode.ButtonL3)
 	if not touchOnly then
 		ContextActionService:SetTitle("ASSprint", "วิ่ง")
@@ -785,11 +932,11 @@ function CombatClient.Init(state, hud)
 		local hum = char and char:FindFirstChildOfClass("Humanoid")
 		if hum and hum.Health > 0 and not player:GetAttribute("Downed") then
 			local perks = Classes.PerksFor(player:GetAttribute("Class") or "Survivor", player:GetAttribute("ClassLevel") or 1)
-			local speedMult = (perks.SpeedMult or 1) * (state:GetAttribute("SpiritAir") and 1.1 or 1) * (player:GetAttribute("DevSpeed") or 1)
-			local staminaMult = perks.StaminaMult or 1
+			local speedMult = (perks.SpeedMult or 1) * (state:GetAttribute("SpiritAir") and 1.1 or 1) * (player:GetAttribute("DevSpeed") or 1) * (player:GetAttribute("MountSpeed") or 1) * (player:GetAttribute("CineRun") or 1)
+			local staminaMult = (perks.StaminaMult or 1) / (player:GetAttribute("Aura_Air") and 0.85 or 1) -- ออร่าวิหารน้ำแข็ง
 			local moving = hum.MoveDirection.Magnitude > 0.1
 			if sprinting and moving and stamina > 0 then
-				stamina = math.max(0, stamina - 20 / staminaMult * dt)
+				stamina = math.max(0, stamina - 10 / staminaMult * dt) -- วิ่งได้ ~10 วิ ต่อหลอด (เดิม 20/วิ = 5 วิ)
 				hum.WalkSpeed = Config.SprintSpeed * speedMult
 				if stamina <= 0 then
 					sprinting = false

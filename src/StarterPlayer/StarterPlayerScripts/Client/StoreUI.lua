@@ -127,7 +127,7 @@ function StoreUI.SetProfile(p)
 end
 
 function StoreUI.Init(gui)
-	local win = WoodKit.Window(gui, { Name = "StoreWindow", Size = Vector2.new(1080, 640), Title = "🛒 ร้านค้า", TitleWidth = 320, OnClose = StoreUI.Close })
+	local win = WoodKit.Window(gui, { Name = "StoreWindow", Size = Vector2.new(1080, 640), Title = "🛒 ร้านค้า", TitleWidth = 320, Shrink = false, OnClose = StoreUI.Close })
 	ui.Panel = win.Frame
 	UIKit.RegisterWindow(ui.Panel, StoreUI.Close, { Dim = 0.55 })
 	local body = win.Body

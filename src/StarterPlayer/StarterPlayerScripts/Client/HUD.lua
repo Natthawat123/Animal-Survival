@@ -7,6 +7,7 @@
 	  ล่าง: ทรัพยากรในกระเป๋า + ปุ่มลัด / แถบเลือดบอส
 ]]
 
+local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -17,6 +18,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Items = require(Shared.Items)
 local Animals = require(Shared.Animals)
 local Config = require(Shared.Config)
+local Remotes = require(Shared.Remotes)
 local UIKit = require(script.Parent.UIKit)
 local SoundController = require(script.Parent.SoundController)
 
@@ -24,11 +26,11 @@ local HUD = {}
 local player = Players.LocalPlayer
 local C = UIKit.Colors
 
-local STRIP = { "Wood", "Stone", "Fiber", "Iron", "Coal", "Pelt", "Bone", "Berries", "RawMeat", "CookedMeat", "TerraCore", "TidePearl", "GaleFeather", "EmberShard", "Bandage" }
+local STRIP = { "Wood", "Stone", "Fiber", "Iron", "Coal", "Pelt", "Bone", "Berries", "RawMeat", "CookedMeat", "TerraCore", "TidePearl", "GaleFeather", "EmberShard" }
 local ICON = {
 	Wood = "🌲", Stone = "🗻", Fiber = "🌾", Iron = "⛓", Coal = "⚫", Pelt = "🟫", Bone = "🦴", Berries = "🍒", RawMeat = "🥩",
-	CookedMeat = "🍖", Stew = "🍲", TerraCore = "🟢", TidePearl = "🔵", GaleFeather = "🪶", EmberShard = "🔶", Bandage = "🩹",
-	Medkit = "⛑", BeastHeart = "❤‍🔥",
+	CookedMeat = "🍖", Stew = "🍲", BerryJuice = "🧃", BerryPie = "🥧", HerbSalve = "🌿", TerraCore = "🟢", TidePearl = "🔵", GaleFeather = "🪶", EmberShard = "🔶", Bandage = "🩹",
+	Medkit = "⛑", TerraHeart = "💚", TideHeart = "💙", FrostHeart = "🤍", EmberHeart = "🧡",
 }
 HUD.Icon = ICON
 HUD.ExtraPOI = {}
@@ -40,14 +42,14 @@ end
 
 function HUD.Init(state)
 	HUD.State = state
-	HUD.Touch = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+	HUD.Touch = UIKit.IsTouch
 	local gui = UIKit.Screen("HUD", 5)
 	HUD.Gui = gui
 
 	---------------------------------------------------------------- ซ้ายบน: แถบค่า
 	-- การ์ดกระจกมุมซ้ายบน: หัวการ์ด = คลาส · 3 แถว เลือด / หิว / สตามิน่า (ไอคอนช่องเหลี่ยมมน + แถบยาวเท่ากัน ตัวเลขชิดขวา)
 	local stats = UIKit.Frame(gui, { Size = UDim2.fromOffset(310, 160), Position = UDim2.fromOffset(16, 74), BackgroundTransparency = 1 })
-	UIKit.AutoScale(stats)
+	UIKit.AutoScale(stats, { maxW = 0.3, maxH = 0.45 })
 	local card = UIKit.Frame(stats, { Size = UDim2.fromOffset(294, 150), BackgroundColor3 = Color3.fromRGB(16, 14, 26), BackgroundTransparency = 0.22 })
 	UIKit.Corner(card, 12)
 	local cs = UIKit.Stroke(card, C.Gold, 1, 0.2)
@@ -82,6 +84,15 @@ function HUD.Init(state)
 	HUD.HealthBar = row(48, "❤", C.Health, 22)
 	HUD.HungerBar = row(82, "🍖", C.Hunger, 18)
 	HUD.StaminaBar = row(114, "⚡", C.Stamina, 14)
+	-- ปุ่ม "กิน" ท้ายแถบหิว: มีอาหารในกระสอบ = แตะกินชิ้นที่ดีที่สุดได้เลย (ไม่ต้องเปิดกระสอบ · มือถือก็กดได้)
+	HUD.EatBtn = UIKit.ColorButton(card, Color3.fromRGB(196, 92, 40), {
+		Size = UDim2.fromOffset(58, 26), Position = UDim2.fromOffset(222, 83), Text = "🍖 กิน", TextSize = 14, Visible = false, ZIndex = 6,
+	}, function()
+		if HUD.EatId then
+			Remotes.Get("UseItem"):FireServer(HUD.EatId)
+		end
+	end)
+	HUD.EatBtn:FindFirstChildOfClass("UICorner").CornerRadius = UDim.new(0, 8)
 	-- เพื่อนร่วมทีม (อยู่ในกรอบเดียวกับแถบค่า ย่อ/ขยายไปด้วยกัน)
 	local team = UIKit.Frame(stats, { Name = "Team", Size = UDim2.fromOffset(240, 0), Position = UDim2.fromOffset(4, 158), BackgroundTransparency = 1, AutomaticSize = Enum.AutomaticSize.Y, Visible = false })
 	local tl = Instance.new("UIListLayout")
@@ -94,7 +105,9 @@ function HUD.Init(state)
 
 	---------------------------------------------------------------- กลางบน: คืน
 	local top = UIKit.Frame(gui, { Size = UDim2.fromOffset(440, 84), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 10), BackgroundTransparency = 1 })
-	UIKit.AutoScale(top) -- เข็มทิศ + แถบเลือดบอสอยู่ในกรอบนี้ (ย่อ/ขยายไปด้วยกัน)
+	-- กว้างจริง = เข็มทิศ 520 · มือถือบีบแคบลงไม่ให้ชนการ์ดซ้าย/ขวา
+	local topOpts = { w = 520, h = 120, maxW = 0.44, phoneMaxW = 0.36, maxH = 0.3 }
+	UIKit.AutoScale(top, topOpts) -- เข็มทิศ + แถบเลือดบอสอยู่ในกรอบนี้ (ย่อ/ขยายไปด้วยกัน)
 	HUD.NightLabel = UIKit.Text(top, {
 		Size = UDim2.new(1, 0, 0, 44), Font = UIKit.Fonts.Title, TextSize = 44, TextXAlignment = Enum.TextXAlignment.Center,
 		Text = "DAY 1", TextColor3 = C.Gold,
@@ -125,8 +138,9 @@ function HUD.Init(state)
 	HUD.CompassPOI = {}
 
 	---------------------------------------------------------------- ขวาบน: กองไฟ / วิญญาณ / Ruby
-	local right = UIKit.Card(gui, { Size = UDim2.fromOffset(270, 116), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -20, 0, 18), BackgroundTransparency = 0.12 })
-	UIKit.AutoScale(right)
+	-- ใต้แถวปุ่มบนสุด (ปุ่มกระเป๋ามุมขวาบนอยู่แถวเดียวกับเมนู Roblox) -> ไม่ซ้อนกัน
+	local right = UIKit.Card(gui, { Size = UDim2.fromOffset(270, 116), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -16, 0, 12), BackgroundTransparency = 0.12 })
+	UIKit.AutoScale(right, { w = 330, h = 170, maxW = 0.32, maxH = 0.45 }) -- รวมปุ่มกลมทางซ้ายการ์ด (ตั้งค่า/แผนที่/ปักหมุด)
 	HUD.RightCard = right
 	-- วงแหวนเชื้อเพลิงรอบไอคอนกองไฟ (ขีดเรียงเป็นวง: เต็ม = เขียว · ครึ่ง = เหลือง · ใกล้หมด = แดงกะพริบ)
 	local ring = UIKit.Frame(right, { Name = "FuelRing", Size = UDim2.fromOffset(70, 70), Position = UDim2.fromOffset(6, 4), BackgroundTransparency = 1, ZIndex = 3 })
@@ -146,7 +160,7 @@ function HUD.Init(state)
 	HUD.FireIconScale.Parent = HUD.FireIcon
 	HUD.FireLabel = UIKit.Text(right, { Size = UDim2.new(1, -90, 0, 20), Position = UDim2.fromOffset(82, 6), Text = "กองไฟ Lv.1", Font = UIKit.Fonts.Black, TextColor3 = C.Text, TextSize = 15 })
 	HUD.FuelText = UIKit.Text(right, { Size = UDim2.new(1, -90, 0, 26), Position = UDim2.fromOffset(82, 26), Text = "", Font = UIKit.Fonts.Title, TextColor3 = C.Good, TextSize = 22 })
-	HUD.SafeLabel = UIKit.Text(right, { Size = UDim2.new(1, -90, 0, 18), Position = UDim2.fromOffset(82, 54), Text = "", TextSize = 13, TextColor3 = C.TextDim })
+	HUD.SafeLabel = UIKit.Text(right, { Size = UDim2.new(1, -90, 0, 22), Position = UDim2.fromOffset(82, 52), Text = "", TextSize = 15, TextColor3 = C.TextDim })
 	HUD.FuelLowArmed = true
 	HUD.SpiritOrbs = {}
 	for i, el in ipairs({ "Earth", "Water", "Air", "Fire" }) do
@@ -158,6 +172,38 @@ function HUD.Init(state)
 		local t = UIKit.Text(orb, { Size = UDim2.fromScale(1, 1), Text = UIKit.ElementIcon[el], TextSize = 15, TextXAlignment = Enum.TextXAlignment.Center, TextTransparency = 0.6 })
 		HUD.SpiritOrbs[el] = { Frame = orb, Icon = t }
 	end
+	-- มือถือในแมพ: แถบวัน/เข็มทิศแคบลง + อยู่กลางช่องว่างระหว่างการ์ดซ้าย (และปุ่มกระเป๋า) กับการ์ดกองไฟ
+	local function layoutTop()
+		-- (จอสัมผัสมีปุ่มแผนที่/ปักหมุดเรียงลงมาระดับเดียวกับเข็มทิศ)
+		local vpX = UIKit.Viewport().X
+		local narrow = player:GetAttribute("InRun") == true and (vpX < 1000 or (UIKit.IsTouch and vpX < 1250))
+		top.Size = UDim2.fromOffset(narrow and 320 or 440, 84)
+		local cw = narrow and 320 or 520
+		compass.Size = UDim2.fromOffset(cw, 28)
+		compass.Position = UDim2.new(0.5, -cw / 2, 0, 90)
+		if narrow then
+			local vp = UIKit.Viewport()
+			local inset = GuiService.TopbarInset
+			local bagRight = (inset.Min.X > 0 and inset.Min.X or 104) + 52
+			local statsRight = 16 + 310 * UIKit.GetScale(stats)
+			local rightLeft = vp.X - 16 - 330 * UIKit.GetScale(right)
+			local cx = math.max((statsRight + rightLeft) / 2, bagRight + 50) -- ชื่อวัน (กว้าง ~100) ไม่ทับปุ่มกระเป๋า
+			local half = math.max(math.min(cx - statsRight, rightLeft - cx) - 4, 75)
+			topOpts.w, topOpts.maxW, topOpts.phoneMaxW = cw, half * 2 / vp.X, nil
+			top.Position = UDim2.new(0, cx, 0, 10)
+		else
+			topOpts.w, topOpts.maxW, topOpts.phoneMaxW = 520, 0.44, 0.6
+			top.Position = UDim2.new(0.5, 0, 0, 10)
+		end
+		UIKit.AutoScale(top, topOpts)
+		if HUD.Feed then
+			HUD.Feed.Position = UDim2.new(0.5, 0, 0, (HUD.Touch and 178 or 198) * UIKit.BigScale())
+		end
+	end
+	layoutTop()
+	UIKit.OnResize(layoutTop)
+	player:GetAttributeChangedSignal("InRun"):Connect(layoutTop)
+	GuiService:GetPropertyChangedSignal("TopbarInset"):Connect(layoutTop)
 	HUD.DiamondLabel = UIKit.Text(right, { Size = UDim2.fromOffset(100, 28), Position = UDim2.new(1, -144, 0, 80), Text = "0", Font = UIKit.Fonts.Title, TextSize = 22, TextXAlignment = Enum.TextXAlignment.Right, TextColor3 = Color3.fromRGB(255, 190, 190) })
 	UIKit.Icon(right, "Ruby", 32, { Position = UDim2.new(1, -42, 0, 76) })
 	-- คลังแคมป์ (ของที่ย่อยแล้ว ใช้ร่วมกันทั้งทีม): รูปไอเทม + จำนวน ใต้การ์ดกองไฟ
@@ -199,8 +245,8 @@ function HUD.Init(state)
 		HUD.Slots[id] = { Frame = slot, Count = count }
 	end
 	HUD.Hint = UIKit.Text(gui, {
-		Size = UDim2.new(0, 900, 0, 20), AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -16), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 15, TextColor3 = C.Text,
-		Text = "[คลิก] ตี/ตัด   [Shift] วิ่ง   [C] คราฟต์   [B] สร้าง   [E] เก็บของ (ถือกระสอบ)   [F] เอาของออก   [M] แผนที่   [1-9] เลือกของ",
+		Size = UDim2.new(0.7, 0, 0, 20), AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -16), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 15, -- กว้างตามจอ: ตัวหนังสือย่อเองไม่ล้น TextColor3 = C.Text,
+		Text = "[คลิก] ตี/ตัด   [Shift] วิ่ง   [Ctrl] ล็อกกล้อง   [C] คราฟต์   [B] สร้าง   [E] เก็บของ (ถือกระสอบ)   [F] เอาของออก   [M] แผนที่   [1-9] เลือกของ",
 		TextStrokeTransparency = 0.7,
 	})
 
@@ -213,10 +259,10 @@ function HUD.Init(state)
 	---------------------------------------------------------------- แจ้งเตือน
 	-- มือถือ: กล่องแจ้งเตือนเตี้ยลง/ขึ้นใกล้การ์ดกองไฟ ไม่ลงไปทับปุ่มมือถือมุมขวาล่าง
 	local feed = UIKit.Frame(gui, {
-		Size = UDim2.new(0, 680, 0, HUD.Touch and 150 or 220), AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.new(0.5, 0, 0, HUD.Touch and 150 or 198), BackgroundTransparency = 1, -- ใต้แถบวัน/เข็มทิศ/แถบเลือดบอส
+		Size = UDim2.new(0, 540, 0, HUD.Touch and 150 or 220), AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0, HUD.Touch and 178 or 198), BackgroundTransparency = 1, -- ใต้แถบวัน/เข็มทิศ/แถบเลือดบอส · กว้างไม่ชนการ์ดซ้าย
 	})
-	UIKit.AutoScale(feed)
+	UIKit.AutoScale(feed, { maxW = 0.46, phoneMaxW = 0.54 })
 	local fl = Instance.new("UIListLayout")
 	fl.Padding = UDim.new(0, 4)
 	fl.HorizontalAlignment = Enum.HorizontalAlignment.Center
@@ -313,45 +359,53 @@ function HUD.Update()
 	HUD.TimeFill.Parent.Visible = not inLobby
 	HUD.Strip.Visible = false -- ไม่มีแถบนับของ: ของทั้งหมดอยู่ในกระสอบ
 	HUD.Hint.Visible = HUD.ShowHints ~= false
-	HUD.Hint.Position = UDim2.new(0.5, 0, 1, inLobby and -16 or -86) -- ในแมพ: อยู่เหนือแถบไอเทมของ Roblox
+	local big = UIKit.BigScale()
+	HUD.Hint.Position = UDim2.new(0.5, 0, 1, inLobby and -16 or -86 * big) -- ในแมพ: อยู่เหนือแถบไอเทมของ Roblox
+	HUD.Hint.Size = UDim2.new(UIKit.IsPhone() and 0.46 or 0.7, 0, 0, 20 * big) -- มือถือ: แคบลงไม่ทับเมนูซ้าย/ปุ่มขวา
+	HUD.Hint.TextSize = 15 * big
 	if inLobby then
 		HUD.NightLabel.Text = "WILDHEART CAMP"
 		HUD.NightLabel.TextColor3 = C.Gold
 		local cd = s:GetAttribute("PortalCountdown") or -1
 		if not s:GetAttribute("Ready") then
-			HUD.PhaseLabel.Text = string.format("⏳ กำลังสร้างโลก %d%% · ระหว่างนี้แวะร้านค้าได้", math.floor((s:GetAttribute("LoadProgress") or 0) * 100))
+			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("⏳ กำลังสร้างโลก %d%% · ระหว่างนี้แวะร้านค้าได้", math.floor((s:GetAttribute("LoadProgress") or 0) * 100)))
 		elseif cd >= 0 then
-			HUD.PhaseLabel.Text = string.format("🧭 ทีม %d คน · ออกเดินทางใน %d วินาที", s:GetAttribute("PortalCount") or 0, cd)
+			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("🧭 ทีม %d คน · ออกเดินทางใน %d วินาที", s:GetAttribute("PortalCount") or 0, cd))
 		elseif phase == "Lobby" then
-			HUD.PhaseLabel.Text = "🌲 เดินขึ้นแท่น \"เริ่มเกม\" ทางขวามือเพื่อออกผจญภัย"
+			HUD.PhaseLabel.Text = UIKit.StripIcons("🌲 เดินขึ้นแท่น \"เริ่มเกม\" ทางขวามือเพื่อออกผจญภัย")
 		else
-			HUD.PhaseLabel.Text = string.format("⚔ ทีมกำลังเอาชีวิตรอดคืนที่ %d — ขึ้นแท่นเริ่มเกมเพื่อร่วมทีม", s:GetAttribute("Night") or 1)
+			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("⚔ ทีมกำลังเอาชีวิตรอดคืนที่ %d — ขึ้นแท่นเริ่มเกมเพื่อร่วมทีม", s:GetAttribute("Night") or 1))
 		end
 		HUD.Hint.Text = HUD.Touch and "เต็นท์ Classes = ร้านคลาส · หม้อเขียว = รางวัลรายวัน · เดินขึ้นแท่นเริ่มเกมเพื่อออกผจญภัย"
 			or "เต็นท์ Classes ตรงหน้า = ร้านคลาส [K]   ·   หม้อเขียวซ้ายมือ = รางวัลประจำวัน   ·   แท่นเริ่มเกม: เดินขึ้นแท่นแล้วเลือกจำนวนคน (1-8)"
 		HUD.TimeFill.Size = UDim2.fromScale(0, 1)
 	elseif phase == "Day" then
-		HUD.PhaseLabel.Text = string.format("☀ กลางวัน · ค่ำในอีก %s", fmtTime(remain))
+		HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("☀ กลางวัน · ค่ำในอีก %s", fmtTime(remain)))
 		HUD.TimeIcon.Text = "☀"
 		HUD.TimeFill.BackgroundColor3 = C.Gold
 	elseif phase == "Dusk" then
-		HUD.PhaseLabel.Text = string.format("⚠ พลบค่ำ · ฝูงสัตว์จะมาในอีก %s", fmtTime(remain))
+		HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("⚠ พลบค่ำ · ฝูงสัตว์จะมาในอีก %s", fmtTime(remain)))
 		HUD.TimeIcon.Text = "🌅"
 		HUD.TimeFill.BackgroundColor3 = C.Fire
 	elseif phase == "Night" then
 		local el = s:GetAttribute("NightElement") or "Earth"
-		HUD.PhaseLabel.Text = string.format("%s คืนแห่ง%s · รุ่งเช้าในอีก %s", UIKit.ElementIcon[el] or "", UIKit.ElementThai[el] or "", fmtTime(remain))
+		local bossHold = (s:GetAttribute("BossHoldEnd") or 0) - now
+		if bossHold > 0 then
+			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("⏳ ฆ่าบอสก่อนรุ่งเช้า · บอสจะหนีในอีก %s", fmtTime(bossHold)))
+		else
+			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("%s คืนแห่ง%s · รุ่งเช้าในอีก %s", UIKit.ElementIcon[el] or "", UIKit.ElementThai[el] or "", fmtTime(remain)))
+		end
 		HUD.TimeIcon.Text = s:GetAttribute("BloodMoon") and "🔴" or "🌙"
 		HUD.TimeFill.BackgroundColor3 = UIKit.Colors.Element[el] or C.Gold
 	elseif phase == "Loading" then
-		HUD.PhaseLabel.Text = "กำลังสร้างโลก..."
+		HUD.PhaseLabel.Text = UIKit.StripIcons("กำลังสร้างโลก...")
 	else
-		HUD.PhaseLabel.Text = ""
+		HUD.PhaseLabel.Text = UIKit.StripIcons("")
 	end
 	if not inLobby then
 		HUD.TimeFill.Size = UDim2.fromScale(frac, 1)
-		HUD.Hint.Text = HUD.Touch and "แตะจอ = ตี/ตัด · ปุ่มขวาล่าง = คราฟต์/สร้าง/กระสอบ/แผนที่ · แตะปุ่มบนของ = เก็บ"
-			or "[คลิก] ตี/ตัด   [Shift] วิ่ง   [C] คราฟต์   [B] สร้าง   [E] เก็บของ   [F] เอาของออก   [Tab] กระสอบ   [M] แผนที่   [1-9] เลือกของ"
+		HUD.Hint.Text = HUD.Touch and "แตะจอ = ตี/ตัด · โต๊ะคราฟต์ = คราฟต์ · เลือกของในแถบล่าง = สร้าง · 🎒 มุมขวาบน = กระเป๋า"
+			or "[คลิก] ตี/ตัด   [Shift] วิ่ง   [Ctrl] ล็อกกล้อง   [C] คราฟต์   [B] สร้าง   [E] เก็บของ   [F] เอาของออก   [Tab] กระสอบ   [M] แผนที่   [1-9] เลือกของ"
 	end
 	HUD.TimeIcon.Position = UDim2.new(frac, -10, 0.5, -10)
 
@@ -370,13 +424,13 @@ function HUD.Update()
 	if campPos and char then
 		local d = ((char:GetPivot().Position - campPos) * Vector3.new(1, 0, 1)).Magnitude
 		if fuel <= 0 then
-			HUD.SafeLabel.Text = "⚠ ไฟดับ! ไม่มีที่ปลอดภัย"
+			HUD.SafeLabel.Text = UIKit.StripIcons("⚠ ไฟดับ! ไม่มีที่ปลอดภัย")
 			HUD.SafeLabel.TextColor3 = C.Bad
 		elseif d < safe then
-			HUD.SafeLabel.Text = "🔥 อยู่ในแสงกองไฟ (ปลอดภัยจากกวางกลวง)"
+			HUD.SafeLabel.Text = UIKit.StripIcons(UIKit.Viewport().X < 1100 and "🔥 อยู่ในแสงกองไฟ" or "🔥 อยู่ในแสงกองไฟ (ปลอดภัยจากกวางกลวง)")
 			HUD.SafeLabel.TextColor3 = C.Good
 		else
-			HUD.SafeLabel.Text = string.format("ห่างกองไฟ %d m", math.floor(d * 0.28))
+			HUD.SafeLabel.Text = UIKit.StripIcons(string.format("ห่างกองไฟ %d m", math.floor(d * 0.28)))
 			HUD.SafeLabel.TextColor3 = C.TextDim
 		end
 	end
@@ -412,8 +466,7 @@ function HUD.Update()
 	local downed = player:GetAttribute("Downed")
 	HUD.DownedFrame.Visible = downed == true
 	if downed then
-		local left = (player:GetAttribute("DownedUntil") or now) - now
-		HUD.DownedText.Text = string.format("🩸 คุณล้มลงแล้ว — รอเพื่อนช่วย %d วินาที\nไม่มีใครช่วยทัน = ตาย (ไม่เกิดใหม่ในรอบนี้)", math.max(0, math.ceil(left)))
+		HUD.DownedText.Text = UIKit.StripIcons("🩸 คุณล้มลงแล้ว — นอนรอเพื่อนมาช่วย (ใช้ผ้าพันแผล)\nถ้าล้มหมดทั้งทีม = แพ้")
 	end
 
 	-- เข็มทิศ
@@ -580,9 +633,8 @@ function HUD.UpdateTeam(inLobby, now)
 			r.Status.Text = "ตายแล้ว"
 			r.Status.TextColor3 = C.TextDim
 		elseif downed then
-			local left = math.max(0, math.ceil((p:GetAttribute("DownedUntil") or now) - now))
 			r.Icon.Text = "🩸"
-			r.Status.Text = string.format("ล้ม! %ds", left)
+			r.Status.Text = "ล้ม! รอช่วย"
 			r.Status.TextColor3 = (math.floor(os.clock() * 3) % 2 == 0) and C.Bad or Color3.fromRGB(255, 220, 200)
 		else
 			r.Icon.Text = "❤"
@@ -656,8 +708,29 @@ function HUD.SetSack(used, cap)
 	HUD.SackLabel.TextColor3 = (cap > 0 and used >= cap) and Color3.fromRGB(255, 110, 100) or Color3.fromRGB(240, 226, 190)
 end
 
+-- อาหารที่ควรกินก่อน: อิ่มมากสุด (เนื้อดิบไว้ท้ายสุด เพราะเสียเลือด)
+local function bestFood(inv)
+	local best, bestScore
+	for id, n in pairs(inv) do
+		local item = Items.Data[id]
+		if n > 0 and item and item.Category == "Food" then
+			local score = (item.Food or 0) + ((item.Heal or 0) < 0 and -1000 or 0)
+			if not bestScore or score > bestScore then
+				best, bestScore = id, score
+			end
+		end
+	end
+	return best
+end
+
 function HUD.SetInventory(inv)
 	HUD.Inventory = inv
+	HUD.EatId = bestFood(inv)
+	if HUD.EatBtn then
+		HUD.EatBtn.Visible = HUD.EatId ~= nil
+		HUD.EatBtn.Text = HUD.EatId and "🍖 กิน" or ""
+		HUD.HungerBar.Holder.Size = UDim2.fromOffset(HUD.EatId and 160 or 222, 18)
+	end
 	for id, slot in pairs(HUD.Slots) do
 		local n = inv[id] or 0
 		slot.Count.Text = tostring(n)
@@ -669,16 +742,10 @@ local KIND_COLOR = {
 	Info = Color3.fromRGB(240, 236, 224), Good = Color3.fromRGB(150, 245, 165), Reward = Color3.fromRGB(255, 220, 120),
 	Warn = Color3.fromRGB(255, 190, 95), Danger = Color3.fromRGB(255, 104, 92), Error = Color3.fromRGB(255, 136, 124),
 }
-local KIND_GLYPH = { Info = "✦", Good = "✔", Reward = "★", Warn = "⚠", Danger = "☠", Error = "✖" }
 local GOLD = Color3.fromRGB(236, 196, 112)
 -- แถบจางหัวท้าย (ตรงกลางเข้ม -> ขอบใส)
-local function ribbonFade(alpha)
-	return NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.18, alpha), NumberSequenceKeypoint.new(0.82, alpha), NumberSequenceKeypoint.new(1, 1),
-	})
-end
 
--- แจ้งเตือนกลางจอ (สไตล์เกมเอาชีวิตรอด): ตัวหนังสือใหญ่ขอบเข้ม บนแถบสีจางตามประเภท + เส้นทองบน/ล่าง · ขึ้นแล้วค่อยจางหายขึ้นด้านบน
+-- แจ้งเตือนกลางจอ (สไตล์เกมเอาชีวิตรอด): ตัวหนังสือใหญ่ขอบเข้ม สีตามประเภท ไม่มีไอคอน/แถบ/เส้น · ขึ้นแล้วค่อยจางหาย
 function HUD.Notify(text, kind)
 	if not HUD.Feed then
 		return
@@ -688,26 +755,16 @@ function HUD.Notify(text, kind)
 	local big = kind == "Danger" or kind == "Reward"
 	HUD.FeedOrder += 1
 	local slot = UIKit.Frame(HUD.Feed, { Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1, LayoutOrder = HUD.FeedOrder })
-	local band = UIKit.Frame(slot, { Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, BackgroundColor3 = col:Lerp(Color3.new(0, 0, 0), 0.72), BackgroundTransparency = 0 })
-	local bg = Instance.new("UIGradient")
-	bg.Transparency = ribbonFade(0.25)
-	bg.Parent = band
-	for _, y in ipairs({ 0, 1 }) do
-		local line = UIKit.Frame(band, { Size = UDim2.new(1, 0, 0, 2), AnchorPoint = Vector2.new(0, y), Position = UDim2.fromScale(0, y), BackgroundColor3 = kind == "Info" and GOLD or col, BackgroundTransparency = 0 })
-		local lg = Instance.new("UIGradient")
-		lg.Transparency = ribbonFade(0)
-		lg.Parent = line
-	end
+	local band = UIKit.Frame(slot, { Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1 })
 	local pad = Instance.new("UIPadding")
 	pad.PaddingTop = UDim.new(0, 6)
 	pad.PaddingBottom = UDim.new(0, 6)
 	pad.PaddingLeft = UDim.new(0, 60)
 	pad.PaddingRight = UDim.new(0, 60)
 	pad.Parent = band
-	local g = KIND_GLYPH[kind]
 	local label = UIKit.Text(band, {
 		Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Center,
-		TextSize = big and 25 or 21, Font = UIKit.Fonts.Black, Text = g .. "  " .. text .. "  " .. g, TextColor3 = col, TextTransparency = 1,
+		TextSize = big and 25 or 21, Font = UIKit.Fonts.Black, Text = UIKit.StripIcons(text), TextColor3 = col, TextTransparency = 1,
 	})
 	UIKit.TextStroke(label, 2.4, 0.05)
 	local sc = Instance.new("UIScale")
@@ -749,23 +806,23 @@ function HUD.Pickup(id, n)
 	if not HUD.PickFeed then
 		return
 	end
-	local f = UIKit.Frame(HUD.PickFeed, { Size = UDim2.fromOffset(210, 32), BackgroundColor3 = Color3.fromRGB(26, 28, 50), BackgroundTransparency = 0.1 })
-	UIKit.Corner(f, 14)
-	UIKit.Stroke(f, C.Outline, 2, 0)
+	-- ไม่มีกรอบ/พื้นหลัง: ตัวหนังสือลอยพร้อมขอบดำให้อ่านออกบนทุกฉาก
+	local f = UIKit.Frame(HUD.PickFeed, { Size = UDim2.fromOffset(210, 28), BackgroundTransparency = 1 })
 	local sc = Instance.new("UIScale")
 	sc.Scale = 0.5
 	sc.Parent = f
 	UIKit.Tween(sc, 0.25, { Scale = 1 }, Enum.EasingStyle.Back)
 	local item = Items.Data[id]
 	UIKit.Text(f, {
-		Size = UDim2.new(1, -12, 1, 0), Position = UDim2.fromOffset(8, 0), TextSize = 17, Font = UIKit.Fonts.Black, TextXAlignment = Enum.TextXAlignment.Right,
+		Size = UDim2.new(1, -4, 1, 0), TextSize = 19, Font = UIKit.Fonts.Black, TextXAlignment = Enum.TextXAlignment.Right,
 		Text = string.format("+%d %s %s", n, item and item.Thai or id, ICON[id] or ""), TextColor3 = item and item.Color or C.Text,
 	})
 	task.delay(2.5, function()
-		UIKit.Tween(f, 0.4, { BackgroundTransparency = 1 })
 		for _, d in ipairs(f:GetDescendants()) do
 			if d:IsA("TextLabel") then
 				UIKit.Tween(d, 0.4, { TextTransparency = 1 })
+			elseif d:IsA("UIStroke") then
+				UIKit.Tween(d, 0.4, { Transparency = 1 })
 			end
 		end
 		task.wait(0.45)

@@ -70,6 +70,9 @@ function ItemTooltip.Info(id)
 	if sack then
 		table.insert(stats, "🎒 ความจุ " .. sack .. " ชิ้น")
 	end
+	if d.ArmorHP then
+		table.insert(stats, "🛡 เลือดสูงสุด +" .. num(d.ArmorHP))
+	end
 	if d.Food then
 		table.insert(stats, "🍖 อิ่ม +" .. num(d.Food))
 	end
@@ -161,7 +164,7 @@ local function place()
 	if not (card and card.Visible) then
 		return
 	end
-	local vp = Workspace.CurrentCamera and Workspace.CurrentCamera.ViewportSize or Vector2.new(1280, 720)
+	local vp = UIKit.Viewport()
 	local sc = card:FindFirstChild("AutoScale")
 	local k = sc and sc.Scale or 1
 	local w, h = card.AbsoluteSize.X, card.AbsoluteSize.Y
@@ -307,19 +310,7 @@ function ItemTooltip.Init()
 			end
 		end
 	end)
-	local function hook(char)
-		char.ChildAdded:Connect(function(c)
-			local id = c:IsA("Tool") and c:GetAttribute("ItemId")
-			if id and Items.Data[id] and player:GetAttribute("InRun") and not owner then
-				ItemTooltip.Show(id, "Hotbar")
-				hideLater(2.5)
-			end
-		end)
-	end
-	player.CharacterAdded:Connect(hook)
-	if player.Character then
-		hook(player.Character)
-	end
+	-- (เลิกเด้งสเตตัสตอนสลับของขึ้นมือแล้ว — โชว์เฉพาะในเมนูคราฟต์)
 end
 
 return ItemTooltip

@@ -186,6 +186,9 @@ function WoodKit.Button(parent, style, props, onClick)
 			onClick()
 		end
 	end)
+	if onClick then
+		UIKit.EnsureTouchSize(b, 42, onClick, 12) -- จอสัมผัส: พื้นที่แตะขั้นต่ำ (โตเกินปุ่มไม่เกิน 12px/ด้าน)
+	end
 	return b
 end
 
@@ -388,9 +391,10 @@ function WoodKit.Window(parent, opts)
 		banner(root, UDim2.fromOffset(-38, 0), 40, 44, bh, 4)
 		banner(root, UDim2.new(1, -6, 0, 0), 40, 44, bh, 4)
 	end
+	local lanterns = {}
 	if opts.Lanterns ~= false then
-		lantern(root, UDim2.new(0, -16, 0, bh + 80), 6)
-		lantern(root, UDim2.new(1, 16, 0, bh + 80), 6)
+		lanterns[1] = lantern(root, UDim2.new(0, -16, 0, bh + 80), 6)
+		lanterns[2] = lantern(root, UDim2.new(1, 16, 0, bh + 80), 6)
 	end
 	-- ป้ายชื่อ: กรอบไม้ + กระดาษ + ตัวหนังสือหมึก (Plaque = false: ไม่มีป้าย แต่ TitleWidth ยังใช้กำหนดระยะหัวสัตว์)
 	local pw = opts.TitleWidth or math.clamp(#(opts.Title or "") * 6 + 120, 300, 420)
@@ -404,13 +408,44 @@ function WoodKit.Window(parent, opts)
 		title = WoodKit.Ink(paper, { Size = UDim2.new(1, -16, 1, 0), Position = UDim2.fromOffset(8, 0), Text = opts.Title or "", TextSize = 32, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 12 })
 	end
 	-- หัวหมาป่า (ซ้าย หันเข้ากลาง) / อินทรี (ขวา) — อยู่นอกป้ายชื่อ ซ้อนแค่ขอบนิดเดียว และวาดทับป้าย ไม่ให้ป้ายบังหัว
+	local beasts = {}
 	if opts.Beasts ~= false then
-		WoodKit.Art(root, "Wolf", 150, { AnchorPoint = Vector2.new(1, 1), Position = UDim2.new(0.5, -pw / 2 + 8, 0, 34), ZIndex = 13 })
-		WoodKit.Art(root, "Eagle", 136, { AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0.5, pw / 2 - 6, 0, 36), ZIndex = 13 })
+		table.insert(beasts, WoodKit.Art(root, "Wolf", 150, { AnchorPoint = Vector2.new(1, 1), Position = UDim2.new(0.5, -pw / 2 + 8, 0, 34), ZIndex = 13 }))
+		table.insert(beasts, WoodKit.Art(root, "Eagle", 136, { AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0.5, pw / 2 - 6, 0, 36), ZIndex = 13 }))
 	end
 	if opts.OnClose then
 		WoodKit.CloseButton(root, opts.OnClose, { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(1, -16, 0, 14) })
 	end
+	-- ย่อทั้งหน้าต่างให้พอดีจอ โดยนับของที่ยื่นออกนอกกรอบด้วย: ธง (ซ้าย 38 / ขวา 34) · ป้ายชื่อ (บน 34) · หัวสัตว์ (บน 116)
+	-- มือถือ: ซ่อนหัวสัตว์ (ของตกแต่ง) -> หน้าต่างใหญ่ขึ้น ตัวหนังสืออ่านง่ายขึ้น
+	local function adapt()
+		local showBeasts = #beasts > 0 and not UIKit.IsPhone()
+		local top = opts.Plaque ~= false and 34 or 12
+		for _, b in ipairs(beasts) do
+			b.Visible = showBeasts
+			if showBeasts then
+				top = math.max(top, b.Size.Y.Offset - b.Position.Y.Offset)
+			end
+		end
+		local side = opts.Banners ~= false and 76 or 24
+		local custom = opts.Position ~= nil or root.AnchorPoint ~= Vector2.new(0.5, 0.5)
+		-- มือถือจอเตี้ย: หน้าต่างเตี้ยลงได้ถึง 80% (รายการข้างในเลื่อนดู) -> ย่อตามความกว้างแทน ตัวหนังสือใหญ่ขึ้น
+		local hh = h
+		if UIKit.IsPhone() and not custom and opts.Shrink ~= false then
+			local vp = UIKit.Viewport()
+			local sW = (vp.X - 12) / (w + side)
+			hh = math.floor(math.clamp((vp.Y - 12) / sW - top - 6, h * 0.8, h))
+		end
+		root.Size = UDim2.fromOffset(w, hh)
+		UIKit.AutoScale(root, { envW = w + side, envH = hh + top + 6, envTop = (not custom) and top or nil })
+		-- โคมไฟ: ซ่อนเมื่อแสงจะยื่นออกนอกจอ (ยื่นจากขอบหน้าต่าง ~76 ต่อด้าน · ไม่มีผลกับการใช้งาน)
+		local fits = (w + 152) * UIKit.GetScale(root) <= UIKit.Viewport().X
+		for _, l in ipairs(lanterns) do
+			l.Visible = fits
+		end
+	end
+	adapt()
+	UIKit.OnResize(adapt)
 	return { Frame = root, Body = body, Inner = inner, Title = title }
 end
 

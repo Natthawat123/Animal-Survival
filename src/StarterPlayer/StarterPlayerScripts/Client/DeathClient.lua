@@ -111,6 +111,7 @@ function DeathClient.Init()
 		Size = UDim2.fromOffset(620, 128), AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -24), BackgroundTransparency = 0.08, Visible = false,
 	})
 	ui.Spectate = bar
+	UIKit.AutoScale(bar, { maxW = 0.9, maxH = 0.4 })
 	UIKit.Header(bar, "☠ คุณเสียชีวิต", C.Blood)
 	ui.Name = UIKit.Text(bar, { Size = UDim2.new(1, -150, 0, 30), Position = UDim2.new(0, 75, 0, 32), TextXAlignment = Enum.TextXAlignment.Center, Font = UIKit.Fonts.Title, TextSize = 24, Text = "" })
 	ui.Sub = UIKit.Text(bar, { Size = UDim2.new(1, -40, 0, 20), Position = UDim2.new(0, 20, 0, 64), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 15, TextColor3 = C.TextDim, Text = "" })
