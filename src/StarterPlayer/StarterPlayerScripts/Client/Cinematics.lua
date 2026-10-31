@@ -54,9 +54,28 @@ local function fadeTexts(frame, to, time)
 end
 
 -- ข้อความใหญ่กลางจอ (หายเอง)
+-- ป้ายใหญ่ขึ้นทีละอัน (เข้าคิว ไม่ซ้อนกัน) · คิวยาวเกิน 6 วิ = ทิ้งอันใหม่ · ระหว่างมีป้าย ซ่อนแถบข้อความ (BannerUp)
+local bannerFree = 0
+local bannerCount = 0
 function Cinematics.Banner(title, subtitle, color, hold, opts)
+	local now = os.clock()
+	if bannerFree - now > 6 then
+		return nil
+	end
+	local delay = math.max(0, bannerFree - now)
+	bannerFree = now + delay + (hold or 3) + 1.3
+	if delay > 0 then
+		task.delay(delay, Cinematics.ShowBanner, title, subtitle, color, hold, opts)
+		return nil
+	end
+	return Cinematics.ShowBanner(title, subtitle, color, hold, opts)
+end
+
+function Cinematics.ShowBanner(title, subtitle, color, hold, opts)
 	opts = opts or {}
 	title, subtitle = UIKit.StripIcons(title), UIKit.StripIcons(subtitle)
+	bannerCount += 1
+	Players.LocalPlayer:SetAttribute("BannerUp", true)
 	local f = UIKit.Frame(gui, { Size = UDim2.new(1, 0, 0, 170), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, opts.Y or 0.28, 0), BackgroundTransparency = 1 })
 	UIKit.AutoScale(f) -- มือถือ: ตัวหนังสือใหญ่กลางจอย่อตามจอ
 	local t = bigText(f)
@@ -73,6 +92,10 @@ function Cinematics.Banner(title, subtitle, color, hold, opts)
 		fadeTexts(f, 1, 1.2)
 		task.wait(1.3)
 		f:Destroy()
+		bannerCount -= 1
+		if bannerCount <= 0 then
+			Players.LocalPlayer:SetAttribute("BannerUp", nil)
+		end
 	end)
 	return f
 end
@@ -1822,7 +1845,7 @@ function Cinematics.StalkerWarning(d, combat)
 		g.Parent = e
 		table.insert(edges, e)
 	end
-	Cinematics.Banner("มีบางอย่างกำลังเข้ามา...", "อยู่ใกล้แสงไฟ! 🔥", Color3.fromRGB(255, 70, 60), 3.5, { Size = 50, Y = 0.2 })
+	Cinematics.Banner("มีบางอย่างกำลังเข้ามา...", "", Color3.fromRGB(255, 70, 60), 2.5, { Size = 50, Y = 0.2 })
 	if combat and combat.Shake then
 		combat.Shake(0.12, 0.5)
 	end
@@ -1856,34 +1879,26 @@ function Cinematics.Handle(kind, d, menus, combat)
 	if kind == "NightStart" then
 		local color = d.BloodMoon and Color3.fromRGB(220, 40, 40) or (C.Element[d.Element] or C.Gold)
 		local title = d.BloodMoon and "BLOOD MOON" or ("NIGHT " .. d.Night)
-		local sub = (d.BloodMoon and ("คืนที่ " .. d.Night .. " · ") or "") .. (d.Title or "") .. " — " .. (ELEMENT_NIGHT_TEXT[d.Element] or "")
+		-- ข้อความสั้น: บอกแค่ธาตุ/บอส · ไม่มีแถบดำบน-ล่าง (เคยบังปุ่มและแถบของบนมือถือ)
+		local sub = "คืนแห่ง" .. (UIKit.ElementThai[d.Element] or "")
 		if type(d.Elements) == "table" and #d.Elements > 0 then
-			-- พระจันทร์เลือดครั้งแรก: บอกว่าธาตุไหนบุกบ้าง
-			local names = {}
-			for _, e in ipairs(d.Elements) do
-				table.insert(names, (UIKit.ElementIcon[e] or "") .. (UIKit.ElementThai[e] or tostring(e)))
-			end
-			sub = "คืนที่ " .. d.Night .. " · " .. (d.Title or "") .. " — " .. table.concat(names, " + ") .. " บุกพร้อมกัน!"
+			sub = "ทุกธาตุบุกพร้อมกัน"
 		end
 		if d.Boss then
-			sub = "คืนที่ " .. d.Night .. " · " .. (d.Title or "") .. " — บอสธาตุกำลังมาถึง!"
+			sub = "บอสกำลังมา"
 		end
-		letterbox(true)
-		Cinematics.Banner(title, sub, color, 4)
-		task.delay(4.5, function()
-			letterbox(false)
-		end)
+		Cinematics.Banner(title, sub, color, 3)
 		combat.Shake(0.3, 1)
 	elseif kind == "DayStart" then
 		if d.Day > 1 then
-			Cinematics.Banner("DAY " .. d.Day, "สำรวจ เก็บของ และเตรียมรับมือก่อนค่ำ", C.Gold, 2.5, { Size = 54, Y = 0.22 })
+			Cinematics.Banner("DAY " .. d.Day, "", C.Gold, 2, { Size = 54, Y = 0.22 })
 		else
-			Cinematics.Banner("DAY 1", "จุดไฟไว้ให้ลุกโชน... ป่านี้ไม่เคยหลับใหล", C.Gold, 4, { Size = 60, Y = 0.22 })
+			Cinematics.Banner("DAY 1", "จุดไฟให้ลุกโชน", C.Gold, 3, { Size = 60, Y = 0.22 })
 		end
 	elseif kind == "Dusk" then
-		Cinematics.Banner("DUSK", "พระอาทิตย์กำลังตก — กลับไปที่กองไฟ!", C.Fire, 2.5, { Size = 50, Y = 0.22 })
+		Cinematics.Banner("DUSK", "กลับไปที่กองไฟ", C.Fire, 2.5, { Size = 50, Y = 0.22 })
 	elseif kind == "Dawn" then
-		Cinematics.Banner("DAWN", string.format("รอดชีวิตผ่านคืนที่ %d แล้ว", d.Night), Color3.fromRGB(255, 220, 160), 3, { Size = 60 })
+		-- ไม่มีป้าย DAWN: ซ้ำกับป้าย DAY ที่ขึ้นตามมาทันที
 	elseif kind == "WaveIncoming" then
 		combat.Shake(0.15, 0.6)
 	elseif kind == "BossIntro" then
@@ -1901,14 +1916,14 @@ function Cinematics.Handle(kind, d, menus, combat)
 			Cinematics.BossIntro(d)
 		end)
 	elseif kind == "BossFelled" then
-		Cinematics.Banner("BEAST VANQUISHED", "ปราบ " .. (d.Thai or "") .. " สำเร็จ! · ได้หัวใจอสูร", Color3.fromRGB(255, 214, 120), 4.5, { Size = 76 })
+		Cinematics.Banner("BEAST VANQUISHED", "ปราบ " .. (d.Thai or "") .. " สำเร็จ", Color3.fromRGB(255, 214, 120), 3.5, { Size = 76 })
 	elseif kind == "Died" then
 		Cinematics.Died(d)
 	elseif kind == "Downed" then
 		combat.Shake(0.5, 0.4)
-		Cinematics.Banner("DOWNED", "คุณล้มลง! รอเพื่อนใช้ผ้าพันแผลช่วย — ถ้าไม่เหลือใครยืนอยู่ = แพ้ทั้งทีม", Color3.fromRGB(255, 90, 80), 3, { Size = 64, Y = 0.2 })
+		-- ไม่มีป้าย DOWNED: ข้อความติดจอ "ล้มแล้ว — รอเพื่อนมาช่วย" บอกอยู่แล้ว
 	elseif kind == "Revived" then
-		Cinematics.Banner("", "✨ ได้รับการช่วยชีวิต!", C.Good, 1.5, { Size = 10, Y = 0.5 })
+		Cinematics.Banner("", "ได้รับการช่วยชีวิต", C.Good, 1.5, { Size = 10, Y = 0.5 })
 	elseif kind == "GameOver" then
 		clearDeath(0.3)
 		if Cinematics.Death then
@@ -1935,24 +1950,24 @@ function Cinematics.Handle(kind, d, menus, combat)
 		end
 	elseif kind == "Purchased" then
 		if d.Kind == "Pack" then
-			Cinematics.Banner("♦️ +" .. tostring(d.Diamonds or 0), "เติม " .. (d.Name or "Ruby") .. " สำเร็จ — ขอบคุณที่สนับสนุน!", Color3.fromRGB(120, 230, 255), 3, { Size = 72, Y = 0.3 })
+			Cinematics.Banner("♦️ +" .. tostring(d.Diamonds or 0), "เติม " .. (d.Name or "Ruby") .. " สำเร็จ", Color3.fromRGB(120, 230, 255), 3, { Size = 72, Y = 0.3 })
 		else
-			Cinematics.Banner("🎫 " .. (d.Name or "GAME PASS"), "ปลดล็อกแล้ว! ขอบคุณที่สนับสนุน", C.Gold, 3, { Size = 64, Y = 0.3 })
+			Cinematics.Banner("🎫 " .. (d.Name or "GAME PASS"), "ปลดล็อกแล้ว", C.Gold, 3, { Size = 64, Y = 0.3 })
 		end
 	elseif kind == "SpiritFreed" then
-		Cinematics.Banner("SPIRIT UNSEALED", (d.Player or "") .. " ปลดปล่อย " .. (d.Name or "") .. " — พากลับกองไฟ!", C.Element[d.Element] or C.Gold, 3.5, { Size = 56 })
+		Cinematics.Banner("SPIRIT UNSEALED", "พา" .. (d.Name or "") .. "กลับกองไฟ", C.Element[d.Element] or C.Gold, 3.5, { Size = 56 })
 	elseif kind == "SpiritRescued" then
 		if not Cinematics.ShrineCut then -- คนที่ดูฉากจบศาลเจ้าอยู่เห็นข้อความในฉากแล้ว
-			Cinematics.Banner("SPIRIT RETURNED", string.format("%s ไปอยู่ที่แคมป์แล้ว (%d/4)%s · บัฟ: %s", d.Name or "", d.Count or 0, d.Day and " · +1 วัน" or "", d.Buff or ""), C.Element[d.Element] or C.Gold, 4.5, { Size = 60 })
+			Cinematics.Banner("SPIRIT RETURNED", string.format("%s กลับแคมป์ (%d/4)", d.Name or "", d.Count or 0), C.Element[d.Element] or C.Gold, 4.5, { Size = 60 })
 		end
 	elseif kind == "ShrineIntro" then
 		Cinematics.ShrineIntro(d)
 	elseif kind == "ShrineCleared" then
 		Cinematics.ShrineCleared(d)
 	elseif kind == "CampUpgrade" then
-		Cinematics.Banner("BONFIRE LV." .. d.Level, "เขตปลอดภัยขยาย · หมอกจางลง · ทางใหม่เปิดออก", C.Fire, 3, { Size = 54, Y = 0.22 })
+		Cinematics.Banner("BONFIRE LV." .. d.Level, "เขตปลอดภัยขยาย", C.Fire, 3, { Size = 54, Y = 0.22 })
 	elseif kind == "FireOut" then
-		Cinematics.Banner("THE FIRE IS OUT", "กองไฟดับ! เติมไม้ด่วน", Color3.fromRGB(255, 80, 60), 3, { Size = 56 })
+		Cinematics.Banner("THE FIRE IS OUT", "เติมไม้ด่วน", Color3.fromRGB(255, 80, 60), 3, { Size = 56 })
 		combat.Shake(0.3, 0.5)
 	elseif kind == "OpenCraft" then
 		menus.OpenCraft()
@@ -1964,16 +1979,12 @@ function Cinematics.Handle(kind, d, menus, combat)
 		menus.OpenTrader()
 	elseif kind == "Teleporting" then
 		if d.Back then
-			Cinematics.Banner("RETURNING", "กำลังพากลับสู่ค่าย WILDHEART...", C.Gold, 8, { Size = 60, Y = 0.62 })
+			Cinematics.Banner("RETURNING", "กำลังกลับค่าย...", C.Gold, 8, { Size = 60, Y = 0.62 })
 		else
-			Cinematics.Banner("DEPARTING", "กำลังพาทีมไปยังผืนป่าของพวกคุณ...", C.Gold, 6, { Size = 60 })
+			Cinematics.Banner("DEPARTING", "กำลังเดินทาง...", C.Gold, 6, { Size = 60 })
 		end
 	elseif kind == "Depart" then
-		letterbox(true)
-		Cinematics.Banner("INTO THE WILDS", "ลงสู่ผืนป่า... จุดไฟให้ลุกโชน แล้วเอาชีวิตรอดให้ได้ 99 คืน", C.Gold, 3.5, { Size = 64 })
-		task.delay(4, function()
-			letterbox(false)
-		end)
+		Cinematics.Banner("INTO THE WILDS", "รอดให้ได้ 99 คืน", C.Gold, 3, { Size = 64 })
 	elseif kind == "Shake" then
 		combat.Shake(d.Power or 0.5, d.Time or 0.5)
 	elseif kind == "Flash" then

@@ -77,8 +77,14 @@ function ctx.FireRun(remoteName, ...)
 		end
 	end
 end
-function ctx.Broadcast(text, kind)
-	ctx.FireRun("Notify", text, kind or "Info")
+-- except = ไม่ส่งให้คนนี้ (เช่น คนที่ล้มเองไม่ต้องเห็น "X ล้มลง")
+function ctx.Broadcast(text, kind, except)
+	local remote = Remotes.Get("Notify")
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p ~= except and p:GetAttribute("InRun") then
+			remote:FireClient(p, text, kind or "Info")
+		end
+	end
 end
 
 local order = {

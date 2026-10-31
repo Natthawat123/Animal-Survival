@@ -222,7 +222,7 @@ function SurvivalService:Down(player, source)
 	hum.AutoRotate = false
 	hum:UnequipTools()
 	layDown(char)
-	self.ctx.Broadcast(string.format("💀 %s ล้มลงแล้ว! ใช้ผ้าพันแผลช่วยด่วน", player.DisplayName), "Danger")
+	self.ctx.Broadcast(string.format("%s ล้มลง! ไปช่วยด่วน", player.DisplayName), "Danger", player) -- คนล้มเห็นข้อความติดจอแทน
 	self.ctx.Remotes.Get("Cinematic"):FireClient(player, "Downed", {})
 	-- ปุ่มช่วยเพื่อน
 	local root = char:FindFirstChild("HumanoidRootPart")
@@ -269,7 +269,7 @@ function SurvivalService:Down(player, source)
 			if self.ctx.Services.QuestService then
 				self.ctx.Services.QuestService:Progress(helper, "Revive", 1)
 			end
-			self.ctx.Broadcast(string.format("✨ %s ช่วยชีวิต %s ได้ทัน!", helper.DisplayName, player.DisplayName), "Good")
+			self.ctx.Broadcast(string.format("%s ช่วย %s ได้ทัน", helper.DisplayName, player.DisplayName), "Good")
 		end)
 	end
 	self:CheckWipe()
@@ -333,7 +333,7 @@ function SurvivalService:Die(player)
 		end
 	end
 	self.ctx.Remotes.Get("Cinematic"):FireClient(player, "Died", { Night = self.ctx.State:GetAttribute("Night"), Alive = alive })
-	self.ctx.Broadcast(string.format("☠ %s สิ้นชีพแล้ว...", player.DisplayName), "Danger")
+	self.ctx.Broadcast(string.format("%s สิ้นชีพ", player.DisplayName), "Danger")
 	Analytics.Custom(player, "PlayerDied", self.ctx.State:GetAttribute("Night") or 1, {
 		tostring(s.DownSource or s.LastSource or "Unknown"), player:GetAttribute("Class") or "Survivor",
 	})
@@ -739,7 +739,7 @@ function SurvivalService:UseMedical(player, id)
 				self.ctx.Services.QuestService:Progress(player, "Revive", 1)
 			end
 			self.ctx.Remotes.Get("HitFx"):FireClient(player, "Heal", { Item = id })
-			self.ctx.Broadcast(string.format("✨ %s ช่วยชีวิต %s ได้ทัน!", player.DisplayName, best.DisplayName), "Good")
+			self.ctx.Broadcast(string.format("%s ช่วย %s ได้ทัน", player.DisplayName, best.DisplayName), "Good")
 			return
 		end
 		if inv:Remove(player, id, 1) then

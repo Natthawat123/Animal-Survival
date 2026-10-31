@@ -332,7 +332,7 @@ function RejoinService:TryRestore(player)
 	end)
 	surv:Spawn(player)
 	ctx.Notify(player, "↩ กลับเข้ารอบเดิมแล้ว — ของในกระสอบ/เครื่องมือยังอยู่ครบ", "Good")
-	ctx.Broadcast(string.format("↩ %s กลับเข้ามาในรอบแล้ว", player.DisplayName), "Info")
+	ctx.Broadcast(string.format("%s กลับเข้ารอบ", player.DisplayName), "Info")
 	return true
 end
 

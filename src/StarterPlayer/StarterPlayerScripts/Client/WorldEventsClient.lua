@@ -295,7 +295,7 @@ function WorldEventsClient.Init(state, hud, mapUI, combat)
 		local ok, err = pcall(function()
 			if kind == "Meteor" then
 				local col = C.Element[d.Element] or C.Fire
-				Cinematics.Banner("METEOR STRIKE", string.format("☄ อุกกาบาตธาตุ%sกำลังพุ่งลงสู่ผืนป่า — ไปขุดแกนผลึกก่อนพลบค่ำ!", THAI[d.Element] or ""), col, 3.5, { Size = 58, Y = 0.2 })
+				Cinematics.Banner("METEOR STRIKE", string.format("อุกกาบาตธาตุ%sตก · ไปขุดแกนผลึก", THAI[d.Element] or ""), col, 3.5, { Size = 58, Y = 0.2 })
 				meteor(d, combat)
 			elseif kind == "MeteorClaimed" then
 				local col = C.Element[d.Element] or C.Gold
@@ -306,12 +306,12 @@ function WorldEventsClient.Init(state, hud, mapUI, combat)
 				end)
 				sound3d(d.Position, "rbxasset://sounds/volume_slider.ogg", 1.5, 1.4, 300)
 			elseif kind == "Migration" then
-				Cinematics.Banner("THE GREAT MIGRATION", "🦌 ฝูงกวางและกระต่ายกำลังเดินผ่านใกล้แคมป์ — โอกาสล่าเนื้อและหนังสัตว์!", Color3.fromRGB(230, 200, 140), 3.5, { Size = 54, Y = 0.2 })
+				Cinematics.Banner("THE GREAT MIGRATION", "ฝูงสัตว์เดินผ่านใกล้แคมป์", Color3.fromRGB(230, 200, 140), 3.5, { Size = 54, Y = 0.2 })
 			elseif kind == "Supply" then
-				Cinematics.Banner("SUPPLY DROP", "📦 หีบเสบียงร่อนลงจากฟ้า — มองหาควันสีแดง แล้วไปเปิดก่อนพลบค่ำ", Color3.fromRGB(255, 110, 80), 3.5, { Size = 58, Y = 0.2 })
+				Cinematics.Banner("SUPPLY DROP", "มองหาควันสีแดง", Color3.fromRGB(255, 110, 80), 3.5, { Size = 58, Y = 0.2 })
 			elseif kind == "SanctumOpened" then
 				local col = C.Element[d.Element] or C.Gold
-				Cinematics.Banner("SEAL BROKEN", string.format("🏛 ผนึกวิหาร%sคลายแล้ว — ห้องผนึกเปิดออก หีบศักดิ์สิทธิ์รออยู่ข้างใน", THAI[d.Element] or ""), col, 4, { Size = 64 })
+				Cinematics.Banner("SEAL BROKEN", string.format("วิหาร%sเปิดแล้ว", THAI[d.Element] or ""), col, 4, { Size = 64 })
 				local me = myPos()
 				if me and d.Position and (me - d.Position).Magnitude < 250 and combat and combat.Shake then
 					combat.Shake(0.6, 2.5)
@@ -380,8 +380,8 @@ function WorldEventsClient.Init(state, hud, mapUI, combat)
 							if dist < 140 and not hinted[el] then
 								hinted[el] = true
 								local solved = state:GetAttribute("Sanctum" .. el .. "Solved")
-								Cinematics.Banner("ANCIENT SANCTUM", solved and ("วิหารโบราณแห่ง" .. THAI[el] .. " · ผนึกถูกคลายไปแล้วในรอบนี้")
-									or ("วิหารโบราณแห่ง" .. THAI[el] .. " · จำลำดับแสงบนเสารูน 3 ต้น แล้วปลุกให้ถูกลำดับภายใน 30 วินาที"), C.Element[el], 4.5, { Size = 60, Y = 0.2 })
+								Cinematics.Banner("ANCIENT SANCTUM", solved and ("วิหาร" .. THAI[el] .. " · คลายผนึกแล้ว")
+									or ("วิหาร" .. THAI[el] .. " · ปลุกเสารูนตามลำดับแสง"), C.Element[el], 4.5, { Size = 60, Y = 0.2 })
 							end
 							local deadline = state:GetAttribute("Sanctum" .. el .. "Deadline")
 							if deadline and dist < 160 then

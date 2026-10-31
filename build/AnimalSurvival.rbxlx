@@ -63931,7 +63931,7 @@ function CampService:AddFuel(amount)
 	local wasOut = self.fuel <= 0
 	self.fuel = math.clamp(self.fuel + amount, 0, max)
 	if wasOut and self.fuel > 0 then
-		self.ctx.Broadcast("🔥 กองไฟลุกโชนอีกครั้ง!", "Good")
+		self.ctx.Broadcast("กองไฟลุกอีกครั้ง", "Good")
 	end
 	self:UpdateVisual()
 	self:Publish()
@@ -63942,7 +63942,6 @@ function CampService:DamageFire(amount)
 	local before = self.fuel
 	self.fuel = math.max(0, self.fuel - amount)
 	if before > 0 and self.fuel <= 0 then
-		self.ctx.Broadcast("⚠ กองไฟดับแล้ว!! เติมไฟด่วน — แคมป์ไม่ปลอดภัยแล้ว", "Danger")
 		self.ctx.FireRun("Cinematic", "FireOut", {})
 	end
 	self:UpdateVisual()
@@ -63997,7 +63996,6 @@ function CampService:UpgradeFire(player)
 	end
 	self.level += 1
 	self.fuel = math.max(self.fuel, nextInfo.MaxFuel * 0.6)
-	self.ctx.Broadcast(string.format("🔥 กองไฟอัปเกรดเป็นเลเวล %d! หมอกถอยออกไป สำรวจได้ไกลขึ้น", self.level), "Reward")
 	self.ctx.FireRun("Cinematic", "CampUpgrade", { Level = self.level })
 	self:UpdateVisual()
 	self:Publish()
@@ -64015,7 +64013,7 @@ function CampService:UpgradeBench(player)
 		return
 	end
 	self.bench += 1
-	self.ctx.Broadcast(string.format("🔨 โต๊ะคราฟต์เลเวล %d! ปลดล็อกสูตรใหม่", self.bench), "Reward")
+	self.ctx.Broadcast(string.format("โต๊ะคราฟต์ Lv.%d · สูตรใหม่", self.bench), "Reward")
 	self:Publish()
 	self:RefreshPrompts()
 end
@@ -64509,7 +64507,6 @@ function CampService:Start(ctx)
 				local before = self.fuel
 				self.fuel = math.max(0, self.fuel - drain * dt)
 				if before > 0 and self.fuel <= 0 then
-					ctx.Broadcast("⚠ กองไฟมอดดับ! เติมไม้ด่วน", "Danger")
 					ctx.FireRun("Cinematic", "FireOut", {})
 				end
 				-- เชื้อเพลิงต่ำกว่า 20%: HUD ของผู้เล่นในรอบเตือนเอง (กะพริบ + เสียง + ข้อความพร้อมเวลาที่เหลือ)
@@ -65875,7 +65872,7 @@ function DirectorService:RunNight(night, runId)
 		local left = Nights.NextBigRaid(night) - night
 		task.delay(6, function()
 			if runId == self.runId then
-				ctx.Broadcast(string.format("🌙 คืนนี้ฝูงเล็ก... คืนบุกใหญ่จะมาในอีก %d คืน เตรียมตัวไว้!", left), "Info")
+				ctx.Broadcast(string.format("บุกใหญ่ในอีก %d คืน", left), "Info")
 			end
 		end)
 	end
@@ -65907,7 +65904,7 @@ function DirectorService:RunNight(night, runId)
 		if animals:CountKind("Stalker") == 0 then
 			local pos = ctx.Layout:RaidSpawnPoint(self.rng, 260, 340)
 			if animals:Spawn("HollowStag", pos, { Kind = "Stalker" }) then
-				ctx.Broadcast("🦌 ...มีบางอย่างจ้องมองมาจากความมืด อยู่ใกล้แสงไฟไว้", "Danger")
+				ctx.Broadcast("มีบางอย่างจ้องมองจากความมืด", "Danger")
 			end
 		end
 	end)
@@ -65920,7 +65917,7 @@ function DirectorService:RunNight(night, runId)
 				return
 			end
 			if not wave.Boss then
-				ctx.Broadcast(string.format("🐾 ฝูงสัตว์ระลอกที่ %d กำลังมุ่งหน้ามาที่กองไฟ!", wi), "Danger")
+				ctx.Broadcast(string.format("ฝูงสัตว์ระลอกที่ %d มาแล้ว", wi), "Danger")
 				ctx.FireRun("Cinematic", "WaveIncoming", { Wave = wi, Element = plan.Element })
 			end
 			for i, id in ipairs(wave.Spawns) do
@@ -65974,7 +65971,7 @@ function DirectorService:HoldForBoss(runId)
 	local s = self.ctx.State
 	local left = Config.BossHoldMax
 	s:SetAttribute("BossHoldEnd", Workspace:GetServerTimeNow() + left)
-	self.ctx.Broadcast("⏳ บอสยังไม่ตาย — ฟ้ายังไม่สาง! ฆ่าให้ได้ก่อนมันหนีไปตอนเช้า", "Danger")
+	self.ctx.Broadcast("ฆ่าบอสก่อนเช้า!", "Danger")
 	while left > 0 and not boss.Dead and not boss.Removed do
 		local dt = task.wait(0.25)
 		if runId ~= self.runId then
@@ -66052,7 +66049,6 @@ function DirectorService:Loop(runId)
 			return
 		end
 		self:SetPhase("Dusk", Config.DuskLength)
-		ctx.Broadcast("🌅 พระอาทิตย์กำลังตก... กลับไปที่กองไฟ!", "Warn")
 		ctx.FireRun("Cinematic", "Dusk", { Night = night })
 		if not self:Wait(Config.DuskLength, runId) then
 			return
@@ -66104,7 +66100,7 @@ function DirectorService:ApplyPendingSkips()
 		self.ctx.Services.TraderService:OnDay(self.night) -- ไม่ให้พลาดรอบพ่อค้า
 	end
 	if applied > 0 then
-		self.ctx.Broadcast(string.format("⏭ ข้ามไป %d วันตามสิทธิ์ที่เก็บไว้ — ตอนนี้วันที่ %d", applied, self.night), "Good")
+		self.ctx.Broadcast(string.format("ข้าม %d วัน · วันที่ %d", applied, self.night), "Good")
 	end
 end
 
@@ -66128,12 +66124,12 @@ function DirectorService:SkipDay(player, fmt)
 		if fmt then
 			self.ctx.Broadcast(string.format(fmt, self.night), "Good")
 		else
-			self.ctx.Broadcast(string.format("🛏 %s วางเตียงพักผ่อน — ข้ามไป 1 วัน! ตอนนี้วันที่ %d", player and player.DisplayName or "ทีม", self.night), "Good")
+			self.ctx.Broadcast(string.format("%s ข้าม 1 วัน · วันที่ %d", player and player.DisplayName or "ทีม", self.night), "Good")
 		end
 	else
 		self.pendingSkips += 1
 		local when = self.night == Config.TotalNights and "หลังจบคืนสุดท้าย" or "ตอนเช้า"
-		self.ctx.Broadcast(string.format("⏳ +1 วัน — จะนับให้%s (เก็บไว้ %d วัน)", when, self.pendingSkips), "Good")
+		self.ctx.Broadcast(string.format("+1 วัน (นับให้%s)", when), "Good")
 	end
 	return true
 end
@@ -66169,7 +66165,7 @@ function DirectorService:Complete()
 			ctx.Services.DataService:Save(p)
 		end
 	end
-	ctx.Broadcast("♾ เข้าสู่โหมดไร้ขีดจำกัด — ฝูงจะแรงขึ้นทุกคืน รอดให้นานที่สุดเพื่อขึ้นกระดานอันดับ!", "Reward")
+	ctx.Broadcast("โหมดไร้ขีดจำกัด · ฝูงแรงขึ้นทุกคืน", "Reward")
 end
 
 function DirectorService:GameOver()
@@ -66270,7 +66266,7 @@ function DirectorService:ResetRun()
 	end
 	ctx.Services.LobbyService:ReturnAll()
 	self:SetPhase("Lobby", 0)
-	ctx.Broadcast("🔥 ทุกคนกลับสู่ล็อบบี้ — ขึ้นแท่นเริ่มเกมเพื่อเริ่มรอบใหม่", "Info")
+	ctx.Broadcast("กลับล็อบบี้แล้ว", "Info")
 end
 
 function DirectorService:Start(ctx)
@@ -67379,7 +67375,6 @@ function EventService:Meteor(token)
 	ctx.State:SetAttribute("Event_MeteorElement", el)
 	local yaw = self.rng:NextNumber(0, math.pi * 2)
 	ctx.FireRun("WorldEvent", "Meteor", { Position = spot, Element = el, ImpactAt = impactAt, Fall = METEOR_FALL, Yaw = yaw })
-	ctx.Broadcast(string.format("☄ อุกกาบาตธาตุ%sกำลังตก! เปิดแผนที่ (M) ดูจุดตก แล้วไปขุดแกนผลึกก่อนพลบค่ำ", THAI[el]), "Reward")
 
 	local model = Instance.new("Model")
 	model.Name = "MeteorCrater"
@@ -67578,7 +67573,7 @@ function EventService:Meteor(token)
 			end
 			ctx.Remotes.Get("HitFx"):FireClient(player, "Loot", { Items = got, Position = core.Position, Chest = true })
 			ctx.FireRun("WorldEvent", "MeteorClaimed", { Position = core.Position, Element = el })
-			ctx.Broadcast(string.format("💎 %s ขุดแกนอุกกาบาตธาตุ%sสำเร็จ!", player.DisplayName, THAI[el]), "Good")
+			ctx.Broadcast(string.format("%s ขุดแกนอุกกาบาต%sได้", player.DisplayName, THAI[el]), "Good")
 			ctx.State:SetAttribute("Event_Meteor", nil)
 			-- แกนแตก
 			for _, s in ipairs(shards) do
@@ -67666,7 +67661,6 @@ function EventService:Migration(token)
 	end)
 	ctx.State:SetAttribute("Event_Migration", path[1])
 	ctx.FireRun("WorldEvent", "Migration", { Position = path[1], To = path[#path] })
-	ctx.Broadcast("🦌 ฝูงสัตว์อพยพกำลังเดินผ่านใกล้แคมป์! โอกาสล่าเนื้อและหนังสัตว์ (ดูแผนที่ M)", "Reward")
 	task.spawn(function()
 		local t0 = os.clock()
 		while not done and self:Valid(token) and os.clock() - t0 < 170 do
@@ -67770,7 +67764,6 @@ function EventService:Supply(token)
 	ctx.State:SetAttribute("Event_Supply", spot)
 	local fall = 17
 	ctx.FireRun("WorldEvent", "Supply", { Position = spot, LandAt = Workspace:GetServerTimeNow() + fall })
-	ctx.Broadcast("📦 หีบเสบียงกำลังร่อนลงจากฟ้า! มองหาควันสีแดง (ดูแผนที่ M)", "Reward")
 	task.spawn(function()
 		local t0 = os.clock()
 		while not done and model.Parent do
@@ -67827,7 +67820,7 @@ function EventService:Supply(token)
 			give(ESSENCE[ELEMENTS[rng:NextInteger(1, 4)]], 1)
 			ctx.Services.DataService:AddDiamonds(player, rng:NextInteger(2, 3), "หีบเสบียง")
 			ctx.Remotes.Get("HitFx"):FireClient(player, "Loot", { Items = got, Position = pos, Chest = true })
-			ctx.Broadcast(string.format("📦 %s เปิดหีบเสบียงแล้ว!", player.DisplayName), "Good")
+			ctx.Broadcast(string.format("%s เปิดหีบเสบียงแล้ว", player.DisplayName), "Good")
 			ctx.State:SetAttribute("Event_Supply", nil)
 			task.delay(6, function()
 				smoke.Enabled = false
@@ -70840,8 +70833,14 @@ function ctx.FireRun(remoteName, ...)
 		end
 	end
 end
-function ctx.Broadcast(text, kind)
-	ctx.FireRun("Notify", text, kind or "Info")
+-- except = ไม่ส่งให้คนนี้ (เช่น คนที่ล้มเองไม่ต้องเห็น "X ล้มลง")
+function ctx.Broadcast(text, kind, except)
+	local remote = Remotes.Get("Notify")
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p ~= except and p:GetAttribute("InRun") then
+			remote:FireClient(p, text, kind or "Info")
+		end
+	end
 end
 
 local order = {
@@ -72206,7 +72205,7 @@ function RejoinService:TryRestore(player)
 	end)
 	surv:Spawn(player)
 	ctx.Notify(player, "↩ กลับเข้ารอบเดิมแล้ว — ของในกระสอบ/เครื่องมือยังอยู่ครบ", "Good")
-	ctx.Broadcast(string.format("↩ %s กลับเข้ามาในรอบแล้ว", player.DisplayName), "Info")
+	ctx.Broadcast(string.format("%s กลับเข้ารอบ", player.DisplayName), "Info")
 	return true
 end
 
@@ -73447,7 +73446,6 @@ function SanctumService:Solve(site, player)
 		table.insert(site.Fx, beam)
 	end
 	self.ctx.FireRun("WorldEvent", "SanctumOpened", { Element = el, Position = doorPos, By = player and player.DisplayName })
-	self.ctx.Broadcast(string.format("🏛 ผนึกวิหาร%sคลายแล้ว! หีบศักดิ์สิทธิ์ในห้องผนึกเปิดได้", THAI[el]), "Reward")
 	task.delay(3.5, function()
 		if site.State == "Solved" and not site.Opened and site.ChestPrompt then
 			site.ChestPrompt.Enabled = true
@@ -73502,7 +73500,7 @@ function SanctumService:OpenChest(site, player)
 			ctx.Notify(p, "✨ ได้รับ" .. AURA_TEXT[el] .. " (ติดตัวทั้งรอบ)", "Reward")
 		end
 	end
-	ctx.Broadcast(string.format("🏛 เคลียร์วิหาร%sแล้ว! คนที่ช่วยกันได้รับ%s", THAI[el], AURA_TEXT[el]), "Reward")
+	ctx.Broadcast(string.format("เคลียร์วิหาร%s · ได้%s", THAI[el], AURA_TEXT[el]), "Reward")
 	for _, p in ipairs(self:NearbyPlayers(site, 70)) do
 		ctx.Services.DataService:AddDiamonds(p, rng:NextInteger(5, 8), "วิหารโบราณ" .. THAI[el])
 	end
@@ -73569,7 +73567,7 @@ function SanctumService:SealAfterClear(site)
 		return
 	end
 	self:SealPortal(site)
-	self.ctx.Broadcast(string.format("🔒 วิหาร%sปิดผนึกแล้ว — เข้าไม่ได้อีกในรอบนี้", THAI[site.Element]), "Info")
+	self.ctx.Broadcast(string.format("วิหาร%sปิดผนึกแล้ว", THAI[site.Element]), "Info")
 end
 
 ---------------------------------------------------------------- รีเซ็ต (รอบใหม่)
@@ -74114,7 +74112,7 @@ function SpiritService:SpawnGuardians(sh)
 	end
 	sh.GuardiansSpawned = true
 	if not intro then
-		self.ctx.Broadcast(string.format("⚔ ผู้พิทักษ์ศาลเจ้า%s ตื่นขึ้นแล้ว! ปราบให้หมดเพื่อปลดผนึก", sh.Element), "Warn")
+		self.ctx.Broadcast(string.format("ผู้พิทักษ์ศาลเจ้า%sตื่นแล้ว", sh.Element), "Warn")
 		return
 	end
 	local cin = self.ctx.Remotes.Get("Cinematic")
@@ -74144,7 +74142,7 @@ function SpiritService:SpawnGuardians(sh)
 		end
 	end)
 	task.delay(INTRO_TIME, function()
-		self.ctx.Broadcast(string.format("⚔ ผู้พิทักษ์ศาลเจ้า%s ตื่นขึ้นแล้ว! ปราบให้หมดเพื่อปลดผนึก", sh.Element), "Warn")
+		self.ctx.Broadcast(string.format("ผู้พิทักษ์ศาลเจ้า%sตื่นแล้ว", sh.Element), "Warn")
 	end)
 end
 
@@ -74201,7 +74199,7 @@ function SpiritService:Free(el, player)
 			end)
 		end)
 	end
-	self.ctx.Broadcast(string.format("✨ %s ปลดปล่อย %s แล้ว!", player.DisplayName, a.Info.Thai), "Reward")
+	self.ctx.Broadcast(string.format("%s ปลดปล่อย %s แล้ว", player.DisplayName, a.Info.Thai), "Reward")
 	task.delay(CLEAR_PILLAR, function()
 		if sh.Model.Parent then
 			self:RaisePillar(sh, false)
@@ -74532,7 +74530,7 @@ function SpiritService:OnBossKilled(a)
 		sigil.Color = Color3.fromRGB(255, 220, 120)
 		sigil.Transparency = 0.3
 	end
-	self.ctx.Broadcast(string.format("💀 ปราบ %s แล้ว! บอสจะกลับมาเกิดใหม่ที่รังในอีก %d นาที", a.Info.Thai, LAIR_RESPAWN / 60), "Reward")
+	self.ctx.Broadcast(string.format("ปราบ %s แล้ว · เกิดใหม่ใน %d นาที", a.Info.Thai, LAIR_RESPAWN / 60), "Reward")
 end
 
 -- บอสในรังกลับมาเกิด (ครบเวลา): รังพร้อมปลุกอีกครั้งเมื่อมีคนเข้าใกล้
@@ -74549,7 +74547,7 @@ function SpiritService:RespawnLair(lair)
 	end
 	local id = ({ Earth = "Terragon", Water = "Leviathan", Air = "TempestRoc", Fire = "Solfang" })[el]
 	local info = Animals.Data[id]
-	self.ctx.Broadcast(string.format("⚠ %s ฟื้นคืนชีพที่รังแล้ว! (ดูแผนที่ M)", info and info.Thai or "บอส"), "Warn")
+	self.ctx.Broadcast(string.format("%s ฟื้นที่รังแล้ว", info and info.Thai or "บอส"), "Warn")
 end
 
 ---------------------------------------------------------------- loop
@@ -74570,7 +74568,7 @@ function SpiritService:Tick()
 				end
 				if alive == 0 then
 					sh.Prompt.Enabled = true
-					self.ctx.Broadcast(string.format("🔓 ผนึกศาลเจ้า%s อ่อนลงแล้ว — กด E ค้างเพื่อปลดปล่อย", el), "Good")
+					self.ctx.Broadcast(string.format("ผนึกศาลเจ้า%sอ่อนลง · กด E ค้าง", el), "Good")
 				end
 			end
 			-- ไม่มีคนอยู่ใกล้นาน -> ผู้เฝ้ากลับไป (เกิดใหม่รอบหน้า)
@@ -74916,7 +74914,7 @@ function SurvivalService:Down(player, source)
 	hum.AutoRotate = false
 	hum:UnequipTools()
 	layDown(char)
-	self.ctx.Broadcast(string.format("💀 %s ล้มลงแล้ว! ใช้ผ้าพันแผลช่วยด่วน", player.DisplayName), "Danger")
+	self.ctx.Broadcast(string.format("%s ล้มลง! ไปช่วยด่วน", player.DisplayName), "Danger", player) -- คนล้มเห็นข้อความติดจอแทน
 	self.ctx.Remotes.Get("Cinematic"):FireClient(player, "Downed", {})
 	-- ปุ่มช่วยเพื่อน
 	local root = char:FindFirstChild("HumanoidRootPart")
@@ -74963,7 +74961,7 @@ function SurvivalService:Down(player, source)
 			if self.ctx.Services.QuestService then
 				self.ctx.Services.QuestService:Progress(helper, "Revive", 1)
 			end
-			self.ctx.Broadcast(string.format("✨ %s ช่วยชีวิต %s ได้ทัน!", helper.DisplayName, player.DisplayName), "Good")
+			self.ctx.Broadcast(string.format("%s ช่วย %s ได้ทัน", helper.DisplayName, player.DisplayName), "Good")
 		end)
 	end
 	self:CheckWipe()
@@ -75027,7 +75025,7 @@ function SurvivalService:Die(player)
 		end
 	end
 	self.ctx.Remotes.Get("Cinematic"):FireClient(player, "Died", { Night = self.ctx.State:GetAttribute("Night"), Alive = alive })
-	self.ctx.Broadcast(string.format("☠ %s สิ้นชีพแล้ว...", player.DisplayName), "Danger")
+	self.ctx.Broadcast(string.format("%s สิ้นชีพ", player.DisplayName), "Danger")
 	Analytics.Custom(player, "PlayerDied", self.ctx.State:GetAttribute("Night") or 1, {
 		tostring(s.DownSource or s.LastSource or "Unknown"), player:GetAttribute("Class") or "Survivor",
 	})
@@ -75433,7 +75431,7 @@ function SurvivalService:UseMedical(player, id)
 				self.ctx.Services.QuestService:Progress(player, "Revive", 1)
 			end
 			self.ctx.Remotes.Get("HitFx"):FireClient(player, "Heal", { Item = id })
-			self.ctx.Broadcast(string.format("✨ %s ช่วยชีวิต %s ได้ทัน!", player.DisplayName, best.DisplayName), "Good")
+			self.ctx.Broadcast(string.format("%s ช่วย %s ได้ทัน", player.DisplayName, best.DisplayName), "Good")
 			return
 		end
 		if inv:Remove(player, id, 1) then
@@ -76333,7 +76331,7 @@ function TraderService:Arrive()
 		self.ctx.Remotes.Get("Cinematic"):FireClient(player, "OpenTrader", {})
 	end)
 	self.ctx.State:SetAttribute("TraderHere", true)
-	self.ctx.Broadcast("🐾 พ่อค้าเร่มาถึงแคมป์แล้ว! เอาหนังสัตว์/กระดูกมาแลกของได้จนถึงพลบค่ำ", "Reward")
+	self.ctx.Broadcast("พ่อค้าเร่มาถึงแคมป์", "Reward")
 end
 
 function TraderService:Leave()
@@ -76341,7 +76339,7 @@ function TraderService:Leave()
 		self.model:Destroy()
 		self.model = nil
 		self.ctx.State:SetAttribute("TraderHere", false)
-		self.ctx.Broadcast("🐾 พ่อค้าเร่ออกเดินทางต่อแล้ว", "Info")
+		self.ctx.Broadcast("พ่อค้าเร่ไปแล้ว", "Info")
 	end
 end
 
@@ -88188,9 +88186,28 @@ local function fadeTexts(frame, to, time)
 end
 
 -- ข้อความใหญ่กลางจอ (หายเอง)
+-- ป้ายใหญ่ขึ้นทีละอัน (เข้าคิว ไม่ซ้อนกัน) · คิวยาวเกิน 6 วิ = ทิ้งอันใหม่ · ระหว่างมีป้าย ซ่อนแถบข้อความ (BannerUp)
+local bannerFree = 0
+local bannerCount = 0
 function Cinematics.Banner(title, subtitle, color, hold, opts)
+	local now = os.clock()
+	if bannerFree - now > 6 then
+		return nil
+	end
+	local delay = math.max(0, bannerFree - now)
+	bannerFree = now + delay + (hold or 3) + 1.3
+	if delay > 0 then
+		task.delay(delay, Cinematics.ShowBanner, title, subtitle, color, hold, opts)
+		return nil
+	end
+	return Cinematics.ShowBanner(title, subtitle, color, hold, opts)
+end
+
+function Cinematics.ShowBanner(title, subtitle, color, hold, opts)
 	opts = opts or {}
 	title, subtitle = UIKit.StripIcons(title), UIKit.StripIcons(subtitle)
+	bannerCount += 1
+	Players.LocalPlayer:SetAttribute("BannerUp", true)
 	local f = UIKit.Frame(gui, { Size = UDim2.new(1, 0, 0, 170), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, opts.Y or 0.28, 0), BackgroundTransparency = 1 })
 	UIKit.AutoScale(f) -- มือถือ: ตัวหนังสือใหญ่กลางจอย่อตามจอ
 	local t = bigText(f)
@@ -88207,6 +88224,10 @@ function Cinematics.Banner(title, subtitle, color, hold, opts)
 		fadeTexts(f, 1, 1.2)
 		task.wait(1.3)
 		f:Destroy()
+		bannerCount -= 1
+		if bannerCount <= 0 then
+			Players.LocalPlayer:SetAttribute("BannerUp", nil)
+		end
 	end)
 	return f
 end
@@ -89956,7 +89977,7 @@ function Cinematics.StalkerWarning(d, combat)
 		g.Parent = e
 		table.insert(edges, e)
 	end
-	Cinematics.Banner("มีบางอย่างกำลังเข้ามา...", "อยู่ใกล้แสงไฟ! 🔥", Color3.fromRGB(255, 70, 60), 3.5, { Size = 50, Y = 0.2 })
+	Cinematics.Banner("มีบางอย่างกำลังเข้ามา...", "", Color3.fromRGB(255, 70, 60), 2.5, { Size = 50, Y = 0.2 })
 	if combat and combat.Shake then
 		combat.Shake(0.12, 0.5)
 	end
@@ -89990,34 +90011,26 @@ function Cinematics.Handle(kind, d, menus, combat)
 	if kind == "NightStart" then
 		local color = d.BloodMoon and Color3.fromRGB(220, 40, 40) or (C.Element[d.Element] or C.Gold)
 		local title = d.BloodMoon and "BLOOD MOON" or ("NIGHT " .. d.Night)
-		local sub = (d.BloodMoon and ("คืนที่ " .. d.Night .. " · ") or "") .. (d.Title or "") .. " — " .. (ELEMENT_NIGHT_TEXT[d.Element] or "")
+		-- ข้อความสั้น: บอกแค่ธาตุ/บอส · ไม่มีแถบดำบน-ล่าง (เคยบังปุ่มและแถบของบนมือถือ)
+		local sub = "คืนแห่ง" .. (UIKit.ElementThai[d.Element] or "")
 		if type(d.Elements) == "table" and #d.Elements > 0 then
-			-- พระจันทร์เลือดครั้งแรก: บอกว่าธาตุไหนบุกบ้าง
-			local names = {}
-			for _, e in ipairs(d.Elements) do
-				table.insert(names, (UIKit.ElementIcon[e] or "") .. (UIKit.ElementThai[e] or tostring(e)))
-			end
-			sub = "คืนที่ " .. d.Night .. " · " .. (d.Title or "") .. " — " .. table.concat(names, " + ") .. " บุกพร้อมกัน!"
+			sub = "ทุกธาตุบุกพร้อมกัน"
 		end
 		if d.Boss then
-			sub = "คืนที่ " .. d.Night .. " · " .. (d.Title or "") .. " — บอสธาตุกำลังมาถึง!"
+			sub = "บอสกำลังมา"
 		end
-		letterbox(true)
-		Cinematics.Banner(title, sub, color, 4)
-		task.delay(4.5, function()
-			letterbox(false)
-		end)
+		Cinematics.Banner(title, sub, color, 3)
 		combat.Shake(0.3, 1)
 	elseif kind == "DayStart" then
 		if d.Day > 1 then
-			Cinematics.Banner("DAY " .. d.Day, "สำรวจ เก็บของ และเตรียมรับมือก่อนค่ำ", C.Gold, 2.5, { Size = 54, Y = 0.22 })
+			Cinematics.Banner("DAY " .. d.Day, "", C.Gold, 2, { Size = 54, Y = 0.22 })
 		else
-			Cinematics.Banner("DAY 1", "จุดไฟไว้ให้ลุกโชน... ป่านี้ไม่เคยหลับใหล", C.Gold, 4, { Size = 60, Y = 0.22 })
+			Cinematics.Banner("DAY 1", "จุดไฟให้ลุกโชน", C.Gold, 3, { Size = 60, Y = 0.22 })
 		end
 	elseif kind == "Dusk" then
-		Cinematics.Banner("DUSK", "พระอาทิตย์กำลังตก — กลับไปที่กองไฟ!", C.Fire, 2.5, { Size = 50, Y = 0.22 })
+		Cinematics.Banner("DUSK", "กลับไปที่กองไฟ", C.Fire, 2.5, { Size = 50, Y = 0.22 })
 	elseif kind == "Dawn" then
-		Cinematics.Banner("DAWN", string.format("รอดชีวิตผ่านคืนที่ %d แล้ว", d.Night), Color3.fromRGB(255, 220, 160), 3, { Size = 60 })
+		-- ไม่มีป้าย DAWN: ซ้ำกับป้าย DAY ที่ขึ้นตามมาทันที
 	elseif kind == "WaveIncoming" then
 		combat.Shake(0.15, 0.6)
 	elseif kind == "BossIntro" then
@@ -90035,14 +90048,14 @@ function Cinematics.Handle(kind, d, menus, combat)
 			Cinematics.BossIntro(d)
 		end)
 	elseif kind == "BossFelled" then
-		Cinematics.Banner("BEAST VANQUISHED", "ปราบ " .. (d.Thai or "") .. " สำเร็จ! · ได้หัวใจอสูร", Color3.fromRGB(255, 214, 120), 4.5, { Size = 76 })
+		Cinematics.Banner("BEAST VANQUISHED", "ปราบ " .. (d.Thai or "") .. " สำเร็จ", Color3.fromRGB(255, 214, 120), 3.5, { Size = 76 })
 	elseif kind == "Died" then
 		Cinematics.Died(d)
 	elseif kind == "Downed" then
 		combat.Shake(0.5, 0.4)
-		Cinematics.Banner("DOWNED", "คุณล้มลง! รอเพื่อนใช้ผ้าพันแผลช่วย — ถ้าไม่เหลือใครยืนอยู่ = แพ้ทั้งทีม", Color3.fromRGB(255, 90, 80), 3, { Size = 64, Y = 0.2 })
+		-- ไม่มีป้าย DOWNED: ข้อความติดจอ "ล้มแล้ว — รอเพื่อนมาช่วย" บอกอยู่แล้ว
 	elseif kind == "Revived" then
-		Cinematics.Banner("", "✨ ได้รับการช่วยชีวิต!", C.Good, 1.5, { Size = 10, Y = 0.5 })
+		Cinematics.Banner("", "ได้รับการช่วยชีวิต", C.Good, 1.5, { Size = 10, Y = 0.5 })
 	elseif kind == "GameOver" then
 		clearDeath(0.3)
 		if Cinematics.Death then
@@ -90069,24 +90082,24 @@ function Cinematics.Handle(kind, d, menus, combat)
 		end
 	elseif kind == "Purchased" then
 		if d.Kind == "Pack" then
-			Cinematics.Banner("♦️ +" .. tostring(d.Diamonds or 0), "เติม " .. (d.Name or "Ruby") .. " สำเร็จ — ขอบคุณที่สนับสนุน!", Color3.fromRGB(120, 230, 255), 3, { Size = 72, Y = 0.3 })
+			Cinematics.Banner("♦️ +" .. tostring(d.Diamonds or 0), "เติม " .. (d.Name or "Ruby") .. " สำเร็จ", Color3.fromRGB(120, 230, 255), 3, { Size = 72, Y = 0.3 })
 		else
-			Cinematics.Banner("🎫 " .. (d.Name or "GAME PASS"), "ปลดล็อกแล้ว! ขอบคุณที่สนับสนุน", C.Gold, 3, { Size = 64, Y = 0.3 })
+			Cinematics.Banner("🎫 " .. (d.Name or "GAME PASS"), "ปลดล็อกแล้ว", C.Gold, 3, { Size = 64, Y = 0.3 })
 		end
 	elseif kind == "SpiritFreed" then
-		Cinematics.Banner("SPIRIT UNSEALED", (d.Player or "") .. " ปลดปล่อย " .. (d.Name or "") .. " — พากลับกองไฟ!", C.Element[d.Element] or C.Gold, 3.5, { Size = 56 })
+		Cinematics.Banner("SPIRIT UNSEALED", "พา" .. (d.Name or "") .. "กลับกองไฟ", C.Element[d.Element] or C.Gold, 3.5, { Size = 56 })
 	elseif kind == "SpiritRescued" then
 		if not Cinematics.ShrineCut then -- คนที่ดูฉากจบศาลเจ้าอยู่เห็นข้อความในฉากแล้ว
-			Cinematics.Banner("SPIRIT RETURNED", string.format("%s ไปอยู่ที่แคมป์แล้ว (%d/4)%s · บัฟ: %s", d.Name or "", d.Count or 0, d.Day and " · +1 วัน" or "", d.Buff or ""), C.Element[d.Element] or C.Gold, 4.5, { Size = 60 })
+			Cinematics.Banner("SPIRIT RETURNED", string.format("%s กลับแคมป์ (%d/4)", d.Name or "", d.Count or 0), C.Element[d.Element] or C.Gold, 4.5, { Size = 60 })
 		end
 	elseif kind == "ShrineIntro" then
 		Cinematics.ShrineIntro(d)
 	elseif kind == "ShrineCleared" then
 		Cinematics.ShrineCleared(d)
 	elseif kind == "CampUpgrade" then
-		Cinematics.Banner("BONFIRE LV." .. d.Level, "เขตปลอดภัยขยาย · หมอกจางลง · ทางใหม่เปิดออก", C.Fire, 3, { Size = 54, Y = 0.22 })
+		Cinematics.Banner("BONFIRE LV." .. d.Level, "เขตปลอดภัยขยาย", C.Fire, 3, { Size = 54, Y = 0.22 })
 	elseif kind == "FireOut" then
-		Cinematics.Banner("THE FIRE IS OUT", "กองไฟดับ! เติมไม้ด่วน", Color3.fromRGB(255, 80, 60), 3, { Size = 56 })
+		Cinematics.Banner("THE FIRE IS OUT", "เติมไม้ด่วน", Color3.fromRGB(255, 80, 60), 3, { Size = 56 })
 		combat.Shake(0.3, 0.5)
 	elseif kind == "OpenCraft" then
 		menus.OpenCraft()
@@ -90098,16 +90111,12 @@ function Cinematics.Handle(kind, d, menus, combat)
 		menus.OpenTrader()
 	elseif kind == "Teleporting" then
 		if d.Back then
-			Cinematics.Banner("RETURNING", "กำลังพากลับสู่ค่าย WILDHEART...", C.Gold, 8, { Size = 60, Y = 0.62 })
+			Cinematics.Banner("RETURNING", "กำลังกลับค่าย...", C.Gold, 8, { Size = 60, Y = 0.62 })
 		else
-			Cinematics.Banner("DEPARTING", "กำลังพาทีมไปยังผืนป่าของพวกคุณ...", C.Gold, 6, { Size = 60 })
+			Cinematics.Banner("DEPARTING", "กำลังเดินทาง...", C.Gold, 6, { Size = 60 })
 		end
 	elseif kind == "Depart" then
-		letterbox(true)
-		Cinematics.Banner("INTO THE WILDS", "ลงสู่ผืนป่า... จุดไฟให้ลุกโชน แล้วเอาชีวิตรอดให้ได้ 99 คืน", C.Gold, 3.5, { Size = 64 })
-		task.delay(4, function()
-			letterbox(false)
-		end)
+		Cinematics.Banner("INTO THE WILDS", "รอดให้ได้ 99 คืน", C.Gold, 3, { Size = 64 })
 	elseif kind == "Shake" then
 		combat.Shake(d.Power or 0.5, d.Time or 0.5)
 	elseif kind == "Flash" then
@@ -94075,6 +94084,17 @@ function HUD.Init(state)
 	fl.SortOrder = Enum.SortOrder.LayoutOrder
 	fl.Parent = feed
 	HUD.Feed = feed
+	-- มีป้ายใหญ่กลางจอ (Cinematics.Banner) = ซ่อนแถบข้อความชั่วคราว ไม่ให้ทับกัน
+	player:GetAttributeChangedSignal("BannerUp"):Connect(function()
+		feed.Visible = not player:GetAttribute("BannerUp")
+		if not player:GetAttribute("BannerUp") and HUD.Pending then
+			local pending = HUD.Pending
+			HUD.Pending = nil
+			for i = math.max(1, #pending - 1), #pending do -- ขึ้นแค่ 2 อันล่าสุด
+				HUD.Notify(pending[i][1], pending[i][2])
+			end
+		end
+	end)
 	HUD.FeedOrder = 0
 
 	-- ป๊อปอัปเก็บของ
@@ -94164,7 +94184,13 @@ function HUD.Update()
 	HUD.Compass.Visible = not inLobby
 	HUD.TimeFill.Parent.Visible = not inLobby
 	HUD.Strip.Visible = false -- ไม่มีแถบนับของ: ของทั้งหมดอยู่ในกระสอบ
-	HUD.Hint.Visible = HUD.ShowHints ~= false
+	-- คำแนะนำด้านล่าง: ในแมพโชว์แค่ 60 วิแรก แล้วซ่อน (ล็อบบี้โชว์ตลอด)
+	if inLobby then
+		HUD.HintSince = nil
+	elseif not HUD.HintSince then
+		HUD.HintSince = os.clock()
+	end
+	HUD.Hint.Visible = HUD.ShowHints ~= false and (inLobby or os.clock() - HUD.HintSince < 60)
 	local big = UIKit.BigScale()
 	HUD.Hint.Position = UDim2.new(0.5, 0, 1, inLobby and -16 or -86 * big) -- ในแมพ: อยู่เหนือแถบไอเทมของ Roblox
 	HUD.Hint.Size = UDim2.new(UIKit.IsPhone() and 0.46 or 0.7, 0, 0, 20 * big) -- มือถือ: แคบลงไม่ทับเมนูซ้าย/ปุ่มขวา
@@ -94174,32 +94200,32 @@ function HUD.Update()
 		HUD.NightLabel.TextColor3 = C.Gold
 		local cd = s:GetAttribute("PortalCountdown") or -1
 		if not s:GetAttribute("Ready") then
-			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("⏳ กำลังสร้างโลก %d%% · ระหว่างนี้แวะร้านค้าได้", math.floor((s:GetAttribute("LoadProgress") or 0) * 100)))
+			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("กำลังสร้างโลก %d%%", math.floor((s:GetAttribute("LoadProgress") or 0) * 100)))
 		elseif cd >= 0 then
-			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("🧭 ทีม %d คน · ออกเดินทางใน %d วินาที", s:GetAttribute("PortalCount") or 0, cd))
+			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("ทีม %d คน · ออกใน %d วิ", s:GetAttribute("PortalCount") or 0, cd))
 		elseif phase == "Lobby" then
-			HUD.PhaseLabel.Text = UIKit.StripIcons("🌲 เดินขึ้นแท่น \"เริ่มเกม\" ทางขวามือเพื่อออกผจญภัย")
+			HUD.PhaseLabel.Text = UIKit.StripIcons("ขึ้นแท่นเริ่มเกมทางขวามือ")
 		else
-			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("⚔ ทีมกำลังเอาชีวิตรอดคืนที่ %d — ขึ้นแท่นเริ่มเกมเพื่อร่วมทีม", s:GetAttribute("Night") or 1))
+			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("ทีมอยู่คืนที่ %d · ขึ้นแท่นเพื่อร่วมทีม", s:GetAttribute("Night") or 1))
 		end
-		HUD.Hint.Text = HUD.Touch and "เต็นท์ Classes = ร้านคลาส · หม้อเขียว = รางวัลรายวัน · เดินขึ้นแท่นเริ่มเกมเพื่อออกผจญภัย"
-			or "เต็นท์ Classes ตรงหน้า = ร้านคลาส [K]   ·   หม้อเขียวซ้ายมือ = รางวัลประจำวัน   ·   แท่นเริ่มเกม: เดินขึ้นแท่นแล้วเลือกจำนวนคน (1-8)"
+		HUD.Hint.Text = HUD.Touch and "เต็นท์ = คลาส · หม้อเขียว = รางวัลรายวัน"
+			or "[K] ร้านคลาส   ·   หม้อเขียว = รางวัลรายวัน   ·   ขึ้นแท่นเพื่อเริ่มเกม"
 		HUD.TimeFill.Size = UDim2.fromScale(0, 1)
 	elseif phase == "Day" then
-		HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("☀ กลางวัน · ค่ำในอีก %s", fmtTime(remain)))
+		HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("กลางวัน · ค่ำใน %s", fmtTime(remain)))
 		HUD.TimeIcon.Text = "☀"
 		HUD.TimeFill.BackgroundColor3 = C.Gold
 	elseif phase == "Dusk" then
-		HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("⚠ พลบค่ำ · ฝูงสัตว์จะมาในอีก %s", fmtTime(remain)))
+		HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("พลบค่ำ · สัตว์มาใน %s", fmtTime(remain)))
 		HUD.TimeIcon.Text = "🌅"
 		HUD.TimeFill.BackgroundColor3 = C.Fire
 	elseif phase == "Night" then
 		local el = s:GetAttribute("NightElement") or "Earth"
 		local bossHold = (s:GetAttribute("BossHoldEnd") or 0) - now
 		if bossHold > 0 then
-			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("⏳ ฆ่าบอสก่อนรุ่งเช้า · บอสจะหนีในอีก %s", fmtTime(bossHold)))
+			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("ฆ่าบอส · หนีใน %s", fmtTime(bossHold)))
 		else
-			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("%s คืนแห่ง%s · รุ่งเช้าในอีก %s", UIKit.ElementIcon[el] or "", UIKit.ElementThai[el] or "", fmtTime(remain)))
+			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("คืนแห่ง%s · เช้าใน %s", UIKit.ElementThai[el] or "", fmtTime(remain)))
 		end
 		HUD.TimeIcon.Text = s:GetAttribute("BloodMoon") and "🔴" or "🌙"
 		HUD.TimeFill.BackgroundColor3 = UIKit.Colors.Element[el] or C.Gold
@@ -94210,8 +94236,8 @@ function HUD.Update()
 	end
 	if not inLobby then
 		HUD.TimeFill.Size = UDim2.fromScale(frac, 1)
-		HUD.Hint.Text = HUD.Touch and "แตะจอ = ตี/ตัด · โต๊ะคราฟต์ = คราฟต์ · เลือกของในแถบล่าง = สร้าง · 🎒 มุมขวาบน = กระเป๋า"
-			or "[คลิก] ตี/ตัด   [Shift] วิ่ง   [Ctrl] ล็อกกล้อง   [C] คราฟต์   [B] สร้าง   [E] เก็บของ   [F] เอาของออก   [Tab] กระสอบ   [M] แผนที่   [1-9] เลือกของ"
+		HUD.Hint.Text = HUD.Touch and "แตะจอ = ตี · กระเป๋าอยู่มุมซ้ายบน"
+			or "[คลิก] ตี   [Shift] วิ่ง   [C] คราฟต์   [E] เก็บ   [Tab] กระสอบ   [M] แผนที่"
 	end
 	HUD.TimeIcon.Position = UDim2.new(frac, -10, 0.5, -10)
 
@@ -94230,10 +94256,10 @@ function HUD.Update()
 	if campPos and char then
 		local d = ((char:GetPivot().Position - campPos) * Vector3.new(1, 0, 1)).Magnitude
 		if fuel <= 0 then
-			HUD.SafeLabel.Text = UIKit.StripIcons("⚠ ไฟดับ! ไม่มีที่ปลอดภัย")
+			HUD.SafeLabel.Text = UIKit.StripIcons("ไฟดับ! ไม่ปลอดภัย")
 			HUD.SafeLabel.TextColor3 = C.Bad
 		elseif d < safe then
-			HUD.SafeLabel.Text = UIKit.StripIcons(UIKit.Viewport().X < 1100 and "🔥 อยู่ในแสงกองไฟ" or "🔥 อยู่ในแสงกองไฟ (ปลอดภัยจากกวางกลวง)")
+			HUD.SafeLabel.Text = "อยู่ในแสงไฟ"
 			HUD.SafeLabel.TextColor3 = C.Good
 		else
 			HUD.SafeLabel.Text = UIKit.StripIcons(string.format("ห่างกองไฟ %d m", math.floor(d * 0.28)))
@@ -94272,7 +94298,7 @@ function HUD.Update()
 	local downed = player:GetAttribute("Downed")
 	HUD.DownedFrame.Visible = downed == true
 	if downed then
-		HUD.DownedText.Text = UIKit.StripIcons("🩸 คุณล้มลงแล้ว — นอนรอเพื่อนมาช่วย (ใช้ผ้าพันแผล)\nถ้าล้มหมดทั้งทีม = แพ้")
+		HUD.DownedText.Text = UIKit.StripIcons("ล้มแล้ว — รอเพื่อนมาช่วย")
 	end
 
 	-- เข็มทิศ
@@ -94557,6 +94583,18 @@ function HUD.Notify(text, kind)
 		return
 	end
 	kind = KIND_COLOR[kind] and kind or "Info"
+	-- มีป้ายใหญ่อยู่ = เก็บไว้ก่อน แล้วค่อยขึ้นตอนป้ายหาย (ไม่ทับป้าย และไม่หมดเวลาไปตอนถูกซ่อน)
+	if player:GetAttribute("BannerUp") then
+		HUD.Pending = HUD.Pending or {}
+		table.insert(HUD.Pending, { text, kind })
+		return
+	end
+	-- ข้อความเดิมซ้ำภายใน 4 วิ = ไม่ขึ้นซ้ำ
+	HUD.LastNotify = HUD.LastNotify or {}
+	if HUD.LastNotify[text] and os.clock() - HUD.LastNotify[text] < 4 then
+		return
+	end
+	HUD.LastNotify[text] = os.clock()
 	local col = KIND_COLOR[kind]
 	local big = kind == "Danger" or kind == "Reward"
 	HUD.FeedOrder += 1
@@ -94585,13 +94623,13 @@ function HUD.Notify(text, kind)
 			table.insert(children, c)
 		end
 	end
-	if #children > (HUD.Touch and 3 or 4) then
+	if #children > (HUD.Touch and 2 or 3) then
 		table.sort(children, function(a, b)
 			return a.LayoutOrder < b.LayoutOrder
 		end)
 		children[1]:Destroy()
 	end
-	task.delay(big and 6 or 4.5, function()
+	task.delay(big and 4.5 or 3.5, function()
 		if slot.Parent then
 			UIKit.Tween(label, 0.6, { TextTransparency = 1 })
 			UIKit.Tween(band, 0.6, { BackgroundTransparency = 1 })
@@ -96427,6 +96465,18 @@ function MedAnim.Init()
 	Players.PlayerRemoving:Connect(function(p)
 		states[p] = nil
 	end)
+	-- ปุ่ม "ช่วยชีวิต" อยู่บนตัวคนที่ล้ม -> คนล้มเองไม่ต้องเห็น (ปิดเฉพาะเครื่องตัวเอง)
+	local function hideOwnRevive(char)
+		char.DescendantAdded:Connect(function(d)
+			if d:IsA("ProximityPrompt") and d.Name == "Revive" then
+				d.Enabled = false
+			end
+		end)
+	end
+	if player.Character then
+		hideOwnRevive(player.Character)
+	end
+	player.CharacterAdded:Connect(hideOwnRevive)
 	local holder, label, fill = buildBar()
 	RunService.RenderStepped:Connect(function()
 		local time = player:GetAttribute("MedTime")
@@ -102714,7 +102764,7 @@ function WorldEventsClient.Init(state, hud, mapUI, combat)
 		local ok, err = pcall(function()
 			if kind == "Meteor" then
 				local col = C.Element[d.Element] or C.Fire
-				Cinematics.Banner("METEOR STRIKE", string.format("☄ อุกกาบาตธาตุ%sกำลังพุ่งลงสู่ผืนป่า — ไปขุดแกนผลึกก่อนพลบค่ำ!", THAI[d.Element] or ""), col, 3.5, { Size = 58, Y = 0.2 })
+				Cinematics.Banner("METEOR STRIKE", string.format("อุกกาบาตธาตุ%sตก · ไปขุดแกนผลึก", THAI[d.Element] or ""), col, 3.5, { Size = 58, Y = 0.2 })
 				meteor(d, combat)
 			elseif kind == "MeteorClaimed" then
 				local col = C.Element[d.Element] or C.Gold
@@ -102725,12 +102775,12 @@ function WorldEventsClient.Init(state, hud, mapUI, combat)
 				end)
 				sound3d(d.Position, "rbxasset://sounds/volume_slider.ogg", 1.5, 1.4, 300)
 			elseif kind == "Migration" then
-				Cinematics.Banner("THE GREAT MIGRATION", "🦌 ฝูงกวางและกระต่ายกำลังเดินผ่านใกล้แคมป์ — โอกาสล่าเนื้อและหนังสัตว์!", Color3.fromRGB(230, 200, 140), 3.5, { Size = 54, Y = 0.2 })
+				Cinematics.Banner("THE GREAT MIGRATION", "ฝูงสัตว์เดินผ่านใกล้แคมป์", Color3.fromRGB(230, 200, 140), 3.5, { Size = 54, Y = 0.2 })
 			elseif kind == "Supply" then
-				Cinematics.Banner("SUPPLY DROP", "📦 หีบเสบียงร่อนลงจากฟ้า — มองหาควันสีแดง แล้วไปเปิดก่อนพลบค่ำ", Color3.fromRGB(255, 110, 80), 3.5, { Size = 58, Y = 0.2 })
+				Cinematics.Banner("SUPPLY DROP", "มองหาควันสีแดง", Color3.fromRGB(255, 110, 80), 3.5, { Size = 58, Y = 0.2 })
 			elseif kind == "SanctumOpened" then
 				local col = C.Element[d.Element] or C.Gold
-				Cinematics.Banner("SEAL BROKEN", string.format("🏛 ผนึกวิหาร%sคลายแล้ว — ห้องผนึกเปิดออก หีบศักดิ์สิทธิ์รออยู่ข้างใน", THAI[d.Element] or ""), col, 4, { Size = 64 })
+				Cinematics.Banner("SEAL BROKEN", string.format("วิหาร%sเปิดแล้ว", THAI[d.Element] or ""), col, 4, { Size = 64 })
 				local me = myPos()
 				if me and d.Position and (me - d.Position).Magnitude < 250 and combat and combat.Shake then
 					combat.Shake(0.6, 2.5)
@@ -102799,8 +102849,8 @@ function WorldEventsClient.Init(state, hud, mapUI, combat)
 							if dist < 140 and not hinted[el] then
 								hinted[el] = true
 								local solved = state:GetAttribute("Sanctum" .. el .. "Solved")
-								Cinematics.Banner("ANCIENT SANCTUM", solved and ("วิหารโบราณแห่ง" .. THAI[el] .. " · ผนึกถูกคลายไปแล้วในรอบนี้")
-									or ("วิหารโบราณแห่ง" .. THAI[el] .. " · จำลำดับแสงบนเสารูน 3 ต้น แล้วปลุกให้ถูกลำดับภายใน 30 วินาที"), C.Element[el], 4.5, { Size = 60, Y = 0.2 })
+								Cinematics.Banner("ANCIENT SANCTUM", solved and ("วิหาร" .. THAI[el] .. " · คลายผนึกแล้ว")
+									or ("วิหาร" .. THAI[el] .. " · ปลุกเสารูนตามลำดับแสง"), C.Element[el], 4.5, { Size = 60, Y = 0.2 })
 							end
 							local deadline = state:GetAttribute("Sanctum" .. el .. "Deadline")
 							if deadline and dist < 160 then

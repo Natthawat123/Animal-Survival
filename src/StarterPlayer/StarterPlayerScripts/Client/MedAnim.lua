@@ -210,6 +210,18 @@ function MedAnim.Init()
 	Players.PlayerRemoving:Connect(function(p)
 		states[p] = nil
 	end)
+	-- ปุ่ม "ช่วยชีวิต" อยู่บนตัวคนที่ล้ม -> คนล้มเองไม่ต้องเห็น (ปิดเฉพาะเครื่องตัวเอง)
+	local function hideOwnRevive(char)
+		char.DescendantAdded:Connect(function(d)
+			if d:IsA("ProximityPrompt") and d.Name == "Revive" then
+				d.Enabled = false
+			end
+		end)
+	end
+	if player.Character then
+		hideOwnRevive(player.Character)
+	end
+	player.CharacterAdded:Connect(hideOwnRevive)
 	local holder, label, fill = buildBar()
 	RunService.RenderStepped:Connect(function()
 		local time = player:GetAttribute("MedTime")

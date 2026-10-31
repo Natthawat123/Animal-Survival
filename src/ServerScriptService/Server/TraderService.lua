@@ -116,7 +116,7 @@ function TraderService:Arrive()
 		self.ctx.Remotes.Get("Cinematic"):FireClient(player, "OpenTrader", {})
 	end)
 	self.ctx.State:SetAttribute("TraderHere", true)
-	self.ctx.Broadcast("🐾 พ่อค้าเร่มาถึงแคมป์แล้ว! เอาหนังสัตว์/กระดูกมาแลกของได้จนถึงพลบค่ำ", "Reward")
+	self.ctx.Broadcast("พ่อค้าเร่มาถึงแคมป์", "Reward")
 end
 
 function TraderService:Leave()
@@ -124,7 +124,7 @@ function TraderService:Leave()
 		self.model:Destroy()
 		self.model = nil
 		self.ctx.State:SetAttribute("TraderHere", false)
-		self.ctx.Broadcast("🐾 พ่อค้าเร่ออกเดินทางต่อแล้ว", "Info")
+		self.ctx.Broadcast("พ่อค้าเร่ไปแล้ว", "Info")
 	end
 end
 

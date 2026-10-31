@@ -136,7 +136,7 @@ function CampService:AddFuel(amount)
 	local wasOut = self.fuel <= 0
 	self.fuel = math.clamp(self.fuel + amount, 0, max)
 	if wasOut and self.fuel > 0 then
-		self.ctx.Broadcast("🔥 กองไฟลุกโชนอีกครั้ง!", "Good")
+		self.ctx.Broadcast("กองไฟลุกอีกครั้ง", "Good")
 	end
 	self:UpdateVisual()
 	self:Publish()
@@ -147,7 +147,6 @@ function CampService:DamageFire(amount)
 	local before = self.fuel
 	self.fuel = math.max(0, self.fuel - amount)
 	if before > 0 and self.fuel <= 0 then
-		self.ctx.Broadcast("⚠ กองไฟดับแล้ว!! เติมไฟด่วน — แคมป์ไม่ปลอดภัยแล้ว", "Danger")
 		self.ctx.FireRun("Cinematic", "FireOut", {})
 	end
 	self:UpdateVisual()
@@ -202,7 +201,6 @@ function CampService:UpgradeFire(player)
 	end
 	self.level += 1
 	self.fuel = math.max(self.fuel, nextInfo.MaxFuel * 0.6)
-	self.ctx.Broadcast(string.format("🔥 กองไฟอัปเกรดเป็นเลเวล %d! หมอกถอยออกไป สำรวจได้ไกลขึ้น", self.level), "Reward")
 	self.ctx.FireRun("Cinematic", "CampUpgrade", { Level = self.level })
 	self:UpdateVisual()
 	self:Publish()
@@ -220,7 +218,7 @@ function CampService:UpgradeBench(player)
 		return
 	end
 	self.bench += 1
-	self.ctx.Broadcast(string.format("🔨 โต๊ะคราฟต์เลเวล %d! ปลดล็อกสูตรใหม่", self.bench), "Reward")
+	self.ctx.Broadcast(string.format("โต๊ะคราฟต์ Lv.%d · สูตรใหม่", self.bench), "Reward")
 	self:Publish()
 	self:RefreshPrompts()
 end
@@ -714,7 +712,6 @@ function CampService:Start(ctx)
 				local before = self.fuel
 				self.fuel = math.max(0, self.fuel - drain * dt)
 				if before > 0 and self.fuel <= 0 then
-					ctx.Broadcast("⚠ กองไฟมอดดับ! เติมไม้ด่วน", "Danger")
 					ctx.FireRun("Cinematic", "FireOut", {})
 				end
 				-- เชื้อเพลิงต่ำกว่า 20%: HUD ของผู้เล่นในรอบเตือนเอง (กะพริบ + เสียง + ข้อความพร้อมเวลาที่เหลือ)

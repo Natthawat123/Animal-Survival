@@ -269,6 +269,17 @@ function HUD.Init(state)
 	fl.SortOrder = Enum.SortOrder.LayoutOrder
 	fl.Parent = feed
 	HUD.Feed = feed
+	-- มีป้ายใหญ่กลางจอ (Cinematics.Banner) = ซ่อนแถบข้อความชั่วคราว ไม่ให้ทับกัน
+	player:GetAttributeChangedSignal("BannerUp"):Connect(function()
+		feed.Visible = not player:GetAttribute("BannerUp")
+		if not player:GetAttribute("BannerUp") and HUD.Pending then
+			local pending = HUD.Pending
+			HUD.Pending = nil
+			for i = math.max(1, #pending - 1), #pending do -- ขึ้นแค่ 2 อันล่าสุด
+				HUD.Notify(pending[i][1], pending[i][2])
+			end
+		end
+	end)
 	HUD.FeedOrder = 0
 
 	-- ป๊อปอัปเก็บของ
@@ -358,7 +369,13 @@ function HUD.Update()
 	HUD.Compass.Visible = not inLobby
 	HUD.TimeFill.Parent.Visible = not inLobby
 	HUD.Strip.Visible = false -- ไม่มีแถบนับของ: ของทั้งหมดอยู่ในกระสอบ
-	HUD.Hint.Visible = HUD.ShowHints ~= false
+	-- คำแนะนำด้านล่าง: ในแมพโชว์แค่ 60 วิแรก แล้วซ่อน (ล็อบบี้โชว์ตลอด)
+	if inLobby then
+		HUD.HintSince = nil
+	elseif not HUD.HintSince then
+		HUD.HintSince = os.clock()
+	end
+	HUD.Hint.Visible = HUD.ShowHints ~= false and (inLobby or os.clock() - HUD.HintSince < 60)
 	local big = UIKit.BigScale()
 	HUD.Hint.Position = UDim2.new(0.5, 0, 1, inLobby and -16 or -86 * big) -- ในแมพ: อยู่เหนือแถบไอเทมของ Roblox
 	HUD.Hint.Size = UDim2.new(UIKit.IsPhone() and 0.46 or 0.7, 0, 0, 20 * big) -- มือถือ: แคบลงไม่ทับเมนูซ้าย/ปุ่มขวา
@@ -368,32 +385,32 @@ function HUD.Update()
 		HUD.NightLabel.TextColor3 = C.Gold
 		local cd = s:GetAttribute("PortalCountdown") or -1
 		if not s:GetAttribute("Ready") then
-			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("⏳ กำลังสร้างโลก %d%% · ระหว่างนี้แวะร้านค้าได้", math.floor((s:GetAttribute("LoadProgress") or 0) * 100)))
+			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("กำลังสร้างโลก %d%%", math.floor((s:GetAttribute("LoadProgress") or 0) * 100)))
 		elseif cd >= 0 then
-			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("🧭 ทีม %d คน · ออกเดินทางใน %d วินาที", s:GetAttribute("PortalCount") or 0, cd))
+			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("ทีม %d คน · ออกใน %d วิ", s:GetAttribute("PortalCount") or 0, cd))
 		elseif phase == "Lobby" then
-			HUD.PhaseLabel.Text = UIKit.StripIcons("🌲 เดินขึ้นแท่น \"เริ่มเกม\" ทางขวามือเพื่อออกผจญภัย")
+			HUD.PhaseLabel.Text = UIKit.StripIcons("ขึ้นแท่นเริ่มเกมทางขวามือ")
 		else
-			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("⚔ ทีมกำลังเอาชีวิตรอดคืนที่ %d — ขึ้นแท่นเริ่มเกมเพื่อร่วมทีม", s:GetAttribute("Night") or 1))
+			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("ทีมอยู่คืนที่ %d · ขึ้นแท่นเพื่อร่วมทีม", s:GetAttribute("Night") or 1))
 		end
-		HUD.Hint.Text = HUD.Touch and "เต็นท์ Classes = ร้านคลาส · หม้อเขียว = รางวัลรายวัน · เดินขึ้นแท่นเริ่มเกมเพื่อออกผจญภัย"
-			or "เต็นท์ Classes ตรงหน้า = ร้านคลาส [K]   ·   หม้อเขียวซ้ายมือ = รางวัลประจำวัน   ·   แท่นเริ่มเกม: เดินขึ้นแท่นแล้วเลือกจำนวนคน (1-8)"
+		HUD.Hint.Text = HUD.Touch and "เต็นท์ = คลาส · หม้อเขียว = รางวัลรายวัน"
+			or "[K] ร้านคลาส   ·   หม้อเขียว = รางวัลรายวัน   ·   ขึ้นแท่นเพื่อเริ่มเกม"
 		HUD.TimeFill.Size = UDim2.fromScale(0, 1)
 	elseif phase == "Day" then
-		HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("☀ กลางวัน · ค่ำในอีก %s", fmtTime(remain)))
+		HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("กลางวัน · ค่ำใน %s", fmtTime(remain)))
 		HUD.TimeIcon.Text = "☀"
 		HUD.TimeFill.BackgroundColor3 = C.Gold
 	elseif phase == "Dusk" then
-		HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("⚠ พลบค่ำ · ฝูงสัตว์จะมาในอีก %s", fmtTime(remain)))
+		HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("พลบค่ำ · สัตว์มาใน %s", fmtTime(remain)))
 		HUD.TimeIcon.Text = "🌅"
 		HUD.TimeFill.BackgroundColor3 = C.Fire
 	elseif phase == "Night" then
 		local el = s:GetAttribute("NightElement") or "Earth"
 		local bossHold = (s:GetAttribute("BossHoldEnd") or 0) - now
 		if bossHold > 0 then
-			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("⏳ ฆ่าบอสก่อนรุ่งเช้า · บอสจะหนีในอีก %s", fmtTime(bossHold)))
+			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("ฆ่าบอส · หนีใน %s", fmtTime(bossHold)))
 		else
-			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("%s คืนแห่ง%s · รุ่งเช้าในอีก %s", UIKit.ElementIcon[el] or "", UIKit.ElementThai[el] or "", fmtTime(remain)))
+			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("คืนแห่ง%s · เช้าใน %s", UIKit.ElementThai[el] or "", fmtTime(remain)))
 		end
 		HUD.TimeIcon.Text = s:GetAttribute("BloodMoon") and "🔴" or "🌙"
 		HUD.TimeFill.BackgroundColor3 = UIKit.Colors.Element[el] or C.Gold
@@ -404,8 +421,8 @@ function HUD.Update()
 	end
 	if not inLobby then
 		HUD.TimeFill.Size = UDim2.fromScale(frac, 1)
-		HUD.Hint.Text = HUD.Touch and "แตะจอ = ตี/ตัด · โต๊ะคราฟต์ = คราฟต์ · เลือกของในแถบล่าง = สร้าง · 🎒 มุมขวาบน = กระเป๋า"
-			or "[คลิก] ตี/ตัด   [Shift] วิ่ง   [Ctrl] ล็อกกล้อง   [C] คราฟต์   [B] สร้าง   [E] เก็บของ   [F] เอาของออก   [Tab] กระสอบ   [M] แผนที่   [1-9] เลือกของ"
+		HUD.Hint.Text = HUD.Touch and "แตะจอ = ตี · กระเป๋าอยู่มุมซ้ายบน"
+			or "[คลิก] ตี   [Shift] วิ่ง   [C] คราฟต์   [E] เก็บ   [Tab] กระสอบ   [M] แผนที่"
 	end
 	HUD.TimeIcon.Position = UDim2.new(frac, -10, 0.5, -10)
 
@@ -424,10 +441,10 @@ function HUD.Update()
 	if campPos and char then
 		local d = ((char:GetPivot().Position - campPos) * Vector3.new(1, 0, 1)).Magnitude
 		if fuel <= 0 then
-			HUD.SafeLabel.Text = UIKit.StripIcons("⚠ ไฟดับ! ไม่มีที่ปลอดภัย")
+			HUD.SafeLabel.Text = UIKit.StripIcons("ไฟดับ! ไม่ปลอดภัย")
 			HUD.SafeLabel.TextColor3 = C.Bad
 		elseif d < safe then
-			HUD.SafeLabel.Text = UIKit.StripIcons(UIKit.Viewport().X < 1100 and "🔥 อยู่ในแสงกองไฟ" or "🔥 อยู่ในแสงกองไฟ (ปลอดภัยจากกวางกลวง)")
+			HUD.SafeLabel.Text = "อยู่ในแสงไฟ"
 			HUD.SafeLabel.TextColor3 = C.Good
 		else
 			HUD.SafeLabel.Text = UIKit.StripIcons(string.format("ห่างกองไฟ %d m", math.floor(d * 0.28)))
@@ -466,7 +483,7 @@ function HUD.Update()
 	local downed = player:GetAttribute("Downed")
 	HUD.DownedFrame.Visible = downed == true
 	if downed then
-		HUD.DownedText.Text = UIKit.StripIcons("🩸 คุณล้มลงแล้ว — นอนรอเพื่อนมาช่วย (ใช้ผ้าพันแผล)\nถ้าล้มหมดทั้งทีม = แพ้")
+		HUD.DownedText.Text = UIKit.StripIcons("ล้มแล้ว — รอเพื่อนมาช่วย")
 	end
 
 	-- เข็มทิศ
@@ -751,6 +768,18 @@ function HUD.Notify(text, kind)
 		return
 	end
 	kind = KIND_COLOR[kind] and kind or "Info"
+	-- มีป้ายใหญ่อยู่ = เก็บไว้ก่อน แล้วค่อยขึ้นตอนป้ายหาย (ไม่ทับป้าย และไม่หมดเวลาไปตอนถูกซ่อน)
+	if player:GetAttribute("BannerUp") then
+		HUD.Pending = HUD.Pending or {}
+		table.insert(HUD.Pending, { text, kind })
+		return
+	end
+	-- ข้อความเดิมซ้ำภายใน 4 วิ = ไม่ขึ้นซ้ำ
+	HUD.LastNotify = HUD.LastNotify or {}
+	if HUD.LastNotify[text] and os.clock() - HUD.LastNotify[text] < 4 then
+		return
+	end
+	HUD.LastNotify[text] = os.clock()
 	local col = KIND_COLOR[kind]
 	local big = kind == "Danger" or kind == "Reward"
 	HUD.FeedOrder += 1
@@ -779,13 +808,13 @@ function HUD.Notify(text, kind)
 			table.insert(children, c)
 		end
 	end
-	if #children > (HUD.Touch and 3 or 4) then
+	if #children > (HUD.Touch and 2 or 3) then
 		table.sort(children, function(a, b)
 			return a.LayoutOrder < b.LayoutOrder
 		end)
 		children[1]:Destroy()
 	end
-	task.delay(big and 6 or 4.5, function()
+	task.delay(big and 4.5 or 3.5, function()
 		if slot.Parent then
 			UIKit.Tween(label, 0.6, { TextTransparency = 1 })
 			UIKit.Tween(band, 0.6, { BackgroundTransparency = 1 })

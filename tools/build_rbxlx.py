@@ -359,6 +359,7 @@ def main():
     if MEDPROBE:
         sss += script_item(os.path.join(TESTS, "ASMedProbe.server.lua"))
         sps += script_item(os.path.join(TESTS, "ASMedProbe.client.lua"))
+        sps += script_item(os.path.join(TESTS, "ASNotifyProbe.client.lua"))
     if ARMORPROBE:
         sss += script_item(os.path.join(TESTS, "ASArmorProbe.server.lua"))
         sps += script_item(os.path.join(TESTS, "ASArmorProbe.client.lua"))

@@ -118,7 +118,7 @@ function DirectorService:RunNight(night, runId)
 		local left = Nights.NextBigRaid(night) - night
 		task.delay(6, function()
 			if runId == self.runId then
-				ctx.Broadcast(string.format("🌙 คืนนี้ฝูงเล็ก... คืนบุกใหญ่จะมาในอีก %d คืน เตรียมตัวไว้!", left), "Info")
+				ctx.Broadcast(string.format("บุกใหญ่ในอีก %d คืน", left), "Info")
 			end
 		end)
 	end
@@ -150,7 +150,7 @@ function DirectorService:RunNight(night, runId)
 		if animals:CountKind("Stalker") == 0 then
 			local pos = ctx.Layout:RaidSpawnPoint(self.rng, 260, 340)
 			if animals:Spawn("HollowStag", pos, { Kind = "Stalker" }) then
-				ctx.Broadcast("🦌 ...มีบางอย่างจ้องมองมาจากความมืด อยู่ใกล้แสงไฟไว้", "Danger")
+				ctx.Broadcast("มีบางอย่างจ้องมองจากความมืด", "Danger")
 			end
 		end
 	end)
@@ -163,7 +163,7 @@ function DirectorService:RunNight(night, runId)
 				return
 			end
 			if not wave.Boss then
-				ctx.Broadcast(string.format("🐾 ฝูงสัตว์ระลอกที่ %d กำลังมุ่งหน้ามาที่กองไฟ!", wi), "Danger")
+				ctx.Broadcast(string.format("ฝูงสัตว์ระลอกที่ %d มาแล้ว", wi), "Danger")
 				ctx.FireRun("Cinematic", "WaveIncoming", { Wave = wi, Element = plan.Element })
 			end
 			for i, id in ipairs(wave.Spawns) do
@@ -217,7 +217,7 @@ function DirectorService:HoldForBoss(runId)
 	local s = self.ctx.State
 	local left = Config.BossHoldMax
 	s:SetAttribute("BossHoldEnd", Workspace:GetServerTimeNow() + left)
-	self.ctx.Broadcast("⏳ บอสยังไม่ตาย — ฟ้ายังไม่สาง! ฆ่าให้ได้ก่อนมันหนีไปตอนเช้า", "Danger")
+	self.ctx.Broadcast("ฆ่าบอสก่อนเช้า!", "Danger")
 	while left > 0 and not boss.Dead and not boss.Removed do
 		local dt = task.wait(0.25)
 		if runId ~= self.runId then
@@ -295,7 +295,6 @@ function DirectorService:Loop(runId)
 			return
 		end
 		self:SetPhase("Dusk", Config.DuskLength)
-		ctx.Broadcast("🌅 พระอาทิตย์กำลังตก... กลับไปที่กองไฟ!", "Warn")
 		ctx.FireRun("Cinematic", "Dusk", { Night = night })
 		if not self:Wait(Config.DuskLength, runId) then
 			return
@@ -347,7 +346,7 @@ function DirectorService:ApplyPendingSkips()
 		self.ctx.Services.TraderService:OnDay(self.night) -- ไม่ให้พลาดรอบพ่อค้า
 	end
 	if applied > 0 then
-		self.ctx.Broadcast(string.format("⏭ ข้ามไป %d วันตามสิทธิ์ที่เก็บไว้ — ตอนนี้วันที่ %d", applied, self.night), "Good")
+		self.ctx.Broadcast(string.format("ข้าม %d วัน · วันที่ %d", applied, self.night), "Good")
 	end
 end
 
@@ -371,12 +370,12 @@ function DirectorService:SkipDay(player, fmt)
 		if fmt then
 			self.ctx.Broadcast(string.format(fmt, self.night), "Good")
 		else
-			self.ctx.Broadcast(string.format("🛏 %s วางเตียงพักผ่อน — ข้ามไป 1 วัน! ตอนนี้วันที่ %d", player and player.DisplayName or "ทีม", self.night), "Good")
+			self.ctx.Broadcast(string.format("%s ข้าม 1 วัน · วันที่ %d", player and player.DisplayName or "ทีม", self.night), "Good")
 		end
 	else
 		self.pendingSkips += 1
 		local when = self.night == Config.TotalNights and "หลังจบคืนสุดท้าย" or "ตอนเช้า"
-		self.ctx.Broadcast(string.format("⏳ +1 วัน — จะนับให้%s (เก็บไว้ %d วัน)", when, self.pendingSkips), "Good")
+		self.ctx.Broadcast(string.format("+1 วัน (นับให้%s)", when), "Good")
 	end
 	return true
 end
@@ -412,7 +411,7 @@ function DirectorService:Complete()
 			ctx.Services.DataService:Save(p)
 		end
 	end
-	ctx.Broadcast("♾ เข้าสู่โหมดไร้ขีดจำกัด — ฝูงจะแรงขึ้นทุกคืน รอดให้นานที่สุดเพื่อขึ้นกระดานอันดับ!", "Reward")
+	ctx.Broadcast("โหมดไร้ขีดจำกัด · ฝูงแรงขึ้นทุกคืน", "Reward")
 end
 
 function DirectorService:GameOver()
@@ -513,7 +512,7 @@ function DirectorService:ResetRun()
 	end
 	ctx.Services.LobbyService:ReturnAll()
 	self:SetPhase("Lobby", 0)
-	ctx.Broadcast("🔥 ทุกคนกลับสู่ล็อบบี้ — ขึ้นแท่นเริ่มเกมเพื่อเริ่มรอบใหม่", "Info")
+	ctx.Broadcast("กลับล็อบบี้แล้ว", "Info")
 end
 
 function DirectorService:Start(ctx)

@@ -1,8 +1,8 @@
 <roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">
 <External>null</External><External>nil</External>
-<Item class="Workspace" referent="RBX0000009D"><Properties><string name="Name">Workspace</string><bool name="StreamingEnabled">true</bool><int name="StreamingMinRadius">192</int><int name="StreamingTargetRadius">900</int><float name="Gravity">196.2</float></Properties></Item>
-<Item class="Lighting" referent="RBX0000009E"><Properties><string name="Name">Lighting</string><token name="Technology">4</token><float name="Brightness">2.4</float><float name="EnvironmentDiffuseScale">1</float><float name="EnvironmentSpecularScale">1</float><bool name="GlobalShadows">true</bool><float name="ShadowSoftness">0.18</float><float name="ClockTime">8.5</float><float name="GeographicLatitude">23</float></Properties></Item>
-<Item class="ReplicatedStorage" referent="RBX0000009F"><Properties><string name="Name">ReplicatedStorage</string></Properties><Item class="Folder" referent="RBX0000001A"><Properties><string name="Name">PropMeshData</string></Properties><Item class="ModuleScript" referent="RBX00000001"><Properties><string name="Name">Barrel</string><ProtectedString name="Source"><![CDATA[-- สร้างโดย blender/mesh_export.py — Barrel (โมเดลจริงจาก Blender, ประกอบเป็น EditableMesh ตอนเล่น)
+<Item class="Workspace" referent="RBX0000009E"><Properties><string name="Name">Workspace</string><bool name="StreamingEnabled">true</bool><int name="StreamingMinRadius">192</int><int name="StreamingTargetRadius">900</int><float name="Gravity">196.2</float></Properties></Item>
+<Item class="Lighting" referent="RBX0000009F"><Properties><string name="Name">Lighting</string><token name="Technology">4</token><float name="Brightness">2.4</float><float name="EnvironmentDiffuseScale">1</float><float name="EnvironmentSpecularScale">1</float><bool name="GlobalShadows">true</bool><float name="ShadowSoftness">0.18</float><float name="ClockTime">8.5</float><float name="GeographicLatitude">23</float></Properties></Item>
+<Item class="ReplicatedStorage" referent="RBX000000A0"><Properties><string name="Name">ReplicatedStorage</string></Properties><Item class="Folder" referent="RBX0000001A"><Properties><string name="Name">PropMeshData</string></Properties><Item class="ModuleScript" referent="RBX00000001"><Properties><string name="Name">Barrel</string><ProtectedString name="Source"><![CDATA[-- สร้างโดย blender/mesh_export.py — Barrel (โมเดลจริงจาก Blender, ประกอบเป็น EditableMesh ตอนเล่น)
 return {
 	Name = "Barrel",
 	Height = 4.000,
@@ -8980,6 +8980,13 @@ local function buildSkeleton(model, custom, skin, sizeMult)
 	model:SetAttribute("SkinRig", "Skeleton")
 	model:SetAttribute("SkinScale", scale) -- ตำแหน่งในท่าจากไฟล์ (SkelClips) คูณตามนี้
 	return root, hip
+end
+
+-- มีโมเดลของสัตว์ตัวนี้ในเกมไหม (ไม่มี = Build คืน nil) เช่น ไม่เตือนกวางกลวงถ้ายังไม่มีโมเดล
+function AnimalModels.Has(id)
+	local assets = ReplicatedStorage:FindFirstChild("Assets")
+	local folder = assets and assets:FindFirstChild("Animals")
+	return folder ~= nil and folder:FindFirstChild(id) ~= nil
 end
 
 function AnimalModels.Build(id, opts)
@@ -61639,7 +61646,7 @@ Mzc4M2E2MTZl</BinaryString>
 <Item class="BoolValue" referent="RBX0000004C"><Properties><string name="Name">ASAutoTest</string><bool name="Value">true</bool></Properties></Item>
 <Item class="BoolValue" referent="RBX0000004D"><Properties><string name="Name">ASSkipCollision</string><bool name="Value">true</bool></Properties></Item>
 </Item>
-<Item class="ServerScriptService" referent="RBX000000A0"><Properties><string name="Name">ServerScriptService</string></Properties><Item class="Folder" referent="RBX0000006C"><Properties><string name="Name">Server</string></Properties><Item class="ModuleScript" referent="RBX0000004E"><Properties><string name="Name">Analytics</string><ProtectedString name="Source"><![CDATA[--[[
+<Item class="ServerScriptService" referent="RBX000000A1"><Properties><string name="Name">ServerScriptService</string></Properties><Item class="Folder" referent="RBX0000006C"><Properties><string name="Name">Server</string></Properties><Item class="ModuleScript" referent="RBX0000004E"><Properties><string name="Name">Analytics</string><ProtectedString name="Source"><![CDATA[--[[
 	Analytics — ส่งสถิติเข้า Roblox AnalyticsService (Creator Dashboard → Analytics)
 	  ทุกคำสั่งห่อด้วย pcall: ใน Studio / API ปิด / ผู้เล่นออกไปแล้ว = เงียบ ไม่พังเกม
 	  Analytics.Custom(player, "BossDefeated", 25, { "Terragon" })        -- ค่าตัวเลข + ช่องข้อความ (สูงสุด 3 ช่อง)
@@ -62786,30 +62793,6 @@ function AnimalService:ThinkStalker(a, now)
 	a.Model:SetAttribute("State", a.State)
 end
 
--- ลูกสัตว์ธาตุเดินตามคน
-function AnimalService:ThinkSpirit(a, now)
-	local p = a.FollowPlayer
-	if not (p and p.Parent) then
-		self:Stop(a)
-		return
-	end
-	local r = charRoot(p)
-	if not r then
-		return
-	end
-	local d = (r.Position - a.Root.Position).Magnitude
-	if d > 120 then
-		a.Model:PivotTo(r.CFrame * CFrame.new(3, 0, 4))
-	elseif d > 8 then
-		self:MoveTo(a, r.Position - r.CFrame.LookVector * 4, d > 30 and 1.4 or 1)
-	else
-		self:Stop(a)
-	end
-	if self:CampDistance(a.Root.Position) < math.max(self.ctx.Services.CampService:SafeRadius(), 40) then
-		self.ctx.Services.SpiritService:Rescue(a, p)
-	end
-end
-
 -- ลูกสัตว์ที่ช่วยแล้ว: เดินเล่นในเขตแคมป์เอง (ไม่ตามใคร) · หลุดไปไกล (ลงจากหลังนอกแคมป์) = เดินกลับบ้าน
 function AnimalService:ThinkPet(a, now)
 	local camp = self.ctx.CampPosition
@@ -62885,9 +62868,7 @@ function AnimalService:Think(a, now)
 		end
 	end
 	if a.Kind == "Spirit" then
-		if a.FollowPlayer then
-			self:ThinkSpirit(a, now)
-		elseif a.Pet then
+		if a.Pet then
 			self:ThinkPet(a, now)
 		end
 		return
@@ -63953,7 +63934,7 @@ function CampService:AddFuel(amount)
 	local wasOut = self.fuel <= 0
 	self.fuel = math.clamp(self.fuel + amount, 0, max)
 	if wasOut and self.fuel > 0 then
-		self.ctx.Broadcast("🔥 กองไฟลุกโชนอีกครั้ง!", "Good")
+		self.ctx.Broadcast("กองไฟลุกอีกครั้ง", "Good")
 	end
 	self:UpdateVisual()
 	self:Publish()
@@ -63964,7 +63945,6 @@ function CampService:DamageFire(amount)
 	local before = self.fuel
 	self.fuel = math.max(0, self.fuel - amount)
 	if before > 0 and self.fuel <= 0 then
-		self.ctx.Broadcast("⚠ กองไฟดับแล้ว!! เติมไฟด่วน — แคมป์ไม่ปลอดภัยแล้ว", "Danger")
 		self.ctx.FireRun("Cinematic", "FireOut", {})
 	end
 	self:UpdateVisual()
@@ -64019,7 +63999,6 @@ function CampService:UpgradeFire(player)
 	end
 	self.level += 1
 	self.fuel = math.max(self.fuel, nextInfo.MaxFuel * 0.6)
-	self.ctx.Broadcast(string.format("🔥 กองไฟอัปเกรดเป็นเลเวล %d! หมอกถอยออกไป สำรวจได้ไกลขึ้น", self.level), "Reward")
 	self.ctx.FireRun("Cinematic", "CampUpgrade", { Level = self.level })
 	self:UpdateVisual()
 	self:Publish()
@@ -64037,7 +64016,7 @@ function CampService:UpgradeBench(player)
 		return
 	end
 	self.bench += 1
-	self.ctx.Broadcast(string.format("🔨 โต๊ะคราฟต์เลเวล %d! ปลดล็อกสูตรใหม่", self.bench), "Reward")
+	self.ctx.Broadcast(string.format("โต๊ะคราฟต์ Lv.%d · สูตรใหม่", self.bench), "Reward")
 	self:Publish()
 	self:RefreshPrompts()
 end
@@ -64531,7 +64510,6 @@ function CampService:Start(ctx)
 				local before = self.fuel
 				self.fuel = math.max(0, self.fuel - drain * dt)
 				if before > 0 and self.fuel <= 0 then
-					ctx.Broadcast("⚠ กองไฟมอดดับ! เติมไม้ด่วน", "Danger")
 					ctx.FireRun("Cinematic", "FireOut", {})
 				end
 				-- เชื้อเพลิงต่ำกว่า 20%: HUD ของผู้เล่นในรอบเตือนเอง (กะพริบ + เสียง + ข้อความพร้อมเวลาที่เหลือ)
@@ -65897,7 +65875,7 @@ function DirectorService:RunNight(night, runId)
 		local left = Nights.NextBigRaid(night) - night
 		task.delay(6, function()
 			if runId == self.runId then
-				ctx.Broadcast(string.format("🌙 คืนนี้ฝูงเล็ก... คืนบุกใหญ่จะมาในอีก %d คืน เตรียมตัวไว้!", left), "Info")
+				ctx.Broadcast(string.format("บุกใหญ่ในอีก %d คืน", left), "Info")
 			end
 		end)
 	end
@@ -65929,7 +65907,7 @@ function DirectorService:RunNight(night, runId)
 		if animals:CountKind("Stalker") == 0 then
 			local pos = ctx.Layout:RaidSpawnPoint(self.rng, 260, 340)
 			if animals:Spawn("HollowStag", pos, { Kind = "Stalker" }) then
-				ctx.Broadcast("🦌 ...มีบางอย่างจ้องมองมาจากความมืด อยู่ใกล้แสงไฟไว้", "Danger")
+				ctx.Broadcast("มีบางอย่างจ้องมองจากความมืด", "Danger")
 			end
 		end
 	end)
@@ -65942,7 +65920,7 @@ function DirectorService:RunNight(night, runId)
 				return
 			end
 			if not wave.Boss then
-				ctx.Broadcast(string.format("🐾 ฝูงสัตว์ระลอกที่ %d กำลังมุ่งหน้ามาที่กองไฟ!", wi), "Danger")
+				ctx.Broadcast(string.format("ฝูงสัตว์ระลอกที่ %d มาแล้ว", wi), "Danger")
 				ctx.FireRun("Cinematic", "WaveIncoming", { Wave = wi, Element = plan.Element })
 			end
 			for i, id in ipairs(wave.Spawns) do
@@ -65996,7 +65974,7 @@ function DirectorService:HoldForBoss(runId)
 	local s = self.ctx.State
 	local left = Config.BossHoldMax
 	s:SetAttribute("BossHoldEnd", Workspace:GetServerTimeNow() + left)
-	self.ctx.Broadcast("⏳ บอสยังไม่ตาย — ฟ้ายังไม่สาง! ฆ่าให้ได้ก่อนมันหนีไปตอนเช้า", "Danger")
+	self.ctx.Broadcast("ฆ่าบอสก่อนเช้า!", "Danger")
 	while left > 0 and not boss.Dead and not boss.Removed do
 		local dt = task.wait(0.25)
 		if runId ~= self.runId then
@@ -66074,7 +66052,6 @@ function DirectorService:Loop(runId)
 			return
 		end
 		self:SetPhase("Dusk", Config.DuskLength)
-		ctx.Broadcast("🌅 พระอาทิตย์กำลังตก... กลับไปที่กองไฟ!", "Warn")
 		ctx.FireRun("Cinematic", "Dusk", { Night = night })
 		if not self:Wait(Config.DuskLength, runId) then
 			return
@@ -66126,7 +66103,7 @@ function DirectorService:ApplyPendingSkips()
 		self.ctx.Services.TraderService:OnDay(self.night) -- ไม่ให้พลาดรอบพ่อค้า
 	end
 	if applied > 0 then
-		self.ctx.Broadcast(string.format("⏭ ข้ามไป %d วันตามสิทธิ์ที่เก็บไว้ — ตอนนี้วันที่ %d", applied, self.night), "Good")
+		self.ctx.Broadcast(string.format("ข้าม %d วัน · วันที่ %d", applied, self.night), "Good")
 	end
 end
 
@@ -66150,12 +66127,12 @@ function DirectorService:SkipDay(player, fmt)
 		if fmt then
 			self.ctx.Broadcast(string.format(fmt, self.night), "Good")
 		else
-			self.ctx.Broadcast(string.format("🛏 %s วางเตียงพักผ่อน — ข้ามไป 1 วัน! ตอนนี้วันที่ %d", player and player.DisplayName or "ทีม", self.night), "Good")
+			self.ctx.Broadcast(string.format("%s ข้าม 1 วัน · วันที่ %d", player and player.DisplayName or "ทีม", self.night), "Good")
 		end
 	else
 		self.pendingSkips += 1
 		local when = self.night == Config.TotalNights and "หลังจบคืนสุดท้าย" or "ตอนเช้า"
-		self.ctx.Broadcast(string.format("⏳ +1 วัน — จะนับให้%s (เก็บไว้ %d วัน)", when, self.pendingSkips), "Good")
+		self.ctx.Broadcast(string.format("+1 วัน (นับให้%s)", when), "Good")
 	end
 	return true
 end
@@ -66191,7 +66168,7 @@ function DirectorService:Complete()
 			ctx.Services.DataService:Save(p)
 		end
 	end
-	ctx.Broadcast("♾ เข้าสู่โหมดไร้ขีดจำกัด — ฝูงจะแรงขึ้นทุกคืน รอดให้นานที่สุดเพื่อขึ้นกระดานอันดับ!", "Reward")
+	ctx.Broadcast("โหมดไร้ขีดจำกัด · ฝูงแรงขึ้นทุกคืน", "Reward")
 end
 
 function DirectorService:GameOver()
@@ -66292,7 +66269,7 @@ function DirectorService:ResetRun()
 	end
 	ctx.Services.LobbyService:ReturnAll()
 	self:SetPhase("Lobby", 0)
-	ctx.Broadcast("🔥 ทุกคนกลับสู่ล็อบบี้ — ขึ้นแท่นเริ่มเกมเพื่อเริ่มรอบใหม่", "Info")
+	ctx.Broadcast("กลับล็อบบี้แล้ว", "Info")
 end
 
 function DirectorService:Start(ctx)
@@ -67401,7 +67378,6 @@ function EventService:Meteor(token)
 	ctx.State:SetAttribute("Event_MeteorElement", el)
 	local yaw = self.rng:NextNumber(0, math.pi * 2)
 	ctx.FireRun("WorldEvent", "Meteor", { Position = spot, Element = el, ImpactAt = impactAt, Fall = METEOR_FALL, Yaw = yaw })
-	ctx.Broadcast(string.format("☄ อุกกาบาตธาตุ%sกำลังตก! เปิดแผนที่ (M) ดูจุดตก แล้วไปขุดแกนผลึกก่อนพลบค่ำ", THAI[el]), "Reward")
 
 	local model = Instance.new("Model")
 	model.Name = "MeteorCrater"
@@ -67600,7 +67576,7 @@ function EventService:Meteor(token)
 			end
 			ctx.Remotes.Get("HitFx"):FireClient(player, "Loot", { Items = got, Position = core.Position, Chest = true })
 			ctx.FireRun("WorldEvent", "MeteorClaimed", { Position = core.Position, Element = el })
-			ctx.Broadcast(string.format("💎 %s ขุดแกนอุกกาบาตธาตุ%sสำเร็จ!", player.DisplayName, THAI[el]), "Good")
+			ctx.Broadcast(string.format("%s ขุดแกนอุกกาบาต%sได้", player.DisplayName, THAI[el]), "Good")
 			ctx.State:SetAttribute("Event_Meteor", nil)
 			-- แกนแตก
 			for _, s in ipairs(shards) do
@@ -67688,7 +67664,6 @@ function EventService:Migration(token)
 	end)
 	ctx.State:SetAttribute("Event_Migration", path[1])
 	ctx.FireRun("WorldEvent", "Migration", { Position = path[1], To = path[#path] })
-	ctx.Broadcast("🦌 ฝูงสัตว์อพยพกำลังเดินผ่านใกล้แคมป์! โอกาสล่าเนื้อและหนังสัตว์ (ดูแผนที่ M)", "Reward")
 	task.spawn(function()
 		local t0 = os.clock()
 		while not done and self:Valid(token) and os.clock() - t0 < 170 do
@@ -67792,7 +67767,6 @@ function EventService:Supply(token)
 	ctx.State:SetAttribute("Event_Supply", spot)
 	local fall = 17
 	ctx.FireRun("WorldEvent", "Supply", { Position = spot, LandAt = Workspace:GetServerTimeNow() + fall })
-	ctx.Broadcast("📦 หีบเสบียงกำลังร่อนลงจากฟ้า! มองหาควันสีแดง (ดูแผนที่ M)", "Reward")
 	task.spawn(function()
 		local t0 = os.clock()
 		while not done and model.Parent do
@@ -67849,7 +67823,7 @@ function EventService:Supply(token)
 			give(ESSENCE[ELEMENTS[rng:NextInteger(1, 4)]], 1)
 			ctx.Services.DataService:AddDiamonds(player, rng:NextInteger(2, 3), "หีบเสบียง")
 			ctx.Remotes.Get("HitFx"):FireClient(player, "Loot", { Items = got, Position = pos, Chest = true })
-			ctx.Broadcast(string.format("📦 %s เปิดหีบเสบียงแล้ว!", player.DisplayName), "Good")
+			ctx.Broadcast(string.format("%s เปิดหีบเสบียงแล้ว", player.DisplayName), "Good")
 			ctx.State:SetAttribute("Event_Supply", nil)
 			task.delay(6, function()
 				smoke.Enabled = false
@@ -70862,8 +70836,14 @@ function ctx.FireRun(remoteName, ...)
 		end
 	end
 end
-function ctx.Broadcast(text, kind)
-	ctx.FireRun("Notify", text, kind or "Info")
+-- except = ไม่ส่งให้คนนี้ (เช่น คนที่ล้มเองไม่ต้องเห็น "X ล้มลง")
+function ctx.Broadcast(text, kind, except)
+	local remote = Remotes.Get("Notify")
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p ~= except and p:GetAttribute("InRun") then
+			remote:FireClient(p, text, kind or "Info")
+		end
+	end
 end
 
 local order = {
@@ -71386,7 +71366,6 @@ return PingService
 	PortalService — ประตูมิติของศาลเจ้า/วิหาร (แท็ก "RealmPortal" จาก PropBuilder.BuildPortal)
 	  กด E ที่ม่านประตู -> วาร์ปไป attribute Dest (หันหน้าไป DestLook)
 	  วาร์ปแบบกันตกทะลุ: ตรึงตัว -> ย้าย -> โหลดพื้นรอบปลายทาง (StreamingEnabled) -> ปล่อย
-	  ลูกสัตว์ที่เดินตามผู้เล่นอยู่ (ปลดผนึกแล้ว) วาร์ปตามไปด้วย
 ]]
 
 local CollectionService = game:GetService("CollectionService")
@@ -71422,16 +71401,6 @@ function PortalService:Teleport(player, dest, look, color)
 	pcall(function()
 		player:RequestStreamAroundAsync(dest, 8)
 	end)
-	-- ลูกสัตว์ที่ตามผู้เล่นคนนี้อยู่ ไปด้วย
-	local animals = self.ctx.Services.AnimalService
-	for _, a in ipairs(animals and animals:All() or {}) do
-		if a.FollowPlayer == player and a.Root and a.Root.Parent then
-			a.Model:PivotTo(cf * CFrame.new(3, 0, 3))
-			if a.Hum then
-				a.Hum:MoveTo(dest)
-			end
-		end
-	end
 	task.delay(1.2, function()
 		if root.Parent then
 			root.Anchored = false
@@ -72239,7 +72208,7 @@ function RejoinService:TryRestore(player)
 	end)
 	surv:Spawn(player)
 	ctx.Notify(player, "↩ กลับเข้ารอบเดิมแล้ว — ของในกระสอบ/เครื่องมือยังอยู่ครบ", "Good")
-	ctx.Broadcast(string.format("↩ %s กลับเข้ามาในรอบแล้ว", player.DisplayName), "Info")
+	ctx.Broadcast(string.format("%s กลับเข้ารอบ", player.DisplayName), "Info")
 	return true
 end
 
@@ -73480,7 +73449,6 @@ function SanctumService:Solve(site, player)
 		table.insert(site.Fx, beam)
 	end
 	self.ctx.FireRun("WorldEvent", "SanctumOpened", { Element = el, Position = doorPos, By = player and player.DisplayName })
-	self.ctx.Broadcast(string.format("🏛 ผนึกวิหาร%sคลายแล้ว! หีบศักดิ์สิทธิ์ในห้องผนึกเปิดได้", THAI[el]), "Reward")
 	task.delay(3.5, function()
 		if site.State == "Solved" and not site.Opened and site.ChestPrompt then
 			site.ChestPrompt.Enabled = true
@@ -73535,7 +73503,7 @@ function SanctumService:OpenChest(site, player)
 			ctx.Notify(p, "✨ ได้รับ" .. AURA_TEXT[el] .. " (ติดตัวทั้งรอบ)", "Reward")
 		end
 	end
-	ctx.Broadcast(string.format("🏛 เคลียร์วิหาร%sแล้ว! คนที่ช่วยกันได้รับ%s", THAI[el], AURA_TEXT[el]), "Reward")
+	ctx.Broadcast(string.format("เคลียร์วิหาร%s · ได้%s", THAI[el], AURA_TEXT[el]), "Reward")
 	for _, p in ipairs(self:NearbyPlayers(site, 70)) do
 		ctx.Services.DataService:AddDiamonds(p, rng:NextInteger(5, 8), "วิหารโบราณ" .. THAI[el])
 	end
@@ -73602,7 +73570,7 @@ function SanctumService:SealAfterClear(site)
 		return
 	end
 	self:SealPortal(site)
-	self.ctx.Broadcast(string.format("🔒 วิหาร%sปิดผนึกแล้ว — เข้าไม่ได้อีกในรอบนี้", THAI[site.Element]), "Info")
+	self.ctx.Broadcast(string.format("วิหาร%sปิดผนึกแล้ว", THAI[site.Element]), "Info")
 end
 
 ---------------------------------------------------------------- รีเซ็ต (รอบใหม่)
@@ -74073,6 +74041,7 @@ function SpiritService:SetupShrine(model)
 		local dest = d:GetAttribute("Dest")
 		if typeof(dest) == "Vector3" and math.abs(dest.Y - base.Y) < 30 then
 			sh.Entry = dest
+			sh.OutVeil = d
 			break
 		end
 	end
@@ -74146,7 +74115,7 @@ function SpiritService:SpawnGuardians(sh)
 	end
 	sh.GuardiansSpawned = true
 	if not intro then
-		self.ctx.Broadcast(string.format("⚔ ผู้พิทักษ์ศาลเจ้า%s ตื่นขึ้นแล้ว! ปราบให้หมดเพื่อปลดผนึก", sh.Element), "Warn")
+		self.ctx.Broadcast(string.format("ผู้พิทักษ์ศาลเจ้า%sตื่นแล้ว", sh.Element), "Warn")
 		return
 	end
 	local cin = self.ctx.Remotes.Get("Cinematic")
@@ -74176,8 +74145,22 @@ function SpiritService:SpawnGuardians(sh)
 		end
 	end)
 	task.delay(INTRO_TIME, function()
-		self.ctx.Broadcast(string.format("⚔ ผู้พิทักษ์ศาลเจ้า%s ตื่นขึ้นแล้ว! ปราบให้หมดเพื่อปลดผนึก", sh.Element), "Warn")
+		self.ctx.Broadcast(string.format("ผู้พิทักษ์ศาลเจ้า%sตื่นแล้ว", sh.Element), "Warn")
 	end)
+end
+
+-- ช่วยแล้ว = ประตูข้างนอกปิดจนจบรอบ (คนที่อยู่ข้างในยังออกทางประตูกลับได้) · เริ่มรอบใหม่สร้างศาลเจ้าใหม่ ประตูเปิดเอง
+function SpiritService:SealPortal(sh)
+	local veil = sh.OutVeil
+	if not veil then
+		warn("[AS] ศาลเจ้า", sh.Element, "หาประตูข้างนอกไม่เจอ")
+		return
+	end
+	veil:SetAttribute("Sealed", true)
+	local prompt = veil:FindFirstChildOfClass("ProximityPrompt")
+	if prompt then
+		prompt.ActionText = "ปิดผนึกแล้ว"
+	end
 end
 
 function SpiritService:Free(el, player)
@@ -74187,6 +74170,7 @@ function SpiritService:Free(el, player)
 	end
 	sh.Freed = true
 	sh.Prompt.Enabled = false
+	self:SealPortal(sh)
 	-- กรงแตก
 	local cage = sh.Model:FindFirstChild("Cage")
 	if cage then
@@ -74218,7 +74202,7 @@ function SpiritService:Free(el, player)
 			end)
 		end)
 	end
-	self.ctx.Broadcast(string.format("✨ %s ปลดปล่อย %s แล้ว!", player.DisplayName, a.Info.Thai), "Reward")
+	self.ctx.Broadcast(string.format("%s ปลดปล่อย %s แล้ว", player.DisplayName, a.Info.Thai), "Reward")
 	task.delay(CLEAR_PILLAR, function()
 		if sh.Model.Parent then
 			self:RaisePillar(sh, false)
@@ -74412,7 +74396,6 @@ function SpiritService:Rescue(a, player)
 		return
 	end
 	sh.Rescued = true
-	a.FollowPlayer = nil
 	local s = self.ctx.State
 	s:SetAttribute("Spirit" .. el, true)
 	self:LightOrb(el, a.Info)
@@ -74460,6 +74443,7 @@ function SpiritService:Restore(st)
 		if type(st.Spirits) == "table" and st.Spirits[el] and sh then
 			count += 1
 			sh.Freed, sh.Rescued = true, true
+			self:SealPortal(sh)
 			if sh.Prompt then
 				sh.Prompt.Enabled = false
 			end
@@ -74549,7 +74533,7 @@ function SpiritService:OnBossKilled(a)
 		sigil.Color = Color3.fromRGB(255, 220, 120)
 		sigil.Transparency = 0.3
 	end
-	self.ctx.Broadcast(string.format("💀 ปราบ %s แล้ว! บอสจะกลับมาเกิดใหม่ที่รังในอีก %d นาที", a.Info.Thai, LAIR_RESPAWN / 60), "Reward")
+	self.ctx.Broadcast(string.format("ปราบ %s แล้ว · เกิดใหม่ใน %d นาที", a.Info.Thai, LAIR_RESPAWN / 60), "Reward")
 end
 
 -- บอสในรังกลับมาเกิด (ครบเวลา): รังพร้อมปลุกอีกครั้งเมื่อมีคนเข้าใกล้
@@ -74566,7 +74550,7 @@ function SpiritService:RespawnLair(lair)
 	end
 	local id = ({ Earth = "Terragon", Water = "Leviathan", Air = "TempestRoc", Fire = "Solfang" })[el]
 	local info = Animals.Data[id]
-	self.ctx.Broadcast(string.format("⚠ %s ฟื้นคืนชีพที่รังแล้ว! (ดูแผนที่ M)", info and info.Thai or "บอส"), "Warn")
+	self.ctx.Broadcast(string.format("%s ฟื้นที่รังแล้ว", info and info.Thai or "บอส"), "Warn")
 end
 
 ---------------------------------------------------------------- loop
@@ -74587,7 +74571,7 @@ function SpiritService:Tick()
 				end
 				if alive == 0 then
 					sh.Prompt.Enabled = true
-					self.ctx.Broadcast(string.format("🔓 ผนึกศาลเจ้า%s อ่อนลงแล้ว — กด E ค้างเพื่อปลดปล่อย", el), "Good")
+					self.ctx.Broadcast(string.format("ผนึกศาลเจ้า%sอ่อนลง · กด E ค้าง", el), "Good")
 				end
 			end
 			-- ไม่มีคนอยู่ใกล้นาน -> ผู้เฝ้ากลับไป (เกิดใหม่รอบหน้า)
@@ -74603,14 +74587,6 @@ function SpiritService:Tick()
 			else
 				sh.Away = 0
 			end
-		elseif not sh.Rescued and sh.Pup and sh.Pup.FollowPlayer == nil then
-			-- คนพาตาย/ออก: ให้คนใกล้สุดพาต่อ
-			local p = nearestPlayer(sh.Pup.Root.Position, 30)
-			if p then
-				sh.Pup.FollowPlayer = p
-			end
-		elseif not sh.Rescued and sh.Pup and sh.Pup.FollowPlayer and not sh.Pup.FollowPlayer.Parent then
-			sh.Pup.FollowPlayer = nil
 		end
 	end
 	for _, lair in pairs(self.lairs) do
@@ -74941,7 +74917,7 @@ function SurvivalService:Down(player, source)
 	hum.AutoRotate = false
 	hum:UnequipTools()
 	layDown(char)
-	self.ctx.Broadcast(string.format("💀 %s ล้มลงแล้ว! ใช้ผ้าพันแผลช่วยด่วน", player.DisplayName), "Danger")
+	self.ctx.Broadcast(string.format("%s ล้มลง! ไปช่วยด่วน", player.DisplayName), "Danger", player) -- คนล้มเห็นข้อความติดจอแทน
 	self.ctx.Remotes.Get("Cinematic"):FireClient(player, "Downed", {})
 	-- ปุ่มช่วยเพื่อน
 	local root = char:FindFirstChild("HumanoidRootPart")
@@ -74988,7 +74964,7 @@ function SurvivalService:Down(player, source)
 			if self.ctx.Services.QuestService then
 				self.ctx.Services.QuestService:Progress(helper, "Revive", 1)
 			end
-			self.ctx.Broadcast(string.format("✨ %s ช่วยชีวิต %s ได้ทัน!", helper.DisplayName, player.DisplayName), "Good")
+			self.ctx.Broadcast(string.format("%s ช่วย %s ได้ทัน", helper.DisplayName, player.DisplayName), "Good")
 		end)
 	end
 	self:CheckWipe()
@@ -75052,7 +75028,7 @@ function SurvivalService:Die(player)
 		end
 	end
 	self.ctx.Remotes.Get("Cinematic"):FireClient(player, "Died", { Night = self.ctx.State:GetAttribute("Night"), Alive = alive })
-	self.ctx.Broadcast(string.format("☠ %s สิ้นชีพแล้ว...", player.DisplayName), "Danger")
+	self.ctx.Broadcast(string.format("%s สิ้นชีพ", player.DisplayName), "Danger")
 	Analytics.Custom(player, "PlayerDied", self.ctx.State:GetAttribute("Night") or 1, {
 		tostring(s.DownSource or s.LastSource or "Unknown"), player:GetAttribute("Class") or "Survivor",
 	})
@@ -75458,7 +75434,7 @@ function SurvivalService:UseMedical(player, id)
 				self.ctx.Services.QuestService:Progress(player, "Revive", 1)
 			end
 			self.ctx.Remotes.Get("HitFx"):FireClient(player, "Heal", { Item = id })
-			self.ctx.Broadcast(string.format("✨ %s ช่วยชีวิต %s ได้ทัน!", player.DisplayName, best.DisplayName), "Good")
+			self.ctx.Broadcast(string.format("%s ช่วย %s ได้ทัน", player.DisplayName, best.DisplayName), "Good")
 			return
 		end
 		if inv:Remove(player, id, 1) then
@@ -76358,7 +76334,7 @@ function TraderService:Arrive()
 		self.ctx.Remotes.Get("Cinematic"):FireClient(player, "OpenTrader", {})
 	end)
 	self.ctx.State:SetAttribute("TraderHere", true)
-	self.ctx.Broadcast("🐾 พ่อค้าเร่มาถึงแคมป์แล้ว! เอาหนังสัตว์/กระดูกมาแลกของได้จนถึงพลบค่ำ", "Reward")
+	self.ctx.Broadcast("พ่อค้าเร่มาถึงแคมป์", "Reward")
 end
 
 function TraderService:Leave()
@@ -76366,7 +76342,7 @@ function TraderService:Leave()
 		self.model:Destroy()
 		self.model = nil
 		self.ctx.State:SetAttribute("TraderHere", false)
-		self.ctx.Broadcast("🐾 พ่อค้าเร่ออกเดินทางต่อแล้ว", "Info")
+		self.ctx.Broadcast("พ่อค้าเร่ไปแล้ว", "Info")
 	end
 end
 
@@ -76530,10 +76506,11 @@ task.wait(1)
 -- เลือดเต็ม = ไม่ใช้
 surv:UseMedical(player, "Bandage")
 print("[AS] MEDPROBE full hp MedUse=" .. tostring(player:GetAttribute("MedUse")))
+ReplicatedStorage:SetAttribute("MedDone", true)
 print("[AS] MEDPROBE done")
 ]]></ProtectedString></Properties></Item>
 </Item>
-<Item class="ServerStorage" referent="RBX000000A1"><Properties><string name="Name">ServerStorage</string></Properties><Item class="Folder" referent="RBX0000009B"><Properties><string name="Name">LobbyArt</string></Properties><Item class="Model" referent="LobbyArt0_RBX0"><Properties><string name="Name">LobbyRuins</string><Ref name="PrimaryPart">LobbyArt0_RBX1</Ref></Properties>
+<Item class="ServerStorage" referent="RBX000000A2"><Properties><string name="Name">ServerStorage</string></Properties><Item class="Folder" referent="RBX0000009C"><Properties><string name="Name">LobbyArt</string></Properties><Item class="Model" referent="LobbyArt0_RBX0"><Properties><string name="Name">LobbyRuins</string><Ref name="PrimaryPart">LobbyArt0_RBX1</Ref></Properties>
 <Item class="Part" referent="LobbyArt0_RBX1"><Properties><string name="Name">Origin</string><bool name="Anchored">true</bool><CoordinateFrame name="CFrame"><X>0</X><Y>0</Y><Z>0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>1</X><Y>1</Y><Z>1</Z></Vector3><Color3uint8 name="Color3uint8">4278190080</Color3uint8><token name="Material">800</token><float name="Transparency">1</float><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><bool name="CastShadow">false</bool><token name="shape">1</token><token name="TopSurface">0</token><token name="BottomSurface">0</token></Properties></Item>
 <Item class="Part" referent="LobbyArt0_RBX2"><Properties><string name="Name">Cylinder</string><bool name="Anchored">true</bool><CoordinateFrame name="CFrame"><X>77</X><Y>1.25</Y><Z>-35.301</Z><R00>0</R00><R01>-0.866</R01><R02>-0.5</R02><R10>1</R10><R11>0</R11><R12>0</R12><R20>0</R20><R21>-0.5</R21><R22>0.866</R22></CoordinateFrame><Vector3 name="size"><X>0.5</X><Y>23.2</Y><Z>23.2</Z></Vector3><Color3uint8 name="Color3uint8">4283324500</Color3uint8><token name="Material">880</token><float name="Transparency">0.0</float><bool name="CanCollide">true</bool><bool name="CanQuery">true</bool><bool name="CanTouch">false</bool><bool name="CastShadow">true</bool><token name="shape">2</token><token name="TopSurface">0</token><token name="BottomSurface">0</token></Properties></Item>
 <Item class="Part" referent="LobbyArt0_RBX3"><Properties><string name="Name">Block</string><bool name="Anchored">true</bool><CoordinateFrame name="CFrame"><X>71.45</X><Y>1.55</Y><Z>-25.688</Z><R00>0.866</R00><R01>0</R01><R02>-0.5</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0.5</R20><R21>0</R21><R22>0.866</R22></CoordinateFrame><Vector3 name="size"><X>2.6</X><Y>0.6</Y><Z>1.1</Z></Vector3><Color3uint8 name="Color3uint8">4284245095</Color3uint8><token name="Material">800</token><float name="Transparency">0.0</float><bool name="CanCollide">true</bool><bool name="CanQuery">true</bool><bool name="CanTouch">false</bool><bool name="CastShadow">true</bool><token name="shape">1</token><token name="TopSurface">0</token><token name="BottomSurface">0</token></Properties></Item>
@@ -81464,7 +81441,7 @@ print("[AS] MEDPROBE done")
 <Item class="Part" referent="LobbyArt0_RBX4928"><Properties><string name="Name">Block</string><bool name="Anchored">true</bool><CoordinateFrame name="CFrame"><X>-65.888</X><Y>2.229</Y><Z>63.858</Z><R00>-0.981</R00><R01>0.19</R01><R02>0.031</R02><R10>0</R10><R11>0.162</R11><R12>-0.987</R12><R20>-0.192</R20><R21>-0.968</R21><R22>-0.159</R22></CoordinateFrame><Vector3 name="size"><X>0.12</X><Y>0.12</Y><Z>2.491</Z></Vector3><Color3uint8 name="Color3uint8">4282153030</Color3uint8><token name="Material">1280</token><float name="Transparency">0.0</float><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><bool name="CastShadow">false</bool><token name="shape">1</token><token name="TopSurface">0</token><token name="BottomSurface">0</token></Properties></Item>
 <Item class="Part" referent="LobbyArt0_RBX4929"><Properties><string name="Name">Ball</string><bool name="Anchored">true</bool><CoordinateFrame name="CFrame"><X>-65.927</X><Y>3.458</Y><Z>64.057</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>0.417</X><Y>0.417</Y><Z>0.417</Z></Vector3><Color3uint8 name="Color3uint8">4288082687</Color3uint8><token name="Material">288</token><float name="Transparency">0.0</float><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><bool name="CastShadow">false</bool><token name="shape">0</token><token name="TopSurface">0</token><token name="BottomSurface">0</token></Properties></Item>
 </Item></Item>
-<Item class="Folder" referent="RBX0000009C"><Properties><string name="Name">WorldArt</string></Properties><Item class="Model" referent="WorldArt0_RBX0"><Properties><string name="Name">Sanctum_Air</string><Ref name="PrimaryPart">WorldArt0_RBX1</Ref></Properties>
+<Item class="Folder" referent="RBX0000009D"><Properties><string name="Name">WorldArt</string></Properties><Item class="Model" referent="WorldArt0_RBX0"><Properties><string name="Name">Sanctum_Air</string><Ref name="PrimaryPart">WorldArt0_RBX1</Ref></Properties>
 <Item class="Part" referent="WorldArt0_RBX1"><Properties><string name="Name">Origin</string><bool name="Anchored">true</bool><CoordinateFrame name="CFrame"><X>0</X><Y>0</Y><Z>0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>1</X><Y>1</Y><Z>1</Z></Vector3><Color3uint8 name="Color3uint8">4278190080</Color3uint8><token name="Material">800</token><float name="Transparency">1</float><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><bool name="CastShadow">false</bool><token name="shape">1</token><token name="TopSurface">0</token><token name="BottomSurface">0</token></Properties></Item>
 <Item class="Part" referent="WorldArt0_RBX2"><Properties><string name="Name">Cylinder</string><bool name="Anchored">true</bool><CoordinateFrame name="CFrame"><X>0</X><Y>-1.3</Y><Z>0</Z><R00>0</R00><R01>-1</R01><R02>0</R02><R10>1</R10><R11>0</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>3</X><Y>40</Y><Z>40</Z></Vector3><Color3uint8 name="Color3uint8">4283324536</Color3uint8><token name="Material">800</token><float name="Transparency">0.0</float><bool name="CanCollide">true</bool><bool name="CanQuery">true</bool><bool name="CanTouch">false</bool><bool name="CastShadow">true</bool><token name="shape">2</token><token name="TopSurface">0</token><token name="BottomSurface">0</token></Properties></Item>
 <Item class="Part" referent="WorldArt0_RBX3"><Properties><string name="Name">Block</string><bool name="Anchored">true</bool><CoordinateFrame name="CFrame"><X>-2.777</X><Y>0.15</Y><Z>17.531</Z><R00>0.988</R00><R01>-0.001</R01><R02>-0.156</R02><R10>0</R10><R11>1</R11><R12>-0.005</R12><R20>0.156</R20><R21>0.005</R21><R22>0.988</R22></CoordinateFrame><Vector3 name="size"><X>5.242</X><Y>0.346</Y><Z>2.35</Z></Vector3><Color3uint8 name="Color3uint8">4287601334</Color3uint8><token name="Material">800</token><float name="Transparency">0.0</float><bool name="CanCollide">true</bool><bool name="CanQuery">true</bool><bool name="CanTouch">false</bool><bool name="CastShadow">false</bool><token name="shape">1</token><token name="TopSurface">0</token><token name="BottomSurface">0</token></Properties></Item>
@@ -84416,8 +84393,8 @@ print("[AS] MEDPROBE done")
 </Item>
 </Item></Item>
 </Item>
-<Item class="StarterGui" referent="RBX000000A2"><Properties><string name="Name">StarterGui</string><bool name="ResetPlayerGuiOnSpawn">false</bool></Properties></Item>
-<Item class="StarterPlayer" referent="RBX000000A6"><Properties><string name="Name">StarterPlayer</string><float name="CharacterWalkSpeed">18</float><float name="CameraMaxZoomDistance">90</float></Properties><Item class="StarterPlayerScripts" referent="RBX000000A3"><Properties><string name="Name">StarterPlayerScripts</string></Properties><Item class="Folder" referent="RBX00000098"><Properties><string name="Name">Client</string></Properties><Item class="ModuleScript" referent="RBX0000006D"><Properties><string name="Name">AmbientFX</string><ProtectedString name="Source"><![CDATA[--[[
+<Item class="StarterGui" referent="RBX000000A3"><Properties><string name="Name">StarterGui</string><bool name="ResetPlayerGuiOnSpawn">false</bool></Properties></Item>
+<Item class="StarterPlayer" referent="RBX000000A7"><Properties><string name="Name">StarterPlayer</string><float name="CharacterWalkSpeed">18</float><float name="CameraMaxZoomDistance">90</float></Properties><Item class="StarterPlayerScripts" referent="RBX000000A4"><Properties><string name="Name">StarterPlayerScripts</string></Properties><Item class="Folder" referent="RBX00000098"><Properties><string name="Name">Client</string></Properties><Item class="ModuleScript" referent="RBX0000006D"><Properties><string name="Name">AmbientFX</string><ProtectedString name="Source"><![CDATA[--[[
 	AmbientFX — อนุภาคลอยรอบตัว (เปลี่ยนตามไบโอม/เวลา) + ลมพัดขึ้นเกาะลอยฟ้า
 ]]
 
@@ -88314,9 +88291,28 @@ local function fadeTexts(frame, to, time)
 end
 
 -- ข้อความใหญ่กลางจอ (หายเอง)
+-- ป้ายใหญ่ขึ้นทีละอัน (เข้าคิว ไม่ซ้อนกัน) · คิวยาวเกิน 6 วิ = ทิ้งอันใหม่ · ระหว่างมีป้าย ซ่อนแถบข้อความ (BannerUp)
+local bannerFree = 0
+local bannerCount = 0
 function Cinematics.Banner(title, subtitle, color, hold, opts)
+	local now = os.clock()
+	if bannerFree - now > 6 then
+		return nil
+	end
+	local delay = math.max(0, bannerFree - now)
+	bannerFree = now + delay + (hold or 3) + 1.3
+	if delay > 0 then
+		task.delay(delay, Cinematics.ShowBanner, title, subtitle, color, hold, opts)
+		return nil
+	end
+	return Cinematics.ShowBanner(title, subtitle, color, hold, opts)
+end
+
+function Cinematics.ShowBanner(title, subtitle, color, hold, opts)
 	opts = opts or {}
 	title, subtitle = UIKit.StripIcons(title), UIKit.StripIcons(subtitle)
+	bannerCount += 1
+	Players.LocalPlayer:SetAttribute("BannerUp", true)
 	local f = UIKit.Frame(gui, { Size = UDim2.new(1, 0, 0, 170), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, opts.Y or 0.28, 0), BackgroundTransparency = 1 })
 	UIKit.AutoScale(f) -- มือถือ: ตัวหนังสือใหญ่กลางจอย่อตามจอ
 	local t = bigText(f)
@@ -88333,6 +88329,10 @@ function Cinematics.Banner(title, subtitle, color, hold, opts)
 		fadeTexts(f, 1, 1.2)
 		task.wait(1.3)
 		f:Destroy()
+		bannerCount -= 1
+		if bannerCount <= 0 then
+			Players.LocalPlayer:SetAttribute("BannerUp", nil)
+		end
 	end)
 	return f
 end
@@ -89879,8 +89879,12 @@ function Cinematics.ShrineCleared(d)
 			sfx("Reward", 1.1)
 		end },
 		{ HA + 0.8, function()
-			local day = Cinematics.State and Cinematics.State:GetAttribute("Night")
-			titleCard("+1 วัน", (day and ("ตอนนี้วันที่ " .. day .. " · ") or "") .. name .. " มาอยู่ที่บ้านแล้ว", C.Gold, 1.7)
+			-- กลางวัน/พลบค่ำ +1 ทันที · กลางคืนเก็บไว้นับตอนเช้า (DirectorService:SkipDay)
+			local st = Cinematics.State
+			local phase = st and st:GetAttribute("Phase")
+			local now = phase == "Day" or phase == "Dusk"
+			local dayText = now and st:GetAttribute("Night") and ("ตอนนี้วันที่ " .. st:GetAttribute("Night")) or "นับให้ตอนเช้า"
+			titleCard("+1 วัน", dayText .. " · " .. name .. " มาอยู่ที่บ้านแล้ว", C.Gold, 1.7)
 		end },
 		{ HA + 2.6, function() caption("บัฟ: " .. (d.Buff or "") .. " · กด E ที่ตัวมันเพื่อขี่ได้", C.Text, 1.5) end },
 	})
@@ -90078,7 +90082,7 @@ function Cinematics.StalkerWarning(d, combat)
 		g.Parent = e
 		table.insert(edges, e)
 	end
-	Cinematics.Banner("มีบางอย่างกำลังเข้ามา...", "อยู่ใกล้แสงไฟ! 🔥", Color3.fromRGB(255, 70, 60), 3.5, { Size = 50, Y = 0.2 })
+	Cinematics.Banner("มีบางอย่างกำลังเข้ามา...", "", Color3.fromRGB(255, 70, 60), 2.5, { Size = 50, Y = 0.2 })
 	if combat and combat.Shake then
 		combat.Shake(0.12, 0.5)
 	end
@@ -90112,34 +90116,26 @@ function Cinematics.Handle(kind, d, menus, combat)
 	if kind == "NightStart" then
 		local color = d.BloodMoon and Color3.fromRGB(220, 40, 40) or (C.Element[d.Element] or C.Gold)
 		local title = d.BloodMoon and "BLOOD MOON" or ("NIGHT " .. d.Night)
-		local sub = (d.BloodMoon and ("คืนที่ " .. d.Night .. " · ") or "") .. (d.Title or "") .. " — " .. (ELEMENT_NIGHT_TEXT[d.Element] or "")
+		-- ข้อความสั้น: บอกแค่ธาตุ/บอส · ไม่มีแถบดำบน-ล่าง (เคยบังปุ่มและแถบของบนมือถือ)
+		local sub = "คืนแห่ง" .. (UIKit.ElementThai[d.Element] or "")
 		if type(d.Elements) == "table" and #d.Elements > 0 then
-			-- พระจันทร์เลือดครั้งแรก: บอกว่าธาตุไหนบุกบ้าง
-			local names = {}
-			for _, e in ipairs(d.Elements) do
-				table.insert(names, (UIKit.ElementIcon[e] or "") .. (UIKit.ElementThai[e] or tostring(e)))
-			end
-			sub = "คืนที่ " .. d.Night .. " · " .. (d.Title or "") .. " — " .. table.concat(names, " + ") .. " บุกพร้อมกัน!"
+			sub = "ทุกธาตุบุกพร้อมกัน"
 		end
 		if d.Boss then
-			sub = "คืนที่ " .. d.Night .. " · " .. (d.Title or "") .. " — บอสธาตุกำลังมาถึง!"
+			sub = "บอสกำลังมา"
 		end
-		letterbox(true)
-		Cinematics.Banner(title, sub, color, 4)
-		task.delay(4.5, function()
-			letterbox(false)
-		end)
+		Cinematics.Banner(title, sub, color, 3)
 		combat.Shake(0.3, 1)
 	elseif kind == "DayStart" then
 		if d.Day > 1 then
-			Cinematics.Banner("DAY " .. d.Day, "สำรวจ เก็บของ และเตรียมรับมือก่อนค่ำ", C.Gold, 2.5, { Size = 54, Y = 0.22 })
+			Cinematics.Banner("DAY " .. d.Day, "", C.Gold, 2, { Size = 54, Y = 0.22 })
 		else
-			Cinematics.Banner("DAY 1", "จุดไฟไว้ให้ลุกโชน... ป่านี้ไม่เคยหลับใหล", C.Gold, 4, { Size = 60, Y = 0.22 })
+			Cinematics.Banner("DAY 1", "จุดไฟให้ลุกโชน", C.Gold, 3, { Size = 60, Y = 0.22 })
 		end
 	elseif kind == "Dusk" then
-		Cinematics.Banner("DUSK", "พระอาทิตย์กำลังตก — กลับไปที่กองไฟ!", C.Fire, 2.5, { Size = 50, Y = 0.22 })
+		Cinematics.Banner("DUSK", "กลับไปที่กองไฟ", C.Fire, 2.5, { Size = 50, Y = 0.22 })
 	elseif kind == "Dawn" then
-		Cinematics.Banner("DAWN", string.format("รอดชีวิตผ่านคืนที่ %d แล้ว", d.Night), Color3.fromRGB(255, 220, 160), 3, { Size = 60 })
+		-- ไม่มีป้าย DAWN: ซ้ำกับป้าย DAY ที่ขึ้นตามมาทันที
 	elseif kind == "WaveIncoming" then
 		combat.Shake(0.15, 0.6)
 	elseif kind == "BossIntro" then
@@ -90157,14 +90153,14 @@ function Cinematics.Handle(kind, d, menus, combat)
 			Cinematics.BossIntro(d)
 		end)
 	elseif kind == "BossFelled" then
-		Cinematics.Banner("BEAST VANQUISHED", "ปราบ " .. (d.Thai or "") .. " สำเร็จ! · ได้หัวใจอสูร", Color3.fromRGB(255, 214, 120), 4.5, { Size = 76 })
+		Cinematics.Banner("BEAST VANQUISHED", "ปราบ " .. (d.Thai or "") .. " สำเร็จ", Color3.fromRGB(255, 214, 120), 3.5, { Size = 76 })
 	elseif kind == "Died" then
 		Cinematics.Died(d)
 	elseif kind == "Downed" then
 		combat.Shake(0.5, 0.4)
-		Cinematics.Banner("DOWNED", "คุณล้มลง! รอเพื่อนใช้ผ้าพันแผลช่วย — ถ้าไม่เหลือใครยืนอยู่ = แพ้ทั้งทีม", Color3.fromRGB(255, 90, 80), 3, { Size = 64, Y = 0.2 })
+		-- ไม่มีป้าย DOWNED: ข้อความติดจอ "ล้มแล้ว — รอเพื่อนมาช่วย" บอกอยู่แล้ว
 	elseif kind == "Revived" then
-		Cinematics.Banner("", "✨ ได้รับการช่วยชีวิต!", C.Good, 1.5, { Size = 10, Y = 0.5 })
+		Cinematics.Banner("", "ได้รับการช่วยชีวิต", C.Good, 1.5, { Size = 10, Y = 0.5 })
 	elseif kind == "GameOver" then
 		clearDeath(0.3)
 		if Cinematics.Death then
@@ -90191,24 +90187,24 @@ function Cinematics.Handle(kind, d, menus, combat)
 		end
 	elseif kind == "Purchased" then
 		if d.Kind == "Pack" then
-			Cinematics.Banner("♦️ +" .. tostring(d.Diamonds or 0), "เติม " .. (d.Name or "Ruby") .. " สำเร็จ — ขอบคุณที่สนับสนุน!", Color3.fromRGB(120, 230, 255), 3, { Size = 72, Y = 0.3 })
+			Cinematics.Banner("♦️ +" .. tostring(d.Diamonds or 0), "เติม " .. (d.Name or "Ruby") .. " สำเร็จ", Color3.fromRGB(120, 230, 255), 3, { Size = 72, Y = 0.3 })
 		else
-			Cinematics.Banner("🎫 " .. (d.Name or "GAME PASS"), "ปลดล็อกแล้ว! ขอบคุณที่สนับสนุน", C.Gold, 3, { Size = 64, Y = 0.3 })
+			Cinematics.Banner("🎫 " .. (d.Name or "GAME PASS"), "ปลดล็อกแล้ว", C.Gold, 3, { Size = 64, Y = 0.3 })
 		end
 	elseif kind == "SpiritFreed" then
-		Cinematics.Banner("SPIRIT UNSEALED", (d.Player or "") .. " ปลดปล่อย " .. (d.Name or "") .. " — พากลับกองไฟ!", C.Element[d.Element] or C.Gold, 3.5, { Size = 56 })
+		Cinematics.Banner("SPIRIT UNSEALED", "พา" .. (d.Name or "") .. "กลับกองไฟ", C.Element[d.Element] or C.Gold, 3.5, { Size = 56 })
 	elseif kind == "SpiritRescued" then
 		if not Cinematics.ShrineCut then -- คนที่ดูฉากจบศาลเจ้าอยู่เห็นข้อความในฉากแล้ว
-			Cinematics.Banner("SPIRIT RETURNED", string.format("%s ไปอยู่ที่แคมป์แล้ว (%d/4)%s · บัฟ: %s", d.Name or "", d.Count or 0, d.Day and " · +1 วัน" or "", d.Buff or ""), C.Element[d.Element] or C.Gold, 4.5, { Size = 60 })
+			Cinematics.Banner("SPIRIT RETURNED", string.format("%s กลับแคมป์ (%d/4)", d.Name or "", d.Count or 0), C.Element[d.Element] or C.Gold, 4.5, { Size = 60 })
 		end
 	elseif kind == "ShrineIntro" then
 		Cinematics.ShrineIntro(d)
 	elseif kind == "ShrineCleared" then
 		Cinematics.ShrineCleared(d)
 	elseif kind == "CampUpgrade" then
-		Cinematics.Banner("BONFIRE LV." .. d.Level, "เขตปลอดภัยขยาย · หมอกจางลง · ทางใหม่เปิดออก", C.Fire, 3, { Size = 54, Y = 0.22 })
+		Cinematics.Banner("BONFIRE LV." .. d.Level, "เขตปลอดภัยขยาย", C.Fire, 3, { Size = 54, Y = 0.22 })
 	elseif kind == "FireOut" then
-		Cinematics.Banner("THE FIRE IS OUT", "กองไฟดับ! เติมไม้ด่วน", Color3.fromRGB(255, 80, 60), 3, { Size = 56 })
+		Cinematics.Banner("THE FIRE IS OUT", "เติมไม้ด่วน", Color3.fromRGB(255, 80, 60), 3, { Size = 56 })
 		combat.Shake(0.3, 0.5)
 	elseif kind == "OpenCraft" then
 		menus.OpenCraft()
@@ -90220,16 +90216,12 @@ function Cinematics.Handle(kind, d, menus, combat)
 		menus.OpenTrader()
 	elseif kind == "Teleporting" then
 		if d.Back then
-			Cinematics.Banner("RETURNING", "กำลังพากลับสู่ค่าย WILDHEART...", C.Gold, 8, { Size = 60, Y = 0.62 })
+			Cinematics.Banner("RETURNING", "กำลังกลับค่าย...", C.Gold, 8, { Size = 60, Y = 0.62 })
 		else
-			Cinematics.Banner("DEPARTING", "กำลังพาทีมไปยังผืนป่าของพวกคุณ...", C.Gold, 6, { Size = 60 })
+			Cinematics.Banner("DEPARTING", "กำลังเดินทาง...", C.Gold, 6, { Size = 60 })
 		end
 	elseif kind == "Depart" then
-		letterbox(true)
-		Cinematics.Banner("INTO THE WILDS", "ลงสู่ผืนป่า... จุดไฟให้ลุกโชน แล้วเอาชีวิตรอดให้ได้ 99 คืน", C.Gold, 3.5, { Size = 64 })
-		task.delay(4, function()
-			letterbox(false)
-		end)
+		Cinematics.Banner("INTO THE WILDS", "รอดให้ได้ 99 คืน", C.Gold, 3, { Size = 64 })
 	elseif kind == "Shake" then
 		combat.Shake(d.Power or 0.5, d.Time or 0.5)
 	elseif kind == "Flash" then
@@ -94197,6 +94189,17 @@ function HUD.Init(state)
 	fl.SortOrder = Enum.SortOrder.LayoutOrder
 	fl.Parent = feed
 	HUD.Feed = feed
+	-- มีป้ายใหญ่กลางจอ (Cinematics.Banner) = ซ่อนแถบข้อความชั่วคราว ไม่ให้ทับกัน
+	player:GetAttributeChangedSignal("BannerUp"):Connect(function()
+		feed.Visible = not player:GetAttribute("BannerUp")
+		if not player:GetAttribute("BannerUp") and HUD.Pending then
+			local pending = HUD.Pending
+			HUD.Pending = nil
+			for i = math.max(1, #pending - 1), #pending do -- ขึ้นแค่ 2 อันล่าสุด
+				HUD.Notify(pending[i][1], pending[i][2])
+			end
+		end
+	end)
 	HUD.FeedOrder = 0
 
 	-- ป๊อปอัปเก็บของ
@@ -94286,7 +94289,13 @@ function HUD.Update()
 	HUD.Compass.Visible = not inLobby
 	HUD.TimeFill.Parent.Visible = not inLobby
 	HUD.Strip.Visible = false -- ไม่มีแถบนับของ: ของทั้งหมดอยู่ในกระสอบ
-	HUD.Hint.Visible = HUD.ShowHints ~= false
+	-- คำแนะนำด้านล่าง: ในแมพโชว์แค่ 60 วิแรก แล้วซ่อน (ล็อบบี้โชว์ตลอด)
+	if inLobby then
+		HUD.HintSince = nil
+	elseif not HUD.HintSince then
+		HUD.HintSince = os.clock()
+	end
+	HUD.Hint.Visible = HUD.ShowHints ~= false and (inLobby or os.clock() - HUD.HintSince < 60)
 	local big = UIKit.BigScale()
 	HUD.Hint.Position = UDim2.new(0.5, 0, 1, inLobby and -16 or -86 * big) -- ในแมพ: อยู่เหนือแถบไอเทมของ Roblox
 	HUD.Hint.Size = UDim2.new(UIKit.IsPhone() and 0.46 or 0.7, 0, 0, 20 * big) -- มือถือ: แคบลงไม่ทับเมนูซ้าย/ปุ่มขวา
@@ -94296,32 +94305,32 @@ function HUD.Update()
 		HUD.NightLabel.TextColor3 = C.Gold
 		local cd = s:GetAttribute("PortalCountdown") or -1
 		if not s:GetAttribute("Ready") then
-			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("⏳ กำลังสร้างโลก %d%% · ระหว่างนี้แวะร้านค้าได้", math.floor((s:GetAttribute("LoadProgress") or 0) * 100)))
+			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("กำลังสร้างโลก %d%%", math.floor((s:GetAttribute("LoadProgress") or 0) * 100)))
 		elseif cd >= 0 then
-			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("🧭 ทีม %d คน · ออกเดินทางใน %d วินาที", s:GetAttribute("PortalCount") or 0, cd))
+			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("ทีม %d คน · ออกใน %d วิ", s:GetAttribute("PortalCount") or 0, cd))
 		elseif phase == "Lobby" then
-			HUD.PhaseLabel.Text = UIKit.StripIcons("🌲 เดินขึ้นแท่น \"เริ่มเกม\" ทางขวามือเพื่อออกผจญภัย")
+			HUD.PhaseLabel.Text = UIKit.StripIcons("ขึ้นแท่นเริ่มเกมทางขวามือ")
 		else
-			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("⚔ ทีมกำลังเอาชีวิตรอดคืนที่ %d — ขึ้นแท่นเริ่มเกมเพื่อร่วมทีม", s:GetAttribute("Night") or 1))
+			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("ทีมอยู่คืนที่ %d · ขึ้นแท่นเพื่อร่วมทีม", s:GetAttribute("Night") or 1))
 		end
-		HUD.Hint.Text = HUD.Touch and "เต็นท์ Classes = ร้านคลาส · หม้อเขียว = รางวัลรายวัน · เดินขึ้นแท่นเริ่มเกมเพื่อออกผจญภัย"
-			or "เต็นท์ Classes ตรงหน้า = ร้านคลาส [K]   ·   หม้อเขียวซ้ายมือ = รางวัลประจำวัน   ·   แท่นเริ่มเกม: เดินขึ้นแท่นแล้วเลือกจำนวนคน (1-8)"
+		HUD.Hint.Text = HUD.Touch and "เต็นท์ = คลาส · หม้อเขียว = รางวัลรายวัน"
+			or "[K] ร้านคลาส   ·   หม้อเขียว = รางวัลรายวัน   ·   ขึ้นแท่นเพื่อเริ่มเกม"
 		HUD.TimeFill.Size = UDim2.fromScale(0, 1)
 	elseif phase == "Day" then
-		HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("☀ กลางวัน · ค่ำในอีก %s", fmtTime(remain)))
+		HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("กลางวัน · ค่ำใน %s", fmtTime(remain)))
 		HUD.TimeIcon.Text = "☀"
 		HUD.TimeFill.BackgroundColor3 = C.Gold
 	elseif phase == "Dusk" then
-		HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("⚠ พลบค่ำ · ฝูงสัตว์จะมาในอีก %s", fmtTime(remain)))
+		HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("พลบค่ำ · สัตว์มาใน %s", fmtTime(remain)))
 		HUD.TimeIcon.Text = "🌅"
 		HUD.TimeFill.BackgroundColor3 = C.Fire
 	elseif phase == "Night" then
 		local el = s:GetAttribute("NightElement") or "Earth"
 		local bossHold = (s:GetAttribute("BossHoldEnd") or 0) - now
 		if bossHold > 0 then
-			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("⏳ ฆ่าบอสก่อนรุ่งเช้า · บอสจะหนีในอีก %s", fmtTime(bossHold)))
+			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("ฆ่าบอส · หนีใน %s", fmtTime(bossHold)))
 		else
-			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("%s คืนแห่ง%s · รุ่งเช้าในอีก %s", UIKit.ElementIcon[el] or "", UIKit.ElementThai[el] or "", fmtTime(remain)))
+			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("คืนแห่ง%s · เช้าใน %s", UIKit.ElementThai[el] or "", fmtTime(remain)))
 		end
 		HUD.TimeIcon.Text = s:GetAttribute("BloodMoon") and "🔴" or "🌙"
 		HUD.TimeFill.BackgroundColor3 = UIKit.Colors.Element[el] or C.Gold
@@ -94332,8 +94341,8 @@ function HUD.Update()
 	end
 	if not inLobby then
 		HUD.TimeFill.Size = UDim2.fromScale(frac, 1)
-		HUD.Hint.Text = HUD.Touch and "แตะจอ = ตี/ตัด · โต๊ะคราฟต์ = คราฟต์ · เลือกของในแถบล่าง = สร้าง · 🎒 มุมขวาบน = กระเป๋า"
-			or "[คลิก] ตี/ตัด   [Shift] วิ่ง   [Ctrl] ล็อกกล้อง   [C] คราฟต์   [B] สร้าง   [E] เก็บของ   [F] เอาของออก   [Tab] กระสอบ   [M] แผนที่   [1-9] เลือกของ"
+		HUD.Hint.Text = HUD.Touch and "แตะจอ = ตี · กระเป๋าอยู่มุมซ้ายบน"
+			or "[คลิก] ตี   [Shift] วิ่ง   [C] คราฟต์   [E] เก็บ   [Tab] กระสอบ   [M] แผนที่"
 	end
 	HUD.TimeIcon.Position = UDim2.new(frac, -10, 0.5, -10)
 
@@ -94352,10 +94361,10 @@ function HUD.Update()
 	if campPos and char then
 		local d = ((char:GetPivot().Position - campPos) * Vector3.new(1, 0, 1)).Magnitude
 		if fuel <= 0 then
-			HUD.SafeLabel.Text = UIKit.StripIcons("⚠ ไฟดับ! ไม่มีที่ปลอดภัย")
+			HUD.SafeLabel.Text = UIKit.StripIcons("ไฟดับ! ไม่ปลอดภัย")
 			HUD.SafeLabel.TextColor3 = C.Bad
 		elseif d < safe then
-			HUD.SafeLabel.Text = UIKit.StripIcons(UIKit.Viewport().X < 1100 and "🔥 อยู่ในแสงกองไฟ" or "🔥 อยู่ในแสงกองไฟ (ปลอดภัยจากกวางกลวง)")
+			HUD.SafeLabel.Text = "อยู่ในแสงไฟ"
 			HUD.SafeLabel.TextColor3 = C.Good
 		else
 			HUD.SafeLabel.Text = UIKit.StripIcons(string.format("ห่างกองไฟ %d m", math.floor(d * 0.28)))
@@ -94394,7 +94403,7 @@ function HUD.Update()
 	local downed = player:GetAttribute("Downed")
 	HUD.DownedFrame.Visible = downed == true
 	if downed then
-		HUD.DownedText.Text = UIKit.StripIcons("🩸 คุณล้มลงแล้ว — นอนรอเพื่อนมาช่วย (ใช้ผ้าพันแผล)\nถ้าล้มหมดทั้งทีม = แพ้")
+		HUD.DownedText.Text = UIKit.StripIcons("ล้มแล้ว — รอเพื่อนมาช่วย")
 	end
 
 	-- เข็มทิศ
@@ -94679,6 +94688,18 @@ function HUD.Notify(text, kind)
 		return
 	end
 	kind = KIND_COLOR[kind] and kind or "Info"
+	-- มีป้ายใหญ่อยู่ = เก็บไว้ก่อน แล้วค่อยขึ้นตอนป้ายหาย (ไม่ทับป้าย และไม่หมดเวลาไปตอนถูกซ่อน)
+	if player:GetAttribute("BannerUp") then
+		HUD.Pending = HUD.Pending or {}
+		table.insert(HUD.Pending, { text, kind })
+		return
+	end
+	-- ข้อความเดิมซ้ำภายใน 4 วิ = ไม่ขึ้นซ้ำ
+	HUD.LastNotify = HUD.LastNotify or {}
+	if HUD.LastNotify[text] and os.clock() - HUD.LastNotify[text] < 4 then
+		return
+	end
+	HUD.LastNotify[text] = os.clock()
 	local col = KIND_COLOR[kind]
 	local big = kind == "Danger" or kind == "Reward"
 	HUD.FeedOrder += 1
@@ -94707,13 +94728,13 @@ function HUD.Notify(text, kind)
 			table.insert(children, c)
 		end
 	end
-	if #children > (HUD.Touch and 3 or 4) then
+	if #children > (HUD.Touch and 2 or 3) then
 		table.sort(children, function(a, b)
 			return a.LayoutOrder < b.LayoutOrder
 		end)
 		children[1]:Destroy()
 	end
-	task.delay(big and 6 or 4.5, function()
+	task.delay(big and 4.5 or 3.5, function()
 		if slot.Parent then
 			UIKit.Tween(label, 0.6, { TextTransparency = 1 })
 			UIKit.Tween(band, 0.6, { BackgroundTransparency = 1 })
@@ -96549,6 +96570,18 @@ function MedAnim.Init()
 	Players.PlayerRemoving:Connect(function(p)
 		states[p] = nil
 	end)
+	-- ปุ่ม "ช่วยชีวิต" อยู่บนตัวคนที่ล้ม -> คนล้มเองไม่ต้องเห็น (ปิดเฉพาะเครื่องตัวเอง)
+	local function hideOwnRevive(char)
+		char.DescendantAdded:Connect(function(d)
+			if d:IsA("ProximityPrompt") and d.Name == "Revive" then
+				d.Enabled = false
+			end
+		end)
+	end
+	if player.Character then
+		hideOwnRevive(player.Character)
+	end
+	player.CharacterAdded:Connect(hideOwnRevive)
 	local holder, label, fill = buildBar()
 	RunService.RenderStepped:Connect(function()
 		local time = player:GetAttribute("MedTime")
@@ -102836,7 +102869,7 @@ function WorldEventsClient.Init(state, hud, mapUI, combat)
 		local ok, err = pcall(function()
 			if kind == "Meteor" then
 				local col = C.Element[d.Element] or C.Fire
-				Cinematics.Banner("METEOR STRIKE", string.format("☄ อุกกาบาตธาตุ%sกำลังพุ่งลงสู่ผืนป่า — ไปขุดแกนผลึกก่อนพลบค่ำ!", THAI[d.Element] or ""), col, 3.5, { Size = 58, Y = 0.2 })
+				Cinematics.Banner("METEOR STRIKE", string.format("อุกกาบาตธาตุ%sตก · ไปขุดแกนผลึก", THAI[d.Element] or ""), col, 3.5, { Size = 58, Y = 0.2 })
 				meteor(d, combat)
 			elseif kind == "MeteorClaimed" then
 				local col = C.Element[d.Element] or C.Gold
@@ -102847,12 +102880,12 @@ function WorldEventsClient.Init(state, hud, mapUI, combat)
 				end)
 				sound3d(d.Position, "rbxasset://sounds/volume_slider.ogg", 1.5, 1.4, 300)
 			elseif kind == "Migration" then
-				Cinematics.Banner("THE GREAT MIGRATION", "🦌 ฝูงกวางและกระต่ายกำลังเดินผ่านใกล้แคมป์ — โอกาสล่าเนื้อและหนังสัตว์!", Color3.fromRGB(230, 200, 140), 3.5, { Size = 54, Y = 0.2 })
+				Cinematics.Banner("THE GREAT MIGRATION", "ฝูงสัตว์เดินผ่านใกล้แคมป์", Color3.fromRGB(230, 200, 140), 3.5, { Size = 54, Y = 0.2 })
 			elseif kind == "Supply" then
-				Cinematics.Banner("SUPPLY DROP", "📦 หีบเสบียงร่อนลงจากฟ้า — มองหาควันสีแดง แล้วไปเปิดก่อนพลบค่ำ", Color3.fromRGB(255, 110, 80), 3.5, { Size = 58, Y = 0.2 })
+				Cinematics.Banner("SUPPLY DROP", "มองหาควันสีแดง", Color3.fromRGB(255, 110, 80), 3.5, { Size = 58, Y = 0.2 })
 			elseif kind == "SanctumOpened" then
 				local col = C.Element[d.Element] or C.Gold
-				Cinematics.Banner("SEAL BROKEN", string.format("🏛 ผนึกวิหาร%sคลายแล้ว — ห้องผนึกเปิดออก หีบศักดิ์สิทธิ์รออยู่ข้างใน", THAI[d.Element] or ""), col, 4, { Size = 64 })
+				Cinematics.Banner("SEAL BROKEN", string.format("วิหาร%sเปิดแล้ว", THAI[d.Element] or ""), col, 4, { Size = 64 })
 				local me = myPos()
 				if me and d.Position and (me - d.Position).Magnitude < 250 and combat and combat.Shake then
 					combat.Shake(0.6, 2.5)
@@ -102921,8 +102954,8 @@ function WorldEventsClient.Init(state, hud, mapUI, combat)
 							if dist < 140 and not hinted[el] then
 								hinted[el] = true
 								local solved = state:GetAttribute("Sanctum" .. el .. "Solved")
-								Cinematics.Banner("ANCIENT SANCTUM", solved and ("วิหารโบราณแห่ง" .. THAI[el] .. " · ผนึกถูกคลายไปแล้วในรอบนี้")
-									or ("วิหารโบราณแห่ง" .. THAI[el] .. " · จำลำดับแสงบนเสารูน 3 ต้น แล้วปลุกให้ถูกลำดับภายใน 30 วินาที"), C.Element[el], 4.5, { Size = 60, Y = 0.2 })
+								Cinematics.Banner("ANCIENT SANCTUM", solved and ("วิหาร" .. THAI[el] .. " · คลายผนึกแล้ว")
+									or ("วิหาร" .. THAI[el] .. " · ปลุกเสารูนตามลำดับแสง"), C.Element[el], 4.5, { Size = 60, Y = 0.2 })
 							end
 							local deadline = state:GetAttribute("Sanctum" .. el .. "Deadline")
 							if deadline and dist < 160 then
@@ -102996,8 +103029,73 @@ shot.Changed:Connect(function(v)
 	print("[SHOT] med_" .. v)
 end)
 ]]></ProtectedString></Properties></Item>
+<Item class="LocalScript" referent="RBX0000009B"><Properties><string name="Name">ASNotifyProbe</string><ProtectedString name="Source"><![CDATA[--[[ ASNotifyProbe (client) — build_rbxlx.py --medprobe · ยิงเหตุการณ์ที่เคยซ้อนกันพร้อมกัน แล้วถ่ายจอ: ป้ายใหญ่ต้องขึ้นทีละอัน แถบข้อความไม่ทับป้าย ไม่มีไอคอน/เส้น ]]
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+if not ReplicatedStorage:FindFirstChild("ASMedProbe") then
+	return
+end
+local player = Players.LocalPlayer
+repeat
+	task.wait(0.5)
+until ReplicatedStorage:GetAttribute("MedDone")
+task.wait(2)
+local Client = script.Parent:WaitForChild("Client")
+local Cinematics = require(Client:WaitForChild("Cinematics"))
+local HUD = require(Client:WaitForChild("HUD"))
+local combat = { Shake = function() end }
+local cam = workspace.CurrentCamera
+cam.CameraType = Enum.CameraType.Custom
+
+-- เริ่มคืน: NIGHT + กวางกลวง + ฝูงระลอก + ข้อความแถบ ขึ้นพร้อมกัน (รูป 3 ที่ผู้ใช้ส่งมา)
+Cinematics.Handle("NightStart", { Night = 5, Element = "Earth", Title = "คืนแห่งปฐพี" }, nil, combat)
+Cinematics.Handle("StalkerWarning", { In = 5 }, nil, combat)
+HUD.Notify("🐾 ฝูงสัตว์ระลอกที่ 1 มาแล้ว", "Danger")
+HUD.Notify("มีบางอย่างจ้องมองจากความมืด", "Danger")
+task.wait(1)
+print("[AS] NOTIFY night feedVisible=" .. tostring(HUD.Feed.Visible) .. " bannerUp=" .. tostring(player:GetAttribute("BannerUp")))
+print("[SHOT] notify_night_1s")
+task.wait(4.5)
+print("[SHOT] notify_night_5s")
+task.wait(4)
+local nn = 0
+for _, c in ipairs(HUD.Feed:GetChildren()) do
+	nn += c:IsA("Frame") and 1 or 0
+end
+print("[AS] NOTIFY after feedVisible=" .. tostring(HUD.Feed.Visible) .. " bannerUp=" .. tostring(player:GetAttribute("BannerUp")) .. " shown=" .. nn)
+print("[SHOT] notify_night_9s")
+task.wait(4)
+-- เช้า: DAWN (ไม่มีแล้ว) + DAY
+Cinematics.Handle("Dawn", { Night = 4 }, nil, combat)
+Cinematics.Handle("DayStart", { Day = 5 }, nil, combat)
+task.wait(1)
+print("[SHOT] notify_dawn")
+task.wait(4)
+-- ล้ม: ไม่มีป้าย DOWNED · ข้อความติดจอสั้น
+player:SetAttribute("Downed", true)
+Cinematics.Handle("Downed", {}, nil, combat)
+task.wait(1.5)
+print("[SHOT] notify_downed")
+task.wait(1)
+player:SetAttribute("Downed", nil)
+-- ข้อความซ้ำภายใน 4 วิ = ขึ้นครั้งเดียว
+HUD.Notify("กระสอบเต็ม", "Warn")
+HUD.Notify("กระสอบเต็ม", "Warn")
+HUD.Notify("วัตถุดิบไม่พอ", "Error")
+task.wait(0.5)
+local n = 0
+for _, c in ipairs(HUD.Feed:GetChildren()) do
+	if c:IsA("Frame") then
+		n += 1
+	end
+end
+print("[AS] NOTIFY feed count=" .. n .. " (ควร 2)")
+print("[SHOT] notify_feed")
+task.wait(1)
+print("[AS] NOTIFYPROBE done")
+]]></ProtectedString></Properties></Item>
 </Item>
-<Item class="StarterCharacterScripts" referent="RBX000000A5"><Properties><string name="Name">StarterCharacterScripts</string></Properties><Item class="Script" referent="RBX000000A4"><Properties><string name="Name">Health</string><ProtectedString name="Source"><![CDATA[--[[
+<Item class="StarterCharacterScripts" referent="RBX000000A6"><Properties><string name="Name">StarterCharacterScripts</string></Properties><Item class="Script" referent="RBX000000A5"><Properties><string name="Name">Health</string><ProtectedString name="Source"><![CDATA[--[[
 	Health — แทนสคริปต์ฟื้นเลือดอัตโนมัติของ Roblox (ค่าเริ่มต้นฟื้น 1% ต่อวินาทีตลอดเวลา แม้หิว/กำลังสู้)
 	เกมเอาชีวิตรอดนี้ฟื้นเลือดเองใน SurvivalService: ตอนอิ่ม (>60%) + ไม่โดนตี 8 วินาที, ทักษะคลาส (Regen), อาหาร/ยา
 	(สคริปต์ชื่อ "Health" ใน StarterCharacterScripts = ปิดของเดิมของ Roblox)

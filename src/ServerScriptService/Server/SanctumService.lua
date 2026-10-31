@@ -652,7 +652,6 @@ function SanctumService:Solve(site, player)
 		table.insert(site.Fx, beam)
 	end
 	self.ctx.FireRun("WorldEvent", "SanctumOpened", { Element = el, Position = doorPos, By = player and player.DisplayName })
-	self.ctx.Broadcast(string.format("🏛 ผนึกวิหาร%sคลายแล้ว! หีบศักดิ์สิทธิ์ในห้องผนึกเปิดได้", THAI[el]), "Reward")
 	task.delay(3.5, function()
 		if site.State == "Solved" and not site.Opened and site.ChestPrompt then
 			site.ChestPrompt.Enabled = true
@@ -707,7 +706,7 @@ function SanctumService:OpenChest(site, player)
 			ctx.Notify(p, "✨ ได้รับ" .. AURA_TEXT[el] .. " (ติดตัวทั้งรอบ)", "Reward")
 		end
 	end
-	ctx.Broadcast(string.format("🏛 เคลียร์วิหาร%sแล้ว! คนที่ช่วยกันได้รับ%s", THAI[el], AURA_TEXT[el]), "Reward")
+	ctx.Broadcast(string.format("เคลียร์วิหาร%s · ได้%s", THAI[el], AURA_TEXT[el]), "Reward")
 	for _, p in ipairs(self:NearbyPlayers(site, 70)) do
 		ctx.Services.DataService:AddDiamonds(p, rng:NextInteger(5, 8), "วิหารโบราณ" .. THAI[el])
 	end
@@ -774,7 +773,7 @@ function SanctumService:SealAfterClear(site)
 		return
 	end
 	self:SealPortal(site)
-	self.ctx.Broadcast(string.format("🔒 วิหาร%sปิดผนึกแล้ว — เข้าไม่ได้อีกในรอบนี้", THAI[site.Element]), "Info")
+	self.ctx.Broadcast(string.format("วิหาร%sปิดผนึกแล้ว", THAI[site.Element]), "Info")
 end
 
 ---------------------------------------------------------------- รีเซ็ต (รอบใหม่)

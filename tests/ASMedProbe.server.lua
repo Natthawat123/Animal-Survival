@@ -97,4 +97,5 @@ task.wait(1)
 -- เลือดเต็ม = ไม่ใช้
 surv:UseMedical(player, "Bandage")
 print("[AS] MEDPROBE full hp MedUse=" .. tostring(player:GetAttribute("MedUse")))
+ReplicatedStorage:SetAttribute("MedDone", true)
 print("[AS] MEDPROBE done")

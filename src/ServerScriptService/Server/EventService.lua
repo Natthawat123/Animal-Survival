@@ -247,7 +247,6 @@ function EventService:Meteor(token)
 	ctx.State:SetAttribute("Event_MeteorElement", el)
 	local yaw = self.rng:NextNumber(0, math.pi * 2)
 	ctx.FireRun("WorldEvent", "Meteor", { Position = spot, Element = el, ImpactAt = impactAt, Fall = METEOR_FALL, Yaw = yaw })
-	ctx.Broadcast(string.format("☄ อุกกาบาตธาตุ%sกำลังตก! เปิดแผนที่ (M) ดูจุดตก แล้วไปขุดแกนผลึกก่อนพลบค่ำ", THAI[el]), "Reward")
 
 	local model = Instance.new("Model")
 	model.Name = "MeteorCrater"
@@ -446,7 +445,7 @@ function EventService:Meteor(token)
 			end
 			ctx.Remotes.Get("HitFx"):FireClient(player, "Loot", { Items = got, Position = core.Position, Chest = true })
 			ctx.FireRun("WorldEvent", "MeteorClaimed", { Position = core.Position, Element = el })
-			ctx.Broadcast(string.format("💎 %s ขุดแกนอุกกาบาตธาตุ%sสำเร็จ!", player.DisplayName, THAI[el]), "Good")
+			ctx.Broadcast(string.format("%s ขุดแกนอุกกาบาต%sได้", player.DisplayName, THAI[el]), "Good")
 			ctx.State:SetAttribute("Event_Meteor", nil)
 			-- แกนแตก
 			for _, s in ipairs(shards) do
@@ -534,7 +533,6 @@ function EventService:Migration(token)
 	end)
 	ctx.State:SetAttribute("Event_Migration", path[1])
 	ctx.FireRun("WorldEvent", "Migration", { Position = path[1], To = path[#path] })
-	ctx.Broadcast("🦌 ฝูงสัตว์อพยพกำลังเดินผ่านใกล้แคมป์! โอกาสล่าเนื้อและหนังสัตว์ (ดูแผนที่ M)", "Reward")
 	task.spawn(function()
 		local t0 = os.clock()
 		while not done and self:Valid(token) and os.clock() - t0 < 170 do
@@ -638,7 +636,6 @@ function EventService:Supply(token)
 	ctx.State:SetAttribute("Event_Supply", spot)
 	local fall = 17
 	ctx.FireRun("WorldEvent", "Supply", { Position = spot, LandAt = Workspace:GetServerTimeNow() + fall })
-	ctx.Broadcast("📦 หีบเสบียงกำลังร่อนลงจากฟ้า! มองหาควันสีแดง (ดูแผนที่ M)", "Reward")
 	task.spawn(function()
 		local t0 = os.clock()
 		while not done and model.Parent do
@@ -695,7 +692,7 @@ function EventService:Supply(token)
 			give(ESSENCE[ELEMENTS[rng:NextInteger(1, 4)]], 1)
 			ctx.Services.DataService:AddDiamonds(player, rng:NextInteger(2, 3), "หีบเสบียง")
 			ctx.Remotes.Get("HitFx"):FireClient(player, "Loot", { Items = got, Position = pos, Chest = true })
-			ctx.Broadcast(string.format("📦 %s เปิดหีบเสบียงแล้ว!", player.DisplayName), "Good")
+			ctx.Broadcast(string.format("%s เปิดหีบเสบียงแล้ว", player.DisplayName), "Good")
 			ctx.State:SetAttribute("Event_Supply", nil)
 			task.delay(6, function()
 				smoke.Enabled = false

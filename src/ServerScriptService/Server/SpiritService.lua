@@ -161,7 +161,7 @@ function SpiritService:SpawnGuardians(sh)
 	end
 	sh.GuardiansSpawned = true
 	if not intro then
-		self.ctx.Broadcast(string.format("⚔ ผู้พิทักษ์ศาลเจ้า%s ตื่นขึ้นแล้ว! ปราบให้หมดเพื่อปลดผนึก", sh.Element), "Warn")
+		self.ctx.Broadcast(string.format("ผู้พิทักษ์ศาลเจ้า%sตื่นแล้ว", sh.Element), "Warn")
 		return
 	end
 	local cin = self.ctx.Remotes.Get("Cinematic")
@@ -191,7 +191,7 @@ function SpiritService:SpawnGuardians(sh)
 		end
 	end)
 	task.delay(INTRO_TIME, function()
-		self.ctx.Broadcast(string.format("⚔ ผู้พิทักษ์ศาลเจ้า%s ตื่นขึ้นแล้ว! ปราบให้หมดเพื่อปลดผนึก", sh.Element), "Warn")
+		self.ctx.Broadcast(string.format("ผู้พิทักษ์ศาลเจ้า%sตื่นแล้ว", sh.Element), "Warn")
 	end)
 end
 
@@ -248,7 +248,7 @@ function SpiritService:Free(el, player)
 			end)
 		end)
 	end
-	self.ctx.Broadcast(string.format("✨ %s ปลดปล่อย %s แล้ว!", player.DisplayName, a.Info.Thai), "Reward")
+	self.ctx.Broadcast(string.format("%s ปลดปล่อย %s แล้ว", player.DisplayName, a.Info.Thai), "Reward")
 	task.delay(CLEAR_PILLAR, function()
 		if sh.Model.Parent then
 			self:RaisePillar(sh, false)
@@ -579,7 +579,7 @@ function SpiritService:OnBossKilled(a)
 		sigil.Color = Color3.fromRGB(255, 220, 120)
 		sigil.Transparency = 0.3
 	end
-	self.ctx.Broadcast(string.format("💀 ปราบ %s แล้ว! บอสจะกลับมาเกิดใหม่ที่รังในอีก %d นาที", a.Info.Thai, LAIR_RESPAWN / 60), "Reward")
+	self.ctx.Broadcast(string.format("ปราบ %s แล้ว · เกิดใหม่ใน %d นาที", a.Info.Thai, LAIR_RESPAWN / 60), "Reward")
 end
 
 -- บอสในรังกลับมาเกิด (ครบเวลา): รังพร้อมปลุกอีกครั้งเมื่อมีคนเข้าใกล้
@@ -596,7 +596,7 @@ function SpiritService:RespawnLair(lair)
 	end
 	local id = ({ Earth = "Terragon", Water = "Leviathan", Air = "TempestRoc", Fire = "Solfang" })[el]
 	local info = Animals.Data[id]
-	self.ctx.Broadcast(string.format("⚠ %s ฟื้นคืนชีพที่รังแล้ว! (ดูแผนที่ M)", info and info.Thai or "บอส"), "Warn")
+	self.ctx.Broadcast(string.format("%s ฟื้นที่รังแล้ว", info and info.Thai or "บอส"), "Warn")
 end
 
 ---------------------------------------------------------------- loop
@@ -617,7 +617,7 @@ function SpiritService:Tick()
 				end
 				if alive == 0 then
 					sh.Prompt.Enabled = true
-					self.ctx.Broadcast(string.format("🔓 ผนึกศาลเจ้า%s อ่อนลงแล้ว — กด E ค้างเพื่อปลดปล่อย", el), "Good")
+					self.ctx.Broadcast(string.format("ผนึกศาลเจ้า%sอ่อนลง · กด E ค้าง", el), "Good")
 				end
 			end
 			-- ไม่มีคนอยู่ใกล้นาน -> ผู้เฝ้ากลับไป (เกิดใหม่รอบหน้า)
