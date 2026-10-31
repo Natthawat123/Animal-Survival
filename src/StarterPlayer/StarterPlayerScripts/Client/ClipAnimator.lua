@@ -24,6 +24,7 @@ local DUST_COLOR = {
 	Earth = { Color3.fromRGB(196, 176, 138), Color3.fromRGB(150, 132, 104) },
 	Snow = { Color3.fromRGB(240, 248, 255), Color3.fromRGB(196, 220, 240) },
 	Ash = { Color3.fromRGB(150, 120, 104), Color3.fromRGB(90, 70, 64) },
+	Sand = { Color3.fromRGB(236, 218, 170), Color3.fromRGB(200, 182, 140) },
 }
 local function dustEmitter(parent, size, kind)
 	local c = DUST_COLOR[kind or "Earth"] or DUST_COLOR.Earth
@@ -214,6 +215,8 @@ ATTACKS.MagmaRhino = { Pose = headbutt, Fx = { { "VFXPack/Anime/Fire-02", 1.0, 0
 ATTACKS.LavaSalamander = { Pose = tailStrike, Fx = { { "VFXPack/Anime/Fire-01", 0.8, 0.2 } }, FxAt = 0.9 }
 ATTACKS.GaleHawk = { Pose = slam, Fx = { { "IceStomp", 1.6, 0.3 } }, Dust = 1.8, DustKind = "Snow", FxAt = 0.75, Ground = true }
 ATTACKS.SkyLynx = { Pose = pounce, Fx = { { "VFXPack/Anime/Shiny-01", 1.4, 0.2 } }, Dust = 0.9, DustKind = "Snow", FxAt = 1.0 }
+-- ปู: ท่าโจมตีมาจากไฟล์ (Clips) · ตอนก้ามกระแทก = น้ำแตกกระจาย + ทรายฟุ้ง
+ATTACKS.ReefCrab = { Fx = { { "WaterSplash", 1.1, 0.3 }, { "VFXPack/Anime/Shiny-01", 0.9, 0.2 } }, Dust = 1.3, DustKind = "Sand", FxAt = 0.85, Ground = true, HitAt = 0.42 }
 ATTACKS.StormRam = { Pose = headbutt, Fx = { { "IceStomp", 1.1, 0.25 } }, Dust = 1.4, DustKind = "Snow", FxAt = 1.0, Ground = true,
 	States = CHARGE_STATES, ChargeDust = true }
 
@@ -225,7 +228,23 @@ local function clipFor(id)
 		local mod = folder and folder:FindFirstChild(id)
 		if mod then
 			local ok, data = pcall(require, mod)
-			if ok and data and data.Bones then
+			if ok and data and data.Clips then
+				-- หลายท่า (เดิน/ยืน/โจมตี/ตาย) -> Walk เป็นท่าหลัก
+				local set = {}
+				for name, c in pairs(data.Clips) do
+					local bones = {}
+					for bname, frames in pairs(c.Bones) do
+						local list = {}
+						for i, f in ipairs(frames) do
+							list[i] = CFrame.new(f[1], f[2], f[3], f[4], f[5], f[6], f[7])
+						end
+						bones[bname] = list
+					end
+					set[name] = { Frames = c.Frames, Bones = bones }
+				end
+				local walk = set.Walk
+				clips[id] = { Fps = data.Fps, Frames = walk.Frames, Bones = walk.Bones, Set = set, RootBone = data.RootBone }
+			elseif ok and data and data.Bones then
 				-- แปลงเป็น CFrame ล่วงหน้า (ไม่ต้องสร้างใหม่ทุกเฟรม)
 				local bones = {}
 				for name, frames in pairs(data.Bones) do
@@ -255,8 +274,18 @@ function ClipAnimator.Attach(rig)
 	local scale = rig.Model:GetAttribute("SkinScale") or 1
 	local tracks = {}
 	for _, b in ipairs(mesh:GetDescendants()) do
-		if b:IsA("Bone") and clip.Bones[b.Name] then
-			table.insert(tracks, { Bone = b, Frames = clip.Bones[b.Name] })
+		if b:IsA("Bone") then
+			if clip.Set then
+				local any = false
+				for _, c in pairs(clip.Set) do
+					any = any or c.Bones[b.Name] ~= nil
+				end
+				if any then
+					table.insert(tracks, { Bone = b, Frames = clip.Bones[b.Name] })
+				end
+			elseif clip.Bones[b.Name] then
+				table.insert(tracks, { Bone = b, Frames = clip.Bones[b.Name] })
+			end
 		end
 	end
 	-- ทิศท่ายืนของกระดูก (เทียบตัวสัตว์) ไว้แปลงท่าโจมตีจากแกนตัวสัตว์ -> แกนกระดูก
@@ -295,10 +324,123 @@ function ClipAnimator.Attach(rig)
 	return true
 end
 
+-- ---------------------------------------------------------------- หลายท่าจากไฟล์ (ปู: Clips)
+local function sample(c, bone, t, fps, loop)
+	local list = c and c.Bones[bone]
+	if not list then
+		return CFrame.identity
+	end
+	local n = c.Frames
+	local f = t * fps
+	f = loop and f % math.max(n - 1, 1) or math.min(f, n - 1)
+	local i0 = math.floor(f)
+	local a = list[i0 + 1] or list[n]
+	local b = list[i0 + 2] or (loop and list[1] or list[n])
+	return a:Lerp(b, f - i0)
+end
+local ATTACK_CLIPS = { "AttackL", "AttackR", "AttackL", "AttackR", "Heavy" }
+local function animateSet(rig, C, dt, speed)
+	local set, fps = C.Data.Set, C.Data.Fps
+	local now = os.clock()
+	local A = C.Attack
+	-- เดิน/ยืน: ผสมตามความเร็วจริง (ขาไม่ไถลพื้น)
+	local rate = speed < 0.6 and 0 or math.clamp(speed / 8, 0.6, 2.2)
+	C.WalkT = (C.WalkT or 0) + dt * rate
+	C.IdleT = (C.IdleT or 0) + dt
+	C.WalkW = (C.WalkW or 0) + (math.clamp((speed - 0.6) / 4, 0, 1) - (C.WalkW or 0)) * math.min(1, dt * 6)
+	-- โจมตี: สลับก้ามซ้าย/ขวา ทุกครั้งที่ 5 = ทุบหนัก · คำราม = ท่าคำราม
+	if rig.AttackT and rig.AttackT > 0 and rig.AttackT ~= C.LastAttack then
+		C.LastAttack = rig.AttackT
+		local name, sp
+		if rig.AttackKind == "Roar" and set.Roar then
+			name, sp = "Roar", 1.3
+		else
+			C.AtkN = (C.AtkN or 0) + 1
+			name = ATTACK_CLIPS[(C.AtkN - 1) % #ATTACK_CLIPS + 1]
+			sp = name == "Heavy" and 1.7 or 1.45
+		end
+		if set[name] then
+			C.Atk = { Name = name, Start = now, Speed = sp }
+			if A and A.Fx then
+				task.delay(A.HitAt or 0.3, function()
+					local root = rig.Root
+					if not (root and root.Parent) then
+						return
+					end
+					local size = rig.Model:GetExtentsSize()
+					local pos = root.Position + root.CFrame.LookVector * (math.max(size.X, size.Z) * 0.5 * (A.FxAt or 1))
+					if A.Ground then
+						local hum = rig.Model:FindFirstChildOfClass("Humanoid")
+						pos -= Vector3.new(0, root.Size.Y / 2 + (hum and hum.HipHeight or 0), 0)
+					end
+					local k = name == "Heavy" and 1.5 or 1
+					for _, fx in ipairs(A.Fx) do
+						pcall(VFXLib.Play, fx[1], CFrame.new(pos), { Scale = fx[2] * k * math.max(size.X, size.Z) / 9, Duration = fx[3] })
+					end
+					if A.Dust then
+						dustBurst(pos, A.Dust * k * math.max(size.X, size.Z) / 9, A.DustKind)
+					end
+				end)
+			end
+		end
+	end
+	local atk, atkT, atkW = nil, 0, 0
+	if C.Atk then
+		local c = set[C.Atk.Name]
+		atkT = (now - C.Atk.Start) * C.Atk.Speed
+		local dur = (c.Frames - 1) / fps
+		if atkT >= dur then
+			C.Atk = nil
+		else
+			atk = c
+			atkW = math.clamp(math.min(atkT / 0.1, (dur - atkT) / 0.25), 0, 1)
+		end
+	end
+	local dead = rig.DeadT and set.Dead
+	local deadT = rig.DeadT and (now - rig.DeadT) or 0
+	updateSlope(rig, C, dt)
+	local look = rig.Root.CFrame.LookVector
+	local yaw = math.atan2(-look.X, -look.Z)
+	C.VisYaw = C.VisYaw or yaw
+	local diff = (yaw - C.VisYaw + math.pi) % (2 * math.pi) - math.pi
+	C.VisYaw += diff * math.min(1, dt * 10)
+	local lag = math.clamp(((C.VisYaw - yaw + math.pi) % (2 * math.pi)) - math.pi, -0.8, 0.8)
+	C.VisYaw = yaw + lag
+	local slopeRot = R(0, lag, 0) * R(C.Pitch, 0, C.Roll)
+	local slopeLift = Vector3.new(0, C.Lift, 0)
+	local rootBone = C.Data.RootBone or "Hips"
+	for _, tr in ipairs(C.Tracks) do
+		local name = tr.Bone.Name
+		local cf
+		if dead then
+			cf = sample(dead, name, deadT, fps, false)
+		else
+			cf = sample(set.Idle, name, C.IdleT, fps, true):Lerp(sample(set.Walk, name, C.WalkT, fps, true), C.WalkW)
+			if atk then
+				cf = cf:Lerp(sample(atk, name, atkT, fps, false), atkW)
+			end
+		end
+		local tf = cf.Rotation + cf.Position * C.Scale
+		local rs = tr.Rest
+		if rs and name == rootBone then
+			tf = CFrame.new(rs.Qi:VectorToWorldSpace(slopeLift)) * (rs.Qi * slopeRot * rs.Q) * tf
+		end
+		tr.Bone.Transform = tf
+	end
+end
+
+function ClipAnimator.HasDeath(rig)
+	return rig.Clip ~= nil and rig.Clip.Data.Set ~= nil and rig.Clip.Data.Set.Dead ~= nil
+end
+
 -- เรียกทุกเฟรม: speed = ความเร็วเดินแนวราบ (studs/วินาที)
 function ClipAnimator.Animate(rig, dt, speed)
 	local C = rig.Clip
 	if not C then
+		return
+	end
+	if C.Data.Set then
+		animateSet(rig, C, dt, speed)
 		return
 	end
 	local data = C.Data

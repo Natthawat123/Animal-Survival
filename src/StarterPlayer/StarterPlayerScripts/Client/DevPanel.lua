@@ -299,7 +299,17 @@ function DevPanel.Build()
 
 	local panel = Instance.new("Frame")
 	panel.Size = UDim2.fromOffset(560, 520)
-	panel.Position = UDim2.new(0.5, -280, 0.5, -260)
+	panel.AnchorPoint = Vector2.new(0.5, 0.5)
+	panel.Position = UDim2.new(0.5, 0, 0.5, 18)
+	-- จอเล็ก (มือถือ): ย่อทั้งหน้าต่างให้พอดีจอ ไม่ล้นใต้แถบบนของ Roblox
+	local fit = Instance.new("UIScale")
+	fit.Parent = panel
+	local function refit()
+		local vp = workspace.CurrentCamera.ViewportSize
+		fit.Scale = math.clamp(math.min((vp.Y - 90) / 520, (vp.X - 24) / 560), 0.45, 1)
+	end
+	refit()
+	workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(refit)
 	panel.BackgroundColor3 = C(20, 22, 28)
 	panel.BackgroundTransparency = 0.05
 	panel.Visible = false

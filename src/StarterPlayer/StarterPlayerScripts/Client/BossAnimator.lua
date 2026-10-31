@@ -40,8 +40,10 @@ local ROLES = {
 		ThighR = "Bone_015", ShinR = "Bone_014", ThighL = "Bone_010", ShinL = "Bone_009",
 		Tail1 = "Bone_024", Tail2 = "Bone_023", Tail3 = "Bone_022", Tail4 = "Bone_021", Tail5 = "Bone_020", Tail6 = "Bone_019", Tail7 = "Bone_018",
 	},
+	-- โมซาซอรัส: โครงกระดูกเริ่มที่หัว (Root/Neck อยู่ที่หัว ลำตัว Body1.. ห้อยจากคอ) -> ห้ามหมุน Neck (= หมุนทั้งตัวรอบหัว)
+	--   หัน/ก้มเงยด้วย Head (ลูก: Skull -> Jaw ปากล่าง + Snout ปากบน)
 	Leviathan = {
-		Root = "Bone_000", Neck = "Bone_001", Head = "Bone_003", Jaw = "Bone_007",
+		Root = "Bone_000", Neck = "Bone_001", Head = "Bone_003", Jaw = "Bone_007", Snout = "Bone_009",
 		Body1 = "Bone_005", Body2 = "Bone_004", Body3 = "Bone_011", Body4 = "Bone_010", Body5 = "Bone_023", Body6 = "Bone_022",
 		Tail1 = "Bone_038", Tail2 = "Bone_037", Tail3 = "Bone_036",
 		FlipperFR = "Bone_016", FlipperFL = "Bone_021", FlipperBR = "Bone_031", FlipperBL = "Bone_035",
@@ -208,9 +210,11 @@ local function dragon(P, B, t, w, ph, cast, age, cw, flying)
 		add(P, "Tail" .. i, 0.03, sin(t * 1.8 - i * 0.55) * (0.07 + i * 0.022), 0)
 	end
 	local breathe = sin(t * 1.2)
+	-- ท่าตั้งต้นของโมเดลคอ/หัวก้มลงหาพื้น -> เงยคอเป็นโค้ง S และเชิดหัวให้มองไปข้างหน้า (เห็นหน้า/ปาก)
 	for i, role in ipairs({ "Neck1", "Neck2", "Neck3", "Neck4" }) do
-		add(P, role, breathe * 0.03, sin(t * 0.7 + i * 0.5) * 0.05, 0)
+		add(P, role, breathe * 0.03 + (i <= 2 and 0.12 or 0.04), sin(t * 0.7 + i * 0.5) * 0.05, 0)
 	end
+	add(P, "Head", 0.28, 0, 0)
 	add(P, "Chest", breathe * 0.04, 0, 0)
 	add(P, "Jaw", -0.05 - max(0, sin(t * 0.9)) * 0.08, 0, 0)
 	if flying then
@@ -237,10 +241,10 @@ local function dragon(P, B, t, w, ph, cast, age, cw, flying)
 	if cast == "Roar" then
 		local shake = sin(t * 30) * 0.04 * k
 		for _, role in ipairs({ "Neck1", "Neck2", "Neck3", "Neck4" }) do
-			add(P, role, 0.16 * k, shake, 0)
+			add(P, role, 0.2 * k, shake, 0)
 		end
-		add(P, "Head", 0.25 * k, 0, 0)
-		add(P, "Jaw", -0.85 * k, 0, 0)
+		add(P, "Head", 0.35 * k, 0, 0)
+		add(P, "Jaw", -0.95 * k, 0, 0)
 		add(P, "WingL1", 0, 0, -0.7 * k)
 		add(P, "WingR1", 0, 0, 0.7 * k)
 		add(P, "Hips", 0.15 * k, 0, 0)
@@ -268,36 +272,47 @@ end
 
 local function mosasaur(P, B, t, w, cast, age, cw)
 	local speed = 1.2 + w * 2.2
-	local amp = 0.07 + w * 0.06
+	local amp = 0.05 + w * 0.05
+	-- ลำตัวว่ายส่ายเป็นคลื่นจากคอไปหาง (ช่วงหน้าแกว่งน้อย หางแกว่งมาก)
 	local chain = { "Body1", "Body2", "Body3", "Body4", "Body5", "Body6", "Tail1", "Tail2", "Tail3" }
 	for i, role in ipairs(chain) do
-		add(P, role, sin(t * speed * 0.5 - i * 0.4) * 0.015, sin(t * speed - i * 0.6) * amp * (0.4 + i * 0.13), 0)
+		local k = (i - 1) / (#chain - 1)
+		add(P, role, sin(t * speed * 0.5 - i * 0.4) * 0.012, sin(t * speed - i * 0.55) * amp * (0.25 + k * 1.1), 0)
 	end
+	-- หัวส่ายสวนลำตัวเล็กน้อย (หัวนิ่งกว่าตัว ดูมีน้ำหนัก)
+	add(P, "Head", 0, -sin(t * speed + 0.6) * amp * 0.35, 0)
 	local pad = sin(t * speed) * 0.35
 	add(P, "FlipperFL", 0, 0, -0.2 - pad)
 	add(P, "FlipperFR", 0, 0, 0.2 + pad)
 	add(P, "FlipperBL", 0, 0, -0.15 + pad * 0.6)
 	add(P, "FlipperBR", 0, 0, 0.15 - pad * 0.6)
-	add(P, "Jaw", -0.04 - max(0, sin(t * 0.8)) * 0.1, 0, 0)
-	add(P, "Root", 0, 0, 0, 0, sin(t * speed * 0.5) * 0.02 * B.H)
+	-- หายใจ: ปากขยับนิดๆ
+	add(P, "Jaw", -0.03 - max(0, sin(t * 0.8)) * 0.07, 0, 0)
+	add(P, "Root", 0, 0, 0, 0, sin(t * speed * 0.5) * 0.015 * B.H)
 	if not cast then
 		return
 	end
 	local A, Hh = castWeights(age, cw)
 	local k = max(A, Hh)
 	if cast == "Rear" or cast == "Slam" then
-		-- ยกหัวขึ้นสูง -> ฟาดลง
-		add(P, "Neck", 0.35 * A - 0.25 * Hh, 0, 0)
-		add(P, "Head", 0.3 * A - 0.2 * Hh, 0, 0)
-		add(P, "Body1", 0.25 * A - 0.15 * Hh, 0, 0)
-		add(P, "Body2", 0.15 * A, 0, 0)
-		add(P, "Jaw", -0.6 * A - 0.2 * Hh, 0, 0)
-		add(P, "Root", 0, 0, 0, 0, 0.06 * B.H * A)
+		-- ยกหัว/อกขึ้นสูง (ยกทั้งตัวแล้วเอียงลำตัวให้หางยังแตะพื้น) อ้าปาก -> ฟาดหัวลง
+		local lift = 0.22 * B.H * A - 0.08 * B.H * Hh
+		local tilt = math.atan2(lift, B.L * 0.55)
+		add(P, "Root", 0, 0, 0, 0, lift)
+		add(P, "Body1", tilt * 0.6, 0, 0)
+		add(P, "Body2", tilt * 0.4, 0, 0)
+		add(P, "Head", 0.25 * A - 0.45 * Hh, 0, 0)
+		add(P, "Jaw", -0.75 * A - 0.25 * Hh, 0, 0)
+		add(P, "Snout", 0.12 * A, 0, 0)
+		add(P, "FlipperFL", 0, 0, -0.5 * A)
+		add(P, "FlipperFR", 0, 0, 0.5 * A)
 	elseif cast == "Roar" then
 		local shake = sin(t * 28) * 0.04 * k
-		add(P, "Neck", 0.2 * k, shake, 0)
-		add(P, "Head", 0.25 * k, 0, 0)
-		add(P, "Jaw", -0.9 * k, 0, 0)
+		add(P, "Root", 0, 0, 0, 0, 0.06 * B.H * k)
+		add(P, "Body1", 0.08 * k, 0, 0)
+		add(P, "Head", 0.3 * k, shake, shake * 0.5)
+		add(P, "Jaw", -0.95 * k, 0, 0)
+		add(P, "Snout", 0.18 * k, 0, 0)
 	end
 end
 
@@ -339,8 +354,7 @@ local function lookAt(P, B, rig, dt)
 		end
 		add(P, "Head", pitch * 0.4, yaw * 0.28, 0)
 	elseif B.Kind == "Mosasaur" then
-		add(P, "Neck", pitch * 0.4, yaw * 0.45, 0)
-		add(P, "Head", pitch * 0.4, yaw * 0.45, 0)
+		add(P, "Head", pitch * 0.6, yaw * 0.55, 0) -- เฉพาะหัว (Neck = หมุนทั้งตัว)
 	else
 		add(P, "Neck", pitch * 0.4, yaw * 0.4, 0)
 		add(P, "Head", pitch * 0.6, yaw * 0.6, 0)

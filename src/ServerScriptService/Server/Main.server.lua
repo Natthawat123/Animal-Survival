@@ -32,8 +32,10 @@ State:SetAttribute("LoadProgress", 0)
 State:SetAttribute("Night", 1)
 State.Parent = ReplicatedStorage
 
+-- เซิร์ฟเวอร์ทีมที่เปิดใหม่เพื่อเล่นรอบเดิมต่อ (ทุกคนหลุดออกไปก่อนหน้า) -> ใช้ seed เดิม = แมพเดิม
+local resume = require(script.Parent:WaitForChild("RejoinService")).LoadHeldRun()
 local seedValue = ReplicatedStorage:FindFirstChild("ASSeed")
-local seed = (seedValue and seedValue.Value) or Config.Seed or Random.new():NextInteger(1, 2 ^ 30)
+local seed = (resume and resume.Seed) or (seedValue and seedValue.Value) or Config.Seed or Random.new():NextInteger(1, 2 ^ 30)
 State:SetAttribute("Seed", seed)
 State:SetAttribute("MapSize", Config.MapSize)
 State:SetAttribute("WaterLevel", Config.WaterLevel)
@@ -56,6 +58,7 @@ local ctx = {
 	Config = Config,
 	Layout = layout,
 	Seed = seed,
+	Resume = resume,
 	State = State,
 	Remotes = Remotes,
 	Services = {},
@@ -80,10 +83,10 @@ end
 
 local order = {
 	"DataService", "DevService", "InventoryService", "DropService", "SurvivalService", "LobbyService", "MonetizationService", "ResourceService", "CampService", "BuildingService",
-	"CombatService", "AnimalService", "SpiritService", "LootService", "TraderService", "DirectorService",
+	"CombatService", "AnimalService", "SpiritService", "MountService", "LootService", "TraderService", "DirectorService",
 	"FriendService", "SeasonService", "QuestService",
 	"PingService", "RejoinService",
-	"EventService", "SanctumService",
+	"EventService", "SanctumService", "PortalService",
 }
 for _, name in ipairs(order) do
 	ctx.Services[name] = require(Server:WaitForChild(name))
@@ -139,7 +142,7 @@ for _, site in ipairs(layout.SiteList) do
 end
 
 -- ช่วงที่ 2: ระบบในแมพ
-start({ "DropService", "ResourceService", "CampService", "BuildingService", "CombatService", "AnimalService", "SpiritService", "LootService", "TraderService", "DirectorService", "PingService", "EventService", "SanctumService" })
+start({ "DropService", "ResourceService", "CampService", "BuildingService", "CombatService", "AnimalService", "SpiritService", "MountService", "LootService", "TraderService", "DirectorService", "PingService", "EventService", "SanctumService", "PortalService" })
 
 -- โหมดลองเล่น: ของเต็มกระเป๋า
 if ReplicatedStorage:FindFirstChild("ASSandbox") then

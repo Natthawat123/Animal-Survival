@@ -8,6 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
+local Config = require(ReplicatedStorage.Shared.Config)
 local Items = require(ReplicatedStorage.Shared.Items)
 
 local ResourceService = {}
@@ -19,6 +20,21 @@ function ResourceService:Init(ctx)
 end
 
 -- หา node ใกล้จุดนั้นที่สุด
+-- รัศมีฐานของ node (ลำต้น/ตัวหิน) แนวนอน: ต้นไม้ใช้ Collider ลำต้น · อื่นๆ ใช้กรอบโมเดล
+function ResourceService:Footprint(node)
+	local col = node:FindFirstChild("Collider")
+	if col and col:IsA("BasePart") then
+		return math.max(col.Size.Y, col.Size.Z) / 2
+	end
+	if node:IsA("Model") then
+		local _, size = node:GetBoundingBox()
+		return math.clamp(math.min(size.X, size.Z) / 2, 0.5, 8)
+	elseif node:IsA("BasePart") then
+		return math.clamp(math.min(node.Size.X, node.Size.Z) / 2, 0.5, 8)
+	end
+	return 1.5
+end
+
 function ResourceService:FindNode(position, radius)
 	local world = Workspace:FindFirstChild("World")
 	if not world then
@@ -66,33 +82,14 @@ end
 function ResourceService:Fell(node, from)
 	node:SetAttribute("Depleted", true)
 	local kind = node:GetAttribute("Node")
-	if kind == "Tree" then
-		-- ต้นไม้ล้มไปทางตรงข้ามกับคนฟัน แล้วจางหาย
-		local pivot = node:GetPivot()
-		local dir = (pivot.Position - from) * Vector3.new(1, 0, 1)
-		if dir.Magnitude < 0.1 then
-			dir = Vector3.new(1, 0, 0)
-		end
-		dir = dir.Unit
-		local axis = Vector3.new(0, 1, 0):Cross(dir)
-		local value = Instance.new("NumberValue")
-		value.Value = 0
-		local conn = value.Changed:Connect(function(v)
-			node:PivotTo(CFrame.fromAxisAngle(axis, math.rad(v)) * (pivot - pivot.Position) + pivot.Position)
-		end)
-		local tw = TweenService:Create(value, TweenInfo.new(1.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Value = 88 })
-		tw:Play()
-		self.ctx.Remotes.Get("HitFx"):FireAllClients("TreeFall", { Position = pivot.Position })
-		task.delay(2.2, function()
-			conn:Disconnect()
-			value:Destroy()
+	-- แอนิเมชันล้ม/แตกเล่นฝั่งเครื่องผู้เล่น (BreakFX: โคลนโมเดลไปเล่นลื่นๆ ตามวัสดุ — ต้นไม้ล้มตามทิศที่ฟัน/หินแตกเป็นก้อน/คริสตัลแตกเป็นเศษ)
+	-- เซิร์ฟเวอร์แค่ซ่อนของจริง (หน่วงนิดให้เครื่องผู้เล่นโคลนทันก่อน)
+	self.ctx.Remotes.Get("HitFx"):FireAllClients("NodeBreak", { Node = node, Kind = kind, Position = node:GetPivot().Position, From = from, Yield = node:GetAttribute("Yield") })
+	task.delay(0.3, function()
+		if node:GetAttribute("Depleted") then
 			setVisible(node, false)
-			node:PivotTo(pivot)
-		end)
-	else
-		self.ctx.Remotes.Get("HitFx"):FireAllClients("Shatter", { Position = node:GetPivot().Position, Kind = kind })
-		setVisible(node, false)
-	end
+		end
+	end)
 	local regrow = node:GetAttribute("Regrow") or 240
 	task.delay(regrow, function()
 		if node.Parent then
@@ -103,21 +100,25 @@ function ResourceService:Fell(node, from)
 	end)
 end
 
--- ตี node: power = แรงของเครื่องมือ (Chop/Mine)
+-- ตี node: power = แรงของเครื่องมือ (Chop/Mine) · พุ่มเบอร์รี่ = ฟันไม่พัง ไม่ได้อะไร
 function ResourceService:Hit(player, node, tool)
 	local kind = node:GetAttribute("Node")
 	local surv = self.ctx.Services.SurvivalService
+	if kind == "Bush" then
+		return false -- พุ่มเบอร์รี่: ฟันไม่ได้อะไร (กินที่พุ่มอย่างเดียว)
+	end
 	local power
 	if kind == "Tree" then
 		power = (tool.Chop or 0) * surv:Perk(player, "ChopMult", 1)
-	elseif kind == "Bush" then
-		power = 1
 	else
 		power = (tool.Mine or 0) * surv:Perk(player, "MineMult", 1)
 	end
 	if power <= 0 then
 		self.ctx.Notify(player, kind == "Tree" and "ต้องใช้ขวานตัดไม้" or "ต้องใช้ขวาน/อีเต้อทุบ", "Error")
 		return false
+	end
+	if kind == "Tree" or kind == "Rock" then
+		power = math.max(power, 1) -- เครื่องมืออ่อนสุดก็ตีครบ 6/10 ครั้ง ไม่ลากยาวกว่านั้น · เครื่องมือแรงกว่า = เร็วกว่า
 	end
 	local hp = node:GetAttribute("HP") or 1
 	local dealt = math.min(hp, power)
@@ -127,24 +128,20 @@ function ResourceService:Hit(player, node, tool)
 	local per = node:GetAttribute("YieldPerHP") or 1
 	-- เก็บเศษไว้ (ทศนิยม) ต่อ node ต่อคน
 	local key = "Frac_" .. player.UserId
-	local amount = dealt * per + (node:GetAttribute(key) or 0)
-	if kind == "Bush" then
-		amount = (node:GetAttribute("Amount") or 2) + surv:Perk(player, "ExtraDrops", 0)
-	end
-	local whole = math.floor(amount)
-	node:SetAttribute(key, amount - whole)
-	if Items.Data[yield] and Items.Data[yield].Category == "Essence" then
-		whole = math.floor(whole * surv:Perk(player, "EssenceMult", 1) + 0.5)
-	end
+	local amount = dealt * per * Config.LootMult + (node:GetAttribute(key) or 0)
+	local whole = hp <= 0 and math.floor(amount + 0.5) or math.floor(amount) -- ทุบจบ = ปัดเศษที่ค้าง
+	node:SetAttribute(key, hp <= 0 and 0 or amount - whole)
 	local drops = self.ctx.Services.DropService
 	local nodePos = node:GetPivot().Position
 	local toward = player.Character and player.Character:GetPivot().Position or nodePos
-	local dropPos = nodePos + ((toward - nodePos) * Vector3.new(1, 0, 1)).Unit * 2.5
-	if dropPos ~= dropPos then
-		dropPos = nodePos
-	end
+	-- ของต้องตกนอกตัว node ฝั่งที่ผู้เล่นยืน (ต้นใหญ่/หินก้อนโต เคยตกเข้าไปในลำต้น/ในหิน)
+	local dir = (toward - nodePos) * Vector3.new(1, 0, 1)
+	dir = dir.Magnitude > 0.1 and dir.Unit or Vector3.xAxis
+	local radius = self:Footprint(node)
+	local dropPos = nodePos + dir * (radius + 2)
+	local dropOpts = { Dir = dir, Avoid = node, Spread = 2 }
 	if whole > 0 then
-		drops:Spawn(yield, whole, dropPos)
+		drops:Spawn(yield, whole, dropPos, dropOpts)
 	end
 	local quests = self.ctx.Services.QuestService
 	if quests and whole > 0 then
@@ -154,15 +151,15 @@ function ResourceService:Hit(player, node, tool)
 	if hp <= 0 then
 		local bonus = node:GetAttribute("Bonus")
 		if bonus then
-			drops:Spawn(bonus, kind == "Bush" and 1 or 2, dropPos)
+			drops:SpawnLoot(bonus, 2, dropPos, dropOpts)
 			if quests then
-				quests:Progress(player, "Gather", kind == "Bush" and 1 or 2, bonus)
+				quests:Progress(player, "Gather", 2, bonus)
 			end
 		end
 		if kind == "Tree" and yield == "Wood" then
-			drops:Spawn("Wood", 2, nodePos, { Spread = 4 })
+			drops:Spawn("Wood", 1, dropPos, dropOpts)
 			if quests then
-				quests:Progress(player, "Gather", 2, "Wood")
+				quests:Progress(player, "Gather", 1, "Wood")
 			end
 		end
 		local pos = player.Character and player.Character:GetPivot().Position or node:GetPivot().Position
@@ -171,6 +168,169 @@ function ResourceService:Hit(player, node, tool)
 	return true
 end
 
-function ResourceService:Start(ctx) end
+---------------------------------------------------------------- พุ่มเบอร์รี่
+-- พุ่มไม่มีวันพัง: ลูกเบอร์รี่บนพุ่ม (ลูกจริงในโมเดล) เก็บ/กินทีละลูก -> ลูกนั้นหายจากพุ่ม -> งอกคืนทีละลูกทุก BERRY_REGROW วิ
+--   [E] กินเบอร์รี่ที่พุ่ม · [F] เก็บใส่กระสอบ (เต็ม = หล่นข้างพุ่ม)
+local BERRY_REGROW = 20
+local bushes = {} -- [node] = { Berries = {part}, Count, Next, Pick, Eat }
+
+-- ลูกเบอร์รี่ = ชิ้นเล็กในโมเดลพุ่ม (เล็กกว่า 30% ของใบพุ่ม) · โมเดลที่ไม่มีลูกแยก -> ปั้นลูกกลมวางรอบพุ่ม
+local function berryParts(node)
+	local parts, biggest = {}, 0
+	for _, d in ipairs(node:GetDescendants()) do
+		if d:IsA("BasePart") then
+			table.insert(parts, d)
+			biggest = math.max(biggest, d.Size.Magnitude)
+		end
+	end
+	local out = {}
+	for _, d in ipairs(parts) do
+		if d.Size.Magnitude < biggest * 0.3 then
+			table.insert(out, d)
+		end
+	end
+	if #out >= 3 then
+		return out
+	end
+	for _, d in ipairs(parts) do
+		if d.Name == "Berries" then
+			d.Transparency = 1
+		end
+	end
+	local cf, size = node:GetBoundingBox()
+	local rng = Random.new(math.floor(cf.X * 7 + cf.Z * 13))
+	out = {}
+	for i = 1, 6 do
+		local ang = i / 6 * math.pi * 2 + rng:NextNumber(-0.3, 0.3)
+		local h = rng:NextNumber(-0.15, 0.3)
+		local r = math.sqrt(math.max(0.05, 1 - (h * 2) ^ 2)) * 0.48
+		local b = Instance.new("Part")
+		b.Name = "Berry"
+		b.Shape = Enum.PartType.Ball
+		b.Size = Vector3.one * math.clamp(size.Y * 0.14, 0.5, 1.1)
+		b.Color = Color3.fromRGB(214, 40, 90)
+		b.Material = Enum.Material.SmoothPlastic
+		b.Anchored, b.CanCollide, b.CanQuery, b.CanTouch = true, false, false, false
+		b.CFrame = CFrame.new(cf.Position + Vector3.new(math.cos(ang) * size.X * r, h * size.Y, math.sin(ang) * size.Z * r))
+		b.Parent = node
+		table.insert(out, b)
+	end
+	return out
+end
+
+local function showBerries(st)
+	for i, b in ipairs(st.Berries) do
+		if b:GetAttribute("OrigT") == nil then
+			b:SetAttribute("OrigT", b.Transparency)
+		end
+		b.Transparency = i <= st.Count and b:GetAttribute("OrigT") or 1
+	end
+	local max = #st.Berries
+	st.Node:SetAttribute("Berries", st.Count)
+	local txt = string.format("พุ่มเบอร์รี่ %d/%d", st.Count, max)
+	st.Eat.ObjectText = txt
+	st.Eat.Enabled = st.Count > 0
+	st.Pick.ObjectText = txt
+	st.Pick.Enabled = st.Count > 0
+end
+
+-- เอาลูกเบอร์รี่ 1 ลูกออกจากพุ่ม: how = "Sack" (เก็บใส่กระสอบ) / "Eat" (กินเลย) / "Drop" (หล่นพื้น)
+function ResourceService:PickBerry(player, node, how)
+	local st = bushes[node]
+	if not st or st.Count <= 0 then
+		return false
+	end
+	local inv = self.ctx.Services.InventoryService
+	local surv = self.ctx.Services.SurvivalService
+	if st.Count >= #st.Berries then
+		st.Next = os.clock() + BERRY_REGROW -- เริ่มนับงอกลูกใหม่ตอนพุ่มไม่เต็ม
+	end
+	st.Count -= 1
+	showBerries(st)
+	local pos = node:GetPivot().Position
+	if how == "Eat" then
+		inv:Add(player, "Berries", 1, true)
+		surv:UseItem(player, "Berries")
+	elseif how == "Sack" and inv:Space(player) >= 1 then
+		inv:AddToSack(player, "Berries", 1)
+	else
+		local toward = player.Character and player.Character:GetPivot().Position or pos
+		local dir = (toward - pos) * Vector3.new(1, 0, 1)
+		dir = dir.Magnitude > 0.1 and dir.Unit or Vector3.xAxis
+		self.ctx.Services.DropService:Spawn("Berries", 1, pos + dir * (self:Footprint(node) + 2), { Dir = dir, Avoid = node, Spread = 1 })
+	end
+	if self.ctx.Services.QuestService then
+		self.ctx.Services.QuestService:Progress(player, "Gather", 1, "Berries")
+	end
+	self.ctx.Remotes.Get("HitFx"):FireAllClients("NodeHit", { Position = pos, Kind = "Bush", Node = node })
+	return true
+end
+
+function ResourceService:SetupBush(node)
+	if node:GetAttribute("Node") ~= "Bush" or bushes[node] then
+		return
+	end
+	local world = Workspace:FindFirstChild("World")
+	if not (world and node:IsDescendantOf(world)) then
+		return
+	end
+	local part = node.PrimaryPart or node:FindFirstChildWhichIsA("BasePart", true)
+	if not part then
+		return
+	end
+	local function prompt(name, action, key, offset, how)
+		local p = Instance.new("ProximityPrompt")
+		p.Name = name
+		p.ObjectText = "พุ่มเบอร์รี่"
+		p.ActionText = action
+		p.KeyboardKeyCode = key
+		p.HoldDuration = 0.25
+		p.MaxActivationDistance = 11
+		p.RequiresLineOfSight = false
+		p.UIOffset = offset
+		p.Parent = part
+		p.Triggered:Connect(function(player)
+			if not player:GetAttribute("InRun") or self.ctx.Services.SurvivalService:IsIncapacitated(player) then
+				return
+			end
+			self:PickBerry(player, node, how)
+		end)
+		return p
+	end
+	local berries = berryParts(node)
+	local st = { Node = node, Berries = berries, Count = #berries, Next = 0 }
+	st.Eat = prompt("BushEat", "กินเบอร์รี่", Enum.KeyCode.E, Vector2.new(0, -40), "Eat")
+	st.Pick = prompt("BushPick", "เก็บใส่กระสอบ", Enum.KeyCode.F, Vector2.new(0, 40), "Sack")
+	bushes[node] = st
+	node:SetAttribute("Depleted", false)
+	node:SetAttribute("MaxBerries", #berries)
+	showBerries(st)
+	node.Destroying:Connect(function()
+		bushes[node] = nil
+	end)
+end
+
+function ResourceService:Start(ctx)
+	CollectionService:GetInstanceAddedSignal("ResourceNode"):Connect(function(node)
+		task.defer(self.SetupBush, self, node)
+	end)
+	for _, node in ipairs(CollectionService:GetTagged("ResourceNode")) do
+		self:SetupBush(node)
+	end
+	-- ลูกเบอร์รี่งอกคืนทีละลูกทุก BERRY_REGROW วิ (จนเต็มพุ่ม)
+	task.spawn(function()
+		while true do
+			task.wait(1)
+			local now = os.clock()
+			for _, st in pairs(bushes) do
+				if st.Count < #st.Berries and now >= st.Next then
+					st.Count += 1
+					st.Next = now + BERRY_REGROW
+					showBerries(st)
+				end
+			end
+		end
+	end)
+end
 
 return ResourceService

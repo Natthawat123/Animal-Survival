@@ -29,15 +29,6 @@ function BuildingService:All()
 	return self.folder:GetChildren()
 end
 
-function BuildingService:FindBed()
-	for _, s in ipairs(self.folder:GetChildren()) do
-		if s:GetAttribute("Kind") == "Bed" and (s:GetAttribute("Health") or 0) > 0 then
-			return s
-		end
-	end
-	return nil
-end
-
 -- แหล่งแสงที่ปีศาจกวางกลัว: { {Position, Radius} }
 function BuildingService:LightSources()
 	local out = {}
@@ -52,24 +43,30 @@ function BuildingService:LightSources()
 end
 
 function BuildingService:Damage(structure, amount)
-	if not structure.Parent then
+	if not structure.Parent or structure:GetAttribute("Broken") then
 		return
 	end
 	local hp = (structure:GetAttribute("Health") or 0) - amount
 	structure:SetAttribute("Health", hp)
 	self.ctx.Remotes.Get("HitFx"):FireAllClients("StructureHit", { Structure = structure, Amount = amount })
 	if hp <= 0 then
-		self.ctx.Remotes.Get("HitFx"):FireAllClients("Shatter", { Position = structure:GetPivot().Position, Kind = "Structure" })
-		for _, d in ipairs(structure:GetDescendants()) do
-			if d:IsA("BasePart") then
-				d.Anchored = false
-				d.CanCollide = false
-				d.AssemblyLinearVelocity = Vector3.new(math.random(-20, 20), math.random(15, 35), math.random(-20, 20))
-				TweenService:Create(d, TweenInfo.new(1.5), { Transparency = 1 }):Play()
-			end
-		end
+		structure:SetAttribute("Broken", true)
+		-- ท่าพังตามวัสดุเล่นฝั่งเครื่องผู้เล่น (BreakFX) · เซิร์ฟเวอร์ซ่อนของจริงแล้วลบ
+		self.ctx.Remotes.Get("HitFx"):FireAllClients("StructureBreak", { Structure = structure, Kind = structure:GetAttribute("Kind"), Position = structure:GetPivot().Position })
 		CollectionService:RemoveTag(structure, "Structure")
-		task.delay(1.6, function()
+		self.ctx.Services.InventoryService:MarkDirty() -- พังแล้วคืนโควต้า (Limits) -> อัปเดตตัวเลขบนหน้าคราฟต์
+		task.delay(0.25, function()
+			for _, d in ipairs(structure:GetDescendants()) do
+				if d:IsA("BasePart") then
+					d.Transparency = 1
+					d.CanCollide = false
+					d.CanQuery = false
+				elseif d:IsA("Light") or d:IsA("Fire") or d:IsA("ParticleEmitter") then
+					d.Enabled = false
+				end
+			end
+		end)
+		task.delay(0.6, function()
 			structure:Destroy()
 		end)
 	end
@@ -102,8 +99,19 @@ function BuildingService:Place(player, kind, cf)
 		return false
 	end
 	local pos = hit.Position
+	-- เตียง: วางแล้วข้ามไป 1 วัน (ทั้งเซิร์ฟได้ 2 ครั้งต่อเกม)
+	if kind == "Bed" and not self.ctx.Services.DirectorService:CanSkipDay() then
+		self.ctx.Notify(player, "ตอนนี้ใช้เตียงข้ามวันไม่ได้", "Error")
+		return false
+	end
 	if (pos - self.ctx.CampPosition).Magnitude < 9 then
 		self.ctx.Notify(player, "ใกล้กองไฟเกินไป", "Error")
+		return false
+	end
+	-- วางได้เฉพาะในเขตแคมป์ (รัศมีตามเลเวลกองไฟ — อัปเกรดกองไฟ = เขตกว้างขึ้น)
+	local campR = self.ctx.Services.CampService:CampRadius()
+	if ((pos - self.ctx.CampPosition) * Vector3.new(1, 0, 1)).Magnitude > campR then
+		self.ctx.Notify(player, "วางได้เฉพาะในเขตแคมป์ (อัปเกรดกองไฟเพื่อขยายเขต)", "Error")
 		return false
 	end
 	local _, yaw = cf:ToOrientation()
@@ -118,20 +126,95 @@ function BuildingService:Place(player, kind, cf)
 		return false
 	end
 	inv:Remove(player, kind, 1)
-	local model = StructureModels.Build(kind)
-	model:PivotTo(final)
-	local hp = spec.Health
-	if kind == "LogWall" or kind == "StoneWall" then
-		hp *= self.ctx.Services.SurvivalService:Perk(player, "WallHealthMult", 1)
+	-- ช่างสร้าง: กำแพงและสิ่งก่อสร้างทุกชนิดถึกขึ้นตามทักษะ
+	local hp = spec.Health * self.ctx.Services.SurvivalService:Perk(player, "WallHealthMult", 1)
+	local model = self:Spawn(kind, final, hp, hp, player.UserId)
+	self.ctx.Remotes.Get("HitFx"):FireAllClients("Build", { Position = pos, Kind = kind, Structure = model })
+	if kind == "Bed" then
+		local st = self.ctx.State
+		st:SetAttribute("BedsUsed", (st:GetAttribute("BedsUsed") or 0) + 1)
+		self.ctx.Services.DirectorService:SkipDay(player)
+		self.ctx.Services.InventoryService:MarkDirty()
 	end
+	return true
+end
+
+function BuildingService:Spawn(kind, cf, hp, maxHp, owner)
+	local model = StructureModels.Build(kind)
+	model:PivotTo(cf)
 	model:SetAttribute("Kind", kind)
 	model:SetAttribute("Health", hp)
-	model:SetAttribute("MaxHealth", hp)
-	model:SetAttribute("Owner", player.UserId)
+	model:SetAttribute("MaxHealth", maxHp)
+	model:SetAttribute("Owner", owner)
 	CollectionService:AddTag(model, "Structure")
 	model.Parent = self.folder
 	self:Setup(model, kind)
-	self.ctx.Remotes.Get("HitFx"):FireAllClients("Build", { Position = pos, Kind = kind })
+	return model
+end
+
+-- เก็บ/คืนสิ่งก่อสร้างทั้งหมด (RejoinService) : { Kind, x, y, z, yaw, Health, MaxHealth, Owner }
+function BuildingService:Serialize()
+	local out = {}
+	for _, m in ipairs(self.folder:GetChildren()) do
+		local kind = m:GetAttribute("Kind")
+		if kind and Items.Structures[kind] and (m:GetAttribute("Health") or 0) > 0 and #out < 300 then
+			local cf = m:GetPivot()
+			local _, yaw = cf:ToOrientation()
+			table.insert(out, { kind, math.floor(cf.X * 10) / 10, math.floor(cf.Y * 10) / 10, math.floor(cf.Z * 10) / 10, math.floor(yaw * 1000) / 1000,
+				math.floor(m:GetAttribute("Health")), math.floor(m:GetAttribute("MaxHealth") or 0), m:GetAttribute("Owner") or 0 })
+		end
+	end
+	return out
+end
+
+function BuildingService:Restore(list)
+	local beds = 0
+	for _, r in ipairs(list or {}) do
+		if r[1] == "Bed" then
+			beds += 1
+		end
+		local kind = r[1]
+		if Items.Structures[kind] then
+			local ok, err = pcall(self.Spawn, self, kind, CFrame.new(r[2], r[3], r[4]) * CFrame.Angles(0, r[5], 0), r[6], math.max(r[7], r[6]), r[8])
+			if not ok then
+				warn("[AS] restore structure", kind, err)
+			end
+		end
+	end
+	-- เตียงที่วางไว้ = ใช้โควต้าข้ามวันไปแล้ว (คืนรอบไม่ได้วันเพิ่มซ้ำ)
+	self.ctx.State:SetAttribute("BedsUsed", math.max(self.ctx.State:GetAttribute("BedsUsed") or 0, beds))
+end
+
+-- แปลงเบอร์รี่: ลูกบนพุ่มโผล่เมื่อโตเต็มที่ (เก็บได้) · ยังไม่โต = เห็นแต่ใบ
+local function showCrops(model, ready)
+	local crops = model:FindFirstChild("Crops")
+	if not crops then
+		return
+	end
+	for _, p in ipairs(crops:GetDescendants()) do
+		if p:IsA("BasePart") and p.Name == "Berry" then
+			p.Transparency = ready and 0 or 1
+		end
+	end
+end
+
+-- หม้อตุ๋น: Stew = เนื้อ 2 + เบอร์รี่ 2 (ใช้เนื้อย่างก่อน) · BerryPie = เบอร์รี่ 5 + ไม้ 1
+function BuildingService:Cook(player, dish)
+	local inv = self.ctx.Services.InventoryService
+	local cost, need
+	if dish == "Stew" then
+		local meat = inv:Count(player, "CookedMeat") >= 2 and "CookedMeat" or "RawMeat"
+		cost, need = { [meat] = 2, Berries = 2 }, "ต้องมีเนื้อ 2 และเบอร์รี่ 2"
+	elseif dish == "BerryPie" then
+		cost, need = { Berries = 5, Wood = 1 }, "ต้องมีเบอร์รี่ 5 และไม้ 1"
+	else
+		return false
+	end
+	if not inv:Spend(player, cost) then
+		self.ctx.Notify(player, need, "Error")
+		return false
+	end
+	inv:Add(player, dish, 1)
 	return true
 end
 
@@ -139,21 +222,27 @@ end
 function BuildingService:Setup(model, kind)
 	if kind == "FarmPlot" then
 		model:SetAttribute("GrowAt", os.clock() + Items.Structures.FarmPlot.GrowTime)
+		showCrops(model, false)
 		local p = Instance.new("ProximityPrompt")
 		p.ActionText = "เก็บเบอร์รี่"
 		p.ObjectText = "แปลงเบอร์รี่"
 		p.MaxActivationDistance = 12
 		p.Enabled = false
-		p.Parent = model:FindFirstChildWhichIsA("BasePart")
+		-- โมเดล Store มีแต่ Model ซ้อนกัน (ไม่มี BasePart ชั้นบน) -> ทำจุดกดใสไว้กลางแปลงเอง
+		local spot = Instance.new("Part")
+		spot.Name = "Harvest"
+		spot.Size = Vector3.new(1, 1, 1)
+		spot.Transparency = 1
+		spot.Anchored, spot.CanCollide, spot.CanTouch, spot.CanQuery = true, false, false, false
+		spot.CFrame = model:GetPivot() * CFrame.new(0, 1.5, 0)
+		spot.Parent = model
+		p.Parent = spot
 		p.Triggered:Connect(function(player)
 			if os.clock() >= (model:GetAttribute("GrowAt") or math.huge) then
 				self.ctx.Services.DropService:Spawn("Berries", Items.Structures.FarmPlot.Yield, model:GetPivot().Position + Vector3.new(0, 1, 0))
 				model:SetAttribute("GrowAt", os.clock() + Items.Structures.FarmPlot.GrowTime)
 				p.Enabled = false
-				for _, c in ipairs(model.Crops:GetChildren()) do
-					c.Color = Color3.fromRGB(70, 140, 60)
-					c.Size = Vector3.new(1.6, 1.6, 1.6)
-				end
+				showCrops(model, false)
 			end
 		end)
 	elseif kind == "CookPot" then
@@ -164,13 +253,20 @@ function BuildingService:Setup(model, kind)
 		p.MaxActivationDistance = 12
 		p.Parent = model:FindFirstChild("Pot")
 		p.Triggered:Connect(function(player)
-			local inv = self.ctx.Services.InventoryService
-			local meat = inv:Count(player, "CookedMeat") >= 2 and "CookedMeat" or "RawMeat"
-			if inv:Spend(player, { [meat] = 2, Berries = 2 }) then
-				inv:Add(player, "Stew", 1)
-			else
-				self.ctx.Notify(player, "ต้องมีเนื้อ 2 และเบอร์รี่ 2", "Error")
-			end
+			self:Cook(player, "Stew")
+		end)
+		p.UIOffset = Vector2.new(0, -40)
+		local pie = Instance.new("ProximityPrompt")
+		pie.Name = "PiePrompt"
+		pie.ActionText = "อบพายเบอร์รี่ (เบอร์รี่ 5 + ไม้ 1)"
+		pie.ObjectText = "หม้อตุ๋น"
+		pie.KeyboardKeyCode = Enum.KeyCode.F
+		pie.HoldDuration = 1.2
+		pie.MaxActivationDistance = 12
+		pie.UIOffset = Vector2.new(0, 40)
+		pie.Parent = p.Parent
+		pie.Triggered:Connect(function(player)
+			self:Cook(player, "BerryPie")
 		end)
 	end
 end
@@ -252,10 +348,7 @@ function BuildingService:Tick(dt)
 				local prompt = s:FindFirstChildWhichIsA("ProximityPrompt", true)
 				if ready and prompt and not prompt.Enabled then
 					prompt.Enabled = true
-					for _, c in ipairs(s.Crops:GetChildren()) do
-						c.Color = Color3.fromRGB(214, 40, 90)
-						c.Size = Vector3.new(2.2, 2.2, 2.2)
-					end
+					showCrops(s, true)
 				end
 			end
 		end

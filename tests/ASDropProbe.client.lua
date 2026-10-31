@@ -18,10 +18,24 @@ while not player:GetAttribute("InRun") and os.clock() - t0 < 60 do
 	if zone and r then
 		r.CFrame = zone.CFrame
 	end
+	-- ขึ้นแท่นแล้ว: เลือกจำนวน 1 คน (แท่นเริ่มนับถอยหลังหลังเลือกจำนวนเท่านั้น)
+	if zone and player:GetAttribute("Pad") and not zone:GetAttribute("Picked") and os.clock() - (_G.ASPadPickAt or 0) > 2 then
+		_G.ASPadPickAt = os.clock()
+		require(game:GetService("ReplicatedStorage").Shared.Remotes).Get("PadSize"):FireServer(zone:GetAttribute("PadIndex"), 1)
+	end
 	task.wait(0.5)
 end
 print("[AS] DROP inRun", player:GetAttribute("InRun"))
 task.wait(8)
+-- หน้าคราฟต์: แท็บไอคอน + ชื่อต้องไม่ทับกัน
+do
+	local Menus = require(script.Parent:WaitForChild("Client"):WaitForChild("Menus"))
+	Menus.OpenCraft()
+	task.wait(1.5)
+	print("[SHOT] craft_tabs")
+	task.wait(1.5)
+	Menus.CloseCraft()
+end
 local char = player.Character
 local root = char:WaitForChild("HumanoidRootPart")
 local ev = ReplicatedStorage:WaitForChild("DropProbe")

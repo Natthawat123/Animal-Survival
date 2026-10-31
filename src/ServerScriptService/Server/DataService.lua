@@ -299,6 +299,10 @@ function DataService:Start(ctx)
 		if not (data and Classes.Data[classId] and data.Owned[classId]) then
 			return
 		end
+		-- เปลี่ยนคลาสได้เฉพาะในล็อบบี้ (กลางรอบเปลี่ยนแล้วได้สกิลคลาสใหม่แต่ไม่ได้ของเริ่มต้น)
+		if player:GetAttribute("InRun") then
+			return
+		end
 		data.Class = classId
 		player:SetAttribute("Class", classId)
 		player:SetAttribute("ClassLevel", data.ClassLevel[classId] or 1)

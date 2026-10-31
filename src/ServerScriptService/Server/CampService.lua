@@ -15,7 +15,7 @@ local Recipes = require(ReplicatedStorage.Shared.Recipes)
 
 local CampService = {}
 
-local FUEL_ORDER = { "Wood", "Coal", "EmberShard", "TerraCore", "BeastHeart" }
+local FUEL_ORDER = { "Wood", "Coal", "EmberShard", "TerraCore" }
 
 function CampService:Init(ctx)
 	self.lastThrow = {}
@@ -147,7 +147,7 @@ function CampService:DamageFire(amount)
 	local before = self.fuel
 	self.fuel = math.max(0, self.fuel - amount)
 	if before > 0 and self.fuel <= 0 then
-		self.ctx.Broadcast("⚠ กองไฟดับแล้ว!! เติมไฟด่วน ก่อนกวางกลวงจะมา", "Danger")
+		self.ctx.Broadcast("⚠ กองไฟดับแล้ว!! เติมไฟด่วน — แคมป์ไม่ปลอดภัยแล้ว", "Danger")
 		self.ctx.FireRun("Cinematic", "FireOut", {})
 	end
 	self:UpdateVisual()
@@ -162,7 +162,7 @@ function CampService:Refuel(player)
 	local before = self.fuel
 	for _, id in ipairs(FUEL_ORDER) do
 		local fuel = Items.Data[id].Fuel
-		while self.fuel < max - fuel * 0.5 and inv:Available(player, id) > 0 and (id ~= "BeastHeart") do
+		while self.fuel < max - fuel * 0.5 and inv:Available(player, id) > 0 do
 			inv:Spend(player, { [id] = 1 })
 			self.fuel = math.min(max, self.fuel + fuel)
 			used[id] = (used[id] or 0) + 1
@@ -244,8 +244,33 @@ function CampService:Craft(player, recipeId, count)
 	if not item then
 		return
 	end
+	-- เกราะ: คราฟต์แล้วสวมทันที (ไม่เข้ากระสอบ) · มีเกราะระดับเท่ากัน/สูงกว่าอยู่แล้ว = ไม่ต้องทำ
+	if item.Category == "Armor" then
+		local wornId = player:GetAttribute("Armor")
+		local cur = Items.Data[wornId or ""]
+		if cur and (cur.Tier or 0) >= (item.Tier or 0) then
+			self.ctx.Notify(player, "สวม " .. Items.DisplayName(wornId) .. " อยู่แล้ว (ดีเท่ากันหรือดีกว่า)", "Info")
+			return
+		end
+		if not inv:Spend(player, r.Cost) then
+			self.ctx.Notify(player, "วัตถุดิบไม่พอ", "Error")
+			return
+		end
+		self.ctx.Services.SurvivalService:EquipArmor(player, r.Id)
+		if self.ctx.Services.QuestService then
+			self.ctx.Services.QuestService:Progress(player, "Craft", 1)
+		end
+		self.ctx.Notify(player, string.format("🛡 สวม %s แล้ว! เลือดสูงสุด +%d", Items.DisplayName(r.Id), item.ArmorHP or 0), "Good")
+		self.ctx.Remotes.Get("HitFx"):FireAllClients("Craft", { Position = self.benchPos })
+		return
+	end
 	if item.Category == "Tool" and inv:Count(player, r.Id) > 0 then
 		self.ctx.Notify(player, "มี " .. Items.DisplayName(r.Id) .. " อยู่แล้ว", "Info")
+		return
+	end
+	local sack = Items.Sacks[r.Id] and inv:BestSack(player)
+	if sack and Items.Sacks[sack] >= Items.Sacks[r.Id] then
+		self.ctx.Notify(player, "มี " .. Items.DisplayName(sack) .. " ที่ใหญ่กว่าอยู่แล้ว", "Info")
 		return
 	end
 	local mult = 1
@@ -262,6 +287,13 @@ function CampService:Craft(player, recipeId, count)
 		want = 1
 	end
 	local amount = r.Amount or 1
+	-- จำนวนสูงสุดของสิ่งก่อสร้าง (Limits): ครบแล้วคราฟต์ไม่ได้ ไม่เสียวัตถุดิบ
+	local room = inv:Room(player, r.Id)
+	if room < amount then
+		self.ctx.Notify(player, inv:LimitText(r.Id) .. " — ครบแล้ว", "Error")
+		return
+	end
+	want = math.min(want, math.floor(room / amount))
 	-- ของกินที่ในกระสอบ (ยา ฯลฯ): หลายชิ้นได้ไม่เกินที่ว่างในกระสอบ (ชิ้นเดียวทำได้เสมอเหมือนเดิม)
 	if want > 1 and Items.Bulk(r.Id) then
 		want = math.max(1, math.min(want, math.floor(inv:Space(player) / amount)))
@@ -302,11 +334,18 @@ function CampService:FirePosition()
 	return self.fireCore and self.fireCore.Position
 end
 
-function CampService:ThrowFrom(player)
+-- ระยะที่ต้องเดินเข้าไปถึงจะโยนของเข้ากองไฟได้ (ไม่ดูดของจากไกล ๆ)
+CampService.ThrowRange = 12
+
+-- โยนของจากกระสอบเข้ากองไฟ 1 ชิ้น · what = "Fuel" (ไม้/ถ่าน) / "Meat" (เนื้อดิบไปย่าง) / nil (เชื้อเพลิงก่อน ไม่มีค่อยเนื้อ)
+function CampService:ThrowFrom(player, what)
 	local inv = self.ctx.Services.InventoryService
 	local char = player.Character
 	local fire = self:FirePosition()
-	if not (char and fire) or (char:GetPivot().Position - fire).Magnitude > 30 then
+	if not (char and fire) or ((char:GetPivot().Position - fire) * Vector3.new(1, 0, 1)).Magnitude > self.ThrowRange then
+		if char and fire then
+			self.ctx.Notify(player, "เดินเข้าไปใกล้กองไฟก่อน แล้วค่อยโยน", "Info")
+		end
 		return
 	end
 	local now = os.clock()
@@ -315,17 +354,20 @@ function CampService:ThrowFrom(player)
 	end
 	self.lastThrow[player] = now
 	local pick
-	for _, id in ipairs(FUEL_ORDER) do
-		if id ~= "BeastHeart" and inv:Count(player, id) > 0 then
-			pick = id
-			break
+	if what ~= "Meat" then
+		for _, id in ipairs(FUEL_ORDER) do
+			if inv:Count(player, id) > 0 then
+				pick = id
+				break
+			end
 		end
 	end
-	if not pick and inv:Count(player, "RawMeat") > 0 then
+	if not pick and what ~= "Fuel" and inv:Count(player, "RawMeat") > 0 then
 		pick = "RawMeat"
 	end
 	if not pick then
-		self.ctx.Notify(player, "ในกระสอบไม่มีไม้/ถ่าน/เนื้อดิบ ให้โยนเข้ากองไฟ", "Info")
+		self.ctx.Notify(player, what == "Meat" and "ในกระสอบไม่มีเนื้อดิบ (ล่าสัตว์ก่อน)"
+			or what == "Fuel" and "ในกระสอบไม่มีไม้/ถ่าน" or "ในกระสอบไม่มีไม้/ถ่าน/เนื้อดิบ ให้โยนเข้ากองไฟ", "Info")
 		return
 	end
 	inv:Remove(player, pick, 1)
@@ -349,7 +391,7 @@ function CampService:FeedGrinder(player, all)
 		return
 	end
 	local now = os.clock()
-	if (self.lastThrow[player] or 0) > now - 0.3 then
+	if (self.lastThrow[player] or 0) > now - 0.15 then
 		return
 	end
 	self.lastThrow[player] = now
@@ -441,13 +483,26 @@ function CampService:BurnDrops()
 	for _, d in ipairs(drops:Near(fire - Vector3.new(0, 1.5, 0), 5.5, 6)) do
 		local item = Items.Data[d.Id]
 		if COOK[d.Id] then
-			if self:IsLit() then
-				drops:Remove(d.Model)
-				-- สุกแล้วเด้งออกนอกกองไฟ
-				task.delay(1.2, function()
-					drops:Spawn(COOK[d.Id], d.Count, fire, { Spread = 0.5 })
-				end)
+			if self:IsLit() and not d.Model:GetAttribute("Cooking") then
+				-- ย่างอยู่ในไฟ 2.5 วิ (เห็นชิ้นเนื้อในกองไฟ) แล้วสุกเด้งออกไปทางคนโยน
+				d.Model:SetAttribute("Cooking", true)
 				self.ctx.Remotes.Get("HitFx"):FireAllClients("Refuel", { Position = fire })
+				local by = d.By
+				task.delay(2.5, function()
+					if not d.Model.Parent then
+						return
+					end
+					local count = d.Model:GetAttribute("Count") or d.Count
+					drops:Remove(d.Model)
+					local root = by and by.Character and by.Character:FindFirstChild("HumanoidRootPart")
+					local dir = root and (root.Position - fire) * Vector3.new(1, 0, 1)
+					dir = dir and dir.Magnitude > 0.5 and dir.Unit or Vector3.new(1, 0, 0)
+					drops:Spawn(COOK[d.Id], count, fire + dir * 5 + Vector3.new(0, 1, 0), { Spread = 0.5 })
+					self.ctx.Remotes.Get("HitFx"):FireAllClients("Refuel", { Position = fire })
+					if by and by.Parent then
+						self.ctx.Notify(by, "🍖 เนื้อสุกแล้ว! เก็บใส่กระสอบ หรือกด R กิน", "Good")
+					end
+				end)
 			end
 		elseif item and item.Fuel then
 			drops:Remove(d.Model)
@@ -564,13 +619,24 @@ function CampService:Start(ctx)
 	-- เครื่องย่อย (ซ้าย): โยนวัตถุดิบลงช่อง -> บด -> เข้าคลังแคมป์ (ทุกคนใช้ร่วมกัน)
 	self.hopper = bench:FindFirstChild("Hopper")
 	local depositHost = self.hopper or benchTop
-	local deposit = prompt(depositHost, "Deposit", "โยนวัตถุดิบลงเครื่องย่อย", "เครื่องย่อย", Enum.KeyCode.G, 0, 20)
+	local deposit = prompt(depositHost, "Deposit", "โยนวัตถุดิบลงเครื่องย่อย (ทีละชิ้น)", "เครื่องย่อย", Enum.KeyCode.G, 0, 20)
 	if not self.hopper then
 		deposit.UIOffset = Vector2.new(0, 70)
 	end
 	deposit.Triggered:Connect(function(p)
-		self:FeedGrinder(p, true)
+		self:FeedGrinder(p, false) -- กด 1 ครั้ง = โยน 1 ชิ้น
 	end)
+	-- กองไฟ: เดินเข้าไปใกล้แล้วกดโยนเอง (ไม่ดูดของจากไกล ๆ) · [E] โยนไม้/ถ่าน · [R] โยนเนื้อดิบไปย่าง
+	local fuelPrompt = prompt(self.fireCore, "FireFuel", "โยนไม้เข้ากองไฟ", "กองไฟ", Enum.KeyCode.E, 0, self.ThrowRange - 2)
+	local cookPrompt = prompt(self.fireCore, "FireCook", "ย่างเนื้อ", "กองไฟ", Enum.KeyCode.R, 0, self.ThrowRange - 2)
+	cookPrompt.UIOffset = Vector2.new(0, 70)
+	for _, pp in ipairs({ { fuelPrompt, "Fuel" }, { cookPrompt, "Meat" } }) do
+		pp[1].Triggered:Connect(function(p)
+			if not ctx.Services.SurvivalService:IsIncapacitated(p) and p:GetAttribute("InRun") then
+				self:ThrowFrom(p, pp[2])
+			end
+		end)
+	end
 	self:RefreshPrompts()
 	self:StartFogWall(ctx)
 
@@ -657,6 +723,16 @@ function CampService:Start(ctx)
 			end
 		end
 	end)
+end
+
+function CampService:Restore(level, bench, fuel)
+	self.level = math.clamp(math.floor(tonumber(level) or 1), 1, #Recipes.Campfire)
+	self.bench = math.max(1, math.floor(tonumber(bench) or 1))
+	self.fuel = math.clamp(tonumber(fuel) or 0, 0, self:Info().MaxFuel)
+	self:UpdateVisual()
+	self:Publish()
+	self:RefreshPrompts()
+	self:UpdateStockSign()
 end
 
 function CampService:Reset()

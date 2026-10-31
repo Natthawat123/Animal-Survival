@@ -5,7 +5,7 @@
 	  - สต็อกร้านสุ่มใหม่ทุกวัน (UTC) ต่อผู้เล่น — คลาสที่ "ไม่มีสต๊อค" ซื้อไม่ได้จนกว่าจะรีโรล/วันใหม่
 
 	Perks ที่ระบบอื่นอ่าน:
-		ChopMult, MineMult, DamageMult, BuildDiscount, WallHealthMult, SpeedMult, StaminaMult, EssenceMult,
+		ChopMult, MineMult, DamageMult, BuildDiscount, WallHealthMult, SpeedMult, StaminaMult,
 		ElementDamageMult, FuelDrainMult, HungerMult, HealMult, DamageTakenMult, ExtraDrops, WildPeace,
 		MaxHealthBonus (+เลือดสูงสุด), Regen (ฟื้นเลือด/วินาที)
 ]]
@@ -30,16 +30,16 @@ Classes.Data = {
 		},
 	},
 	Forager = {
-		Name = "Forager", Thai = "นักหาของป่า", Role = "เสบียง", Stars = 2, Price = 20, Icon = "🍓",
+		Name = "Forager", Thai = "นักหาของป่า", Role = "เสบียง", Stars = 2, Price = 100, Icon = "🍓",
 		StartItems = { OldAxe = 1, Berries = 6 },
 		Skills = {
-			{ Name = "ตะกร้าใหญ่", Text = "เก็บของ/ล่าสัตว์ ได้ของเพิ่ม +1 ชิ้น", Perks = { ExtraDrops = 1 } },
+			{ Name = "ตะกร้าใหญ่", Text = "ล่าสัตว์ได้ เนื้อ/หนัง/กระดูก/เส้นใย เพิ่ม +1 ชิ้น", Perks = { ExtraDrops = 1 } },
 			{ Name = "รู้จักของกิน", Text = "หิวช้าลง 25% · อาหาร/ยาฟื้นเลือดแรงขึ้น 20%", Perks = { HungerMult = 0.75, HealMult = 1.2 } },
-			{ Name = "เก็บเกี่ยวเต็มมือ", Text = "ได้ของเพิ่มเป็น +2 ชิ้น", Perks = { ExtraDrops = 2 } },
+			{ Name = "เก็บเกี่ยวเต็มมือ", Text = "ล่าสัตว์ได้ เนื้อ/หนัง/กระดูก/เส้นใย เพิ่มเป็น +2 ชิ้น", Perks = { ExtraDrops = 2 } },
 		},
 	},
 	Lumberjack = {
-		Name = "Lumberjack", Thai = "คนตัดไม้", Role = "เก็บทรัพยากร", Stars = 2, Price = 35, Icon = "🪓",
+		Name = "Lumberjack", Thai = "คนตัดไม้", Role = "เก็บทรัพยากร", Stars = 2, Price = 150, Icon = "🪓",
 		StartItems = { StoneAxe = 1 },
 		Skills = {
 			{ Name = "แขนท่อนซุง", Text = "ตัดไม้แรง x1.6", Perks = { ChopMult = 1.6 } },
@@ -48,7 +48,7 @@ Classes.Data = {
 		},
 	},
 	Medic = {
-		Name = "Medic", Thai = "หมอสนาม", Role = "สนับสนุน", Stars = 2, Price = 40, Icon = "🩹",
+		Name = "Medic", Thai = "หมอสนาม", Role = "สนับสนุน", Stars = 2, Price = 200, Icon = "🩹",
 		StartItems = { OldAxe = 1, Bandage = 3 },
 		Skills = {
 			{ Name = "มือหมอ", Text = "ผ้าพันแผล ยา และการชุบชีวิตเพื่อน ฮีลแรง x1.5", Perks = { HealMult = 1.5 } },
@@ -57,16 +57,16 @@ Classes.Data = {
 		},
 	},
 	Hunter = {
-		Name = "Hunter", Thai = "นายพราน", Role = "ต่อสู้", Stars = 3, Price = 60, Icon = "🏹",
+		Name = "Hunter", Thai = "นายพราน", Role = "ต่อสู้", Stars = 3, Price = 350, Icon = "🏹",
 		StartItems = { OldAxe = 1, Bow = 1 },
 		Skills = {
 			{ Name = "ตาเหยี่ยว", Text = "ดาเมจทุกอาวุธ +15%", Perks = { DamageMult = 1.15 } },
-			{ Name = "ล่าไม่พลาด", Text = "ดาเมจ +25% · ล่าสัตว์/เก็บของได้เพิ่ม +1 ชิ้น", Perks = { DamageMult = 1.25, ExtraDrops = 1 } },
+			{ Name = "ล่าไม่พลาด", Text = "ดาเมจ +25% · ล่าสัตว์ได้ เนื้อ/หนัง/กระดูก/เส้นใย +1 ชิ้น", Perks = { DamageMult = 1.25, ExtraDrops = 1 } },
 			{ Name = "นักล่าจ่าฝูง", Text = "ดาเมจ +40% · วิ่งเร็วขึ้น 5%", Perks = { DamageMult = 1.4, SpeedMult = 1.05 } },
 		},
 	},
 	Builder = {
-		Name = "Builder", Thai = "ช่างสร้าง", Role = "ป้องกันฐาน", Stars = 3, Price = 75, Icon = "🔨",
+		Name = "Builder", Thai = "ช่างสร้าง", Role = "ป้องกันฐาน", Stars = 3, Price = 400, Icon = "🔨",
 		StartItems = { OldAxe = 1, LogWall = 2 },
 		Skills = {
 			{ Name = "ช่างประหยัด", Text = "สร้างสิ่งก่อสร้างใช้วัตถุดิบน้อยลง 20%", Perks = { BuildDiscount = 0.2 } },
@@ -75,22 +75,22 @@ Classes.Data = {
 		},
 	},
 	Scout = {
-		Name = "Scout", Thai = "หน่วยลาดตระเวน", Role = "สำรวจ", Stars = 4, Price = 120, Icon = "🧭",
-		StartItems = { OldAxe = 1, Torch = 1 },
+		Name = "Scout", Thai = "หน่วยลาดตระเวน", Role = "สำรวจ", Stars = 4, Price = 650, Icon = "🧭",
+		StartItems = { OldAxe = 1, IronArmor = 1 }, -- เกราะเงิน (เกราะเหล็ก) สวมตั้งแต่เริ่ม
 		Skills = {
 			{ Name = "ขาไว", Text = "วิ่งเร็วขึ้น 12%", Perks = { SpeedMult = 1.12 } },
 			{ Name = "ปอดเหล็ก", Text = "สตามิน่า x1.6 · หิวช้าลง 10%", Perks = { StaminaMult = 1.6, HungerMult = 0.9 } },
-			{ Name = "เงาแห่งพงไพร", Text = "วิ่งเร็วขึ้น 20% · สตามิน่า x2 · ได้ของเพิ่ม +1 ชิ้น", Perks = { SpeedMult = 1.2, StaminaMult = 2, ExtraDrops = 1 } },
+			{ Name = "เงาแห่งพงไพร", Text = "วิ่งเร็วขึ้น 20% · สตามิน่า x2 · ล่าสัตว์ได้ของเพิ่ม +1 ชิ้น", Perks = { SpeedMult = 1.2, StaminaMult = 2, ExtraDrops = 1 } },
 		},
 	},
 
 	Elementalist = {
-		Name = "Elementalist", Thai = "จอมเวทธาตุ", Role = "เวทธาตุ", Stars = 5, Price = 180, Icon = "🔮",
-		StartItems = { OldAxe = 1 },
+		Name = "Elementalist", Thai = "จอมเวทธาตุ", Role = "เวทธาตุ", Stars = 5, Price = 1000, Icon = "🔮",
+		StartItems = { OldAxe = 1, EmberStaff = 1 }, -- ขวาน (ทุกคลาสมี) + คทาเพลิง (ยิงลูกไฟ + ฟาดตัดไม้ได้)
 		Skills = {
-			{ Name = "สัมผัสธาตุ", Text = "เก็บแก่นธาตุได้ x2 · อาวุธธาตุแรงขึ้น 15% · ร่างบาง เลือดสูงสุด -10", Perks = { EssenceMult = 2, ElementDamageMult = 1.15, MaxHealthBonus = -10 } },
-			{ Name = "พลังธาตุ", Text = "อาวุธธาตุแรงขึ้น 35%", Perks = { ElementDamageMult = 1.35 } },
-			{ Name = "ผู้ควบคุมธาตุ", Text = "แก่นธาตุ x3 · อาวุธธาตุแรงขึ้น 60%", Perks = { EssenceMult = 3, ElementDamageMult = 1.6 } },
+			{ Name = "สัมผัสธาตุ", Text = "อาวุธธาตุ (รวมคทาเพลิง) แรงขึ้น 20% · ร่างบาง เลือดสูงสุด -10", Perks = { ElementDamageMult = 1.2, MaxHealthBonus = -10 } },
+			{ Name = "พลังธาตุ", Text = "อาวุธธาตุแรงขึ้น 40% · สตามิน่า +15%", Perks = { ElementDamageMult = 1.4, StaminaMult = 1.15 } },
+			{ Name = "ผู้ควบคุมธาตุ", Text = "อาวุธธาตุแรงขึ้น 65% · เลือดสูงสุด +10", Perks = { ElementDamageMult = 1.65, MaxHealthBonus = 10 } },
 		},
 	},
 
@@ -174,8 +174,8 @@ end
 ---------------------------------------------------------------- Ruby
 -- Ruby ที่ได้ตอนรอดถึงคืน
 Classes.NightRewards = { [5] = 5, [10] = 10, [25] = 20, [50] = 40, [75] = 60, [99] = 150 }
-Classes.BossReward = 25
-Classes.SpiritReward = 15
+Classes.BossReward = 20
+Classes.SpiritReward = 5
 Classes.DailyReward = 5 -- หม้อรางวัลประจำวันในล็อบบี้
 
 return Classes

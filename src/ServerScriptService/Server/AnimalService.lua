@@ -12,6 +12,7 @@ local TweenService = game:GetService("TweenService")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local Animals = require(ReplicatedStorage.Shared.Animals)
+local Nights = require(ReplicatedStorage.Shared.Nights)
 local Biomes = require(ReplicatedStorage.Shared.Biomes)
 local Items = require(ReplicatedStorage.Shared.Items)
 local AnimalModels = require(ReplicatedStorage.Shared.AnimalModels)
@@ -88,7 +89,7 @@ function AnimalService:Spawn(id, position, opts)
 	if not info or not Config.AnimalsEnabled then
 		return nil
 	end
-	local model = AnimalModels.Build(id)
+	local model = AnimalModels.Build(id, { SizeMult = opts.SizeMult })
 	if not model then
 		return nil -- ยังไม่มีโมเดลของสัตว์ตัวนี้ (assets/rbxm/Animals/<Id>.rbxmx)
 	end
@@ -104,7 +105,11 @@ function AnimalService:Spawn(id, position, opts)
 		end
 	end
 	AnimalModels.PlaceAt(model, position, opts.Yaw or self.rng:NextNumber(0, math.pi * 2))
-	local healthMult = opts.HealthMult or 1
+	-- ตี้ยิ่งเยอะ มอนยิ่งโหด (Nights.PartyScale) · บอสคิดเลือดตามคนไว้แล้วใน DirectorService (BossHealthMult)
+	local surv = self.ctx.Services.SurvivalService
+	local partyScale = Nights.PartyScale(surv and surv:RunPlayerCount(true) or 1)
+	local isBoss = opts.Kind == "Boss" or (opts.Kind == "Guardian" and info.Behaviour == "Boss")
+	local healthMult = (opts.HealthMult or 1) * (isBoss and 1 or partyScale.Health)
 	local maxHp = (info.Health == math.huge) and 1e9 or info.Health * healthMult
 	hum.MaxHealth = maxHp
 	hum.Health = maxHp
@@ -125,10 +130,27 @@ function AnimalService:Spawn(id, position, opts)
 	local a = {
 		Model = model, Id = id, Info = info, Hum = hum, Root = root, Kind = kind,
 		Home = opts.Home or position, State = "Idle", Radius = math.max(size.X, size.Z) * 0.45,
-		HealthMult = healthMult, DamageMult = opts.DamageMult or 1, SpeedMult = speedMult,
+		HealthMult = healthMult, SpeedMult = speedMult,
+		-- ปรับความยากทั้งเกม (Config): มอนทั่วไป/บอส ตีเบาลง — ทุกท่า/สกิลบอสคูณ DamageMult ตัวนี้
+		DamageMult = (opts.DamageMult or 1) * partyScale.Damage * (model:GetAttribute("IsBoss") and Config.BossDamageScale or Config.MonsterDamageScale),
 		NextAttack = 0, NextThink = 0, NextAbility = os.clock() + 6, LastPos = position, StuckSince = nil,
 		Leash = opts.Leash, Night = opts.Night or 0,
 	}
+	if info.Aquatic then
+		-- ลอยที่ผิวน้ำ (ครีบหลังโผล่) : ดันเฉพาะแกนตั้ง ไม่ให้ Humanoid ดำดิ่งลงก้นทะเล
+		local att = Instance.new("Attachment")
+		att.Name = "FloatAtt"
+		att.Parent = root
+		local float = Instance.new("AlignPosition")
+		float.Name = "Float"
+		float.Mode = Enum.PositionAlignmentMode.OneAttachment
+		float.Attachment0 = att
+		float.ForceLimitMode = Enum.ForceLimitMode.PerAxis
+		float.MaxAxesForce = Vector3.new(0, 1e6, 0)
+		float.Responsiveness = 12
+		float.Position = Vector3.new(0, self.ctx.Layout.WaterLevel + size.Y * 0.4, 0) -- ตัวจริงลอยปริ่มผิวน้ำ · ภาพจมลงครึ่งตัว (AnimalAnimator)
+		float.Parent = root
+	end
 	if info.Behaviour == "Flyer" or info.Flying then
 		self:SetupFlying(a)
 	elseif info.Behaviour == "Boss" then
@@ -178,8 +200,11 @@ function AnimalService:SetupFlying(a)
 	local ao = Instance.new("AlignOrientation")
 	ao.Mode = Enum.OrientationAlignmentMode.OneAttachment
 	ao.Attachment0 = att
-	ao.MaxTorque = 1e7
-	ao.Responsiveness = 12
+	-- บอสบินตัวใหญ่มาก (มวลสูง): แรงหมุนต้องสูงพอ ไม่งั้นหันช้า/ไม่ทันหน้าตอนพ่นไฟ (วัดได้คลาด 80-137°)
+	-- (บอสรังเกิดเป็น Kind "Guardian" -> ดูจากพฤติกรรม Boss ไม่ใช่ Kind — เคยพลาดจนมังกรในรังไม่หันหน้า)
+	local isBoss = a.Info.Behaviour == "Boss"
+	ao.MaxTorque = isBoss and 1e10 or 1e7
+	ao.Responsiveness = isBoss and 9 or 12
 	ao.CFrame = root.CFrame
 	ao.Parent = root
 	a.Align, a.Orient = ap, ao
@@ -240,6 +265,9 @@ function AnimalService:TakeDamage(a, amount, attacker, opts)
 		a.LastAttacker = attacker
 		a.Provoked = attacker
 		a.ProvokedUntil = os.clock() + 12
+		if a.OnHurt then
+			a.OnHurt(attacker)
+		end
 	end
 	if opts.Burn and opts.Burn > 0 then
 		a.Burn = opts.Burn
@@ -286,12 +314,12 @@ function AnimalService:GiveDrops(a, player)
 		else
 			n = self.rng:NextInteger(d.Min or 1, d.Max or 1)
 		end
-		if n > 0 and (d.Item == "Pelt" or d.Item == "RawMeat") then
+		if n > 0 and (d.Item == "Pelt" or d.Item == "RawMeat" or d.Item == "Bone" or d.Item == "Fiber") then
 			n += extra
 		end
 		if n > 0 then
-			self.ctx.Services.DropService:Spawn(d.Item, n, a.Root.Position)
-			got[d.Item] = n
+			n = self.ctx.Services.DropService:SpawnLoot(d.Item, n, a.Root.Position)
+			got[d.Item] = n > 0 and n or nil
 		end
 	end
 	self.ctx.Remotes.Get("HitFx"):FireClient(player, "Loot", { Items = got, Position = a.Root.Position })
@@ -327,11 +355,11 @@ function AnimalService:Kill(a, attacker)
 	end
 	local isBoss = model:GetAttribute("IsBoss")
 	if isBoss then
-		-- บอส: ทุกคนในระยะได้ของ + Ruby
+		-- บอส: ของดรอปชุดเดียว (ตกที่ตัวบอส ใครเก็บก็ได้) · Ruby ให้ทุกคนในระยะ
+		self:GiveDrops(a, receiver)
 		for _, p in ipairs(Players:GetPlayers()) do
 			local c = p.Character
 			if c and (c:GetPivot().Position - pos).Magnitude < 260 then
-				self:GiveDrops(a, p)
 				self.ctx.Services.DataService:AddDiamonds(p, Classes.BossReward, "ปราบ " .. a.Info.Thai)
 				local pd = self.ctx.Services.DataService:Get(p)
 				if pd then
@@ -417,7 +445,31 @@ function AnimalService:PickTarget(a)
 end
 
 ---------------------------------------------------------------- การเคลื่อนที่
+-- สัตว์น้ำ (Aquatic): จุดหมายบนบก -> ไล่จากจุดหมายกลับมาหาตัว หาจุดแรกที่ยังเป็นน้ำลึก (ว่ายวนชายฝั่ง ไม่ขึ้นบก)
+function AnimalService:WaterPoint(a, pos)
+	local layout = self.ctx.Layout
+	local wl = layout.WaterLevel
+	if layout:HeightAt(pos.X, pos.Z) < wl - 2 then
+		return Vector3.new(pos.X, wl, pos.Z)
+	end
+	local from = a.Root.Position
+	local d = (from - pos) * Vector3.new(1, 0, 1)
+	local len = d.Magnitude
+	if len > 1 then
+		for t = 4, len, 4 do
+			local q = pos + d.Unit * t
+			if layout:HeightAt(q.X, q.Z) < wl - 2 then
+				return Vector3.new(q.X, wl, q.Z)
+			end
+		end
+	end
+	return Vector3.new(from.X, wl, from.Z)
+end
+
 function AnimalService:MoveTo(a, pos, speedFactor)
+	if a.Info.Aquatic then
+		pos = self:WaterPoint(a, pos)
+	end
 	local hum = a.Hum
 	local slow = (a.SlowUntil or 0) > os.clock() and 0.5 or 1
 	hum.WalkSpeed = (a.Info.Speed or 16) * a.SpeedMult * (speedFactor or 1) * slow
@@ -467,7 +519,7 @@ function AnimalService:Face(a, pos)
 	a.Turn.Enabled = true
 end
 
-function AnimalService:Wander(a, now, radius)
+function AnimalService:Wander(a, now, radius, minRadius)
 	if not a.WanderAt or now > a.WanderAt then
 		a.WanderAt = now + self.rng:NextNumber(5, 11)
 		if self.rng:NextNumber() < 0.35 then
@@ -475,10 +527,11 @@ function AnimalService:Wander(a, now, radius)
 			a.State = "Graze"
 		else
 			local ang = self.rng:NextNumber(0, math.pi * 2)
-			local r = self.rng:NextNumber(10, radius or 50)
+			local r = self.rng:NextNumber(minRadius or 10, math.max(radius or 50, (minRadius or 10) + 1))
 			local p = a.Home + Vector3.new(math.cos(ang) * r, 0, math.sin(ang) * r)
 			local h, _, lava = self.ctx.Layout:HeightAt(p.X, p.Z)
-			if h > self.ctx.Layout.WaterLevel - 2 or a.Id == "RiptideCroc" or a.Id == "Leviathan" then
+			local wet = h < self.ctx.Layout.WaterLevel - 3
+			if (a.Info.Aquatic and wet) or (not a.Info.Aquatic and (h > self.ctx.Layout.WaterLevel - 2 or a.Id == "Leviathan")) then
 				if not lava or a.Info.Element == "Fire" then
 					self:MoveTo(a, Vector3.new(p.X, h + 2, p.Z), 0.45)
 					a.State = "Wander"
@@ -682,6 +735,9 @@ end
 -- บอส: ไม่เข้าตีประชิด — คุมระยะ หันหน้าหาผู้เล่นตลอด แล้วใช้สกิล (มีวงเตือนให้หลบ) วนไปทีละท่า
 function AnimalService:FaceBoss(a, pos)
 	local root = a.Root
+	if a.CastFace then
+		pos = root.Position + a.CastFace * 50 -- กำลังร่ายสกิลแนวตรง: หน้าล็อกตามทิศสกิล
+	end
 	local flat = Vector3.new(pos.X - root.Position.X, 0, pos.Z - root.Position.Z)
 	if flat.Magnitude < 1 then
 		return
@@ -1008,28 +1064,23 @@ function AnimalService:ThinkStalker(a, now)
 	a.Model:SetAttribute("State", a.State)
 end
 
--- ลูกสัตว์ธาตุเดินตามคน
-function AnimalService:ThinkSpirit(a, now)
-	local p = a.FollowPlayer
-	if not (p and p.Parent) then
-		self:Stop(a)
+-- ลูกสัตว์ที่ช่วยแล้ว: เดินเล่นในเขตแคมป์เอง (ไม่ตามใคร) · หลุดไปไกล (ลงจากหลังนอกแคมป์) = เดินกลับบ้าน
+function AnimalService:ThinkPet(a, now)
+	local camp = self.ctx.CampPosition
+	local radius = math.max(self.ctx.Services.CampService:CampRadius() - 12, 24)
+	local d = ((a.Root.Position - camp) * Vector3.new(1, 0, 1)).Magnitude
+	if d > 400 then
+		a.Model:PivotTo(CFrame.new(camp + Vector3.new(radius * 0.5, self.ctx.Layout:HeightAt(camp.X + radius * 0.5, camp.Z) - camp.Y + 4, 0)))
 		return
-	end
-	local r = charRoot(p)
-	if not r then
-		return
-	end
-	local d = (r.Position - a.Root.Position).Magnitude
-	if d > 120 then
-		a.Model:PivotTo(r.CFrame * CFrame.new(3, 0, 4))
-	elseif d > 8 then
-		self:MoveTo(a, r.Position - r.CFrame.LookVector * 4, d > 30 and 1.4 or 1)
+	elseif d > radius + 6 then
+		self:MoveTo(a, Vector3.new(camp.X, a.Root.Position.Y, camp.Z), 0.7)
+		a.State = "Return"
+		a.WanderAt = now + 3
 	else
-		self:Stop(a)
+		a.Home = camp
+		self:Wander(a, now, radius, 18) -- ไม่เข้าใกล้กองไฟเกิน 18 stud
 	end
-	if self:CampDistance(a.Root.Position) < math.max(self.ctx.Services.CampService:SafeRadius(), 40) then
-		self.ctx.Services.SpiritService:Rescue(a, p)
-	end
+	a.Model:SetAttribute("State", a.State)
 end
 
 -- ฉากเปิดตัวบอส: ตรึงไว้ที่จุดเกิด ~7 วิ (เครื่องผู้เล่นขยับตัวบอสเล่นฉากเอง) แล้วปล่อยสู้
@@ -1056,7 +1107,10 @@ function AnimalService:Think(a, now)
 		return
 	end
 	if a.IntroUntil and os.clock() < a.IntroUntil then
-		return -- ฉากเปิดตัวบอส: ยืนนิ่งให้เครื่องผู้เล่นเล่นฉาก
+		return -- ฉากเปิดตัวบอส / ผู้เฝ้าศาลเจ้าเดินตามบท: ไม่คิดเอง
+	end
+	if a.Rider then
+		return -- มีคนขี่อยู่ (ตัวติดกับผู้ขี่ ห้ามย้าย/ดึงลงพื้นเอง)
 	end
 	-- ไฟไหม้
 	if a.BurnUntil and now < a.BurnUntil then
@@ -1070,7 +1124,8 @@ function AnimalService:Think(a, now)
 		self:Remove(a)
 		return
 	end
-	if not a.Flying and a.Kind ~= "Boss" and now >= (a.NextGroundCheck or 0) then
+	-- (บอสในรังเกิดเป็น Guardian: ห้ามดึงขึ้นผิวดิน — เคยดึงเยติจากพื้นวังน้ำแข็งขึ้นไปค้างบนหลังคา/ตกฐาน)
+	if not a.Flying and a.Info.Behaviour ~= "Boss" and now >= (a.NextGroundCheck or 0) then
 		a.NextGroundCheck = now + 1
 		local p = a.Root.Position
 		local rp = RaycastParams.new()
@@ -1084,8 +1139,8 @@ function AnimalService:Think(a, now)
 		end
 	end
 	if a.Kind == "Spirit" then
-		if a.FollowPlayer then
-			self:ThinkSpirit(a, now)
+		if a.Pet then
+			self:ThinkPet(a, now)
 		end
 		return
 	elseif a.Kind == "Stalker" then
@@ -1122,6 +1177,19 @@ function AnimalService:SpawnWildNear(player)
 						pick -= w
 						if pick <= 0 then
 							local info = Animals.Data[id]
+							if info.Aquatic then
+								-- สัตว์น้ำ: หาน้ำลึกใกล้จุดนี้ (ชายฝั่ง) แล้วเกิดที่ผิวน้ำ
+								for _ = 1, 14 do
+									local a2 = self.rng:NextNumber(0, math.pi * 2)
+									local d2 = self.rng:NextNumber(20, 110)
+									local wx, wz = x + math.cos(a2) * d2, z + math.sin(a2) * d2
+									if layout:HeightAt(wx, wz) < layout.WaterLevel - 5 then
+										self:Spawn(id, Vector3.new(wx, layout.WaterLevel + 1, wz), { Kind = "Wild" })
+										break
+									end
+								end
+								return
+							end
 							local count = info.Pack and self.rng:NextInteger(info.Pack[1], info.Pack[2]) or 1
 							for i = 1, count do
 								local off = Vector3.new(self.rng:NextNumber(-6, 6), 0, self.rng:NextNumber(-6, 6))

@@ -19,6 +19,7 @@ local CF = CFrame.new
 
 local BossAnimator = require(script.Parent:WaitForChild("BossAnimator"))
 local ClipAnimator = require(script.Parent:WaitForChild("ClipAnimator"))
+local SkelAnimator = require(script.Parent:WaitForChild("SkelAnimator"))
 
 local function collect(model)
 	local root = model:FindFirstChild("HumanoidRootPart")
@@ -115,6 +116,173 @@ local function fade(model, alpha)
 	end
 end
 
+---------------------------------------------------------------- สัตว์น้ำ: เอฟเฟกต์ประจำตัว + ตอนโจมตี
+local VFXLib = require(script.Parent:WaitForChild("VFXLib"))
+local WATER_ID = { ReefCrab = true, TideOrca = true, InkOctopus = true }
+local function waterFx(rig)
+	if rig.WetFx or not WATER_ID[rig.Id] then
+		return
+	end
+	rig.WetFx = true
+	local size = rig.Size
+	-- หยดน้ำไหลจากตัวตลอด (ตัวเปียก)
+	local drip = Instance.new("ParticleEmitter")
+	drip.Name = "Drip"
+	drip.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+	drip.Color = ColorSequence.new(Color3.fromRGB(170, 230, 255), Color3.fromRGB(90, 180, 255))
+	drip.LightEmission, drip.LightInfluence = 0.6, 0.4
+	drip.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.25), NumberSequenceKeypoint.new(1, 0.05) })
+	drip.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.2), NumberSequenceKeypoint.new(1, 1) })
+	drip.Lifetime = NumberRange.new(0.5, 0.9)
+	drip.Speed = NumberRange.new(0, 1)
+	drip.Acceleration = Vector3.new(0, -30, 0)
+	drip.Rate = 6 + size.X
+	drip.Shape = Enum.ParticleEmitterShape.Box
+	drip.Parent = rig.Root
+	-- ฟองอากาศลอยขึ้นรอบตัวเบาๆ
+	local bub = Instance.new("ParticleEmitter")
+	bub.Name = "Bubbles"
+	bub.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+	bub.Color = ColorSequence.new(Color3.fromRGB(220, 250, 255))
+	bub.LightEmission = 0.8
+	bub.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.15), NumberSequenceKeypoint.new(1, 0.4) })
+	bub.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.4), NumberSequenceKeypoint.new(1, 1) })
+	bub.Lifetime = NumberRange.new(1, 1.8)
+	bub.Speed = NumberRange.new(1, 2.5)
+	bub.SpreadAngle = Vector2.new(25, 25)
+	bub.Rate = 3
+	bub.Parent = rig.Root
+	if rig.Id == "TideOrca" then
+		rig.NextSpray = os.clock() + math.random() * 5
+	end
+end
+-- จอเปื้อนหมึก (โดนหมึกยักษ์ฟาดใกล้ๆ)
+local function inkScreen()
+	local pg = Players.LocalPlayer:FindFirstChild("PlayerGui")
+	if not pg then
+		return
+	end
+	local gui = Instance.new("ScreenGui")
+	gui.Name = "ASInk"
+	gui.IgnoreGuiInset = true
+	gui.DisplayOrder = 30
+	gui.Parent = pg
+	for i = 1, 7 do
+		local blob = Instance.new("Frame")
+		local s = math.random(160, 380)
+		blob.Size = UDim2.fromOffset(s, s * math.random(70, 110) / 100)
+		blob.AnchorPoint = Vector2.new(0.5, 0.5)
+		blob.Position = UDim2.fromScale(math.random(15, 85) / 100, math.random(15, 85) / 100)
+		blob.BackgroundColor3 = Color3.fromRGB(12, 8, 24)
+		blob.BackgroundTransparency = 0.08
+		blob.Rotation = math.random(0, 360)
+		blob.Parent = gui
+		local c = Instance.new("UICorner")
+		c.CornerRadius = UDim.new(0.5, 0)
+		c.Parent = blob
+		game:GetService("TweenService"):Create(blob, TweenInfo.new(2.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In, 0, false, 0.6 + i * 0.08),
+			{ BackgroundTransparency = 1, Position = blob.Position + UDim2.fromScale(0, 0.06) }):Play()
+	end
+	game:GetService("Debris"):AddItem(gui, 3.6)
+end
+local function inkCloud(pos, size, look)
+	local p = Instance.new("Part")
+	p.Anchored, p.CanCollide, p.CanQuery, p.CanTouch, p.Transparency = true, false, false, false, 1
+	p.Size = Vector3.one
+	p.CFrame = CFrame.lookAt(pos, pos + (look or Vector3.new(0, 0, -1)))
+	p.Parent = Workspace
+	local e = Instance.new("ParticleEmitter")
+	e.Texture = "rbxasset://textures/particles/smoke_main.dds"
+	e.Color = ColorSequence.new(Color3.fromRGB(70, 40, 110), Color3.fromRGB(24, 14, 40))
+	e.LightInfluence = 0.5
+	e.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, size * 0.25), NumberSequenceKeypoint.new(0.4, size * 0.7), NumberSequenceKeypoint.new(1, size * 1.1) })
+	e.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.55), NumberSequenceKeypoint.new(0.5, 0.7), NumberSequenceKeypoint.new(1, 1) })
+	e.Lifetime = NumberRange.new(0.9, 1.6)
+	e.Speed = NumberRange.new(size * 2, size * 4)
+	e.SpreadAngle = Vector2.new(35, 35)
+	e.EmissionDirection = Enum.NormalId.Front
+	e.Drag = 4
+	e.Rotation = NumberRange.new(0, 360)
+	e.RotSpeed = NumberRange.new(-60, 60)
+	e.Rate = 0
+	e.Parent = p
+	e:Emit(16)
+	game:GetService("Debris"):AddItem(p, 2.5)
+end
+local function waterAttackFx(rig, kind)
+	local root = rig.Root
+	local size = math.max(rig.Size.X, rig.Size.Z)
+	task.delay(0.3, function()
+		if not root.Parent then
+			return
+		end
+		local front = root.Position + root.CFrame.LookVector * size * 0.45
+		if rig.Template == "Whale" then
+			pcall(VFXLib.Play, "WaterBurst", CFrame.new(front), { Scale = size / 10, Duration = 0.4 })
+			pcall(VFXLib.Play, "WaterSplash", CFrame.new(front), { Scale = size / 12, Duration = 0.4 })
+		elseif rig.Template == "Octopus" then
+			inkCloud(front, size * 0.3, root.CFrame.LookVector)
+			pcall(VFXLib.Play, "WaterSplash", CFrame.new(front), { Scale = size / 12, Duration = 0.3 })
+			local char = Players.LocalPlayer.Character
+			if char and (char:GetPivot().Position - front).Magnitude < size * 0.9 + 4 then
+				inkScreen()
+			end
+		end
+	end)
+	local _ = kind
+end
+
+-- ปลาวาฬ: ว่ายเป็นคลื่น (หางขึ้นลง) ครีบพาย · โจมตี = พุ่งเงยหัวอ้าปากงับ
+local function animateWhale(rig, now, walk, att)
+	local ph = now * (1.6 + walk * 2.6) + rig.Seed
+	local size = math.max(rig.Size.Z, rig.Size.X)
+	setT(rig, "Tail1", ANG(sin(ph) * 0.16 - att * 0.15, sin(ph * 0.5) * 0.05, 0))
+	setT(rig, "Tail2", ANG(sin(ph - 1.1) * 0.38 - att * 0.3, 0, 0))
+	local paddle = 0.22 + sin(ph * 0.8) * 0.2
+	setT(rig, "FinL", ANG(sin(ph * 0.8) * 0.15, 0, paddle))
+	setT(rig, "FinR", ANG(sin(ph * 0.8) * 0.15, 0, -paddle))
+	setT(rig, "Jaw", ANG(-att * 0.75 + (sin(now * 0.7 + rig.Seed) + 1) * 0.03, 0, 0))
+	-- จมลงครึ่งตัว: เห็นหลัง + ครีบหลังโผล่พ้นน้ำ · ตอนงับพุ่งขึ้นเหนือน้ำ
+	local sink = -rig.Size.Y * 0.42 * (1 - att * 0.8)
+	setT(rig, "Root", CF(0, sink + sin(ph) * size * 0.012 + att * size * 0.08, -att * size * 0.15) * ANG(sin(ph + 0.6) * 0.035 + att * 0.32, 0, sin(ph * 0.5) * 0.03))
+	-- พ่นน้ำจากรูหายใจเป็นระยะ
+	if rig.NextSpray and now > rig.NextSpray then
+		rig.NextSpray = now + 6 + math.random() * 5
+		local top = rig.Root.Position + Vector3.new(0, rig.Size.Y * 0.45, 0) + rig.Root.CFrame.LookVector * size * 0.12
+		pcall(VFXLib.Play, "WaterSplash", CFrame.new(top), { Scale = size / 20, Duration = 0.5 })
+	end
+end
+
+-- หมึก: หนวดม้วนเป็นคลื่นรอบตัว · เดิน = หนวดสลับยกเป็นจังหวะ · โจมตี = หนวดหน้าเงื้อขึ้นแล้วฟาดลง
+local function animateOctopus(rig, now, p, walk, att)
+	if not rig.TentFront then
+		rig.TentFront = {}
+		for i = 1, 8 do
+			local m = rig.M["Tent" .. i]
+			if m and m.Part1 then
+				local d = rig.Root.CFrame:VectorToObjectSpace(m.Part1.Position - rig.Root.Position)
+				rig.TentFront[i] = math.max(0, -d.Unit.Z)
+			end
+		end
+	end
+	local t = (now - rig.AttackT)
+	local windup = t < 0.25 and t / 0.25 or 0
+	local strike = (t >= 0.25 and t < 0.6) and sin((t - 0.25) / 0.35 * math.pi) or 0
+	for i = 1, 8 do
+		local off = i * 0.785 + rig.Seed
+		local curl = sin(now * 2.4 + off) * 0.16 - 0.05
+		local lift = sin(p * 2 + i * 1.57) * 0.4 * walk
+		local sweep = sin(p * 2 + i * 1.57 + 1.57) * 0.22 * walk + sin(now * 1.3 + off) * 0.06
+		local f = rig.TentFront[i] or 0
+		curl += f * (-1.2 * windup + 0.7 * strike)
+		setT(rig, "Tent" .. i, ANG(curl - math.max(lift, 0), sweep, 0))
+	end
+	local size = rig.Size.Y
+	setT(rig, "Root", CF(0, abs(sin(p * 2)) * size * 0.06 * walk + sin(now * 2 + rig.Seed) * size * 0.02 + windup * size * 0.12, -strike * size * 0.2)
+		* ANG(windup * 0.2 - strike * 0.15, sin(p) * 0.08 * walk, 0))
+	local _ = att
+end
+
 local function animate(rig, now, dt, camPos, playerPos)
 	local root = rig.Root
 	local vel = root.AssemblyLinearVelocity
@@ -147,6 +315,24 @@ local function animate(rig, now, dt, camPos, playerPos)
 	end
 
 	local breathe = sin(now * 2.2 + rig.Seed) * 0.025
+	waterFx(rig)
+	if WATER_ID[rig.Id] and rig.AttackT ~= rig.FxAttackT then
+		rig.FxAttackT = rig.AttackT
+		if rig.AttackT > 0 then
+			waterAttackFx(rig, kind)
+		end
+	end
+	if tmpl == "Whale" then
+		animateWhale(rig, now, walk, att)
+		return
+	elseif tmpl == "Octopus" then
+		animateOctopus(rig, now, p, walk, att)
+		return
+	end
+	if tmpl == "Skel" then
+		SkelAnimator.Animate(rig, now, dt, speed, playerPos) -- สัตว์ที่ช่วยจากศาลเจ้า: ขางอจริง + ท่าจากไฟล์
+		return
+	end
 	if tmpl == "Bird" then
 		local flying = rig.Model:GetAttribute("Flying")
 		local dive = kind == "Dive" and att > 0
@@ -264,19 +450,31 @@ function AnimalAnimator.Init()
 				if not ok then
 					rigs[model] = nil
 					warn("[AS] anim", err)
-				elseif rig.Clip and not rig.DeadT then
+				elseif rig.Clip and (not rig.DeadT or ClipAnimator.HasDeath(rig)) then
 					local vel = rig.Root.AssemblyLinearVelocity
 					ClipAnimator.Animate(rig, dt, Vector3.new(vel.X, 0, vel.Z).Magnitude)
 				elseif model:GetAttribute("SkinRig") == "Static" then
-					-- โมเดลนิ่งจาก Store: กระโดดดุ๊กดิ๊กตอนเดิน / หายใจเบาๆ ตอนยืน
+					-- โมเดลนิ่งจาก Store (ไม่มีกระดูก): เดิน = เด้งตามก้าว + โยกซ้ายขวา + โน้มตัวไปข้างหน้า · ยืน = หายใจ
+					--   ผสมนุ่มตามความเร็วจริง (ไม่สลับท่าขวับ) + หันตัวนุ่ม (ภาพหมุนตามตัวจริงแบบหน่วง ไม่หันขวับ)
 					local j = rig.Root:FindFirstChild("SkinJoint")
 					if j then
 						local vel = rig.Root.AssemblyLinearVelocity
-						local moving = Vector3.new(vel.X, 0, vel.Z).Magnitude > 1.5
-						rig.HopT = (rig.HopT or 0) + dt * (moving and 11 or 2.2)
-						local s = math.sin(rig.HopT)
-						local hop = moving and math.abs(s) * 0.45 or (s + 1) * 0.04
-						j.Transform = CFrame.new(0, hop, 0) * CFrame.Angles(moving and -0.08 or 0, 0, moving and s * 0.1 or 0)
+						local speed = Vector3.new(vel.X, 0, vel.Z).Magnitude
+						local h = math.max(rig.Size.Y, 1)
+						rig.MoveW = (rig.MoveW or 0) + (math.clamp((speed - 0.8) / 6, 0, 1) - (rig.MoveW or 0)) * math.min(1, dt * 6)
+						local w = rig.MoveW
+						rig.HopT = (rig.HopT or 0) + dt * (1.6 + math.clamp(speed / h, 0, 5) * 2.4)
+						local ph = rig.HopT
+						local bounce = math.abs(math.sin(ph)) * h * 0.08 * w
+						local breathe = (math.sin(ph * 0.8) + 1) * h * 0.008 * (1 - w)
+						local look = rig.Root.CFrame.LookVector
+						local yaw = math.atan2(-look.X, -look.Z)
+						rig.VisYaw = rig.VisYaw or yaw
+						rig.VisYaw += ((yaw - rig.VisYaw + math.pi) % (2 * math.pi) - math.pi) * math.min(1, dt * 8)
+						local lag = math.clamp(((rig.VisYaw - yaw + math.pi) % (2 * math.pi)) - math.pi, -0.7, 0.7)
+						rig.VisYaw = yaw + lag
+						j.Transform = CFrame.new(0, bounce + breathe, 0)
+							* CFrame.Angles(-0.07 * w + math.sin(ph * 2) * 0.04 * w, lag + math.sin(ph) * 0.06 * w, math.sin(ph) * 0.1 * w - lag * 0.25)
 					end
 				elseif rig.Boss then
 					local vel = rig.Root.AssemblyLinearVelocity

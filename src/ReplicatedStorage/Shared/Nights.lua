@@ -1,6 +1,7 @@
 --[[
 	Nights — ผู้กำกับฝูงบุก 99 คืน
 	- ทุกคืนสุ่ม "ธาตุประจำคืน" (สัตว์ธาตุนั้นบุก)
+	- ฝูงบุกทุกคืน: คืนธรรมดา = ฝูงเล็ก · ทุก 5 คืน + คืน 99 = คืนบุกใหญ่ (คืนยิ่งสูง มอนยิ่งเยอะ ดู Nights.MaxCount)
 	- ทุก 10 คืน = พระจันทร์เลือด (คืน 10 = ครั้งแรก: 2-3 ธาตุ งบ x1.25 · คืน 20 ขึ้นไป: ทุกธาตุ งบ x1.5)
 	- งบฝูงบุกคูณตามจำนวนคนที่ยังรอดในรอบ: x(0.7 + 0.3 × คน) (1 คน = x1.0) · เลือดบอส x(1 + 0.25 × (คน − 1))
 	- คืน 25 / 50 / 75 / 99 = บอสธาตุบุกฐาน
@@ -62,22 +63,66 @@ Nights.FirstBloodMoon = 10
 Nights.FirstBloodMoonMult = 1.25
 Nights.BloodMoonMult = 1.5
 
--- ตัวคูณงบฝูงบุกตามจำนวนผู้เล่นที่ยังรอดในรอบ (1 คน = 1.0, 2 = 1.3, 4 = 1.9, 8 = 3.1)
+-- จำนวนคนในตี้ที่ใช้คิดความยาก (รองรับสูงสุด 8)
+Nights.MaxParty = 8
+local function party(players)
+	return math.clamp(players or 1, 1, Nights.MaxParty)
+end
+
+-- ตัวคูณงบฝูงบุก (จำนวนมอน) ตามจำนวนผู้เล่นที่ยังรอดในรอบ (1 คน = 1.0, 2 = 1.35, 4 = 2.05, 8 = 3.45)
 function Nights.PlayerBudgetMult(players)
-	return 0.7 + 0.3 * math.max(1, players or 1)
+	return 0.65 + 0.35 * party(players)
 end
 
--- ตัวคูณเลือดบอสตามจำนวนผู้เล่น (1 คน = 1.0, 2 = 1.25, 4 = 1.75)
+-- ตัวคูณเลือดบอสตามจำนวนผู้เล่น (1 คน = 1.0, 2 = 1.25, 4 = 1.75, 8 = 2.75)
 function Nights.BossHealthMult(players)
-	return 1 + 0.25 * (math.max(1, players or 1) - 1)
+	return 1 + 0.25 * (party(players) - 1)
 end
 
-function Nights.Budget(night, players)
+-- มอนทุกตัวโหดขึ้นตามจำนวนคนในตี้ (นอกจากมาเยอะขึ้น):
+--   เลือด 1 คน = x1.0, 2 = x1.15, 4 = x1.45, 8 = x2.05 · ดาเมจ 1 คน = x1.0, 4 = x1.18, 8 = x1.42
+--   บอส: เลือดใช้ BossHealthMult แทน · ดาเมจคูณเหมือนมอนทั่วไป
+function Nights.PartyScale(players)
+	local extra = party(players) - 1
+	return { Health = 1 + 0.15 * extra, Damage = 1 + 0.06 * extra }
+end
+
+-- เพดานจำนวนมอนบุกพร้อมกันตามจำนวนคน (1 คน = base, 8 คน = base + 42)
+function Nights.MaxRaid(base, players)
+	return base + 6 * (party(players) - 1)
+end
+
+-- คืนบุกใหญ่: ทุก 5 คืน + คืนสุดท้าย
+function Nights.IsBigRaid(night)
+	return night % 5 == 0 or night == Config.TotalNights
+end
+
+-- คืนบุกใหญ่ถัดไป (นับคืนนี้ด้วย)
+function Nights.NextBigRaid(night)
+	while not Nights.IsBigRaid(night) do
+		night += 1
+	end
+	return night
+end
+
+-- คืนธรรมดาใช้งบแค่ส่วนนี้ของคืนบุกใหญ่
+Nights.SmallRaidMult = 0.6
+
+-- bloodMoonNight = เลขคืนต้นทางของพระจันทร์เลือด (nil = ไม่ใช่คืนพระจันทร์เลือด)
+function Nights.Budget(night, players, bloodMoonNight, bigRaid)
 	local b = 3 + night * 1.35 + (night / 10) ^ 2 * 2
-	if Nights.IsBloodMoon(night) then
-		b *= (night == Nights.FirstBloodMoon) and Nights.FirstBloodMoonMult or Nights.BloodMoonMult
+	if bloodMoonNight then
+		b *= (bloodMoonNight == Nights.FirstBloodMoon) and Nights.FirstBloodMoonMult or Nights.BloodMoonMult
+	elseif not bigRaid then
+		b *= Nights.SmallRaidMult
 	end
 	return b * Nights.PlayerBudgetMult(players)
+end
+
+-- เพดานจำนวนมอนทั้งคืน (กันยากเกินช่วงต้น · ปรับความยากรวมที่นี่): คืนยิ่งสูง มอนยิ่งเยอะ
+function Nights.MaxCount(night, players, bigRaid)
+	local n = bigRaid and (5 + night * 0.4) or (2 + night * 0.2)
+	return math.max(1, math.floor(n * Nights.PlayerBudgetMult(players)))
 end
 
 -- ธาตุประจำคืน (ไม่ซ้ำกับคืนก่อน) — rng = Random object
@@ -101,18 +146,26 @@ end
 		BloodMoon = bool,
 		Elements = { "Earth", "Fire" } | nil,  -- เฉพาะพระจันทร์เลือดครั้งแรก (ธาตุที่บุกจริง)
 		Boss = "Solfang" | nil,
+		BigRaid = bool,
+		OriginNight = 25,  -- คืนต้นทางของเหตุการณ์ที่ถูกย้ายมา (ไม่มี = night)
 		Waves = { { At = 0.05, Spawns = { "EmberFox", "EmberFox", ... } }, ... }  -- At = สัดส่วนของเวลากลางคืน
 	}
+	carry = เหตุการณ์ของคืนที่ถูกข้าม (เตียง/ศาลเจ้า) ที่ย้ายมาคืนนี้: { Boss, BossNight, BloodMoonNight, BigRaid }
 ]]
-function Nights.Plan(night, rng, element, players)
+function Nights.Plan(night, rng, element, players, carry)
+	carry = carry or {}
+	local ownBoss = Nights.BossFor(night)
+	local bloodMoonNight = Nights.IsBloodMoon(night) and night or carry.BloodMoonNight
 	local plan = {
 		Element = element,
-		BloodMoon = Nights.IsBloodMoon(night),
-		Boss = Nights.BossFor(night),
+		BloodMoon = bloodMoonNight ~= nil,
+		Boss = ownBoss or carry.Boss,
+		BigRaid = Nights.IsBigRaid(night) or carry.BigRaid == true or bloodMoonNight ~= nil,
+		OriginNight = (not ownBoss and carry.BossNight) or (not Nights.IsBloodMoon(night) and carry.BloodMoonNight) or nil,
 		Waves = {},
 	}
 	local pools = {}
-	if plan.BloodMoon and night == Nights.FirstBloodMoon then
+	if plan.BloodMoon and bloodMoonNight == Nights.FirstBloodMoon then
 		-- พระจันทร์เลือดครั้งแรก: ธาตุประจำคืน + อีก 1-2 ธาตุ (ไม่ใช่ทุกธาตุ)
 		plan.Element = "All"
 		local picked = { element or "Earth" }
@@ -155,8 +208,10 @@ function Nights.Plan(night, rng, element, players)
 		available = { "MossWolf" }
 	end
 
-	local waveCount = night < 5 and 2 or 3
-	local budget = Nights.Budget(night, players)
+	-- ระลอกต้องมาเร็วพอให้วิ่งถึงแคมป์ก่อนเช้า (ตัวช้าสุดใช้ ~25 วิ)
+	local waveTimes = plan.BigRaid and { 0.03, 0.2, 0.4 } or { 0.03, 0.3 }
+	local waveCount = #waveTimes
+	local budget = Nights.Budget(night, players, bloodMoonNight, plan.BigRaid)
 	for w = 1, waveCount do
 		local waveBudget = budget * (w == waveCount and 0.45 or (0.55 / (waveCount - 1)))
 		local spawns = {}
@@ -180,10 +235,34 @@ function Nights.Plan(night, rng, element, players)
 				waveBudget -= 0.5
 			end
 		end
-		table.insert(plan.Waves, { At = (w - 1) / waveCount * 0.75 + 0.04, Spawns = spawns })
+		-- งบไม่พอซื้อตัวไหนเลย (ตัวที่ปลดล็อกแพงกว่างบ) -> ได้ตัวถูกสุด 1 ตัว กันคืนว่าง
+		if #spawns == 0 then
+			local cheapest = available[1]
+			for _, id in ipairs(available) do
+				if (Animals.Data[id].RaidCost or 2) < (Animals.Data[cheapest].RaidCost or 2) then
+					cheapest = id
+				end
+			end
+			table.insert(spawns, cheapest)
+		end
+		table.insert(plan.Waves, { At = waveTimes[w], Spawns = spawns })
+	end
+	-- ไม่เกินเพดานของคืนนี้: ตัดจากระลอกที่ใหญ่สุดก่อน
+	local total = 0
+	for _, wave in ipairs(plan.Waves) do
+		total += #wave.Spawns
+	end
+	for _ = 1, total - Nights.MaxCount(night, players, plan.BigRaid) do
+		local biggest = plan.Waves[1]
+		for _, wave in ipairs(plan.Waves) do
+			if #wave.Spawns > #biggest.Spawns then
+				biggest = wave
+			end
+		end
+		table.remove(biggest.Spawns)
 	end
 	if plan.Boss then
-		table.insert(plan.Waves, { At = 0.3, Spawns = { plan.Boss }, Boss = true })
+		table.insert(plan.Waves, { At = 0.1, Spawns = { plan.Boss }, Boss = true })
 	end
 	return plan
 end

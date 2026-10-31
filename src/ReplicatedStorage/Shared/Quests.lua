@@ -7,6 +7,8 @@
 	ความคืบหน้าทั้งหมดนับฝั่ง server (QuestService) แล้วเก็บในเซฟ — client ใช้ไฟล์นี้แค่แสดงผล
 ]]
 
+local Classes = require(script.Parent.Classes)
+
 local Quests = {}
 
 ---------------------------------------------------------------- เวลา (UTC)
@@ -112,7 +114,7 @@ Quests.LoginRewards = { 5, 8, 10, 12, 15, 20, 60 }
 Quests.LoginXP = 40
 
 ---------------------------------------------------------------- Season Pass
-Quests.SeasonEpoch = 1767225600 -- 1 ม.ค. 2026 00:00 UTC = เริ่มซีซั่น 1
+Quests.SeasonEpoch = 1793404800 -- 31 ต.ค. 2026 00:00 UTC = เริ่มซีซั่น 1
 Quests.SeasonLength = 30 * 86400
 Quests.SeasonTiers = 30
 Quests.XPPerTier = 300
@@ -156,19 +158,29 @@ Quests.Colors = {
 }
 Quests.ColorOrder = { "Sky", "Gold", "Ember", "Frost", "Jade", "Violet", "Crimson" }
 
--- รางวัลแต่ละขั้น: { Ruby = n } / { Title = id } / { Color = id } (ใส่หลายอย่างในขั้นเดียวได้)
+-- รางวัลแต่ละขั้น: { Ruby = n } / { Title = id } / { Color = id } / { Class = id } (ใส่ Ruby คู่กับอย่างอื่นได้)
+-- คลาสในพาสสูงสุดแค่ 4 ดาว (ม่วง) · มีคลาสนั้นแล้ว = ได้ Ruby ชดเชยครึ่งราคาแทน (Quests.ClassRefund)
 Quests.Track = { Free = {}, Prem = {} }
 do
-	local freeSpecial = { [10] = { Title = "Camper" }, [15] = { Color = "Sky" }, [20] = { Title = "NightOwl" }, [30] = { Title = "SeasonHero", Ruby = 40 } }
+	local freeSpecial = {
+		[5] = { Title = "Camper" }, [10] = { Class = "Forager" }, [15] = { Color = "Sky" },
+		[20] = { Class = "Lumberjack" }, [25] = { Title = "NightOwl" }, [30] = { Title = "SeasonHero", Ruby = 40 },
+	}
 	local premSpecial = {
-		[1] = { Color = "Gold", Ruby = 10 }, [5] = { Title = "Firekeeper" }, [8] = { Color = "Ember" }, [12] = { Color = "Frost" },
-		[15] = { Title = "BeastSlayer" }, [18] = { Color = "Jade" }, [22] = { Color = "Violet" }, [25] = { Title = "ElementLord" },
-		[28] = { Color = "Crimson" }, [30] = { Title = "Legend", Ruby = 120 },
+		[1] = { Color = "Gold", Ruby = 10 }, [3] = { Title = "Firekeeper" }, [5] = { Class = "Medic" }, [8] = { Color = "Ember" },
+		[10] = { Class = "Hunter" }, [12] = { Color = "Frost" }, [15] = { Title = "BeastSlayer" }, [17] = { Class = "Builder" },
+		[19] = { Color = "Jade" }, [21] = { Color = "Violet" }, [23] = { Title = "ElementLord" }, [25] = { Title = "Legend" },
+		[28] = { Color = "Crimson" }, [30] = { Class = "Scout", Ruby = 100 },
 	}
 	for t = 1, Quests.SeasonTiers do
 		Quests.Track.Free[t] = freeSpecial[t] or { Ruby = (t % 5 == 0) and 15 or ((t % 2 == 0) and 8 or 5) }
 		Quests.Track.Prem[t] = premSpecial[t] or { Ruby = (t % 5 == 0) and 30 or (10 + math.floor(t / 6) * 3) }
 	end
+end
+
+function Quests.ClassRefund(id)
+	local c = Classes.Data[id]
+	return c and math.floor(c.Price / 2) or 0
 end
 
 -- ข้อความสั้นของรางวัล (ใช้ใน UI / แจ้งเตือน)
@@ -182,6 +194,9 @@ function Quests.RewardText(r)
 	end
 	if r.Color and Quests.Colors[r.Color] then
 		table.insert(parts, "🎨 สี" .. Quests.Colors[r.Color].Text)
+	end
+	if r.Class and Classes.Data[r.Class] then
+		table.insert(parts, Classes.Data[r.Class].Icon .. " คลาส " .. Classes.Data[r.Class].Thai)
 	end
 	return table.concat(parts, " + ")
 end

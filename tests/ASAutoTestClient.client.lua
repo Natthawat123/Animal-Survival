@@ -125,7 +125,9 @@ if lobby then
 				clone = clone or c:Clone()
 			end
 			print("[TEST] class models", n, "parts", parts, "clone ok", clone ~= nil)
-			local Outfits = require(game:GetService("ReplicatedStorage").Shared.ClassOutfits)
+			-- ClassOutfits ถูกลบไปแล้ว (d69178e) -> ไม่มีโมดูล = ข้ามการเช็กชุด (ไม่ให้เทสทั้งชุดพัง)
+			local outfitsMod = game:GetService("ReplicatedStorage").Shared:FindFirstChild("ClassOutfits")
+			local Outfits = outfitsMod and require(outfitsMod) or {}
 			local missing = {}
 			for _, c in ipairs(cm and cm:GetChildren() or {}) do
 				local o = Outfits[c.Name]
@@ -227,6 +229,11 @@ while not player:GetAttribute("InRun") and os.clock() - tDep < 40 do
 	task.wait(0.5)
 	if zone and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and not player:GetAttribute("InRun") then
 		player.Character.HumanoidRootPart.CFrame = zone.CFrame
+	end
+	-- ขึ้นแท่นแล้ว: เลือกจำนวน 1 คน (แท่นเริ่มนับถอยหลังหลังเลือกจำนวนเท่านั้น)
+	if zone and player:GetAttribute("Pad") and not zone:GetAttribute("Picked") and os.clock() - (_G.ASPadPickAt or 0) > 2 then
+		_G.ASPadPickAt = os.clock()
+		require(game:GetService("ReplicatedStorage").Shared.Remotes).Get("PadSize"):FireServer(zone:GetAttribute("PadIndex"), 1)
 	end
 end
 check("departed via portal", player:GetAttribute("InRun") == true)

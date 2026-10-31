@@ -27,7 +27,13 @@ repeat
 until (find("Lair_Fire") and find("Sanctum_Fire") and find("Shrine_Fire")) or os.clock() - t0 > 900
 task.wait(5)
 local DIST = { Shrine = 95, Lair = 120, Sanctum = 150, Ruins = 80 }
-for _, kind in ipairs({ "Shrine", "Ruins", "Sanctum", "Lair" }) do
+-- build_rbxlx.py --siteprobe --sitekinds=Sanctum,Shrine -> ตรวจเฉพาะชนิดที่ระบุ (เร็วกว่า)
+local KINDS = { "Shrine", "Ruins", "Sanctum", "Lair" }
+local only = ReplicatedStorage:FindFirstChild("ASSiteKinds")
+if only and only.Value ~= "" then
+	KINDS = string.split(only.Value, ",")
+end
+for _, kind in ipairs(KINDS) do
 	for _, el in ipairs({ "Earth", "Water", "Air", "Fire" }) do
 		local m = find(kind .. "_" .. el)
 		if not m then

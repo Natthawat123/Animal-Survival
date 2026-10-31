@@ -209,7 +209,7 @@ end
 
 -- โมเดลนิ่งจาก Creator Store (ไม่มีกระดูก, กี่ชิ้นก็ได้): ด้านยาวสุด = Skin.Size · Skin.Yaw หมุนให้หน้าหัน -Z
 -- ทุกชิ้นเชื่อมกับชิ้นใหญ่สุด ("Skin") ซึ่งต่อกับ root ด้วย Motor6D -> client ทำท่ากระโดดดุ๊กดิ๊ก (AnimalAnimator)
-local function buildStatic(model, custom, skin)
+local function buildStatic(model, custom, skin, sizeMult)
 	local src = custom:Clone()
 	local parts = {}
 	for _, d in ipairs(src:GetDescendants()) do
@@ -229,7 +229,7 @@ local function buildStatic(model, custom, skin)
 	end
 	local _, box = src:GetBoundingBox()
 	pcall(function()
-		src:ScaleTo((skin.Size or 4) / math.max(box.X, box.Y, box.Z, 0.01))
+		src:ScaleTo((skin.Size or 4) * (sizeMult or 1) / math.max(box.X, box.Y, box.Z, 0.01))
 	end)
 	local bcf, size = src:GetBoundingBox()
 	local shift = V(bcf.Position.X, bcf.Position.Y - size.Y / 2, bcf.Position.Z)
@@ -252,11 +252,299 @@ local function buildStatic(model, custom, skin)
 		end
 	end
 	main.Name = "Skin"
-	motor("SkinJoint", root, main, main.CFrame)
+	-- ข้อต่อที่ "ใต้เท้า กลางตัว" แกนตรงกับ root -> client โยก/เอียง/เด้งรอบเท้าได้ถูกแกน (เดิมใช้แกนของชิ้นเมช = เอียงผิดทิศ)
+	motor("SkinJoint", root, main, CF(0, 0, 0))
 	src:Destroy()
 	model:SetAttribute("Skinned", true)
 	model:SetAttribute("SkinRig", "Static")
 	return root, hip
+end
+
+-- โมเดลแยกชิ้นจาก Creator Store (ออร์กา/หมึก): ตั้งชื่อชิ้นตามโครงไว้แล้ว (tools/import_water_mon.py) -> ต่อ Motor6D ให้ AnimalAnimator ขยับ
+--   Body = ลำตัวหลัก · Jaw = ขากรรไกร (บานพับด้านหลังบน) · Tail1..n = หางต่อกันเป็นโซ่ (ข้อต่อด้านหน้าของแต่ละท่อน)
+--   FinL/FinR = ครีบ (ข้อต่อขอบด้านใน) · Tent1..n = หนวด (ข้อต่อโคนหนวด หันออกจากกลางตัว)
+--   "อะไรก็ได้@Target" = เชื่อมติดชิ้น Target · ชิ้นอื่น = ติดลำตัว
+local function extentAlong(p, axis)
+	local cf, s = p.CFrame, p.Size / 2
+	return math.abs(cf.RightVector:Dot(axis)) * s.X + math.abs(cf.UpVector:Dot(axis)) * s.Y + math.abs(cf.LookVector:Dot(axis)) * s.Z
+end
+local function buildParts(model, custom, skin)
+	local src = custom:Clone()
+	local parts = {}
+	for _, d in ipairs(src:GetDescendants()) do
+		if d:IsA("BasePart") then
+			table.insert(parts, d)
+		elseif d:IsA("JointInstance") or d:IsA("WeldConstraint") or d:IsA("LuaSourceContainer") or d:IsA("Humanoid") then
+			d:Destroy()
+		end
+	end
+	local _, box = src:GetBoundingBox()
+	pcall(function()
+		src:ScaleTo((skin.Size or 8) / math.max(box.X, box.Z, 0.01))
+	end)
+	local bcf, size = src:GetBoundingBox()
+	local shift = V(bcf.Position.X, bcf.Position.Y - size.Y / 2, bcf.Position.Z)
+	local byName = {}
+	for _, p in ipairs(parts) do
+		p.CFrame = p.CFrame - shift
+		p.Anchored, p.CanCollide, p.CanTouch, p.Massless, p.CanQuery = false, false, false, true, false
+		p.Parent = model
+		byName[p.Name] = byName[p.Name] or p
+	end
+	src:Destroy()
+	local body = byName.Body
+	if not body then
+		return nil
+	end
+	local hip = size.Y * (skin.Hip or 0.2)
+	local rootSize = V(math.max(size.X, 2) * 0.55, size.Y * 0.5, math.max(size.Z, 2) * 0.55)
+	local root = newPart(model, "HumanoidRootPart", rootSize, CF(0, hip + rootSize.Y / 2, 0), Color3.new(1, 1, 1))
+	root.Transparency, root.CanCollide, root.Massless, root.CastShadow = 1, true, false, false
+	motor("Root", root, body, CF(body.Position))
+	-- กลางวงหนวด (ถุงลำตัวหมึกยื่นไปข้างหลัง ไม่ใช่กลางวง)
+	local center, nt = V(), 0
+	for _, p in ipairs(parts) do
+		if p.Name:match("^Tent%d") then
+			center += p.Position
+			nt += 1
+		end
+	end
+	center = nt > 0 and center / nt or body.Position
+	for _, p in ipairs(parts) do
+		local n = p.Name
+		local target = n:match("@(%w+)$")
+		local pos = p.Position
+		if target then
+			weld(byName[target] or body, p)
+		elseif n == "Body" then
+			-- ต่อกับ root แล้ว
+		elseif n == "Jaw" then
+			local up, back = extentAlong(p, V(0, 1, 0)), extentAlong(p, V(0, 0, 1))
+			motor("Jaw", body, p, CF(pos + V(0, up * 0.6, back * 0.85)))
+		elseif n:match("^Tail%d") then
+			local idx = tonumber(n:match("%d+"))
+			local parent = idx > 1 and byName["Tail" .. (idx - 1)] or body
+			motor(n, parent, p, CF(pos - V(0, 0, extentAlong(p, V(0, 0, 1)) * 0.85)))
+		elseif n == "FinL" or n == "FinR" then
+			local side = n == "FinL" and 1 or -1 -- ขอบด้านในชี้เข้าหาลำตัว
+			motor(n, body, p, CF(pos + V(side * extentAlong(p, V(1, 0, 0)) * 0.8, extentAlong(p, V(0, 1, 0)) * 0.6, 0)))
+		elseif n:match("^Tent%d") then
+			local out = (pos - center) * V(1, 0, 1)
+			out = out.Magnitude > 0.01 and out.Unit or V(0, 0, 1)
+			local base = pos - out * extentAlong(p, out) * 0.9
+			-- แกน X ของข้อต่อ = แนวสัมผัสวง (หมุนรอบนี้ = หนวดม้วนขึ้น/ลง) · แกน Y = ขึ้น (หมุนรอบนี้ = กวาดซ้ายขวา)
+			local tangent = V(0, 1, 0):Cross(out).Unit
+			motor(n, body, p, CFrame.fromMatrix(base, tangent, V(0, 1, 0)))
+		else
+			weld(body, p)
+		end
+	end
+	model:SetAttribute("Skinned", true)
+	model:SetAttribute("SkinRig", "Parts")
+	return root, hip
+end
+
+local function boxOf(parts)
+	local lo, hi = V(math.huge, math.huge, math.huge), V(-math.huge, -math.huge, -math.huge)
+	for _, p in ipairs(parts) do
+		local cf, s = p.CFrame, p.Size / 2
+		local ext = V(
+			math.abs(cf.RightVector.X) * s.X + math.abs(cf.UpVector.X) * s.Y + math.abs(cf.LookVector.X) * s.Z,
+			math.abs(cf.RightVector.Y) * s.X + math.abs(cf.UpVector.Y) * s.Y + math.abs(cf.LookVector.Y) * s.Z,
+			math.abs(cf.RightVector.Z) * s.X + math.abs(cf.UpVector.Z) * s.Y + math.abs(cf.LookVector.Z) * s.Z
+		)
+		lo = lo:Min(cf.Position - ext)
+		hi = hi:Max(cf.Position + ext)
+	end
+	return lo, hi
+end
+local function largest(parts)
+	local best
+	for _, p in ipairs(parts) do
+		if not best or p.Size.X * p.Size.Y * p.Size.Z > best.Size.X * best.Size.Y * best.Size.Z then
+			best = p
+		end
+	end
+	return best
+end
+-- สัตว์ที่มีโครงในไฟล์ (Motor6D/Bone จาก Creator Store): เก็บข้อต่อเดิม ขยาย/หันหน้าให้ แล้วเปลี่ยน root เป็นกล่องชนของเกม
+--   Skin.Yaw = องศาที่หมุนให้หัวชี้ -Z · Skin.Auto = โมเดลแยกชิ้นไม่มีข้อต่อ -> แบ่งลำตัว/ขา/หาง/หัวจากตำแหน่ง แล้วต่อ Motor6D เอง
+--   ท่าเดินอยู่ฝั่ง client (SkelAnimator) อ้างชื่อกระดูก/ชิ้นจาก Skin.Legs, Skin.Neck, Skin.Tail
+local SKEL_DROP = { Humanoid = true, AnimationController = true, Animator = true, Animation = true, KeyframeSequence = true, Sound = true, Folder = true,
+	ProximityPrompt = true, BillboardGui = true, Camera = true, IntValue = true, BoolValue = true, StringValue = true, NumberValue = true, CFrameValue = true, Vector3Value = true, ObjectValue = true,
+	BodyColors = true, Shirt = true, Pants = true }
+local function buildSkeleton(model, custom, skin, sizeMult)
+	local src = custom:Clone()
+	-- บางไฟล์เก็บข้อต่อไว้ใต้ Model/Folder: ย้ายไปอยู่กับชิ้นก่อน ไม่งั้นหายไปพร้อม src แล้วทั้งตัวกลายเป็นก้อนเดียว
+	for _, d in ipairs(src:GetDescendants()) do
+		if (d:IsA("JointInstance") or d:IsA("WeldConstraint")) and d.Part0 and d.Part0:IsDescendantOf(src) then
+			d.Parent = d.Part0
+		end
+	end
+	for _, d in ipairs(src:GetDescendants()) do
+		if d:IsA("LuaSourceContainer") or SKEL_DROP[d.ClassName] then
+			d:Destroy()
+		end
+	end
+	local parts, oldRoot = {}, nil
+	for _, d in ipairs(src:GetDescendants()) do
+		if d:IsA("BasePart") then
+			table.insert(parts, d)
+			if d.Name == "HumanoidRootPart" or d.Name == "RootPart" then
+				oldRoot = d
+			end
+		end
+	end
+	if #parts == 0 then
+		src:Destroy()
+		return nil
+	end
+	local visible = {}
+	for _, p in ipairs(parts) do
+		if p.Transparency < 0.9 then
+			table.insert(visible, p)
+		end
+	end
+	local r = ANG(0, math.rad(skin.Yaw or 0), 0)
+	for _, p in ipairs(parts) do
+		p.CFrame = r * p.CFrame
+	end
+	local lo0, hi0 = boxOf(visible)
+	local long0 = math.max(hi0.X - lo0.X, hi0.Y - lo0.Y, hi0.Z - lo0.Z, 0.01)
+	local scale = (skin.Size or 5) * (sizeMult or 1) / long0
+	pcall(function()
+		src:ScaleTo(src:GetScale() * scale)
+	end)
+	local lo, hi = boxOf(visible)
+	local shift = V((lo.X + hi.X) / 2, lo.Y, (lo.Z + hi.Z) / 2)
+	for _, p in ipairs(parts) do
+		p.CFrame = p.CFrame - shift
+		p.Anchored, p.CanCollide, p.CanTouch, p.Massless, p.CanQuery = false, false, false, true, false
+	end
+	local size = hi - lo
+	local hip = size.Y * 0.2
+	local rootSize = V(math.max(size.X, 2) * 0.55, size.Y * 0.5, math.max(size.Z, 2) * 0.55)
+	local rootCF = CF(0, hip + rootSize.Y / 2, 0)
+	local root
+	if oldRoot then
+		-- ใช้ root เดิม (ข้อต่อ/กระดูกลูกของมันอ้างอยู่) ย้ายมาที่กล่องชนใหม่ แล้วปรับค่าที่อ้างตำแหน่ง root ให้ของเดิมอยู่ที่เดิม
+		local fix = rootCF:Inverse() * oldRoot.CFrame
+		for _, d in ipairs(src:GetDescendants()) do
+			if d:IsA("Motor6D") or d:IsA("Weld") then
+				if d.Part0 == oldRoot then
+					d.C0 = fix * d.C0
+				elseif d.Part1 == oldRoot then
+					-- ข้อต่อกลับด้าน (ชิ้นลำตัว -> root): สลับให้ root เป็นแม่ ท่าเดินจะได้เลื่อนลำตัวได้
+					local p0, c0, c1 = d.Part0, d.C0, d.C1
+					d.Part0, d.Part1 = oldRoot, p0
+					d.C0, d.C1 = fix * c1, c0
+				end
+			elseif d:IsA("Bone") and d.Parent == oldRoot then
+				d.CFrame = fix * d.CFrame
+			end
+		end
+		root = oldRoot
+		root.Name = "HumanoidRootPart"
+		root.Size = rootSize
+		root.CFrame = rootCF
+	else
+		root = newPart(model, "HumanoidRootPart", rootSize, rootCF, Color3.new(1, 1, 1))
+	end
+	root.Transparency, root.CanCollide, root.Massless, root.CastShadow = 1, true, false, false
+	for _, p in ipairs(parts) do
+		p.Parent = model
+	end
+	if skin.Auto then
+		-- แบ่งชิ้นจากตำแหน่ง (หน้า = -Z): ชิ้นล่างสุด = ขา · ท้ายตัว = หาง · หน้าตัวและสูง = หัว · ที่เหลือ = ลำตัว
+		local groups = { Body = {}, Leg = {}, Tail = {}, Head = {} }
+		local len, tall = size.Z, size.Y
+		for _, p in ipairs(visible) do
+			local c = p.Position
+			if c.Y < tall * 0.3 then
+				table.insert(groups.Leg, p)
+			elseif c.Z > len * 0.17 then
+				table.insert(groups.Tail, p)
+			elseif c.Z < -len * 0.2 then
+				table.insert(groups.Head, p)
+			else
+				table.insert(groups.Body, p)
+			end
+		end
+		local body = largest(groups.Body)
+		body.Name = "Body"
+		motor("BodyRoot", root, body, CF(body.Position))
+		for _, p in ipairs(groups.Body) do
+			if p ~= body then
+				weld(body, p)
+			end
+		end
+		local function joint(name, list, pivot)
+			local main = largest(list)
+			if not main then
+				return
+			end
+			motor(name, body, main, CF(pivot))
+			main.Name = name
+			for _, p in ipairs(list) do
+				if p ~= main then
+					weld(main, p)
+				end
+			end
+		end
+		local l, h = boxOf(groups.Head)
+		joint("Neck", groups.Head, V((l.X + h.X) / 2, l.Y + (h.Y - l.Y) * 0.35, h.Z - (h.Z - l.Z) * 0.2))
+		l, h = boxOf(groups.Tail)
+		joint("Tail1", groups.Tail, V((l.X + h.X) / 2, (l.Y + h.Y) / 2, l.Z))
+		for _, p in ipairs(groups.Leg) do
+			local c = p.Position
+			local _, top = boxOf({ p })
+			joint("Leg" .. (c.Z < 0 and "F" or "B") .. (c.X < 0 and "L" or "R"), { p }, V(c.X, top.Y, c.Z))
+		end
+	else
+		-- ชิ้นที่ไม่ได้ต่อกับใคร (เช่น ของตกแต่ง) เชื่อมกับลำตัว ไม่ให้ร่วงหลุดจากตัว
+		local linked = { [root] = true }
+		local changed = true
+		while changed do
+			changed = false
+			for _, d in ipairs(model:GetDescendants()) do
+				if (d:IsA("JointInstance") or d:IsA("WeldConstraint")) and d.Part0 and d.Part1 then
+					if linked[d.Part0] ~= linked[d.Part1] then
+						linked[d.Part0], linked[d.Part1] = true, true
+						changed = true
+					end
+				end
+			end
+		end
+		local anchor = largest(visible)
+		for _, p in ipairs(parts) do
+			if not linked[p] and p ~= anchor then
+				weld(anchor, p)
+			end
+		end
+		if not linked[anchor] then
+			weld(root, anchor)
+		end
+	end
+	if skin.Tint then
+		-- โมเดลไม่มีเท็กซ์เจอร์ (สีเทาล้วน): ย้อมสีธาตุ ไม่แตะชิ้นสีอื่น เช่น จมูก/หูชมพู
+		for _, p in ipairs(visible) do
+			if math.abs(p.Color.R - 0.64) < 0.02 and math.abs(p.Color.G - 0.635) < 0.02 then
+				p.Color = skin.Tint
+			end
+		end
+	end
+	src:Destroy()
+	model:SetAttribute("Skinned", true)
+	model:SetAttribute("SkinRig", "Skeleton")
+	model:SetAttribute("SkinScale", scale) -- ตำแหน่งในท่าจากไฟล์ (SkelClips) คูณตามนี้
+	return root, hip
+end
+
+-- มีโมเดลของสัตว์ตัวนี้ในเกมไหม (ไม่มี = Build คืน nil) เช่น ไม่เตือนกวางกลวงถ้ายังไม่มีโมเดล
+function AnimalModels.Has(id)
+	local assets = ReplicatedStorage:FindFirstChild("Assets")
+	local folder = assets and assets:FindFirstChild("Animals")
+	return folder ~= nil and folder:FindFirstChild(id) ~= nil
 end
 
 function AnimalModels.Build(id, opts)
@@ -272,8 +560,12 @@ function AnimalModels.Build(id, opts)
 	local model = Instance.new("Model")
 	model.Name = id
 	local root, hip
-	if spec.Skin and spec.Skin.Rig == "Static" then
-		root, hip = buildStatic(model, custom, spec.Skin)
+	if spec.Skin and spec.Skin.Rig == "Skeleton" then
+		root, hip = buildSkeleton(model, custom, spec.Skin, opts.SizeMult)
+	elseif spec.Skin and spec.Skin.Rig == "Static" then
+		root, hip = buildStatic(model, custom, spec.Skin, opts.SizeMult) -- SizeMult: ลูกสัตว์ที่ช่วยแล้วโตขึ้นที่แคมป์ (ขี่ได้)
+	elseif spec.Skin and spec.Skin.Rig == "Parts" then
+		root, hip = buildParts(model, custom, spec.Skin)
 	elseif spec.Skin and custom:FindFirstChildWhichIsA("Bone", true) then
 		root, hip = buildSkinned(model, custom, spec.Skin)
 	else
@@ -308,7 +600,7 @@ function AnimalModels.Build(id, opts)
 	hum.Parent = model
 
 	model:SetAttribute("AnimalId", id)
-	model:SetAttribute("Template", model:FindFirstChild("WingL") and "Bird" or spec.Template)
+	model:SetAttribute("Template", (model:GetAttribute("SkinRig") == "Skeleton" and "Skel") or (model:FindFirstChild("WingL") and "Bird" or spec.Template))
 	model:SetAttribute("Element", info.Element or "None")
 	model:SetAttribute("Behaviour", info.Behaviour)
 	if opts.Tag ~= false then

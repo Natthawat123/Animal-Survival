@@ -41,6 +41,17 @@ local FX = {
 	WaterSwirl = "VFXPack/Auras/Water-Aura-01",
 	Crack = "VFXPack/Anime/Crack-01",
 	RealFire = "RealFire/particles/the beutiful fire",
+	-- น้ำของจริงจาก Creator Store (อนุภาค)
+	Splash = "WaterSplash", -- น้ำกระเซ็นพุ่งสมจริง
+	WaterBurst = "WaterBurst", -- ระเบิดน้ำ: วงคลื่น + เสาน้ำ
+}
+-- เมชเอฟเฟกต์น้ำ (ต้องเห็นชิ้นส่วนจริง ไม่ผ่าน VFXLib ที่ซ่อนชิ้นส่วน)
+local MESH = {
+	Tornado = "WaterTornado", -- กรวยพายุน้ำหมุน
+	SplashMesh = "WaterMeshPack/Hybrid's Water VFX Pack/WaterSplash",
+	SplashMesh2 = "WaterMeshPack/Hybrid's Water VFX Pack/WaterSplash2",
+	Dome = "WaterMeshPack/Hybrid's Water VFX Pack/WaterExplosion1",
+	Twist = "WaterMeshPack/Hybrid's Water VFX Pack/TwistY1",
 }
 
 -- สีย้อมเอฟเฟกต์ / สีเศษ / วัสดุเศษ ตามธาตุ
@@ -114,6 +125,126 @@ end
 
 local function play(name, cf, opts)
 	return VFXLib.Play(FX[name] or name, cf, opts)
+end
+
+-- เมช VFX ของจริง (Assets.VFX/<path>) วางเท้าที่ cf สูง height · คืน model (ผู้เรียกสั่งหมุน/จางเอง) · หายเองหลัง life วินาที
+local function meshFx(name, cf, height, life)
+	local src = VFXLib.Find(MESH[name] or name)
+	if not src then
+		return nil
+	end
+	local m = Instance.new("Model")
+	m.Name = "MeshFX_" .. name
+	local c = src:Clone()
+	c.Parent = m
+	-- พายุน้ำ: ตัดกล่องเมฆ/ท้องฟ้าน้ำขนาดใหญ่ ("Storm") ออก (เคยย้อมทั้งจอเป็นสีฟ้า) เหลือแค่กรวยน้ำ
+	for _, d in ipairs(c:GetDescendants()) do
+		if d.Name == "Storm" then
+			d:Destroy()
+		end
+	end
+	for _, d in ipairs(m:GetDescendants()) do
+		if d:IsA("BasePart") then
+			-- (ชิ้น "Car1" ของพายุน้ำ = กรวยหลัก ทุกชิ้นอยู่ข้างใต้ ห้ามลบ)
+			d.Anchored = true
+			d.CanCollide = false
+			d.CanQuery = false
+			d.CanTouch = false
+			d.CastShadow = false
+		elseif d:IsA("LuaSourceContainer") or d:IsA("Sound") then
+			d:Destroy()
+		end
+	end
+	local bcf, size = m:GetBoundingBox()
+	-- กรวยพายุ/เกลียวน้ำ: โมเดลบางชิ้นเก็บแบบนอน -> หมุนให้แกนยาวสุดตั้งขึ้น (เคยเห็นพายุนอนราบบนพื้น)
+	if (name == "Tornado" or name == "Twist") and size.Y < math.max(size.X, size.Z) then
+		local rot = size.X >= size.Z and ANG(0, 0, math.pi / 2) or ANG(math.pi / 2, 0, 0)
+		local c = CF(bcf.Position)
+		m:PivotTo(c * rot * c:ToObjectSpace(m:GetPivot())) -- หมุนรอบจุดกลางกล่อง
+		bcf, size = m:GetBoundingBox()
+	end
+	m.WorldPivot = CF(bcf.Position - V(0, size.Y / 2, 0))
+	pcall(function()
+		m:ScaleTo(m:GetScale() * height / math.max(size.Y, 0.1))
+	end)
+	m:PivotTo(cf)
+	m.Parent = folder()
+	Debris:AddItem(m, life or 3)
+	return m
+end
+
+-- จางเมชทั้งชิ้นลงในเวลา t (โปร่งใสขึ้นจากค่าเดิม)
+local function fadeModel(m, t, delayT)
+	task.delay(delayT or 0, function()
+		for _, d in ipairs(m:GetDescendants()) do
+			if d:IsA("BasePart") then
+				tween(d, t, { Transparency = 1 })
+			elseif d:IsA("Decal") then
+				tween(d, t, { Transparency = 1 })
+			elseif d:IsA("ParticleEmitter") then
+				d.Enabled = false
+			end
+		end
+	end)
+end
+
+-- หมุนรอบแกนตั้งต่อเนื่อง (พายุน้ำ)
+local function spinModel(m, speed, dur, rise)
+	local base = m:GetPivot()
+	local t0 = os.clock()
+	task.spawn(function()
+		while m.Parent and os.clock() - t0 < dur do
+			local t = os.clock() - t0
+			m:PivotTo(base * CF(0, (rise or 0) * math.min(t / 0.35, 1), 0) * ANG(0, t * speed, 0))
+			task.wait()
+		end
+	end)
+end
+
+-- น้ำกระเซ็นจริง (อนุภาคจาก Store "WaterSplash") คุมเอง: ทิศพุ่ง = แกน +Y ของ cf · speed/life/ขนาด/แรงโน้มถ่วง
+--   (ผ่าน VFXLib + ScaleTo แล้วความเร็วโดนขยายตาม -> ละอองพุ่งขึ้นฟ้าไกลเกิน)
+local splashTpl
+local function spray(cf, o)
+	if splashTpl == nil then
+		local src = VFXLib.Find("WaterSplash")
+		splashTpl = src and src:FindFirstChildWhichIsA("ParticleEmitter", true) or false
+	end
+	local a = Instance.new("Attachment")
+	a.Parent = Workspace.Terrain
+	a.WorldCFrame = cf
+	local e
+	if splashTpl then
+		e = splashTpl:Clone()
+		local ks = {}
+		for _, k in ipairs(splashTpl.Size.Keypoints) do
+			table.insert(ks, NSK(k.Time, k.Value * (o.Scale or 3), k.Envelope * (o.Scale or 3)))
+		end
+		e.Size = NS(ks)
+	else
+		e = Instance.new("ParticleEmitter")
+		e.Texture = TEX.Smoke
+		e.Color = ColorSequence.new(C(200, 235, 255))
+		e.Size = NS({ NSK(0, 1.5 * (o.Scale or 3)), NSK(1, 3 * (o.Scale or 3)) })
+		e.Transparency = NS({ NSK(0, 0.3), NSK(1, 1) })
+	end
+	e.EmissionDirection = Enum.NormalId.Top
+	e.Speed = NumberRange.new((o.Speed or 20) * 0.8, o.Speed or 20)
+	e.Lifetime = NumberRange.new((o.Life or 1) * 0.7, o.Life or 1)
+	e.Acceleration = V(0, -(o.Gravity or 40), 0)
+	e.SpreadAngle = Vector2.new(o.Spread or 20, o.Spread or 20)
+	e.Rate = o.Rate or 0
+	e.Enabled = (o.Rate or 0) > 0
+	e.Parent = a
+	if o.Burst then
+		e:Emit(o.Burst)
+	end
+	Debris:AddItem(a, (o.Time or 0) + (o.Life or 1) + 0.5)
+	if o.Time then
+		task.delay(o.Time, function()
+			e.Enabled = false
+		end)
+	end
+	return a, e
 end
 
 -- ก้อนหิน/ผลึกจริง (โมเดล RockLP)
@@ -244,12 +375,29 @@ local function impactFx(d)
 	elseif el == "Air" then
 		play("Ice", at, { Scale = math.clamp(r / 5, 1, 7), Duration = 0.35 })
 	elseif el == "Water" then
+		play("WaterBurst", at, { Scale = math.clamp(r / 6, 1.5, 9), Duration = 0.5, Burst = 1 })
+		spray(at, { Scale = math.clamp(r / 7, 2, 6), Speed = 22 + r * 0.4, Life = 1.2, Gravity = 45, Spread = 55, Burst = 40 })
 		play("WaterSwirl", at, { Scale = math.clamp(r / 3, 2, 12), Duration = 0.6 })
+		if not small then
+			local dome = meshFx("Dome", at, math.clamp(r * 0.5, 6, 24), 1.6)
+			if dome then
+				fadeModel(dome, 0.8, 0.5)
+			end
+		end
 	end
 	if d.Style == "Geyser" then
-		for i = 0, 4 do
-			play("WaterSwirl", at * CF(0, i * 9, 0), { Scale = math.clamp(r / 2.5, 2, 10), Duration = 0.9 })
+		-- พวยน้ำ: กรวยพายุน้ำหมุนพุ่งจากพื้น + เสาน้ำกระเซ็น + ระเบิดน้ำที่ฐาน
+		local h = math.clamp(r * 5, 30, 70)
+		-- กรวยบานด้านบนกว้างมาก (เมชใหญ่กว่ากล่องชิ้นส่วน) -> ย่อความสูงลง ไม่งั้นปากกรวยครอบกล้องจนจอเป็นสีฟ้าทั้งจอ
+		local tor = meshFx("Tornado", at * CF(0, -h * 0.2, 0), h * 0.42, 2.4)
+		if tor then
+			spinModel(tor, 9, 2.2, h * 0.2)
+			fadeModel(tor, 0.7, 1.4)
 		end
+		-- เสาน้ำพุ่งขึ้นตรง สูงราวยอดพายุ แล้วตกโปรยรอบๆ
+		spray(at, { Scale = math.clamp(r / 3, 3, 7), Speed = math.sqrt(2 * 40 * h) * 0.9, Life = 1.6, Gravity = 40, Spread = 9, Rate = 90, Time = 0.9 })
+		spray(at, { Scale = 3, Speed = 18, Life = 1.1, Gravity = 35, Spread = 70, Burst = 30 })
+		play("WaterBurst", at, { Scale = math.clamp(r / 4, 2, 9), Duration = 0.6, Burst = 1 })
 	end
 	local holder = Instance.new("Attachment")
 	holder.WorldPosition = pos + V(0, 4, 0)
@@ -317,9 +465,18 @@ end
 
 ---------------------------------------------------------------- กำแพงน้ำ
 local function waveFx(d)
+	-- คลื่นยักษ์: กำแพงเมชน้ำกระเซ็นเรียงเต็มความกว้าง + ละอองน้ำจริงพุ่งตลอดแนว วิ่งไปข้างหน้า แล้วซัดแตกที่ปลายทาง
 	local look = CF(d.Pos, d.Pos + d.Dir)
-	local wall = part({ Size = V(d.Width, 3, 8), CFrame = look * CF(0, 1, 0), Color = C(60, 150, 210), Material = Enum.Material.Glass, Transparency = 0.45 })
-	tween(wall, 0.35, { Size = V(d.Width, 20, 10), CFrame = look * CF(0, 10, 0) }, Enum.EasingStyle.Back)
+	local cols = 6
+	local crest = {}
+	for k = 1, cols do
+		local x = (k - (cols + 1) / 2) * d.Width / cols
+		local mesh = meshFx(k % 2 == 0 and "SplashMesh" or "SplashMesh2", look * CF(x, -2, 0) * ANG(0, math.pi, 0), 24 + (k % 3) * 4, d.Time + 1.6)
+		-- ยอดคลื่น: น้ำพุ่งเฉียงไปข้างหน้า (แกน +Y เอียงไปทาง -Z) ม้วนตกลงหน้าคลื่น + น้ำดันขึ้นด้านหลัง
+		local front = spray(look * CF(x, 1, 0) * ANG(-0.85, 0, 0), { Scale = 4, Speed = 30, Life = 1.1, Gravity = 48, Spread = 14, Rate = 70, Time = d.Time + 0.3 })
+		local back = spray(look * CF(x, 0, 4) * ANG(-0.25, 0, 0), { Scale = 4.5, Speed = 20, Life = 1.0, Gravity = 40, Spread = 18, Rate = 45, Time = d.Time + 0.3 })
+		table.insert(crest, { mesh, front, x, back })
+	end
 	local swirls = {}
 	for k = -2, 2 do
 		local m = play("WaterSwirl", look * CF(k * d.Width / 5, 6, 0), { Scale = 7, Duration = d.Time + 0.4 })
@@ -327,39 +484,66 @@ local function waveFx(d)
 			table.insert(swirls, { m, k })
 		end
 	end
-	task.delay(0.3, function()
-		tween(wall, d.Time, { CFrame = look * CF(0, 8, -d.Length) }, Enum.EasingStyle.Linear)
+	play("WaterBurst", look, { Scale = 5, Duration = 0.5, Burst = 1 })
+	task.delay(0.25, function()
 		local t0 = os.clock()
 		while os.clock() - t0 < d.Time do
 			local u = (os.clock() - t0) / d.Time
-			for _, sw in ipairs(swirls) do
-				if sw[1].Parent then
-					sw[1]:PivotTo(look * CF(sw[2] * d.Width / 5, 6, -d.Length * u))
+			local z = -d.Length * u
+			local rise = math.sin(math.min(u * 3, 1) * math.pi / 2) -- ยกตัวขึ้นเร็วตอนแรก
+			for i, c in ipairs(crest) do
+				local bob = math.sin(os.clock() * 6 + i) * 1.2
+				if c[1] and c[1].Parent then
+					c[1]:PivotTo(look * CF(c[3], -2 - 10 * (1 - rise) + bob, z) * ANG(0, math.pi, 0))
+				end
+				if c[2] and c[2].Parent then
+					c[2].WorldCFrame = look * CF(c[3], 1 + bob * 0.3, z) * ANG(-0.85, 0, 0)
+				end
+				if c[4] and c[4].Parent then
+					c[4].WorldCFrame = look * CF(c[3], 0, z + 4) * ANG(-0.25, 0, 0)
 				end
 			end
-			if math.random() < 0.3 then
-				dust((look * CF(math.random(-1, 1) * d.Width * 0.4, 0, -d.Length * u)).Position, 12, "Water", 6)
+			for _, sw in ipairs(swirls) do
+				if sw[1].Parent then
+					sw[1]:PivotTo(look * CF(sw[2] * d.Width / 5, 6, z))
+				end
+			end
+			if math.random() < 0.35 then
+				dust((look * CF(math.random(-1, 1) * d.Width * 0.4, 0, z)).Position, 14, "Water", 8)
 			end
 			task.wait()
 		end
-		tween(wall, 0.4, { Transparency = 1, Size = V(d.Width, 4, 10) })
+		-- ซัดแตกที่ปลายทาง
+		local endCf = look * CF(0, 0, -d.Length)
+		play("WaterBurst", endCf, { Scale = 7, Duration = 0.6, Burst = 1 })
+		for k = -1, 1 do
+			spray(endCf * CF(k * d.Width / 3, 1, 0) * ANG(-0.5, 0, 0), { Scale = 5, Speed = 32, Life = 1.3, Gravity = 45, Spread = 40, Burst = 35 })
+		end
+		for _, c in ipairs(crest) do
+			if c[1] and c[1].Parent then
+				fadeModel(c[1], 0.6, 0)
+			end
+		end
 	end)
-	Debris:AddItem(wall, d.Time + 1.2)
-	shakeFor(d.Pos, 30, 0.7)
+	shakeFor(d.Pos, 30, 0.9)
 end
 
 ---------------------------------------------------------------- พ่นไฟ (จากปากมังกรจริง)
 local function breathFx(d)
 	local model = d.Model
 	local skin = model and model:FindFirstChild("Skin")
-	local head
+	-- ปากมังกร = ปลายขากรรไกร (Bone_025 HeadEnd) · ไม่มีใช้ข้อต่อขากรรไกร (Bone_026 อยู่ลึกในหัว ไฟเคยออกจากกลางหัว)
+	local head, hinge
 	if skin then
 		for _, b in ipairs(skin:GetDescendants()) do
-			if b:IsA("Bone") and b.Name == "Bone_026" then
+			if b:IsA("Bone") and b.Name == "Bone_025" then
 				head = b
+			elseif b:IsA("Bone") and b.Name == "Bone_026" then
+				hinge = b
 			end
 		end
 	end
+	head = head or hinge
 	local target = d.To
 	if head then
 		for k = 0, 2 do
@@ -427,8 +611,15 @@ local function watchProjectiles()
 		if not (kind and p:IsA("BasePart")) then
 			return
 		end
+		if kind == "StaffBolt" then
+			-- ลูกไฟคทาเพลิง: Store "ExplosionCharge" ย่อเล็ก ลอยตามลูกจริง (ไม่ใส่ควันดำแบบอุกกาบาตบอส)
+			play("StaffExplosion", p.CFrame, { Scale = p:GetAttribute("FxScale") or 0.09, Duration = 6, Follow = p })
+			return
+		end
 		if kind == "Meteor" then
-			play("FireBall", p.CFrame, { Scale = math.max(p.Size.X / 2.5, 2), Duration = 6, Follow = p })
+			-- จุดไฟของแพ็กอยู่หน้าชิ้นส่วน ~4 สตัด (ทาง -Z) -> ถอยกลับให้ลูกไฟครอบลูกจริงพอดี (server หัน -Z ตามทิศพุ่ง)
+			local sc = p:GetAttribute("FxScale") or math.max(p.Size.X / 2.5, 2)
+			play("FireBall", p.CFrame, { Scale = sc, Duration = 6, Follow = p, FollowOffset = CF(0, 0, 4 * sc) })
 		end
 		local a = Instance.new("Attachment")
 		a.Parent = p

@@ -284,7 +284,7 @@ function MapGenerator.BuildSpecialPads(layout, terrain)
 		elseif sp.Kind == "Shrine" then
 			local pos = sp.Position
 			local top = MapGenerator.TopMaterial(sp.Element)
-			MapGenerator.FlattenPad(terrain, pos, 30, top, 50)
+			MapGenerator.FlattenPad(terrain, pos, 34, top, 50) -- ลานพิธีรัศมี 24 + ขอบ
 			MapGenerator.FlattenBuildingPad(terrain, sp, nil)
 		elseif sp.Kind == "Ruins" then
 			MapGenerator.FlattenPad(terrain, sp.Position, 24, MapGenerator.TopMaterial(sp.Element), 40)

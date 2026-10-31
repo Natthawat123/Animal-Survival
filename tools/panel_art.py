@@ -11,7 +11,11 @@ from menu_art import ROOT, write_lua
 ART = os.path.join(ROOT, "assets", "ui", "panel")
 OUT = os.path.join(ROOT, "src", "ReplicatedStorage", "Shared", "PanelArt.lua")
 # ชื่อ -> ความกว้างที่เก็บ (จอแสดงราวๆ ครึ่งหนึ่ง-เท่าตัว)
-ITEMS = {"Wolf": 240, "Eagle": 220, "Pack1": 170, "Pack2": 200, "Pack3": 190, "Pack4": 220}
+ITEMS = {
+    "Wolf": 240, "Eagle": 220, "Pack1": 170, "Pack2": 200, "Pack3": 190, "Pack4": 220,
+    "Campfire": 170, "Bench": 180,  # การ์ดอัปเกรดในโต๊ะคราฟต์
+    "TabTool": 72, "TabStructure": 76, "TabMedical": 56,  # ไอคอนแท็บโต๊ะคราฟต์
+}
 
 
 def main():

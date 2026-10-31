@@ -234,7 +234,7 @@ end
 function C.setNight(self, _, n)
 	local dir = self.ctx.Services.DirectorService
 	n = math.clamp(math.floor(tonumber(n) or 1), 1, Config.TotalNights)
-	dir.night = n
+	dir.night = n -- กลางคืน: มีผลหลังจบคืนนี้ (Loop ใช้เลขนี้เป็นวันถัดไป)
 	self.ctx.State:SetAttribute("Night", n)
 	local boss = Nights.BossNights and Nights.BossNights[n]
 	return string.format("🌙 ตั้งเป็นคืนที่ %d%s", n, boss and (" (คืนบอส " .. boss .. ")") or "")

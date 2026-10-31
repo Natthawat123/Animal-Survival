@@ -19,7 +19,7 @@ SHOTS = os.path.join(ROOT, "build", "test_screenshots")
 os.makedirs(STORE, exist_ok=True)
 
 
-def latest_logs(n=3):
+def latest_logs(n=10):  # Studio ที่เปิดค้างอยู่ (ไฟล์อื่น) เขียน log ตลอด -> ต้องดูหลายไฟล์
     logs = glob.glob(os.path.join(os.environ["LOCALAPPDATA"], "Roblox", "logs", "*Studio*"))
     logs.sort(key=os.path.getmtime, reverse=True)
     return logs[:n]

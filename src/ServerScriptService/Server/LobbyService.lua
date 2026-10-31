@@ -45,6 +45,8 @@ function LobbyService:Init(ctx)
 	self.boxes = {}
 	-- เซิร์ฟเวอร์ที่ถูกจองให้ทีม (มาจากล็อบบี้) = เริ่มเล่นเลย ไม่ต้องมีล็อบบี้
 	self.IsTeamServer = game.PrivateServerId ~= "" and game.PrivateServerOwnerId == 0
+	-- หน้าโหลดฝั่งผู้เล่นใช้: เซิร์ฟเวอร์ทีม = ข้ามการโหลดค่าย แล้วรอจนลงแมพจริงค่อยเปิดจอ (ไม่โหลด 2 รอบ)
+	ctx.State:SetAttribute("TeamServer", self.IsTeamServer)
 end
 
 local function P(parent, props)
@@ -632,7 +634,7 @@ local function portalHook(art, parent, i)
 		st.Parent = t
 		return t
 	end
-	local count = line(0.0, 0.5, "👤 0/4", Enum.Font.FredokaOne)
+	local count = line(0.0, 0.5, "0/4", Enum.Font.FredokaOne)
 	local sub = line(0.52, 0.24, "เดินขึ้นแท่นเพื่อเริ่ม", Enum.Font.GothamBold)
 	local names = line(0.78, 0.2, "", Enum.Font.GothamBold)
 	names.TextColor3 = C(170, 245, 255)
@@ -956,12 +958,13 @@ function LobbyService:Build()
 	self.boardGuis = { self:BuildBoardGui(board, Enum.NormalId.Back), self:BuildBoardGui(board, Enum.NormalId.Front) }
 	-- แคมป์ไฟเล็ก + ม้านั่งท่อนซุง + เต็นท์นอน
 	local fcf = base * CF(-62, 1, 74)
-	local ring = mesh("Campfire", fcf, deco)
+	-- ฟืนกระโจม + หินล้อม (โมเดล Store ชุดเดียวกับกองไฟแคมป์) — ไม่มีฟืน ไฟจะลอยเป็นพุ่มกลางลาน
+	local ring = PropBuilder.CampfireLogs(fcf * CF(0, -0.15, 0), 7, deco) or mesh("Campfire", fcf, deco)
 	if ring then
 		ring.Name = "LobbyFireRing"
 	end
-	local core = P(deco, { Name = "LobbyFire", Size = V(2, 2, 2), CFrame = fcf * CF(0, 2, 0), Transparency = 1, CanCollide = false })
-	fireOn(core, 7)
+	local core = P(deco, { Name = "LobbyFire", Size = V(1.6, 0.4, 1.6), CFrame = fcf * CF(0, 1.4, 0), Transparency = 1, CanCollide = false, CanQuery = false })
+	fireOn(core, 5.6)
 	light(core, C(255, 150, 70), 40, 2.8, true)
 	for i = 0, 3 do
 		local a = i / 4 * math.pi * 2 + 0.5
@@ -1071,6 +1074,16 @@ function LobbyService:Depart(player)
 	end
 	player:SetAttribute("InRun", true)
 	local surv = ctx.Services.SurvivalService
+	-- รอโหลดเซฟเสร็จก่อนแจกของเริ่มต้น (เซิร์ฟเวอร์ทีม: ผู้เล่นมาถึงตอนโลกพร้อมแล้ว แต่เซฟยังโหลดไม่เสร็จ
+	--   -> เคยแจกของของ "ผู้รอดชีวิต" แทนคลาสจริง และแจกครั้งเดียวจบ ส่วนสกิลมาทีหลังเพราะอ่านคลาสสดๆ)
+	local t0 = os.clock()
+	while player.Parent and not ctx.Services.DataService:Get(player) and os.clock() - t0 < 20 do
+		task.wait(0.25)
+	end
+	if not player.Parent then
+		return
+	end
+	surv:OnClassChosen(player, player:GetAttribute("Class") or "Survivor")
 	surv:GiveStartItems(player)
 	ctx.Services.MonetizationService:GiveRunPerks(player)
 	local data = ctx.Services.DataService:Get(player)
@@ -1097,10 +1110,46 @@ function LobbyService:Depart(player)
 end
 
 -- ส่งทั้งทีม: publish แล้ว -> เซิร์ฟเวอร์ส่วนตัวของทีม / Studio -> ลงแมพที่นี่
+-- ทีมที่กำลังเทเลพอร์ต: [player] = { Opts, Tries, At } — ระหว่างรอ (หลายวินาที) ห้ามขึ้นแท่น/นับถอยหลังซ้ำ
+--   (เคยนับใหม่ 5 วิแล้วจองเซิร์ฟเวอร์ที่ 2 ส่งคนที่ยังไม่ไป -> ทีมแยกกันคนละเซิร์ฟ เข้าได้ไม่ครบ)
+local TELEPORT_RETRIES = 3
+local TELEPORT_TIMEOUT = 25
+
+function LobbyService:RetryTeleport(player, reason)
+	local d = self.departing and self.departing[player]
+	if not d or not player.Parent then
+		return
+	end
+	if d.Tries >= TELEPORT_RETRIES then
+		-- ลองครบแล้วไม่ได้: เลิกล็อก กลับมายืนในล็อบบี้ได้ (แจ้งให้ขึ้นแท่นใหม่)
+		self.departing[player] = nil
+		player:SetAttribute("Departing", nil)
+		warn("[AS] teleport gave up", player.Name, reason)
+		self.ctx.Notify(player, "ส่งไปเซิร์ฟเวอร์ทีมไม่สำเร็จ (" .. tostring(reason or "") .. ") — ขึ้นแท่นใหม่อีกครั้ง", "Error")
+		return
+	end
+	d.Tries += 1
+	d.At = os.clock()
+	task.spawn(function()
+		task.wait(1.5)
+		if self.departing[player] ~= d or not player.Parent then
+			return
+		end
+		local ok, err = pcall(TeleportService.TeleportAsync, TeleportService, game.PlaceId, { player }, d.Opts)
+		if not ok then
+			self:RetryTeleport(player, err)
+		end
+	end)
+end
+
 function LobbyService:DepartTeam(list)
 	local canTeleport = not RunService:IsStudio() and game.PlaceId ~= 0 and not self.IsTeamServer
 	if canTeleport then
+		self.departing = self.departing or {}
 		for _, p in ipairs(list) do
+			self:LeavePad(p)
+			p:SetAttribute("Departing", true)
+			self.departing[p] = { Tries = 0, At = os.clock() }
 			self.ctx.Services.DataService:Save(p)
 			self.ctx.Remotes.Get("Cinematic"):FireClient(p, "Teleporting", {})
 		end
@@ -1114,12 +1163,23 @@ function LobbyService:DepartTeam(list)
 			local opts = Instance.new("TeleportOptions")
 			opts.ReservedServerAccessCode = code
 			opts:SetTeleportData({ Team = true })
+			for _, p in ipairs(list) do
+				if self.departing[p] then
+					self.departing[p].Opts = opts -- คนที่ล้มเหลวลองใหม่เข้าเซิร์ฟเวอร์เดียวกับทีม
+				end
+			end
 			TeleportService:TeleportAsync(game.PlaceId, list, opts)
 		end)
 		if ok then
 			return
 		end
 		warn("[AS] teleport failed, play here instead:", err)
+		for _, p in ipairs(list) do
+			self.departing[p] = nil
+			if p.Parent then
+				p:SetAttribute("Departing", nil)
+			end
+		end
 	end
 	for _, p in ipairs(list) do
 		task.spawn(self.Depart, self, p)
@@ -1183,16 +1243,19 @@ end
 
 function LobbyService:RefreshTag(player)
 	local char = player.Character
-	local head = char and char:FindFirstChild("Head")
-	if not head then
+	local root = char and char:FindFirstChild("HumanoidRootPart")
+	if not root then
 		return
 	end
-	local bb = head:FindFirstChild("ASTag")
+	-- ติดป้ายไว้ที่ HumanoidRootPart (ไม่ใช่ Head): อวาตาร์บางคน (หัวไดนามิก/หัวพิเศษ) ถูกสลับชิ้น Head หลังโหลดชุด
+	-- ป้ายที่อยู่ในหัวเก่าจะหายไปด้วย -> บางคนไม่มีวันบนหัว · ความสูงป้ายวัดจากหัวจริงทุกครั้งที่รีเฟรช
+	local head = char:FindFirstChild("Head")
+	local headUp = head and head:IsA("BasePart") and (head.Position.Y - root.Position.Y) or 1.6
+	local bb = root:FindFirstChild("ASTag")
 	if not bb then
 		bb = Instance.new("BillboardGui")
 		bb.Name = "ASTag"
 		bb.Size = UDim2.fromOffset(200, 50)
-		bb.StudsOffset = Vector3.new(0, 2.4, 0)
 		bb.MaxDistance = 80
 		bb.LightInfluence = 0
 		local list = Instance.new("UIListLayout")
@@ -1221,8 +1284,9 @@ function LobbyService:RefreshTag(player)
 		line("VIP", 1, 16)
 		line("Best", 2, 22)
 		bb.Size = UDim2.fromOffset(220, 66)
-		bb.Parent = head
+		bb.Parent = root
 	end
+	bb.StudsOffsetWorldSpace = Vector3.new(0, math.clamp(headUp, 0.5, 12) + 2.4, 0)
 	local best = player:GetAttribute("BestNight") or 0
 	local color, icon = tierColor(best)
 	local bestL = bb:FindFirstChild("Best")
@@ -1419,28 +1483,68 @@ end
 
 function LobbyService:Tick(dt)
 	local s = self.ctx.State
+	-- เทเลพอร์ตค้างนานเกิน (ไม่มี error แต่ยังไม่ไป) -> ลองส่งใหม่เข้าเซิร์ฟเวอร์เดิมของทีม
+	for p, d in pairs(self.departing or {}) do
+		if not p.Parent then
+			self.departing[p] = nil
+		elseif d.Opts and os.clock() - d.At > TELEPORT_TIMEOUT then
+			self:RetryTeleport(p, "timeout")
+		end
+	end
 	local worldReady = s:GetAttribute("Ready")
 	local running = self.ctx.Services.DirectorService:IsRunning()
 	local anyCountdown = -1
 	local anyCount = 0
-	for _, box in ipairs(self.boxes) do
-		local members, list = {}, {}
-		for _, p in ipairs(Players:GetPlayers()) do
-			local r = p.Character and p.Character:FindFirstChild("HumanoidRootPart")
-			if r and self:InLobby(p) then
-				if inside(box.Zone, r.Position) and #list < box.Size then
-					members[p] = true
-					table.insert(list, p)
-				end
-				if r.Position.Y < self.Position.Y - 150 then
-					r.CFrame = CFrame.new(self:SpawnPoint())
+	-- สมาชิกแท่นแบบ "ติดแท่น": ขึ้นแท่นแล้วอยู่ในกลุ่มจนกว่าจะกดออก (LeavePad) / ออกเดินทาง / ออกเกม
+	self.padOf = self.padOf or {}
+	for p, box in pairs(self.padOf) do
+		local r = p.Parent and p.Character and p.Character:FindFirstChild("HumanoidRootPart")
+		if not (r and self:InLobby(p)) then
+			self:LeavePad(p)
+		else
+			-- กันหลุดวง (แลค/ถูกดัน): ไกลเกินขอบวงมาก = ดึงกลับกลางแท่น (ฝั่งผู้เล่นคุมวงนุ่มๆ อยู่แล้ว)
+			local rel = box.Zone.CFrame:PointToObjectSpace(r.Position)
+			if V(rel.X, 0, rel.Z).Magnitude > 13 then
+				r.CFrame = CF(box.Zone.Position + V(0, -2, 0))
+			end
+		end
+	end
+	self.padBlock = self.padBlock or {}
+	for _, p in ipairs(Players:GetPlayers()) do
+		local r = p.Character and p.Character:FindFirstChild("HumanoidRootPart")
+		if r and self:InLobby(p) then
+			-- เพิ่งกดออกจากกลุ่ม: ห้ามถูกดึงกลับเข้าแท่นเดิม จนกว่าจะเดินพ้นแท่นนั้นจริงๆ (และอย่างน้อย 2 วิ)
+			local block = self.padBlock[p]
+			if block and os.clock() - block.At > 2 and not inside(block.Box.Zone, r.Position) then
+				self.padBlock[p] = nil
+				block = nil
+			end
+			if not self.padOf[p] and not (self.departing and self.departing[p]) then
+				for _, box in ipairs(self.boxes) do
+					if not (block and block.Box == box) and inside(box.Zone, r.Position) and #(box.Order or {}) < box.Size then
+						box.Order = box.Order or {}
+						table.insert(box.Order, p)
+						self.padOf[p] = box
+						p:SetAttribute("Pad", box.Index)
+						break
+					end
 				end
 			end
+			if r.Position.Y < self.Position.Y - 150 then
+				r.CFrame = CFrame.new(self:SpawnPoint())
+			end
+		end
+	end
+	for _, box in ipairs(self.boxes) do
+		local members, list = {}, {}
+		for _, p in ipairs(box.Order or {}) do
+			members[p] = true
+			table.insert(list, p)
 		end
 		box.Members = members
 		box.List = list
 		local n = #list
-		box.Text.Text = string.format("👤 %d/%d", n, box.Size)
+		box.Text.Text = string.format("%d/%d", n, box.Size)
 		if box.Names then
 			local nm = {}
 			for _, p in ipairs(list) do
@@ -1452,6 +1556,7 @@ function LobbyService:Tick(dt)
 		box.Zone:SetAttribute("Count", n)
 		box.Zone:SetAttribute("Countdown", box.Countdown and math.max(0, math.ceil(box.Countdown)) or -1)
 		box.Zone:SetAttribute("Host", list[1] and list[1].UserId or 0)
+		box.Zone:SetAttribute("Picked", box.Picked == true)
 		if not worldReady then
 			box.Sub.Text = string.format("⏳ กำลังสร้างโลก %d%%", math.floor((s:GetAttribute("LoadProgress") or 0) * 100))
 			box.Countdown = nil
@@ -1460,6 +1565,7 @@ function LobbyService:Tick(dt)
 			box.Countdown = nil
 		elseif n == 0 then
 			box.Countdown = nil
+			box.Picked = false
 			box.Sub.Text = running and "⚔ ร่วมทีมที่เล่นอยู่" or "เดินขึ้นแท่นเพื่อเริ่ม"
 			box.Pad.Color = PORTAL_VEIL
 			box.Ring.Color = PORTAL_IDLE
@@ -1469,6 +1575,16 @@ function LobbyService:Tick(dt)
 			box.Pillar.Color = PORTAL_VEIL
 			box.Motes.Color = ColorSequence.new(C(190, 245, 255))
 			box.Motes.Rate = 8
+		elseif not box.Picked and not running then
+			-- ยังไม่เลือกจำนวนคน: ยังไม่นับถอยหลัง (หัวหน้าแท่นเลือกก่อน แล้วค่อยเริ่มนับ)
+			box.Countdown = nil
+			box.Sub.Text = "👥 รอหัวหน้าแท่นเลือกจำนวนคน"
+			box.Pad.Color = PORTAL_VEIL
+			box.Ring.Color = PORTAL_IDLE
+			if box.Disc then
+				box.Disc.Color, box.Edge.Color, box.Rise.Rate = PORTAL_IDLE, PORTAL_IDLE, 16
+			end
+			anyCount += n
 		else
 			local target = running and COUNTDOWN_JOIN or ((n >= box.Size) and COUNTDOWN_FULL or COUNTDOWN)
 			box.Countdown = math.min(box.Countdown or target, target) - dt
@@ -1491,6 +1607,40 @@ function LobbyService:Tick(dt)
 	end
 	s:SetAttribute("PortalCount", anyCount)
 	s:SetAttribute("PortalCountdown", anyCountdown)
+end
+
+-- ออกจากกลุ่มแท่น: เอาออกจากรายชื่อ · ถ้ายังยืนบนแท่นอยู่ ส่งไปยืนนอกวง (ฝั่งจุดเกิด) จะได้ไม่ถูกดึงกลับเข้ากลุ่มทันที
+function LobbyService:LeavePad(player, moveOut)
+	local box = self.padOf and self.padOf[player]
+	if not box then
+		return
+	end
+	self.padOf[player] = nil
+	local order = box.Order or {}
+	local i = table.find(order, player)
+	if i then
+		table.remove(order, i)
+	end
+	if #order == 0 then
+		box.Countdown = nil
+		box.Size = 4
+		box.Picked = false
+	end
+	if player.Parent then
+		player:SetAttribute("Pad", nil)
+	end
+	if moveOut then
+		self.padBlock = self.padBlock or {}
+		self.padBlock[player] = { Box = box, At = os.clock() }
+	end
+	local r = moveOut and player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+	if r then
+		local c = box.Zone.Position
+		local d = (self.spawnCf.Position - c) * V(1, 0, 1)
+		d = d.Magnitude > 0.1 and d.Unit or V(0, 0, 1)
+		local p = c + d * 17 -- พ้นกล่องแท่น (21x21) แม้ออกแนวทแยง
+		r.CFrame = CF(V(p.X, c.Y - 2, p.Z), V(p.X, c.Y - 2, p.Z) + d)
+	end
 end
 
 -- ดึงอันดับใหม่ทั้ง 2 แบบ (ทั้งเกม + สัปดาห์นี้) แล้วโชว์แบบที่กำลังเปิดอยู่ (ป้ายสลับเองทุก BOARD_FLIP วินาที)
@@ -1587,6 +1737,24 @@ function LobbyService:Start(ctx)
 	for _, p in ipairs(Players:GetPlayers()) do
 		task.spawn(hookTag, p)
 	end
+	-- กันพลาด: ไล่เช็กป้ายบนหัวทุกคนทุก 3 วิ (ตัวละครโหลดช้า/ชุดเปลี่ยน/หัวถูกสลับ)
+	task.spawn(function()
+		while true do
+			task.wait(3)
+			for _, p in ipairs(Players:GetPlayers()) do
+				pcall(self.RefreshTag, self, p)
+			end
+		end
+	end)
+	-- เทเลพอร์ตบางคนล้มเหลว (เน็ตหลุด/เซิร์ฟเวอร์ยังไม่พร้อม) -> ลองใหม่เข้าเซิร์ฟเวอร์เดียวกับทีม
+	pcall(function()
+		TeleportService.TeleportInitFailed:Connect(function(player, result, msg)
+			if self.departing and self.departing[player] then
+				warn("[AS] teleport init failed", player.Name, tostring(result), tostring(msg))
+				self:RetryTeleport(player, msg or tostring(result))
+			end
+		end)
+	end)
 	ctx.Remotes.Get("PadSize").OnServerEvent:Connect(function(player, index, n)
 		local box = self.boxes and self.boxes[tonumber(index) or 0]
 		n = math.floor(tonumber(n) or 0)
@@ -1599,6 +1767,10 @@ function LobbyService:Start(ctx)
 		end
 		box.Size = math.max(n, #(box.List or {}))
 		box.Countdown = nil
+		box.Picked = true -- เริ่มนับถอยหลังหลังเลือกจำนวนแล้วเท่านั้น
+	end)
+	ctx.Remotes.Get("LeavePad").OnServerEvent:Connect(function(player)
+		self:LeavePad(player, true)
 	end)
 	ctx.Remotes.Get("BuyKit").OnServerEvent:Connect(function(player, kitId)
 		local kit = Shop.KitById[kitId]

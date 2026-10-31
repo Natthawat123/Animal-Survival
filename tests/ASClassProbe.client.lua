@@ -25,10 +25,10 @@ local Menus = require(script.Parent:WaitForChild("Client"):WaitForChild("Menus")
 local ClassShop = require(script.Parent:WaitForChild("Client"):WaitForChild("ClassShop"))
 local Classes = require(ReplicatedStorage.Shared.Classes)
 Menus.OpenShop("Classes")
-task.wait(4)
+task.wait(8) -- ร้านเปิด/โหลดเสร็จก่อน (เคยถ่ายช้ากว่าการเลือกไปหนึ่งคลาส)
 for _, id in ipairs(Classes.Order) do
 	ClassShop.Select(id)
-	task.wait(2.5)
+	task.wait(4)
 	print("[SHOT] class_" .. id)
 	task.wait(1.5)
 end

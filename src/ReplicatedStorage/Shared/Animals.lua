@@ -25,7 +25,7 @@ Animals.Data = {
 	Rabbit = {
 		Name = "Meadow Hare", Thai = "กระต่ายทุ่ง", Element = nil, Behaviour = "Passive",
 		Health = 15, Damage = 0, Speed = 22, Aggro = 30,
-		Drops = { { Item = "RawMeat", Min = 1, Max = 1 }, { Item = "Fiber", Min = 0, Max = 2 } },
+		Drops = { { Item = "RawMeat", Min = 1, Max = 1 }, { Item = "Fiber", Min = 1, Max = 2 } },
 		Model = {
 			Template = "Rabbit", Body = V(1.6, 1.4, 2.0), Head = V(1.2, 1.1, 1.2), LegLen = 0.7, LegThick = 0.45,
 			Colors = { Main = C(196, 178, 156), Belly = C(244, 236, 224), Dark = C(120, 100, 84), Eye = C(25, 20, 20) },
@@ -48,7 +48,7 @@ Animals.Data = {
 		Name = "Crystal Stag", Thai = "กวางผลึกปฐพี", Element = "Earth", Behaviour = "Hunter",
 		Health = 70, Damage = 10, Speed = 23, AttackRange = 6, AttackCooldown = 1.7, Aggro = 42, StructureDamage = 1,
 		RaidCost = 2, MinNight = 1, Pack = { 2, 4 },
-		Drops = { { Item = "RawMeat", Min = 1, Max = 2 }, { Item = "Pelt", Min = 1, Max = 1 }, { Item = "Bone", Min = 1, Max = 1 }, { Item = "TerraCore", Chance = 0.08 } },
+		Drops = { { Item = "RawMeat", Min = 1, Max = 2 }, { Item = "Pelt", Min = 1, Max = 1 }, { Item = "Bone", Min = 1, Max = 2 } },
 		Model = {
 			Skin = { Scale = 2.1, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
 			Template = "Quadruped", Body = V(2.4, 2.4, 5.2), Head = V(1.7, 1.6, 1.8), Snout = V(1.0, 0.8, 1.4), LegLen = 2.6, LegThick = 0.7,
@@ -60,7 +60,7 @@ Animals.Data = {
 		Name = "Earth Crocodile", Thai = "จระเข้ศิลา", Element = "Earth", Behaviour = "Charger",
 		Health = 110, Damage = 16, Speed = 22, AttackRange = 6, AttackCooldown = 2.4, Aggro = 38, ChargeCooldown = 8, StructureDamage = 2,
 		RaidCost = 3, MinNight = 3,
-		Drops = { { Item = "RawMeat", Min = 2, Max = 3 }, { Item = "Pelt", Min = 1, Max = 2 }, { Item = "Fiber", Min = 1, Max = 3 }, { Item = "TerraCore", Chance = 0.12 } },
+		Drops = { { Item = "RawMeat", Min = 2, Max = 3 }, { Item = "Pelt", Min = 1, Max = 2 }, { Item = "Fiber", Min = 1, Max = 3 }, { Item = "Bone", Min = 1, Max = 1 } },
 		Model = {
 			Skin = { Scale = 7, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
 			Template = "Quadruped", Body = V(3.0, 2.8, 4.8), Head = V(2.0, 1.9, 2.0), Snout = V(1.2, 1.0, 1.0), LegLen = 1.6, LegThick = 0.8,
@@ -72,7 +72,7 @@ Animals.Data = {
 		Name = "Earth Turtle", Thai = "เต่าหินภูผา", Element = "Earth", Behaviour = "Brute",
 		Health = 260, Damage = 26, Speed = 15, AttackRange = 8, AttackCooldown = 2.6, Aggro = 36, StructureDamage = 4,
 		RaidCost = 7, MinNight = 8,
-		Drops = { { Item = "RawMeat", Min = 3, Max = 5 }, { Item = "Pelt", Min = 2, Max = 3 }, { Item = "Stone", Min = 3, Max = 6 }, { Item = "TerraCore", Min = 1, Max = 2 } },
+		Drops = { { Item = "RawMeat", Min = 3, Max = 5 }, { Item = "Pelt", Min = 2, Max = 3 }, { Item = "Stone", Min = 1, Max = 3 }, { Item = "Bone", Min = 1, Max = 2 } },
 		Model = {
 			Skin = { Scale = 3.8, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
 			Template = "Quadruped", Body = V(4.6, 4.4, 7.6), Head = V(2.8, 2.6, 2.6), Snout = V(1.4, 1.2, 1.2), LegLen = 3.0, LegThick = 1.5,
@@ -83,25 +83,34 @@ Animals.Data = {
 
 	------------------------------------------------------------ ธาตุน้ำ
 	ReefCrab = {
-		Name = "Coralshell Crab", Thai = "ปูกระดองปะการัง", Element = "Water", Behaviour = "Brute",
-		Health = 150, Damage = 14, Speed = 15, AttackRange = 7, AttackCooldown = 1.5, Aggro = 50, StructureDamage = 3, Armor = 0.3,
+		Name = "Coralshell Crab", Thai = "ปูยักษ์กระดองปะการัง", Element = "Water", Behaviour = "Brute",
+		Health = 160, Damage = 16, Speed = 13, AttackRange = 8, AttackCooldown = 1.8, Aggro = 48, StructureDamage = 3, Armor = 0.3,
 		RaidCost = 4, MinNight = 4,
-		Drops = { { Item = "RawMeat", Min = 2, Max = 3 }, { Item = "Stone", Min = 1, Max = 3 }, { Item = "TidePearl", Chance = 0.25 } },
+		Drops = { { Item = "RawMeat", Min = 2, Max = 3 }, { Item = "Stone", Min = 1, Max = 3 }, { Item = "Fiber", Min = 1, Max = 2 } },
 		Model = {
-			Template = "Crab", Body = V(5.0, 2.2, 3.8), LegLen = 2.6, LegThick = 0.45,
-			Colors = { Main = C(214, 82, 64), Belly = C(244, 190, 150), Dark = C(130, 40, 36), Eye = C(20, 20, 24), Glow = C(80, 230, 255), Coral = C(255, 120, 170) },
-			Extras = { "Coral", "Barnacles" },
+			Skin = { Size = 10, Rig = "Clip" }, -- ปูบอส (Creator Store) เมชผูกกระดูก + ท่าในโมเดล 7 ท่า (AnimalClips/ReefCrab: เดิน/ยืน/ตีซ้าย-ขวา/ตีหนัก/คำราม/ตาย)
+			Template = "Crab",
 		},
 	},
-	RiptideCroc = {
-		Name = "Riptide Crocodile", Thai = "จระเข้คลื่นคลั่ง", Element = "Water", Behaviour = "Hunter",
-		Health = 140, Damage = 20, Speed = 20, AttackRange = 8, AttackCooldown = 1.6, Aggro = 70, StructureDamage = 2,
-		RaidCost = 5, MinNight = 6,
-		Drops = { { Item = "RawMeat", Min = 2, Max = 4 }, { Item = "Pelt", Min = 1, Max = 2 }, { Item = "TidePearl", Min = 0, Max = 1 } },
+	-- วาฬเพชฌฆาต: อยู่แต่ในน้ำ (Aquatic) ว่ายวนชายฝั่ง พุ่งงับคนที่ลงน้ำ/ยืนริมน้ำ · ไม่ร่วมบุกแคมป์
+	TideOrca = {
+		Name = "Riptide Orca", Thai = "วาฬเพชฌฆาตคลื่นคลั่ง", Element = "Water", Behaviour = "Hunter", Aquatic = true,
+		Health = 220, Damage = 24, Speed = 22, AttackRange = 12, AttackCooldown = 2.2, Aggro = 70, StructureDamage = 0,
+		Drops = { { Item = "RawMeat", Min = 3, Max = 5 }, { Item = "Pelt", Min = 1, Max = 2 }, { Item = "Bone", Min = 2, Max = 3 } },
 		Model = {
-			Template = "Reptile", Body = V(3.0, 1.8, 7.0), Head = V(2.0, 1.2, 1.8), Snout = V(1.4, 0.8, 3.2), LegLen = 1.2, LegThick = 0.7,
-			TailLen = 7, Colors = { Main = C(36, 86, 88), Belly = C(176, 200, 168), Dark = C(22, 52, 60), Eye = C(255, 220, 60), Glow = C(80, 220, 255) },
-			Extras = { "BackPlates", "GlowStripes" },
+			Skin = { Size = 20, Rig = "Parts", Hip = 0.1 }, -- ออร์กา (Creator Store) ชิ้นแยก: ลำตัว/ขากรรไกร/หาง 2 ท่อน/ครีบ
+			Template = "Whale",
+		},
+	},
+	-- หมึกยักษ์: คลานบนชายหาด หนวดฟาด + พ่นหมึกบังตา
+	InkOctopus = {
+		Name = "Inkshade Octopus", Thai = "หมึกยักษ์พ่นหมึก", Element = "Water", Behaviour = "Hunter",
+		Health = 110, Damage = 14, Speed = 16, AttackRange = 9, AttackCooldown = 1.9, Aggro = 55, StructureDamage = 2,
+		RaidCost = 3, MinNight = 5,
+		Drops = { { Item = "RawMeat", Min = 2, Max = 3 }, { Item = "Fiber", Min = 2, Max = 3 } },
+		Model = {
+			Skin = { Size = 9, Rig = "Parts" }, -- หมึก (Creator Store) หนวด 8 เส้นแยกชิ้น
+			Template = "Octopus",
 		},
 	},
 
@@ -110,7 +119,7 @@ Animals.Data = {
 		Name = "Frostfang Bear", Thai = "หมีเขี้ยวน้ำแข็ง", Element = "Air", Behaviour = "Brute",
 		Health = 170, Damage = 20, Speed = 18, AttackRange = 7, AttackCooldown = 2.5, Aggro = 38, StructureDamage = 3,
 		RaidCost = 4, MinNight = 4,
-		Drops = { { Item = "RawMeat", Min = 2, Max = 4 }, { Item = "Pelt", Min = 1, Max = 2 }, { Item = "GaleFeather", Min = 1, Max = 2 } },
+		Drops = { { Item = "RawMeat", Min = 2, Max = 4 }, { Item = "Pelt", Min = 1, Max = 2 }, { Item = "Bone", Min = 1, Max = 2 } },
 		Model = {
 			Skin = { Size = 8.5, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
 			Template = "Quadruped", Body = V(1.8, 1.8, 3.2), Head = V(1.2, 1.2, 1.3), Wing = V(5.5, 0.3, 2.4),
@@ -121,7 +130,7 @@ Animals.Data = {
 		Name = "Ice Tiger", Thai = "เสือน้ำแข็ง", Element = "Air", Behaviour = "Hunter",
 		Health = 85, Damage = 14, Speed = 26, AttackRange = 7, AttackCooldown = 1.7, Aggro = 42, StructureDamage = 1,
 		RaidCost = 3, MinNight = 5, Leap = true,
-		Drops = { { Item = "RawMeat", Min = 1, Max = 2 }, { Item = "Pelt", Min = 1, Max = 2 }, { Item = "GaleFeather", Chance = 0.3 } },
+		Drops = { { Item = "RawMeat", Min = 1, Max = 2 }, { Item = "Pelt", Min = 1, Max = 2 }, { Item = "Bone", Min = 1, Max = 1 } },
 		Model = {
 			Skin = { Size = 7.5, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
 			Template = "Quadruped", Body = V(2.2, 2.2, 5.0), Head = V(1.7, 1.6, 1.6), Snout = V(0.9, 0.7, 0.6), LegLen = 2.8, LegThick = 0.65,
@@ -133,7 +142,7 @@ Animals.Data = {
 		Name = "Snow Bull", Thai = "กระทิงหิมะ", Element = "Air", Behaviour = "Charger",
 		Health = 140, Damage = 18, Speed = 21, AttackRange = 6, AttackCooldown = 2.5, Aggro = 38, ChargeCooldown = 8, StructureDamage = 3, Knockback = 90,
 		RaidCost = 4, MinNight = 7,
-		Drops = { { Item = "RawMeat", Min = 2, Max = 3 }, { Item = "Fiber", Min = 3, Max = 6 }, { Item = "GaleFeather", Min = 0, Max = 2 } },
+		Drops = { { Item = "RawMeat", Min = 2, Max = 3 }, { Item = "Fiber", Min = 2, Max = 4 }, { Item = "Bone", Min = 1, Max = 2 } },
 		Model = {
 			Skin = { Size = 8.5, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
 			Template = "Quadruped", Body = V(3.2, 3.0, 4.6), Head = V(1.6, 1.8, 1.8), Snout = V(1.0, 1.0, 0.8), LegLen = 2.2, LegThick = 0.6,
@@ -147,7 +156,7 @@ Animals.Data = {
 		Name = "Ember Wolf", Thai = "หมาป่าถ่านเพลิง", Element = "Fire", Behaviour = "Hunter",
 		Health = 60, Damage = 9, Speed = 25, AttackRange = 6, AttackCooldown = 1.6, Aggro = 42, StructureDamage = 1, Burn = 3,
 		RaidCost = 2, MinNight = 3, Pack = { 2, 5 },
-		Drops = { { Item = "RawMeat", Min = 1, Max = 1 }, { Item = "Pelt", Min = 1, Max = 1 }, { Item = "EmberShard", Chance = 0.2 }, { Item = "Coal", Min = 0, Max = 1 } },
+		Drops = { { Item = "RawMeat", Min = 1, Max = 1 }, { Item = "Pelt", Min = 1, Max = 1 }, { Item = "Bone", Min = 1, Max = 1 }, { Item = "Coal", Min = 0, Max = 1 } },
 		Model = {
 			Skin = { Size = 6.5, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
 			Template = "Quadruped", Body = V(1.8, 1.8, 4.0), Head = V(1.5, 1.3, 1.5), Snout = V(0.8, 0.6, 1.2), LegLen = 2.0, LegThick = 0.45,
@@ -159,7 +168,7 @@ Animals.Data = {
 		Name = "Fire Ram", Thai = "แกะเพลิงลาวา", Element = "Fire", Behaviour = "Charger",
 		Health = 300, Damage = 28, Speed = 19, AttackRange = 7, AttackCooldown = 2.8, Aggro = 38, ChargeCooldown = 9, StructureDamage = 6, Knockback = 120,
 		RaidCost = 9, MinNight = 12,
-		Drops = { { Item = "RawMeat", Min = 4, Max = 6 }, { Item = "Pelt", Min = 2, Max = 3 }, { Item = "Coal", Min = 2, Max = 5 }, { Item = "EmberShard", Min = 1, Max = 2 } },
+		Drops = { { Item = "RawMeat", Min = 4, Max = 6 }, { Item = "Pelt", Min = 2, Max = 3 }, { Item = "Coal", Min = 1, Max = 3 }, { Item = "Fiber", Min = 1, Max = 2 } },
 		Model = {
 			Skin = { Size = 7.5, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
 			Template = "Quadruped", Body = V(5.0, 4.4, 8.4), Head = V(2.6, 2.4, 3.0), Snout = V(1.8, 1.4, 1.4), LegLen = 2.6, LegThick = 1.6,
@@ -171,7 +180,7 @@ Animals.Data = {
 		Name = "Emberclaw Scorpion", Thai = "แมงป่องก้ามถ่าน", Element = "Fire", Behaviour = "Spitter",
 		Health = 90, Damage = 12, Speed = 16, AttackRange = 70, AttackCooldown = 2.8, Aggro = 45, StructureDamage = 2, Burn = 5,
 		RaidCost = 3, MinNight = 5,
-		Drops = { { Item = "RawMeat", Min = 1, Max = 2 }, { Item = "EmberShard", Chance = 0.35 }, { Item = "Coal", Min = 1, Max = 2 } },
+		Drops = { { Item = "RawMeat", Min = 1, Max = 2 }, { Item = "Bone", Min = 0, Max = 1 }, { Item = "Coal", Min = 0, Max = 1 } },
 		Model = {
 			Skin = { Size = 8, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
 			Template = "Quadruped", Body = V(2.2, 1.4, 4.6), Head = V(1.7, 1.0, 1.6), Snout = V(1.2, 0.6, 1.0), LegLen = 1.0, LegThick = 0.55,
@@ -186,7 +195,7 @@ Animals.Data = {
 		Health = 4200, Damage = 42, Speed = 12, AttackRange = 26, AttackCooldown = 3.0, Aggro = 160, StructureDamage = 10, Armor = 0.2,
 		BossNight = 25, Scale = 1,
 		Abilities = { "Quake", "Fissure", "BoulderRain" },
-		Drops = { { Item = "BeastHeart", Min = 1, Max = 1 }, { Item = "TerraCore", Min = 8, Max = 12 }, { Item = "Stone", Min = 20, Max = 30 } },
+		Drops = { { Item = "TerraHeart", Min = 1, Max = 1 }, { Item = "TerraCore", Min = 5, Max = 7 } },
 		Model = {
 			Template = "Tortoise", Body = V(22, 12, 26), Head = V(6, 5, 7), LegLen = 6, LegThick = 5,
 			Skin = { Scale = 32, Rig = "Biped" }, -- โมเดลโกเลม (assets/rbxm/Animals/Terragon.rbxmx)
@@ -199,7 +208,7 @@ Animals.Data = {
 		Health = 4600, Damage = 38, Speed = 18, AttackRange = 30, AttackCooldown = 2.6, Aggro = 180, StructureDamage = 8,
 		BossNight = 50,
 		Abilities = { "TidalWave", "WaterSpout", "Quake" },
-		Drops = { { Item = "BeastHeart", Min = 1, Max = 1 }, { Item = "TidePearl", Min = 8, Max = 12 } },
+		Drops = { { Item = "TideHeart", Min = 1, Max = 1 }, { Item = "TidePearl", Min = 5, Max = 7 } },
 		Model = {
 			Template = "Reptile", Body = V(10, 7, 26), Head = V(7, 4.6, 6), Snout = V(5, 3, 9), LegLen = 4, LegThick = 2.6,
 			Skin = { Scale = 13, Rig = "Mosasaur" }, -- โมเดลโมซาซอรัส
@@ -212,7 +221,7 @@ Animals.Data = {
 		Health = 4000, Damage = 40, Speed = 20, AttackRange = 22, AttackCooldown = 2.4, Aggro = 220, StructureDamage = 8,
 		BossNight = 75,
 		Abilities = { "Blizzard", "IceSpikes", "Quake" },
-		Drops = { { Item = "BeastHeart", Min = 1, Max = 1 }, { Item = "GaleFeather", Min = 10, Max = 14 } },
+		Drops = { { Item = "FrostHeart", Min = 1, Max = 1 }, { Item = "GaleFeather", Min = 5, Max = 7 } },
 		Model = {
 			Template = "Bird", Body = V(9, 9, 16), Head = V(5.4, 5, 5.6), Wing = V(30, 1.2, 12),
 			Skin = { Scale = 30, Rig = "Biped" }, -- โมเดลเยติ
@@ -225,7 +234,7 @@ Animals.Data = {
 		Health = 5200, Damage = 52, Speed = 34, AttackRange = 26, AttackCooldown = 2.2, Aggro = 200, StructureDamage = 10, Burn = 8, Flying = true,
 		BossNight = 99,
 		Abilities = { "FireBreath", "FlameNova", "MeteorRoar" },
-		Drops = { { Item = "BeastHeart", Min = 2, Max = 2 }, { Item = "EmberShard", Min = 10, Max = 14 } },
+		Drops = { { Item = "EmberHeart", Min = 1, Max = 1 }, { Item = "EmberShard", Min = 5, Max = 7 } },
 		Model = {
 			Template = "Quadruped", Body = V(9, 8.5, 17), Head = V(6, 5.6, 5.6), Snout = V(3.2, 2.4, 2.4), LegLen = 7.5, LegThick = 2.6,
 			Skin = { Scale = 18, Rig = "Dragon" }, -- โมเดลมังกรไฟ
@@ -249,7 +258,7 @@ Animals.Data = {
 	TerraPup = {
 		Name = "Terra Pup", Thai = "ลูกหมีปฐพี", Element = "Earth", Behaviour = "Spirit", Health = math.huge, Speed = 26,
 		Model = {
-			Skin = { Size = 4.2, Rig = "Static", Yaw = -90 }, -- หมี (Creator Store) · ไม่มีกระดูก -> กระโดดดุ๊กดิ๊ก (AnimalAnimator)
+			Skin = { Size = 4.2, Rig = "Static", Yaw = -90 }, -- หมี (Creator Store) · ชั่วคราว รอเลือกโมเดลใหม่
 			Template = "Quadruped", Body = V(1.4, 1.4, 2.2), Head = V(1.5, 1.4, 1.4), Snout = V(0.6, 0.5, 0.6), LegLen = 1.0, LegThick = 0.4, Neck = 0.3,
 			Colors = { Main = C(140, 210, 100), Belly = C(230, 250, 210), Dark = C(60, 110, 50), Eye = C(255, 255, 255), Glow = C(150, 255, 110) },
 			Ears = "Big", Tail = "Bushy", Extras = { "SpiritGlow", "Sprout" },
@@ -258,7 +267,7 @@ Animals.Data = {
 	TidePup = {
 		Name = "Tide Pup", Thai = "ลูกฉลามวารี", Element = "Water", Behaviour = "Spirit", Health = math.huge, Speed = 26,
 		Model = {
-			Skin = { Size = 4.4, Rig = "Static" }, -- ฉลาม (Creator Store) · ไม่มีกระดูก -> กระโดดดุ๊กดิ๊ก (AnimalAnimator)
+			Skin = { Size = 4.4, Rig = "Static" }, -- ฉลาม (Creator Store) · ชั่วคราว รอเลือกโมเดลใหม่
 			Template = "Quadruped", Body = V(1.4, 1.4, 2.2), Head = V(1.5, 1.4, 1.4), Snout = V(0.6, 0.5, 0.6), LegLen = 1.0, LegThick = 0.4, Neck = 0.3,
 			Colors = { Main = C(90, 180, 255), Belly = C(220, 244, 255), Dark = C(40, 90, 160), Eye = C(255, 255, 255), Glow = C(110, 230, 255) },
 			Ears = "Big", Tail = "Bushy", Extras = { "SpiritGlow", "Fins" },
@@ -267,7 +276,7 @@ Animals.Data = {
 	GalePup = {
 		Name = "Gale Pup", Thai = "ลูกเพนกวินวายุ", Element = "Air", Behaviour = "Spirit", Health = math.huge, Speed = 26,
 		Model = {
-			Skin = { Size = 3.4, Rig = "Static", Yaw = 90 }, -- เพนกวิน (Creator Store) · ไม่มีกระดูก -> กระโดดดุ๊กดิ๊ก (AnimalAnimator)
+			Skin = { Size = 3.4, Rig = "Static", Yaw = 30 }, -- เพนกวิน (Creator Store) · ชั่วคราว รอเลือกโมเดลใหม่
 			Template = "Quadruped", Body = V(1.4, 1.4, 2.2), Head = V(1.5, 1.4, 1.4), Snout = V(0.6, 0.5, 0.6), LegLen = 1.0, LegThick = 0.4, Neck = 0.3,
 			Colors = { Main = C(236, 242, 255), Belly = C(255, 255, 255), Dark = C(140, 160, 210), Eye = C(90, 140, 255), Glow = C(200, 230, 255) },
 			Ears = "Big", Tail = "Bushy", Extras = { "SpiritGlow", "WindRibbons" },
@@ -276,7 +285,7 @@ Animals.Data = {
 	EmberPup = {
 		Name = "Ember Pup", Thai = "ลูกมังกรอัคคี", Element = "Fire", Behaviour = "Spirit", Health = math.huge, Speed = 26,
 		Model = {
-			Skin = { Size = 3.6, Rig = "Static", Yaw = 45 }, -- ลูกมังกร (Creator Store) · ไม่มีกระดูก -> กระโดดดุ๊กดิ๊ก (AnimalAnimator)
+			Skin = { Size = 3.6, Rig = "Static", Yaw = 150 }, -- ลูกมังกร (Creator Store) · ชั่วคราว รอเลือกโมเดลใหม่
 			Template = "Quadruped", Body = V(1.4, 1.4, 2.2), Head = V(1.5, 1.4, 1.4), Snout = V(0.6, 0.5, 0.6), LegLen = 1.0, LegThick = 0.4, Neck = 0.3,
 			Colors = { Main = C(255, 120, 50), Belly = C(255, 230, 190), Dark = C(150, 50, 20), Eye = C(255, 255, 255), Glow = C(255, 170, 60) },
 			Ears = "Big", Tail = "FlameBushy", Extras = { "SpiritGlow", "FlameTips" },
@@ -287,7 +296,7 @@ Animals.Data = {
 -- สัตว์ที่ใช้บุกฐานแยกตามธาตุ
 Animals.RaidPool = {
 	Earth = { "MossWolf", "Thornboar", "StoneBear" },
-	Water = { "ReefCrab", "RiptideCroc" },
+	Water = { "ReefCrab", "InkOctopus" },
 	Air = { "GaleHawk", "SkyLynx", "StormRam" },
 	Fire = { "EmberFox", "LavaSalamander", "MagmaRhino" },
 }

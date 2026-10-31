@@ -110,13 +110,43 @@ function SoundController.Sting(name)
 	end)
 end
 
+-- เพลงบอสเฉพาะคนที่อยู่ใกล้บอสจริง (เดิมดูแค่ "มีบอส" ทั้งเซิร์ฟ -> วิ่งหนีไปไกลแล้วยังได้ยิน)
+--   เข้าใกล้ <= BOSS_NEAR เริ่มเพลง · ออกไปเกิน BOSS_FAR ค่อยหยุด (กันเพลงสลับไปมาตรงขอบ)
+local BOSS_NEAR, BOSS_FAR = 90, 100
+local inBossMusic = false
+local function bossDistance()
+	local char = player.Character
+	local pos = char and char:GetPivot().Position
+	local animals = workspace:FindFirstChild("Animals")
+	if not (pos and animals) then
+		return math.huge
+	end
+	local best = math.huge
+	for _, m in ipairs(animals:GetChildren()) do
+		if m:GetAttribute("IsBoss") and m:IsA("Model") and not m:GetAttribute("Dead") then
+			local ok, cf = pcall(m.GetPivot, m)
+			if ok then
+				best = math.min(best, ((cf.Position - pos) * Vector3.new(1, 0, 1)).Magnitude)
+			end
+		end
+	end
+	return best
+end
+
 local function wantedMusic(state)
 	if not player:GetAttribute("InRun") then
+		inBossMusic = false
 		return "Lobby"
 	end
 	local boss = state:GetAttribute("BossId")
 	if boss and boss ~= "" then
-		return "Boss"
+		local d = bossDistance()
+		inBossMusic = d <= (inBossMusic and BOSS_FAR or BOSS_NEAR)
+		if inBossMusic then
+			return "Boss"
+		end
+	else
+		inBossMusic = false
 	end
 	local phase = state:GetAttribute("Phase")
 	if phase == "Night" then

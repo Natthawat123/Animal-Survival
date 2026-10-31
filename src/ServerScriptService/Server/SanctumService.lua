@@ -3,6 +3,8 @@
 	  ตำแหน่ง: MapLayout.Sanctums (MapGenerator ปรับพื้นให้แล้ว) · client อ่าน GameState "Sanctum_<El>"
 	  ปริศนา: เข้าใกล้ -> เสารูน 3 ต้นกะพริบบอกลำดับ -> ปลุกเสา (ProximityPrompt) ให้ถูกลำดับภายใน 30 วินาที
 	         ผิด/หมดเวลา = เริ่มใหม่ · สำเร็จ = ประตูผนึกยุบลง + แสงพุ่ง -> หีบศักดิ์สิทธิ์ (ของหายาก) · รอบละครั้ง
+	  เปิดหีบ = คนที่ช่วยกัน (ปลุกเสา/ตีผู้พิทักษ์/เปิดหีบ) ได้ออร่าธาตุติดตัวทั้งรอบ (SurvivalService:GiveAura)
+	         แล้วประตูมิติข้างนอกปิดผนึก (veil attribute Sealed -> PortalService ไม่วาร์ป) เข้าวิหารนี้ไม่ได้อีกจนจบรอบ
 	  กลับล็อบบี้ (Phase = Lobby) = รีเซ็ตทุกวิหาร
 ]]
 
@@ -25,7 +27,11 @@ local COLOR = {
 	Air = Color3.fromRGB(110, 190, 255), Fire = Color3.fromRGB(255, 110, 30),
 }
 local ESSENCE = { Earth = "TerraCore", Water = "TidePearl", Air = "GaleFeather", Fire = "EmberShard" }
-local WEAPON = { Earth = "TerraHammer", Water = "TidalTrident", Air = "GaleBow", Fire = "EmberBlade" }
+local HEART = { Earth = "TerraHeart", Water = "TideHeart", Air = "FrostHeart", Fire = "EmberHeart" }
+local AURA_TEXT = {
+	Earth = "ออร่าปฐพี: เลือดสูงสุด +15%", Water = "ออร่าวารี: หิวช้าลง 15%",
+	Air = "ออร่าน้ำแข็ง: สตามิน่าลดช้าลง 15%", Fire = "ออร่าอัคคี: ดาเมจ +15%",
+}
 local TIME_LIMIT = 30
 local SHOW_RANGE = 75 -- ผู้เล่นเข้าใกล้ลานเท่านี้ = เสากะพริบบอกลำดับ
 local DIM = 0.22 -- ความสว่างตอนเสาหลับ (สัดส่วนของสีจริง)
@@ -74,23 +80,8 @@ function SanctumService:Build(el, sp, src, parent)
 		return
 	end
 	m.PrimaryPart = origin
+	-- ระดับพื้น = ระดับที่ MapGenerator ปรับเรียบไว้ (ลานพิธีปรับดินซ้ำอีกรอบตอนสร้าง)
 	local pos = sp.Position
-	-- วางบนผิว Terrain จริง (สูงสุดของจุดรอบลาน) กันวิหารจมดิน
-	do
-		local rp = RaycastParams.new()
-		rp.FilterType = Enum.RaycastFilterType.Include
-		rp.FilterDescendantsInstances = { workspace.Terrain }
-		local top
-		for _, o in ipairs({ { 0, 0 }, { 12, 0 }, { -12, 0 }, { 0, 12 }, { 0, -12 }, { 22, 22 }, { -22, -22 }, { 22, -22 }, { -22, 22 } }) do
-			local hit = workspace:Raycast(Vector3.new(pos.X + o[1], pos.Y + 150, pos.Z + o[2]), Vector3.new(0, -400, 0), rp)
-			if hit and (not top or hit.Position.Y > top) then
-				top = hit.Position.Y
-			end
-		end
-		if top and math.abs(top - pos.Y) < 40 then
-			pos = Vector3.new(pos.X, top, pos.Z)
-		end
-	end
 	-- เกมนี้ไม่ใช้นีออน: ลายรูน/คริสตัล = หินแกะสีตามธาตุ (ไม่เรืองแสง)
 	for _, d in ipairs(m:GetDescendants()) do
 		if d:IsA("BasePart") and d.Material == Enum.Material.Neon then
@@ -104,21 +95,11 @@ function SanctumService:Build(el, sp, src, parent)
 	-- หันทางเข้า (-Z ของพรีแฟบ) ไปทางแคมป์
 	local cf = (flat - pos).Magnitude > 1 and CFrame.lookAt(pos, flat) or CFrame.new(pos)
 	m:PivotTo(cf)
-	-- วิหารใหญ่จาก Creator Store ตั้งตระหง่านหลังลานปริศนา หน้าหันมาทางแคมป์ เดินเข้าไปข้างในได้
-	--   { ชื่อโมเดล, เท่าของความกว้างมาตรฐาน (SiteSpec), หมุนแก้ทิศ }
-	local SANCTUM_STORE = {
-		Earth = { "SanctumEarth", 1, 0 }, -- ซากวิหารหอคอยกลางป่า
-		Fire = { "SanctumFire", 1, 0 }, -- ปราสาทหินป้อมปราการ
-		Air = { "SanctumAir", 1, 0 }, -- วิหารหิมะแดนเหนือ
-		Water = { "SanctumWater", 1, 0 }, -- วิหารริมน้ำ
-	}
-	local SEAT = { Earth = Enum.Material.Ground, Water = Enum.Material.Sand, Air = Enum.Material.Snow, Fire = Enum.Material.Basalt }
-	local ss = SANCTUM_STORE[el]
-	local temple
-	if ss then
-		local spec = SiteSpec.Get("Sanctum", el)
-		temple = PropBuilder.Backdrop(ss[1], cf, spec.Width * ss[2], spec.Gap, m, { Yaw = ss[3], Material = SEAT[el] })
-	end
+	-- ประตูมิติบนพื้น -> ห้องในปราสาทบนฟ้า: ปริศนาเสารูน + หีบ อยู่บนพื้นหินเรียบในห้อง (ไม่ลอย/ไม่จม)
+	local temple = PropBuilder.BuildRealm(cf, el, m, "วิหาร" .. THAI[el], "เข้าวิหาร", "Sanctum")
+	local roomTop = temple:GetAttribute("FloorTop") or PropBuilder.RealmY + 0.5
+	-- กรอบในห้อง: แนวเดียวกับประตูข้างนอก (-Z = ฝั่งที่คนเข้ามา)
+	cf = CFrame.new(cf.Position.X, roomTop, cf.Position.Z) * (cf - cf.Position)
 	if temple then
 		-- ทิ้งฉากหินปั้นเดิมทั้งหมด เหลือเฉพาะชิ้นที่ใช้เล่น (เสารูน 3 ต้น, หีบ, ช่องรูน, คริสตัล, ลำแสง)
 		local KEEP = {
@@ -126,7 +107,7 @@ function SanctumService:Build(el, sp, src, parent)
 			AltarCrystal = true, Beacon = true, VaultLight = true, HintSlot1 = true, HintSlot2 = true, HintSlot3 = true,
 		}
 		for _, ch in ipairs(m:GetChildren()) do
-			if ch ~= temple and not KEEP[ch.Name] then
+			if ch ~= temple and not KEEP[ch.Name] and ch.Name ~= "PortalOut" then
 				ch:Destroy()
 			end
 		end
@@ -178,39 +159,45 @@ function SanctumService:Build(el, sp, src, parent)
 				end)
 			end
 		end
-		-- ลานเล่นบนตัววิหาร (ชั้นบน/แท่นยก) -> เสารูน 3 ต้นกระจายบนลาน หีบกลางลาน ช่องรูนข้างหีบ + บันไดขึ้น
-		local area = PropBuilder.PlayArea(temple, cf, { MinCells = 14, Headroom = 12 })
-		if area then
-			local spots = PropBuilder.SpreadCells(area, 4)
-			if #chestGroup > 0 then
-				place(chestGroup, spots[1])
-			end
-			for i = 1, 3 do
-				local o = m:FindFirstChild("Obelisk" .. i)
-				if o and spots[i + 1] then
-					place({ o }, spots[i + 1])
-				end
-			end
-			local extra = PropBuilder.SpreadCells(area, 4, spots)
-			for i, n in ipairs({ "AltarCrystal", "HintSlot1", "HintSlot2", "HintSlot3" }) do
-				local o = m:FindFirstChild(n)
-				if o and extra[i] then
-					place({ o }, extra[i])
-				end
-			end
-			PropBuilder.BuildAccess(area, cf, temple, m, nil)
-			pos = area.Center -- จุดศูนย์กลางกิจกรรม (ระยะโชว์ลำดับเสา/แจ้งเตือน) = บนลานวิหาร
-		else
-			if #chestGroup > 0 then
-				place(chestGroup, (cf * CFrame.new(0, 0, SiteSpec.Get("Sanctum", el).Gap - 10)).Position)
-			end
-			for _, n in ipairs({ "Obelisk1", "Obelisk2", "Obelisk3", "AltarCrystal", "HintSlot1", "HintSlot2", "HintSlot3" }) do
-				local o = m:FindFirstChild(n)
-				if o then
-					place({ o }, nil)
+		-- ลานพิธีหินกลมบนพื้นหน้าวิหาร: เสารูน 3 ต้นเป็นสามเหลี่ยมฝั่งแคมป์ · หีบกลางลานฝั่งวิหาร · ช่องรูนหน้าหีบ · คริสตัลหลังหีบ
+		--   (เดิมวางบนหลังคา/ชั้นบนของโมเดล Store + สร้างบันไดเอง -> ลอย/ขึ้นไม่ได้)
+		local plazaTop = roomTop
+		local function at(x, z)
+			local w = (cf * CFrame.new(x, 0, z)).Position
+			return Vector3.new(w.X, plazaTop, w.Z)
+		end
+		if #chestGroup > 0 then
+			place(chestGroup, at(0, 12))
+		end
+		local OB = { { -17, -8 }, { 17, -8 }, { 0, -21 } }
+		for i = 1, 3 do
+			local o = m:FindFirstChild("Obelisk" .. i)
+			if o then
+				place({ o }, at(OB[i][1], OB[i][2]))
+				-- ตัวเสา = หินรูนจาก Creator Store (RuneStoneLP) ตั้งบนแท่นฐาน (Activator) ของพรีแฟบ
+				--   ชิ้นปั้นเดิมซ่อนไว้ (ยังใช้เป็นจุดกด/ป้ายลำดับ) · ตอนติดสว่าง = Highlight ทั้งก้อน (SetObelisk)
+				local ocf, osz = o:GetBoundingBox()
+				local bottom = ocf.Position.Y - osz.Y / 2
+				local foot = Vector3.new(ocf.Position.X, plazaTop + 0.9, ocf.Position.Z)
+				local vis = PropBuilder.Imported("RuneStoneLP", CFrame.lookAt(foot, Vector3.new(cf.Position.X, foot.Y, cf.Position.Z)), 8, o, true) -- กว้าง 8 = สูง ~10 (กล่องรอบเสาเดิมสูงผิดปกติ เคยได้หินยักษ์บังลาน)
+				if vis then
+					vis.Name = "StoneVisual"
+					for _, d in ipairs(o:GetDescendants()) do
+						if d:IsA("BasePart") and not d:IsDescendantOf(vis) and d.Name ~= "Activator" then
+							d.Transparency = 1
+							d.CanCollide = false
+						end
+					end
 				end
 			end
 		end
+		for i, n in ipairs({ "AltarCrystal", "HintSlot1", "HintSlot2", "HintSlot3" }) do
+			local o = m:FindFirstChild(n)
+			if o then
+				place({ o }, i == 1 and at(0, 22) or at((i - 3) * 6, 3))
+			end
+		end
+		pos = Vector3.new(cf.Position.X, plazaTop, cf.Position.Z) -- จุดศูนย์กลางกิจกรรม = กลางลานพิธี
 	end
 	pcall(function()
 		m.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
@@ -219,7 +206,7 @@ function SanctumService:Build(el, sp, src, parent)
 	local col = COLOR[el]
 	local site = {
 		Element = el, Model = m, Center = pos, State = "Idle", Progress = 0, NextShow = 0,
-		Obelisks = {}, Hints = {}, Door = {}, Lid = {},
+		Obelisks = {}, Hints = {}, Door = {}, Lid = {}, Helpers = {},
 	}
 	-- ไฟ/อนุภาคประกอบฉาก
 	for _, d in ipairs(m:GetDescendants()) do
@@ -394,6 +381,15 @@ end
 ---------------------------------------------------------------- สถานะเสา/ช่องรูน
 function SanctumService:SetObelisk(o, mode)
 	-- mode: "Dim" | "Flash" | "Lit" | "Fail"
+	-- ทั้งก้อนหินรูนเรืองตามสถานะ (Highlight ที่ใส่ตอนสร้าง)
+	local hl = o.Model and o.Model:FindFirstChildOfClass("Highlight")
+	if hl then
+		local col = o.Glow[1] and o.Glow[1].Color or hl.OutlineColor
+		local fill = (mode == "Dim" and 0.92) or (mode == "Flash" and 0.25) or 0.45
+		hl.FillColor = mode == "Fail" and Color3.fromRGB(255, 50, 40) or col
+		hl.OutlineColor = hl.FillColor
+		TweenService:Create(hl, TweenInfo.new(mode == "Flash" and 0.15 or 0.35), { FillTransparency = fill, OutlineTransparency = mode == "Dim" and 0.4 or 0 }):Play()
+	end
 	for _, g in ipairs(o.Glow) do
 		if g.Part.Parent then
 			local target = g.Color
@@ -492,9 +488,16 @@ function SanctumService:SpawnGuardians(site)
 		local ang = self.rng:NextNumber(0, math.pi * 2)
 		local p = site.Center + Vector3.new(math.cos(ang) * 34, 0, math.sin(ang) * 34)
 		local h = layout:HeightAt(p.X, p.Z)
-		animals:Spawn(pool[self.rng:NextInteger(1, #pool)], Vector3.new(p.X, math.max(h, site.Center.Y) + 3, p.Z), {
+		local g = animals:Spawn(pool[self.rng:NextInteger(1, #pool)], Vector3.new(p.X, math.max(h, site.Center.Y) + 3, p.Z), {
 			Kind = "Guardian", Home = site.Center, Leash = 60, HealthMult = 1.4, DamageMult = 1.1, Yaw = ang + i,
 		})
+		if g then
+			g.OnHurt = function(attacker)
+				if typeof(attacker) == "Instance" and attacker:IsA("Player") then
+					site.Helpers[attacker] = true
+				end
+			end
+		end
 	end
 end
 
@@ -509,6 +512,7 @@ function SanctumService:Activate(site, idx, player)
 	if not o or o.Lit then
 		return
 	end
+	site.Helpers[player] = true
 	if site.State == "Showing" or site.State == "Failing" then
 		self.ctx.Notify(player, "👁 รอให้เสารูนกะพริบบอกลำดับให้ครบก่อน", "Info")
 		return
@@ -680,53 +684,110 @@ function SanctumService:OpenChest(site, player)
 	local got = {}
 	local function give(id, n)
 		if n > 0 then
-			drops:Spawn(id, n, pos, { Spread = 3.5 })
+			n = drops:SpawnLoot(id, n, pos, { Spread = 3.5 })
 			got[id] = (got[id] or 0) + n
 		end
 	end
-	give(ESSENCE[el], rng:NextInteger(6, 10))
+	give(ESSENCE[el], rng:NextInteger(4, 6))
 	for _, other in ipairs(ELEMENTS) do
-		if other ~= el and rng:NextNumber() < 0.5 then
-			give(ESSENCE[other], rng:NextInteger(1, 2))
+		if other ~= el and rng:NextNumber() < 0.3 then
+			give(ESSENCE[other], 1)
 		end
 	end
-	give("Iron", rng:NextInteger(4, 8))
+	give("Iron", rng:NextInteger(3, 5))
 	give("Medkit", 1)
-	if rng:NextNumber() < 0.4 then
-		give("BeastHeart", 1)
+	if rng:NextNumber() < 0.2 then
+		give(HEART[el], 1)
 	end
-	-- อาวุธธาตุ: คนเปิดได้ก่อน (ถ้ามีแล้ว -> ให้เพื่อนใกล้ๆ ที่ยังไม่มี -> ไม่มีใคร = Ruby แทน)
-	local inv = ctx.Services.InventoryService
-	local weapon = WEAPON[el]
-	local nearby = self:NearbyPlayers(site, 70)
-	if not table.find(nearby, player) then
-		table.insert(nearby, 1, player)
-	end
-	local receiver
-	for _, p in ipairs({ player, table.unpack(nearby) }) do
-		if inv:Count(p, weapon) <= 0 then
-			receiver = p
-			break
+	-- ออร่าธาตุ: เฉพาะคนที่ช่วยกัน (ปลุกเสา / ตีผู้พิทักษ์ / คนเปิดหีบ) ที่ยังอยู่ในรอบ
+	site.Helpers[player] = true
+	local surv = ctx.Services.SurvivalService
+	for p in pairs(site.Helpers) do
+		if p.Parent and p:GetAttribute("InRun") and surv:GiveAura(p, el) then
+			ctx.Notify(p, "✨ ได้รับ" .. AURA_TEXT[el] .. " (ติดตัวทั้งรอบ)", "Reward")
 		end
 	end
-	if receiver then
-		inv:Add(receiver, weapon, 1)
-		ctx.Broadcast(string.format("⚔ %s ได้รับอาวุธโบราณจากวิหาร%s!", receiver.DisplayName, THAI[el]), "Reward")
-	else
-		ctx.Services.DataService:AddDiamonds(player, 10, "อาวุธโบราณซ้ำ")
+	ctx.Broadcast(string.format("🏛 เคลียร์วิหาร%sแล้ว! คนที่ช่วยกันได้รับ%s", THAI[el], AURA_TEXT[el]), "Reward")
+	for _, p in ipairs(self:NearbyPlayers(site, 70)) do
+		ctx.Services.DataService:AddDiamonds(p, rng:NextInteger(5, 8), "วิหารโบราณ" .. THAI[el])
 	end
-	for _, p in ipairs(nearby) do
-		ctx.Services.DataService:AddDiamonds(p, rng:NextInteger(8, 15), "วิหารโบราณ" .. THAI[el])
-	end
+	task.spawn(self.SealAfterClear, self, site)
 	ctx.Remotes.Get("HitFx"):FireClient(player, "Loot", { Items = got, Position = pos, Chest = true })
 	if site.ChestBody then
 		sound(site.ChestBody, "rbxasset://sounds/volume_slider.ogg", 1, 1.6, 200)
 	end
 end
 
+-- เคลียร์แล้ว: ปิดประตูมิติข้างนอก (เข้าวิหารนี้ไม่ได้อีกจนจบรอบ) · คนที่ยังอยู่ในห้องออกทางประตูกลับได้ตามปกติ
+function SanctumService:PortalVeil(site)
+	local out = site.Model and site.Model:FindFirstChild("PortalOut", true)
+	if not out then
+		return nil
+	end
+	for _, d in ipairs(out:GetDescendants()) do
+		if d:IsA("ProximityPrompt") then
+			return d.Parent, d
+		end
+	end
+end
+
+function SanctumService:SealPortal(site)
+	local veil, prompt = self:PortalVeil(site)
+	if veil then
+		veil:SetAttribute("Sealed", true)
+		site.PortalAction = site.PortalAction or prompt.ActionText
+		prompt.ActionText = "ปิดผนึกแล้ว"
+	end
+end
+
+-- เก็บ/คืนสถานะ (RejoinService): วิหารที่เปิดหีบแล้ว ต้องยังปิดผนึกในเซิร์ฟเวอร์ใหม่ของรอบเดิม
+function SanctumService:Serialize()
+	local out = {}
+	for el, site in pairs(self.sites) do
+		if site.Opened then
+			out[el] = true
+		end
+	end
+	return out
+end
+
+function SanctumService:Restore(st)
+	for el in pairs(type(st) == "table" and st or {}) do
+		local site = self.sites[el]
+		if site then
+			site.State = "Solved"
+			site.Opened = true
+			self.ctx.State:SetAttribute("Sanctum" .. el .. "Solved", true)
+			for _, o in pairs(site.Obelisks) do
+				if o.Prompt then
+					o.Prompt.Enabled = false
+				end
+			end
+			self:SealPortal(site)
+		end
+	end
+end
+
+function SanctumService:SealAfterClear(site)
+	task.wait(3)
+	if not site.Opened then
+		return
+	end
+	self:SealPortal(site)
+	self.ctx.Broadcast(string.format("🔒 วิหาร%sปิดผนึกแล้ว — เข้าไม่ได้อีกในรอบนี้", THAI[site.Element]), "Info")
+end
+
 ---------------------------------------------------------------- รีเซ็ต (รอบใหม่)
 function SanctumService:ResetSite(site)
 	site.State = "Idle"
+	site.Helpers = {}
+	local veil, prompt = self:PortalVeil(site)
+	if veil then
+		veil:SetAttribute("Sealed", nil)
+		if site.PortalAction then
+			prompt.ActionText = site.PortalAction
+		end
+	end
 	site.Progress = 0
 	site.Opened = false
 	site.GuardiansSpawned = false

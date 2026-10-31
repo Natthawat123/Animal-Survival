@@ -90,6 +90,22 @@ local function flatDir(a, target)
 	return d.Magnitude > 0.1 and d.Unit or a.Root.CFrame.LookVector
 end
 
+-- สกิลแนวตรง: หันเข้าหาเป้าก่อน (รอสูงสุด maxWait วินาทีจนหน้าตรง) แล้วล็อกทิศไว้จนจบสกิล
+--   (เดิมทิศสกิลล็อกตั้งแต่เริ่ม แต่ตัวบอสหมุนตามผู้เล่นต่อ -> ปากพ่นไฟ/คลื่นไม่ตรงแนวที่เตือน)
+local function aim(a, target, maxWait)
+	local dir = flatDir(a, target)
+	a.CastFace = dir
+	local t0 = os.clock()
+	while os.clock() - t0 < (maxWait or 0.6) and not a.Dead do
+		local fw = a.Root.CFrame.LookVector * Vector3.new(1, 0, 1)
+		if fw.Magnitude > 0.1 and fw.Unit:Dot(dir) > 0.966 then -- ~15°
+			break
+		end
+		task.wait(0.05)
+	end
+	return dir
+end
+
 local function playersNear(a, range)
 	local out = {}
 	for _, p in ipairs(Players:GetPlayers()) do
@@ -124,7 +140,7 @@ end
 
 -- โกเลม: รอยแยกพื้นพุ่งเป็นแนวตรง หนามหินผุดตามแนว
 Abilities.Fissure = function(ctx, a, target)
-	local dir = flatDir(a, target)
+	local dir = aim(a, target, 0.7)
 	local from = ground(a.Root.Position + dir * (a.Radius * 0.6))
 	local length, width, windup = 130, 16, 1.2
 	cast(ctx, a, "Slam", windup, "รอยแยกปฐพี!")
@@ -171,7 +187,7 @@ local function rain(ctx, a, count, radius, damage, color, fire, size)
 		combat:Projectile({
 			From = from, Velocity = vel, Gravity = grav, Radius = 0.1, Blast = radius, Damage = damage,
 			Owner = "Animal", Color = color, Size = size or 6, Fire = fire, Source = a.Id, Life = delay + 1,
-			Model = "Rock", VFX = fire and "Meteor" or "Boulder",
+			Model = (not fire) and "Rock" or nil, VFX = fire and "Meteor" or "Boulder", -- อุกกาบาตไฟ = ลูกไฟ (ไม่ใช่ก้อนหิน)
 		})
 		task.delay(delay, function()
 			impact(ctx, a, g, radius, "Small")
@@ -189,12 +205,12 @@ Abilities.MeteorRoar = function(ctx, a)
 	cast(ctx, a, "Roar", 1.5, "อุกกาบาตเพลิง!")
 	ctx.FireRun("Cinematic", "Shake", { Power = 0.7, Time = 1.6 })
 	task.wait(0.4)
-	rain(ctx, a, 11, 12, a.Info.Damage * a.DamageMult * 0.7, Color3.fromRGB(60, 40, 36), true, 8)
+	rain(ctx, a, 11, 12, a.Info.Damage * a.DamageMult * 0.7, Color3.fromRGB(255, 120, 40), true, 7)
 end
 
 -- โมซาซอรัส: คลื่นยักษ์เป็นกำแพงน้ำวิ่งเข้าหาผู้เล่น
 Abilities.TidalWave = function(ctx, a, target)
-	local dir = flatDir(a, target)
+	local dir = aim(a, target, 0.7)
 	local from = ground(a.Root.Position + dir * (a.Radius * 0.5))
 	local length, width, windup, travel = 140, 34, 1.3, 1.5
 	cast(ctx, a, "Rear", windup, "คลื่นยักษ์!")
@@ -254,7 +270,7 @@ Abilities.Blizzard = function(ctx, a)
 	for _, p in ipairs(Players:GetPlayers()) do
 		local r = charRoot(p)
 		if r and (r.Position - center).Magnitude < 95 then
-			ctx.Remotes.Get("HitFx"):FireClient(p, "Pull", { Center = center, Time = windup })
+			ctx.Remotes.Get("HitFx"):FireClient(p, "Pull", { Center = center, Time = windup, Stop = a.Radius + 10 })
 		end
 	end
 	local radius = 26 + a.Radius * 0.4
@@ -297,7 +313,7 @@ end
 
 -- มังกร: พ่นไฟเป็นแนวยาว (โดนต่อเนื่อง + ติดไฟ)
 Abilities.FireBreath = function(ctx, a, target)
-	local dir = flatDir(a, target)
+	local dir = aim(a, target, 0.7)
 	local from = ground(a.Root.Position)
 	local length, width, windup, dur = 110, 22, 1.1, 1.8
 	cast(ctx, a, "Breath", windup, "ลมหายใจเพลิง!")
@@ -357,6 +373,7 @@ function BossAbilities.Run(ctx, a, name, target)
 		end
 		task.wait(0.6)
 		a.Casting = false
+		a.CastFace = nil
 		if a.Model and a.Model.Parent then
 			a.Model:SetAttribute("Cast", nil)
 		end

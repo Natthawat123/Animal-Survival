@@ -23,16 +23,16 @@ Config.PropDensity = 1.0 -- ความหนาแน่นต้นไม้/
 ---------------------------------------------------------------- เวลา
 Config.TotalNights = 99 -- รอดครบ 99 คืน = "พิชิต" (จบเนื้อเรื่อง) แต่เล่นต่อได้ไม่จำกัดเพื่อทำสถิติ
 Config.EndlessBossEvery = 25 -- หลังคืน 99: บอสวนกลับมาบุกทุกกี่คืน (124, 149, ...)
-Config.DayLength = 300 -- วินาที
+Config.DayLength = 150 -- วินาที (2:30 นาที รวมช่วงพลบค่ำ)
 Config.DuskLength = 25 -- ช่วงพลบค่ำ (ท้ายกลางวัน) เตือนว่าฝูงกำลังมา
-Config.NightLength = 180
-Config.FirstDayBonus = 60 -- วันแรกยาวขึ้นให้ตั้งตัว
+Config.NightLength = 90 -- 1:30 นาที
+Config.BossHoldMax = 120 -- คืนบอส: บอสยังไม่ตายตอนใกล้เช้า -> หยุดนาฬิการอได้สูงสุดกี่วินาที
+Config.FirstDayBonus = 0 -- วันแรกยาวเท่าวันอื่น
 
 ---------------------------------------------------------------- ผู้เล่น
 Config.HungerMax = 100
-Config.HungerDrainPerSec = 100 / 540 -- หมดใน ~9 นาที
+Config.HungerDrainPerSec = 100 / 900 -- หมดใน ~15 นาที (เดิม 9 นาที)
 Config.StarveDamagePerSec = 2.5
-Config.DownedTime = 30 -- ล้มแล้วรอเพื่อนช่วยกี่วินาที
 Config.ReviveTime = 3.5
 Config.ReviveRange = 10
 Config.BaseWalkSpeed = 18
@@ -44,10 +44,13 @@ Config.BuildRange = 60
 ---------------------------------------------------------------- สัตว์
 -- สัตว์เกิดได้เฉพาะตัวที่มีโมเดลแล้ว (assets/rbxm/Animals/<Id>.rbxmx) — ตอนนี้มีแค่บอส 4 ไบโอม
 Config.AnimalsEnabled = true
+Config.LootMult = 0.7 -- ตัวคูณของดรอปทั้งเกม (วัตถุดิบ/แก่นธาตุ เท่านั้น — อาหาร/ยาไม่ลด)
+Config.MonsterDamageScale = 0.75 -- ดาเมจมอนทั่วไป (สัตว์ป่า/บุกแคมป์/ผู้พิทักษ์) ที่ตีผู้เล่น — ลดความยาก
+Config.BossDamageScale = 0.75 -- ดาเมจบอส (ตีธรรมดา + สกิลทุกท่า)
 Config.MaxWildAnimals = 70 -- สัตว์ป่ากลางวันทั้งแมพ
 Config.WildSpawnRadius = { Min = 140, Max = 420 } -- เกิดรอบตัวผู้เล่น
 Config.WildDespawnRadius = 900
-Config.RaidSpawnRadius = { Min = 330, Max = 470 } -- ฝูงบุกเกิดรอบกองไฟ
+Config.RaidSpawnRadius = { Min = 220, Max = 320 } -- ฝูงบุกเกิดรอบกองไฟ
 Config.MaxRaidAnimals = 55
 Config.AnimalThinkRate = 0.25 -- วินาทีต่อรอบคิดของ AI
 

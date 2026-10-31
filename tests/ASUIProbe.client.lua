@@ -42,6 +42,15 @@ SettingsUI.Open()
 shot("settings")
 SettingsUI.Close()
 
+-- โต๊ะคราฟต์ + พ่อค้าเร่ (ปกติเปิดในแมพ แต่เปิดในล็อบบี้ได้เพื่อดูหน้าตา)
+local Menus = require(client:WaitForChild("Menus"))
+Menus.OpenCraft()
+shot("craft")
+Menus.CloseCraft()
+Menus.OpenTrader()
+shot("trader")
+Players.LocalPlayer.PlayerGui:FindFirstChild("TraderWindow", true).Visible = false
+
 -- หน้าล็อกอินอาจเด้งทับตอนเริ่ม: ถ่ายแท็บภารกิจซ้ำอีกรอบท้ายสุด
 QuestUI.Open("Quests")
 shot("quest_Quests")

@@ -319,13 +319,25 @@ local function runAnimalShot()
 		{ "elemental", { "GaleHawk", "SkyLynx", "StormRam", "EmberFox", "MagmaRhino", "LavaSalamander", "HollowStag" } },
 		{ "spirits", { "TerraPup", "TidePup", "GalePup", "EmberPup" } },
 		{ "bosses", { "Terragon", "Leviathan", "TempestRoc", "Solfang" } },
+		-- เช็กทิศหน้า: ทุกตัวหันไปทางขวาจอ (หัวต้องอยู่ขวา) — หัวอยู่ซ้าย = โมเดลกลับหัว/Skin.Yaw ผิด
+		{ "facing", { "TerraPup", "TidePup", "GalePup", "EmberPup", "MossWolf", "Thornboar", "StoneBear" }, 90 },
+		{ "facing2", { "GaleHawk", "SkyLynx", "StormRam", "EmberFox", "MagmaRhino", "LavaSalamander", "ReefCrab" }, 90 },
+		-- ทดลองมุม: "Id@องศาเพิ่ม" (หัวต้องชี้ขวาจอ)
+		-- { "pupyaw", { "GalePup@-60", "GalePup@-30", "EmberPup@90", "EmberPup@120" }, 90 },
 	}
+	local only = ServerStorage:FindFirstChild("ASAnimalShot")
+	only = only and only:GetAttribute("Only")
 	for _, g in ipairs(groups) do
 		local name, ids = g[1], g[2]
+		if only and not string.find(only, name, 1, true) then
+			continue
+		end
 		local models = {}
 		local x = 0
 		local maxH = 0
-		for _, id in ipairs(ids) do
+		for _, entry in ipairs(ids) do
+			local id, extra = string.match(entry, "^([^@]+)@?(.*)$")
+			extra = tonumber(extra) or 0
 			local ok, m = pcall(mods.AnimalModels.Build, id, { Tag = false })
 			if ok and m then
 				m.Parent = stage
@@ -347,7 +359,7 @@ local function runAnimalShot()
 				end
 				local _, size = m:GetBoundingBox()
 				x += size.X / 2 + 4
-				mods.AnimalModels.PlaceAt(m, Vector3.new(x, 0, 0), math.rad(-35))
+				mods.AnimalModels.PlaceAt(m, Vector3.new(x, 0, 0), math.rad((g[3] or -35) + extra))
 				x += size.X / 2 + 4
 				maxH = math.max(maxH, size.Y)
 				table.insert(models, m)
@@ -393,8 +405,9 @@ local function cfr(cf)
 end
 
 local function serialize(model)
+	-- เก็บแค่ตำแหน่งเทียบจุดหมุน (ไม่เอามุม) — pivot ของโมเดล Store มักเอียงตาม PrimaryPart (เช่นขาหม้อ) -> ถ้าเทียบมุมด้วย โมเดลแปลงออกมาจะเอียงทั้งก้อน
 	local pivot = model:IsA("Model") and model:GetPivot() or CFrame.new()
-	local inv = pivot:Inverse()
+	local inv = CFrame.new(pivot.Position):Inverse()
 	local list, index = {}, {}
 	local items = { model }
 	for _, d in ipairs(model:GetDescendants()) do
@@ -515,6 +528,13 @@ local function serialize(model)
 				end
 			elseif d:IsA("Bone") or d:IsA("Attachment") then
 				e.CF = cfr(d.CFrame)
+			elseif d:IsA("Keyframe") then
+				e.T = d.Time -- ท่าในโมเดล (KeyframeSequence) -> tools แปลงเป็น AnimalClips
+			elseif d:IsA("Pose") then
+				e.CF = cfr(d.CFrame)
+				e.W = d.Weight
+			elseif d:IsA("KeyframeSequence") then
+				e.Loop = d.Loop
 			elseif d:IsA("JointInstance") then
 				e.P0 = d.Part0 and index[d.Part0] or 0
 				e.P1 = d.Part1 and index[d.Part1] or 0
@@ -1096,19 +1116,36 @@ local function rebuildMeshCollisions()
 		return
 	end
 	local n = 0
+	-- โมเดลที่เก็บไว้ขนาดจิ๋วแล้วขยายเป็นร้อยเท่าในเกม (เช่น FireThrone ทั้งก้อน ~2 stud) -> ทุกชิ้นต้องละเอียด
+	--   (Hull = กล่องนูนครอบทั้งชิ้น -> เดินลอย/ชนกำแพงล่องหน) · ตั้งละเอียดทุกชิ้นของทุกโมเดล = คำนวณนานจนค้าง
+	local tiny = {}
+	for _, m in ipairs(props:GetChildren()) do
+		if m:IsA("Model") then
+			local _, ext = m:GetBoundingBox()
+			if math.max(ext.X, ext.Y, ext.Z) < 12 then
+				tiny[m] = true
+			end
+		end
+	end
 	for _, d in ipairs(props:GetDescendants()) do
 		if d:IsA("MeshPart") then
-			-- ชิ้นเล็กในไฟล์ก็อาจถูกขยายเป็นร้อยเท่าในเกม (เช่น FireThrone ชิ้นละ ~2 stud) -> ใช้แบบละเอียดทุกชิ้น
-			-- (Hull = กล่องนูนครอบทั้งชิ้น -> เดินลอย/ชนกำแพงล่องหน)
-			local want = Enum.CollisionFidelity.PreciseConvexDecomposition
+			local top = d
+			while top.Parent and top.Parent ~= props do
+				top = top.Parent
+			end
+			local big = math.max(d.Size.X, d.Size.Y, d.Size.Z)
+			local want = (big > 6 or tiny[top]) and Enum.CollisionFidelity.PreciseConvexDecomposition or Enum.CollisionFidelity.Hull
+			local t0 = os.clock()
 			pcall(function()
 				d.CollisionFidelity = Enum.CollisionFidelity.Box
 				d.CollisionFidelity = want
 			end)
-			n += 1
-			if n % 40 == 0 then
-				task.wait()
+			local dt = os.clock() - t0
+			if dt > 1 then
+				print(string.format("[AS] SLOWCOL %.1fs %s/%s", dt, top.Name, d.Name))
 			end
+			n += 1
+			task.wait() -- คืนจังหวะให้ Studio ทุกชิ้น (ไม่ค้างทั้งหน้าต่าง)
 		end
 	end
 	print("[AS] rebuilt mesh collisions: " .. n)
@@ -1120,7 +1157,10 @@ task.defer(function()
 	if not isOurGame() then
 		return
 	end
-	rebuildMeshCollisions()
+	-- ดึงโมเดลจาก Store ไม่ต้องคำนวณกล่องชนของโมเดลในเกมใหม่ (ขั้นนี้นานหลายนาทีเมื่อโมเดลเยอะ จนตัวดึงหมดเวลาก่อนเริ่ม)
+	if not ServerStorage:FindFirstChild("ASFetch") and not ReplicatedStorage:FindFirstChild("ASSkipCollision") then
+		rebuildMeshCollisions()
+	end
 	setupLighting(nil)
 	if ServerStorage:FindFirstChild("ASMapShot") then
 		runMapShot()

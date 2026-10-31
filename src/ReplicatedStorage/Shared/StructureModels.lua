@@ -223,13 +223,15 @@ function StructureModels.Build(kind)
 			glow.Name, glow.Transparency, glow.CanCollide = "Glow", 1, false
 			light(glow, C(255, 200, 120), Items.Structures.Lantern.Light, 2.2, true)
 		elseif kind == "CookPot" then
-			-- จุดกดทำสตูว์ + ไฟใต้หม้อ
-			local pot = P(m, V(3, 3, 3), CF(0, 2.5, 0), C(0, 0, 0))
+			-- จุดกดทำอาหาร (ตรงหม้อที่แขวนบนขาตั้ง) + ไฟใต้หม้อ
+			local pot = P(m, V(3, 3, 3), CF(0, box.Y * 0.5, 0), C(0, 0, 0))
 			pot.Name, pot.Transparency, pot.CanCollide = "Pot", 1, false
 			local fire = Instance.new("Fire")
 			fire.Size, fire.Heat = 3, 4
 			fire.Parent = P(m, V(1, 0.4, 1), CF(0, 0.4, 0), C(0, 0, 0))
 			fire.Parent.Transparency, fire.Parent.CanCollide = 1, false
+		elseif kind == "FarmPlot" then
+			StructureModels.AddCrops(m, box)
 		end
 		return m
 	end
@@ -249,6 +251,54 @@ function StructureModels.Build(kind)
 	return m
 end
 
+-- แปลงเบอร์รี่: พุ่มเบอร์รี่ (โมเดล Store เดียวกับในป่า) 1 พุ่มต่อแปลงย่อย 6 แปลง
+--   ลูก = ชิ้นเล็กชื่อ "Berry" (BuildingService ซ่อนตอนยังไม่โต / โชว์ตอนเก็บได้)
+local CROP_X = { -0.323, 0.005, 0.326 } -- ศูนย์กลางแปลงย่อย (สัดส่วนของกล่องโมเดล)
+local CROP_Z = { -0.273, 0.274 }
+function StructureModels.AddCrops(m, box)
+	local assets = game:GetService("ReplicatedStorage"):FindFirstChild("Assets")
+	local src = assets and assets:FindFirstChild("Props") and assets.Props:FindFirstChild("BerryBushLP")
+	if not src then
+		return
+	end
+	local crops = Instance.new("Model")
+	crops.Name = "Crops"
+	local soil = box.Y * (1 / 5.5) -- ผิวดินในแปลง (ต้นฉบับสูง 5.5 ดินหนา 1)
+	for _, x in ipairs(CROP_X) do
+		for _, z in ipairs(CROP_Z) do
+			local b = src:Clone()
+			b.Name = "Bush"
+			local biggest = 0
+			for _, p in ipairs(b:GetDescendants()) do
+				if p:IsA("BasePart") then
+					biggest = math.max(biggest, p.Size.Magnitude)
+				end
+			end
+			for _, p in ipairs(b:GetDescendants()) do
+				if p:IsA("BasePart") then
+					p.Anchored, p.CanCollide, p.CanTouch, p.CanQuery = true, false, false, false
+					if p.Size.Magnitude < biggest * 0.3 then
+						p.Name = "Berry"
+					end
+				end
+			end
+			local _, size = b:GetBoundingBox()
+			pcall(function()
+				b:ScaleTo(math.min(box.X * 0.24, box.Z * 0.36) / math.max(size.X, size.Z))
+			end)
+			local cf, sz = b:GetBoundingBox()
+			local off = CF(x * box.X, soil + sz.Y / 2, z * box.Z) * CF(-cf.Position)
+			for _, p in ipairs(b:GetDescendants()) do
+				if p:IsA("BasePart") then
+					p.CFrame = off * p.CFrame
+				end
+			end
+			b.Parent = crops
+		end
+	end
+	crops.Parent = m
+end
+
 -- หน้าไม้ยักษ์: ฐานไม้ + หน้าไม้จาก Creator Store (Turret หมุนเล็งสัตว์ได้)
 function StructureModels.StoreBallista()
 	local m = Instance.new("Model")
@@ -257,29 +307,35 @@ function StructureModels.StoreBallista()
 	P(m, V(1.2, 1.4, 1.2), CF(0, 3.1, 0), C(80, 60, 42), Enum.Material.Wood)
 	local turret = ItemModels.Clone("Ballista", STORE_STRUCT.Ballista)
 	turret.Name = "Turret"
-	-- หันลูกศรไปทาง -Z (ทิศหน้าที่ BuildingService ใช้เล็ง)
+	-- หันลูกศรไปทาง -Z แนวนอน (ทิศหน้าที่ BuildingService ใช้เล็ง)
+	--   โมเดลต้นฉบับเป็น Tool ถือมือ = ตั้งแนวดิ่ง -> ต้องหมุนทั้งก้ม/เงย ไม่ใช่แค่ซ้ายขวา
+	--   ปลายลูกศร = ฝั่งที่ลูกศรยื่นเลยกลางโมเดล (ด้านคันธนู)
 	local arrow = turret:FindFirstChild("Arrow", true)
 	if arrow then
 		local s = arrow.Size
 		local axis = (s.X >= s.Y and s.X >= s.Z) and arrow.CFrame.RightVector or (s.Y >= s.Z and arrow.CFrame.UpVector or arrow.CFrame.LookVector)
-		local flat = Vector3.new(axis.X, 0, axis.Z)
-		if flat.Magnitude > 0.1 then
-			local yaw = math.atan2(-flat.X, -flat.Z)
-			local r = CFrame.Angles(0, -yaw, 0)
-			for _, p in ipairs(turret:GetDescendants()) do
-				if p:IsA("BasePart") then
-					p.CFrame = r * p.CFrame
-				end
+		local center = turret:GetBoundingBox().Position
+		if axis:Dot(arrow.Position - center) < 0 then
+			axis = -axis
+		end
+		local r = CFrame.fromRotationBetweenVectors(axis, Vector3.new(0, 0, -1))
+		for _, p in ipairs(turret:GetDescendants()) do
+			if p:IsA("BasePart") then
+				p.CFrame = r * p.CFrame
 			end
 		end
 	end
+	-- วางหน้าไม้บนหัวเสา (ไม่จมเข้าไปในฐาน)
+	local top = 3.8
+	local tcf, tsize = turret:GetBoundingBox()
+	local lift = CF(-tcf.X, top + tsize.Y / 2 - tcf.Y, -tcf.Z)
 	for _, p in ipairs(turret:GetDescendants()) do
 		if p:IsA("BasePart") then
-			p.CFrame = CF(0, 4.3, 0) * p.CFrame
+			p.CFrame = lift * p.CFrame
 			p.Anchored = true
 		end
 	end
-	local pivot = P(turret, V(0.5, 0.5, 0.5), CF(0, 4.3, 0), C(0, 0, 0))
+	local pivot = P(turret, V(0.5, 0.5, 0.5), CF(0, top + tsize.Y / 2, 0), C(0, 0, 0))
 	pivot.Name, pivot.Transparency, pivot.CanCollide = "Pivot", 1, false
 	turret.PrimaryPart = pivot
 	turret.Parent = m

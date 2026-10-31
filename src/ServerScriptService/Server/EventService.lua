@@ -1,7 +1,7 @@
 --[[
 	EventService — เหตุการณ์สุ่มช่วงกลางวัน (0-2 ครั้งต่อวัน · วันแรกได้อย่างมาก 1 หลังผ่านไปสักพัก)
 	  Meteor    "อุกกาบาตธาตุตก"  : ลูกไฟพุ่งลงจากฟ้า (client วาด) -> หลุมอุกกาบาต + แกนผลึก มีสัตว์ธาตุเฝ้า
-	                                 ขุดแกน = แก่นธาตุ 3-6 + ลุ้นหัวใจอสูร + Ruby 2-5 ให้ทุกคนที่อยู่ใกล้
+	                                 ขุดแกน = แก่นธาตุคนละ 2-3 + Ruby 2-5 ให้ทุกคนที่อยู่ใกล้ + ลุ้นหัวใจอสูรธาตุนั้น 22%
 	  Migration "ฝูงสัตว์อพยพ"      : ฝูงกวาง/กระต่ายเดินผ่านแถวแคมป์ (ล่าได้ ได้หนังเพิ่ม)
 	  Supply    "เสบียงตกจากฟ้า"    : หีบร่มชูชีพร่อนลง ควันสีแดงพวยพุ่ง -> เปิดได้อาหาร/ยา/วัตถุดิบ
 	ทุกอย่างหายไปเองตอนพลบค่ำ / กลับล็อบบี้ / จบเกม · ไม่ทำงานในล็อบบี้ · client: WorldEventsClient (Remotes "WorldEvent")
@@ -14,6 +14,7 @@ local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Animals = require(ReplicatedStorage.Shared.Animals)
+local Items = require(ReplicatedStorage.Shared.Items)
 local Nights = require(ReplicatedStorage.Shared.Nights)
 
 local EventService = {}
@@ -432,15 +433,16 @@ function EventService:Meteor(token)
 			for _, p in ipairs(self:RunPlayers()) do
 				local c = p.Character
 				if c and (c:GetPivot().Position - spot).Magnitude < 80 then
-					local k = self.rng:NextInteger(3, 6)
-					drops:Spawn(ESSENCE[el], k, core.Position, { Spread = 4 })
+					local k = self.rng:NextInteger(2, 3)
+					k = drops:SpawnLoot(ESSENCE[el], k, core.Position, { Spread = 4 })
 					got[ESSENCE[el]] = (got[ESSENCE[el]] or 0) + k
 					ctx.Services.DataService:AddDiamonds(p, self.rng:NextInteger(2, 5), "อุกกาบาตธาตุ")
 				end
 			end
 			if self.rng:NextNumber() < 0.22 then
-				drops:Spawn("BeastHeart", 1, core.Position, { Spread = 3 })
-				got.BeastHeart = 1
+				local heart = Items.ElementHeart[el]
+				drops:Spawn(heart, 1, core.Position, { Spread = 3 })
+				got[heart] = 1
 			end
 			ctx.Remotes.Get("HitFx"):FireClient(player, "Loot", { Items = got, Position = core.Position, Chest = true })
 			ctx.FireRun("WorldEvent", "MeteorClaimed", { Position = core.Position, Element = el })
@@ -677,22 +679,21 @@ function EventService:Supply(token)
 			local rng = self.rng
 			local got = {}
 			local pos = body.Position + V(0, 2, 0)
+			-- จำนวนตามที่ตั้งตรงๆ (ไม่คูณ LootMult)
 			local function give(id, n)
 				if n > 0 then
 					ctx.Services.DropService:Spawn(id, n, pos, { Spread = 3.5 })
-					got[id] = n
+					got[id] = (got[id] or 0) + n
 				end
 			end
-			give("CookedMeat", rng:NextInteger(2, 4))
-			give("Bandage", rng:NextInteger(1, 2))
-			give("Medkit", rng:NextNumber() < 0.35 and 1 or 0)
-			give("Wood", rng:NextInteger(6, 10))
-			give("Iron", rng:NextInteger(2, 4))
-			give("Coal", rng:NextInteger(2, 4))
-			give(ESSENCE[ELEMENTS[rng:NextInteger(1, 4)]], rng:NextInteger(1, 2))
-			if rng:NextNumber() < 0.5 then
-				ctx.Services.DataService:AddDiamonds(player, rng:NextInteger(1, 2), "หีบเสบียง")
-			end
+			give("CookedMeat", rng:NextInteger(4, 5))
+			give("Bandage", 3)
+			give("Medkit", rng:NextNumber() < 0.2 and 1 or 0)
+			give("Wood", rng:NextInteger(6, 8))
+			give("Iron", rng:NextInteger(5, 6))
+			give("Coal", rng:NextInteger(4, 5))
+			give(ESSENCE[ELEMENTS[rng:NextInteger(1, 4)]], 1)
+			ctx.Services.DataService:AddDiamonds(player, rng:NextInteger(2, 3), "หีบเสบียง")
 			ctx.Remotes.Get("HitFx"):FireClient(player, "Loot", { Items = got, Position = pos, Chest = true })
 			ctx.Broadcast(string.format("📦 %s เปิดหีบเสบียงแล้ว!", player.DisplayName), "Good")
 			ctx.State:SetAttribute("Event_Supply", nil)

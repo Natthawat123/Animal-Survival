@@ -283,7 +283,8 @@ function MapLayout:_placeSpecials(rng)
 		local lairH = self:HeightAt(s.X, s.Z)
 		local lair = { Kind = "Lair", Element = el, Position = Vector3.new(s.X, lairH, s.Z) }
 		local sx, sh, sz = self:_flatSiteIn(rng, el, "Shrine", s.Dist * 0.5, s.Dist * 0.85)
-		local shrine = { Kind = "Shrine", Element = el, Position = Vector3.new(sx, sh, sz) }
+		-- ยกพ้นน้ำเสมอ (ศาลเจ้าวารีเคยจมอยู่ใต้ทะเล) — MapGenerator ถมลานขึ้นมาถึงระดับนี้
+		local shrine = { Kind = "Shrine", Element = el, Position = Vector3.new(sx, math.max(sh, self.WaterLevel + 4), sz) }
 		table.insert(self.Specials, lair)
 		table.insert(self.Specials, shrine)
 		for _ = 1, 3 do
@@ -386,6 +387,19 @@ function MapLayout:_placeSanctums()
 					best, bestScore = { X = x, Z = z, Y = (lo + hi) / 2 }, score
 				end
 				if score < 8 and try > 30 then
+					break
+				end
+			end
+		end
+		-- ยังไม่เจอ (ไบโอมน้ำพื้นดินน้อย เคยทำให้ไม่มีวิหารวารีเลย) -> ผ่อนเงื่อนไข: ชายฝั่ง/น้ำตื้นก็ได้ ลานถูกยกพ้นน้ำตอนปรับพื้นอยู่แล้ว
+		if not best then
+			for _ = 1, 300 do
+				local ang = s.Angle + rng:NextNumber(-1.6, 1.6)
+				local dist = s.Dist * rng:NextNumber(0.3, 1.4)
+				local x, z = math.cos(ang) * dist, math.sin(ang) * dist
+				local h, biome, lava = self:HeightAt(x, z)
+				if biome == el and not lava and h > self.WaterLevel - 12 and h < 260 and clearOf(x, z, 0.55) then
+					best = { X = x, Z = z, Y = h }
 					break
 				end
 			end

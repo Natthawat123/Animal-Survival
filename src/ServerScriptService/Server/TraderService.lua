@@ -8,6 +8,8 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shop = require(ReplicatedStorage.Shared.Shop)
+local Items = require(ReplicatedStorage.Shared.Items)
+local Limits = require(ReplicatedStorage.Shared.Limits)
 local MeshProps = require(ReplicatedStorage.Shared.MeshProps)
 
 local TraderService = {}
@@ -95,6 +97,12 @@ function TraderService:Arrive()
 	end
 	local camp = self.ctx.CampPosition
 	local cf = CF(camp + V(-30, 0, 18), camp)
+	-- มาเยือนรอบใหม่ = รีเซ็ตโควต้าแลกของของทุกคน
+	for _, pl in ipairs(game:GetService("Players"):GetPlayers()) do
+		for _, o in ipairs(Shop.Trader) do
+			pl:SetAttribute("Trade_" .. o.Id, nil)
+		end
+	end
 	local m, body = buildTrader(cf)
 	m.Parent = workspace
 	self.model = m
@@ -127,7 +135,7 @@ function TraderService:OnDay(day)
 end
 
 function TraderService:Start(ctx)
-	ctx.Remotes.Get("Trade").OnServerEvent:Connect(function(player, offerId)
+	local function trade(player, offerId)
 		if ctx.Services.SurvivalService:IsIncapacitated(player) then
 			return
 		end
@@ -141,6 +149,23 @@ function TraderService:Start(ctx)
 			return
 		end
 		local inv = ctx.Services.InventoryService
+		-- โควต้าต่อการมาเยือน + ของที่มีแล้ว/ครบจำนวน -> ไม่ให้แลก (ไม่เสียของ)
+		local key = "Trade_" .. offerId
+		local used = player:GetAttribute(key) or 0
+		if used >= Limits.TradesPerVisit then
+			ctx.Notify(player, string.format("แลกรายการนี้ครบ %d ครั้งแล้ว — รอพ่อค้ามาครั้งหน้า", Limits.TradesPerVisit), "Error")
+			return
+		end
+		for id, n in pairs(offer.Give) do
+			if Items.Data[id] and Items.Data[id].Category == "Tool" and inv:Count(player, id) > 0 then
+				ctx.Notify(player, "มี " .. Items.DisplayName(id) .. " อยู่แล้ว", "Info")
+				return
+			end
+			if inv:Room(player, id) < n then
+				ctx.Notify(player, inv:LimitText(id) .. " — ครบแล้ว", "Error")
+				return
+			end
+		end
 		if not inv:Spend(player, offer.Cost) then
 			ctx.Notify(player, "ของแลกไม่พอ", "Error")
 			return
@@ -148,8 +173,11 @@ function TraderService:Start(ctx)
 		for id, n in pairs(offer.Give) do
 			inv:Add(player, id, n)
 		end
-		ctx.Notify(player, "🐾 แลกของสำเร็จ!", "Good")
-	end)
+		player:SetAttribute(key, used + 1)
+		ctx.Notify(player, string.format("🐾 แลกของสำเร็จ! (รายการนี้แลกได้อีก %d ครั้ง)", Limits.TradesPerVisit - used - 1), "Good")
+	end
+	TraderService.TestTrade = trade
+	ctx.Remotes.Get("Trade").OnServerEvent:Connect(trade)
 	ctx.State:GetAttributeChangedSignal("Phase"):Connect(function()
 		local ph = ctx.State:GetAttribute("Phase")
 		if ph == "Dusk" or ph == "Night" or ph == "Ended" or ph == "Lobby" then

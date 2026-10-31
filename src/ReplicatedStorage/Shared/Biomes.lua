@@ -134,7 +134,7 @@ Biomes.Data = {
 			{ Kind = "TideCrystal", Weight = 0.6 },
 			{ Kind = "BerryBush", Weight = 0.6 },
 		},
-		Wild = { ReefCrab = 3, RiptideCroc = 3, Rabbit = 1 },
+		Wild = { ReefCrab = 3, InkOctopus = 3, TideOrca = 2 },
 		Boss = "Leviathan",
 		Spirit = "TidePup",
 	},

@@ -29,8 +29,6 @@ Shop.Trader = {
 	{ Id = "T_Bow", Give = { Bow = 1 }, Cost = { Pelt = 6, Bone = 4 } },
 	{ Id = "T_IronAxe", Give = { IronAxe = 1 }, Cost = { Pelt = 8, Iron = 4 } },
 	{ Id = "T_Ballista", Give = { Ballista = 1 }, Cost = { Pelt = 10, Bone = 6 } },
-	{ Id = "T_Essence", Give = { TerraCore = 1, TidePearl = 1, GaleFeather = 1, EmberShard = 1 }, Cost = { Pelt = 12 } },
-	{ Id = "T_Heart", Give = { BeastHeart = 1 }, Cost = { Pelt = 30, Bone = 20 } },
 }
 Shop.TraderById = {}
 for _, t in ipairs(Shop.Trader) do

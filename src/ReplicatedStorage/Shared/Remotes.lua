@@ -23,10 +23,12 @@ Remotes.Events = {
 	"Trade", -- (offerId) พ่อค้าเร่
 	"Ping", -- เทสต์
 	"DropItem", -- (itemId, count) ทิ้งของจากกระสอบลงพื้น
+	"DropHeld", -- () [Backspace] ทิ้งของที่ถืออยู่ในมือ (อาวุธ/เครื่องมือ/สิ่งปลูกสร้าง/ยา · ถือกระสอบ = ทิ้งของชิ้นล่าสุดในกระสอบ)
 	"PickupDrop", -- (dropModel) เก็บของบนพื้น (คลิกตอนถือกระสอบ)
 	"ThrowFuel", -- () ถือกระสอบคลิกกองไฟ: โยนเชื้อเพลิง/เนื้อดิบเข้าไป
 	"ThrowGrind", -- () ถือกระสอบคลิกเครื่องย่อย: โยนวัตถุดิบลงช่องบด
 	"PadSize", -- (padIndex, n) หัวหน้าแท่นเลือกจำนวนคน 1-8
+	"LeavePad", -- () กดออกจากกลุ่มแท่น (ขึ้นแท่นแล้วเดินออกเองไม่ได้)
 	"LeaveRun", -- () คนที่ตายแล้ว (ดูเพื่อน) กดกลับล็อบบี้
 	"SaveSettings", -- (table) การตั้งค่าเสียง/กราฟิก/ปุ่ม
 	"TutorialDone", -- () ดูหน้าสอนเล่นจบแล้ว
@@ -40,6 +42,7 @@ Remotes.Events = {
 	"Notify", -- (text, kind)
 	"Inventory", -- (table)
 	"Cinematic", -- (kind, data)
+	"Dismount", -- ลงจากหลังสัตว์ที่ขี่อยู่ (MountService)
 	"HitFx", -- (kind, data)
 	"Profile", -- (profile table)
 	"RejoinOffer", -- ({ Left = วินาทีที่เหลือ, Local = bool }) มีรอบเดิมให้กลับเข้า

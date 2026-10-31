@@ -56,6 +56,18 @@ local function getTemp()
 	return tempFolder
 end
 
+-- แม่แบบที่สร้างเสร็จแล้ว (ไว้ Clone) ต้องอยู่นอก workspace — แม่แบบวางอยู่ที่จุด 0,0,0 = กลางแคมป์พอดี
+--   แม่แบบที่สร้างหลัง ClearTemplates (วิหาร/ศาลเจ้าตอนเล่น) เคยค้างใน workspace -> ใบโอ๊กยักษ์ครอบกองไฟเป็นพุ่ม
+local templateHome: Folder? = nil
+local function stashTemplate(t)
+	if not templateHome or not templateHome.Parent then
+		templateHome = Instance.new("Folder")
+		templateHome.Name = "_ASPropTemplates"
+		templateHome.Parent = game:GetService("RunService"):IsServer() and game:GetService("ServerStorage") or ReplicatedStorage
+	end
+	t.Parent = templateHome
+end
+
 -- รวมชิ้น (Union) ถ้าทำไม่ได้ คืนค่าเป็น Model ของชิ้นเดิม
 local function union(parts, props)
 	if #parts == 1 then
@@ -196,7 +208,7 @@ local function finishTemplate(kind, model)
 	elseif model:IsA("BasePart") then
 		model.PivotOffset = model.CFrame:Inverse()
 	end
-	model.Parent = getTemp()
+	stashTemplate(model)
 	return model
 end
 
@@ -252,28 +264,28 @@ local function broadTree(kind, leafColor, trunkColor, height, canopy)
 end
 
 Kinds.GiantPine = {
-	Node = { Node = "Tree", Yield = "Wood", HP = 10 },
+	Node = { Node = "Tree", Yield = "Wood", HP = 10, Total = 5 },
 	Scale = { 0.9, 1.7 },
 	Build = function()
 		return pine("GiantPine", C(46, 92, 52), Enum.Material.LeafyGrass, C(88, 62, 46))
 	end,
 }
 Kinds.FrostPine = {
-	Node = { Node = "Tree", Yield = "Wood", HP = 9 },
+	Node = { Node = "Tree", Yield = "Wood", HP = 9, Total = 5 },
 	Scale = { 0.8, 1.4 },
 	Build = function()
 		return pine("FrostPine", C(96, 140, 140), Enum.Material.Grass, C(96, 84, 80), true)
 	end,
 }
 Kinds.Oak = {
-	Node = { Node = "Tree", Yield = "Wood", HP = 8 },
+	Node = { Node = "Tree", Yield = "Wood", HP = 8, Total = 4 },
 	Scale = { 0.8, 1.2 },
 	Build = function()
 		return broadTree("Oak", C(96, 150, 58), C(104, 74, 50), 14, 15)
 	end,
 }
 Kinds.AncientOak = {
-	Node = { Node = "Tree", Yield = "Wood", HP = 16 },
+	Node = { Node = "Tree", Yield = "Wood", HP = 16, Total = 8 },
 	Scale = { 1.3, 2.0 },
 	Build = function()
 		local m = broadTree("AncientOak", C(52, 108, 46), C(80, 64, 50), 20, 22)
@@ -291,7 +303,7 @@ Kinds.AncientOak = {
 	end,
 }
 Kinds.Palm = {
-	Node = { Node = "Tree", Yield = "Wood", HP = 7 },
+	Node = { Node = "Tree", Yield = "Wood", HP = 7, Total = 4 },
 	Scale = { 0.9, 1.3 },
 	Build = function()
 		local segs = {}
@@ -319,7 +331,7 @@ Kinds.Palm = {
 	end,
 }
 Kinds.CharredTree = {
-	Node = { Node = "Tree", Yield = "Coal", HP = 8, YieldPerHP = 0.5, Bonus = "Wood" },
+	Node = { Node = "Tree", Yield = "Coal", HP = 8, Total = 3, Bonus = "Wood" },
 	Scale = { 0.9, 1.5 },
 	Build = function()
 		local parts = { cylinderY(18, 2.4, CF(0, 9, 0), {}) }
@@ -363,7 +375,7 @@ Kinds.Bush = { Scale = { 0.7, 1.3 }, NoCollide = true, Build = function()
 	return bush("Bush", C(78, 140, 60), false)
 end }
 Kinds.BerryBush = {
-	Node = { Node = "Bush", Yield = "Berries", HP = 1, Amount = 3, Bonus = "Fiber", Regrow = 150 },
+	Node = { Node = "Bush", Yield = "Berries", HP = 1, Amount = 2, Bonus = "Fiber", Regrow = 150 },
 	Scale = { 0.9, 1.2 }, NoCollide = true,
 	Build = function()
 		return bush("BerryBush", C(64, 124, 56), true)
@@ -423,16 +435,16 @@ end
 Kinds.Fern = { Scale = { 0.8, 1.5 }, NoCollide = true, Build = function()
 	return ellipsoid(V(4, 2, 4), CF(0, 0.8, 0), { Name = "Fern", Color = C(84, 130, 60), Material = Enum.Material.Grass, CanCollide = false })
 end }
-Kinds.Boulder = { Node = { Node = "Rock", Yield = "Stone", HP = 8 }, Scale = { 0.6, 1.4 }, Build = rockKind("Boulder", V(9, 6, 8), C(132, 130, 126), Enum.Material.Slate) }
+Kinds.Boulder = { Node = { Node = "Rock", Yield = "Stone", HP = 8, Total = 5 }, Scale = { 0.6, 1.4 }, Build = rockKind("Boulder", V(9, 6, 8), C(132, 130, 126), Enum.Material.Slate) }
 Kinds.MossRock = {
-	Node = { Node = "Rock", Yield = "Stone", HP = 10 }, Scale = { 0.8, 1.8 },
+	Node = { Node = "Rock", Yield = "Stone", HP = 10, Total = 6 }, Scale = { 0.8, 1.8 },
 	Build = rockKind("MossRock", V(11, 7, 10), C(98, 102, 96), Enum.Material.Slate, function()
 		return { ellipsoid(V(9, 2.4, 8), CF(0, 5.2, 0), { Name = "Moss", Color = C(70, 130, 50), Material = Enum.Material.Grass, CanCollide = false }) }
 	end),
 }
-Kinds.SeaRock = { Node = { Node = "Rock", Yield = "Stone", HP = 8 }, Scale = { 0.8, 2.0 }, Build = rockKind("SeaRock", V(10, 9, 9), C(186, 204, 196), Enum.Material.Limestone) }
+Kinds.SeaRock = { Node = { Node = "Rock", Yield = "Stone", HP = 8, Total = 5 }, Scale = { 0.8, 2.0 }, Build = rockKind("SeaRock", V(10, 9, 9), C(186, 204, 196), Enum.Material.Limestone) }
 Kinds.SkyStone = {
-	Node = { Node = "Rock", Yield = "Stone", HP = 8 }, Scale = { 0.7, 1.6 },
+	Node = { Node = "Rock", Yield = "Stone", HP = 8, Total = 5 }, Scale = { 0.7, 1.6 },
 	Build = rockKind("SkyStone", V(9, 7, 8), C(120, 132, 168), Enum.Material.Slate, function()
 		-- หินลอยเล็กๆ ข้างบน (พลังลม)
 		local out = {}
@@ -445,7 +457,7 @@ Kinds.SkyStone = {
 	end),
 }
 Kinds.IronRock = {
-	Node = { Node = "Rock", Yield = "Iron", HP = 10, YieldPerHP = 0.6, Bonus = "Stone" }, Scale = { 0.8, 1.3 },
+	Node = { Node = "Rock", Yield = "Iron", HP = 10, Total = 3, Bonus = "Stone" }, Scale = { 0.8, 1.3 },
 	Build = rockKind("IronRock", V(9, 6, 8), C(92, 90, 92), Enum.Material.Slate, function()
 		local ores = {}
 		local rng = Random.new(5)
@@ -459,7 +471,7 @@ Kinds.IronRock = {
 	end),
 }
 Kinds.CoalRock = {
-	Node = { Node = "Rock", Yield = "Coal", HP = 10, YieldPerHP = 0.7, Bonus = "Stone" }, Scale = { 0.8, 1.3 },
+	Node = { Node = "Rock", Yield = "Coal", HP = 10, Total = 4, Bonus = "Stone" }, Scale = { 0.8, 1.3 },
 	Build = rockKind("CoalRock", V(9, 6, 8), C(48, 44, 46), Enum.Material.Basalt, function()
 		local ores = {}
 		local rng = Random.new(9)
@@ -595,7 +607,7 @@ Kinds.LavaVent = {
 }
 local function crystalCluster(kind, color, element)
 	return {
-		Node = { Node = "Crystal", Yield = element, HP = 8, YieldPerHP = 0.4, Regrow = 300 },
+		Node = { Node = "Crystal", Yield = element, HP = 8, Total = 2, Regrow = 300 },
 		Scale = { 0.8, 1.5 },
 		Build = function()
 			local rng = Random.new(#kind * 13)
@@ -810,7 +822,7 @@ local function normalize(kind, src, spec)
 		col.CastShadow = false
 		col.Parent = m
 	end
-	m.Parent = getTemp()
+	stashTemplate(m)
 	return m
 end
 
@@ -856,7 +868,7 @@ function PropBuilder.GetTemplate(kind, rng)
 	if MeshProps.Has(kind) then
 		-- โมเดลจริงจาก Blender (สวมผิวฝั่ง client)
 		t = MeshProps.Build(kind)
-		t.Parent = getTemp()
+		stashTemplate(t)
 		templates[kind] = t
 		return t
 	end
@@ -928,9 +940,19 @@ function PropBuilder.Place(kind, position, yaw, scale, parent, rng)
 		CollectionService:AddTag(inst, "ResourceNode")
 		inst:SetAttribute("Node", spec.Node.Node)
 		inst:SetAttribute("Yield", spec.Node.Yield)
-		inst:SetAttribute("HP", math.floor(spec.Node.HP * math.max(scale, 0.7) + 0.5))
+		local hp = math.floor(spec.Node.HP * math.max(scale, 0.7) + 0.5)
+		if spec.Node.Node == "Tree" or spec.Node.Node == "Rock" then
+			-- ตีด้วยเครื่องมือพื้นฐาน (แรง 1): ต้นเล็ก/หินเล็ก 6 ครั้ง · ต้นใหญ่/หินใหญ่ 10 ครั้ง
+			hp = (spec.Node.HP >= 14 or scale >= 1.25) and 10 or 6
+		end
+		inst:SetAttribute("HP", hp)
 		inst:SetAttribute("MaxHP", inst:GetAttribute("HP"))
-		inst:SetAttribute("YieldPerHP", spec.Node.YieldPerHP or 1)
+		-- Total = ได้ของทั้งต้น/ก้อน (ต้นใหญ่ตีนานขึ้นแต่ได้เพิ่มนิดเดียว ไม่ทวีตามขนาด)
+		local per = spec.Node.YieldPerHP or 1
+		if spec.Node.Total then
+			per = spec.Node.Total * math.clamp(scale, 0.8, 1.35) / inst:GetAttribute("HP")
+		end
+		inst:SetAttribute("YieldPerHP", per)
 		if spec.Node.Bonus then
 			inst:SetAttribute("Bonus", spec.Node.Bonus)
 		end
@@ -1208,20 +1230,44 @@ function PropBuilder.Imported(name, cf, width, parent, collide)
 			d:Destroy()
 		end
 	end
-	-- โมเดลเก่าบางตัวเก็บทั้งโมเดลกลับหัว (ชิ้นส่วนเกือบทั้งหมดหงายท้อง) -> พลิกกลับให้ตั้งตรง
-	local up, down = 0, 0
+	-- บางโมเดลเก็บทั้งก้อนหมุนผิดแกน (กลับหัว / นอนตะแคง เช่น พื้นหินวงกลม + กระถางไฟที่ "ด้านบน" = แกน X)
+	--   นับทิศ UpVector ของชิ้นส่วน: ทิศที่ชิ้นส่วนส่วนใหญ่ชี้ = ด้านบนจริงของโมเดล -> หมุนให้ชี้ขึ้น (+Y)
+	local tally = { ["+X"] = 0, ["-X"] = 0, ["+Y"] = 0, ["-Y"] = 0, ["+Z"] = 0, ["-Z"] = 0 }
+	local nParts = 0
 	for _, d in ipairs(m:GetDescendants()) do
 		if d:IsA("BasePart") then
-			local y = d.CFrame.UpVector.Y
-			if y > 0.5 then
-				up += 1
-			elseif y < -0.5 then
-				down += 1
+			nParts += 1
+			local u = d.CFrame.UpVector
+			if u.X > 0.7 then
+				tally["+X"] += 1
+			elseif u.X < -0.7 then
+				tally["-X"] += 1
+			elseif u.Y > 0.7 then
+				tally["+Y"] += 1
+			elseif u.Y < -0.7 then
+				tally["-Y"] += 1
+			elseif u.Z > 0.7 then
+				tally["+Z"] += 1
+			elseif u.Z < -0.7 then
+				tally["-Z"] += 1
 			end
 		end
 	end
-	if down > 50 and down > up * 3 then
-		m:PivotTo(ANG(math.pi, 0, 0) * m:GetPivot())
+	local bestDir, bestN = "+Y", tally["+Y"]
+	for dir, n in pairs(tally) do
+		if n > bestN then
+			bestDir, bestN = dir, n
+		end
+	end
+	-- เฉพาะโมเดลที่รู้แน่ว่าเก็บมานอน (ห้ามเดาจากทิศชิ้นส่วนทุกโมเดล: เสาทรงกระบอกตั้งตรงมีแกน Up แนวนอน -> เคยพลิกซากวิหารลงนอนพื้น)
+	local UPRIGHT_FIX = { PlazaCircleLP = true, BrazierLP = true }
+	if UPRIGHT_FIX[name] and bestDir ~= "+Y" and bestN >= math.max(20, nParts * 0.6) and bestN > tally["+Y"] * 3 then
+		local fix = ({
+			["-Y"] = ANG(math.pi, 0, 0), ["+X"] = ANG(0, 0, math.pi / 2), ["-X"] = ANG(0, 0, -math.pi / 2),
+			["+Z"] = ANG(-math.pi / 2, 0, 0), ["-Z"] = ANG(math.pi / 2, 0, 0),
+		})[bestDir]
+		local piv = m:GetPivot()
+		m:PivotTo(CF(piv.Position) * fix * (piv - piv.Position))
 	end
 	local bcf, size = m:GetBoundingBox()
 	m.WorldPivot = CF(bcf.Position - V(0, size.Y / 2, 0))
@@ -1650,6 +1696,38 @@ function PropBuilder.BuildAccess(area, frame, model, parent, color)
 	return "lift"
 end
 
+-- ฟืนกองไฟจริง (โมเดล Store: ท่อนไม้กระโจม + หินล้อม + ขี้เถ้า) ทาสีไม้/หินใหม่ · ไม่มีโมเดล = nil
+function PropBuilder.CampfireLogs(cf, width, parent)
+	local real = PropBuilder.Imported("CampfireLogs", cf, width, parent)
+	if not real then
+		return nil
+	end
+	for _, d in ipairs(real:GetDescendants()) do
+		if d:IsA("BasePart") then
+			d.CanCollide = d.Name == "Rock"
+			d.Reflectance = 0 -- โมเดลต้นฉบับตั้งไม้สะท้อน 0.4 -> สะท้อนฟ้าเป็นไม้สีฟ้าขาว
+			if d.Name == "Rock" then
+				d.Color = C(118, 112, 104):Lerp(C(84, 80, 76), math.random())
+				d.Material = Enum.Material.Slate
+			elseif d.Name == "Ash" then
+				d.Color = C(46, 40, 36)
+				d.Material = Enum.Material.Ground
+			else
+				d.Color = C(104, 70, 44):Lerp(C(64, 42, 28), math.random())
+				d.Material = Enum.Material.Wood
+			end
+			if d:IsA("MeshPart") then
+				d.TextureID = ""
+			end
+		elseif d:IsA("SpecialMesh") then
+			d.TextureId = ""
+		elseif d:IsA("Texture") or d:IsA("Decal") then
+			d:Destroy()
+		end
+	end
+	return real
+end
+
 function PropBuilder.BuildCamp(position, parent)
 	local m = Instance.new("Model")
 	m.Name = "Camp"
@@ -1694,31 +1772,8 @@ function PropBuilder.BuildCamp(position, parent)
 	-- ฟืนจริง (โมเดล Store: ท่อนไม้กระโจม + ไม้นอนฐาน) — ไม่มีก็ใช้ท่อนไม้ปั้น
 	local logs = Instance.new("Model")
 	logs.Name = "Campfire"
-	local real = PropBuilder.Imported("CampfireLogs", base * CF(0, -0.15, 0), 8, logs)
-	if real then
-		for _, d in ipairs(real:GetDescendants()) do
-			if d:IsA("BasePart") then
-				d.CanCollide = d.Name == "Rock"
-				if d.Name == "Rock" then
-					d.Color = C(118, 112, 104):Lerp(C(84, 80, 76), math.random())
-					d.Material = Enum.Material.Slate
-				elseif d.Name == "Ash" then
-					d.Color = C(46, 40, 36)
-					d.Material = Enum.Material.Ground
-				else
-					d.Color = C(104, 70, 44):Lerp(C(64, 42, 28), math.random())
-					d.Material = Enum.Material.Wood
-				end
-				if d:IsA("MeshPart") then
-					d.TextureID = ""
-				end
-			elseif d:IsA("SpecialMesh") then
-				d.TextureId = ""
-			elseif d:IsA("Texture") or d:IsA("Decal") then
-				d:Destroy()
-			end
-		end
-	else
+	local real = PropBuilder.CampfireLogs(base * CF(0, -0.15, 0), 8, logs)
+	if not real then
 		for i = 0, 5 do
 			local ang = i / 6 * math.pi * 2
 			cylinderY(4.5, 0.8, base * CF(math.cos(ang) * 1.1, 1.6, math.sin(ang) * 1.1) * ANG(math.sin(ang) * 0.5, 0, -math.cos(ang) * 0.5), {
@@ -1728,11 +1783,11 @@ function PropBuilder.BuildCamp(position, parent)
 	end
 	P("Part", { Name = "Ash", Shape = Enum.PartType.Cylinder, Size = V(0.3, 6.4, 6.4), CFrame = base * CF(0, 0.1, 0) * ANG(0, 0, math.pi / 2), Color = C(46, 42, 40), Material = Enum.Material.Basalt, CanCollide = false }, logs)
 	local core = P("Part", {
-		Name = "FireCore", Size = V(1.6, 0.4, 1.6), CFrame = base * CF(0, 1.1, 0), Transparency = 1, CanCollide = false, CanQuery = false,
+		Name = "FireCore", Size = V(1.6, 0.4, 1.6), CFrame = base * CF(0, 1.6, 0), Transparency = 1, CanCollide = false, CanQuery = false,
 	}, logs)
 	local glow = ellipsoid(V(2.6, 0.5, 2.6), base * CF(0, 0.4, 0), { Name = "Embers", Color = C(255, 120, 30), Material = Enum.Material.Neon, CanCollide = false }, logs)
 	glow.Parent = logs
-	realFire(core, 1)
+	realFire(core, 1.5) -- เปลวต้องพุ่งพ้นยอดกระโจมฟืน (สเกล 1 โดนท่อนไม้บังมิด เห็นเป็นกองไม้)
 	light(core, C(255, 150, 70), 60, 3, true)
 	-- ควันลอยเป็นเสาสูง เห็นได้จากในป่า (นำทางกลับแคมป์)
 	local smoke = Instance.new("Smoke")
@@ -1792,7 +1847,8 @@ function PropBuilder.BuildCamp(position, parent)
 		local MODEL_YAW = math.pi -- โมเดล glTF หันหน้า +Z -> หมุนให้ด้านหน้าหัน -Z (เข้ากองไฟ)
 		local wbCf = onGround((base * CF(26, 0, -2)).Position)
 		local fgCf = onGround((base * CF(20, 0, -26)).Position)
-		local wb = PropBuilder.Imported("CampWorkbench", wbCf * ANG(0, MODEL_YAW, 0), 15, bench, true)
+		-- โต๊ะคราฟต์: โมเดลนี้หันหน้า -Z อยู่แล้ว (หมุน 180° = หันหลังให้กองไฟ) -> ไม่หมุน
+		local wb = PropBuilder.Imported("CampWorkbench", wbCf, 15, bench, true)
 		local fg = wb and PropBuilder.Imported("CampForge", fgCf * ANG(0, MODEL_YAW, 0), 15, bench, true)
 		if wb and fg then
 			newDone = true
@@ -1917,6 +1973,842 @@ function PropBuilder.BuildCamp(position, parent)
 end
 
 -- ศาลเจ้า: กรงลูกสัตว์ธาตุ
+-- ---------------------------------------------------------------- ลานพิธี (ศาลเจ้า/วิหาร)
+-- พื้นหินกลมเรียบบนดิน (Part ชนได้จริง) หน้าอาคาร -> ของเล่น (กรง/เสารูน/หีบ) วางบนลานนี้ทั้งหมด เดินถึงได้แน่นอน
+--   ไม่พึ่งรูปทรงโมเดล Store (เคยวางของบนหลังคา/ชั้นบนแล้วลอย/ขึ้นไม่ได้)
+--   frame = กลางลาน (Y = ระดับพื้นที่ MapGenerator ปรับเรียบไว้) · คืนความสูงผิวลาน
+local PLAZA_STONE = {
+	Earth = { C(126, 116, 98), Enum.Material.Cobblestone },
+	Water = { C(198, 192, 172), Enum.Material.Limestone },
+	Air = { C(206, 214, 228), Enum.Material.Marble },
+	Fire = { C(64, 54, 52), Enum.Material.Basalt },
+}
+PropBuilder.PlazaRadius = { Shrine = 24, Sanctum = 32 } -- ต้องเล็กกว่า SiteSpec.Gap (ไม่ให้ลานทับตัวอาคาร)
+function PropBuilder.BuildPlaza(frame, radius, el, parent, groundMat, opts)
+	local col = ELEMENT_COLOR[el] or C(255, 255, 255)
+	local stone = PLAZA_STONE[el] or PLAZA_STONE.Earth
+	local mat = groundMat or SEAT_MAT[el] or Enum.Material.Ground
+	local p = frame.Position
+	local gy = p.Y
+	local top = gy + 0.5
+	-- ดินใต้ลาน: ล้างเนิน/ต้นไม้ดินที่ยื่นขึ้นมา + ถมฐานให้เต็ม + ขอบลาดลง (ไม่ลอย ไม่เป็นหน้าผา)
+	pcall(function()
+		local terrain = workspace.Terrain
+		terrain:FillCylinder(CF(p.X, gy + 25, p.Z), 50, radius + 4, Enum.Material.Air)
+		terrain:FillCylinder(CF(p.X, gy - 5, p.Z), 10, radius + 4, mat)
+		for i = 1, 5 do
+			terrain:FillCylinder(CF(p.X, gy - 1.2 - i * 2.6, p.Z), 2.8, radius + 4 + i * 3.5, mat)
+		end
+	end)
+	local rot = frame - frame.Position
+	-- พื้นลาน: หินปูวงกลมลายแกะจาก Creator Store (PlazaCircleLP) วางบนดินที่ปรับเรียบ · ไม่มีโมเดล = จานหินปั้นแทน
+	local floor = PropBuilder.Imported("PlazaCircleLP", CF(p.X, gy + 0.05, p.Z) * rot, radius * 2, parent, true)
+	if floor then
+		floor.Name = "PlazaFloor"
+		local fcf, fsz = floor:GetBoundingBox()
+		top = fcf.Position.Y + fsz.Y / 2
+	else
+		cylinderY(1.6, radius * 2, CF(p.X, top - 0.8, p.Z) * rot, { Name = "PlazaFloor", Color = stone[1], Material = stone[2], CanCollide = true }, parent)
+	end
+	local base = CF(p.X, top, p.Z) * rot
+	-- กระถางไฟเหล็กจาก Store (มีไฟอนุภาคในตัว) 4 มุม + แสงสีธาตุ — บอกตำแหน่งลานจากไกลตอนกลางคืน
+	for k = 0, 3 do
+		local a = math.rad(45 + k * 90)
+		local bcf = base * CF(math.cos(a) * (radius - 3.5), 0, math.sin(a) * (radius - 3.5))
+		local br = PropBuilder.Imported("BrazierLP", bcf, 5.5, parent, true)
+		local host
+		if br then
+			br.Name = "PlazaBrazier"
+			host = br:FindFirstChildWhichIsA("BasePart", true)
+		else
+			P("Part", { Name = "PlazaPost", Size = V(2.4, 4, 2.4), CFrame = bcf * CF(0, 2, 0), Color = stone[1], Material = stone[2] }, parent)
+			host = cylinderY(1, 3.6, bcf * CF(0, 4.5, 0), { Name = "PlazaBrazier", Color = C(60, 46, 36), Material = Enum.Material.Metal }, parent)
+			fire(host, 4, el == "Fire" and C(255, 140, 40) or col)
+		end
+		if host then
+			light(host, col, 28, 1.8)
+		end
+	end
+	-- วงหินรูน (Store: RuneStoneLP) ล้อมกลางลาน หันหน้าเข้ากลาง
+	if opts and opts.Stones then
+		for k = 0, opts.Stones - 1 do
+			local a = k / opts.Stones * math.pi * 2 + math.pi / opts.Stones
+			local sp = (base * CF(math.cos(a) * opts.StoneRadius, 0, math.sin(a) * opts.StoneRadius)).Position
+			local st = PropBuilder.Imported("RuneStoneLP", CFrame.lookAt(sp, V(p.X, sp.Y, p.Z)), 3.6 + (k % 2) * 0.8, parent, true)
+			if st then
+				st.Name = "RuneStone"
+			end
+		end
+	end
+	-- ออร่าธาตุกลางลาน (อนุภาคจาก VFXPack ของ Store) — ไฟ/น้ำ ใช้ของจริง · ดิน/ลม ย้อมสีธาตุ
+	pcall(function()
+		local vfx = ReplicatedStorage:FindFirstChild("Assets") and ReplicatedStorage.Assets:FindFirstChild("VFX")
+		local pack = vfx and vfx:FindFirstChild("VFXPack")
+		local auraName = ({ Fire = "Fire-Aura-01", Water = "Water-Aura-01", Earth = "RNG-Aura-01", Air = "RNG-Aura-02" })[el]
+		local aura = pack and pack:FindFirstChild(auraName, true)
+		local torso = aura and aura:FindFirstChild("Torso")
+		if not torso then
+			return
+		end
+		local emitPart = P("Part", {
+			Name = "PlazaAura", Size = V(radius * 0.55, 1, radius * 0.55), CFrame = base * CF(0, 0.6, 0),
+			Transparency = 1, CanCollide = false, CanQuery = false, CanTouch = false,
+		}, parent)
+		for _, e in ipairs(torso:GetChildren()) do
+			if e:IsA("ParticleEmitter") then
+				local c = e:Clone()
+				c.Rate = c.Rate * 4
+				local ks = {}
+				for _, kp in ipairs(c.Size.Keypoints) do
+					table.insert(ks, NumberSequenceKeypoint.new(kp.Time, kp.Value * 2.2, kp.Envelope * 2.2))
+				end
+				c.Size = NumberSequence.new(ks)
+				if c.Name == "Portal" then
+					-- หลุมดำกลางวง: เล็กลง/โปร่งขึ้น ให้เห็นสีม่านรอบๆ
+					local k2 = {}
+					for _, kp in ipairs(c.Size.Keypoints) do
+						table.insert(k2, NumberSequenceKeypoint.new(kp.Time, kp.Value * 0.42, kp.Envelope * 0.42))
+					end
+					c.Size = NumberSequence.new(k2)
+					c.Color = ColorSequence.new(col:Lerp(C(0, 0, 0), 0.82))
+				end
+				if el == "Earth" or el == "Air" then
+					c.Color = ColorSequence.new(col)
+				end
+				c.Parent = emitPart
+			end
+		end
+	end)
+	return top
+end
+
+-- ---------------------------------------------------------------- มิติ (ศาลเจ้า/วิหาร): ประตูมิติบนพื้น + ห้องข้างในลอยบนฟ้า
+-- ข้างนอก = ซุ้มประตูหินจาก Store (PortalArch) ตั้งบนดิน (จมฐานลงดิน ไม่ลอย) · กด E = วาร์ปเข้าห้อง
+-- ข้างใน = เกาะลอยฟ้าพื้นราบ (Part) สูง RealmY เหนือจุดเดิม + อาคารประจำจุดจาก Store (8 แบบไม่ซ้ำ ดู REALM_THEME) -> ของเล่นทุกชิ้นวางบนพื้นราบ ไม่ลอย/ไม่จม
+--   PortalService (server) อ่านแท็ก "RealmPortal": attribute Dest/DestLook = ปลายทางวาร์ป
+PropBuilder.RealmY = 2400
+local REALM_STONE = {
+	Earth = { C(118, 112, 96), Enum.Material.Cobblestone },
+	Water = { C(186, 196, 200), Enum.Material.Limestone },
+	Air = { C(214, 222, 236), Enum.Material.Marble },
+	Fire = { C(70, 58, 56), Enum.Material.Basalt },
+}
+local REALM_CRYSTAL = { Earth = "TerraCrystal", Water = "TideCrystal", Air = "GaleCrystal", Fire = "EmberCrystal" }
+
+-- ความสูงพื้น Terrain จริง (ค่าต่ำสุดของหลายจุด) ใต้ตำแหน่ง
+local function terrainY(pos, spread)
+	local rp = RaycastParams.new()
+	rp.FilterType = Enum.RaycastFilterType.Include
+	rp.FilterDescendantsInstances = { workspace.Terrain }
+	local lo
+	for _, o in ipairs({ { 0, 0 }, { spread, 0 }, { -spread, 0 }, { 0, spread }, { 0, -spread } }) do
+		local hit = workspace:Raycast(V(pos.X + o[1], pos.Y + 120, pos.Z + o[2]), V(0, -400, 0), rp)
+		if hit then
+			lo = lo and math.min(lo, hit.Position.Y) or hit.Position.Y
+		end
+	end
+	return lo or pos.Y
+end
+PropBuilder.TerrainY = terrainY
+
+-- ธีมของแต่ละมิติ (8 แบบไม่ซ้ำ): ซุ้มประตู / อาคารหลัก / พื้น / ของประดับประจำไบโอม / จุดเด่น / อนุภาคในอากาศ
+--   Decor = { ชนิด (PropBuilder.Place), จำนวน, สเกล } · ทุกอย่างจาก Creator Store (ยกเว้นพื้น/แผ่นน้ำ/ธารลาวา)
+local REALM_THEME = {
+	ShrineEarth = {
+		Gate = "GateMossArch", GateW = 30, Building = "ShrineEarth", BW = 100,
+		Floor = { C(92, 140, 62), Enum.Material.Grass }, Skirt = { C(96, 78, 58), Enum.Material.Ground },
+		Plaza = { C(126, 116, 98), Enum.Material.Cobblestone },
+		Decor = { { "AncientOak", 4, 1.1 }, { "Oak", 7, 1 }, { "Flowers", 16, 1.8 }, { "GlowShroom", 10, 1.3 }, { "MossRock", 6, 1.2 }, { "Fern", 18, 1.6 } },
+		Feature = "Grove", Air = "Fireflies",
+	},
+	SanctumEarth = {
+		Gate = "GateMystic", GateW = 26, Building = "SanctumEarth", BW = 150,
+		Floor = { C(110, 104, 88), Enum.Material.Cobblestone }, Skirt = { C(90, 84, 74), Enum.Material.Slate },
+		Plaza = { C(150, 142, 120), Enum.Material.Pavement },
+		Decor = { { "TerraCrystal", 8, 1.6 }, { "AncientOak", 3, 1.2 }, { "MossRock", 8, 1.4 }, { "Fern", 12, 1.4 } },
+		Feature = "Avenue", Air = "Spores",
+	},
+	ShrineWater = {
+		Gate = "GateStargate", GateW = 30, Building = "ShrineWater", BW = 110,
+		Floor = { C(226, 210, 160), Enum.Material.Sand }, Skirt = { C(170, 160, 136), Enum.Material.Sandstone },
+		Plaza = { C(232, 226, 210), Enum.Material.Limestone },
+		Decor = { { "Palm", 9, 1.1 }, { "Coral", 14, 1.6 }, { "SeaRock", 6, 1.1 }, { "TideCrystal", 4, 1.3 } },
+		Feature = "Lagoon", Air = "Bubbles",
+	},
+	SanctumWater = {
+		Gate = "GateDolmen", GateW = 34, Building = "SanctumWater", BW = 140,
+		Floor = { C(190, 204, 206), Enum.Material.Limestone }, Skirt = { C(130, 150, 160), Enum.Material.Slate },
+		Plaza = { C(214, 226, 230), Enum.Material.Marble },
+		Decor = { { "TideCrystal", 10, 1.7 }, { "Coral", 10, 1.4 }, { "Palm", 4, 1 } },
+		Feature = "Avenue", Pools = true, Air = "Mist",
+	},
+	ShrineAir = {
+		Gate = "PortalArch", GateW = 26, Building = "ShrineAir", BW = 110,
+		Floor = { C(236, 242, 250), Enum.Material.Snow }, Skirt = { C(170, 186, 206), Enum.Material.Glacier },
+		Plaza = { C(200, 214, 232), Enum.Material.Ice },
+		Decor = { { "FrostPine", 12, 1.1 }, { "IceSpire", 9, 1.2 }, { "SkyStone", 5, 1.2 } },
+		Feature = "Snowfield", Air = "Snow",
+	},
+	SanctumAir = {
+		Gate = "GateSkyArch", GateW = 30, Building = "SanctumAir", BW = 160,
+		Floor = { C(214, 222, 236), Enum.Material.Marble }, Skirt = { C(160, 174, 200), Enum.Material.Slate },
+		Plaza = { C(236, 240, 250), Enum.Material.Marble },
+		Decor = { { "GaleCrystal", 10, 1.8 }, { "IceSpire", 7, 1.4 }, { "FrostPine", 4, 1 } },
+		Feature = "Avenue", Air = "Wind",
+	},
+	ShrineFire = {
+		Gate = "GateObsidian", GateW = 24, Building = "ShrineFire", BW = 110,
+		Floor = { C(52, 44, 44), Enum.Material.Basalt }, Skirt = { C(40, 34, 34), Enum.Material.Basalt },
+		Plaza = { C(80, 64, 60), Enum.Material.Slate },
+		Decor = { { "CharredTree", 9, 1.1 }, { "ObsidianSpire", 7, 1.3 }, { "LavaVent", 3, 1 }, { "EmberCrystal", 5, 1.3 } },
+		Feature = "LavaRiver", Air = "Embers",
+	},
+	SanctumFire = {
+		Gate = "GateBasalt", GateW = 30, Building = "SanctumFire", BW = 150,
+		Floor = { C(70, 44, 40), Enum.Material.Slate }, Skirt = { C(44, 32, 30), Enum.Material.Basalt },
+		Plaza = { C(96, 70, 62), Enum.Material.Basalt },
+		Decor = { { "EmberCrystal", 10, 1.7 }, { "ObsidianSpire", 8, 1.5 }, { "CoalRock", 5, 1.2 } },
+		Feature = "Avenue", Moat = true, Air = "Ash",
+	},
+}
+PropBuilder.RealmTheme = REALM_THEME
+
+-- ---------------------------------------------------------------- ม่านประตูมิติ (เต็มช่องประตูทุกรูปทรง)
+-- หาช่องประตูจากกล่องของชิ้นส่วนซุ้ม (OBB) บนตารางในระนาบประตู: ช่องว่างที่ซุ้มล้อมซ้าย/ขวา/บน = ช่องประตู
+--   ซุ้มที่เป็นเมชชิ้นเดียว (กล่องคลุมทั้งซุ้ม) วัดไม่ได้ -> ช่องโค้งมาตรฐาน (กว้าง 52% สูง 74% หลังคาครึ่งวงกลม)
+--   ได้เป็นแถว { v, u0, u1 } -> สร้างแผ่นม่านทีละแถว = พอดีช่องกลม/โค้ง/สี่เหลี่ยม
+-- ครึ่งความยาวของชิ้นตามแนวแกน axis (หน่วยเวกเตอร์)
+local function extentAlong(p, axis)
+	local cf, sz = p.CFrame, p.Size / 2
+	return math.abs(cf.RightVector:Dot(axis)) * sz.X + math.abs(cf.UpVector:Dot(axis)) * sz.Y + math.abs(cf.LookVector:Dot(axis)) * sz.Z
+end
+local function archOpening(parts, F)
+	local lo, hi = V(math.huge, math.huge, math.huge), V(-math.huge, -math.huge, -math.huge)
+	local boxes = {}
+	for _, q in ipairs(parts) do
+		local a0, a1 = V(math.huge, math.huge, math.huge), V(-math.huge, -math.huge, -math.huge)
+		local s = q.Size / 2
+		for _, sx in ipairs({ -1, 1 }) do
+			for _, sy in ipairs({ -1, 1 }) do
+				for _, sz in ipairs({ -1, 1 }) do
+					local c = F:PointToObjectSpace(q.CFrame * V(s.X * sx, s.Y * sy, s.Z * sz))
+					a0, a1 = a0:Min(c), a1:Max(c)
+				end
+			end
+		end
+		lo, hi = lo:Min(a0), hi:Max(a1)
+		table.insert(boxes, { q, a0, a1 })
+	end
+	local W, H = hi.X - lo.X, hi.Y - lo.Y
+	local step = math.max(0.4, math.max(W, H) / 56)
+	local nu, nv = math.floor(W / step), math.floor(H / step)
+	-- ดูเฉพาะครึ่งหน้าซุ้ม (ฝั่งคนเดินมา): ซุ้มทรงเตาที่หลังทึบ ก็ยังเจอช่องประตูด้านหน้า
+	local dz = { lo.Z + (hi.Z - lo.Z) * 0.15, lo.Z + (hi.Z - lo.Z) * 0.35 }
+	local grid = {}
+	for j = 0, nv - 1 do
+		local v = lo.Y + (j + 0.5) * step
+		local row = {}
+		local cand = {}
+		for _, b in ipairs(boxes) do
+			if v >= b[2].Y and v <= b[3].Y then
+				table.insert(cand, b)
+			end
+		end
+		for i = 0, nu - 1 do
+			local u = lo.X + (i + 0.5) * step
+			local solid = false
+			for _, b in ipairs(cand) do
+				if u >= b[2].X and u <= b[3].X then
+					local q = b[1]
+					local hs = q.Size / 2
+					for _, z in ipairs(dz) do
+						local l = q.CFrame:PointToObjectSpace(F * V(u, v, z))
+						if math.abs(l.X) <= hs.X and math.abs(l.Y) <= hs.Y and math.abs(l.Z) <= hs.Z then
+							solid = true
+							break
+						end
+					end
+					if solid then
+						break
+					end
+				end
+			end
+			row[i] = solid
+		end
+		grid[j] = row
+	end
+	-- จุดเริ่ม: ช่องว่างใกล้กลางซุ้มที่สุด (สูง ~40%)
+	local ci, cj = math.floor(nu / 2), math.floor(nv * 0.4)
+	local start
+	for r = 0, math.max(nu, nv) do
+		for dj = -r, r do
+			for di = -r, r do
+				local i, j = ci + di, cj + dj
+				if not start and grid[j] and grid[j][i] == false then
+					start = { i, j }
+				end
+			end
+		end
+		if start then
+			break
+		end
+	end
+	if not start then
+		return nil
+	end
+	-- ไล่ช่องว่างที่ติดกัน: ทะลุขอบซ้าย/ขวา/บน = ไม่ใช่ช่องประตู (เป็นอากาศนอกซุ้ม)
+	local seen, queue, open = {}, { start }, {}
+	seen[start[2] * 10000 + start[1]] = true
+	while #queue > 0 do
+		local c = table.remove(queue)
+		local i, j = c[1], c[2]
+		if i <= 0 or i >= nu - 1 or j >= nv - 1 then
+			return nil
+		end
+		open[j] = open[j] or { i, i }
+		open[j][1], open[j][2] = math.min(open[j][1], i), math.max(open[j][2], i)
+		for _, n in ipairs({ { i + 1, j }, { i - 1, j }, { i, j + 1 }, { i, j - 1 } }) do
+			local k = n[2] * 10000 + n[1]
+			if n[2] >= 0 and not seen[k] and grid[n[2]] and grid[n[2]][n[1]] == false then
+				seen[k] = true
+				table.insert(queue, n)
+			end
+		end
+	end
+	local rows = {}
+	for j = 0, nv - 1 do
+		if open[j] then
+			table.insert(rows, { lo.Y + (j + 0.5) * step, lo.X + open[j][1] * step, lo.X + (open[j][2] + 1) * step })
+		end
+	end
+	-- ช่องเล็กเกินไป (ร่องระหว่างก้อนหิน) ไม่ใช่ประตู: ต้องสูง >= 35% และกว้าง >= 25% ของซุ้ม
+	local maxW = 0
+	for _, r in ipairs(rows) do
+		maxW = math.max(maxW, r[3] - r[2])
+	end
+	if #rows * step < H * 0.35 or maxW < W * 0.25 then
+		return nil
+	end
+	-- ม่านอยู่หน้าซุ้ม (ฝั่งคนเดินมา) = ช่องที่แคบที่สุด ไม่จมอยู่ในห้องลึก (ซุ้มทรงเตาหลอม)
+	return rows, step, lo.Z + 0.35
+end
+
+function PropBuilder.PortalVeil(m, arch, base, col, h, w, round)
+	local rot = base - base.Position
+	local parts = {}
+	if arch then
+		for _, d in ipairs(arch:GetDescendants()) do
+			if d:IsA("BasePart") and d.Transparency < 0.95 then
+				table.insert(parts, d)
+			end
+		end
+	end
+	-- บานประตู/แผ่นอักษรที่ปิดช่อง (ชิ้นแบนกลางซุ้ม) -> ซ่อน แล้วใช้ช่องของบานนั้นเป็นม่าน
+	local doorRect
+	if arch and #parts > 1 then
+		local acf, as = arch:GetBoundingBox()
+		local keep = {}
+		for _, q in ipairs(parts) do
+			-- แผ่นตั้งตรง (แกนบางสุดอยู่แนวนอน) กลางซุ้ม สูง >= 40% ของซุ้ม = บานประตู/แผ่นอักษร
+			local axes = { { q.CFrame.RightVector, q.Size.X }, { q.CFrame.UpVector, q.Size.Y }, { q.CFrame.LookVector, q.Size.Z } }
+			table.sort(axes, function(a, b)
+				return a[2] < b[2]
+			end)
+			local thin = axes[1]
+			local flat = thin[2] < axes[2][2] * 0.15 and math.abs(thin[1].Y) < 0.3
+			local height = extentAlong(q, V(0, 1, 0)) * 2
+			local across = (thin[1] * V(1, 0, 1)).Magnitude > 0.01 and V(0, 1, 0):Cross(thin[1] * V(1, 0, 1)).Unit or V(1, 0, 0)
+			local width = extentAlong(q, across) * 2
+			local off = acf:PointToObjectSpace(q.Position)
+			local central = math.abs(off.X) < as.X * 0.2 and math.abs(off.Z) < as.Z * 0.3
+			if flat and central and height >= as.Y * 0.4 and width < math.max(as.X, as.Z) * 0.8 then
+				q.Transparency = 1
+				q.CanCollide = false
+				if not doorRect or width * height > doorRect.W * doorRect.H then
+					doorRect = { W = width, H = height, Part = q, Across = across }
+				end
+			else
+				table.insert(keep, q)
+			end
+		end
+		parts = keep
+	end
+	local rows, step, depth, F
+	local measured, usedDoor = false, false
+	if round and arch then
+		-- ซุ้มวงแหวน (ประตูดาว): ม่านวงกลมเต็มวง · วงในกว้าง ~80% ของซุ้ม ศูนย์กลางห่างยอด = รัศมีวงนอก
+		local bcf, bs = arch:GetBoundingBox()
+		local outer = math.min(bs.X, bs.Y)
+		local r = outer * 0.4
+		local cy = bs.Y / 2 - outer / 2
+		F = CF(bcf.Position) * rot
+		step, depth, rows = math.max(0.4, r / 25), 0, {}
+		for v = cy - r + step / 2, cy + r, step do
+			local half = math.sqrt(math.max(r * r - (v - cy) ^ 2, 0))
+			if half > 0.2 then
+				table.insert(rows, { v, -half, half })
+			end
+		end
+		measured = true
+	end
+	if not rows and #parts > 1 then
+		local bcf = arch:GetBoundingBox()
+		for _, yaw in ipairs({ 0, math.pi / 2 }) do
+			F = CF(bcf.Position) * rot * ANG(0, yaw, 0)
+			rows, step, depth = archOpening(parts, F)
+			if rows then
+				measured = true
+				break
+			end
+		end
+	end
+	if not rows and doorRect then
+		usedDoor = true
+		-- ช่อง = ขนาดบานประตูที่ซ่อนไป (ยอดโค้งตามความกว้าง)
+		local q = doorRect.Part
+		F = CFrame.fromMatrix(q.Position, doorRect.Across, V(0, 1, 0))
+		local ow, oh = doorRect.W * 0.96, doorRect.H * 0.97
+		step, depth, rows = math.max(0.4, oh / 50), -0.3, {}
+		-- ยอดโค้งครึ่งวงกลม (ซุ้มประตูส่วนใหญ่โค้งด้านบน) ไม่ให้มุมม่านโผล่เลยกรอบ
+		local r = ow / 2
+		local top = oh / 2 - r
+		for v = -oh / 2 + step / 2, oh / 2, step do
+			local half = v > top and math.sqrt(math.max(r * r - (v - top) ^ 2, 0)) or r
+			if half > 0.2 then
+				table.insert(rows, { v, -half, half })
+			end
+		end
+	end
+	if not rows then
+		-- ซุ้มเมชชิ้นเดียว: ช่องโค้งมาตรฐาน
+		F = CF((base * CF(0, h / 2, 0)).Position) * rot
+		local ow, oh = w * 0.52, h * 0.74
+		local r = ow / 2
+		step, depth, rows = math.max(0.4, oh / 50), 0, {}
+		local y0 = -h / 2 + 1.2
+		for v = y0 + step / 2, y0 + oh, step do
+			local half = r
+			local top = y0 + oh - r
+			if v > top then
+				half = math.sqrt(math.max(r * r - (v - top) ^ 2, 0))
+			end
+			if half > 0.2 then
+				table.insert(rows, { v, -half, half })
+			end
+		end
+	end
+	-- รวมแถวที่กว้างเท่ากันเป็นแผ่นเดียว (ลดจำนวนชิ้น)
+	local slabs = {}
+	for _, r in ipairs(rows) do
+		local last = slabs[#slabs]
+		if last and math.abs(last.U0 - r[2]) < step * 0.6 and math.abs(last.U1 - r[3]) < step * 0.6 and math.abs(r[1] - last.V1) < step * 1.5 then
+			last.V1 = r[1]
+		else
+			table.insert(slabs, { V0 = r[1], V1 = r[1], U0 = r[2], U1 = r[3] })
+		end
+	end
+	local u0, u1, v0, v1 = math.huge, -math.huge, math.huge, -math.huge
+	for _, sl in ipairs(slabs) do
+		u0, u1 = math.min(u0, sl.U0), math.max(u1, sl.U1)
+		v0, v1 = math.min(v0, sl.V0 - step / 2), math.max(v1, sl.V1 + step / 2)
+	end
+	local cu, cv = (u0 + u1) / 2, (v0 + v1) / 2
+	local ow, oh = u1 - u0, v1 - v0
+	m:SetAttribute("VeilInfo", string.format("%s %.1fx%.1f slabs=%d", usedDoor and "door" or (measured and "measured" or "fallback"), ow, oh, #slabs))
+	-- ชิ้นของซุ้มที่ยืนบังกลางม่าน (เสา/รูปปั้นกลางช่อง) -> ซ่อน · ไม่แตะแผ่นอักษรเรืองแสง (Neon แบน)
+	local mid = F * CF(cu, cv, depth)
+	for _, q in ipairs(parts) do
+		local sz = { q.Size.X, q.Size.Y, q.Size.Z }
+		table.sort(sz)
+		local runePanel = q.Material == Enum.Material.Neon and sz[1] < sz[2] * 0.15
+		if not runePanel and q.Transparency < 1 then
+			local hs = q.Size / 2
+			for _, dzz in ipairs({ -6, -4, -2, -0.5, 0.5 }) do
+				local l = q.CFrame:PointToObjectSpace((mid * CF(0, 0, dzz)).Position)
+				if math.abs(l.X) <= hs.X and math.abs(l.Y) <= hs.Y and math.abs(l.Z) <= hs.Z and q.Size.Magnitude < math.max(w, h) * 1.2 then
+					q.Transparency = 1
+					q.CanCollide = false
+					break
+				end
+			end
+		end
+	end
+	-- ตัวกด (ล่องหน คลุมทั้งช่อง) = PortalVeil ที่ PortalService อ่าน
+	local veil = P("Part", {
+		Name = "PortalVeil", Size = V(ow, oh, 0.6), CFrame = F * CF(cu, cv, depth),
+		Transparency = 1, CanCollide = false, CanQuery = true, CanTouch = false,
+	}, m)
+	-- ผิวม่าน: แผ่นแสงสีธาตุตามรูปช่อง (นีออนโปร่ง) + ชั้นสนามพลังไหวๆ
+	for _, sl in ipairs(slabs) do
+		local sw, sh = sl.U1 - sl.U0, sl.V1 - sl.V0 + step
+		local cf = F * CF((sl.U0 + sl.U1) / 2, (sl.V0 + sl.V1) / 2, depth)
+		-- ชั้นลึก (สีธาตุเข้ม) ให้ดูเป็นอุโมงค์ ไม่ใช่แผ่นขาว + สนามพลังไหวสีธาตุ + แสงเรือง
+		P("Part", { Name = "VeilDeep", Size = V(sw, sh, 0.1), CFrame = cf * CF(0, 0, 0.25), Color = col:Lerp(C(0, 0, 0), 0.7), Material = Enum.Material.SmoothPlastic,
+			Transparency = 0.25, CanCollide = false, CanQuery = false, CanTouch = false, CastShadow = false }, m)
+		P("Part", { Name = "VeilGlow", Size = V(sw, sh, 0.15), CFrame = cf, Color = col, Material = Enum.Material.Neon, Transparency = 0.82,
+			CanCollide = false, CanQuery = false, CanTouch = false, CastShadow = false }, m)
+		P("Part", { Name = "VeilField", Size = V(sw, sh, 0.3), CFrame = cf * CF(0, 0, -0.15), Color = col, Material = Enum.Material.ForceField,
+			Transparency = 0.2, CanCollide = false, CanQuery = false, CanTouch = false, CastShadow = false }, m)
+	end
+	-- วังวนมิติ (แพ็ก VFX: Portal-01) กลางช่อง: วงแสงหมุน + หลุมดำกลาง + แรงดูดเข้า · ย่อขยายตามช่อง สีตามธาตุ
+	local d = math.min(ow, oh) * 0.78 -- วงวนเล็กกว่าช่อง: เห็นม่านเรืองแสงรอบวง
+	local vfx = ReplicatedStorage:FindFirstChild("Assets") and ReplicatedStorage.Assets:FindFirstChild("VFX")
+	local pack = vfx and vfx:FindFirstChild("VFXPack")
+	local src = pack and pack:FindFirstChild("Anime") and pack.Anime:FindFirstChild("Portal-01")
+	local att = Instance.new("Attachment")
+	att.Name = "Vortex"
+	att.Parent = veil
+	if src then
+		local k = d / 6
+		for _, e in ipairs(src:GetDescendants()) do
+			if e:IsA("ParticleEmitter") then
+				local c = e:Clone()
+				local ks = {}
+				for _, kp in ipairs(c.Size.Keypoints) do
+					table.insert(ks, NumberSequenceKeypoint.new(kp.Time, kp.Value * k, kp.Envelope * k))
+				end
+				c.Size = NumberSequence.new(ks)
+				if c.Name ~= "Portal" then
+					c.Color = ColorSequence.new(col:Lerp(C(255, 255, 255), 0.25), col)
+				end
+				c.Parent = att
+			end
+		end
+	end
+	-- ประกายลอยในม่าน + แสงส่องพื้นหน้าประตู
+	local e = Instance.new("ParticleEmitter")
+	e.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+	e.Shape = Enum.ParticleEmitterShape.Box
+	e.Rate = 22
+	e.Lifetime = NumberRange.new(1, 2)
+	e.Speed = NumberRange.new(0.3, 1.2)
+	e.SpreadAngle = Vector2.new(180, 180)
+	e.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.5), NumberSequenceKeypoint.new(1, 0) })
+	e.Color = ColorSequence.new(col:Lerp(C(255, 255, 255), 0.4))
+	e.LightEmission = 1
+	e.Parent = veil
+	light(veil, col, math.max(30, d * 2.5), 2.4)
+	return veil
+end
+
+-- ซุ้มประตูมิติ (frame: -Z หันเข้าหาคนเดินมา) · เท้าซุ้มจมดิน 1.5 stud · คืน model, ชิ้นม่าน (ตัวกด), ฐาน
+--   opts.Model/Width = โมเดลซุ้มจาก Store (ต่างกันทุกจุด) · opts.Floor = ความสูงพื้น (ในมิติ ไม่มี Terrain)
+function PropBuilder.BuildPortal(frame, el, parent, opts)
+	opts = opts or {}
+	local col = ELEMENT_COLOR[el] or C(255, 255, 255)
+	local rot = frame - frame.Position
+	local gy = opts.Floor or terrainY(frame.Position, 7)
+	local base = CF(frame.Position.X, gy - (opts.Floor and 0.3 or 1.5), frame.Position.Z) * rot
+	local m = Instance.new("Model")
+	m.Name = opts.Name or "Portal"
+	local arch = PropBuilder.Imported(opts.Model or "PortalArch", base, opts.Width or 24, m, true)
+		or PropBuilder.Imported("PortalArch", base, 24, m, true)
+	local h, w = 18, 12
+	if arch then
+		local _, s = arch:GetBoundingBox()
+		h, w = s.Y, math.max(s.X, s.Z)
+	end
+	local veil = PropBuilder.PortalVeil(m, arch, base, col, h, w, opts.Model == "GateStargate")
+	-- ข้างนอก: ฐานดินรอบเท้าซุ้ม + ของประดับประจำไบโอมล้อมซุ้ม (บอกจากไกลว่าเป็นจุดของธาตุไหน)
+	if not opts.Floor then
+		pcall(function()
+			workspace.Terrain:FillCylinder(CF(frame.Position.X, gy - 3, frame.Position.Z), 4, 18, SEAT_MAT[el] or Enum.Material.Ground)
+		end)
+		local th = opts.Theme
+		if th then
+			local rng = Random.new(math.floor(frame.Position.X * 7 + frame.Position.Z))
+			local k = 0
+			for _, d in ipairs(th.Decor) do
+				for _ = 1, math.min(2, d[2]) do
+					-- เฉพาะข้าง/หลังซุ้ม (มุม 20°-160° ฝั่ง +Z) ไม่บังทางเข้า
+					local a = math.rad(20 + (k % 7) / 6 * 140) + rng:NextNumber(-0.12, 0.12)
+					k += 1
+					local p = (base * CF(math.cos(a) * rng:NextNumber(18, 28), 0, math.sin(a) * rng:NextNumber(14, 26))).Position
+					local inst = PropBuilder.Place(d[1], V(p.X, terrainY(p, 2) - 0.6, p.Z), rng:NextNumber(0, 6.28), d[3] * 0.8, m, rng)
+					if inst then
+						CollectionService:RemoveTag(inst, "ResourceNode")
+					end
+				end
+			end
+		end
+	end
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = "Enter"
+	prompt.ActionText = opts.Action or "เข้าสู่มิติ"
+	prompt.ObjectText = opts.Label or ""
+	prompt.HoldDuration = 0.3
+	prompt.MaxActivationDistance = 14
+	prompt.RequiresLineOfSight = false
+	prompt.Parent = veil
+	CollectionService:AddTag(veil, "RealmPortal")
+	m.Parent = parent
+	return m, veil, base
+end
+
+-- อนุภาคบรรยากาศทั่วทั้งมิติ (กล่องล่องหนเหนือพื้น)
+local AIR_FX = {
+	Fireflies = { C(190, 255, 120), 0.35, 6, { 0.5, 1.5 }, V(0, 0.6, 0), 40 },
+	Spores = { C(220, 255, 170), 0.5, 7, { 0.3, 1 }, V(0, 0.8, 0), 30 },
+	Bubbles = { C(190, 240, 255), 0.45, 5, { 1, 3 }, V(0, 3, 0), 40 },
+	Mist = { C(210, 236, 255), 4, 8, { 0.5, 1.2 }, V(0, 0.2, 0), 10 },
+	Snow = { C(255, 255, 255), 0.5, 8, { 2, 5 }, V(1.5, -5, 0), 90 },
+	Wind = { C(230, 240, 255), 0.4, 4, { 14, 22 }, V(0, 0, 0), 40 },
+	Embers = { C(255, 150, 60), 0.4, 5, { 2, 5 }, V(0, 5, 0), 70 },
+	Ash = { C(120, 110, 110), 0.6, 8, { 0.5, 1.5 }, V(0.5, -1.5, 0), 50 },
+}
+
+-- ห้องมิติบนฟ้าเหนือ xz: เกาะลอยฟ้าพื้นราบ + อาคารประจำจุด (Store) + ของประดับไบโอม + จุดเด่น
+--   คืน room model, กลางลาน (CFrame บนผิวพื้น), จุดยืนตอนวาร์ปเข้า, ความสูงผิวพื้น
+function PropBuilder.BuildRealmRoom(el, xz, parent, name, rot, key)
+	local th = REALM_THEME[key] or REALM_THEME["Shrine" .. el] or REALM_THEME.ShrineEarth
+	local col = ELEMENT_COLOR[el] or C(255, 255, 255)
+	local m = Instance.new("Model")
+	m.Name = name or ("Realm_" .. el)
+	m:SetAttribute("RealmKey", key)
+	m:SetAttribute("FloorTop", PropBuilder.RealmY + 0.5) -- ความสูงผิวพื้นเกาะ (พื้นเป็นทรงกระบอกนอน ห้ามอ่านจาก Size.Y)
+	local R = 120
+	local top = PropBuilder.RealmY + 0.5
+	local center = CF(xz.X, top, xz.Z) * (rot or CFrame.identity)
+	local rng = Random.new(#key * 977 + math.floor(xz.X))
+	-- เกาะลอยฟ้า: พื้นบนราบ (ชนได้) + ชั้นหินเรียวลงด้านล่าง
+	cylinderY(4, R * 2, CF(xz.X, top - 2, xz.Z), { Name = "RealmFloor", Color = th.Floor[1], Material = th.Floor[2] }, m)
+	for i, s in ipairs({ { 10, 0.96 }, { 16, 0.8 }, { 20, 0.6 }, { 22, 0.38 }, { 18, 0.18 } }) do
+		local y = top - 4 - (i == 1 and s[1] / 2 or 0)
+		local acc = 4
+		for j = 1, i - 1 do
+			acc += ({ 10, 16, 20, 22, 18 })[j]
+		end
+		cylinderY(s[1], R * 2 * s[2], CF(xz.X, top - acc - s[1] / 2, xz.Z), { Name = "RealmSkirt", Color = th.Skirt[1], Material = th.Skirt[2], CanCollide = false }, m)
+		local _ = y
+	end
+	-- ผนังล่องหนรอบขอบเกาะ (กันตก)
+	for k = 0, 23 do
+		local a = k / 24 * math.pi * 2
+		P("Part", {
+			Name = "RealmBound", Size = V(2, 80, R * 2 * math.pi / 24 + 2), CFrame = CF(xz.X, top + 40, xz.Z) * ANG(0, -a, 0) * CF(R - 1, 0, 0),
+			Transparency = 1, CanCollide = true, CanQuery = false,
+		}, m)
+	end
+	-- อาคารหลักประจำจุด (8 หลังไม่ซ้ำ) ตั้งหลังลาน หน้าหันเข้าลาน · ขอบหน้าอาคารที่ z = +30
+	local building = PropBuilder.Imported(th.Building, center, th.BW, m, true)
+	if building then
+		local bcf, bsz = building:GetBoundingBox()
+		local lp = center:PointToObjectSpace(bcf.Position)
+		local halfZ = math.max(bsz.X, bsz.Z) / 2
+		local depth = bsz.Z
+		-- ลึกเกินเกาะ -> ย่อ
+		if 30 + depth > R - 6 then
+			pcall(function()
+				building:ScaleTo(building:GetScale() * (R - 36) / depth)
+			end)
+			bcf, bsz = building:GetBoundingBox()
+			lp = center:PointToObjectSpace(bcf.Position)
+		end
+		local _ = halfZ
+		building:PivotTo(CF(center:VectorToWorldSpace(V(-lp.X, 0, 30 - (lp.Z - bsz.Z / 2)))) * building:GetPivot())
+		-- วางฐานหลักของอาคารบนพื้นเกาะ: ยิงตรวจจากใต้อาคารขึ้นไป 9x9 จุด -> ค่ากลางของระดับใต้ท้องอาคาร = ฐานจริง
+		--   (ก้นกล่องรวม = ชิ้นที่ห้อยต่ำสุด เช่นเสา/บันได -> ปราสาทเคยลอยกลางอากาศ) ชิ้นที่ต่ำกว่าฐานจมลงใต้พื้นเกาะ
+		local b2, s2 = building:GetBoundingBox()
+		local low = b2.Position.Y - s2.Y / 2
+		local home = m.Parent
+		m.Parent = workspace
+		local rpB = RaycastParams.new()
+		rpB.FilterType = Enum.RaycastFilterType.Include
+		rpB.FilterDescendantsInstances = { building }
+		local hs = {}
+		for gx = -4, 4 do
+			for gz = -4, 4 do
+				local p = b2 * V(s2.X * gx / 10, 0, s2.Z * gz / 10)
+				local hit = workspace:Raycast(V(p.X, low - 2, p.Z), V(0, s2.Y * 0.6 + 4, 0), rpB)
+				if hit then
+					table.insert(hs, hit.Position.Y)
+				end
+			end
+		end
+		m.Parent = home
+		table.sort(hs)
+		local baseY = #hs >= 6 and hs[math.ceil(#hs * 0.5)] or low
+		building:PivotTo(CF(0, (top - 0.4) - baseY, 0) * building:GetPivot())
+		building.Name = "RealmBuilding"
+	end
+	-- ลานกลาง (ทุกมิติ) + ทางเดินจากจุดเข้าถึงลาน
+	cylinderY(0.3, 64, center * CF(0, 0.15, 0), { Name = "RealmPlaza", Color = th.Plaza[1], Material = th.Plaza[2], CanCollide = false, CanQuery = false }, m)
+	local runeC = Color3.new(col.R * 0.6, col.G * 0.6, col.B * 0.6)
+	cylinderY(0.32, 50, center * CF(0, 0.16, 0), { Name = "RealmRune", Color = runeC, Material = Enum.Material.Slate, CanCollide = false, CanQuery = false }, m)
+	cylinderY(0.34, 46, center * CF(0, 0.17, 0), { Name = "RealmRuneIn", Color = th.Plaza[1], Material = th.Plaza[2], CanCollide = false, CanQuery = false }, m)
+	P("Part", { Name = "RealmPath", Size = V(14, 0.3, 64), CFrame = center * CF(0, 0.15, -64), Color = th.Plaza[1], Material = th.Plaza[2], CanCollide = false, CanQuery = false }, m)
+	-- จุดที่ห้ามวางของประดับ: ลานกลาง / ทางเดิน / อาคาร / จุดเข้า
+	local function blocked(x, z)
+		if x * x + z * z < 40 * 40 then
+			return true
+		end
+		if math.abs(x) < 16 and z < 0 then
+			return true
+		end
+		if z > 22 and math.abs(x) < th.BW * 0.55 then
+			return true
+		end
+		return false
+	end
+	local function spot(minR, maxR)
+		for _ = 1, 30 do
+			local a = rng:NextNumber(0, math.pi * 2)
+			local r = rng:NextNumber(minR, maxR)
+			local x, z = math.cos(a) * r, math.sin(a) * r
+			if not blocked(x, z) then
+				return x, z
+			end
+		end
+		return nil
+	end
+	-- ของประดับประจำไบโอม (Store)
+	for _, d in ipairs(th.Decor) do
+		for _ = 1, d[2] do
+			local x, z = spot(44, R - 10)
+			if x then
+				local p = (center * CF(x, 0, z)).Position
+				local inst = PropBuilder.Place(d[1], V(p.X, top - 0.5, p.Z), rng:NextNumber(0, 6.28), d[3] * rng:NextNumber(0.85, 1.15), m, rng)
+				if inst then
+					CollectionService:RemoveTag(inst, "ResourceNode")
+				end
+			end
+		end
+	end
+	-- จุดเด่นของแต่ละมิติ
+	if th.Feature == "Avenue" then
+		-- วิหาร: ทางเดินพิธีจากจุดเข้าถึงลาน — คู่หินรูน + กระถางไฟ เรียงสองข้าง
+		for i = 0, 3 do
+			local z = -96 + 14 + i * 16
+			for _, sx in ipairs({ -13, 13 }) do
+				local p = (center * CF(sx, 0, z)).Position
+				PropBuilder.Imported("RuneStoneLP", CFrame.lookAt(V(p.X, top - 0.8, p.Z), (center * CF(0, 0, z)).Position + V(0, top - 0.8 - center.Y, 0)), 6.5, m, true)
+				local bp = (center * CF(sx * 1.45, 0, z + 8)).Position
+				local br = PropBuilder.Imported("BrazierLP", CF(bp.X, top, bp.Z), 5.5, m, true)
+				local host = br and br:FindFirstChildWhichIsA("BasePart", true)
+				if host then
+					light(host, col, 26, 1.6)
+				end
+			end
+		end
+	else
+		-- ศาลเจ้า: กระถางไฟ 6 ใบรอบลาน
+		for k = 0, 5 do
+			local a = k / 6 * math.pi * 2 + math.pi / 6
+			local p = (center * CF(math.cos(a) * 36, 0, math.sin(a) * 36)).Position
+			local br = PropBuilder.Imported("BrazierLP", CF(p.X, top, p.Z), 5.5, m, true)
+			local host = br and br:FindFirstChildWhichIsA("BasePart", true)
+			if host then
+				light(host, col, 26, 1.6)
+			end
+		end
+	end
+	if th.Feature == "Lagoon" or th.Pools then
+		-- แอ่งน้ำใส (แผ่นน้ำทะเลเรืองฟ้า) รอบเกาะ
+		for _ = 1, th.Pools and 4 or 7 do
+			local x, z = spot(50, R - 22)
+			if x then
+				local r = rng:NextNumber(8, 15)
+				cylinderY(0.4, r * 2, center * CF(x, 0.22, z), { Name = "RealmPool", Color = C(70, 190, 220), Material = Enum.Material.Glass, Transparency = 0.25, Reflectance = 0.2, CanCollide = false, CanQuery = false }, m)
+				cylinderY(0.3, r * 2 + 3, center * CF(x, 0.12, z), { Name = "RealmPoolRim", Color = C(240, 230, 200), Material = Enum.Material.Sand, CanCollide = false, CanQuery = false }, m)
+			end
+		end
+	end
+	if th.Feature == "LavaRiver" or th.Moat then
+		-- ธารลาวา: แถบหินแตกลาวาเรืองส้ม (แสง + ประกายไฟ) โค้งรอบเกาะ
+		local n = th.Moat and 28 or 20
+		for k = 0, n - 1 do
+			local a = k / n * math.pi * 2
+			local r = th.Moat and 52 or (80 + math.sin(a * 3) * 18)
+			local x, z = math.cos(a) * r, math.sin(a) * r
+			if not (math.abs(x) < 16 and z < 0) and not (z > 22 and math.abs(x) < th.BW * 0.55) then
+				local seg = P("Part", {
+					Name = "RealmLava", Size = V(7, 0.4, 2 * math.pi * r / n + 1.5), CFrame = center * CF(x, 0.22, z) * ANG(0, -a, 0),
+					Color = C(255, 140, 50), Material = Enum.Material.CrackedLava, CanCollide = false, CanQuery = false,
+				}, m)
+				if k % 2 == 0 then
+					light(seg, C(255, 120, 40), 22, 2)
+				end
+			end
+		end
+	end
+	if th.Feature == "Snowfield" then
+		-- เกาะน้ำแข็งลอยเล็กๆ รอบเกาะใหญ่
+		for k = 0, 6 do
+			local a = k / 7 * math.pi * 2 + 0.4
+			local r = R + rng:NextNumber(20, 45)
+			local p = (center * CF(math.cos(a) * r, rng:NextNumber(10, 40), math.sin(a) * r)).Position
+			local s = rng:NextNumber(10, 20)
+			ellipsoid(V(s * 2, s * 0.6, s * 1.6), CF(p), { Name = "RealmIslet", Color = C(214, 230, 248), Material = Enum.Material.Glacier, CanCollide = false }, m)
+			PropBuilder.Place("FrostPine", p + V(0, s * 0.25, 0), rng:NextNumber(0, 6), 0.6, m, rng)
+		end
+	end
+	if th.Feature == "Grove" then
+		-- ต้นไม้ยักษ์คู่ขนาบลาน
+		for _, sx in ipairs({ -1, 1 }) do
+			local p = (center * CF(sx * 58, 0, 6)).Position
+			local t = PropBuilder.Place("AncientOak", V(p.X, top - 0.5, p.Z), rng:NextNumber(0, 6), 1.6, m, rng)
+			if t then
+				CollectionService:RemoveTag(t, "ResourceNode")
+			end
+		end
+	end
+	-- อนุภาคในอากาศทั่วมิติ
+	local fx = AIR_FX[th.Air]
+	if fx then
+		local box = P("Part", { Name = "RealmAir", Size = V(R * 1.8, 1, R * 1.8), CFrame = CF(xz.X, top + (fx[5].Y < 0 and 60 or 3), xz.Z), Transparency = 1, CanCollide = false, CanQuery = false }, m)
+		local e = Instance.new("ParticleEmitter")
+		e.Texture = th.Air == "Mist" and "rbxasset://textures/particles/smoke_main.dds" or "rbxasset://textures/particles/sparkles_main.dds"
+		e.Shape = Enum.ParticleEmitterShape.Box
+		e.ShapeStyle = Enum.ParticleEmitterShapeStyle.Volume
+		e.EmissionDirection = fx[5].Y < 0 and Enum.NormalId.Bottom or Enum.NormalId.Top
+		e.Color = ColorSequence.new(fx[1])
+		e.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, fx[2]), NumberSequenceKeypoint.new(1, fx[2] * 0.5) })
+		e.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.2, th.Air == "Mist" and 0.8 or 0.1), NumberSequenceKeypoint.new(1, 1) })
+		e.Lifetime = NumberRange.new(fx[3] * 0.7, fx[3])
+		e.Speed = NumberRange.new(fx[4][1], fx[4][2])
+		e.Acceleration = fx[5]
+		e.Rate = fx[6]
+		e.LightEmission = (th.Air == "Fireflies" or th.Air == "Embers") and 1 or 0.3
+		e.SpreadAngle = th.Air == "Wind" and Vector2.new(5, 5) or Vector2.new(30, 30)
+		if th.Air == "Wind" then
+			e.EmissionDirection = Enum.NormalId.Right
+		end
+		e.Parent = box
+	end
+	-- แสงรวมของมิติ (สีธาตุอ่อนๆ)
+	local sun = P("Part", { Name = "RealmLight", Size = V(1, 1, 1), CFrame = CF(xz.X, top + 45, xz.Z), Transparency = 1, CanCollide = false, CanQuery = false }, m)
+	light(sun, col:Lerp(Color3.new(1, 1, 1), 0.55), 140, 1.2)
+	pcall(function()
+		m.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
+	end)
+	m.Parent = parent
+	local entry = (center * CF(0, 3, -84)).Position
+	return m, center, entry, top
+end
+
+-- มิติทั้งชุด: ประตูข้างนอก (frame) + ห้องบนฟ้า + ประตูกลับในห้อง · kind = "Shrine" | "Sanctum" · คืน room, center (CFrame พื้นกลางลาน)
+function PropBuilder.BuildRealm(frame, el, parent, label, action, kind)
+	local key = (kind or "Shrine") .. el
+	local th = REALM_THEME[key]
+	local outside, outVeil = PropBuilder.BuildPortal(frame, el, parent, {
+		Name = "PortalOut", Label = label, Action = action or "เข้าสู่มิติ", Model = th and th.Gate, Width = th and th.GateW, Theme = th,
+	})
+	local room, center, entry, top = PropBuilder.BuildRealmRoom(el, frame.Position, parent, "Realm", frame - frame.Position, key)
+	-- ประตูกลับ: หลังจุดยืนตอนเข้า (ซุ้มเดียวกับข้างนอก ช่องประตูหันเข้าลาน)
+	local backPos = (center * CF(0, 0, -96)).Position
+	local _, backVeil = PropBuilder.BuildPortal(CFrame.lookAt(backPos, V(center.X, top, center.Z)), el, room, {
+		Name = "PortalBack", Floor = top, Label = label, Action = "กลับออกไปข้างนอก", Model = th and th.Gate, Width = th and th.GateW,
+	})
+	local outFront = (frame * CF(0, 0, -11)).Position
+	local outGround = terrainY(outFront, 2)
+	outVeil:SetAttribute("Dest", entry)
+	outVeil:SetAttribute("DestLook", V(center.X, entry.Y, center.Z))
+	backVeil:SetAttribute("Dest", V(outFront.X, outGround + 3, outFront.Z))
+	backVeil:SetAttribute("DestLook", V(outFront.X, outGround + 3, outFront.Z) + (outFront - frame.Position) * 3)
+	outside:SetAttribute("Realm", true)
+	return room, center
+end
+
 function PropBuilder.BuildShrine(sp, parent)
 	local el = sp.Element
 	local col = ELEMENT_COLOR[el]
@@ -1924,34 +2816,12 @@ function PropBuilder.BuildShrine(sp, parent)
 	m.Name = "Shrine_" .. el
 	local base = faceCamp(sp.Position)
 	m.WorldPivot = base
-	-- ศาลเจ้าจาก Creator Store: อาคารใหญ่เดินเข้าได้ ตั้งหลังกรง (ฝั่งตรงข้ามแคมป์) -> แทนวงเสาหินปั้น
-	--   { ชื่อโมเดล, เท่าของความกว้างมาตรฐาน (SiteSpec), หมุนแก้ทิศ }
-	local SHRINE_STORE = {
-		Earth = { "ShrineEarth", 0.85, 0 }, -- ซุ้มประตูหินโบราณ + ดอกไม้
-		Water = { "ShrineWater", 1, 0 }, -- เกาะประตูโทริอิ + ต้นซากุระ
-		Air = { "ShrineAir", 1, 0 }, -- พระราชวังน้ำแข็งลายเกลียว
-		Fire = { "ShrineFire", 1, 0 }, -- แท่นบูชาปีศาจลาวา
-	}
-	local ss = SHRINE_STORE[el]
-	local spec = SiteSpec.Get("Shrine", el)
-	local storeShrine = ss and PropBuilder.Backdrop(ss[1], base, spec.Width * ss[2], spec.Gap, m, { Yaw = ss[3], Material = SEAT_MAT[el] })
-	for i = 0, storeShrine and -1 or 5 do
-		local ang = i / 6 * math.pi * 2
-		local pcf = base * CF(math.cos(ang) * 14, 0, math.sin(ang) * 14)
-		local h = 12 + (i % 2) * 5
-		P("Part", { Size = V(2.6, h, 2.6), CFrame = pcf * CF(0, h / 2, 0) * ANG(0, ang, 0), Color = C(110, 106, 100), Material = Enum.Material.Slate }, m)
-		P("Part", { Size = V(2.8, 0.8, 2.8), CFrame = pcf * CF(0, h * 0.7, 0) * ANG(0, ang, 0), Color = col, Material = Enum.Material.Neon }, m)
-	end
+	-- ประตูมิติบนพื้น -> ห้องในปราสาทบนฟ้า · กรง + ผู้พิทักษ์อยู่กลางห้อง (พื้นหินเรียบ ไม่ลอย/ไม่จม)
+	local TH = { Earth = "ปฐพี", Water = "วารี", Air = "วายุ", Fire = "อัคคี" }
+	local _, center = PropBuilder.BuildRealm(base, el, m, "ศาลเจ้า" .. (TH[el] or ""), "เข้าศาลเจ้า", "Shrine")
+	base = center * (base - base.Position)
+	m.WorldPivot = base
 	m:SetAttribute("SitePos", sp.Position) -- ตำแหน่งลานเดิม (ใช้สร้างใหม่ตอนเริ่มรอบ)
-	-- กรงอยู่บนลานของตัวศาลเจ้า (ขึ้นบันไดไปช่วย) · หาลานไม่ได้ = หน้าศาลเจ้า
-	if storeShrine then
-		local area = PropBuilder.PlayArea(storeShrine, base, { MinCells = 4, Headroom = 10 })
-		if area then
-			base = CF(area.Center) * (base - base.Position)
-			m.WorldPivot = base
-			PropBuilder.BuildAccess(area, faceCamp(sp.Position), storeShrine, m, nil)
-		end
-	end
 	-- กรง
 	local cage = Instance.new("Model")
 	cage.Name = "Cage"
@@ -1997,6 +2867,227 @@ function PropBuilder.BuildShrine(sp, parent)
 end
 
 -- รังบอส: วงหินตั้ง + เตาไฟ + กระดูกยักษ์
+-- ผลึกตกแต่ง (ไม่ใช่จุดเก็บของ)
+local function decoCrystal(kind, pos, yaw, scale, parent)
+	local c = PropBuilder.Place(kind, pos, yaw, scale, parent)
+	if c then
+		CollectionService:RemoveTag(c, "ResourceNode")
+	end
+	return c
+end
+PropBuilder.DecoCrystal = decoCrystal -- เสาผลึกตอนช่วยลูกสัตว์สำเร็จ (SpiritService)
+
+local function emitter(parent, props)
+	local e = Instance.new("ParticleEmitter")
+	for k, v in pairs(props) do
+		e[k] = v
+	end
+	e.Parent = parent
+	return e
+end
+
+-- ห้องบอสน้ำแข็ง (ลม/เยติ): ลานน้ำแข็งเงา + กำแพงหน้าผาน้ำแข็งล้อมรอบ (Terrain ชนได้จริง) เปิดทางเข้าฝั่งแคมป์
+--   ยอดน้ำแข็ง (IceSpikeLP) บนกำแพง/ตีนกำแพง · บัลลังก์ยอดน้ำแข็งยักษ์หลังบอส · ผลึกเรืองแสง · หิมะตก + หมอกเย็น + แสงเหนือ
+local function decorIceLair(m, base, R, col, floating)
+	local terrain = workspace.Terrain
+	local rng = Random.new(math.floor(base.Position.X * 3 + base.Position.Z))
+	local gy = base.Position.Y
+	local function at(a, r, y)
+		return base * CF(math.cos(a) * r, y or 0, math.sin(a) * r)
+	end
+	local ENTRY = -math.pi / 2 -- -Z ของ Frame = ฝั่งแคมป์
+	local function gapDist(a)
+		return math.abs((a - ENTRY + math.pi) % (math.pi * 2) - math.pi)
+	end
+	pcall(function()
+		-- พื้นลานน้ำแข็ง + ลายวงเวทน้ำแข็งสีฟ้า
+		terrain:FillCylinder(CF(base.X, gy - 1, base.Z), 2, R + 6, Enum.Material.Glacier)
+		for _, ring in ipairs({ { 26, Enum.Material.Ice }, { 22, Enum.Material.Glacier }, { 12, Enum.Material.Ice }, { 9, Enum.Material.Glacier } }) do
+			terrain:FillCylinder(CF(base.X, gy - 0.9, base.Z), 1.9, ring[1], ring[2])
+		end
+	end)
+	-- กำแพงหน้าผาน้ำแข็ง (ไม่ทำบนเกาะลอย — ขอบเกาะจะลอยกลางฟ้า)
+	if not floating then
+		local N = 30
+		for i = 0, N - 1 do
+			local a = i / N * math.pi * 2 + rng:NextNumber(-0.04, 0.04)
+			if gapDist(a) > 0.42 then
+				local r = R + 18 + rng:NextNumber(-3, 6)
+				local h = rng:NextNumber(20, 36)
+				local mat = (i % 3 == 0) and Enum.Material.Ice or Enum.Material.Glacier
+				local cf = at(a, r, h / 2 - 12) * ANG(0, -a, 0) * ANG(rad(rng:NextNumber(-6, 6)), 0, rad(rng:NextNumber(-4, 10)))
+				pcall(function()
+					terrain:FillBlock(cf, V(rng:NextNumber(10, 16), h + 24, rng:NextNumber(12, 18)), mat)
+					terrain:FillBall(at(a, r, h - 1).Position, rng:NextNumber(4, 6), Enum.Material.Snow)
+				end)
+				if i % 3 == 1 then
+					local top = at(a, r, h - 2).Position
+					PropBuilder.Place("IceSpire", top, -a, rng:NextNumber(1.4, 2.2), m)
+				end
+				-- ยอดน้ำแข็งตีนกำแพงด้านใน
+				if i % 2 == 0 then
+					local p = at(a + 0.05, R + 7, 0).Position
+					PropBuilder.Place("IceSpire", V(p.X, terrainY(p, 2) - 1.2, p.Z), rng:NextNumber(0, 6.28), rng:NextNumber(1.1, 1.9), m)
+				end
+			end
+		end
+		-- เสายอดน้ำแข็งยักษ์ 2 ข้างทางเข้า
+		for _, s in ipairs({ -1, 1 }) do
+			local p = at(ENTRY + s * 0.5, R + 12, 0).Position
+			PropBuilder.Place("IceSpire", V(p.X, terrainY(p, 3) - 2, p.Z), 0, 3, m)
+		end
+	end
+	-- บัลลังก์น้ำแข็งหลังบอส (ฝั่งตรงข้ามทางเข้า): กลุ่มยอดน้ำแข็งยักษ์ + ผลึกเรืองแสง
+	for k = -2, 2 do
+		local p = at(-ENTRY + k * 0.13, R + 2 + math.abs(k) * 2, 0).Position
+		PropBuilder.Place("IceSpire", V(p.X, terrainY(p, 3) - 2, p.Z), k * 0.4, 4.2 - math.abs(k) * 0.7, m)
+	end
+	for _, s in ipairs({ -1, 1 }) do
+		local p = at(-ENTRY + s * 0.36, R - 4, 0).Position
+		decoCrystal("GaleCrystal", V(p.X, terrainY(p, 2) - 0.5, p.Z), s, 2.2, m)
+	end
+	-- ผลึกฟ้า/ขาวเรืองแสงรอบลาน
+	for i = 0, 7 do
+		local a = i / 8 * math.pi * 2 + 0.2
+		if gapDist(a) > 0.5 then
+			local p = at(a, R - 5, 0).Position
+			decoCrystal(i % 2 == 0 and "TideCrystal" or "GaleCrystal", V(p.X, terrainY(p, 2) - 0.5, p.Z), a, 1.4, m)
+		end
+	end
+	-- หิมะตก + หมอกเย็นเลียพื้น
+	local sky = P("Part", { Name = "IceSnowfall", Size = V(R * 2.4, 1, R * 2.4), CFrame = base * CF(0, 55, 0), Transparency = 1, CanCollide = false, CanQuery = false, CanTouch = false }, m)
+	emitter(sky, {
+		Texture = "rbxasset://textures/particles/sparkles_main.dds", EmissionDirection = Enum.NormalId.Bottom, Rate = 70,
+		Lifetime = NumberRange.new(7, 9), Speed = NumberRange.new(5, 8), SpreadAngle = Vector2.new(20, 20),
+		Size = NumberSequence.new(0.35), Color = ColorSequence.new(C(240, 250, 255)), LightEmission = 0.4,
+		RotSpeed = NumberRange.new(-60, 60),
+	})
+	local floor = P("Part", { Name = "IceMist", Size = V(R * 1.8, 1, R * 1.8), CFrame = base * CF(0, 1, 0), Transparency = 1, CanCollide = false, CanQuery = false, CanTouch = false }, m)
+	emitter(floor, {
+		Texture = "rbxasset://textures/particles/smoke_main.dds", EmissionDirection = Enum.NormalId.Top, Rate = 5,
+		Lifetime = NumberRange.new(5, 8), Speed = NumberRange.new(0.3, 1), SpreadAngle = Vector2.new(60, 60),
+		Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 6), NumberSequenceKeypoint.new(1, 14) }),
+		Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.4, 0.8), NumberSequenceKeypoint.new(1, 1) }),
+		Color = ColorSequence.new(C(200, 235, 255)), LightEmission = 0.2,
+	})
+	light(floor, C(150, 210, 255), 60, 0.9)
+	-- แสงเหนือ (ออโรรา) พาดฟ้าเหนือห้องบอส
+	local anchor = P("Part", { Name = "Aurora", Size = V(1, 1, 1), CFrame = base, Transparency = 1, CanCollide = false, CanQuery = false, CanTouch = false }, m)
+	for k = 0, 2 do
+		local a0, a1 = Instance.new("Attachment"), Instance.new("Attachment")
+		a0.Parent, a1.Parent = anchor, anchor
+		a0.WorldPosition = (base * CF(-R * 2, 85 + k * 10, R * 0.6 + k * 22)).Position
+		a1.WorldPosition = (base * CF(R * 2, 92 + k * 8, R * 0.9 + k * 18)).Position
+		local b = Instance.new("Beam")
+		b.Attachment0, b.Attachment1 = a0, a1
+		b.Width0, b.Width1 = 34 - k * 6, 26 - k * 4
+		b.CurveSize0, b.CurveSize1 = 40 - k * 15, -30 + k * 12
+		b.Segments = 40
+		b.LightEmission, b.LightInfluence = 1, 0
+		b.Color = ColorSequence.new({ ColorSequenceKeypoint.new(0, C(90, 255, 200)), ColorSequenceKeypoint.new(0.5, C(110, 200, 255)), ColorSequenceKeypoint.new(1, C(190, 140, 255)) })
+		b.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.3, 0.62 + k * 0.08), NumberSequenceKeypoint.new(0.7, 0.62 + k * 0.08), NumberSequenceKeypoint.new(1, 1) })
+		b.FaceCamera = true
+		b.Parent = anchor
+	end
+end
+
+-- ห้องบอสน้ำ (โมซาซอรัส): ลากูนน้ำใสกลางทะเล · เกาะหินปะการังให้ยืนสู้ (ปาล์ม/ผลึก/กระถางไฟฟ้า)
+--   ก้นลากูน = สวนปะการัง/สาหร่าย + ผลึกเรืองแสงใต้น้ำ (มองทะลุน้ำเห็น) · กลางลากูน = วังน้ำวน (VFXPack) · ไอน้ำ/ประกายเหนือผิวน้ำ
+local function decorWaterLair(m, base, wl, floorY, islands, col)
+	local rng = Random.new(math.floor(base.Position.X + base.Position.Z * 7))
+	for idx, isl in ipairs(islands) do
+		local p = V(isl.X, isl.Top, isl.Z)
+		if isl.Ring == 1 then
+			if idx % 2 == 0 then
+				decoCrystal("TideCrystal", p - V(0, 0.4, 0), rng:NextNumber(0, 6.28), 1.3, m)
+			else
+				local br = PropBuilder.Imported("BrazierLP", CF(p.X, p.Y - 0.3, p.Z), 5, m, true)
+				local host = br and br:FindFirstChildWhichIsA("BasePart", true)
+				if host then
+					light(host, C(90, 220, 255), 34, 2)
+				end
+			end
+		else
+			-- เกาะวงนอก: ปาล์ม 1-2 ต้น (ตกแต่ง ไม่ใช่ต้นไม้ให้ตัด)
+			for _ = 1, rng:NextInteger(1, 2) do
+				local o = V(rng:NextNumber(-0.4, 0.4) * isl.R, 0, rng:NextNumber(-0.4, 0.4) * isl.R)
+				local palm = PropBuilder.Place("Palm", p + o - V(0, 0.5, 0), rng:NextNumber(0, 6.28), rng:NextNumber(0.9, 1.3), m)
+				if palm then
+					CollectionService:RemoveTag(palm, "ResourceNode")
+				end
+			end
+		end
+		-- ปะการังรอบขอบเกาะ (แนวผิวน้ำ)
+		for k = 1, 3 do
+			local a = rng:NextNumber(0, 6.28)
+			local q = V(isl.X + math.cos(a) * isl.R * 1.05, wl - 2.5, isl.Z + math.sin(a) * isl.R * 1.05)
+			PropBuilder.Place("Coral", q, a, rng:NextNumber(1.2, 2), m)
+		end
+	end
+	-- สวนปะการัง/สาหร่ายใต้น้ำ + ผลึกเรืองแสงก้นลากูน
+	for i = 1, 70 do
+		local a, r = rng:NextNumber(0, 6.28), rng:NextNumber(18, 140)
+		local q = V(base.X + math.cos(a) * r, floorY, base.Z + math.sin(a) * r)
+		local gy = terrainY(V(q.X, wl + 10, q.Z), 1)
+		if gy < wl - 3 then
+			PropBuilder.Place(i % 3 == 0 and "Kelp" or "Coral", V(q.X, gy - 0.3, q.Z), a, rng:NextNumber(1.2, 2.4), m)
+		end
+	end
+	for i = 0, 9 do
+		local a, r = i / 10 * math.pi * 2 + 0.3, rng:NextNumber(30, 120)
+		local q = V(base.X + math.cos(a) * r, 0, base.Z + math.sin(a) * r)
+		local gy = terrainY(V(q.X, wl + 10, q.Z), 1)
+		if gy < wl - 4 then
+			decoCrystal("TideCrystal", V(q.X, gy - 0.4, q.Z), a, 1.8, m)
+			local glow = P("Part", { Name = "ReefGlow", Size = V(1, 1, 1), CFrame = CF(q.X, gy + 4, q.Z), Transparency = 1, CanCollide = false, CanQuery = false, CanTouch = false }, m)
+			light(glow, C(70, 200, 255), 40, 1.6)
+		end
+	end
+	-- วังน้ำวนกลางลากูน (ออร่าน้ำจาก VFXPack) + ฟองวนรอบ
+	local vortex = P("Part", { Name = "LagoonVortex", Size = V(34, 1, 34), CFrame = CF(base.X, wl + 0.3, base.Z), Transparency = 1, CanCollide = false, CanQuery = false, CanTouch = false }, m)
+	pcall(function()
+		local vfx = ReplicatedStorage:FindFirstChild("Assets") and ReplicatedStorage.Assets:FindFirstChild("VFX")
+		local pack = vfx and vfx:FindFirstChild("VFXPack")
+		local aura = pack and pack:FindFirstChild("Water-Aura-01", true)
+		local torso = aura and aura:FindFirstChild("Torso")
+		for _, e in ipairs(torso and torso:GetChildren() or {}) do
+			if e:IsA("ParticleEmitter") then
+				local c = e:Clone()
+				c.Rate = c.Rate * 3
+				local ks = {}
+				for _, kp in ipairs(c.Size.Keypoints) do
+					table.insert(ks, NumberSequenceKeypoint.new(kp.Time, kp.Value * 3, kp.Envelope * 3))
+				end
+				c.Size = NumberSequence.new(ks)
+				c.Parent = vortex
+			end
+		end
+	end)
+	emitter(vortex, {
+		Texture = "rbxasset://textures/particles/smoke_main.dds", EmissionDirection = Enum.NormalId.Top, Rate = 14,
+		Lifetime = NumberRange.new(2, 3.5), Speed = NumberRange.new(1, 3), SpreadAngle = Vector2.new(70, 70),
+		Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 4), NumberSequenceKeypoint.new(1, 10) }),
+		Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.6), NumberSequenceKeypoint.new(1, 1) }),
+		Color = ColorSequence.new(C(220, 248, 255)), RotSpeed = NumberRange.new(40, 90),
+	})
+	light(vortex, C(80, 210, 255), 50, 1.8)
+	-- ไอน้ำเหนือผิวน้ำ + ประกายแสงลอย
+	local mist = P("Part", { Name = "LagoonMist", Size = V(260, 1, 260), CFrame = CF(base.X, wl + 1, base.Z), Transparency = 1, CanCollide = false, CanQuery = false, CanTouch = false }, m)
+	emitter(mist, {
+		Texture = "rbxasset://textures/particles/smoke_main.dds", EmissionDirection = Enum.NormalId.Top, Rate = 12,
+		Lifetime = NumberRange.new(6, 9), Speed = NumberRange.new(0.3, 0.9), SpreadAngle = Vector2.new(40, 40),
+		Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 8), NumberSequenceKeypoint.new(1, 18) }),
+		Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.5, 0.85), NumberSequenceKeypoint.new(1, 1) }),
+		Color = ColorSequence.new(C(200, 240, 255)),
+	})
+	emitter(mist, {
+		Texture = "rbxasset://textures/particles/sparkles_main.dds", EmissionDirection = Enum.NormalId.Top, Rate = 30,
+		Lifetime = NumberRange.new(3, 5), Speed = NumberRange.new(0.5, 2), SpreadAngle = Vector2.new(60, 60),
+		Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.6), NumberSequenceKeypoint.new(1, 0) }),
+		Color = ColorSequence.new(C(140, 230, 255)), LightEmission = 1,
+	})
+end
+
 function PropBuilder.BuildLair(sp, parent)
 	local el = sp.Element
 	local col = ELEMENT_COLOR[el]
@@ -2011,7 +3102,7 @@ function PropBuilder.BuildLair(sp, parent)
 	local LAIR_STORE = {
 		Earth = { "Colosseum", 1, 0 }, -- โคลอสเซียมล้อมลานสู้
 		-- น้ำ: ไม่มีอาคาร -> ห้วงน้ำลึก + แท่นหินโผล่พ้นน้ำ (สร้างด้านล่าง)
-		Air = { "IcePalace", 1, 0, { "Ceiling", "Pre_Ceiling" } }, -- ห้องโถงพระราชวังน้ำแข็ง (บนเกาะลอยฟ้า) ไม่เอาเปลือกพีระมิด
+		-- ลม: ไม่มีอาคาร (พระราชวังน้ำแข็งเดิมทำบอสตกพื้น/ฐานลอย/เดินไม่ได้) -> ลานหิมะเปิด ล้อมด้วยหินรูน+ยอดน้ำแข็ง (Store)
 		Fire = { "FireThrone", 1, 0 }, -- อารีนาบัลลังก์นรก (3D Model/Biome Fire/Solfang/Throne) · ยังไม่ Import = ลานเปิดวงหินตั้ง
 	}
 	local ls = LAIR_STORE[el]
@@ -2023,12 +3114,44 @@ function PropBuilder.BuildLair(sp, parent)
 			Material = SEAT_MAT[el],
 			WaterLevel = el == "Water" and sp.Position.Y + 2 or nil, -- ลานรังน้ำอยู่ใต้ผิวน้ำ 2 stud (MapGenerator)
 		})
+	-- รังไฟ (บัลลังก์ยกสูง ~20): จมทั้งบัลลังก์ลงให้พื้นลานบนบัลลังก์เสมอพื้นดิน
+	--   (บอส/วงเตือน/เอฟเฟกต์สกิลอ้างอิงพื้น Terrain -> เคยจมลงในพื้นบัลลังก์ทั้งตัวบอสและสกิล)
+	if backdrop and el == "Fire" then
+		local home = backdrop.Parent
+		backdrop.Parent = workspace
+		local rpT = RaycastParams.new()
+		rpT.FilterType = Enum.RaycastFilterType.Include
+		rpT.FilterDescendantsInstances = { backdrop }
+		local hs = {}
+		for _, off in ipairs({ V(0, 0, 0), V(14, 0, 0), V(-14, 0, 0), V(0, 0, 14), V(0, 0, -14), V(10, 0, 10), V(-10, 0, -10) }) do
+			local hit = workspace:Raycast(base.Position + off + V(0, 80, 0), V(0, -120, 0), rpT)
+			if hit and hit.Normal.Y > 0.8 then
+				table.insert(hs, hit.Position.Y)
+			end
+		end
+		backdrop.Parent = home
+		if #hs >= 3 then
+			table.sort(hs)
+			local floorY = hs[math.ceil(#hs / 2)]
+			local ground = terrainY(base.Position, 20)
+			local drop = floorY - (ground + 0.3)
+			if drop > 1 then
+				backdrop:PivotTo(CF(0, -drop, 0) * backdrop:GetPivot())
+				pcall(function()
+					-- ขุดดินที่ทะลุขึ้นมาบนลานบัลลังก์หลังจม
+					local bcf, bsz = backdrop:GetBoundingBox()
+					workspace.Terrain:FillBlock(CF(bcf.Position.X, ground + 0.3 + 20, bcf.Position.Z) * bcf.Rotation, V(bsz.X * 0.85, 40, bsz.Z * 0.85), Enum.Material.Air)
+				end)
+			end
+		end
+	end
 	-- รังน้ำ: แท่นหินโผล่พ้นน้ำ 2 วงรอบห้วงลึก (ผู้เล่นยืน/กระโดดข้ามได้) · บอสว่ายอยู่กลางน้ำ
 	if el == "Water" then
 		local terrain = workspace.Terrain
 		local wl = base.Position.Y + 16 -- ระดับผิวน้ำ (MapGenerator ขุดแอ่งลึก 16 ใต้ผิวน้ำ)
 		local floorY = base.Position.Y
 		local rngW = Random.new(math.floor(base.Position.X + base.Position.Z))
+		local islands = {}
 		for ring, info in ipairs({ { 64, 9, 11 }, { 104, 12, 14 } }) do
 			local n = info[2]
 			for i = 0, n - 1 do
@@ -2038,13 +3161,22 @@ function PropBuilder.BuildLair(sp, parent)
 				local r = info[3] * rngW:NextNumber(0.8, 1.15)
 				local top = wl + rngW:NextNumber(1.2, 3.2)
 				pcall(function()
-					terrain:FillCylinder(CF(px, (floorY - 4 + top) / 2, pz), top - floorY + 4, r, Enum.Material.Slate)
+					-- เกาะหินปะการัง: ฐานหินปูนขาว + ขอบหินลาดลงน้ำ + หาดทรายบนยอด
+					terrain:FillCylinder(CF(px, (floorY - 4 + top) / 2, pz), top - floorY + 4, r, Enum.Material.Limestone)
+					-- ขอบหินขรุขระรอบเกาะ (ก้อนหินเล็กเหลื่อมกันที่แนวน้ำ ไม่ให้เป็นทรงกระบอกเรียบ/โดมกลม)
+					for k = 0, 4 do
+						local ka = a + k / 5 * math.pi * 2 + rngW:NextNumber(-0.3, 0.3)
+						local kr = r * rngW:NextNumber(0.75, 0.95)
+						terrain:FillBall(V(px + math.cos(ka) * kr, wl - rngW:NextNumber(1, 2.5), pz + math.sin(ka) * kr), r * rngW:NextNumber(0.35, 0.5), k % 2 == 0 and Enum.Material.Rock or Enum.Material.Limestone)
+					end
 					terrain:FillCylinder(CF(px, top - 0.6, pz), 1.6, r * 0.92, Enum.Material.Sand)
 				end)
+				table.insert(islands, { X = px, Z = pz, Top = top, R = r, Ring = ring })
 			end
 		end
 		-- จุดเกิดบอส: กลางห้วงน้ำ ที่ผิวน้ำ
 		base = CF(base.Position.X, wl - 1.5, base.Position.Z) * (base - base.Position)
+		pcall(decorWaterLair, m, base, wl, floorY, islands, col)
 	end
 	-- รังไฟ: วงลาวาล้อมรอบฐาน (พื้นหินแตกลาวาเรืองแสง + แสงส้มวูบ + ประกายไฟ)
 	if el == "Fire" then
@@ -2102,7 +3234,33 @@ function PropBuilder.BuildLair(sp, parent)
 			base = CF(spot) * (base - base.Position)
 		end
 	end
-	for i = 0, (backdrop or el == "Water") and -1 or 9 do
+	-- ไม่มีอาคาร (ลม/ไฟที่ยังไม่มีบัลลังก์): วงหินรูน + กระถางไฟ + ยอดน้ำแข็ง จาก Store ตั้งบนดินจริงทีละชิ้น (จมฐานกันลอย)
+	if not backdrop and el ~= "Water" then
+		local gy0 = terrainY(base.Position, 10)
+		base = CF(base.Position.X, gy0, base.Position.Z) * (base - base.Position)
+		for i = 0, 9 do
+			local ang = i / 10 * math.pi * 2
+			local p = (base * CF(math.cos(ang) * R, 0, math.sin(ang) * R)).Position
+			local gy = terrainY(p, 3)
+			PropBuilder.Imported("RuneStoneLP", CFrame.lookAt(V(p.X, gy - 1.2, p.Z), V(base.X, gy - 1.2, base.Z)), 6 + (i % 3) * 1.5, m, true)
+			if i % 2 == 0 then
+				local bp = (base * CF(math.cos(ang + 0.31) * (R - 9), 0, math.sin(ang + 0.31) * (R - 9))).Position
+				local by = terrainY(bp, 2)
+				local br = PropBuilder.Imported("BrazierLP", CF(bp.X, by - 0.3, bp.Z), 6, m, true)
+				local host = br and br:FindFirstChildWhichIsA("BasePart", true)
+				if host then
+					light(host, col, 34, 2)
+				end
+			end
+		end
+		if el == "Air" then
+			local ok, err = pcall(decorIceLair, m, base, R, col, sp.Floating)
+			if not ok then
+				warn("[AS] ห้องบอสน้ำแข็ง:", err)
+			end
+		end
+	end
+	for i = 0, -1 do
 		local ang = i / 10 * math.pi * 2
 		local h = 18 + (i % 3) * 6
 		local scf = base * CF(math.cos(ang) * R, 0, math.sin(ang) * R) * ANG(rad(math.sin(i) * 6), -ang, rad(math.cos(i) * 5))
@@ -2119,11 +3277,11 @@ function PropBuilder.BuildLair(sp, parent)
 		end
 	end
 	-- ซี่โครงยักษ์ (ซากเหยื่อ)
-	for i = 0, (backdrop or el == "Water") and -1 or 5 do
+	for i = 0, -1 do -- (ซี่โครงปั้น: เลิกใช้)
 		local z = -12 + i * 5
 		cylinderY(22 - math.abs(i - 2.5) * 3, 1.6, base * CF(-24, 6, z) * ANG(0, 0, rad(-38)), { Color = C(226, 218, 196), Material = Enum.Material.SmoothPlastic }, m)
 	end
-	if not backdrop and el ~= "Water" then
+	if false then
 		ellipsoid(V(9, 7, 11), base * CF(-30, 3.5, -22) * ANG(0.3, 0.5, 0.2), { Color = C(232, 226, 206), Material = Enum.Material.SmoothPlastic }, m)
 	end
 	-- วงเวทกลางลาน
@@ -2163,38 +3321,81 @@ function PropBuilder.BuildRuins(sp, parent, rng)
 	m.Name = "Ruins_" .. el
 	local base = faceCamp(sp.Position)
 	local stone = ({ Earth = C(130, 126, 116), Water = C(200, 214, 206), Air = C(170, 178, 200), Fire = C(110, 70, 56) })[el]
-	-- ซากปรักหักพังจาก Creator Store (เกาะบ้านร้าง) -> ไม่ต้องปั้นเสา/ซุ้ม/พื้นแตก
-	local rs = SiteSpec.Get("Ruins", el)
-	local storeRuins = PropBuilder.Backdrop("RuinsIsland", base, rs.Width, rs.Gap, m, { Material = SEAT_MAT[el] })
-	-- เสา
-	for i = 0, storeRuins and -1 or 5 do
-		local x = (i % 3 - 1) * 12
-		local z = (i < 3) and -8 or 8
-		local h = rng:NextNumber(4, 16)
-		local pillar = cylinderY(h, 3, base * CF(x, h / 2, z), { Color = stone, Material = Enum.Material.Cobblestone }, m)
-		pillar.CFrame *= ANG(rng:NextNumber(-0.08, 0.08), 0, rng:NextNumber(-0.08, 0.08))
-		if h > 12 then
-			P("Part", { Size = V(4, 1.4, 4), CFrame = base * CF(x, h + 0.5, z), Color = stone, Material = Enum.Material.Cobblestone }, m)
+	-- ซากวิหารโบราณจาก Creator Store (4 แบบ: เสาเรียงพังๆ / วิหารกรีก / ศาลาโดม / พีระมิด) สลับกันไม่ให้ซ้ำในไบโอมเดียว
+	--   ย้อมสีหินตามธาตุ (ตะไคร่/หินทราย/หินน้ำแข็ง/หินภูเขาไฟ) · ตั้งบนลานที่ MapGenerator ปรับเรียบ (SiteSpec Ruins) จมฐาน 1.5 กันลอย
+	local RUIN_MODELS = { { "RuinColonnade", 54 }, { "RuinTemple", 50 }, { "RuinRotunda", 34 }, { "RuinPyramid", 52 } }
+	local EL_IDX = { Earth = 0, Water = 1, Air = 2, Fire = 3 }
+	PropBuilder.RuinCount = PropBuilder.RuinCount or {}
+	PropBuilder.RuinCount[el] = (PropBuilder.RuinCount[el] or 0) + 1
+	local pick = RUIN_MODELS[((EL_IDX[el] or 0) + PropBuilder.RuinCount[el] - 1) % #RUIN_MODELS + 1]
+	local TINT = {
+		Earth = { C(150, 160, 130), Enum.Material.Cobblestone }, Water = { C(222, 206, 168), Enum.Material.Sandstone },
+		Air = { C(206, 218, 236), Enum.Material.Marble }, Fire = { C(84, 64, 60), Enum.Material.Basalt },
+	}
+	local gy0 = terrainY(base.Position, 12)
+	base = CF(base.Position.X, gy0, base.Position.Z) * (base - base.Position)
+	local storeRuins = PropBuilder.Imported(pick[1], base * CF(0, -1.5, 0), pick[2], m, true)
+	local chestY = gy0
+	if storeRuins then
+		storeRuins.Name = "RuinBuilding"
+		local tint = TINT[el]
+		for _, d in ipairs(storeRuins:GetDescendants()) do
+			if d:IsA("BasePart") and not d:IsA("MeshPart") then
+				local c = d.Color
+				local lum = (c.R + c.G + c.B) / 3
+				d.Color = Color3.new(tint[1].R * (0.55 + lum * 0.6), tint[1].G * (0.55 + lum * 0.6), tint[1].B * (0.55 + lum * 0.6))
+				if d.Material == Enum.Material.Plastic or d.Material == Enum.Material.SmoothPlastic then
+					d.Material = tint[2]
+				end
+			end
+		end
+		-- หีบตั้งบนพื้นจริงของซาก (ฐานยก/ขั้นบันได) ตรงกลาง
+		local home = m.Parent
+		m.Parent = workspace
+		local rpR = RaycastParams.new()
+		rpR.FilterType = Enum.RaycastFilterType.Include
+		rpR.FilterDescendantsInstances = { storeRuins, workspace.Terrain }
+		local hit = workspace:Raycast(base.Position + V(0, 8, 0), V(0, -40, 0), rpR)
+		if hit and hit.Position.Y < gy0 + 7 then
+			chestY = hit.Position.Y
+		end
+		m.Parent = home
+	end
+	base = CF(base.Position.X, chestY, base.Position.Z) * (base - base.Position)
+	-- พื้นจริงตรงจุดนั้น (ซาก/ดิน) — กระถางไฟ/ผลึกอยู่นอกแท่นกลาง ใช้ความสูงของหีบตรงๆ จะลอย
+	local function floorAt(p)
+		local home = m.Parent
+		m.Parent = workspace
+		local rp = RaycastParams.new()
+		rp.FilterType = Enum.RaycastFilterType.Include
+		rp.FilterDescendantsInstances = storeRuins and { storeRuins, workspace.Terrain } or { workspace.Terrain }
+		local hit = workspace:Raycast(V(p.X, chestY + 8, p.Z), V(0, -40, 0), rp)
+		m.Parent = home
+		return hit and hit.Position.Y or terrainY(p, 2)
+	end
+	-- กระถางไฟ 2 ใบหน้าซาก + ผลึกธาตุข้างหีบ
+	for _, x in ipairs({ -7, 7 }) do
+		local p = (base * CF(x, 0, -6)).Position
+		local br = PropBuilder.Imported("BrazierLP", CF(p.X, floorAt(p) - 0.2, p.Z), 4.5, m, true)
+		local host = br and br:FindFirstChildWhichIsA("BasePart", true)
+		if host then
+			light(host, ELEMENT_COLOR[el] or C(255, 170, 80), 24, 1.5)
 		end
 	end
-	-- ซุ้มประตู
-	if not storeRuins then
-		P("Part", { Size = V(3, 14, 3), CFrame = base * CF(-6, 7, -18), Color = stone, Material = Enum.Material.Brick }, m)
-		P("Part", { Size = V(3, 14, 3), CFrame = base * CF(6, 7, -18), Color = stone, Material = Enum.Material.Brick }, m)
-		P("Part", { Size = V(16, 3, 3.4), CFrame = base * CF(0, 15, -18), Color = stone, Material = Enum.Material.Brick }, m)
+	local storeRuinsDone = storeRuins
+	local cr = REALM_CRYSTAL[el]
+	if cr then
+		local p = (base * CF(5, 0, 4)).Position
+		local c = PropBuilder.Place(cr, V(p.X, floorAt(p) - 0.4, p.Z), 0, 0.7, m)
+		if c then
+			CollectionService:RemoveTag(c, "ResourceNode")
+		end
 	end
-	-- พื้นแตก
-	for _ = 1, storeRuins and 0 or 8 do
-		P("Part", {
-			Size = V(rng:NextNumber(3, 6), 0.8, rng:NextNumber(3, 6)),
-			CFrame = base * CF(rng:NextNumber(-14, 14), 0.2, rng:NextNumber(-12, 12)) * ANG(rng:NextNumber(-0.1, 0.1), rng:NextNumber(0, 3), rng:NextNumber(-0.1, 0.1)),
-			Color = stone, Material = Enum.Material.Cobblestone,
-		}, m)
-	end
+	storeRuins = storeRuinsDone
 	-- หีบ
 	local chest = Instance.new("Model")
 	chest.Name = "Chest"
-	local ccf = base * CF(0, 0, storeRuins and -10 or 0)
+	local ccf = base * CF(0, -0.2, 0)
 	local body = P("Part", { Name = "Body", Size = V(4, 2.6, 2.8), CFrame = ccf * CF(0, 1.3, 0), Color = C(110, 72, 40), Material = Enum.Material.WoodPlanks }, chest)
 	P("Part", { Name = "Lid", Size = V(4.1, 1, 2.9), CFrame = ccf * CF(0, 3.1, 0), Color = C(130, 86, 48), Material = Enum.Material.WoodPlanks }, chest)
 	P("Part", { Size = V(4.2, 0.4, 3), CFrame = ccf * CF(0, 2.6, 0), Color = C(210, 170, 70), Material = Enum.Material.Metal }, chest)

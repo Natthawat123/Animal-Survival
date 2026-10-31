@@ -4,7 +4,7 @@
 	  Ambient : เสียงบรรยากาศวนลูป (ป่ากลางวัน/กลางคืน, กองไฟ, ลม)
 	  Sfx     : เสียงเอฟเฟกต์สั้นๆ
 
-	⚠ เพลง/เสียงบรรยากาศ ต้องใส่ ID เอง (Id = "" = ยังไม่มี → ข้ามไปเงียบๆ ไม่พัง)
+	ทุกเสียงมาจากคลังที่ Roblox อนุญาตให้ทุกเกมใช้ (ผู้สร้าง Roblox / ProSoundEffects / APMOfficial) · Id = "" = เงียบ ไม่พัง
 	   วิธีหา: Roblox Studio → Toolbox → Audio (หรือ Creator Store → Audio) → เลือกเพลงที่ผู้สร้างเป็น "Roblox"
 	   (ใช้ฟรีทุกเกม) → คลิกขวา Copy Asset ID → ใส่เป็น "rbxassetid://ตัวเลข"
 	   คำค้นแนะนำ: Lobby = "campfire acoustic", Day = "forest calm", Dusk = "tension rising",
@@ -12,56 +12,60 @@
 	   Victory = "victory fanfare", Defeat = "sad piano", ForestDay = "forest birds ambience",
 	   ForestNight = "night crickets", Campfire = "campfire crackling", Wind = "wind howling"
 
-	Sfx ใช้เสียงที่ติดมากับ Roblox (rbxasset://sounds/...) อยู่แล้ว เล่นได้ทันที — อยากได้เสียงที่ดีกว่าก็เปลี่ยน ID ได้
 ]]
 
 local Audio = {}
+local function id(n)
+	return "rbxassetid://" .. n
+end
 
+-- เพลง: APM Music (ลิขสิทธิ์ Roblox ใช้ได้ทุกเกม)
 Audio.Music = {
-	Lobby = { Id = "", Volume = 0.45 },
-	Day = { Id = "", Volume = 0.35 },
-	Dusk = { Id = "", Volume = 0.4 },
-	Night = { Id = "", Volume = 0.45 },
-	BloodMoon = { Id = "", Volume = 0.5 },
-	Boss = { Id = "", Volume = 0.55 },
-	Victory = { Id = "", Volume = 0.6, NoLoop = true },
-	Defeat = { Id = "", Volume = 0.55, NoLoop = true },
+	Lobby = { Id = id(1837699768), Volume = 0.35 }, -- Campfire (โฟล์กกีตาร์รอบกองไฟ)
+	Day = { Id = id(1839412393), Volume = 0.25 }, -- Peaceful Nature
+	Dusk = { Id = id(1837463124), Volume = 0.35 }, -- Tension Bed for One
+	Night = { Id = id(140033496825661), Volume = 0.4 }, -- Chilling Fog (สยองเบาๆ)
+	BloodMoon = { Id = id(1846862303), Volume = 0.45 }, -- Horror Race
+	Boss = { Id = id(1837301451), Volume = 0.45 }, -- Epic Battle Simulator
+	Victory = { Id = id(1836473422), Volume = 0.55, NoLoop = true }, -- Victory Fanfare Sting
+	Defeat = { Id = id(1838635121), Volume = 0.5, NoLoop = true }, -- Sad End (Solo Piano)
 }
 
+-- บรรยากาศวนลูป: ProSoundEffects
 Audio.Ambient = {
-	ForestDay = { Id = "", Volume = 0.35 },
-	ForestNight = { Id = "", Volume = 0.4 },
-	Campfire = { Id = "", Volume = 0.5 }, -- ดังขึ้นเมื่ออยู่ใกล้กองไฟ
-	Wind = { Id = "", Volume = 0.3 }, -- เขตวายุ / บนเกาะลอยฟ้า
+	ForestDay = { Id = id(9112749076), Volume = 0.3 }, -- นกร้องในป่า
+	ForestNight = { Id = id(9112763735), Volume = 0.35 }, -- จิ้งหรีดกลางคืน
+	Campfire = { Id = id(9112780193), Volume = 0.55 }, -- ไฟปะทุ (ดังขึ้นเมื่อเข้าใกล้กองไฟ)
+	Wind = { Id = id(9114057104), Volume = 0.3 }, -- ลมหวีด (เขตวายุ)
 }
 
-local S = "rbxasset://sounds/"
+-- เอฟเฟกต์สั้นๆ: เสียง GUI ของ Roblox + ProSoundEffects + APM
 Audio.Sfx = {
-	UiClick = { Id = S .. "volume_slider.ogg", Volume = 0.35 },
-	UiOpen = { Id = S .. "volume_slider.ogg", Volume = 0.4, Pitch = 1.1 },
-	Notify = { Id = S .. "volume_slider.ogg", Volume = 0.25 },
-	Reward = { Id = S .. "volume_slider.ogg", Volume = 0.45, Pitch = 1.5 },
-	Purchase = { Id = S .. "volume_slider.ogg", Volume = 0.6, Pitch = 1.8 },
-	Pickup = { Id = S .. "volume_slider.ogg", Volume = 0.35, Pitch = 1.35 },
-	Craft = { Id = S .. "action_get_up.mp3", Volume = 0.5 },
-	Build = { Id = S .. "action_jump_land.mp3", Volume = 0.6, Pitch = 0.8 },
-	Eat = { Id = S .. "impact_water.mp3", Volume = 0.35, Pitch = 1.4 },
-	Heal = { Id = S .. "action_get_up.mp3", Volume = 0.5, Pitch = 1.2 },
-	Downed = { Id = S .. "ouch.ogg", Volume = 0.6, Pitch = 0.8 },
-	Death = { Id = S .. "ouch.ogg", Volume = 0.7, Pitch = 0.6 },
-	Revive = { Id = S .. "action_get_up.mp3", Volume = 0.7 },
-	NightStart = { Id = S .. "action_falling.ogg", Volume = 0.55, Pitch = 0.7 },
-	WaveIncoming = { Id = S .. "action_falling.ogg", Volume = 0.45, Pitch = 0.45 },
-	Dusk = { Id = S .. "action_falling.ogg", Volume = 0.35, Pitch = 0.55 },
-	Dawn = { Id = S .. "volume_slider.ogg", Volume = 0.4, Pitch = 0.7 },
-	BossIntro = { Id = S .. "impact_explosion_03.mp3", Volume = 0.8, Pitch = 0.55 },
-	BossFelled = { Id = S .. "impact_explosion_03.mp3", Volume = 0.8, Pitch = 0.9 },
-	FireOut = { Id = S .. "impact_water.mp3", Volume = 0.7, Pitch = 0.7 },
-	CampUpgrade = { Id = S .. "impact_explosion_03.mp3", Volume = 0.5, Pitch = 1.3 },
-	Spirit = { Id = S .. "volume_slider.ogg", Volume = 0.55, Pitch = 1.2 },
-	GameOver = { Id = S .. "ouch.ogg", Volume = 0.5, Pitch = 0.45 },
-	FireLow = { Id = S .. "volume_slider.ogg", Volume = 0.55, Pitch = 0.55 }, -- เชื้อเพลิงกองไฟต่ำกว่า 20%
-	StalkerWarn = { Id = S .. "action_falling.ogg", Volume = 0.7, Pitch = 0.4 }, -- กวางกลวงกำลังจะออกล่า (เตือนก่อน 5 วินาที)
+	UiClick = { Id = id(17208396156), Volume = 0.35 },
+	UiOpen = { Id = id(17208408337), Volume = 0.4 },
+	Notify = { Id = id(17208372272), Volume = 0.3 },
+	Reward = { Id = id(17208361335), Volume = 0.45 },
+	Purchase = { Id = id(17208380755), Volume = 0.55 },
+	Pickup = { Id = id(17208319162), Volume = 0.35 },
+	Craft = { Id = id(9114753327), Volume = 0.5 }, -- ค้อนตอกไม้
+	Build = { Id = id(9114753310), Volume = 0.55 },
+	Eat = { Id = id(9113138343), Volume = 0.5 }, -- เคี้ยว
+	Heal = { Id = id(17208327798), Volume = 0.45 },
+	Downed = { Id = id(9116455473), Volume = 0.45 },
+	Death = { Id = id(9116455473), Volume = 0.55, Pitch = 0.85 },
+	Revive = { Id = id(17208327798), Volume = 0.6, Pitch = 1.1 },
+	NightStart = { Id = id(1836376248), Volume = 0.5 }, -- ฆ้องต่ำ
+	WaveIncoming = { Id = id(9120789309), Volume = 0.5 }, -- หมาป่าหอน
+	Dusk = { Id = id(9114352428), Volume = 0.35 }, -- ระฆังโบสถ์บิดเบี้ยว
+	Dawn = { Id = id(9119447936), Volume = 0.4 }, -- กระดิ่งลม
+	BossIntro = { Id = id(9113980319), Volume = 0.8, Pitch = 0.8 }, -- คำรามสัตว์ยักษ์
+	BossFelled = { Id = id(134785366676981), Volume = 0.7 },
+	FireOut = { Id = id(9114439216), Volume = 0.6, Pitch = 0.6 },
+	CampUpgrade = { Id = id(9114440283), Volume = 0.55 },
+	Spirit = { Id = id(9116395085), Volume = 0.5 },
+	GameOver = { Id = id(1836376248), Volume = 0.5, Pitch = 0.8 },
+	FireLow = { Id = id(17208353912), Volume = 0.5 }, -- เชื้อเพลิงกองไฟต่ำกว่า 20%
+	StalkerWarn = { Id = id(9113972051), Volume = 0.6, Pitch = 0.6 }, -- กวางกลวงกำลังจะออกล่า (เตือนก่อน 5 วินาที)
 }
 
 return Audio

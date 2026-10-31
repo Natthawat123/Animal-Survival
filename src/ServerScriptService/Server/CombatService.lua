@@ -154,6 +154,37 @@ function CombatService:Shoot(player, toolId, tool, aim, char)
 	self.ctx.Remotes.Get("HitFx"):FireAllClients("Arrow", { From = origin, To = hitPos, Element = tool.Element, Player = player })
 end
 
+-- คทา: ยืนชิดต้นไม้/หิน (ไม่มีสัตว์ใกล้) = ฟาดตัด/ทุบ · ไม่งั้นปล่อยลูกไฟไปทางที่เล็ง
+function CombatService:Staff(player, toolId, tool, aim, char, root)
+	if typeof(aim) ~= "Vector3" or aim.Magnitude < 0.5 then
+		aim = root.CFrame.LookVector
+	end
+	aim = aim.Unit
+	local flat = Vector3.new(aim.X, 0, aim.Z)
+	local look = flat.Magnitude > 0.2 and flat.Unit or root.CFrame.LookVector
+	local animals = self.ctx.Services.AnimalService
+	local near = false
+	for _, a in ipairs(animals:InRadius(root.Position, tool.Range + 8, false)) do
+		if a.Kind ~= "Spirit" and not a.Dead then
+			near = true
+			break
+		end
+	end
+	if not near and self.ctx.Services.ResourceService:FindNode(root.Position + look * 3.5, 7) then
+		self:Melee(player, toolId, tool, root, aim)
+		return
+	end
+	local head = char:FindFirstChild("Head")
+	local b = tool.Bolt
+	local from = (head and head.Position or root.Position) + aim * 3
+	self:Projectile({
+		From = from, Velocity = aim * b.Speed, Gravity = 0, Radius = 1.5, Blast = b.Blast, Size = b.Size,
+		Owner = "Player", Player = player, ToolId = toolId, Tool = tool, Fire = true, Burn = tool.Burn,
+		Color = Color3.fromRGB(255, 120, 40), VFX = "StaffBolt", FxScale = b.FxScale, Life = b.Range / b.Speed,
+		ImpactFx = "StaffExplosion", ImpactScale = b.ImpactScale,
+	})
+end
+
 function CombatService:OnAttack(player, aim)
 	local char = player.Character
 	local root = char and char:FindFirstChild("HumanoidRootPart")
@@ -175,6 +206,8 @@ function CombatService:OnAttack(player, aim)
 			return
 		end
 		self:Shoot(player, toolId, tool, aim.Unit, char)
+	elseif tool.Kind == "Staff" then
+		self:Staff(player, toolId, tool, aim, char, root)
 	else
 		self:Melee(player, toolId, tool, root, aim)
 	end
@@ -207,6 +240,16 @@ local function rockPart(size)
 	return r
 end
 
+-- หันหน้า (-Z) ไปตามทิศพุ่ง: เอฟเฟกต์ลูกไฟ (VFXPack Ball-01) ออกแบบให้พุ่งไปทาง LookVector
+--   (เคยใช้ CFrame ไม่หมุน -> ลูกไฟตอนตกดิ่งเยื้องข้าง หางไฟพ่นออกด้านข้าง ดูเอียง)
+local function faceAlong(pos, vel)
+	if vel and vel.Magnitude > 0.05 then
+		local up = math.abs(vel.Unit.Y) > 0.99 and Vector3.xAxis or Vector3.yAxis
+		return CFrame.lookAt(pos, pos + vel, up)
+	end
+	return CFrame.new(pos)
+end
+
 function CombatService:Projectile(spec)
 	local p = spec.Model == "Rock" and rockPart(spec.Size or 2)
 	if p then
@@ -219,26 +262,33 @@ function CombatService:Projectile(spec)
 		p = Instance.new("Part")
 		p.Shape = Enum.PartType.Ball
 		p.Size = Vector3.new(spec.Size or 2, spec.Size or 2, spec.Size or 2)
-		p.Material = Enum.Material.Neon
+		p.Material = spec.Fire and Enum.Material.CrackedLava or Enum.Material.Neon
+		if spec.VFX then
+			p:SetAttribute("VFX", spec.VFX) -- อุกกาบาตไฟ: client ใส่ลูกไฟ/ควันตาม
+			p:SetAttribute("FxScale", spec.FxScale)
+		end
 	end
 	p.Color = spec.Model == "Rock" and p.Color or (spec.Color or Color3.fromRGB(255, 120, 30))
 	p.Anchored = true
 	p.CanCollide = false
 	p.CanQuery = false
-	p.CFrame = CFrame.new(spec.From)
+	p.CFrame = faceAlong(spec.From, spec.Velocity)
 	local l = Instance.new("PointLight")
 	l.Color = p.Color
 	l.Range = 14
 	l.Brightness = 2
 	l.Parent = p
-	if spec.Fire and spec.Model ~= "Rock" then
+	if spec.VFX == "StaffBolt" then
+		p.Transparency = 1 -- ตัวลูกจริงซ่อน ให้เห็นแต่เอฟเฟกต์ไฟ
+	end
+	if spec.Fire and spec.Model ~= "Rock" and spec.VFX ~= "StaffBolt" then
 		local f = Instance.new("Fire")
 		f.Size = (spec.Size or 2) * 1.5
 		f.Heat = 4
 		f.Parent = p
 	end
 	local trail = Instance.new("ParticleEmitter")
-	trail.Enabled = spec.Model ~= "Rock" -- ก้อนหินใช้เอฟเฟกต์ฝั่ง client แทน
+	trail.Enabled = spec.Model ~= "Rock" and spec.VFX ~= "StaffBolt" -- ก้อนหิน/ลูกไฟคทาใช้เอฟเฟกต์ฝั่ง client แทน
 	trail.Texture = "rbxasset://textures/particles/sparkles_main.dds"
 	trail.Rate = 40
 	trail.Lifetime = NumberRange.new(0.4, 0.7)
@@ -256,6 +306,11 @@ end
 
 function CombatService:StepProjectiles(dt)
 	local surv = self.ctx.Services.SurvivalService
+	local animals = self.ctx.Services.AnimalService
+	-- ลูกไฟผู้เล่นทะลุกำแพงฝั่งตัวเอง (ยิงข้ามกำแพงแคมป์ได้) ชนแค่พื้น
+	local playerShotParams = RaycastParams.new()
+	playerShotParams.FilterType = Enum.RaycastFilterType.Include
+	playerShotParams.FilterDescendantsInstances = { Workspace.Terrain }
 	local terrainParams = RaycastParams.new()
 	terrainParams.FilterType = Enum.RaycastFilterType.Include
 	terrainParams.FilterDescendantsInstances = { Workspace.Terrain, self.ctx.Services.BuildingService.folder }
@@ -264,9 +319,18 @@ function CombatService:StepProjectiles(dt)
 		local spec = pr.Spec
 		pr.Vel += Vector3.new(0, -pr.Gravity * dt, 0)
 		local step = pr.Vel * dt
-		local res = Workspace:Raycast(pr.Pos, step, terrainParams)
+		local res = Workspace:Raycast(pr.Pos, step, spec.Owner == "Player" and playerShotParams or terrainParams)
 		local newPos = res and res.Position or pr.Pos + step
 		local impact = res ~= nil or os.clock() > pr.Die
+		-- ลูกไฟของผู้เล่น (คทา): ชนสัตว์
+		if not impact and spec.Owner == "Player" then
+			for _, a in ipairs(animals:InRadius(newPos, (spec.Radius or 1.5) + 12, false)) do
+				if a.Kind ~= "Spirit" and not a.Dead and (a.Root.Position - newPos).Magnitude < (spec.Radius or 1.5) + a.Radius then
+					impact = true
+					break
+				end
+			end
+		end
 		-- ชนผู้เล่น
 		if not impact and spec.Owner == "Animal" then
 			for _, player in ipairs(Players:GetPlayers()) do
@@ -279,11 +343,19 @@ function CombatService:StepProjectiles(dt)
 			end
 		end
 		pr.Pos = newPos
-		pr.Part.CFrame = CFrame.new(newPos)
+		pr.Part.CFrame = faceAlong(newPos, pr.Vel)
 		if impact then
 			table.remove(projectiles, i)
 			pr.Part:Destroy()
 			local blast = spec.Blast or 6
+			if spec.Owner == "Player" and spec.Player and spec.Player.Parent then
+				for _, a in ipairs(animals:InRadius(newPos, blast + 12, false)) do
+					if a.Kind ~= "Spirit" and not a.Dead and (a.Root.Position - newPos).Magnitude < blast + a.Radius then
+						local dmg, crit, mult = self:PlayerDamage(spec.Player, spec.ToolId, spec.Tool, a)
+						self:DamageAnimal(a, dmg, spec.Player, { Burn = spec.Burn, Crit = crit, Mult = mult, Knock = pr.Vel.Unit })
+					end
+				end
+			end
 			if spec.Owner == "Animal" then
 				for _, player in ipairs(Players:GetPlayers()) do
 					local char = player.Character
@@ -299,7 +371,7 @@ function CombatService:StepProjectiles(dt)
 					end
 				end
 			end
-			self.ctx.Remotes.Get("HitFx"):FireAllClients("Explosion", { Position = newPos, Radius = blast, Color = pr.Part.Color })
+			self.ctx.Remotes.Get("HitFx"):FireAllClients("Explosion", { Position = newPos, Radius = blast, Color = pr.Part.Color, Fx = spec.ImpactFx, FxScale = spec.ImpactScale })
 			if spec.OnImpact then
 				task.spawn(spec.OnImpact, newPos)
 			end

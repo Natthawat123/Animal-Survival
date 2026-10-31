@@ -2,6 +2,7 @@
 	DirectorService — ผู้กำกับ 99 คืน
 	  กลางวัน (สำรวจ/เก็บของ) -> พลบค่ำ (เตือน) -> กลางคืน (ฝูงบุกเป็นระลอก + กวางกลวง + บอส) -> เช้า
 	  รอดครบ 99 คืน = ฉากจบ (ช่วยลูกสัตว์ธาตุครบ 4 = จบแบบสมบูรณ์)
+	  ข้ามวัน (เตียง 2 + ศาลเจ้า 4 = +6): บวกจริงทุกครั้ง · คืนที่ถูกข้ามนับว่ารอด · บอส/คืนบุกใหญ่ของคืนนั้นย้ายมาคืนถัดไป · คืน 99 ข้ามไม่ได้
 	  ทุกคนตาย = YOU PERISHED -> เริ่มรอบใหม่
 ]]
 
@@ -12,6 +13,7 @@ local Workspace = game:GetService("Workspace")
 local Config = require(ReplicatedStorage.Shared.Config)
 local Nights = require(ReplicatedStorage.Shared.Nights)
 local Animals = require(ReplicatedStorage.Shared.Animals)
+local AnimalModels = require(ReplicatedStorage.Shared.AnimalModels)
 local Classes = require(ReplicatedStorage.Shared.Classes)
 local Analytics = require(script.Parent.Analytics)
 
@@ -26,6 +28,8 @@ function DirectorService:Init(ctx)
 	self.runId = 0
 	self.night = 1
 	self.lastElement = nil
+	self.pendingSkips = 0 -- สิทธิ์ข้ามวันที่รอบวกตอนเช้า (ใช้ตอนกลางคืน / คืน 99)
+	self.carry = {} -- เหตุการณ์ของคืนที่ถูกข้าม รอลงคืนถัดไปที่เล่นจริง
 end
 
 function DirectorService:SetPhase(phase, length)
@@ -47,6 +51,7 @@ function DirectorService:Wait(seconds, runId)
 		end
 		if self.skip then -- DEV: ข้ามช่วงนี้
 			self.skip = false
+			self.skipped = true
 			return true
 		end
 		if self.paused then -- DEV: หยุดเวลา (เลื่อนเวลาสิ้นสุดช่วงออกไปด้วย ให้นาฬิกาบนจอหยุด)
@@ -96,11 +101,11 @@ function DirectorService:RunNight(night, runId)
 	self.lastElement = element
 	-- งบฝูงบุกคูณตามจำนวนคนที่ยังรอดในรอบ (Nights.PlayerBudgetMult) — เพดาน Config.MaxRaidAnimals เท่าเดิม
 	local players = ctx.Services.SurvivalService:RunPlayerCount(true)
-	local plan = Nights.Plan(night, self.rng, element, players)
+	local plan = Nights.Plan(night, self.rng, element, players, self.carry)
 	s:SetAttribute("NightElement", plan.Element)
 	s:SetAttribute("BloodMoon", plan.BloodMoon)
 	self:SetPhase("Night", Config.NightLength)
-	local title = Nights.Named[night] or ("คืนแห่ง" .. (ELEMENT_THAI[plan.Element] or ""))
+	local title = Nights.Named[plan.OriginNight or night] or ((plan.BigRaid and "คืนบุกใหญ่ · " or "") .. "คืนแห่ง" .. (ELEMENT_THAI[plan.Element] or ""))
 	if Nights.IsEndless(night) then
 		title = "♾ ไร้ขีดจำกัด · " .. title
 	end
@@ -108,24 +113,16 @@ function DirectorService:RunNight(night, runId)
 		Night = night, Element = plan.Element, BloodMoon = plan.BloodMoon, Boss = plan.Boss, Title = title, Endless = Nights.IsEndless(night),
 		Elements = plan.Elements,
 	})
-	-- ฝูงสัตว์บุกแคมป์ทุกๆ 5 คืน (คืน 5, 10, 15, ...) — คืนอื่นเงียบ เหลือแค่ระลอกบอส (ถ้ามี)
-	local raidNight = night % 5 == 0
-	if not raidNight then
-		local waves = {}
-		for _, w in ipairs(plan.Waves) do
-			if w.Boss then
-				table.insert(waves, w)
-			end
-		end
-		plan.Waves = waves
-		local left = 5 - night % 5
+	-- ฝูงบุกทุกคืน: คืนธรรมดาฝูงเล็ก · ทุก 5 คืน (และคืน 99) = คืนบุกใหญ่
+	if not plan.BigRaid then
+		local left = Nights.NextBigRaid(night) - night
 		task.delay(6, function()
 			if runId == self.runId then
-				ctx.Broadcast(string.format("🌙 คืนนี้ค่อนข้างสงบ... ฝูงสัตว์จะบุกแคมป์ในอีก %d คืน เตรียมตัวไว้!", left), "Info")
+				ctx.Broadcast(string.format("🌙 คืนนี้ฝูงเล็ก... คืนบุกใหญ่จะมาในอีก %d คืน เตรียมตัวไว้!", left), "Info")
 			end
 		end)
 	end
-	s:SetAttribute("NextRaidNight", night + (5 - night % 5) % 5)
+	s:SetAttribute("NextRaidNight", plan.BigRaid and night or Nights.NextBigRaid(night))
 	local total = 0
 	for _, w in ipairs(plan.Waves) do
 		total += #w.Spawns
@@ -136,8 +133,8 @@ function DirectorService:RunNight(night, runId)
 	local stalkerAt = Config.NightLength * 0.12
 	local warnAt = math.max(0.5, stalkerAt - 5)
 	task.delay(warnAt, function()
-		if runId ~= self.runId or s:GetAttribute("Phase") ~= "Night" or ctx.Services.AnimalService:CountKind("Stalker") > 0 then
-			return
+		if runId ~= self.runId or s:GetAttribute("Phase") ~= "Night" or ctx.Services.AnimalService:CountKind("Stalker") > 0 or not AnimalModels.Has("HollowStag") then
+			return -- (ยังไม่มีโมเดลกวางกลวง = ไม่เตือนหลอก)
 		end
 		for _, p in ipairs(Players:GetPlayers()) do
 			if p:GetAttribute("InRun") and not p:GetAttribute("Dead") then
@@ -152,15 +149,17 @@ function DirectorService:RunNight(night, runId)
 		local animals = ctx.Services.AnimalService
 		if animals:CountKind("Stalker") == 0 then
 			local pos = ctx.Layout:RaidSpawnPoint(self.rng, 260, 340)
-			animals:Spawn("HollowStag", pos, { Kind = "Stalker" })
-			ctx.Broadcast("🦌 ...มีบางอย่างจ้องมองมาจากความมืด อยู่ใกล้แสงไฟไว้", "Danger")
+			if animals:Spawn("HollowStag", pos, { Kind = "Stalker" }) then
+				ctx.Broadcast("🦌 ...มีบางอย่างจ้องมองมาจากความมืด อยู่ใกล้แสงไฟไว้", "Danger")
+			end
 		end
 	end)
 
 	-- ปล่อยฝูงเป็นระลอก
+	self.nightBoss = nil
 	for wi, wave in ipairs(plan.Waves) do
 		task.delay(Config.NightLength * wave.At, function()
-			if runId ~= self.runId or s:GetAttribute("Phase") ~= "Night" then
+			if runId ~= self.runId or s:GetAttribute("Phase") ~= "Night" or #wave.Spawns == 0 then
 				return
 			end
 			if not wave.Boss then
@@ -171,33 +170,79 @@ function DirectorService:RunNight(night, runId)
 				if runId ~= self.runId or s:GetAttribute("Phase") ~= "Night" then
 					return
 				end
-				while ctx.Services.AnimalService.raidCount >= Config.MaxRaidAnimals do
+				-- (บอสไม่ต้องรอคิวเพดานฝูง)
+				while not wave.Boss and ctx.Services.AnimalService.raidCount >= Nights.MaxRaid(Config.MaxRaidAnimals, ctx.Services.SurvivalService:RunPlayerCount(true)) do
 					task.wait(1)
 					if runId ~= self.runId or s:GetAttribute("Phase") ~= "Night" then
 						return
 					end
 				end
-				self:SpawnRaid(id, plan, night)
+				local a = self:SpawnRaid(id, plan, night)
+				if wave.Boss then
+					self.nightBoss = a
+				end
 				if i % 3 == 0 then
 					task.wait(0.4)
 				end
 			end
 		end)
 	end
-	return self:Wait(Config.NightLength, runId)
+	if not plan.Boss then
+		return self:Wait(Config.NightLength, runId)
+	end
+	-- คืนบอส: ใกล้เช้าแล้วบอสยังไม่ตาย -> หยุดนาฬิกาไว้ก่อน (ท้องฟ้าไม่เริ่มสว่าง) ให้มีเวลาฆ่าทัน
+	local holdAt = Config.NightLength * 0.85
+	self.skipped = false
+	if not self:Wait(holdAt, runId) then
+		return false
+	end
+	if self.skipped then
+		return true
+	end
+	if not self:HoldForBoss(runId) then
+		return false
+	end
+	if self.skipped then
+		return true
+	end
+	return self:Wait(Config.NightLength - holdAt, runId)
 end
 
-function DirectorService:Dawn(night)
+-- หยุดนาฬิกาจนบอสตาย หรือครบ Config.BossHoldMax
+function DirectorService:HoldForBoss(runId)
+	local boss = self.nightBoss
+	if not boss or boss.Dead or boss.Removed then
+		return true
+	end
+	local s = self.ctx.State
+	local left = Config.BossHoldMax
+	s:SetAttribute("BossHoldEnd", Workspace:GetServerTimeNow() + left)
+	self.ctx.Broadcast("⏳ บอสยังไม่ตาย — ฟ้ายังไม่สาง! ฆ่าให้ได้ก่อนมันหนีไปตอนเช้า", "Danger")
+	while left > 0 and not boss.Dead and not boss.Removed do
+		local dt = task.wait(0.25)
+		if runId ~= self.runId then
+			return false
+		end
+		if self.skip then
+			self.skip = false
+			self.skipped = true
+			break
+		end
+		s:SetAttribute("PhaseStart", (s:GetAttribute("PhaseStart") or 0) + dt)
+		s:SetAttribute("PhaseEnd", (s:GetAttribute("PhaseEnd") or 0) + dt)
+		if self.paused then
+			s:SetAttribute("BossHoldEnd", s:GetAttribute("BossHoldEnd") + dt)
+		else
+			left -= dt
+		end
+	end
+	s:SetAttribute("BossHoldEnd", 0)
+	return true
+end
+
+-- รางวัลรอดคืนนี้: เฉพาะคนที่ยังรอดอยู่ในรอบ (คนที่ตายแล้วไม่ได้ และไม่ได้เกิดใหม่)
+function DirectorService:RewardNight(night)
 	local ctx = self.ctx
-	local animals = ctx.Services.AnimalService
-	-- ฝูงบุกและกวางกลวงหายไปกับแสงเช้า (บอสที่ยังไม่ตายจะหนีกลับ)
-	animals:ClearKind("Raid", true)
-	animals:ClearKind("Stalker", true)
-	animals:ClearKind("Boss", true)
-	ctx.State:SetAttribute("BossId", "")
-	ctx.State:SetAttribute("BloodMoon", false)
-	ctx.FireRun("Cinematic", "Dawn", { Night = night })
-	-- รางวัล: เฉพาะคนที่ยังรอดอยู่ในรอบ (คนที่ตายแล้วไม่ได้ และไม่ได้เกิดใหม่)
 	for _, p in ipairs(Players:GetPlayers()) do
 		if p:GetAttribute("InRun") and not p:GetAttribute("Dead") then
 			local data = ctx.Services.DataService:Get(p)
@@ -222,6 +267,19 @@ function DirectorService:Dawn(night)
 	end
 end
 
+function DirectorService:Dawn(night)
+	local ctx = self.ctx
+	local animals = ctx.Services.AnimalService
+	-- ฝูงบุกและกวางกลวงหายไปกับแสงเช้า (บอสที่ยังไม่ตายจะหนีกลับ)
+	animals:ClearKind("Raid", true)
+	animals:ClearKind("Stalker", true)
+	animals:ClearKind("Boss", true)
+	ctx.State:SetAttribute("BossId", "")
+	ctx.State:SetAttribute("BloodMoon", false)
+	ctx.FireRun("Cinematic", "Dawn", { Night = night })
+	self:RewardNight(night)
+end
+
 function DirectorService:Loop(runId)
 	local ctx = self.ctx
 	local s = ctx.State
@@ -242,7 +300,8 @@ function DirectorService:Loop(runId)
 		if not self:Wait(Config.DuskLength, runId) then
 			return
 		end
-		-- กลางคืน
+		-- กลางคืน (เตียงอาจข้ามวันระหว่างกลางวัน -> คืนนี้เป็นคืนถัดไป)
+		night = self.night
 		if not self:RunNight(night, runId) then
 			return
 		end
@@ -250,8 +309,76 @@ function DirectorService:Loop(runId)
 		if night == Config.TotalNights then
 			self:Complete()
 		end
-		self.night = night + 1
+		-- บอสที่ย้ายมาแต่คืนนี้มีบอสของตัวเองอยู่แล้ว -> เลื่อนไปคืนถัดไป · อย่างอื่นใช้ไปแล้ว
+		local carry = self.carry
+		self.carry = (carry.Boss and Nights.BossFor(night)) and { Boss = carry.Boss, BossNight = carry.BossNight } or {}
+		if self.night == night then -- (DEV setNight กลางคืน = ใช้เลขที่ตั้งไว้)
+			self.night = night + 1
+		end
+		self:ApplyPendingSkips()
 	end
+end
+
+-- ผ่านคืนนี้โดยไม่ต้องเล่น: นับว่ารอด + เหตุการณ์ของคืนนี้ย้ายไปคืนถัดไปที่เล่นจริง
+function DirectorService:PassNight()
+	local night = self.night
+	self:RewardNight(night)
+	local boss = Nights.BossFor(night)
+	if boss then
+		self.carry.Boss, self.carry.BossNight = boss, night
+	end
+	if Nights.IsBloodMoon(night) then
+		self.carry.BloodMoonNight = night
+	end
+	if Nights.IsBigRaid(night) then
+		self.carry.BigRaid = true
+	end
+	self.night = night + 1
+	self.ctx.State:SetAttribute("Night", self.night)
+end
+
+-- บวกสิทธิ์ที่เก็บไว้ (ตอนเช้า) · คืนสุดท้ายต้องเล่นจริง: ที่เหลือรอหลังจบคืน 99
+function DirectorService:ApplyPendingSkips()
+	local applied = 0
+	while self.pendingSkips > 0 and self.night ~= Config.TotalNights do
+		self.pendingSkips -= 1
+		applied += 1
+		self:PassNight()
+		self.ctx.Services.TraderService:OnDay(self.night) -- ไม่ให้พลาดรอบพ่อค้า
+	end
+	if applied > 0 then
+		self.ctx.Broadcast(string.format("⏭ ข้ามไป %d วันตามสิทธิ์ที่เก็บไว้ — ตอนนี้วันที่ %d", applied, self.night), "Good")
+	end
+end
+
+-- เตียง/ศาลเจ้าใช้ได้ตลอดรอบ
+function DirectorService:CanSkipDay()
+	return self.running and self.ctx.State:GetAttribute("Phase") ~= "Ended"
+end
+
+-- +1 วันจริงทุกครั้ง: กลางวัน/พลบค่ำมีผลทันที · กลางคืน (และวันที่ 99) เก็บไว้บวกตอนเช้า
+-- fmt: ข้อความประกาศเอง (มี %d = วันที่) เช่น ช่วยลูกสัตว์ธาตุสำเร็จ · ไม่ใส่ = ข้อความเตียง
+function DirectorService:SkipDay(player, fmt)
+	if not self:CanSkipDay() then
+		return false
+	end
+	local phase = self.ctx.State:GetAttribute("Phase")
+	if (phase == "Day" or phase == "Dusk") and self.night ~= Config.TotalNights then
+		self:PassNight()
+		if phase == "Day" then
+			self.ctx.Services.TraderService:OnDay(self.night) -- ไม่ให้พลาดรอบพ่อค้า
+		end
+		if fmt then
+			self.ctx.Broadcast(string.format(fmt, self.night), "Good")
+		else
+			self.ctx.Broadcast(string.format("🛏 %s วางเตียงพักผ่อน — ข้ามไป 1 วัน! ตอนนี้วันที่ %d", player and player.DisplayName or "ทีม", self.night), "Good")
+		end
+	else
+		self.pendingSkips += 1
+		local when = self.night == Config.TotalNights and "หลังจบคืนสุดท้าย" or "ตอนเช้า"
+		self.ctx.Broadcast(string.format("⏳ +1 วัน — จะนับให้%s (เก็บไว้ %d วัน)", when, self.pendingSkips), "Good")
+	end
+	return true
 end
 
 function DirectorService:SpiritCount()
@@ -346,13 +473,16 @@ function DirectorService:IsRunning()
 end
 
 -- เริ่มรอบ (เรียกจากประตูล็อบบี้)
-function DirectorService:StartRun()
+-- pendingSkips / carry: มาจากรอบที่เก็บไว้ (RejoinService)
+function DirectorService:StartRun(night, pendingSkips, carry)
 	if self.running then
 		return
 	end
 	self.running = true
 	self.runId += 1
-	self.night = 1
+	self.night = math.max(1, math.floor(tonumber(night) or 1))
+	self.pendingSkips = math.max(0, math.floor(tonumber(pendingSkips) or 0))
+	self.carry = type(carry) == "table" and carry or {}
 	local runId = self.runId
 	task.spawn(function()
 		self:Loop(runId)
@@ -365,6 +495,11 @@ function DirectorService:ResetRun()
 	self.runId += 1
 	self.night = 1
 	self.lastElement = nil
+	self.pendingSkips = 0
+	self.carry = {}
+	self.nightBoss = nil
+	ctx.State:SetAttribute("BossHoldEnd", 0)
+	ctx.State:SetAttribute("BedsUsed", 0)
 	ctx.State:SetAttribute("Ending", "")
 	ctx.State:SetAttribute("Conquered", false)
 	ctx.State:SetAttribute("BossId", "")

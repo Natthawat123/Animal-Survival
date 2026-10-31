@@ -5,10 +5,12 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Items = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Items"))
+local ItemThumbs = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("ItemThumbs"))
+local ItemModels = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("ItemModels"))
 
 local ItemIcon = {}
 
-local GLYPH = { Resource = "🪵", Food = "🍖", Essence = "✦", Relic = "❤", Medical = "✚", Tool = "⚒", Structure = "🏠" }
+local GLYPH = { Resource = "🪵", Food = "🍖", Essence = "✦", Relic = "❤", Medical = "✚", Tool = "⚒", Structure = "🏠", Armor = "🛡" }
 local cache = {}
 
 -- โมเดลต้นแบบ (ทำครั้งเดียวต่อไอเทม): ตัดสคริปต์/แสง/อนุภาค ตรึงทุกชิ้น
@@ -18,9 +20,10 @@ local function template(id)
 	end
 	local assets = ReplicatedStorage:FindFirstChild("Assets")
 	local src
-	for _, folder in ipairs({ "Items", "Weapons" }) do
+	local alias = Items.Data[id] and Items.Data[id].Model
+	for _, folder in ipairs({ "Items", "Weapons", "Armor" }) do
 		local f = assets and assets:FindFirstChild(folder)
-		src = src or (f and f:FindFirstChild(id))
+		src = src or (f and (f:FindFirstChild(id) or (alias and f:FindFirstChild(alias))))
 	end
 	local m
 	if src then
@@ -38,20 +41,34 @@ local function template(id)
 			c.Anchored = true
 		end
 		c.Parent = m
+		ItemModels.Tint(m, id)
 	end
 	cache[id] = m or false
 	return m
 end
 
 function ItemIcon.Make(parent, id, props)
+	-- ค่าคราฟต์ "ธาตุไหนก็ได้" -> ใช้รูปของชิ้นแรกในกลุ่ม
+	if Items.AnyGroups[id] then
+		id = Items.AnyGroups[id][1]
+	end
 	local vp = Instance.new("ViewportFrame")
 	vp.BackgroundTransparency = 1
 	vp.Size = UDim2.fromOffset(40, 40)
 	for k, v in pairs(props or {}) do
 		vp[k] = v
 	end
-	local t = template(id)
-	if t then
+	local info0 = Items.Data[id]
+	-- เกราะ = เสื้อเลเยอร์จากแคตตาล็อก (ArmorModels.LAYERED) -> ใช้รูปของชิ้นจริงจาก Roblox
+	local t = not (info0 and info0.Category == "Armor") and template(id) or nil
+	if info0 and info0.Category == "Armor" then
+		local img = Instance.new("ImageLabel")
+		img.Size = UDim2.fromScale(1, 1)
+		img.BackgroundTransparency = 1
+		img.Image = ItemThumbs.Url(id)
+		img.ScaleType = Enum.ScaleType.Fit
+		img.Parent = vp
+	elseif t then
 		local m = t:Clone()
 		m.Parent = vp
 		local cf, size = m:GetBoundingBox()

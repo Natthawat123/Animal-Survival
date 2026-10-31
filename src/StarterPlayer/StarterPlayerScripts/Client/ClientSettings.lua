@@ -51,7 +51,7 @@ local function queueSave()
 		return
 	end
 	saveQueued = true
-	task.delay(2, function()
+	task.delay(0.5, function()
 		saveQueued = false
 		Remotes.Get("SaveSettings"):FireServer(values)
 	end)
@@ -59,6 +59,10 @@ end
 
 function ClientSettings.Set(key, value, noSave)
 	if values[key] == value then
+		-- แถบเลื่อน: ระหว่างลากตั้งค่าแบบไม่เซฟ แล้วตอนปล่อยส่งค่าเดิมมาพร้อมสั่งเซฟ -> ต้องเซฟด้วย (เดิมข้ามไป ค่าเลยรีเซ็ตตอนเข้าใหม่)
+		if not noSave then
+			queueSave()
+		end
 		return
 	end
 	values[key] = value
@@ -76,6 +80,7 @@ function ClientSettings.Load(saved)
 	if type(saved) ~= "table" then
 		return
 	end
+	ClientSettings.Loaded = true
 	for k, def in pairs(ClientSettings.Defaults) do
 		local v = saved[k]
 		if v ~= nil and type(v) == type(def) and values[k] ~= v then

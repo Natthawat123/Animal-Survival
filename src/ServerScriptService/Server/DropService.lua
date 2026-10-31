@@ -10,6 +10,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 
+local Config = require(ReplicatedStorage.Shared.Config)
 local Items = require(ReplicatedStorage.Shared.Items)
 local ItemModels = require(ReplicatedStorage.Shared.ItemModels)
 
@@ -65,6 +66,31 @@ end
 
 -- พื้นที่ของควรวาง: ของที่ชนได้ใต้ตัวของ (พื้นอาคาร/โต๊ะ) ถ้าอยู่ไม่ต่ำกว่าผิวดิน · ไม่งั้น = ผิวดิน
 --   ของจมดิน/ทะลุลงไป -> ได้ผิวดินเสมอ (ไม่วางไว้ใต้ดิน) · ใต้กิ่งไม้/หลังคา -> ไม่ไปค้างข้างบน
+-- จุดนี้มีของชนได้ (ลำต้น หิน กำแพง) ทับอยู่ไหม — ไม่นับพื้นดิน/ของดรอป/ตัวละคร/สัตว์
+local overlap = OverlapParams.new()
+overlap.FilterType = Enum.RaycastFilterType.Exclude
+overlap.RespectCanCollide = false
+local function blocked(pos, avoid)
+	local ex = { folder, Workspace.Terrain }
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p.Character then
+			table.insert(ex, p.Character)
+		end
+	end
+	local animals = Workspace:FindFirstChild("Animals")
+	if animals then
+		table.insert(ex, animals)
+	end
+	overlap.FilterDescendantsInstances = ex
+	for _, part in ipairs(Workspace:GetPartBoundsInRadius(pos + V(0, 1.2, 0), 0.9, overlap)) do
+		-- ลำต้น/ตัวหินของ node ที่ตีอยู่ (ชนได้หรือไม่ก็ตาม) หรือของแข็งชิ้นอื่น
+		if (avoid and part:IsDescendantOf(avoid) and part.Transparency < 1) or (part.CanCollide and part.Transparency < 1) or part.Name == "Collider" then
+			return true
+		end
+	end
+	return false
+end
+
 local function surfaceFor(pos, origin)
 	local T = terrainTop(pos.X, pos.Z, math.max(pos.Y, origin.Y) + 60)
 	if T and T.Position.Y > pos.Y + 8 then
@@ -246,9 +272,9 @@ end
 
 -- ขนาดของตก (ด้านยาวสุด, stud) เมื่อใช้โมเดลจาก Creator Store
 local STORE_SIZE = {
-	Fiber = 1.8, Bone = 1.9, Berries = 1.9, RawMeat = 1.6, CookedMeat = 1.6, Stew = 1.6, Bandage = 1.4,
+	Fiber = 1.8, Bone = 1.9, Berries = 1.9, RawMeat = 1.6, CookedMeat = 1.6, Stew = 1.6, Bandage = 1.4, BerryJuice = 1.7, BerryPie = 1.6, HerbSalve = 1.2,
 	Wood = 2.4, Pelt = 2, TerraCore = 1.4, TidePearl = 1.3, GaleFeather = 1.8,
-	Stone = 1.8, Iron = 1.7, Coal = 1.8, BeastHeart = 1.5, Medkit = 1.4, EmberShard = 1.5,
+	Stone = 1.8, Iron = 1.7, Coal = 1.8, TerraHeart = 1.5, TideHeart = 1.5, FrostHeart = 1.5, EmberHeart = 1.5, Medkit = 1.4, EmberShard = 1.5,
 }
 
 -- โมเดลจาก Store: กล่องใส (Root ชนพื้น) + ชิ้นโมเดลเชื่อมติด
@@ -280,7 +306,10 @@ local ESSENCE_AURA = {
 	TerraCore = { C(255, 200, 90), C(170, 110, 40) },
 	GaleFeather = { C(235, 250, 255), C(150, 215, 255) },
 	EmberShard = { C(255, 140, 40), C(255, 40, 20) },
-	BeastHeart = { C(255, 90, 140), C(200, 20, 60) },
+	TerraHeart = { C(170, 255, 120), C(60, 160, 40) },
+	TideHeart = { C(150, 225, 255), C(30, 120, 220) },
+	FrostHeart = { C(240, 250, 255), C(150, 210, 255) },
+	EmberHeart = { C(255, 170, 70), C(230, 50, 20) },
 }
 local function essenceAura(root, id)
 	local col = ESSENCE_AURA[id]
@@ -423,6 +452,21 @@ function DropService:Remove(m)
 end
 
 ---------------------------------------------------------------- สร้างของตก
+-- ดรอปของรางวัล: วัตถุดิบ/แก่นธาตุ x Config.LootMult (เศษ = สุ่มปัด) -> คืนจำนวนที่ออกจริง
+local SCALED = { Resource = true, Essence = true }
+local lootRng = Random.new()
+function DropService:SpawnLoot(id, n, pos, opts)
+	local info = Items.Data[id]
+	if info and SCALED[info.Category] then
+		local x = n * Config.LootMult
+		n = math.floor(x) + (lootRng:NextNumber() < x % 1 and 1 or 0)
+	end
+	if n > 0 then
+		self:Spawn(id, n, pos, opts)
+	end
+	return n
+end
+
 function DropService:Spawn(id, n, pos, opts)
 	n = math.floor(n or 1)
 	if n <= 0 or not Items.Data[id] then
@@ -508,8 +552,48 @@ function DropService:Spawn(id, n, pos, opts)
 			root.AssemblyLinearVelocity = Vector3.zero
 			root.AssemblyAngularVelocity = Vector3.zero
 			place(m, pos + V(0, 1, 0), true)
-		else
+		elseif opts.Velocity then
 			settle(m, pos + V(0, 1, 0))
+		else
+			-- ดรอปจากการตี/ล่า: เด้งเป็นเส้นโค้งสั้นๆ ด้วยสคริปต์ แล้ววางบนพื้น (ไม่ใช้ฟิสิกส์)
+			--   เดิมใช้ฟิสิกส์ -> ชนตัวผู้เล่น/ขวานที่เหวี่ยง/ต้นไม้ที่ล้ม แล้วกระเด็นไปไกล
+			root.Anchored = true
+			root.CanCollide = false
+			root.AssemblyLinearVelocity = Vector3.zero
+			root.AssemblyAngularVelocity = Vector3.zero
+			local from = m:GetPivot().Position
+			if opts.Dir then
+				-- กระจายเป็นพัดหันไปทางผู้เล่น (±70°) ไม่ย้อนเข้าหาตัว node
+				local base = math.atan2(opts.Dir.Z, opts.Dir.X)
+				a = base + (rng:NextNumber() * 2 - 1) * math.rad(70)
+			end
+			local dist = spread * (0.6 + rng:NextNumber() * 0.8)
+			local land = pos + V(math.cos(a) * dist, 0, math.sin(a) * dist)
+			-- จุดตกทับของที่ชนได้ (ลำต้น/หิน/กำแพง) -> เลื่อนออกไปตามทิศจนพ้น
+			local out = opts.Dir or V(math.cos(a), 0, math.sin(a))
+			for _ = 1, 8 do
+				if not blocked(land, opts.Avoid) then
+					break
+				end
+				land += out * 1.2
+			end
+			local hit = surfaceFor(land + V(0, 3, 0), pos + V(0, 1, 0))
+			local to = hit and (hit.Position + V(0, root.Size.Y / 2, 0)) or land
+			local spin = rng:NextNumber() * 6.28
+			local dur = 0.45
+			task.spawn(function()
+				local t0 = os.clock()
+				while m.Parent and root.Parent do
+					local k = math.min((os.clock() - t0) / dur, 1)
+					local p = from:Lerp(to, k) + V(0, 3.2 * 4 * k * (1 - k), 0)
+					m:PivotTo(CF(p) * ANG(0, spin + k * 3, 0))
+					if k >= 1 then
+						break
+					end
+					task.wait()
+				end
+				place(m, to, true)
+			end)
 		end
 		last = m
 	end
@@ -559,6 +643,13 @@ function DropService:Pickup(player, m)
 	end
 	-- ต้องถือกระสอบในมือก่อนถึงจะเก็บได้ (แบบ 99 Nights)
 	local inv = self.ctx.Services.InventoryService
+	-- ยาเข้าช่องของตัวเองในแถบเครื่องมือเลย (ไม่ต้องถือกระสอบ ไม่กินที่กระสอบ)
+	local item = Items.Data[d.Id]
+	if item and item.Category == "Medical" then
+		inv:Add(player, d.Id, d.Count)
+		self:Remove(m)
+		return
+	end
 	if not inv:HoldingSack(player) then
 		self.ctx.Notify(player, "🎒 ถือกระสอบก่อน (เลือกกระสอบในแถบเครื่องมือ) แล้วค่อยเก็บของ", "Info")
 		return
@@ -627,7 +718,8 @@ function DropService:Throw(player, id, n, target)
 	self:Spawn(id, n, from, { Arc = target, By = player })
 end
 
--- ทิ้งของจากกระสอบ: ถ้ายืนใกล้กองไฟ -> โยนเข้ากองไฟเลย ไม่งั้นวางหน้าตัว
+-- ทิ้งของจากกระสอบ: ยืนชิดกองไฟและหันหน้าเข้าหา -> โยนเข้ากองไฟ (ตั้งใจโยนเอง) ไม่งั้นวางหน้าตัว
+--   (เดิมยืนห่าง 18 สตัดก็โยนเข้าไฟ = เหมือนกองไฟดูดของ)
 function DropService:DropFromPlayer(player, id, n)
 	local inv = self.ctx.Services.InventoryService
 	n = math.clamp(math.floor(tonumber(n) or 1), 1, 999)
@@ -649,11 +741,40 @@ function DropService:DropFromPlayer(player, id, n)
 	inv:PopOrder(player, id)
 	local cf = char:GetPivot()
 	local fire = self.ctx.Services.CampService:FirePosition()
-	if fire and (cf.Position - fire).Magnitude < 18 then
+	local toFire = fire and (fire - cf.Position) * Vector3.new(1, 0, 1)
+	if toFire and toFire.Magnitude < 10 and (toFire.Magnitude < 3 or cf.LookVector:Dot(toFire.Unit) > 0.5) then
 		self:Throw(player, id, n, fire + Vector3.new(0, 1, 0))
 	else
 		self:Spawn(id, n, cf.Position + cf.LookVector * 5, { Spread = 0.5, Place = true })
 	end
+end
+
+-- [Backspace] ทิ้งของในมือ: ถือกระสอบ = ทิ้งชิ้นล่าสุดในกระสอบ · ถืออาวุธ/เครื่องมือ = ทิ้งทั้งชิ้น · สิ่งปลูกสร้าง/ยา = ทิ้งทีละ 1
+function DropService:DropHeld(player)
+	local inv = self.ctx.Services.InventoryService
+	local char = player.Character
+	local tool = char and char:FindFirstChildOfClass("Tool")
+	if not tool or not player:GetAttribute("InRun") then
+		return
+	end
+	if tool:GetAttribute("Kind") == "Sack" then
+		self:DropFromPlayer(player, nil, 1)
+		return
+	end
+	local id = tool:GetAttribute("StructureKind") or tool:GetAttribute("MedKind") or tool:GetAttribute("ItemId")
+	if not (id and Items.Data[id]) or Items.Sacks[id] or inv:Count(player, id) <= 0 then
+		return
+	end
+	if not inv:Remove(player, id, 1) then
+		return
+	end
+	if Items.Data[id].Category == "Tool" then
+		inv:DestroyTool(player, id)
+	else
+		inv:SyncStructureTools(player)
+	end
+	local cf = char:GetPivot()
+	self:Spawn(id, 1, cf.Position + cf.LookVector * 5, { Spread = 0.5, Place = true })
 end
 
 function DropService:Init(ctx)
@@ -671,6 +792,11 @@ function DropService:Start(ctx)
 		end
 		if typeof(m) == "Instance" and drops[m] then
 			self:Pickup(player, m)
+		end
+	end)
+	ctx.Remotes.Get("DropHeld").OnServerEvent:Connect(function(player)
+		if not ctx.Services.SurvivalService:IsIncapacitated(player) then
+			self:DropHeld(player)
 		end
 	end)
 	ctx.Remotes.Get("DropItem").OnServerEvent:Connect(function(player, id, n)

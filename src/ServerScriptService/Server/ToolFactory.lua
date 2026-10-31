@@ -44,6 +44,7 @@ local STORE_WEAPONS = {
 	GaleBow = { Length = 4.4, Aura = "Wind" },
 	EmberBlade = { Length = 4.6, Head = Vector3.new(0, 0, -1), Flip = true, Aura = "Fire" },
 	FourfoldBlade = { Length = 4.8, Front = Vector3.new(0, 0, 1), Aura = "Rainbow" },
+	EmberStaff = { Length = 5.4, Head = Vector3.new(0, 1, 0), TipFire = true }, -- Store "Fire Staff" (52093942) ตั้งตรงแกน +Y หัวไฟอยู่บน
 }
 
 -- ออร่าธาตุ: ประกายลอยรอบตัวอาวุธ + หมอกเรืองแสงบางๆ + แสงส่อง
@@ -197,6 +198,20 @@ local function buildStore(itemId, tool)
 		p.Parent = tool
 	end
 	m:Destroy()
+	if cfg.TipFire then
+		-- คทา: เปลวไฟ + แสงเรืองที่หัวคทา (ปลายด้าน +Y)
+		local tip = Instance.new("Attachment")
+		tip.Name = "StaffTip"
+		tip.Position = Vector3.new(0, big.Size.Y / 2 - 0.2, 0)
+		tip.Parent = big
+		local f = Instance.new("Fire")
+		f.Size, f.Heat = 1.6, 4
+		f.Color, f.SecondaryColor = Color3.fromRGB(255, 140, 40), Color3.fromRGB(255, 60, 20)
+		f.Parent = tip
+		local l = Instance.new("PointLight")
+		l.Color, l.Range, l.Brightness, l.Shadows = Color3.fromRGB(255, 130, 50), 14, 2, false
+		l.Parent = tip
+	end
 	if cfg.Fire then
 		-- ไฟที่ปลายคบ: ใส่ในชิ้นหัว (ชิ้นที่ไม่ใช่ด้าม) ถ้ามี · ไม่มีก็ใส่ที่ปลายด้านยาวของด้าม
 		local head
@@ -326,6 +341,15 @@ Shapes.Torch = function(tool)
 	local l = glow(head, C(255, 170, 90), Items.Tools.Torch.Light)
 	l.Shadows = true
 end
+Shapes.EmberStaff = function(tool)
+	local h = shaft(tool, 5.4, 0.35, C(70, 40, 30))
+	local orb = part(tool, "Orb", V(0.9, 0.9, 0.9), C(255, 130, 40), Enum.Material.Neon, "Ball")
+	attach(h, orb, CF(0, 3, 0))
+	local f = Instance.new("Fire")
+	f.Size, f.Heat = 1.6, 4
+	f.Parent = orb
+	glow(orb, C(255, 130, 50), 14)
+end
 Shapes.Bow = function(tool)
 	local h = shaft(tool, 1.2, 0.35, C(120, 86, 56))
 	for i = -1, 1, 2 do
@@ -409,12 +433,13 @@ local function buildSack(itemId)
 	local color = Items.SackColor[itemId]
 	local h = part(tool, "Handle", V(0.4, 1.2, 0.4), C(120, 90, 60), Enum.Material.Fabric)
 	if ItemModels.Has(itemId) then
-		-- โมเดลจาก Creator Store: ห้อยใต้มือ (Handle ใส)
+		-- โมเดลจาก Creator Store: มือกำหูกระเป๋า (ขอบบนอยู่ที่มือพอดี) ตัวกระเป๋าห้อยลง + ดึงเข้าหาตัว (Handle ใส)
+		--   ตอนถือ แขนยื่นไปหน้า -> แกน -Y ของ Handle = ลงพื้น · +Z = เข้าหาลำตัว
 		h.Transparency = 1
-		local src, box = ItemModels.Clone(itemId, 2.6 * s)
+		local src, box = ItemModels.Clone(itemId, 2 * s)
 		for _, p in ipairs(src:GetDescendants()) do
 			if p:IsA("BasePart") then
-				p.CFrame = h.CFrame * CF(0, -0.4 - box.Y / 2, 0) * p.CFrame
+				p.CFrame = h.CFrame * CF(0, -box.Y * 0.4, 0.45) * p.CFrame
 				p.Anchored, p.CanCollide, p.CanTouch, p.Massless = false, false, false, true
 				local w = Instance.new("WeldConstraint")
 				w.Part0, w.Part1 = h, p
@@ -425,7 +450,7 @@ local function buildSack(itemId)
 			c.Parent = tool
 		end
 		src:Destroy()
-		tool.GripPos = V(0, 0.3, 0)
+		tool.GripPos = V(0, 0, 0)
 		return tool
 	end
 	local body = part(tool, "Bag", V(2.2, 2.4, 2.2) * s, color, Enum.Material.Fabric, "Ball")
@@ -512,7 +537,7 @@ function ToolFactory.GripFor(tool, handle, kind, front, headOverride)
 		return CF(mid) * rot * ANG(0, math.pi / 2, 0)
 	end
 	local tail = mid - head * (len / 2)
-	local grip = tail + head * (len * (kind == "Spear" and 0.35 or 0.18))
+	local grip = tail + head * (len * ((kind == "Spear" or kind == "Staff") and 0.35 or 0.18))
 	if front then
 		local rot = headUp()
 		return CF(grip) * rot * faceForward(rot, front)
@@ -563,6 +588,40 @@ function ToolFactory.GripFor(tool, handle, kind, front, headOverride)
 		twist = faceForward(rot, blade)
 	end
 	return CF(grip) * rot * twist
+end
+
+-- ยา (ผ้าพันแผล/ชุดปฐมพยาบาล): ใส่โมเดลจริงจาก Store ให้ถือในมือ (Handle ใส อยู่กลางโมเดล)
+local MED_SIZE = { Bandage = 0.95, Medkit = 1.5, HerbSalve = 0.9 }
+function ToolFactory.DressMedical(tool, itemId)
+	if tool:FindFirstChild("Handle") then
+		return
+	end
+	tool.RequiresHandle = true
+	local h = part(tool, "Handle", V(0.4, 0.4, 0.4), C(240, 236, 220))
+	h.Transparency = 1
+	h.CanTouch, h.CanQuery = false, false
+	local src = ItemModels.Has(itemId) and ItemModels.Clone(itemId, MED_SIZE[itemId] or 1)
+	if src then
+		for _, p in ipairs(src:GetDescendants()) do
+			if p:IsA("BasePart") then
+				p.CFrame = h.CFrame * p.CFrame
+				p.Anchored, p.CanCollide, p.CanTouch, p.CanQuery, p.Massless = false, false, false, false, true
+				local w = Instance.new("WeldConstraint")
+				w.Part0, w.Part1 = h, p
+				w.Parent = p
+			end
+		end
+		for _, c in ipairs(src:GetChildren()) do
+			c.Parent = tool
+		end
+		src:Destroy()
+	else
+		h.Transparency = 0
+		h.Size = itemId == "Medkit" and V(1.3, 0.9, 0.5) or V(0.5, 0.8, 0.5)
+		h.Color = Items.Data[itemId] and Items.Data[itemId].Color or h.Color
+	end
+	-- มือกำกลางของ ดันออกหน้ามือเล็กน้อย
+	tool.Grip = CF(0, 0, -0.15)
 end
 
 function ToolFactory.Build(itemId)

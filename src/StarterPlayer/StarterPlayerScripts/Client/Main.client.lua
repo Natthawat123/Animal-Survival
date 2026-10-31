@@ -5,6 +5,18 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
+-- ปิดหลอดเลือด CoreGui ของ Roblox (เกมมีหลอดเลือดเอง) — ตัวนี้มีขอบจอแดงกะพริบทุกครั้งที่ Health ลด
+--   วาดทับทุกหน้าจอรวมถึงหน้าโหลด และเด้งตอนเกมปรับ Health/MaxHealth ตอนเกิด (ไม่ได้โดนตีจริง)
+task.spawn(function()
+	local StarterGui = game:GetService("StarterGui")
+	for _ = 1, 20 do
+		if pcall(StarterGui.SetCoreGuiEnabled, StarterGui, Enum.CoreGuiType.Health, false) then
+			break
+		end
+		task.wait(0.5)
+	end
+end)
+
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Remotes = require(Shared.Remotes)
 local state = ReplicatedStorage:WaitForChild("GameState")
@@ -38,11 +50,31 @@ local function safe(name, fn, ...)
 	end
 end
 
+-- ล็อกหน้าจอ (Shift Lock ของ Roblox) ใช้ปุ่ม Ctrl แทน Shift (Shift = วิ่ง)
+-- MouseLockController อ่านปุ่มจาก StringValue "BoundKeys" ข้างในตัวมัน และฟังตอนค่าเปลี่ยน
+task.spawn(function()
+	local pm = Client.Parent:WaitForChild("PlayerModule", 30)
+	local camMod = pm and pm:WaitForChild("CameraModule", 10)
+	local mlc = camMod and camMod:WaitForChild("MouseLockController", 10)
+	if not mlc then
+		warn("[AS] ไม่เจอ MouseLockController — ปุ่มล็อกหน้าจอยังเป็น Shift")
+		return
+	end
+	local keys = mlc:FindFirstChild("BoundKeys")
+	if not (keys and keys:IsA("StringValue")) then
+		keys = Instance.new("StringValue")
+		keys.Name = "BoundKeys"
+		keys.Parent = mlc
+	end
+	keys.Value = "LeftControl,RightControl"
+end)
+
 safe("Cinematics", Cinematics.Init, state)
 safe("HUD", HUD.Init, state)
 safe("Atmosphere", AtmosphereController.Init, state)
 safe("AmbientFX", AmbientFX.Init, state, AtmosphereController)
 safe("Animator", AnimalAnimator.Init)
+safe("MobBars", require(Client:WaitForChild("MobBars")).Init) -- หลอดเลือดบนหัวสัตว์/มอนทุกตัว
 safe("Skins", SkinStreamer.Init)
 safe("Combat", CombatClient.Init, state, HUD)
 safe("Menus", Menus.Init, state, HUD)
@@ -51,6 +83,7 @@ safe("FogWall", require(Client:WaitForChild("FogWall")).Init, state)
 safe("WorldEvents", require(Client:WaitForChild("WorldEventsClient")).Init, state, HUD, MapUI, CombatClient)
 safe("Dev", require(script.Parent:WaitForChild("DevPanel")).Init)
 safe("PadUI", require(Client:WaitForChild("PadUI")).Init)
+safe("Mount", require(Client:WaitForChild("MountClient")).Init) -- ขี่ลูกสัตว์ธาตุ: ท่านั่ง + ปุ่มลง
 safe("Death", DeathClient.Init)
 Cinematics.Death = DeathClient
 safe("Sound", SoundController.Init, state)
@@ -75,6 +108,7 @@ end
 safe("AutoTool", AutoTool.Init, CombatClient.Swing)
 safe("TeamPing", TeamPing.Init, state, HUD, MapUI, SoundController)
 safe("Rejoin", RejoinUI.Init)
+safe("MedAnim", require(Client:WaitForChild("MedAnim")).Init) -- ท่าพันแผล/ก้มช่วยเพื่อน + หลอดรอใช้ยา
 
 -- การตั้งค่า -> ระบบต่างๆ
 local function applySetting(key, value)
@@ -325,11 +359,36 @@ do
 		end)
 	end
 	-- F = เอาของออกจากกระสอบ (ชิ้นล่าสุด) · ยืนใกล้กองไฟ = โยนเข้ากองไฟ
+	--   ปุ่ม F ของพุ่มเบอร์รี่/หม้อตุ๋น (ProximityPrompt) ขึ้นอยู่ -> ไม่ทิ้งของ (กันเก็บแล้วทิ้งทันที)
+	local fPrompts = {}
+	local PPS = game:GetService("ProximityPromptService")
+	PPS.PromptShown:Connect(function(prompt)
+		if prompt.KeyboardKeyCode == Enum.KeyCode.F then
+			fPrompts[prompt] = true
+		end
+	end)
+	PPS.PromptHidden:Connect(function(prompt)
+		fPrompts[prompt] = nil
+	end)
+	local function fPromptUp()
+		for prompt in pairs(fPrompts) do
+			if prompt.Parent and prompt.Enabled then
+				return true
+			end
+			fPrompts[prompt] = nil
+		end
+		return false
+	end
 	game:GetService("UserInputService").InputBegan:Connect(function(input, gp)
+		-- Backspace = ทิ้งของที่ถืออยู่ในมือ (กระสอบ = ทิ้งชิ้นล่าสุดในกระสอบ)
+		if not gp and input.KeyCode == Enum.KeyCode.Backspace and player:GetAttribute("InRun") then
+			Remotes.Get("DropHeld"):FireServer()
+			return
+		end
 		if gp or input.KeyCode ~= Enum.KeyCode.F then
 			return
 		end
-		if holdingSack and player:GetAttribute("InRun") then
+		if holdingSack and player:GetAttribute("InRun") and not fPromptUp() then
 			Remotes.Get("DropItem"):FireServer(nil, 1)
 		end
 	end)
@@ -402,17 +461,31 @@ Remotes.Get("HitFx").OnClientEvent:Connect(function(kind, data)
 end)
 Remotes.Get("Profile").OnClientEvent:Connect(function(profile)
 	Menus.SetProfile(profile)
+	-- โหลดการตั้งค่าจากเซฟครั้งแรกที่ได้โปรไฟล์ (ครั้งต่อๆ ไปไม่ทับ เพราะค่าที่เพิ่งปรับอาจยังส่งไปไม่ถึงเซิร์ฟเวอร์)
+	if type(profile) == "table" and not ClientSettings.Loaded then
+		ClientSettings.Load(profile.Settings)
+	end
 end)
 
 -- หลังโหลดเสร็จ: เปิดหน้าเลือกคลาสครั้งแรก
 Cinematics.OnLoaded = function()
 	task.spawn(function()
-		local ok, profile = pcall(function()
-			return Remotes.Get("GetProfile"):InvokeServer()
-		end)
+		-- เซฟของผู้เล่นอาจยังโหลดไม่เสร็จตอนเข้าเกม (DataStore ช้า) -> ลองขอซ้ำ ไม่งั้นการตั้งค่าจะเป็นค่าเริ่มต้น
+		local ok, profile
+		for _ = 1, 10 do
+			ok, profile = pcall(function()
+				return Remotes.Get("GetProfile"):InvokeServer()
+			end)
+			if ok and profile then
+				break
+			end
+			task.wait(1)
+		end
 		if ok and profile then
 			Menus.SetProfile(profile)
-			ClientSettings.Load(profile.Settings)
+			if not ClientSettings.Loaded then
+				ClientSettings.Load(profile.Settings)
+			end
 			-- ครั้งแรก: หน้าสอนเล่นแบบช่องการ์ตูน
 			if not profile.TutorialSeen and not ReplicatedStorage:FindFirstChild("ASAutoTest") then
 				task.wait(0.6)

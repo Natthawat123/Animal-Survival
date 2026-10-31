@@ -11,6 +11,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Quests = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Quests"))
+local Classes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Classes"))
 
 local SeasonService = {}
 
@@ -127,9 +128,31 @@ function SeasonService:GrantCosmetics(player, reward)
 	end
 end
 
+-- คลาส (สูงสุด 4 ดาว) · มีอยู่แล้ว -> Ruby ชดเชยครึ่งราคา
+function SeasonService:GrantClass(player, classId, reason)
+	local data = ds(self):Get(player)
+	local c = Classes.Data[classId]
+	if not (data and c) then
+		return
+	end
+	data.Owned = type(data.Owned) == "table" and data.Owned or {}
+	if data.Owned[classId] then
+		local refund = Quests.ClassRefund(classId)
+		self.ctx.Notify(player, string.format("มีคลาส %s แล้ว — ได้ %d Ruby แทน", c.Thai, refund), "Reward")
+		ds(self):AddDiamonds(player, refund, reason)
+		return
+	end
+	data.Owned[classId] = true
+	self.ctx.Notify(player, c.Icon .. " ปลดล็อกคลาส " .. c.Thai .. " จาก Season Pass!", "Reward")
+	ds(self):Push(player)
+end
+
 local function grant(self, player, reward, reason)
 	if (reward.Ruby or 0) > 0 then
 		ds(self):AddDiamonds(player, reward.Ruby, reason)
+	end
+	if reward.Class then
+		self:GrantClass(player, reward.Class, reason)
 	end
 	if reward.Title or reward.Color then
 		self:GrantCosmetics(player, reward)
