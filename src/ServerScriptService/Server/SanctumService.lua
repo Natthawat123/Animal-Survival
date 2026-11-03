@@ -21,7 +21,7 @@ local SiteSpec = require(ReplicatedStorage.Shared.SiteSpec)
 local SanctumService = {}
 
 local ELEMENTS = { "Earth", "Water", "Air", "Fire" }
-local THAI = { Earth = "ปฐพี", Water = "วารี", Air = "วายุ", Fire = "อัคคี" }
+local THAI = { Earth = "Earth", Water = "Water", Air = "Frost", Fire = "Fire" }
 local COLOR = {
 	Earth = Color3.fromRGB(120, 245, 90), Water = Color3.fromRGB(70, 210, 255),
 	Air = Color3.fromRGB(110, 190, 255), Fire = Color3.fromRGB(255, 110, 30),
@@ -29,8 +29,8 @@ local COLOR = {
 local ESSENCE = { Earth = "TerraCore", Water = "TidePearl", Air = "GaleFeather", Fire = "EmberShard" }
 local HEART = { Earth = "TerraHeart", Water = "TideHeart", Air = "FrostHeart", Fire = "EmberHeart" }
 local AURA_TEXT = {
-	Earth = "ออร่าปฐพี: เลือดสูงสุด +15%", Water = "ออร่าวารี: หิวช้าลง 15%",
-	Air = "ออร่าน้ำแข็ง: สตามิน่าลดช้าลง 15%", Fire = "ออร่าอัคคี: ดาเมจ +15%",
+	Earth = "Earth Aura: Max HP +15%", Water = "Water Aura: Hunger 15% slower",
+	Air = "Frost Aura: Stamina drains 15% slower", Fire = "Fire Aura: Damage +15%",
 }
 local TIME_LIMIT = 30
 local SHOW_RANGE = 75 -- ผู้เล่นเข้าใกล้ลานเท่านี้ = เสากะพริบบอกลำดับ
@@ -96,7 +96,7 @@ function SanctumService:Build(el, sp, src, parent)
 	local cf = (flat - pos).Magnitude > 1 and CFrame.lookAt(pos, flat) or CFrame.new(pos)
 	m:PivotTo(cf)
 	-- ประตูมิติบนพื้น -> ห้องในปราสาทบนฟ้า: ปริศนาเสารูน + หีบ อยู่บนพื้นหินเรียบในห้อง (ไม่ลอย/ไม่จม)
-	local temple = PropBuilder.BuildRealm(cf, el, m, "วิหาร" .. THAI[el], "เข้าวิหาร", "Sanctum")
+	local temple = PropBuilder.BuildRealm(cf, el, m, THAI[el] .. " Sanctum", "Enter Sanctum", "Sanctum")
 	local roomTop = temple:GetAttribute("FloorTop") or PropBuilder.RealmY + 0.5
 	-- กรอบในห้อง: แนวเดียวกับประตูข้างนอก (-Z = ฝั่งที่คนเข้ามา)
 	cf = CFrame.new(cf.Position.X, roomTop, cf.Position.Z) * (cf - cf.Position)
@@ -295,8 +295,8 @@ function SanctumService:Build(el, sp, src, parent)
 				o.Light = light(o.Activator, col, 22, 2.5, false)
 				local prompt = Instance.new("ProximityPrompt")
 				prompt.Name = "Wake"
-				prompt.ActionText = "ปลุกเสารูน"
-				prompt.ObjectText = "เสารูนโบราณ"
+				prompt.ActionText = "Awaken Rune Pillar"
+				prompt.ObjectText = "Ancient Rune Pillar"
 				prompt.HoldDuration = 0.4
 				prompt.MaxActivationDistance = 13
 				prompt.RequiresLineOfSight = false
@@ -358,11 +358,29 @@ function SanctumService:Build(el, sp, src, parent)
 	local chest = m:FindFirstChild("VaultChest")
 	local body = chest and chest:FindFirstChild("ChestBody")
 	if body then
+		-- โมเดลกล่องตำนาน (Props/Chest3) แทนหีบเดิม: ซ่อนชิ้นเดิม (ตัวหีบยังเป็นจุดกด/ที่วางของ)
+		local PropBuilder = require(game:GetService("ReplicatedStorage").Shared.PropBuilder)
+		local base = body.CFrame * CFrame.new(0, -body.Size.Y / 2, 0)
+		local gold = PropBuilder.Imported("Chest3", CFrame.new(base.Position) * body.CFrame.Rotation, math.max(body.Size.X, body.Size.Z) * 1.25, chest, true)
+		if gold then
+			gold.Name = "Chest3Visual"
+			for _, d in ipairs(chest:GetDescendants()) do
+				if d:IsA("BasePart") and not d:IsDescendantOf(gold) then
+					d.Transparency = 1
+					if d ~= body then
+						d.CanCollide = false
+					end
+				elseif (d:IsA("Decal") or d:IsA("Texture")) and not d:IsDescendantOf(gold) then
+					d.Transparency = 1
+				end
+			end
+			site.Lid = {}
+		end
 		site.ChestBody = body
 		local prompt = Instance.new("ProximityPrompt")
 		prompt.Name = "OpenVault"
-		prompt.ActionText = "เปิดหีบศักดิ์สิทธิ์"
-		prompt.ObjectText = "หีบแห่งวิหาร" .. THAI[el]
+		prompt.ActionText = "Open Sacred Chest"
+		prompt.ObjectText = THAI[el] .. " Sanctum Chest"
 		prompt.HoldDuration = 1.2
 		prompt.MaxActivationDistance = 11
 		prompt.RequiresLineOfSight = false
@@ -514,7 +532,7 @@ function SanctumService:Activate(site, idx, player)
 	end
 	site.Helpers[player] = true
 	if site.State == "Showing" or site.State == "Failing" then
-		self.ctx.Notify(player, "👁 รอให้เสารูนกะพริบบอกลำดับให้ครบก่อน", "Info")
+		self.ctx.Notify(player, "👁 Wait for the rune pillars to finish flashing the order first", "Info")
 		return
 	end
 	if site.State ~= "Input" then
@@ -522,7 +540,7 @@ function SanctumService:Activate(site, idx, player)
 		site.Progress = 0
 		site.Deadline = os.clock() + TIME_LIMIT
 		self.ctx.State:SetAttribute("Sanctum" .. site.Element .. "Deadline", Workspace:GetServerTimeNow() + TIME_LIMIT)
-		self:Tell(site, string.format("⏳ วิหาร%sตื่นแล้ว! ปลุกเสารูนให้ครบตามลำดับภายใน %d วินาที", THAI[site.Element], TIME_LIMIT), "Warn")
+		self:Tell(site, string.format("⏳ The %s Sanctum has awakened! Awaken the rune pillars in order within %d seconds", THAI[site.Element], TIME_LIMIT), "Warn")
 		self:SpawnGuardians(site)
 	end
 	if site.Order[site.Progress + 1] == idx then
@@ -536,10 +554,10 @@ function SanctumService:Activate(site, idx, player)
 		if site.Progress >= #site.Order then
 			self:Solve(site, player)
 		else
-			self:Tell(site, string.format("✨ เสารูนต้นที่ %d/%d ตื่นแล้ว", site.Progress, #site.Order), "Good", 120)
+			self:Tell(site, string.format("✨ Rune pillar %d/%d awakened", site.Progress, #site.Order), "Good", 120)
 		end
 	else
-		self:Fail(site, "❌ ลำดับผิด! พลังผนึกดีดกลับ — ดูแสงกะพริบอีกครั้ง")
+		self:Fail(site, "❌ Wrong order! The seal pushed back — watch the flashing lights again")
 	end
 end
 
@@ -695,6 +713,10 @@ function SanctumService:OpenChest(site, player)
 	end
 	give("Iron", rng:NextInteger(3, 5))
 	give("Medkit", 1)
+	-- ลงวิหารได้ครั้งเดียว: ของระดับ 3 (อาวุธตำนาน 1 ชิ้น + ของเสริม) เหมือนกล่องตำนาน
+	for id, n in pairs(ctx.Services.LootService:GiveTierLoot(3, pos, rng)) do
+		got[id] = (got[id] or 0) + n
+	end
 	if rng:NextNumber() < 0.2 then
 		give(HEART[el], 1)
 	end
@@ -703,12 +725,12 @@ function SanctumService:OpenChest(site, player)
 	local surv = ctx.Services.SurvivalService
 	for p in pairs(site.Helpers) do
 		if p.Parent and p:GetAttribute("InRun") and surv:GiveAura(p, el) then
-			ctx.Notify(p, "✨ ได้รับ" .. AURA_TEXT[el] .. " (ติดตัวทั้งรอบ)", "Reward")
+			ctx.Notify(p, "✨ Gained " .. AURA_TEXT[el] .. " (lasts the whole run)", "Reward")
 		end
 	end
-	ctx.Broadcast(string.format("เคลียร์วิหาร%s · ได้%s", THAI[el], AURA_TEXT[el]), "Reward")
+	ctx.Broadcast(string.format("Cleared the %s Sanctum · Got %s", THAI[el], AURA_TEXT[el]), "Reward")
 	for _, p in ipairs(self:NearbyPlayers(site, 70)) do
-		ctx.Services.DataService:AddDiamonds(p, rng:NextInteger(5, 8), "วิหารโบราณ" .. THAI[el])
+		ctx.Services.DataService:AddDiamonds(p, rng:NextInteger(5, 8), "Ancient Sanctum: " .. THAI[el])
 	end
 	task.spawn(self.SealAfterClear, self, site)
 	ctx.Remotes.Get("HitFx"):FireClient(player, "Loot", { Items = got, Position = pos, Chest = true })
@@ -735,7 +757,7 @@ function SanctumService:SealPortal(site)
 	if veil then
 		veil:SetAttribute("Sealed", true)
 		site.PortalAction = site.PortalAction or prompt.ActionText
-		prompt.ActionText = "ปิดผนึกแล้ว"
+		prompt.ActionText = "Sealed"
 	end
 end
 
@@ -773,7 +795,7 @@ function SanctumService:SealAfterClear(site)
 		return
 	end
 	self:SealPortal(site)
-	self.ctx.Broadcast(string.format("วิหาร%sปิดผนึกแล้ว", THAI[site.Element]), "Info")
+	self.ctx.Broadcast(string.format("The %s Sanctum is now sealed", THAI[site.Element]), "Info")
 end
 
 ---------------------------------------------------------------- รีเซ็ต (รอบใหม่)
@@ -843,12 +865,12 @@ function SanctumService:Tick()
 	local now = os.clock()
 	for _, site in pairs(self.sites) do
 		if site.State == "Input" and now > (site.Deadline or 0) then
-			self:Fail(site, "⌛ หมดเวลา! เสารูนกลับไปหลับ — ดูลำดับใหม่อีกครั้ง")
+			self:Fail(site, "⌛ Time's up! The rune pillars went back to sleep — watch the order again")
 		elseif (site.State == "Idle" or site.State == "Ready") and now >= site.NextShow then
 			if #self:NearbyPlayers(site, SHOW_RANGE) > 0 then
 				if not site.Announced then
 					site.Announced = true
-					self:Tell(site, "👁 จดจำลำดับเสารูนที่กะพริบ แล้วปลุกให้ถูกลำดับ!", "Info", SHOW_RANGE + 20)
+					self:Tell(site, "👁 Memorize the order the rune pillars flash, then awaken them in that order!", "Info", SHOW_RANGE + 20)
 				end
 				self:ShowSequence(site)
 			end

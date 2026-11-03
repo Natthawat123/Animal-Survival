@@ -24,7 +24,7 @@ function MountClient.Init()
 	local function dismount()
 		Remotes.Get("Dismount"):FireServer()
 	end
-	WoodKit.Button(holder, "Red", { Size = UDim2.fromScale(1, 1), Text = "ลงจากหลัง [X]", TextSize = 24 }, dismount)
+	WoodKit.Button(holder, "Red", { Size = UDim2.fromScale(1, 1), Text = "Dismount [X]", TextSize = 24 }, dismount)
 
 	local track
 	local function stopSit()

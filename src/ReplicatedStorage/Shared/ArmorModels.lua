@@ -131,7 +131,7 @@ local function applyLayered(hum, aid)
 			end
 		end)
 		if not ok then
-			warn("[ArmorModels] ใส่เสื้อเกราะไม่สำเร็จ: " .. tostring(err))
+			warn("[ArmorModels] Failed to equip armor: " .. tostring(err))
 		end
 	end)
 end

@@ -20,7 +20,7 @@ local Nights = require(ReplicatedStorage.Shared.Nights)
 local EventService = {}
 
 local ELEMENTS = { "Earth", "Water", "Air", "Fire" }
-local THAI = { Earth = "ปฐพี", Water = "วารี", Air = "วายุ", Fire = "อัคคี" }
+local THAI = { Earth = "Earth", Water = "Water", Air = "Frost", Fire = "Fire" }
 local COLOR = {
 	Earth = Color3.fromRGB(120, 245, 90), Water = Color3.fromRGB(70, 210, 255),
 	Air = Color3.fromRGB(150, 210, 255), Fire = Color3.fromRGB(255, 110, 30),
@@ -397,7 +397,7 @@ function EventService:Meteor(token)
 
 		local prompt = Instance.new("ProximityPrompt")
 		prompt.Name = "Claim"
-		prompt.ActionText = "ขุดแกนอุกกาบาต"
+		prompt.ActionText = "Mine Meteor Core"
 		prompt.HoldDuration = 2.5
 		prompt.MaxActivationDistance = 15
 		prompt.RequiresLineOfSight = false
@@ -413,7 +413,7 @@ function EventService:Meteor(token)
 		end
 		local function refresh()
 			local left = guardsLeft()
-			prompt.ObjectText = left > 0 and string.format("ผู้พิทักษ์เหลือ %d ตัว", left) or ("อุกกาบาตธาตุ" .. THAI[el])
+			prompt.ObjectText = left > 0 and string.format("%d guardians left", left) or (THAI[el] .. " Element Meteor")
 			prompt.Enabled = left == 0 and not claimed
 		end
 		refresh()
@@ -435,7 +435,7 @@ function EventService:Meteor(token)
 					local k = self.rng:NextInteger(2, 3)
 					k = drops:SpawnLoot(ESSENCE[el], k, core.Position, { Spread = 4 })
 					got[ESSENCE[el]] = (got[ESSENCE[el]] or 0) + k
-					ctx.Services.DataService:AddDiamonds(p, self.rng:NextInteger(2, 5), "อุกกาบาตธาตุ")
+					ctx.Services.DataService:AddDiamonds(p, self.rng:NextInteger(2, 5), "Element Meteor")
 				end
 			end
 			if self.rng:NextNumber() < 0.22 then
@@ -445,7 +445,7 @@ function EventService:Meteor(token)
 			end
 			ctx.Remotes.Get("HitFx"):FireClient(player, "Loot", { Items = got, Position = core.Position, Chest = true })
 			ctx.FireRun("WorldEvent", "MeteorClaimed", { Position = core.Position, Element = el })
-			ctx.Broadcast(string.format("%s ขุดแกนอุกกาบาต%sได้", player.DisplayName, THAI[el]), "Good")
+			ctx.Broadcast(string.format("%s mined the %s meteor core!", player.DisplayName, THAI[el]), "Good")
 			ctx.State:SetAttribute("Event_Meteor", nil)
 			-- แกนแตก
 			for _, s in ipairs(shards) do
@@ -602,6 +602,20 @@ function EventService:Supply(token)
 		P(chute, { Size = V(0.15, 0.15, (top.Position - bot.Position).Magnitude), CFrame = CFrame.lookAt(mid, bot.Position), Color = Color3.fromRGB(220, 220, 210), Material = Enum.Material.Fabric, CanCollide = false })
 	end
 	chute.Parent = model
+	-- โมเดลกล่องแอร์ดรอปใหม่ (Import 3D): ใช้แทนกล่องไม้ปั้นเอง · ตัวกล่องเดิมซ่อนไว้เป็นจุดชน/จุดกด
+	do
+		local PropBuilder = require(game:GetService("ReplicatedStorage").Shared.PropBuilder)
+		local crate = PropBuilder.Imported("AirdropCrate", landCF * CF(0, -1.75, 0), 5.2, model, false)
+		if crate then
+			for _, d in ipairs(model:GetChildren()) do
+				if d:IsA("BasePart") and d ~= flare then
+					d.Transparency = 1
+				end
+			end
+			flare.Transparency = 0
+			flare.CFrame = landCF * CF(1.9, 2.6, 1.9)
+		end
+	end
 	local smoke = Instance.new("ParticleEmitter")
 	smoke.Texture = "rbxasset://textures/particles/smoke_main.dds"
 	smoke.Rate = 9
@@ -662,8 +676,8 @@ function EventService:Supply(token)
 		end)
 		local prompt = Instance.new("ProximityPrompt")
 		prompt.Name = "OpenSupply"
-		prompt.ActionText = "เปิดหีบเสบียง"
-		prompt.ObjectText = "หีบเสบียง"
+		prompt.ActionText = "Open Supply Chest"
+		prompt.ObjectText = "Supply Chest"
 		prompt.HoldDuration = 1.5
 		prompt.MaxActivationDistance = 12
 		prompt.RequiresLineOfSight = false
@@ -690,9 +704,9 @@ function EventService:Supply(token)
 			give("Iron", rng:NextInteger(5, 6))
 			give("Coal", rng:NextInteger(4, 5))
 			give(ESSENCE[ELEMENTS[rng:NextInteger(1, 4)]], 1)
-			ctx.Services.DataService:AddDiamonds(player, rng:NextInteger(2, 3), "หีบเสบียง")
+			ctx.Services.DataService:AddDiamonds(player, rng:NextInteger(2, 3), "Supply Chest")
 			ctx.Remotes.Get("HitFx"):FireClient(player, "Loot", { Items = got, Position = pos, Chest = true })
-			ctx.Broadcast(string.format("%s เปิดหีบเสบียงแล้ว", player.DisplayName), "Good")
+			ctx.Broadcast(string.format("%s opened the supply chest", player.DisplayName), "Good")
 			ctx.State:SetAttribute("Event_Supply", nil)
 			task.delay(6, function()
 				smoke.Enabled = false

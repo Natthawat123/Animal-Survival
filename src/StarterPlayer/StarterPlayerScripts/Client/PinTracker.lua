@@ -126,7 +126,7 @@ function PinTracker.Refresh()
 	end
 	ui.Title.Text = "📌 " .. Items.DisplayName(r.Id)
 	ui.Title.TextColor3 = can and GOOD or C.Gold
-	ui.Status.Text = can and "คราฟต์ได้แล้ว! (ไปที่แคมป์ กด C)" or "ยังขาดวัตถุดิบ"
+	ui.Status.Text = can and "Ready to craft! (go to camp, press C)" or "Still missing materials"
 	ui.Status.TextColor3 = can and GOOD or C.TextDim
 	ui.Stroke.Color = can and GOOD or C.GoldDim
 	ui.Card.BackgroundColor3 = can and Color3.fromRGB(30, 70, 46) or Color3.fromRGB(26, 28, 50)

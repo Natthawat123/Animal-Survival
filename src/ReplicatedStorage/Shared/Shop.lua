@@ -7,12 +7,12 @@
 local Shop = {}
 
 Shop.Kits = {
-	{ Id = "Medic", Name = "ชุดปฐมพยาบาล", Icon = "🩹", Price = 8, Items = { Bandage = 3, Medkit = 1 }, Desc = "ผ้าพันแผล 3 + ชุดปฐมพยาบาล 1" },
-	{ Id = "Builder", Name = "ชุดช่างไม้", Icon = "🔨", Price = 10, Items = { Wood = 40, Stone = 20, LogWall = 2 }, Desc = "ไม้ 40 หิน 20 กำแพงไม้ 2" },
-	{ Id = "Hunter", Name = "ชุดนายพราน", Icon = "🏹", Price = 15, Items = { Bow = 1, CookedMeat = 4 }, Desc = "ธนูนายพราน + เนื้อย่าง 4" },
-	{ Id = "Fire", Name = "ชุดผู้เฝ้าไฟ", Icon = "🔥", Price = 12, Items = { Coal = 8, Torch = 1, Lantern = 1 }, Desc = "ถ่านหิน 8 คบเพลิง ตะเกียง" },
-	{ Id = "Warrior", Name = "ชุดนักรบ", Icon = "⚔", Price = 25, Items = { Spear = 1, IronAxe = 1 }, Desc = "หอกกระดูก + ขวานเหล็ก" },
-	{ Id = "Elemental", Name = "ชุดผู้ตื่นรู้ธาตุ", Icon = "🔮", Price = 40, Items = { TerraCore = 2, TidePearl = 2, GaleFeather = 2, EmberShard = 2 }, Desc = "แก่นธาตุอย่างละ 2" },
+	{ Id = "Medic", Name = "First Aid Kit", Icon = "🩹", Price = 8, Items = { Bandage = 3, Medkit = 1 }, Desc = "3 Bandages + 1 First Aid Kit" },
+	{ Id = "Builder", Name = "Carpenter Kit", Icon = "🔨", Price = 10, Items = { Wood = 40, Stone = 20, LogWall = 2 }, Desc = "40 Wood, 20 Stone, 2 Wood Walls" },
+	{ Id = "Hunter", Name = "Hunter Kit", Icon = "🏹", Price = 15, Items = { Bow = 1, CookedMeat = 4 }, Desc = "Hunter's Bow + 4 Cooked Meat" },
+	{ Id = "Fire", Name = "Flamekeeper Kit", Icon = "🔥", Price = 12, Items = { Coal = 8, Torch = 1, Lantern = 1 }, Desc = "8 Coal, Torch, Lantern" },
+	{ Id = "Warrior", Name = "Warrior Kit", Icon = "⚔", Price = 25, Items = { Spear = 1, IronAxe = 1 }, Desc = "Bone Spear + Iron Axe" },
+	{ Id = "Elemental", Name = "Awakened Element Kit", Icon = "🔮", Price = 40, Items = { TerraCore = 2, TidePearl = 2, GaleFeather = 2, EmberShard = 2 }, Desc = "2 of each element essence" },
 }
 Shop.KitById = {}
 for _, k in ipairs(Shop.Kits) do

@@ -19,7 +19,7 @@ end
 function MountService:AddPet(a)
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = "Ride"
-	prompt.ActionText = "ขี่"
+	prompt.ActionText = "Ride"
 	prompt.ObjectText = a.Info.Thai
 	prompt.HoldDuration = 0.3
 	prompt.MaxActivationDistance = 12
@@ -49,7 +49,9 @@ function MountService:Mount(player, a)
 	local model = a.Model
 	local bcf, size = model:GetBoundingBox()
 	local rootUp = a.Root.Position.Y - (bcf.Position.Y - size.Y / 2) -- root สูงจากเท้าสัตว์เท่าไร
-	local back = size.Y * 0.72 -- ความสูงหลังสัตว์ (ที่นั่ง)
+	-- ความสูงหลังสัตว์ (ที่นั่ง) · โมเดลเมชเดียว (ผิว+กระดูก) ตั้ง Skin.Back = สัดส่วนความสูงตัว (หูยาว/หัวโต ไม่ใช่หลัง)
+	local skinSpec = a.Info.Model and a.Info.Model.Skin
+	local back = size.Y * (skinSpec and skinSpec.Back or 0.72)
 	local body = model:FindFirstChild("Body")
 	if body and body:IsA("BasePart") then
 		-- นั่งบนหลังจริง (ไม่ใช่ยอดปีก/เขา): ขอบบนของลำตัว

@@ -21,9 +21,9 @@ local C = UIKit.Colors
 local ELEMENTS = { "Earth", "Water", "Air", "Fire" }
 local THAI = UIKit.ElementThai
 local EVENTS = {
-	{ Kind = "Meteor", Icon = "☄", Color = Color3.fromRGB(255, 170, 80), Name = "อุกกาบาต" },
-	{ Kind = "Migration", Icon = "🦌", Color = Color3.fromRGB(230, 200, 140), Name = "ฝูงสัตว์อพยพ" },
-	{ Kind = "Supply", Icon = "📦", Color = Color3.fromRGB(255, 90, 70), Name = "หีบเสบียง" },
+	{ Kind = "Meteor", Icon = "☄", Color = Color3.fromRGB(255, 170, 80), Name = "Meteor" },
+	{ Kind = "Migration", Icon = "🦌", Color = Color3.fromRGB(230, 200, 140), Name = "Animal Migration" },
+	{ Kind = "Supply", Icon = "📦", Color = Color3.fromRGB(255, 90, 70), Name = "Supply Chest" },
 }
 
 local fxFolder
@@ -274,7 +274,7 @@ local function updatePins(state)
 			end
 			pin.Holder.Position = pos
 			local dist = (me - pos).Magnitude
-			pin.Label.Text = string.format("%s %s\n%d ม.", ev.Icon, ev.Name, math.floor(dist / 3.5))
+			pin.Label.Text = string.format("%s %s\n%d m", ev.Icon, ev.Name, math.floor(dist / 3.5))
 			pin.Holder.Parent = dist > 45 and folder() or nil
 		elseif pin then
 			pin.Holder:Destroy()
@@ -295,7 +295,7 @@ function WorldEventsClient.Init(state, hud, mapUI, combat)
 		local ok, err = pcall(function()
 			if kind == "Meteor" then
 				local col = C.Element[d.Element] or C.Fire
-				Cinematics.Banner("METEOR STRIKE", string.format("อุกกาบาตธาตุ%sตก · ไปขุดแกนผลึก", THAI[d.Element] or ""), col, 3.5, { Size = 58, Y = 0.2 })
+				Cinematics.Banner("METEOR STRIKE", string.format("A %s element meteor fell · Go mine its crystal core", THAI[d.Element] or ""), col, 3.5, { Size = 58, Y = 0.2 })
 				meteor(d, combat)
 			elseif kind == "MeteorClaimed" then
 				local col = C.Element[d.Element] or C.Gold
@@ -306,12 +306,12 @@ function WorldEventsClient.Init(state, hud, mapUI, combat)
 				end)
 				sound3d(d.Position, "rbxasset://sounds/volume_slider.ogg", 1.5, 1.4, 300)
 			elseif kind == "Migration" then
-				Cinematics.Banner("THE GREAT MIGRATION", "ฝูงสัตว์เดินผ่านใกล้แคมป์", Color3.fromRGB(230, 200, 140), 3.5, { Size = 54, Y = 0.2 })
+				Cinematics.Banner("THE GREAT MIGRATION", "An animal herd is passing near camp", Color3.fromRGB(230, 200, 140), 3.5, { Size = 54, Y = 0.2 })
 			elseif kind == "Supply" then
-				Cinematics.Banner("SUPPLY DROP", "มองหาควันสีแดง", Color3.fromRGB(255, 110, 80), 3.5, { Size = 58, Y = 0.2 })
+				Cinematics.Banner("SUPPLY DROP", "Look for the red smoke", Color3.fromRGB(255, 110, 80), 3.5, { Size = 58, Y = 0.2 })
 			elseif kind == "SanctumOpened" then
 				local col = C.Element[d.Element] or C.Gold
-				Cinematics.Banner("SEAL BROKEN", string.format("วิหาร%sเปิดแล้ว", THAI[d.Element] or ""), col, 4, { Size = 64 })
+				Cinematics.Banner("SEAL BROKEN", string.format("The %s Sanctum is open", THAI[d.Element] or ""), col, 4, { Size = 64 })
 				local me = myPos()
 				if me and d.Position and (me - d.Position).Magnitude < 250 and combat and combat.Shake then
 					combat.Shake(0.6, 2.5)
@@ -374,19 +374,19 @@ function WorldEventsClient.Init(state, hud, mapUI, combat)
 							if discovered and not discovered[key] and dist < 320 then
 								discovered[key] = true
 								if hud.Notify then
-									hud.Notify("🗺 ค้นพบ: วิหารโบราณแห่ง" .. (THAI[el] or ""), "Reward")
+									hud.Notify("🗺 Discovered: Ancient Sanctum of " .. (THAI[el] or ""), "Reward")
 								end
 							end
 							if dist < 140 and not hinted[el] then
 								hinted[el] = true
 								local solved = state:GetAttribute("Sanctum" .. el .. "Solved")
-								Cinematics.Banner("ANCIENT SANCTUM", solved and ("วิหาร" .. THAI[el] .. " · คลายผนึกแล้ว")
-									or ("วิหาร" .. THAI[el] .. " · ปลุกเสารูนตามลำดับแสง"), C.Element[el], 4.5, { Size = 60, Y = 0.2 })
+								Cinematics.Banner("ANCIENT SANCTUM", solved and (THAI[el] .. " Sanctum · Unsealed")
+									or (THAI[el] .. " Sanctum · Awaken the rune pillars in the order of the lights"), C.Element[el], 4.5, { Size = 60, Y = 0.2 })
 							end
 							local deadline = state:GetAttribute("Sanctum" .. el .. "Deadline")
 							if deadline and dist < 160 then
 								local left = math.max(0, deadline - Workspace:GetServerTimeNow())
-								timer.Text = string.format("⏳ ปลุกเสารูนให้ครบ: %d วินาที", math.ceil(left))
+								timer.Text = string.format("⏳ Awaken all the rune pillars: %d seconds", math.ceil(left))
 								timer.TextColor3 = left < 8 and Color3.fromRGB(255, 90, 80) or (C.Element[el] or C.Gold)
 								showTimer = true
 							end

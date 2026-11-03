@@ -436,9 +436,9 @@ Handlers.Hit = function(d)
 	end
 	floatText(d.Position + Vector3.new(0, 3, 0), text, color, d.Crit and 30 or 22)
 	if d.Mult and d.Mult > 1.1 then
-		floatText(d.Position + Vector3.new(0, 5, 0), "แพ้ทางธาตุ!", Color3.fromRGB(120, 255, 140), 18, 6)
+		floatText(d.Position + Vector3.new(0, 5, 0), "Element weakness!", Color3.fromRGB(120, 255, 140), 18, 6)
 	elseif d.Mult and d.Mult < 0.9 then
-		floatText(d.Position + Vector3.new(0, 5, 0), "ต้านทาน", Color3.fromRGB(170, 170, 180), 16, 6)
+		floatText(d.Position + Vector3.new(0, 5, 0), "Resisted", Color3.fromRGB(170, 170, 180), 16, 6)
 	end
 	burst(d.Position, Color3.fromRGB(255, 230, 200), 8, 18, 0.4)
 	CombatClient.Sound("Flesh", d.Position, 0.5, 0.9 + math.random() * 0.2)
@@ -594,7 +594,7 @@ Handlers.Vanish = function(d)
 	smoke(d.Position, Color3.fromRGB(30, 30, 36), 14, 6)
 end
 Handlers.Immune = function(d)
-	floatText(d.Position, "ฆ่าไม่ตาย... ใช้แสงไฟไล่!", Color3.fromRGB(200, 200, 220), 20, 5)
+	floatText(d.Position, "Can't be killed... drive it off with light!", Color3.fromRGB(200, 200, 220), 20, 5)
 end
 -- ขอบจอมืดแวบ (ความหลอน ไม่ใช่เจ็บ — สีแดงสงวนไว้ให้ดาเมจ/เลือดต่ำ)
 local dread
@@ -923,7 +923,7 @@ function CombatClient.Init(state, hud)
 	local touchOnly = UIKit.IsTouch
 	ContextActionService:BindAction("ASSprint", sprintAction, not touchOnly, Enum.KeyCode.LeftShift, Enum.KeyCode.ButtonL3)
 	if not touchOnly then
-		ContextActionService:SetTitle("ASSprint", "วิ่ง")
+		ContextActionService:SetTitle("ASSprint", "Sprint")
 		ContextActionService:SetPosition("ASSprint", UDim2.new(1, -170, 1, -170))
 	end
 

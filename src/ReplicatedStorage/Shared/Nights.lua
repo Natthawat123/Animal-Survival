@@ -1,7 +1,7 @@
 --[[
 	Nights — ผู้กำกับฝูงบุก 99 คืน
 	- ทุกคืนสุ่ม "ธาตุประจำคืน" (สัตว์ธาตุนั้นบุก)
-	- ฝูงบุกทุกคืน: คืนธรรมดา = ฝูงเล็ก · ทุก 5 คืน + คืน 99 = คืนบุกใหญ่ (คืนยิ่งสูง มอนยิ่งเยอะ ดู Nights.MaxCount)
+	- ฝูงบุกเฉพาะคืนบุกใหญ่: ทุก 5 คืน + คืน 99 (คืนยิ่งสูง มอนยิ่งเยอะ ดู Nights.MaxCount) · คืนอื่นสงบ
 	- ทุก 10 คืน = พระจันทร์เลือด (คืน 10 = ครั้งแรก: 2-3 ธาตุ งบ x1.25 · คืน 20 ขึ้นไป: ทุกธาตุ งบ x1.5)
 	- งบฝูงบุกคูณตามจำนวนคนที่ยังรอดในรอบ: x(0.7 + 0.3 × คน) (1 คน = x1.0) · เลือดบอส x(1 + 0.25 × (คน − 1))
 	- คืน 25 / 50 / 75 / 99 = บอสธาตุบุกฐาน
@@ -36,12 +36,12 @@ end
 
 -- คืนพิเศษที่มีชื่อ
 Nights.Named = {
-	[1] = "คืนแรกในป่า",
-	[10] = "พระจันทร์เลือดครั้งแรก",
-	[25] = "ภูผาเดินได้",
-	[50] = "มารดาแห่งกระแสน้ำ",
-	[75] = "มงกุฎแห่งพายุ",
-	[99] = "ราตรีสุดท้าย",
+	[1] = "First Night in the Woods",
+	[10] = "First Blood Moon",
+	[25] = "The Walking Mountain",
+	[50] = "Mother of the Tides",
+	[75] = "Crown of Storms",
+	[99] = "The Final Night",
 }
 
 function Nights.IsBloodMoon(night)
@@ -105,23 +105,18 @@ function Nights.NextBigRaid(night)
 	return night
 end
 
--- คืนธรรมดาใช้งบแค่ส่วนนี้ของคืนบุกใหญ่
-Nights.SmallRaidMult = 0.6
-
 -- bloodMoonNight = เลขคืนต้นทางของพระจันทร์เลือด (nil = ไม่ใช่คืนพระจันทร์เลือด)
-function Nights.Budget(night, players, bloodMoonNight, bigRaid)
+function Nights.Budget(night, players, bloodMoonNight)
 	local b = 3 + night * 1.35 + (night / 10) ^ 2 * 2
 	if bloodMoonNight then
 		b *= (bloodMoonNight == Nights.FirstBloodMoon) and Nights.FirstBloodMoonMult or Nights.BloodMoonMult
-	elseif not bigRaid then
-		b *= Nights.SmallRaidMult
 	end
 	return b * Nights.PlayerBudgetMult(players)
 end
 
 -- เพดานจำนวนมอนทั้งคืน (กันยากเกินช่วงต้น · ปรับความยากรวมที่นี่): คืนยิ่งสูง มอนยิ่งเยอะ
-function Nights.MaxCount(night, players, bigRaid)
-	local n = bigRaid and (5 + night * 0.4) or (2 + night * 0.2)
+function Nights.MaxCount(night, players)
+	local n = 5 + night * 0.4
 	return math.max(1, math.floor(n * Nights.PlayerBudgetMult(players)))
 end
 
@@ -208,10 +203,10 @@ function Nights.Plan(night, rng, element, players, carry)
 		available = { "MossWolf" }
 	end
 
-	-- ระลอกต้องมาเร็วพอให้วิ่งถึงแคมป์ก่อนเช้า (ตัวช้าสุดใช้ ~25 วิ)
-	local waveTimes = plan.BigRaid and { 0.03, 0.2, 0.4 } or { 0.03, 0.3 }
+	-- ระลอกต้องมาเร็วพอให้วิ่งถึงแคมป์ก่อนเช้า (ตัวช้าสุดใช้ ~25 วิ) · คืนที่ไม่ใช่คืนบุกใหญ่ = ไม่มีฝูง (บอสที่ย้ายมายังมา)
+	local waveTimes = plan.BigRaid and { 0.03, 0.2, 0.4 } or {}
 	local waveCount = #waveTimes
-	local budget = Nights.Budget(night, players, bloodMoonNight, plan.BigRaid)
+	local budget = Nights.Budget(night, players, bloodMoonNight)
 	for w = 1, waveCount do
 		local waveBudget = budget * (w == waveCount and 0.45 or (0.55 / (waveCount - 1)))
 		local spawns = {}
@@ -252,7 +247,7 @@ function Nights.Plan(night, rng, element, players, carry)
 	for _, wave in ipairs(plan.Waves) do
 		total += #wave.Spawns
 	end
-	for _ = 1, total - Nights.MaxCount(night, players, plan.BigRaid) do
+	for _ = 1, total - Nights.MaxCount(night, players) do
 		local biggest = plan.Waves[1]
 		for _, wave in ipairs(plan.Waves) do
 			if #wave.Spawns > #biggest.Spawns then

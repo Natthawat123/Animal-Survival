@@ -112,7 +112,7 @@ function QuestService:CheckAchievements(player, data)
 		if not seen[a.Id] and Quests.StatOf(data, a.Stat) >= Quests.NeedOf(a, #Classes.Order) then
 			seen[a.Id] = true
 			if not data.AchClaimed[a.Id] then
-				self.ctx.Notify(player, "🏅 ปลดล็อกความสำเร็จ: " .. a.Text .. " — กดรับ ♦️ " .. a.Ruby .. " ที่หน้า \"ป้าย\" ในล็อบบี้", "Reward")
+				self.ctx.Notify(player, "🏅 Achievement unlocked: " .. a.Text .. " — claim ♦️ " .. a.Ruby .. " on the \"Badges\" page in the lobby", "Reward")
 			end
 		end
 	end
@@ -124,7 +124,7 @@ local function bump(self, player, list, key, n)
 			e.Prog = math.min(e.Need, (e.Prog or 0) + n)
 			if e.Prog >= e.Need then
 				local icon, text = Quests.Describe(e)
-				self.ctx.Notify(player, string.format("📜 ภารกิจสำเร็จ! %s %s — กลับล็อบบี้ไปกดรับรางวัล", icon, text), "Reward")
+				self.ctx.Notify(player, string.format("📜 Quest complete! %s %s — go back to the lobby to claim your reward", icon, text), "Reward")
 			end
 		end
 	end
@@ -186,7 +186,7 @@ function QuestService:ClaimQuest(player, scope, index)
 	e.Claimed = true
 	data.QuestsDone = (tonumber(data.QuestsDone) or 0) + 1
 	local _, text = Quests.Describe(e)
-	ds(self):AddDiamonds(player, e.Ruby or 0, (scope == "Daily" and "ภารกิจรายวัน: " or "ภารกิจรายสัปดาห์: ") .. text)
+	ds(self):AddDiamonds(player, e.Ruby or 0, (scope == "Daily" and "Daily quest: " or "Weekly quest: ") .. text)
 	local season = self.ctx.Services.SeasonService
 	if season then
 		season:AddXP(player, scope == "Daily" and Quests.DailyXP or Quests.WeeklyXP)
@@ -205,7 +205,7 @@ function QuestService:ClaimLogin(player)
 	self:Ensure(player, data)
 	local today = Quests.Day()
 	if data.LastDaily == today then
-		self.ctx.Notify(player, "รับรางวัลวันนี้แล้ว — มาใหม่ใน " .. Quests.FormatTime(Quests.SecondsToDayReset()), "Info")
+		self.ctx.Notify(player, "Already claimed today — come back in " .. Quests.FormatTime(Quests.SecondsToDayReset()), "Info")
 		return
 	end
 	local streak = 1
@@ -216,9 +216,9 @@ function QuestService:ClaimLogin(player)
 	data.LoginStreak = streak
 	data.BestStreak = math.max(data.BestStreak or 0, streak)
 	local ruby = Quests.LoginRewards[streak] or Quests.LoginRewards[1]
-	ds(self):AddDiamonds(player, ruby, string.format("ล็อกอินวันที่ %d/%d", streak, #Quests.LoginRewards))
+	ds(self):AddDiamonds(player, ruby, string.format("Login day %d/%d", streak, #Quests.LoginRewards))
 	if streak == #Quests.LoginRewards then
-		self.ctx.Notify(player, "🎁 ครบ 7 วันติด! รับรางวัลใหญ่แล้ว — พรุ่งนี้เริ่มรอบใหม่", "Reward")
+		self.ctx.Notify(player, "🎁 7 days in a row! Big reward claimed — a new streak starts tomorrow", "Reward")
 	end
 	local season = self.ctx.Services.SeasonService
 	if season then
@@ -241,11 +241,11 @@ function QuestService:ClaimAchievement(player, id)
 		return
 	end
 	if Quests.StatOf(data, a.Stat) < Quests.NeedOf(a, #Classes.Order) then
-		self.ctx.Notify(player, "ยังทำความสำเร็จนี้ไม่ครบ", "Error")
+		self.ctx.Notify(player, "You haven't completed this achievement yet", "Error")
 		return
 	end
 	data.AchClaimed[a.Id] = true
-	ds(self):AddDiamonds(player, a.Ruby, "ความสำเร็จ: " .. a.Text)
+	ds(self):AddDiamonds(player, a.Ruby, "Achievement: " .. a.Text)
 	self:Push(player)
 	self:SaveSoon(player)
 end
@@ -265,33 +265,33 @@ end
 function QuestService:Redeem(player, raw)
 	local now = os.clock()
 	if (codeCooldown[player] or 0) > now then
-		return { Ok = false, Text = "ใจเย็นๆ ลองใหม่อีกครั้งในอีกสักครู่" }
+		return { Ok = false, Text = "Slow down, try again in a moment" }
 	end
 	codeCooldown[player] = now + 1.5
 	local data = ds(self):Get(player)
 	if not data then
-		return { Ok = false, Text = "ยังโหลดข้อมูลไม่เสร็จ ลองใหม่อีกครั้ง" }
+		return { Ok = false, Text = "Data is still loading, try again" }
 	end
 	self:Ensure(player, data)
 	local code = normalize(raw)
 	local info = code and Codes[code]
 	if not info then
-		return { Ok = false, Text = "❌ ไม่พบโค้ดนี้ — ตรวจตัวสะกดอีกครั้ง" }
+		return { Ok = false, Text = "❌ Code not found — check the spelling" }
 	end
 	local t = os.time()
 	if info.Starts and t < info.Starts then
-		return { Ok = false, Text = "⏳ โค้ดนี้ยังไม่เปิดให้ใช้" }
+		return { Ok = false, Text = "⏳ This code isn't active yet" }
 	end
 	if info.Expires and t >= info.Expires then
-		return { Ok = false, Text = "⌛ โค้ดนี้หมดอายุแล้ว" }
+		return { Ok = false, Text = "⌛ This code has expired" }
 	end
 	if data.CodesUsed[code] then
-		return { Ok = false, Text = "✔ ใช้โค้ดนี้ไปแล้ว (ใช้ได้คนละครั้ง)" }
+		return { Ok = false, Text = "✔ Code already used (one use per player)" }
 	end
 	data.CodesUsed[code] = true
 	local reward = { Ruby = info.Ruby, Title = info.Title, Color = info.Color }
 	if (info.Ruby or 0) > 0 then
-		ds(self):AddDiamonds(player, info.Ruby, "โค้ด " .. code, { Flat = true })
+		ds(self):AddDiamonds(player, info.Ruby, "Code " .. code, { Flat = true })
 	end
 	local season = self.ctx.Services.SeasonService
 	if season and (info.Title or info.Color) then
@@ -299,7 +299,7 @@ function QuestService:Redeem(player, raw)
 	end
 	self:Push(player)
 	ds(self):Save(player)
-	return { Ok = true, Text = "🎉 แลกโค้ดสำเร็จ! ได้รับ " .. Quests.RewardText(reward) }
+	return { Ok = true, Text = "🎉 Code redeemed! You got " .. Quests.RewardText(reward) }
 end
 
 ---------------------------------------------------------------- อันดับรายสัปดาห์ (OrderedDataStore แยกต่อสัปดาห์)
@@ -391,7 +391,7 @@ function QuestService:Start(ctx)
 			return res
 		end
 		warn("[AS] redeem", res)
-		return { Ok = false, Text = "เกิดข้อผิดพลาด ลองใหม่อีกครั้ง" }
+		return { Ok = false, Text = "Something went wrong, try again" }
 	end
 	local function onPlayer(player)
 		player:GetAttributeChangedSignal("InRun"):Connect(function()
@@ -416,7 +416,7 @@ function QuestService:Start(ctx)
 				if data then
 					if self:Ensure(p, data) then
 						dirty[p] = true
-						ctx.Notify(p, "📜 ภารกิจใหม่มาแล้ว! เปิดเมนู \"ภารกิจ\" ในล็อบบี้", "Info")
+						ctx.Notify(p, "📜 New quests are here! Open the \"Quests\" menu in the lobby", "Info")
 					end
 					local season = ctx.Services.SeasonService
 					if season and season:Ensure(p, data) then

@@ -222,14 +222,14 @@ function SurvivalService:Down(player, source)
 	hum.AutoRotate = false
 	hum:UnequipTools()
 	layDown(char)
-	self.ctx.Broadcast(string.format("%s ล้มลง! ไปช่วยด่วน", player.DisplayName), "Danger", player) -- คนล้มเห็นข้อความติดจอแทน
+	self.ctx.Broadcast(string.format("%s is down! Go help, quick", player.DisplayName), "Danger", player) -- คนล้มเห็นข้อความติดจอแทน
 	self.ctx.Remotes.Get("Cinematic"):FireClient(player, "Downed", {})
 	-- ปุ่มช่วยเพื่อน
 	local root = char:FindFirstChild("HumanoidRootPart")
 	if root then
 		local prompt = Instance.new("ProximityPrompt")
 		prompt.Name = "Revive"
-		prompt.ActionText = "ช่วยชีวิต (ใช้ผ้าพันแผล)"
+		prompt.ActionText = "Revive (uses a bandage)"
 		prompt.ObjectText = player.DisplayName
 		prompt.HoldDuration = Config.ReviveTime
 		prompt.MaxActivationDistance = Config.ReviveRange
@@ -261,7 +261,7 @@ function SurvivalService:Down(player, source)
 				used = "Medkit"
 			end
 			if not used then
-				self.ctx.Notify(helper, "ต้องมีผ้าพันแผลหรือชุดปฐมพยาบาล", "Error")
+				self.ctx.Notify(helper, "You need a bandage or a first aid kit", "Error")
 				return
 			end
 			-- ทักษะหมอ (HealMult) แรงขึ้นทั้งผ้าพันแผลและชุดปฐมพยาบาล (เดิมวงเล็บผิด: ชุดปฐมพยาบาลไม่ได้โบนัส)
@@ -269,7 +269,7 @@ function SurvivalService:Down(player, source)
 			if self.ctx.Services.QuestService then
 				self.ctx.Services.QuestService:Progress(helper, "Revive", 1)
 			end
-			self.ctx.Broadcast(string.format("%s ช่วย %s ได้ทัน", helper.DisplayName, player.DisplayName), "Good")
+			self.ctx.Broadcast(string.format("%s revived %s just in time", helper.DisplayName, player.DisplayName), "Good")
 		end)
 	end
 	self:CheckWipe()
@@ -333,7 +333,7 @@ function SurvivalService:Die(player)
 		end
 	end
 	self.ctx.Remotes.Get("Cinematic"):FireClient(player, "Died", { Night = self.ctx.State:GetAttribute("Night"), Alive = alive })
-	self.ctx.Broadcast(string.format("%s สิ้นชีพ", player.DisplayName), "Danger")
+	self.ctx.Broadcast(string.format("%s has died", player.DisplayName), "Danger")
 	Analytics.Custom(player, "PlayerDied", self.ctx.State:GetAttribute("Night") or 1, {
 		tostring(s.DownSource or s.LastSource or "Unknown"), player:GetAttribute("Class") or "Survivor",
 	})
@@ -372,7 +372,34 @@ function SurvivalService:CheckWipe()
 		director:GameOver()
 		return
 	end
-	task.delay(2, function()
+	-- มีสินค้าคืนชีพ/ตั๋วคืนชีพ: รอ Config.WipeGrace วิ ให้กดคืนชีพก่อนแพ้ (ไม่มี = 2 วิเหมือนเดิม)
+	if self.wipeUntil then
+		return
+	end
+	local grace = 2
+	if (Config.ReviveProductId or 0) > 0 then
+		grace = Config.WipeGrace or 15
+	else
+		for _, p in ipairs(Players:GetPlayers()) do
+			if p:GetAttribute("InRun") and (p:GetAttribute("ReviveTokens") or 0) > 0 and self:IsDowned(p) then
+				grace = Config.WipeGrace or 15
+			end
+		end
+	end
+	self.wipeUntil = os.clock() + grace
+	if grace > 2 then
+		self.ctx.State:SetAttribute("WipeAt", Workspace:GetServerTimeNow() + grace)
+	end
+	task.spawn(function()
+		while os.clock() < self.wipeUntil do
+			task.wait(0.25)
+			local c2, a2 = standing()
+			if a2 > 0 then
+				break -- มีคนลุกขึ้นแล้ว
+			end
+		end
+		self.wipeUntil = nil
+		self.ctx.State:SetAttribute("WipeAt", nil)
 		local c2, a2 = standing()
 		if a2 == 0 and (c2 > 0 or count > 0) then
 			director:GameOver()
@@ -686,7 +713,7 @@ function SurvivalService:UseMedical(player, id)
 		end
 	end
 	if not best and hum.Health >= hum.MaxHealth - 0.5 then
-		self.ctx.Notify(player, "❤ เลือดเต็มแล้ว — เก็บ" .. item.Thai .. "ไว้ช่วยเพื่อนที่ล้ม", "Info")
+		self.ctx.Notify(player, "❤ HP is full — save your " .. item.Thai .. " for reviving downed teammates", "Info")
 		return
 	end
 	local dur = (best and MED_REVIVE_TIME[id] or MED_TIME[id]) or 2
@@ -701,7 +728,7 @@ function SurvivalService:UseMedical(player, id)
 			self:SetMedPose(player, nil)
 		end
 		if reason then
-			self.ctx.Notify(player, "✖ หยุดพันแผล — " .. reason, "Warn")
+			self.ctx.Notify(player, "✖ Stopped bandaging — " .. reason, "Warn")
 		end
 	end
 	task.spawn(function()
@@ -713,19 +740,19 @@ function SurvivalService:UseMedical(player, id)
 			end
 			local tool = char:FindFirstChildOfClass("Tool")
 			if not (tool and tool:GetAttribute("MedKind") == id) then
-				return stop("เก็บ" .. item.Thai .. "ลง")
+				return stop("Put away " .. item.Thai .. "")
 			end
 			if hum.Health < lastHp - 0.5 then
-				return stop("โดนโจมตี")
+				return stop("Got hit")
 			end
 			lastHp = math.max(lastHp, hum.Health)
 			if ((root.Position - startPos) * Vector3.new(1, 0, 1)).Magnitude > 2.5 then
-				return stop("ขยับตัว (ต้องยืนนิ่งตอนพันแผล)")
+				return stop("Moved (you must stand still while bandaging)")
 			end
 			if best then
 				local _, pc = humanoidOf(best)
 				if not (pc and self:IsDowned(best)) or (pc:GetPivot().Position - root.Position).Magnitude > Config.ReviveRange + 6 then
-					return stop(self:IsDowned(best) and "ห่างเพื่อนเกินไป" or nil)
+					return stop(self:IsDowned(best) and "Too far from your teammate" or nil)
 				end
 			end
 		end
@@ -739,7 +766,7 @@ function SurvivalService:UseMedical(player, id)
 				self.ctx.Services.QuestService:Progress(player, "Revive", 1)
 			end
 			self.ctx.Remotes.Get("HitFx"):FireClient(player, "Heal", { Item = id })
-			self.ctx.Broadcast(string.format("%s ช่วย %s ได้ทัน", player.DisplayName, best.DisplayName), "Good")
+			self.ctx.Broadcast(string.format("%s revived %s just in time", player.DisplayName, best.DisplayName), "Good")
 			return
 		end
 		if inv:Remove(player, id, 1) then

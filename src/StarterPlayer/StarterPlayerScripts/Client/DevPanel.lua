@@ -72,6 +72,22 @@ local function btn(parent, text, color, onClick, order)
 	return b
 end
 
+local function box(parent, placeholder, text)
+	local t = Instance.new("TextBox")
+	t.PlaceholderText = placeholder
+	t.Text = text or ""
+	t.ClearTextOnFocus = false
+	t.Font = Enum.Font.GothamBold
+	t.TextSize = 13
+	t.TextColor3 = C(255, 255, 255)
+	t.PlaceholderColor3 = C(150, 150, 160)
+	t.BackgroundColor3 = C(28, 30, 38)
+	t.Parent = parent
+	corner(t, 6)
+	stroke(t, C(90, 95, 110), 1)
+	return t
+end
+
 local function status(text, bad)
 	if ui.Status then
 		ui.Status.Text = text or ""
@@ -121,7 +137,7 @@ local function setFly(on)
 		bg.Parent = root
 		fly.BV, fly.BG = bv, bg
 	end
-	status(on and "🕊 บิน: WASD + Space ขึ้น / Ctrl ลง · Shift เร็ว" or "บิน: ปิด")
+	status(on and "🕊 Fly: WASD + Space up / Ctrl down · Shift fast" or "Fly: OFF")
 end
 
 RunService.RenderStepped:Connect(function()
@@ -175,16 +191,16 @@ player.CharacterAdded:Connect(function()
 end)
 
 ---------------------------------------------------------------- เนื้อหาแต่ละแท็บ
-local ELEMENT_TH = { Earth = "ปฐพี", Water = "วารี", Air = "วายุ", Fire = "อัคคี" }
-local CAT = { { "Resource", "วัตถุดิบ", 100 }, { "Food", "อาหาร", 20 }, { "Essence", "แก่นธาตุ", 20 }, { "Medical", "ยา", 10 },
-	{ "Relic", "ของหายาก", 3 }, { "Tool", "เครื่องมือ", 1 }, { "Structure", "สิ่งก่อสร้าง", 10 } }
+local ELEMENT_TH = { Earth = "Earth", Water = "Water", Air = "Frost", Fire = "Fire" }
+local CAT = { { "Resource", "Materials", 100 }, { "Food", "Food", 20 }, { "Essence", "Element Essence", 20 }, { "Medical", "Medicine", 10 },
+	{ "Relic", "Rare Items", 3 }, { "Tool", "Tools", 1 }, { "Structure", "Buildings", 10 } }
 
 local TABS = {
-	{ "ผู้เล่น", function(page)
-		btn(page, "🛡 อมตะ (เปิด/ปิด)", C(60, 110, 70), function() run("god") end)
-		btn(page, "❤ เติมเลือด+อิ่ม", C(150, 60, 70), function() run("heal") end)
-		btn(page, "🕊 บิน (เปิด/ปิด)", C(60, 90, 150), function() setFly(not fly.On) end)
-		btn(page, "👻 ทะลุกำแพง", C(90, 70, 140), function()
+	{ "Player", function(page)
+		btn(page, "🛡 God mode (on/off)", C(60, 110, 70), function() run("god") end)
+		btn(page, "❤ Refill HP + hunger", C(150, 60, 70), function() run("heal") end)
+		btn(page, "🕊 Fly (on/off)", C(60, 90, 150), function() setFly(not fly.On) end)
+		btn(page, "👻 Noclip", C(90, 70, 140), function()
 			noclip = not noclip
 			if not noclip then
 				local c = player.Character
@@ -194,27 +210,27 @@ local TABS = {
 					end
 				end
 			end
-			status(noclip and "👻 ทะลุกำแพง: เปิด" or "ทะลุกำแพง: ปิด")
+			status(noclip and "👻 Noclip: ON" or "Noclip: OFF")
 		end)
-		btn(page, "🏃 เร็ว x1", nil, function() run("speed", 1) end)
-		btn(page, "🏃 เร็ว x2", nil, function() run("speed", 2) end)
-		btn(page, "🏃 เร็ว x4", nil, function() run("speed", 4) end)
-		btn(page, "🔄 เกิดใหม่", nil, function() run("respawn") end)
-		btn(page, "🧭 ลงแมพ (จากล็อบบี้)", C(70, 130, 70), function() run("depart") end)
-		btn(page, "🏕 กลับล็อบบี้", nil, function() run("lobby") end)
-		btn(page, "🖥 ซ่อน/แสดง HUD", nil, function()
+		btn(page, "🏃 Speed x1", nil, function() run("speed", 1) end)
+		btn(page, "🏃 Speed x2", nil, function() run("speed", 2) end)
+		btn(page, "🏃 Speed x4", nil, function() run("speed", 4) end)
+		btn(page, "🔄 Respawn", nil, function() run("respawn") end)
+		btn(page, "🧭 Enter map (from lobby)", C(70, 130, 70), function() run("depart") end)
+		btn(page, "🏕 Back to lobby", nil, function() run("lobby") end)
+		btn(page, "🖥 Hide/show HUD", nil, function()
 			local hud = player.PlayerGui:FindFirstChild("HUD")
 			if hud then
 				hud.Enabled = not hud.Enabled
 			end
 		end)
-		btn(page, "ℹ สถานะเกม", nil, function() run("info") end)
+		btn(page, "ℹ Game status", nil, function() run("info") end)
 	end },
-	{ "ไอเทม", function(page)
+	{ "Items", function(page)
 		for _, c in ipairs(CAT) do
-			btn(page, string.format("🎁 %s ทั้งหมด x%d", c[2], c[3]), C(70, 100, 60), function() run("giveCategory", c[1], c[3]) end)
+			btn(page, string.format("🎁 All %s x%d", c[2], c[3]), C(70, 100, 60), function() run("giveCategory", c[1], c[3]) end)
 		end
-		btn(page, "🗑 ล้างกระเป๋า", C(140, 60, 60), function() run("clearInv") end)
+		btn(page, "🗑 Clear bag", C(140, 60, 60), function() run("clearInv") end)
 		local ids = {}
 		for id in pairs(Items.Data) do
 			table.insert(ids, id)
@@ -232,7 +248,7 @@ local TABS = {
 			btn(page, Items.DisplayName(id) .. " x" .. n, nil, function() run("give", id, n) end)
 		end
 	end },
-	{ "บอส", function(page)
+	{ "Boss", function(page)
 		-- เฉพาะตัวที่มีโมเดลแล้ว (ReplicatedStorage.Assets.Animals)
 		local folder = ReplicatedStorage:FindFirstChild("Assets") and ReplicatedStorage.Assets:FindFirstChild("Animals")
 		for _, m in ipairs(folder and folder:GetChildren() or {}) do
@@ -241,43 +257,48 @@ local TABS = {
 				btn(page, "👑 " .. info.Thai, C(150, 50, 90), function() run("spawnBoss", m.Name) end)
 			end
 		end
-		btn(page, "🧹 ลบบอส/สัตว์ทั้งหมด", C(100, 60, 60), function() run("clearAnimals") end)
+		btn(page, "🧹 Remove all bosses/animals", C(100, 60, 60), function() run("clearAnimals") end)
 	end },
-	{ "เวลา", function(page)
-		btn(page, "⏭ ข้ามช่วงเวลา", C(70, 100, 150), function() run("skip") end)
-		btn(page, "🌙 ไปกลางคืนเลย", C(50, 50, 120), function() run("nightNow") end)
-		btn(page, "⏸ หยุด/เดินเวลา", nil, function() run("pause") end)
-		btn(page, "🔴 จันทร์เลือด", C(130, 40, 40), function() run("bloodMoon") end)
+	{ "Time", function(page)
+		btn(page, "⏭ Skip phase", C(70, 100, 150), function() run("skip") end)
+		btn(page, "🌙 Go to night now", C(50, 50, 120), function() run("nightNow") end)
+		btn(page, "⏸ Pause/resume time", nil, function() run("pause") end)
+		btn(page, "🔴 Blood Moon", C(130, 40, 40), function() run("bloodMoon") end)
 		for _, n in ipairs({ 1, 5, 10, 24, 25, 49, 50, 74, 75, 98, 99 }) do
-			btn(page, "ตั้งคืนที่ " .. n .. (({ [25] = " 👑ดิน", [50] = " 👑น้ำ", [75] = " 👑ฟ้า", [99] = " 👑ไฟ" })[n] or ""), nil, function() run("setNight", n) end)
+			btn(page, "Set night " .. n .. (({ [25] = " 👑Earth", [50] = " 👑Water", [75] = " 👑Frost", [99] = " 👑Fire" })[n] or ""), nil, function() run("setNight", n) end)
 		end
 	end },
-	{ "แคมป์", function(page)
-		btn(page, "🔥 เติมเชื้อเพลิงเต็ม", C(150, 90, 40), function() run("fuel") end)
-		btn(page, "💨 ดับกองไฟ", C(80, 80, 90), function() run("extinguish") end)
-		btn(page, "🔥 กองไฟ +1 เลเวล", C(150, 90, 40), function() run("fireLevel", 1) end)
-		btn(page, "🔥 กองไฟ -1 เลเวล", nil, function() run("fireLevel", -1) end)
-		btn(page, "🌫 ทะลุกำแพงหมอก เปิด/ปิด", nil, function() run("fogPass") end)
-		btn(page, "🔨 โต๊ะคราฟต์ +1", C(110, 80, 50), function() run("benchLevel", 1) end)
-		btn(page, "🔨 โต๊ะคราฟต์ -1", nil, function() run("benchLevel", -1) end)
+	{ "Camp", function(page)
+		btn(page, "🔥 Fuel filled", C(150, 90, 40), function() run("fuel") end)
+		btn(page, "💨 Campfire put out", C(80, 80, 90), function() run("extinguish") end)
+		btn(page, "🔥 Campfire +1 level", C(150, 90, 40), function() run("fireLevel", 1) end)
+		btn(page, "🔥 Campfire -1 level", nil, function() run("fireLevel", -1) end)
+		btn(page, "🌫 Pass through fog wall on/off", nil, function() run("fogPass") end)
+		btn(page, "🔨 Crafting bench +1", C(110, 80, 50), function() run("benchLevel", 1) end)
+		btn(page, "🔨 Crafting bench -1", nil, function() run("benchLevel", -1) end)
 	end },
-	{ "วาร์ป", function(page)
-		btn(page, "🏕 แคมป์", C(150, 90, 40), function() run("tp", "camp") end)
-		btn(page, "➡ ไปข้างหน้า 120", nil, function() run("tp", "front") end)
+	{ "Teleport", function(page)
+		btn(page, "🏕 Camp", C(150, 90, 40), function() run("tp", "camp") end)
+		btn(page, "➡ Forward 120", nil, function() run("tp", "front") end)
 		for _, el in ipairs({ "Earth", "Water", "Air", "Fire" }) do
-			btn(page, "🗺 ไบโอม" .. ELEMENT_TH[el], nil, function() run("tp", "Site_" .. el) end)
-			btn(page, "⛩ ศาลเจ้า" .. ELEMENT_TH[el], nil, function() run("tp", "Shrine_" .. el) end)
-			btn(page, "👑 รังบอส" .. ELEMENT_TH[el], C(130, 50, 80), function() run("tp", "Lair_" .. el) end)
-			btn(page, "🏚 ซากปรักหักพัง" .. ELEMENT_TH[el], nil, function() run("tp", "Ruins_" .. el) end)
-			btn(page, "🏛 วิหาร" .. ELEMENT_TH[el], C(110, 90, 50), function() run("tp", "Sanctum_" .. el) end)
+			btn(page, "🗺 Biome " .. ELEMENT_TH[el], nil, function() run("tp", "Site_" .. el) end)
+			btn(page, "⛩ Shrine " .. ELEMENT_TH[el], nil, function() run("tp", "Shrine_" .. el) end)
+			btn(page, "👑 Boss Lair " .. ELEMENT_TH[el], C(130, 50, 80), function() run("tp", "Lair_" .. el) end)
+			btn(page, "🏚 Ruins " .. ELEMENT_TH[el], nil, function() run("tp", "Ruins_" .. el) end)
+			btn(page, "🏛 Sanctum " .. ELEMENT_TH[el], C(110, 90, 50), function() run("tp", "Sanctum_" .. el) end)
 		end
 	end },
-	{ "โปรไฟล์", function(page)
+	{ "Profile", function(page)
 		btn(page, "♦️ +1000 Ruby", C(50, 110, 160), function() run("diamonds", 1000) end)
-		btn(page, "🔓 ปลดล็อกทุกคลาส", C(70, 120, 70), function() run("unlockAll") end)
-		btn(page, "⭐ คลาสปัจจุบันเลเวล 3", C(150, 120, 40), function() run("maxClass") end)
-		btn(page, "🔄 รีเซ็ตรางวัลรายวัน+สต็อก", nil, function() run("resetDaily") end)
-		btn(page, "♻ รีเซ็ตโปรไฟล์", C(140, 60, 60), function() run("resetProfile") end)
+		-- ส่ง Ruby ให้ tester: ชื่อผู้ใช้ / UserId · อยู่เซิร์ฟอื่นหรือออฟไลน์ก็ได้ (ได้ตอนเข้าเกม)
+		local who = box(page, "Username or UserId")
+		local amount = box(page, "Ruby amount", "1000")
+		btn(page, "🎁 Send Ruby to this player", C(150, 100, 40), function() run("giftDiamonds", who.Text, amount.Text) end)
+		btn(page, "🎁 Send to everyone in the server", C(150, 100, 40), function() run("giftDiamonds", "*", amount.Text) end)
+		btn(page, "🔓 Unlocked all classes", C(70, 120, 70), function() run("unlockAll") end)
+		btn(page, "⭐ Current class to level 3", C(150, 120, 40), function() run("maxClass") end)
+		btn(page, "🔄 Reset daily reward + stock", nil, function() run("resetDaily") end)
+		btn(page, "♻ Reset profile", C(140, 60, 60), function() run("resetProfile") end)
 	end },
 }
 
@@ -318,7 +339,7 @@ function DevPanel.Build()
 	corner(panel, 12)
 	stroke(panel, C(200, 60, 60), 2)
 	ui.Panel = panel
-	local title = label(panel, { Text = "🛠 DEV TOOLS   [F8]  · ลากตรงนี้เพื่อย้าย", Size = UDim2.new(1, -60, 0, 32), Position = UDim2.fromOffset(14, 6), TextSize = 18, TextColor3 = C(255, 140, 120) })
+	local title = label(panel, { Text = "🛠 DEV TOOLS   [F8]  · Drag here to move", Size = UDim2.new(1, -60, 0, 32), Position = UDim2.fromOffset(14, 6), TextSize = 18, TextColor3 = C(255, 140, 120) })
 	-- ลากหน้าต่าง
 	local dragging, dragStart, startPos
 	title.InputBegan:Connect(function(i)
@@ -386,7 +407,7 @@ function DevPanel.Build()
 		pages[i] = page
 	end
 	show(1)
-	ui.Status = label(panel, { Text = "พร้อมใช้งาน", Size = UDim2.new(1, -24, 0, 30), Position = UDim2.new(0, 12, 1, -36), TextColor3 = C(150, 240, 150), TextWrapped = true, TextSize = 13 })
+	ui.Status = label(panel, { Text = "Ready", Size = UDim2.new(1, -24, 0, 30), Position = UDim2.new(0, 12, 1, -36), TextColor3 = C(150, 240, 150), TextWrapped = true, TextSize = 13 })
 end
 
 function DevPanel.Init()

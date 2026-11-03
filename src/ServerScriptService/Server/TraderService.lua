@@ -71,7 +71,7 @@ local function buildTrader(cf)
 	local t = Instance.new("TextLabel")
 	t.Size = UDim2.fromScale(1, 1)
 	t.BackgroundTransparency = 1
-	t.Text = "🐾 พ่อค้าเร่"
+	t.Text = "🐾 Wandering Trader"
 	t.TextScaled = true
 	t.Font = Enum.Font.GothamBlack
 	t.TextColor3 = C(255, 220, 150)
@@ -107,8 +107,8 @@ function TraderService:Arrive()
 	m.Parent = workspace
 	self.model = m
 	local p = Instance.new("ProximityPrompt")
-	p.ActionText = "แลกของ"
-	p.ObjectText = "พ่อค้าเร่"
+	p.ActionText = "Trade"
+	p.ObjectText = "Wandering Trader"
 	p.MaxActivationDistance = 14
 	p.RequiresLineOfSight = false
 	p.Parent = body
@@ -116,7 +116,7 @@ function TraderService:Arrive()
 		self.ctx.Remotes.Get("Cinematic"):FireClient(player, "OpenTrader", {})
 	end)
 	self.ctx.State:SetAttribute("TraderHere", true)
-	self.ctx.Broadcast("พ่อค้าเร่มาถึงแคมป์", "Reward")
+	self.ctx.Broadcast("The wandering trader has arrived at camp", "Reward")
 end
 
 function TraderService:Leave()
@@ -124,7 +124,7 @@ function TraderService:Leave()
 		self.model:Destroy()
 		self.model = nil
 		self.ctx.State:SetAttribute("TraderHere", false)
-		self.ctx.Broadcast("พ่อค้าเร่ไปแล้ว", "Info")
+		self.ctx.Broadcast("The wandering trader has left", "Info")
 	end
 end
 
@@ -145,7 +145,7 @@ function TraderService:Start(ctx)
 		end
 		local char = player.Character
 		if not char or (char:GetPivot().Position - self.model:GetPivot().Position).Magnitude > 30 then
-			ctx.Notify(player, "ต้องอยู่ใกล้พ่อค้า", "Error")
+			ctx.Notify(player, "You must be near the trader", "Error")
 			return
 		end
 		local inv = ctx.Services.InventoryService
@@ -153,28 +153,28 @@ function TraderService:Start(ctx)
 		local key = "Trade_" .. offerId
 		local used = player:GetAttribute(key) or 0
 		if used >= Limits.TradesPerVisit then
-			ctx.Notify(player, string.format("แลกรายการนี้ครบ %d ครั้งแล้ว — รอพ่อค้ามาครั้งหน้า", Limits.TradesPerVisit), "Error")
+			ctx.Notify(player, string.format("You've traded this %d times already — wait for the trader's next visit", Limits.TradesPerVisit), "Error")
 			return
 		end
 		for id, n in pairs(offer.Give) do
 			if Items.Data[id] and Items.Data[id].Category == "Tool" and inv:Count(player, id) > 0 then
-				ctx.Notify(player, "มี " .. Items.DisplayName(id) .. " อยู่แล้ว", "Info")
+				ctx.Notify(player, "You already have " .. Items.DisplayName(id) .. "", "Info")
 				return
 			end
 			if inv:Room(player, id) < n then
-				ctx.Notify(player, inv:LimitText(id) .. " — ครบแล้ว", "Error")
+				ctx.Notify(player, inv:LimitText(id) .. " — maxed out", "Error")
 				return
 			end
 		end
 		if not inv:Spend(player, offer.Cost) then
-			ctx.Notify(player, "ของแลกไม่พอ", "Error")
+			ctx.Notify(player, "Not enough items to trade", "Error")
 			return
 		end
 		for id, n in pairs(offer.Give) do
 			inv:Add(player, id, n)
 		end
 		player:SetAttribute(key, used + 1)
-		ctx.Notify(player, string.format("🐾 แลกของสำเร็จ! (รายการนี้แลกได้อีก %d ครั้ง)", Limits.TradesPerVisit - used - 1), "Good")
+		ctx.Notify(player, string.format("🐾 Trade complete! (%d more trades left for this item)", Limits.TradesPerVisit - used - 1), "Good")
 	end
 	TraderService.TestTrade = trade
 	ctx.Remotes.Get("Trade").OnServerEvent:Connect(trade)

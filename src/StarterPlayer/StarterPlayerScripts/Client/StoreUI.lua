@@ -3,6 +3,8 @@
 	  เติม Ruby : Developer Product (Robux -> Ruby) — Config.DiamondPacks (ภาพถุง/หีบจาก Shared/PanelArt)
 	  ID ที่ยังเป็น 0 = ยังไม่ได้สร้างใน Creator Hub -> ปุ่มเป็น "เร็วๆ นี้" (กดแล้วไม่พัง)
 	  (Game Pass ไม่ขายในหน้านี้แล้ว · พรีเมียม Season Pass ซื้อได้ที่หน้า ภารกิจ > Season Pass)
+	  ซื้อเป็นของขวัญ: ปุ่ม "Gift a friend" -> เลือกคนในเซิร์ฟ (ค้นหาชื่อได้) -> แพ็กที่กดซื้อจะเข้าเพื่อนคนนั้น (MonetizationService)
+	  ราคาบนปุ่ม = ราคาจริงจาก Roblox (GetProductInfo) · ยังโหลดไม่เสร็จ = ราคาใน Config
 ]]
 
 local MarketplaceService = game:GetService("MarketplaceService")
@@ -11,6 +13,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared.Config)
+local Remotes = require(Shared.Remotes)
 local UIKit = require(script.Parent.UIKit)
 local WoodKit = require(script.Parent.WoodKit)
 
@@ -20,6 +23,7 @@ local W = WoodKit.Colors
 local RS = utf8.char(0xE002) -- ไอคอน Robux ในฟอนต์ของ Roblox
 local ui = {}
 local profile
+local prices = {} -- [productId] = ราคาจริงจาก Roblox
 
 local CARD_W, CARD_H, GAP = 236, 248, 24
 -- ภาพของแต่ละแพ็ก: { ชื่อภาพ, ความกว้าง, x, y } (แพ็กสุดท้าย = หีบใหญ่ + ถุงข้างหน้า)
@@ -68,7 +72,7 @@ local function packCard(i, pack)
 	UIKit.Text(ribbon, { Size = UDim2.fromScale(1, 1), Text = pack.Diamonds .. " Ruby", Font = UIKit.Fonts.Title, TextSize = 28, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 9 })
 	if (pack.Bonus or 0) > 0 then
 		UIKit.Text(card, {
-			Size = UDim2.new(1, 0, 0, 22), Position = UDim2.fromOffset(0, 180), Text = "+" .. pack.Bonus .. " โบนัส!", Font = UIKit.Fonts.Title, TextSize = 18,
+			Size = UDim2.new(1, 0, 0, 22), Position = UDim2.fromOffset(0, 180), Text = "+" .. pack.Bonus .. " Bonus!", Font = UIKit.Fonts.Title, TextSize = 18,
 			TextXAlignment = Enum.TextXAlignment.Center, TextColor3 = W.Gold, ZIndex = 9,
 		})
 	end
@@ -76,8 +80,10 @@ local function packCard(i, pack)
 		tag(card, pack.Tag)
 	end
 	local ready = (pack.ProductId or 0) > 0
-	WoodKit.Button(card, ready and "Wood" or "Dark", {
-		Size = UDim2.new(1, -40, 0, 34), Position = UDim2.new(0, 20, 1, -40), Text = ready and (RS .. " " .. pack.Robux) or "เร็วๆ นี้", TextSize = 19, ZIndex = 10,
+	local gifting = player:GetAttribute("GiftTo") ~= nil
+	local price = RS .. " " .. (prices[pack.ProductId] or pack.Robux)
+	WoodKit.Button(card, ready and (gifting and "Green" or "Wood") or "Dark", {
+		Size = UDim2.new(1, -40, 0, 34), Position = UDim2.new(0, 20, 1, -40), Text = ready and ((gifting and "🎁 " or "") .. price) or "Coming soon", TextSize = 19, ZIndex = 10,
 	}, function()
 		if ready then
 			MarketplaceService:PromptProductPurchase(player, pack.ProductId)
@@ -101,6 +107,95 @@ function StoreUI.Refresh()
 	for i, pack in ipairs(Config.DiamondPacks) do
 		packCard(i, pack)
 	end
+	local to = player:GetAttribute("GiftTo")
+	ui.GiftBtn.Text = to and ("🎁 Gifting to " .. to .. "  ✖") or "🎁 Gift a friend"
+	WoodKit.Style(ui.GiftBtn, to and "Red" or "Green")
+end
+
+-- ราคาจริงของทุกแพ็ก (ครั้งเดียว)
+local function loadPrices()
+	for _, pack in ipairs(Config.DiamondPacks) do
+		if (pack.ProductId or 0) > 0 and not prices[pack.ProductId] then
+			local ok, info = pcall(MarketplaceService.GetProductInfo, MarketplaceService, pack.ProductId, Enum.InfoType.Product)
+			if ok and info and info.PriceInRobux then
+				prices[pack.ProductId] = info.PriceInRobux
+			end
+		end
+	end
+	if StoreUI.IsOpen() then
+		StoreUI.Refresh()
+	end
+end
+
+-- หน้าต่างเลือกเพื่อน (คนในเซิร์ฟเดียวกัน · ค้นหาชื่อได้)
+local function buildGiftPicker(gui)
+	local win = WoodKit.Window(gui, { Name = "GiftPicker", Size = Vector2.new(520, 560), Title = "🎁 Gift to", TitleWidth = 260, OnClose = function()
+		ui.Gift.Visible = false
+	end })
+	ui.Gift = win.Frame
+	ui.Gift.Visible = false
+	ui.Gift.ZIndex = 50
+	UIKit.RegisterWindow(ui.Gift, function()
+		ui.Gift.Visible = false
+	end)
+	local search = Instance.new("TextBox")
+	search.Size = UDim2.new(1, -60, 0, 44)
+	search.Position = UDim2.fromOffset(30, 46)
+	search.PlaceholderText = "Search player..."
+	search.Text = ""
+	search.ClearTextOnFocus = false
+	search.Font = UIKit.Fonts.Bold
+	search.TextSize = 20
+	search.TextColor3 = Color3.fromRGB(60, 36, 20)
+	search.PlaceholderColor3 = Color3.fromRGB(130, 110, 90)
+	search.BackgroundColor3 = Color3.fromRGB(246, 232, 200)
+	search.Parent = win.Body
+	UIKit.Corner(search, 8)
+	local list = Instance.new("ScrollingFrame")
+	list.Size = UDim2.new(1, -60, 1, -120)
+	list.Position = UDim2.fromOffset(30, 102)
+	list.BackgroundTransparency = 1
+	list.BorderSizePixel = 0
+	list.ScrollBarThickness = 6
+	list.AutomaticCanvasSize = Enum.AutomaticSize.Y
+	list.CanvasSize = UDim2.new()
+	list.Parent = win.Body
+	local layout = Instance.new("UIListLayout")
+	layout.Padding = UDim.new(0, 8)
+	layout.SortOrder = Enum.SortOrder.Name
+	layout.Parent = list
+	local function fill()
+		for _, c in ipairs(list:GetChildren()) do
+			if c:IsA("GuiObject") then
+				c:Destroy()
+			end
+		end
+		local q = search.Text:lower()
+		local any = false
+		for _, p in ipairs(Players:GetPlayers()) do
+			if p ~= player and (q == "" or p.Name:lower():find(q, 1, true) or p.DisplayName:lower():find(q, 1, true)) then
+				any = true
+				local row = WoodKit.Button(list, "Parch", { Name = p.DisplayName:lower(), Size = UDim2.new(1, -10, 0, 64), Text = "", ZIndex = 2 }, function()
+					Remotes.Get("GiftTarget"):FireServer(p.UserId)
+					ui.Gift.Visible = false
+				end)
+				local img = Instance.new("ImageLabel")
+				img.Size = UDim2.fromOffset(52, 52)
+				img.Position = UDim2.fromOffset(8, 6)
+				img.BackgroundTransparency = 1
+				img.ZIndex = 3
+				img.Image = string.format("rbxthumb://type=AvatarHeadShot&id=%d&w=150&h=150", p.UserId)
+				img.Parent = row
+				WoodKit.Ink(row, { Size = UDim2.new(1, -80, 0, 30), Position = UDim2.fromOffset(70, 4), Text = p.DisplayName, TextSize = 22, ZIndex = 3 })
+				WoodKit.Ink(row, { Size = UDim2.new(1, -80, 0, 22), Position = UDim2.fromOffset(70, 34), Text = "@" .. p.Name, TextSize = 16, TextColor3 = WoodKit.Colors.InkDim, ZIndex = 3 })
+			end
+		end
+		if not any then
+			WoodKit.Ink(list, { Size = UDim2.new(1, 0, 0, 60), Text = "No other players in this server", TextSize = 20, TextXAlignment = Enum.TextXAlignment.Center })
+		end
+	end
+	search:GetPropertyChangedSignal("Text"):Connect(fill)
+	ui.FillGift = fill
 end
 
 function StoreUI.Open()
@@ -127,13 +222,13 @@ function StoreUI.SetProfile(p)
 end
 
 function StoreUI.Init(gui)
-	local win = WoodKit.Window(gui, { Name = "StoreWindow", Size = Vector2.new(1080, 640), Title = "🛒 ร้านค้า", TitleWidth = 320, Shrink = false, OnClose = StoreUI.Close })
+	local win = WoodKit.Window(gui, { Name = "StoreWindow", Size = Vector2.new(1080, 640), Title = "🛒 Shop", TitleWidth = 320, Shrink = false, OnClose = StoreUI.Close })
 	ui.Panel = win.Frame
 	UIKit.RegisterWindow(ui.Panel, StoreUI.Close, { Dim = 0.55 })
 	local body = win.Body
 	ui.Gems = WoodKit.RubyPill(body, { Position = UDim2.new(1, -206, 0, 42) })
 	-- แท็บเดียว (เติม Ruby) — ไว้บอกว่าอยู่หน้าไหน
-	local tab = WoodKit.Tab(body, "      เติม Ruby", 1, 190)
+	local tab = WoodKit.Tab(body, "      Buy Ruby", 1, 190)
 	tab.Position = UDim2.fromOffset(32, 44)
 	WoodKit.SetTab(tab, true)
 	UIKit.Icon(tab, "Ruby", 38, { Position = UDim2.fromOffset(22, 3), ZIndex = 2 })
@@ -143,9 +238,26 @@ function StoreUI.Init(gui)
 	local hint = WoodKit.Parchment(list, { Size = UDim2.new(1, -(CARD_W + GAP), 0, 84), Position = UDim2.new(0, CARD_W + GAP, 0, 2 * CARD_H + 18 - 84) })
 	WoodKit.Ink(hint, {
 		Size = UDim2.new(1, -40, 1, -12), Position = UDim2.fromOffset(20, 6), TextSize = 18, Font = UIKit.Fonts.Bold, TextColor3 = W.InkDim, TextWrapped = true,
-		TextXAlignment = Enum.TextXAlignment.Center, Text = "Ruby ใช้ซื้อคลาส ข้ามเลเวลคลาส รีโรลสต็อค และชุดเริ่มต้น — ได้ฟรีจากการเล่น/หม้อรางวัลรายวันด้วยนะ!",
+		TextXAlignment = Enum.TextXAlignment.Center, Text = "Ruby buys classes, class level skips, stock rerolls and starter kits — you also get it free from playing/the daily reward cauldron!",
 	})
 	ui.Hint = hint
+	-- ซื้อเป็นของขวัญ: ปุ่มข้างแท็บ (เลือกเพื่อนแล้ว = ปุ่มแดง กดเพื่อยกเลิก)
+	ui.GiftBtn = WoodKit.Button(body, "Green", { Size = UDim2.fromOffset(300, 46), Position = UDim2.fromOffset(240, 44), Text = "🎁 Gift a friend", TextSize = 20, ZIndex = 3 }, function()
+		if player:GetAttribute("GiftTo") then
+			Remotes.Get("GiftTarget"):FireServer(nil)
+			return
+		end
+		ui.FillGift()
+		ui.Gift.Visible = true
+		UIKit.Pop(ui.Gift)
+	end)
+	buildGiftPicker(gui)
+	player:GetAttributeChangedSignal("GiftTo"):Connect(function()
+		if StoreUI.IsOpen() then
+			StoreUI.Refresh()
+		end
+	end)
+	task.spawn(loadPrices)
 	player:GetAttributeChangedSignal("Diamonds"):Connect(function()
 		if StoreUI.IsOpen() then
 			ui.Gems.Text = tostring(player:GetAttribute("Diamonds") or 0)

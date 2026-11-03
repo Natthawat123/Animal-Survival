@@ -22,9 +22,9 @@ local C = UIKit.Colors
 local DURATION = 8
 local COOLDOWN = 1.5
 local KINDS = {
-	Enemy = { Color = Color3.fromRGB(255, 80, 80), Icon = "⚠", Text = "ศัตรู!" },
-	Item = { Color = Color3.fromRGB(255, 214, 70), Icon = "💰", Text = "ของตรงนี้" },
-	Go = { Color = Color3.fromRGB(80, 170, 255), Icon = "📍", Text = "มาที่นี่" },
+	Enemy = { Color = Color3.fromRGB(255, 80, 80), Icon = "⚠", Text = "Enemy!" },
+	Item = { Color = Color3.fromRGB(255, 214, 70), Icon = "💰", Text = "Item here" },
+	Go = { Color = Color3.fromRGB(80, 170, 255), Icon = "📍", Text = "Come here" },
 }
 
 local active = {} -- [fromUserId] = { Billboard, Attachment, MapMarker, Target, Position, Expire, Label }

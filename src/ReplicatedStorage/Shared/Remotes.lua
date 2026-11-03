@@ -38,6 +38,9 @@ Remotes.Events = {
 	"EquipCosmetic", -- (kind "Title"/"Color", id) ใส่ฉายา/สีฉายา ("" = ถอด)
 	"TeamPing", -- c->s (position, target?) ปิงจุดที่เล็ง · s->c ({ From, Name, Position, Kind, Target })
 	"RejoinAnswer", -- (accept: boolean) ตอบคำถาม "กลับเข้ารอบเดิม?"
+	"GiftTarget", -- (userId | nil) เลือกเพื่อนที่จะซื้อ Ruby เป็นของขวัญให้ (ก่อนกดซื้อแพ็ก)
+	"UseReviveToken", -- () ใช้ตั๋วคืนชีพตอนล้ม
+	"PadResume", -- (padIndex, on) หัวหน้าแท่น (มี Save Run) เลือกเล่นต่อจากเซฟ
 	-- server -> client
 	"Notify", -- (text, kind)
 	"Inventory", -- (table)
@@ -58,7 +61,7 @@ Remotes.Functions = {
 local folder
 
 function Remotes.Init()
-	assert(RunService:IsServer(), "Remotes.Init ต้องเรียกจาก server")
+	assert(RunService:IsServer(), "Remotes.Init must be called from the server")
 	folder = ReplicatedStorage:FindFirstChild("Remotes")
 	if not folder then
 		folder = Instance.new("Folder")

@@ -33,8 +33,10 @@ SHOTS = "--shots" in sys.argv  # เทสต์ + ถ่ายภาพฉา�
 SEED = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--seed=")), None)
 FETCH = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--fetch=")), None)  # ดึงโมเดล Creator Store: --fetch=id,id
 PROBE = "--probe" in sys.argv
-ARMORPROBE = "--armorprobe" in sys.argv
-MEDPROBE = "--medprobe" in sys.argv  # ถือยา + ท่าพันแผล/ช่วยเพื่อน (tests/ASMedProbe.*.lua)  # คราฟต์เกราะ 3 ระดับ + ภาพบนตัว (tests/ASArmorProbe.*.lua)
+ARMORPROBE = "--armorprobe" in sys.argv  # คราฟต์เกราะ 3 ระดับ + ภาพบนตัว (tests/ASArmorProbe.*.lua)
+MEDPROBE = "--medprobe" in sys.argv  # ถือยา + ท่าพันแผล/ช่วยเพื่อน (tests/ASMedProbe.*.lua)
+GRIPPROBE = "--gripprobe" in sys.argv  # หมุนท่าจับหน้าไม้/เคียวหลายทิศ (tests/ASGripProbe.*.lua)
+CHESTPROBE = "--chestprobe" in sys.argv  # กล่อง 3 ระดับ + อาวุธใหม่ (tests/ASChestProbe.*.lua)
 PADPROBE = "--padprobe" in sys.argv  # แท่นเริ่มเกม: เลือกจำนวนก่อนค่อยนับ (tests/ASPadProbe.client.lua)
 COOKPROBE = "--cookprobe" in sys.argv  # ย่างเนื้อที่กองไฟ + ไม่ดูดของจากไกล (tests/ASCookProbe.*.lua)
 BERRYPROBE = "--berryprobe" in sys.argv  # พุ่มเบอร์รี่ เก็บ/กิน + ปุ่มกินบน HUD (tests/ASBerryProbe.*.lua)
@@ -65,7 +67,7 @@ VFXSHOW = next((a.split("=", 1)[1] if "=" in a else "*" for a in sys.argv if a.s
 
 if GALLERY or VFXSHOW:
     TEST = True
-if TEST or SHOTS or TOOLSPAM or BREAKPROBE or LOOTPROBE or DROPPROBE or LOBBYPROBE or SITEPROBE or CLASSPROBE or UIPROBE or UIAUDIT or PROPPROBE or BOSSPROBE or FOGPROBE or SACKPROBE or BOSSSKILL or REALMPROBE or MONPROBE or SHRINEPROBE or GATEPROBE or REJOINPROBE or SKIPPROBE or BERRYPROBE or COOKPROBE or PADPROBE or ARMORPROBE or MEDPROBE:
+if TEST or SHOTS or TOOLSPAM or BREAKPROBE or LOOTPROBE or DROPPROBE or LOBBYPROBE or SITEPROBE or CLASSPROBE or UIPROBE or UIAUDIT or PROPPROBE or BOSSPROBE or FOGPROBE or SACKPROBE or BOSSSKILL or REALMPROBE or MONPROBE or SHRINEPROBE or GATEPROBE or REJOINPROBE or SKIPPROBE or BERRYPROBE or COOKPROBE or PADPROBE or ARMORPROBE or MEDPROBE or CHESTPROBE or GRIPPROBE:
     OUT = os.path.join(OUT_DIR, "AnimalSurvival_TEST.rbxlx")
 elif MAPSHOT:
     OUT = os.path.join(OUT_DIR, "AnimalSurvival_MAP.rbxlx")
@@ -81,6 +83,8 @@ if MONIDS:  # เลือกตัวเอง = เช็กเฉพาะก
     OUT = os.path.join(OUT_DIR, "AnimalSurvival_MON.rbxlx")
 if SHRINEPROBE:  # ไฟล์แยก: หลายเซสชันเทสพร้อมกัน ไม่ทับ AnimalSurvival_TEST ของกันและกัน
     OUT = os.path.join(OUT_DIR, "AnimalSurvival_SHRINE.rbxlx")
+if "--realmprobe=portals" in sys.argv:  # ไฟล์แยกเหมือนกัน
+    OUT = os.path.join(OUT_DIR, "AnimalSurvival_PORTAL.rbxlx")
 if UIAUDIT:  # ไฟล์แยกเหมือนกัน
     OUT = os.path.join(OUT_DIR, "AnimalSurvival_UIAUDIT.rbxlx")
 
@@ -259,6 +263,14 @@ def main():
         rs += value_item("BoolValue", "ASDropProbe", "true")
         rs += value_item("BoolValue", "ASAutoTest", "true")
         rs += value_item("BoolValue", "ASLobbyTest", "true")
+    if GRIPPROBE:
+        rs += value_item("BoolValue", "ASGripProbe", "true")
+        rs += value_item("BoolValue", "ASAutoTest", "true")
+        rs += value_item("BoolValue", "ASSkipCollision", "true")
+    if CHESTPROBE:
+        rs += value_item("BoolValue", "ASChestProbe", "true")
+        rs += value_item("BoolValue", "ASAutoTest", "true")
+        rs += value_item("BoolValue", "ASSkipCollision", "true")
     if MEDPROBE:
         rs += value_item("BoolValue", "ASMedProbe", "true")
         rs += value_item("BoolValue", "ASAutoTest", "true")
@@ -323,6 +335,8 @@ def main():
             rs += value_item("StringValue", "ASRealmOnly", _rp)
         elif "--realmprobe=realms" in sys.argv:
             rs += value_item("StringValue", "ASRealmOnly", "realms")
+        elif "--realmprobe=portals" in sys.argv:  # ประตูเข้า/ออก 8 แห่ง: จมดิน/เดินได้/ปิดผนึก
+            rs += value_item("StringValue", "ASRealmOnly", "portals")
     if BOSSPROBE:
         rs += value_item("BoolValue", "ASBossProbe", "true")
         rs += value_item("BoolValue", "ASAutoTest", "true")
@@ -356,10 +370,21 @@ def main():
         sps += script_item(os.path.join(TESTS, "ASUIAudit.client.lua"))
     if UIPROBE:
         sps += script_item(os.path.join(TESTS, "ASUIProbe.client.lua"))
+    if GRIPPROBE:
+        sss += script_item(os.path.join(TESTS, "ASGripProbe.server.lua"))
+        sps += script_item(os.path.join(TESTS, "ASGripProbe.client.lua"))
+    if CHESTPROBE:
+        sss += script_item(os.path.join(TESTS, "ASChestProbe.server.lua"))
+        sps += script_item(os.path.join(TESTS, "ASChestProbe.client.lua"))
+        sss += script_item(os.path.join(TESTS, "ASPetProbe.server.lua"))
+        sps += script_item(os.path.join(TESTS, "ASPetProbe.client.lua"))
     if MEDPROBE:
         sss += script_item(os.path.join(TESTS, "ASMedProbe.server.lua"))
         sps += script_item(os.path.join(TESTS, "ASMedProbe.client.lua"))
         sps += script_item(os.path.join(TESTS, "ASNotifyProbe.client.lua"))
+        sss += script_item(os.path.join(TESTS, "ASWildProbe.server.lua"))
+        sss += script_item(os.path.join(TESTS, "ASShopProbe.server.lua"))
+        sps += script_item(os.path.join(TESTS, "ASShopProbe.client.lua"))
     if ARMORPROBE:
         sss += script_item(os.path.join(TESTS, "ASArmorProbe.server.lua"))
         sps += script_item(os.path.join(TESTS, "ASArmorProbe.client.lua"))

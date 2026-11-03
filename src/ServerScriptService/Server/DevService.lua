@@ -59,7 +59,7 @@ end
 function DevService:Teleport(player, pos)
 	local root = rootOf(player)
 	if not (root and pos) then
-		return "ไม่มีตัวละคร"
+		return "No character"
 	end
 	local y = pos.Y
 	if self.ctx.Layout and pos.Y < 1000 then
@@ -85,7 +85,7 @@ function DevService:Teleport(player, pos)
 	end
 	root.AssemblyLinearVelocity = Vector3.zero
 	root.CFrame = CFrame.new(pos.X, y, pos.Z)
-	return "วาร์ปแล้ว"
+	return "Teleported"
 end
 
 ---------------------------------------------------------------- คำสั่งทั้งหมด
@@ -95,7 +95,7 @@ local C = {}
 function C.god(self, p)
 	local on = not p:GetAttribute("TestGod")
 	p:SetAttribute("TestGod", on)
-	return on and "🛡 อมตะ: เปิด" or "🛡 อมตะ: ปิด"
+	return on and "🛡 God mode: ON" or "🛡 God mode: OFF"
 end
 
 function C.heal(self, p)
@@ -107,35 +107,35 @@ function C.heal(self, p)
 	if p:GetAttribute("Downed") then
 		self.ctx.Services.SurvivalService:Revive(p, 1)
 	end
-	return "❤ เลือด/ความหิวเต็ม"
+	return "❤ HP/hunger full"
 end
 
 function C.speed(self, p, mult)
 	mult = math.clamp(tonumber(mult) or 1, 0.5, 6)
 	p:SetAttribute("DevSpeed", mult)
-	return string.format("🏃 ความเร็ว x%.1f", mult)
+	return string.format("🏃 Speed x%.1f", mult)
 end
 
 function C.respawn(self, p)
 	self.ctx.Services.SurvivalService:Spawn(p)
-	return "เกิดใหม่แล้ว"
+	return "Respawned"
 end
 
 function C.depart(self, p)
 	if p:GetAttribute("InRun") then
-		return "อยู่ในแมพแล้ว"
+		return "Already in the map"
 	end
 	if not self.ctx.State:GetAttribute("Ready") then
-		return "โลกยังสร้างไม่เสร็จ"
+		return "The world isn't finished generating yet"
 	end
 	self.ctx.Services.LobbyService:Depart(p)
-	return "🧭 ลงแมพแล้ว"
+	return "🧭 Entered the map"
 end
 
 function C.lobby(self, p)
 	self.ctx.Services.SurvivalService:ResetPlayer(p)
 	self.ctx.Services.SurvivalService:CheckWipe()
-	return "กลับล็อบบี้"
+	return "Back to lobby"
 end
 
 -- วาร์ป
@@ -152,10 +152,10 @@ function C.tp(self, p, target)
 	end
 	local pos = s:GetAttribute(target)
 	if typeof(pos) ~= "Vector3" then
-		return "ไม่พบจุดหมาย " .. tostring(target)
+		return "Destination not found: " .. tostring(target)
 	end
 	if not p:GetAttribute("InRun") then
-		return "ลงแมพก่อน (ปุ่ม ลงแมพ)"
+		return "Enter the map first (Enter Map button)"
 	end
 	return self:Teleport(p, pos + Vector3.new(14, 0, 14))
 end
@@ -163,10 +163,10 @@ end
 -- ไอเทม
 function C.give(self, p, id, n)
 	if not Items.Data[id] then
-		return "ไม่มีไอเทม " .. tostring(id)
+		return "No item: " .. tostring(id)
 	end
 	self.ctx.Services.InventoryService:Add(p, id, tonumber(n) or 1, true)
-	return "🎁 ได้ " .. Items.DisplayName(id) .. " x" .. (tonumber(n) or 1)
+	return "🎁 Got " .. Items.DisplayName(id) .. " x" .. (tonumber(n) or 1)
 end
 
 function C.giveCategory(self, p, cat, n)
@@ -178,23 +178,23 @@ function C.giveCategory(self, p, cat, n)
 			count += 1
 		end
 	end
-	return string.format("🎁 ได้ %s ทั้งหมด %d อย่าง", cat, count)
+	return string.format("🎁 Got all %s: %d items", cat, count)
 end
 
 function C.clearInv(self, p)
 	self.ctx.Services.InventoryService:Reset(p)
-	return "🗑 ล้างกระเป๋าแล้ว"
+	return "🗑 Bag cleared"
 end
 
 -- เรียกบอส (เฉพาะตัวที่มีโมเดลแล้วใน assets/rbxm/Animals)
 function C.spawnBoss(self, p, id)
 	local info = Animals.Data[id]
 	if not info then
-		return "ไม่รู้จัก " .. tostring(id)
+		return "Unknown: " .. tostring(id)
 	end
 	local a = self.ctx.Services.AnimalService:Spawn(id, self:FrontGround(p, 70), { Kind = "Boss", Night = self.ctx.State:GetAttribute("Night") or 1 })
 	if not a then
-		return "ยังไม่มีโมเดลของ " .. info.Thai
+		return "No model yet for " .. info.Thai
 	end
 	a.Model:SetAttribute("IsBoss", true)
 	local s = self.ctx.State
@@ -203,7 +203,7 @@ function C.spawnBoss(self, p, id)
 	s:SetAttribute("BossMaxHP", a.Hum.MaxHealth)
 	self.ctx.Services.AnimalService:BeginIntro(a) -- ฉากเปิดตัว: ตรึงไว้ ~7 วิ
 	self.ctx.FireRun("Cinematic", "BossIntro", { Model = a.Model, Id = id, Name = info.Name, Thai = info.Thai, Element = info.Element })
-	return "👑 เรียก " .. info.Thai
+	return "👑 Summoned " .. info.Thai
 end
 
 -- ลบสัตว์/บอสทั้งหมดในแมพ
@@ -213,22 +213,22 @@ function C.clearAnimals(self)
 		animals:Remove(a)
 	end
 	self.ctx.State:SetAttribute("BossId", "")
-	return "🧹 ลบสัตว์ทั้งหมดแล้ว"
+	return "🧹 Removed all animals"
 end
 
 function C.skip(self)
 	local dir = self.ctx.Services.DirectorService
 	if not dir:IsRunning() then
-		return "ยังไม่เริ่มรอบ (ลงแมพก่อน)"
+		return "The run hasn't started (enter the map first)"
 	end
 	dir.skip = true
-	return "⏭ ข้ามช่วง " .. tostring(self.ctx.State:GetAttribute("Phase"))
+	return "⏭ Skipped phase " .. tostring(self.ctx.State:GetAttribute("Phase"))
 end
 
 function C.pause(self)
 	local dir = self.ctx.Services.DirectorService
 	dir.paused = not dir.paused
-	return dir.paused and "⏸ หยุดเวลา" or "▶ เดินเวลาต่อ"
+	return dir.paused and "⏸ Time paused" or "▶ Time resumed"
 end
 
 function C.setNight(self, _, n)
@@ -237,13 +237,13 @@ function C.setNight(self, _, n)
 	dir.night = n -- กลางคืน: มีผลหลังจบคืนนี้ (Loop ใช้เลขนี้เป็นวันถัดไป)
 	self.ctx.State:SetAttribute("Night", n)
 	local boss = Nights.BossNights and Nights.BossNights[n]
-	return string.format("🌙 ตั้งเป็นคืนที่ %d%s", n, boss and (" (คืนบอส " .. boss .. ")") or "")
+	return string.format("🌙 Set to night %d%s", n, boss and (" (boss night: " .. boss .. ")") or "")
 end
 
 function C.nightNow(self)
 	local dir = self.ctx.Services.DirectorService
 	if not dir:IsRunning() then
-		return "ยังไม่เริ่มรอบ (ลงแมพก่อน)"
+		return "The run hasn't started (enter the map first)"
 	end
 	local phase = self.ctx.State:GetAttribute("Phase")
 	if phase == "Day" then
@@ -254,26 +254,26 @@ function C.nightNow(self)
 	elseif phase == "Dusk" then
 		dir.skip = true
 	end
-	return "🌙 กำลังข้ามไปกลางคืน"
+	return "🌙 Skipping to night"
 end
 
 function C.bloodMoon(self)
 	local s = self.ctx.State
 	s:SetAttribute("BloodMoon", not s:GetAttribute("BloodMoon"))
-	return s:GetAttribute("BloodMoon") and "🔴 จันทร์เลือด: เปิด" or "จันทร์เลือด: ปิด"
+	return s:GetAttribute("BloodMoon") and "🔴 Blood Moon: ON" or "Blood Moon: OFF"
 end
 
 -- แคมป์
 function C.fuel(self)
 	local camp = self.ctx.Services.CampService
 	camp:AddFuel(1e6)
-	return "🔥 เติมเชื้อเพลิงเต็ม"
+	return "🔥 Fuel filled"
 end
 
 function C.extinguish(self)
 	local camp = self.ctx.Services.CampService
 	camp:AddFuel(-1e6)
-	return "💨 ดับกองไฟ"
+	return "💨 Campfire put out"
 end
 
 function C.fireLevel(self, _, d)
@@ -283,13 +283,13 @@ function C.fireLevel(self, _, d)
 	camp:UpdateVisual()
 	camp:Publish()
 	camp:RefreshPrompts()
-	return "🔥 กองไฟเลเวล " .. camp.level
+	return "🔥 Campfire level " .. camp.level
 end
 
 function C.fogPass(self, p)
 	local on = not p:GetAttribute("FogPass")
 	p:SetAttribute("FogPass", on)
-	return on and "🌫 ทะลุกำแพงหมอก: เปิด" or "🌫 ทะลุกำแพงหมอก: ปิด"
+	return on and "🌫 Pass through fog wall: ON" or "🌫 Pass through fog wall: OFF"
 end
 
 function C.benchLevel(self, _, d)
@@ -301,7 +301,7 @@ function C.benchLevel(self, _, d)
 	camp.bench = math.clamp(camp.bench + (tonumber(d) or 1), 1, max)
 	camp:Publish()
 	camp:RefreshPrompts()
-	return "🔨 โต๊ะคราฟต์เลเวล " .. camp.bench
+	return "🔨 Crafting bench level " .. camp.bench
 end
 
 -- โปรไฟล์ / ร้าน
@@ -310,24 +310,75 @@ function C.diamonds(self, p, n)
 	return "♦️ +" .. (tonumber(n) or 1000)
 end
 
+-- ส่ง Ruby ให้คนอื่น: target = ชื่อ/ชื่อที่แสดง/UserId · "*" = ทุกคนในเซิร์ฟ (ยกเว้นตัวเอง)
+--   อยู่เซิร์ฟนี้ = ได้ทันที · ไม่อยู่ = เก็บเป็นของขวัญ ได้ตอนเข้าเกม (หรือทันทีถ้าออนไลน์เซิร์ฟอื่น)
+function C.giftDiamonds(self, p, target, n)
+	local data = self.ctx.Services.DataService
+	n = math.floor(tonumber(n) or 0)
+	if n <= 0 or n > 1000000 then
+		return "❌ Amount must be 1 - 1,000,000"
+	end
+	target = tostring(target or ""):gsub("^%s+", ""):gsub("%s+$", "")
+	if target == "" then
+		return "❌ Enter the recipient's name or UserId first"
+	end
+	local from = p.DisplayName
+	if target == "*" then
+		local names = {}
+		for _, o in ipairs(Players:GetPlayers()) do
+			if o ~= p then
+				data:AddDiamonds(o, n, "Gift from " .. from, { Flat = true })
+				data:Save(o)
+				table.insert(names, o.Name)
+			end
+		end
+		return #names > 0 and string.format("Sent %d Ruby to %d players: %s", n, #names, table.concat(names, ", ")) or "❌ No other players in this server"
+	end
+	local low = target:lower()
+	for _, o in ipairs(Players:GetPlayers()) do
+		if o.Name:lower() == low or o.DisplayName:lower() == low or tostring(o.UserId) == target then
+			data:AddDiamonds(o, n, "Gift from " .. from, { Flat = true })
+			data:Save(o)
+			return string.format("Sent %d Ruby to %s (in this server)", n, o.Name)
+		end
+	end
+	local uid = tonumber(target)
+	local name = target
+	if not uid then
+		local ok, res = pcall(Players.GetUserIdFromNameAsync, Players, target)
+		if not ok or not res then
+			return "❌ No player named " .. target .. " (use the username, not the display name, or enter a UserId)"
+		end
+		uid = res
+	else
+		local ok, res = pcall(Players.GetNameFromUserIdAsync, Players, uid)
+		name = ok and res or tostring(uid)
+	end
+	local ok, err = data:QueueGift(uid, n, from)
+	if not ok then
+		return "❌ Send failed: " .. tostring(err)
+	end
+	return string.format("Sent %d Ruby to %s · they get it when they join", n, name)
+end
+
 function C.unlockAll(self, p)
 	local ds = self.ctx.Services.DataService
 	local d = ds:Get(p)
 	if not d then
-		return "ไม่มีโปรไฟล์"
+		return "No profile"
 	end
 	for _, id in ipairs(Classes.Order) do
 		d.Owned[id] = true
 	end
 	ds:Push(p)
-	return "🔓 ปลดล็อกทุกคลาส"
+	return "🔓 Unlocked all classes"
 end
 
 function C.maxClass(self, p)
 	local ds = self.ctx.Services.DataService
 	local cls = p:GetAttribute("Class") or "Survivor"
 	ds:SetClassLevel(p, cls, Classes.MaxLevel)
-	return "⭐ " .. Classes.Data[cls].Thai .. " เลเวลสูงสุด"
+	return "⭐ " .. Classes.Data[cls].Thai .. " max level"
 end
 
 function C.resetDaily(self, p)
@@ -338,7 +389,7 @@ function C.resetDaily(self, p)
 		d.StockRoll = (d.StockRoll or 0) + 1
 		ds:Push(p)
 	end
-	return "🔄 รีเซ็ตรางวัลรายวัน + สุ่มสต็อกใหม่"
+	return "🔄 Reset daily reward + rerolled stock"
 end
 
 function C.resetProfile(self, p)
@@ -355,7 +406,7 @@ function C.resetProfile(self, p)
 		p:SetAttribute("ClassLevel", 1)
 		ds:Push(p)
 	end
-	return "♻ รีเซ็ตโปรไฟล์ (Ruby/คลาส)"
+	return "♻ Reset profile (Ruby/classes)"
 end
 
 -- ข้อมูลสถานะ
@@ -367,7 +418,7 @@ function C.info(self, p)
 	if root and self.ctx.Layout and root.Position.Y < 1000 then
 		biome = self.ctx.Layout:BiomeAt(root.Position.X, root.Position.Z)
 	end
-	return string.format("ช่วง %s · คืน %d · สัตว์ %d ตัว · ไบโอม %s · ตำแหน่ง %s",
+	return string.format("Phase %s · Night %d · %d animals · Biome %s · Position %s",
 		tostring(s:GetAttribute("Phase")), s:GetAttribute("Night") or 0, #animals:All(), tostring(biome),
 		root and string.format("%d,%d,%d", root.Position.X, root.Position.Y, root.Position.Z) or "-")
 end
@@ -376,11 +427,11 @@ function DevService:Start(ctx)
 	local rf = ctx.Remotes.Get("DevCmd")
 	rf.OnServerInvoke = function(player, action, a, b)
 		if not self:IsDev(player) then
-			return "⛔ ไม่มีสิทธิ์ใช้เครื่องมือนักพัฒนา"
+			return "⛔ You don't have permission to use developer tools"
 		end
 		local fn = C[action]
 		if not fn then
-			return "ไม่รู้จักคำสั่ง " .. tostring(action)
+			return "Unknown command " .. tostring(action)
 		end
 		local ok, res = pcall(fn, self, player, a, b)
 		if not ok then

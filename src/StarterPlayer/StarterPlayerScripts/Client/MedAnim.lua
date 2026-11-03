@@ -231,8 +231,8 @@ function MedAnim.Init()
 			return
 		end
 		local item = Items.Data[player:GetAttribute("MedItem") or ""]
-		local what = item and item.Thai or "ผ้าพันแผล"
-		label.Text = player:GetAttribute("MedUse") == "Revive" and ("กำลังช่วยเพื่อนด้วย" .. what .. "…") or ("กำลังใช้" .. what .. "… (ยืนนิ่งๆ)")
+		local what = item and item.Thai or "Bandage"
+		label.Text = player:GetAttribute("MedUse") == "Revive" and ("Reviving teammate with " .. what .. "…") or ("Using " .. what .. "… (stand still)")
 		fill.Size = UDim2.fromScale(math.clamp((Workspace:GetServerTimeNow() - start) / time, 0, 1), 1)
 		holder.Visible = true
 	end)

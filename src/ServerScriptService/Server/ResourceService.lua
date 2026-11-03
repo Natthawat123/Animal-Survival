@@ -114,7 +114,7 @@ function ResourceService:Hit(player, node, tool)
 		power = (tool.Mine or 0) * surv:Perk(player, "MineMult", 1)
 	end
 	if power <= 0 then
-		self.ctx.Notify(player, kind == "Tree" and "ต้องใช้ขวานตัดไม้" or "ต้องใช้ขวาน/อีเต้อทุบ", "Error")
+		self.ctx.Notify(player, kind == "Tree" and "You need an axe to chop wood" or "You need an axe/pickaxe to break this", "Error")
 		return false
 	end
 	if kind == "Tree" or kind == "Rock" then
@@ -227,7 +227,7 @@ local function showBerries(st)
 	end
 	local max = #st.Berries
 	st.Node:SetAttribute("Berries", st.Count)
-	local txt = string.format("พุ่มเบอร์รี่ %d/%d", st.Count, max)
+	local txt = string.format("Berry Bush %d/%d", st.Count, max)
 	st.Eat.ObjectText = txt
 	st.Eat.Enabled = st.Count > 0
 	st.Pick.ObjectText = txt
@@ -281,7 +281,7 @@ function ResourceService:SetupBush(node)
 	local function prompt(name, action, key, offset, how)
 		local p = Instance.new("ProximityPrompt")
 		p.Name = name
-		p.ObjectText = "พุ่มเบอร์รี่"
+		p.ObjectText = "Berry Bush"
 		p.ActionText = action
 		p.KeyboardKeyCode = key
 		p.HoldDuration = 0.25
@@ -299,8 +299,8 @@ function ResourceService:SetupBush(node)
 	end
 	local berries = berryParts(node)
 	local st = { Node = node, Berries = berries, Count = #berries, Next = 0 }
-	st.Eat = prompt("BushEat", "กินเบอร์รี่", Enum.KeyCode.E, Vector2.new(0, -40), "Eat")
-	st.Pick = prompt("BushPick", "เก็บใส่กระสอบ", Enum.KeyCode.F, Vector2.new(0, 40), "Sack")
+	st.Eat = prompt("BushEat", "Eat Berries", Enum.KeyCode.E, Vector2.new(0, -40), "Eat")
+	st.Pick = prompt("BushPick", "Put in Sack", Enum.KeyCode.F, Vector2.new(0, 40), "Sack")
 	bushes[node] = st
 	node:SetAttribute("Depleted", false)
 	node:SetAttribute("MaxBerries", #berries)

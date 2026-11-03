@@ -410,7 +410,7 @@ local function build(id, n)
 	bb.Parent = root
 	local pr = Instance.new("ProximityPrompt")
 	pr.Name = "Pickup"
-	pr.ActionText = "เก็บใส่กระสอบ"
+	pr.ActionText = "Put in Sack"
 	pr.KeyboardKeyCode = Enum.KeyCode.E
 	pr.HoldDuration = 0
 	pr.MaxActivationDistance = PROMPT_RANGE
@@ -421,7 +421,7 @@ local function build(id, n)
 	if item.Category == "Food" or item.Category == "Medical" then
 		local use = Instance.new("ProximityPrompt")
 		use.Name = "Use"
-		use.ActionText = item.Category == "Food" and "กิน" or "ใช้"
+		use.ActionText = item.Category == "Food" and "Eat" or "Use"
 		use.KeyboardKeyCode = Enum.KeyCode.R
 		use.HoldDuration = 0.4
 		use.MaxActivationDistance = PROMPT_RANGE
@@ -651,12 +651,12 @@ function DropService:Pickup(player, m)
 		return
 	end
 	if not inv:HoldingSack(player) then
-		self.ctx.Notify(player, "🎒 ถือกระสอบก่อน (เลือกกระสอบในแถบเครื่องมือ) แล้วค่อยเก็บของ", "Info")
+		self.ctx.Notify(player, "🎒 Hold your sack first (select it in the hotbar), then pick up items", "Info")
 		return
 	end
 	local got = inv:AddToSack(player, d.Id, d.Count)
 	if got <= 0 then
-		self.ctx.Notify(player, string.format("🎒 กระสอบเต็ม (%d/%d) — กลับไปเทของที่โต๊ะคราฟต์ในแคมป์", inv:Used(player), inv:Capacity(player)), "Warn")
+		self.ctx.Notify(player, string.format("🎒 Sack is full (%d/%d) — unload it at the crafting bench in camp", inv:Used(player), inv:Capacity(player)), "Warn")
 		return
 	end
 	d.Count -= got

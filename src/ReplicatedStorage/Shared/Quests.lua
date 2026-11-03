@@ -35,27 +35,27 @@ end
 function Quests.FormatTime(s)
 	s = math.max(0, math.floor(s))
 	if s >= 86400 then
-		return string.format("%d วัน %d ชม.", s // 86400, (s % 86400) // 3600)
+		return string.format("%dd %dh", s // 86400, (s % 86400) // 3600)
 	elseif s >= 3600 then
-		return string.format("%d ชม. %d นาที", s // 3600, (s % 3600) // 60)
+		return string.format("%dh %dm", s // 3600, (s % 3600) // 60)
 	end
-	return string.format("%d นาที", math.max(1, s // 60))
+	return string.format("%dm", math.max(1, s // 60))
 end
 
 ---------------------------------------------------------------- ภารกิจ
 -- Daily/Weekly = { เป้าต่ำสุด, เป้าสูงสุด, Ruby ต่ำสุด, Ruby สูงสุด } · Step = ปัดเป้าเป็นเลขกลมๆ · Weight = โอกาสถูกสุ่ม
 Quests.Pool = {
-	{ Id = "Kill", Icon = "🐾", Text = "ล่าสัตว์ %d ตัว", Daily = { 8, 20, 6, 12 }, Weekly = { 80, 150, 30, 45 }, Step = 1 },
-	{ Id = "Night", Icon = "🌙", Text = "รอดผ่านคืน %d คืน", Daily = { 2, 4, 6, 12 }, Weekly = { 15, 25, 35, 50 }, Step = 1 },
-	{ Id = "Fuel", Icon = "🔥", Text = "เติมเชื้อเพลิงกองไฟ %d หน่วย", Daily = { 120, 300, 5, 10 }, Weekly = { 1200, 2000, 30, 45 }, Step = 10 },
-	{ Id = "Wood", Icon = "🪵", Text = "เก็บไม้ %d ชิ้น", Daily = { 30, 60, 5, 9 }, Weekly = { 250, 400, 30, 40 }, Step = 5 },
-	{ Id = "Stone", Icon = "🪨", Text = "เก็บหิน %d ชิ้น", Daily = { 15, 35, 5, 9 }, Weekly = { 150, 250, 30, 40 }, Step = 5 },
-	{ Id = "Craft", Icon = "🔨", Text = "คราฟต์ของ %d ชิ้น", Daily = { 3, 6, 5, 9 }, Weekly = { 20, 30, 30, 40 }, Step = 1 },
-	{ Id = "Revive", Icon = "🩹", Text = "ช่วยชีวิตเพื่อนที่ล้ม %d ครั้ง", Daily = { 1, 2, 8, 12 }, Weekly = { 4, 6, 35, 45 }, Step = 1, Weight = 0.6 },
-	{ Id = "FriendNight", Icon = "🤝", Text = "รอดผ่านคืนพร้อมเพื่อน %d คืน", Daily = { 1, 3, 8, 12 }, Weekly = { 8, 12, 35, 50 }, Step = 1, Weight = 0.6 },
-	{ Id = "Run", Icon = "🚪", Text = "ออกเดินทางผจญภัย %d รอบ", Daily = { 1, 2, 4, 6 }, Step = 1 },
-	{ Id = "Spirit", Icon = "✨", Text = "ช่วยวิญญาณธาตุ %d ตน", Weekly = { 1, 2, 40, 60 }, Step = 1 },
-	{ Id = "Boss", Icon = "👹", Text = "ปราบบอสธาตุ %d ตัว", Weekly = { 1, 3, 40, 60 }, Step = 1 },
+	{ Id = "Kill", Icon = "🐾", Text = "Hunt %d animals", Daily = { 8, 20, 6, 12 }, Weekly = { 80, 150, 30, 45 }, Step = 1 },
+	{ Id = "Night", Icon = "🌙", Text = "Survive %d nights", Daily = { 2, 4, 6, 12 }, Weekly = { 15, 25, 35, 50 }, Step = 1 },
+	{ Id = "Fuel", Icon = "🔥", Text = "Add %d fuel to the campfire", Daily = { 120, 300, 5, 10 }, Weekly = { 1200, 2000, 30, 45 }, Step = 10 },
+	{ Id = "Wood", Icon = "🪵", Text = "Gather %d wood", Daily = { 30, 60, 5, 9 }, Weekly = { 250, 400, 30, 40 }, Step = 5 },
+	{ Id = "Stone", Icon = "🪨", Text = "Gather %d stone", Daily = { 15, 35, 5, 9 }, Weekly = { 150, 250, 30, 40 }, Step = 5 },
+	{ Id = "Craft", Icon = "🔨", Text = "Craft %d items", Daily = { 3, 6, 5, 9 }, Weekly = { 20, 30, 30, 40 }, Step = 1 },
+	{ Id = "Revive", Icon = "🩹", Text = "Revive downed teammates %d times", Daily = { 1, 2, 8, 12 }, Weekly = { 4, 6, 35, 45 }, Step = 1, Weight = 0.6 },
+	{ Id = "FriendNight", Icon = "🤝", Text = "Survive %d nights with friends", Daily = { 1, 3, 8, 12 }, Weekly = { 8, 12, 35, 50 }, Step = 1, Weight = 0.6 },
+	{ Id = "Run", Icon = "🚪", Text = "Go on %d expeditions", Daily = { 1, 2, 4, 6 }, Step = 1 },
+	{ Id = "Spirit", Icon = "✨", Text = "Rescue %d element spirits", Weekly = { 1, 2, 40, 60 }, Step = 1 },
+	{ Id = "Boss", Icon = "👹", Text = "Defeat %d element bosses", Weekly = { 1, 3, 40, 60 }, Step = 1 },
 }
 Quests.ById = {}
 for _, q in ipairs(Quests.Pool) do
@@ -104,7 +104,7 @@ end
 function Quests.Describe(entry)
 	local q = Quests.ById[entry.Id]
 	if not q then
-		return "❔", "ภารกิจ"
+		return "❔", "Quests"
 	end
 	return q.Icon, string.format(q.Text, entry.Need or 0)
 end
@@ -137,24 +137,24 @@ end
 
 -- ฉายา (โชว์บนหัวในล็อบบี้) และสีฉายา
 Quests.Titles = {
-	Camper = { Text = "ชาวแคมป์", Icon = "⛺" },
-	NightOwl = { Text = "นกฮูกราตรี", Icon = "🦉" },
-	SeasonHero = { Text = "วีรชนแห่งฤดูกาล", Icon = "🏅" },
-	Firekeeper = { Text = "ผู้เฝ้าเปลวไฟ", Icon = "🔥" },
-	BeastSlayer = { Text = "นักล่าอสูร", Icon = "⚔" },
-	ElementLord = { Text = "เจ้าแห่งสี่ธาตุ", Icon = "🔮" },
-	Legend = { Text = "ตำนานแห่งพงไพร", Icon = "👑" },
-	Pioneer = { Text = "ผู้บุกเบิก", Icon = "🧭" },
+	Camper = { Text = "Camper", Icon = "⛺" },
+	NightOwl = { Text = "Night Owl", Icon = "🦉" },
+	SeasonHero = { Text = "Season Hero", Icon = "🏅" },
+	Firekeeper = { Text = "Flamekeeper", Icon = "🔥" },
+	BeastSlayer = { Text = "Beast Hunter", Icon = "⚔" },
+	ElementLord = { Text = "Lord of Four Elements", Icon = "🔮" },
+	Legend = { Text = "Legend of the Wilds", Icon = "👑" },
+	Pioneer = { Text = "Pioneer", Icon = "🧭" },
 }
 Quests.TitleOrder = { "Camper", "NightOwl", "SeasonHero", "Pioneer", "Firekeeper", "BeastSlayer", "ElementLord", "Legend" }
 Quests.Colors = {
-	Sky = { Text = "ฟ้าคราม", Color = Color3.fromRGB(120, 210, 255) },
-	Gold = { Text = "ทองคำ", Color = Color3.fromRGB(255, 214, 90) },
-	Ember = { Text = "ถ่านแดง", Color = Color3.fromRGB(255, 120, 70) },
-	Frost = { Text = "น้ำแข็ง", Color = Color3.fromRGB(190, 240, 255) },
-	Jade = { Text = "หยก", Color = Color3.fromRGB(110, 235, 150) },
-	Violet = { Text = "ม่วงอเมทิสต์", Color = Color3.fromRGB(196, 140, 255) },
-	Crimson = { Text = "เลือดจันทร์", Color = Color3.fromRGB(255, 70, 100) },
+	Sky = { Text = "Sky Blue", Color = Color3.fromRGB(120, 210, 255) },
+	Gold = { Text = "Gold", Color = Color3.fromRGB(255, 214, 90) },
+	Ember = { Text = "Ember Red", Color = Color3.fromRGB(255, 120, 70) },
+	Frost = { Text = "Ice", Color = Color3.fromRGB(190, 240, 255) },
+	Jade = { Text = "Jade", Color = Color3.fromRGB(110, 235, 150) },
+	Violet = { Text = "Amethyst", Color = Color3.fromRGB(196, 140, 255) },
+	Crimson = { Text = "Blood Moon", Color = Color3.fromRGB(255, 70, 100) },
 }
 Quests.ColorOrder = { "Sky", "Gold", "Ember", "Frost", "Jade", "Violet", "Crimson" }
 
@@ -190,13 +190,13 @@ function Quests.RewardText(r)
 		table.insert(parts, "♦️ " .. r.Ruby)
 	end
 	if r.Title and Quests.Titles[r.Title] then
-		table.insert(parts, Quests.Titles[r.Title].Icon .. " ฉายา " .. Quests.Titles[r.Title].Text)
+		table.insert(parts, Quests.Titles[r.Title].Icon .. " Title " .. Quests.Titles[r.Title].Text)
 	end
 	if r.Color and Quests.Colors[r.Color] then
-		table.insert(parts, "🎨 สี" .. Quests.Colors[r.Color].Text)
+		table.insert(parts, "🎨 Color: " .. Quests.Colors[r.Color].Text)
 	end
 	if r.Class and Classes.Data[r.Class] then
-		table.insert(parts, Classes.Data[r.Class].Icon .. " คลาส " .. Classes.Data[r.Class].Thai)
+		table.insert(parts, Classes.Data[r.Class].Icon .. " Class " .. Classes.Data[r.Class].Thai)
 	end
 	return table.concat(parts, " + ")
 end
@@ -204,33 +204,33 @@ end
 ---------------------------------------------------------------- ความสำเร็จ (หน้า "ป้าย")
 -- Stat = ช่องในเซฟ (หรือค่าคำนวณ OwnedCount / MaxClassLevel) · Need = เป้า · Ruby = รางวัลครั้งเดียว
 Quests.Achievements = {
-	{ Id = "Night5", Text = "🌙 รอดถึงคืนที่ 5", Stat = "BestNight", Need = 5, Ruby = 10 },
-	{ Id = "Night10", Text = "🌙 รอดถึงคืนที่ 10", Stat = "BestNight", Need = 10, Ruby = 20 },
-	{ Id = "Night25", Text = "🌕 รอดถึงคืนที่ 25", Stat = "BestNight", Need = 25, Ruby = 40 },
-	{ Id = "Night50", Text = "🌕 รอดถึงคืนที่ 50", Stat = "BestNight", Need = 50, Ruby = 80 },
-	{ Id = "Night99", Text = "👑 พิชิตคืนสุดท้าย", Stat = "BestNight", Need = 99, Ruby = 200 },
-	{ Id = "Kills50", Text = "🐾 ล่าสัตว์ 50 ตัว", Stat = "Kills", Need = 50, Ruby = 10 },
-	{ Id = "Kills250", Text = "🐾 ล่าสัตว์ 250 ตัว", Stat = "Kills", Need = 250, Ruby = 30 },
-	{ Id = "Kills1000", Text = "🐺 ล่าสัตว์ 1000 ตัว", Stat = "Kills", Need = 1000, Ruby = 80 },
-	{ Id = "Nights20", Text = "🔥 รอดรวม 20 คืน", Stat = "NightsTotal", Need = 20, Ruby = 15 },
-	{ Id = "Nights100", Text = "🔥 รอดรวม 100 คืน", Stat = "NightsTotal", Need = 100, Ruby = 50 },
-	{ Id = "Owned3", Text = "🎒 มีคลาส 3 คลาส", Stat = "OwnedCount", Need = 3, Ruby = 15 },
-	{ Id = "Owned6", Text = "🎒 มีคลาส 6 คลาส", Stat = "OwnedCount", Need = 6, Ruby = 30 },
-	{ Id = "OwnedAll", Text = "🏆 สะสมครบทุกคลาส", Stat = "OwnedCount", Need = "AllClasses", Ruby = 100 },
-	{ Id = "ClassLv3", Text = "⭐ คลาสเลเวล 3", Stat = "MaxClassLevel", Need = 3, Ruby = 20 },
-	{ Id = "Revive10", Text = "🩹 ช่วยชีวิตเพื่อน 10 ครั้ง", Stat = "Revives", Need = 10, Ruby = 25 },
-	{ Id = "Revive50", Text = "🩹 ช่วยชีวิตเพื่อน 50 ครั้ง", Stat = "Revives", Need = 50, Ruby = 60 },
-	{ Id = "Fuel1000", Text = "🔥 เติมเชื้อเพลิง 1,000 หน่วย", Stat = "FuelAdded", Need = 1000, Ruby = 15 },
-	{ Id = "Fuel10000", Text = "🔥 เติมเชื้อเพลิง 10,000 หน่วย", Stat = "FuelAdded", Need = 10000, Ruby = 50 },
-	{ Id = "Craft50", Text = "🔨 คราฟต์ของ 50 ชิ้น", Stat = "Crafts", Need = 50, Ruby = 25 },
-	{ Id = "Craft250", Text = "🔨 คราฟต์ของ 250 ชิ้น", Stat = "Crafts", Need = 250, Ruby = 60 },
-	{ Id = "Gather1000", Text = "🪵 เก็บวัตถุดิบ 1,000 ชิ้น", Stat = "Gathered", Need = 1000, Ruby = 30 },
-	{ Id = "Runs20", Text = "🚪 ออกเดินทาง 20 รอบ", Stat = "Runs", Need = 20, Ruby = 25 },
-	{ Id = "Runs100", Text = "🚪 ออกเดินทาง 100 รอบ", Stat = "Runs", Need = 100, Ruby = 80 },
-	{ Id = "Spirits4", Text = "✨ ช่วยวิญญาณธาตุ 4 ตน", Stat = "SpiritsSaved", Need = 4, Ruby = 40 },
-	{ Id = "Boss10", Text = "👹 ปราบบอส 10 ตัว", Stat = "BossKills", Need = 10, Ruby = 60 },
-	{ Id = "Quest30", Text = "📜 ทำภารกิจสำเร็จ 30 อัน", Stat = "QuestsDone", Need = 30, Ruby = 40 },
-	{ Id = "Streak7", Text = "📅 ล็อกอินครบ 7 วันติด", Stat = "BestStreak", Need = 7, Ruby = 30 },
+	{ Id = "Night5", Text = "🌙 Survive to Night 5", Stat = "BestNight", Need = 5, Ruby = 10 },
+	{ Id = "Night10", Text = "🌙 Survive to Night 10", Stat = "BestNight", Need = 10, Ruby = 20 },
+	{ Id = "Night25", Text = "🌕 Survive to Night 25", Stat = "BestNight", Need = 25, Ruby = 40 },
+	{ Id = "Night50", Text = "🌕 Survive to Night 50", Stat = "BestNight", Need = 50, Ruby = 80 },
+	{ Id = "Night99", Text = "👑 Conquer the Final Night", Stat = "BestNight", Need = 99, Ruby = 200 },
+	{ Id = "Kills50", Text = "🐾 Hunt 50 animals", Stat = "Kills", Need = 50, Ruby = 10 },
+	{ Id = "Kills250", Text = "🐾 Hunt 250 animals", Stat = "Kills", Need = 250, Ruby = 30 },
+	{ Id = "Kills1000", Text = "🐺 Hunt 1000 animals", Stat = "Kills", Need = 1000, Ruby = 80 },
+	{ Id = "Nights20", Text = "🔥 Survive 20 nights total", Stat = "NightsTotal", Need = 20, Ruby = 15 },
+	{ Id = "Nights100", Text = "🔥 Survive 100 nights total", Stat = "NightsTotal", Need = 100, Ruby = 50 },
+	{ Id = "Owned3", Text = "🎒 Own 3 classes", Stat = "OwnedCount", Need = 3, Ruby = 15 },
+	{ Id = "Owned6", Text = "🎒 Own 6 classes", Stat = "OwnedCount", Need = 6, Ruby = 30 },
+	{ Id = "OwnedAll", Text = "🏆 Collect every class", Stat = "OwnedCount", Need = "AllClasses", Ruby = 100 },
+	{ Id = "ClassLv3", Text = "⭐ Class level 3", Stat = "MaxClassLevel", Need = 3, Ruby = 20 },
+	{ Id = "Revive10", Text = "🩹 Revive teammates 10 times", Stat = "Revives", Need = 10, Ruby = 25 },
+	{ Id = "Revive50", Text = "🩹 Revive teammates 50 times", Stat = "Revives", Need = 50, Ruby = 60 },
+	{ Id = "Fuel1000", Text = "🔥 Add 1,000 fuel", Stat = "FuelAdded", Need = 1000, Ruby = 15 },
+	{ Id = "Fuel10000", Text = "🔥 Add 10,000 fuel", Stat = "FuelAdded", Need = 10000, Ruby = 50 },
+	{ Id = "Craft50", Text = "🔨 Craft 50 items", Stat = "Crafts", Need = 50, Ruby = 25 },
+	{ Id = "Craft250", Text = "🔨 Craft 250 items", Stat = "Crafts", Need = 250, Ruby = 60 },
+	{ Id = "Gather1000", Text = "🪵 Gather 1,000 materials", Stat = "Gathered", Need = 1000, Ruby = 30 },
+	{ Id = "Runs20", Text = "🚪 Go on 20 expeditions", Stat = "Runs", Need = 20, Ruby = 25 },
+	{ Id = "Runs100", Text = "🚪 Go on 100 expeditions", Stat = "Runs", Need = 100, Ruby = 80 },
+	{ Id = "Spirits4", Text = "✨ Rescue 4 element spirits", Stat = "SpiritsSaved", Need = 4, Ruby = 40 },
+	{ Id = "Boss10", Text = "👹 Defeat 10 bosses", Stat = "BossKills", Need = 10, Ruby = 60 },
+	{ Id = "Quest30", Text = "📜 Complete 30 quests", Stat = "QuestsDone", Need = 30, Ruby = 40 },
+	{ Id = "Streak7", Text = "📅 Log in 7 days in a row", Stat = "BestStreak", Need = 7, Ruby = 30 },
 }
 Quests.AchievementById = {}
 for _, a in ipairs(Quests.Achievements) do

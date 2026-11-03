@@ -136,7 +136,7 @@ function CampService:AddFuel(amount)
 	local wasOut = self.fuel <= 0
 	self.fuel = math.clamp(self.fuel + amount, 0, max)
 	if wasOut and self.fuel > 0 then
-		self.ctx.Broadcast("กองไฟลุกอีกครั้ง", "Good")
+		self.ctx.Broadcast("The campfire is burning again", "Good")
 	end
 	self:UpdateVisual()
 	self:Publish()
@@ -169,9 +169,9 @@ function CampService:Refuel(player)
 	end
 	if next(used) == nil then
 		if self.fuel >= max - 6 then
-			self.ctx.Notify(player, "กองไฟเต็มแล้ว", "Info")
+			self.ctx.Notify(player, "The campfire is full", "Info")
 		else
-			self.ctx.Notify(player, "ไม่มีเชื้อเพลิง (ไม้ / ถ่านหิน / เศษอัคคี)", "Error")
+			self.ctx.Notify(player, "No fuel (wood / coal / ember shards)", "Error")
 		end
 		return
 	end
@@ -179,7 +179,7 @@ function CampService:Refuel(player)
 	for id, n in pairs(used) do
 		table.insert(parts, Items.DisplayName(id) .. " x" .. n)
 	end
-	self.ctx.Notify(player, "🔥 เติมไฟ: " .. table.concat(parts, ", "), "Good")
+	self.ctx.Notify(player, "🔥 Fuel added: " .. table.concat(parts, ", "), "Good")
 	if self.ctx.Services.QuestService then
 		self.ctx.Services.QuestService:Progress(player, "Fuel", math.floor(self.fuel - before))
 	end
@@ -191,12 +191,12 @@ end
 function CampService:UpgradeFire(player)
 	local nextInfo = Recipes.Campfire[self.level + 1]
 	if not nextInfo then
-		self.ctx.Notify(player, "กองไฟเลเวลสูงสุดแล้ว", "Info")
+		self.ctx.Notify(player, "The campfire is already max level", "Info")
 		return
 	end
 	local inv = self.ctx.Services.InventoryService
 	if not inv:Spend(player, nextInfo.Cost) then
-		self.ctx.Notify(player, "ของไม่พอสำหรับอัปเกรดกองไฟ", "Error")
+		self.ctx.Notify(player, "Not enough materials to upgrade the campfire", "Error")
 		return
 	end
 	self.level += 1
@@ -210,15 +210,15 @@ end
 function CampService:UpgradeBench(player)
 	local cost = Recipes.BenchUpgrade[self.bench + 1]
 	if not cost then
-		self.ctx.Notify(player, "โต๊ะคราฟต์เลเวลสูงสุดแล้ว", "Info")
+		self.ctx.Notify(player, "The crafting bench is already max level", "Info")
 		return
 	end
 	if not self.ctx.Services.InventoryService:Spend(player, cost) then
-		self.ctx.Notify(player, "ของไม่พอสำหรับอัปเกรดโต๊ะ", "Error")
+		self.ctx.Notify(player, "Not enough materials to upgrade the bench", "Error")
 		return
 	end
 	self.bench += 1
-	self.ctx.Broadcast(string.format("โต๊ะคราฟต์ Lv.%d · สูตรใหม่", self.bench), "Reward")
+	self.ctx.Broadcast(string.format("Crafting Bench Lv.%d · New recipes", self.bench), "Reward")
 	self:Publish()
 	self:RefreshPrompts()
 end
@@ -230,11 +230,11 @@ function CampService:Craft(player, recipeId, count)
 		return
 	end
 	if not self:InCamp(player) then
-		self.ctx.Notify(player, "ต้องอยู่ในแคมป์ (ใกล้กองไฟ/โต๊ะคราฟต์) ถึงจะคราฟต์ได้", "Error")
+		self.ctx.Notify(player, "You must be in the camp (near the campfire/crafting bench) to craft", "Error")
 		return
 	end
 	if r.Bench > self.bench then
-		self.ctx.Notify(player, string.format("ต้องอัปเกรดโต๊ะเป็นเลเวล %d ก่อน", r.Bench), "Error")
+		self.ctx.Notify(player, string.format("Upgrade the bench to level %d first", r.Bench), "Error")
 		return
 	end
 	local inv = self.ctx.Services.InventoryService
@@ -247,28 +247,28 @@ function CampService:Craft(player, recipeId, count)
 		local wornId = player:GetAttribute("Armor")
 		local cur = Items.Data[wornId or ""]
 		if cur and (cur.Tier or 0) >= (item.Tier or 0) then
-			self.ctx.Notify(player, "สวม " .. Items.DisplayName(wornId) .. " อยู่แล้ว (ดีเท่ากันหรือดีกว่า)", "Info")
+			self.ctx.Notify(player, "Already wearing " .. Items.DisplayName(wornId) .. " (same or better)", "Info")
 			return
 		end
 		if not inv:Spend(player, r.Cost) then
-			self.ctx.Notify(player, "วัตถุดิบไม่พอ", "Error")
+			self.ctx.Notify(player, "Not enough materials", "Error")
 			return
 		end
 		self.ctx.Services.SurvivalService:EquipArmor(player, r.Id)
 		if self.ctx.Services.QuestService then
 			self.ctx.Services.QuestService:Progress(player, "Craft", 1)
 		end
-		self.ctx.Notify(player, string.format("🛡 สวม %s แล้ว! เลือดสูงสุด +%d", Items.DisplayName(r.Id), item.ArmorHP or 0), "Good")
+		self.ctx.Notify(player, string.format("🛡 Equipped %s! Max HP +%d", Items.DisplayName(r.Id), item.ArmorHP or 0), "Good")
 		self.ctx.Remotes.Get("HitFx"):FireAllClients("Craft", { Position = self.benchPos })
 		return
 	end
 	if item.Category == "Tool" and inv:Count(player, r.Id) > 0 then
-		self.ctx.Notify(player, "มี " .. Items.DisplayName(r.Id) .. " อยู่แล้ว", "Info")
+		self.ctx.Notify(player, "You already have " .. Items.DisplayName(r.Id) .. "", "Info")
 		return
 	end
 	local sack = Items.Sacks[r.Id] and inv:BestSack(player)
 	if sack and Items.Sacks[sack] >= Items.Sacks[r.Id] then
-		self.ctx.Notify(player, "มี " .. Items.DisplayName(sack) .. " ที่ใหญ่กว่าอยู่แล้ว", "Info")
+		self.ctx.Notify(player, "You already have " .. Items.DisplayName(sack) .. " or a bigger one", "Info")
 		return
 	end
 	local mult = 1
@@ -288,7 +288,7 @@ function CampService:Craft(player, recipeId, count)
 	-- จำนวนสูงสุดของสิ่งก่อสร้าง (Limits): ครบแล้วคราฟต์ไม่ได้ ไม่เสียวัตถุดิบ
 	local room = inv:Room(player, r.Id)
 	if room < amount then
-		self.ctx.Notify(player, inv:LimitText(r.Id) .. " — ครบแล้ว", "Error")
+		self.ctx.Notify(player, inv:LimitText(r.Id) .. " — maxed out", "Error")
 		return
 	end
 	want = math.min(want, math.floor(room / amount))
@@ -306,7 +306,7 @@ function CampService:Craft(player, recipeId, count)
 		can = math.min(can, math.floor(inv:Available(player, id, inCamp) / need))
 	end
 	if can <= 0 then
-		self.ctx.Notify(player, "วัตถุดิบไม่พอ", "Error")
+		self.ctx.Notify(player, "Not enough materials", "Error")
 		return
 	end
 	local total = {}
@@ -314,7 +314,7 @@ function CampService:Craft(player, recipeId, count)
 		total[id] = need * can
 	end
 	if not inv:Spend(player, total) then
-		self.ctx.Notify(player, "วัตถุดิบไม่พอ", "Error")
+		self.ctx.Notify(player, "Not enough materials", "Error")
 		return
 	end
 	-- ของที่คราฟต์เสร็จเข้าแถบไอเทมล่างจอ (เครื่องมือ/สิ่งก่อสร้าง/ยา) — ช่องเต็มก็อยู่ในกระเป๋า
@@ -323,7 +323,7 @@ function CampService:Craft(player, recipeId, count)
 		self.ctx.Services.QuestService:Progress(player, "Craft", can)
 	end
 	local suffix = can > 1 and (" x" .. can) or ""
-	self.ctx.Notify(player, "🔨 คราฟต์สำเร็จ: " .. Items.DisplayName(r.Id) .. suffix .. (item.Category == "Structure" and "  (อยู่ในแถบไอเทมล่างจอ กดเพื่อวาง)" or ""), "Good")
+	self.ctx.Notify(player, "🔨 Crafted: " .. Items.DisplayName(r.Id) .. suffix .. (item.Category == "Structure" and "  (in the hotbar at the bottom, tap to place)" or ""), "Good")
 	self.ctx.Remotes.Get("HitFx"):FireAllClients("Craft", { Position = self.benchPos })
 end
 
@@ -342,7 +342,7 @@ function CampService:ThrowFrom(player, what)
 	local fire = self:FirePosition()
 	if not (char and fire) or ((char:GetPivot().Position - fire) * Vector3.new(1, 0, 1)).Magnitude > self.ThrowRange then
 		if char and fire then
-			self.ctx.Notify(player, "เดินเข้าไปใกล้กองไฟก่อน แล้วค่อยโยน", "Info")
+			self.ctx.Notify(player, "Walk closer to the campfire first, then throw", "Info")
 		end
 		return
 	end
@@ -364,8 +364,8 @@ function CampService:ThrowFrom(player, what)
 		pick = "RawMeat"
 	end
 	if not pick then
-		self.ctx.Notify(player, what == "Meat" and "ในกระสอบไม่มีเนื้อดิบ (ล่าสัตว์ก่อน)"
-			or what == "Fuel" and "ในกระสอบไม่มีไม้/ถ่าน" or "ในกระสอบไม่มีไม้/ถ่าน/เนื้อดิบ ให้โยนเข้ากองไฟ", "Info")
+		self.ctx.Notify(player, what == "Meat" and "No raw meat in your sack (go hunting first)"
+			or what == "Fuel" and "No wood/coal in your sack" or "No wood/coal/raw meat in your sack to throw into the fire", "Info")
 		return
 	end
 	inv:Remove(player, pick, 1)
@@ -380,7 +380,7 @@ function CampService:FeedGrinder(player, all)
 	if not hopper then
 		local n = self.ctx.Services.InventoryService:Deposit(player)
 		if n > 0 then
-			self.ctx.Notify(player, string.format("📦 เทของลงคลังแคมป์ %d ชิ้น", n), "Good")
+			self.ctx.Notify(player, string.format("📦 Stored %d items in the camp storage", n), "Good")
 		end
 		return
 	end
@@ -402,7 +402,7 @@ function CampService:FeedGrinder(player, all)
 		end
 	end
 	if #list == 0 then
-		self.ctx.Notify(player, "ในกระสอบไม่มีวัตถุดิบให้ย่อย (ไม้ หิน แร่ หนัง กระดูก ...)", "Info")
+		self.ctx.Notify(player, "No materials in your sack to grind (wood, stone, ore, pelt, bone ...)", "Info")
 		return
 	end
 	local target = hopper.Position + Vector3.new(0, hopper.Size.Y * 0.2, 0)
@@ -498,7 +498,7 @@ function CampService:BurnDrops()
 					drops:Spawn(COOK[d.Id], count, fire + dir * 5 + Vector3.new(0, 1, 0), { Spread = 0.5 })
 					self.ctx.Remotes.Get("HitFx"):FireAllClients("Refuel", { Position = fire })
 					if by and by.Parent then
-						self.ctx.Notify(by, "🍖 เนื้อสุกแล้ว! เก็บใส่กระสอบ หรือกด R กิน", "Good")
+						self.ctx.Notify(by, "🍖 Meat is cooked! Put it in your sack or press R to eat", "Good")
 					end
 				end)
 			end
@@ -516,18 +516,18 @@ end
 
 function CampService:Cook(player)
 	if not self:IsLit() then
-		self.ctx.Notify(player, "ไฟดับอยู่ ย่างไม่ได้", "Error")
+		self.ctx.Notify(player, "The fire is out, can't cook", "Error")
 		return
 	end
 	local inv = self.ctx.Services.InventoryService
 	local n = inv:Count(player, "RawMeat")
 	if n <= 0 then
-		self.ctx.Notify(player, "ไม่มีเนื้อดิบ", "Error")
+		self.ctx.Notify(player, "No raw meat", "Error")
 		return
 	end
 	inv:Remove(player, "RawMeat", n)
 	inv:Add(player, "CookedMeat", n)
-	self.ctx.Notify(player, "🍖 ย่างเนื้อ x" .. n, "Good")
+	self.ctx.Notify(player, "🍖 Cooking meat x" .. n, "Good")
 end
 
 local function costText(cost)
@@ -542,13 +542,13 @@ end
 function CampService:RefreshPrompts()
 	if self.upgradePrompt then
 		local nextInfo = Recipes.Campfire[self.level + 1]
-		self.upgradePrompt.ObjectText = "กองไฟ Lv." .. self.level
-		self.upgradePrompt.ActionText = nextInfo and ("อัปเกรด: " .. costText(nextInfo.Cost)) or "เลเวลสูงสุด"
+		self.upgradePrompt.ObjectText = "Campfire Lv." .. self.level
+		self.upgradePrompt.ActionText = nextInfo and ("Upgrade: " .. costText(nextInfo.Cost)) or "Max Level"
 	end
 	if self.benchUpgradePrompt then
 		local cost = Recipes.BenchUpgrade[self.bench + 1]
-		self.benchUpgradePrompt.ObjectText = "โต๊ะคราฟต์ Lv." .. self.bench
-		self.benchUpgradePrompt.ActionText = cost and ("อัปเกรด: " .. costText(cost)) or "เลเวลสูงสุด"
+		self.benchUpgradePrompt.ObjectText = "Crafting Bench Lv." .. self.bench
+		self.benchUpgradePrompt.ActionText = cost and ("Upgrade: " .. costText(cost)) or "Max Level"
 	end
 end
 
@@ -592,7 +592,7 @@ function CampService:StartFogWall(ctx)
 						root.AssemblyLinearVelocity = Vector3.zero
 						if not warned[p] or os.clock() - warned[p] > 5 then
 							warned[p] = os.clock()
-							ctx.Notify(p, "🌫 หมอกหนาเกินไป — อัปเกรดกองไฟเพื่อสำรวจต่อ", "Error")
+							ctx.Notify(p, "🌫 The fog is too thick — upgrade the campfire to explore further", "Error")
 						end
 					end
 				end
@@ -610,14 +610,14 @@ function CampService:Start(ctx)
 	self.benchPos = bench:GetPivot().Position
 
 	local benchTop = bench.PrimaryPart
-	local craft = prompt(benchTop, "Craft", "เปิดเมนูคราฟต์", "โต๊ะคราฟต์", Enum.KeyCode.E, 0, 14)
+	local craft = prompt(benchTop, "Craft", "Open Crafting Menu", "Crafting Bench", Enum.KeyCode.E, 0, 14)
 	craft.Triggered:Connect(function(p)
 		ctx.Remotes.Get("Cinematic"):FireClient(p, "OpenCraft", {})
 	end)
 	-- เครื่องย่อย (ซ้าย): โยนวัตถุดิบลงช่อง -> บด -> เข้าคลังแคมป์ (ทุกคนใช้ร่วมกัน)
 	self.hopper = bench:FindFirstChild("Hopper")
 	local depositHost = self.hopper or benchTop
-	local deposit = prompt(depositHost, "Deposit", "โยนวัตถุดิบลงเครื่องย่อย (ทีละชิ้น)", "เครื่องย่อย", Enum.KeyCode.G, 0, 20)
+	local deposit = prompt(depositHost, "Deposit", "Throw materials into the grinder (one at a time)", "Grinder", Enum.KeyCode.G, 0, 20)
 	if not self.hopper then
 		deposit.UIOffset = Vector2.new(0, 70)
 	end
@@ -625,8 +625,8 @@ function CampService:Start(ctx)
 		self:FeedGrinder(p, false) -- กด 1 ครั้ง = โยน 1 ชิ้น
 	end)
 	-- กองไฟ: เดินเข้าไปใกล้แล้วกดโยนเอง (ไม่ดูดของจากไกล ๆ) · [E] โยนไม้/ถ่าน · [R] โยนเนื้อดิบไปย่าง
-	local fuelPrompt = prompt(self.fireCore, "FireFuel", "โยนไม้เข้ากองไฟ", "กองไฟ", Enum.KeyCode.E, 0, self.ThrowRange - 2)
-	local cookPrompt = prompt(self.fireCore, "FireCook", "ย่างเนื้อ", "กองไฟ", Enum.KeyCode.R, 0, self.ThrowRange - 2)
+	local fuelPrompt = prompt(self.fireCore, "FireFuel", "Throw wood into the fire", "Campfire", Enum.KeyCode.E, 0, self.ThrowRange - 2)
+	local cookPrompt = prompt(self.fireCore, "FireCook", "Cook Meat", "Campfire", Enum.KeyCode.R, 0, self.ThrowRange - 2)
 	cookPrompt.UIOffset = Vector2.new(0, 70)
 	for _, pp in ipairs({ { fuelPrompt, "Fuel" }, { cookPrompt, "Meat" } }) do
 		pp[1].Triggered:Connect(function(p)
@@ -645,7 +645,7 @@ function CampService:Start(ctx)
 		if recipeId == "UpgradeFire" or recipeId == "UpgradeBench" then
 			-- อัปเกรดจากเมนูคราฟต์ (ต้องอยู่ในแคมป์)
 			if not self:InCamp(player) then
-				self.ctx.Notify(player, "ต้องอยู่ในแคมป์", "Error")
+				self.ctx.Notify(player, "Must be in the camp", "Error")
 			elseif recipeId == "UpgradeFire" then
 				self:UpgradeFire(player)
 			else

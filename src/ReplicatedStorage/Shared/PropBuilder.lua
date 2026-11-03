@@ -1679,7 +1679,7 @@ function PropBuilder.BuildAccess(area, frame, model, parent, color)
 		local p = P("Part", { Name = "LiftPad", Size = V(0.4, 7, 7), CFrame = CF(pos + V(0, 0.2, 0)) * ANG(0, 0, math.pi / 2), Shape = Enum.PartType.Cylinder, Color = color or C(120, 220, 255), Material = Enum.Material.Neon, CanCollide = false }, parent)
 		local pr = Instance.new("ProximityPrompt")
 		pr.ActionText = text
-		pr.ObjectText = "แท่นวาร์ป"
+		pr.ObjectText = "Warp Pad"
 		pr.HoldDuration = 0.3
 		pr.MaxActivationDistance = 10
 		pr.RequiresLineOfSight = false
@@ -1691,8 +1691,8 @@ function PropBuilder.BuildAccess(area, frame, model, parent, color)
 			end
 		end)
 	end
-	pad(low, "ขึ้นไปข้างบน", entry)
-	pad(entry, "ลงไปข้างล่าง", low)
+	pad(low, "Go Up", entry)
+	pad(entry, "Go Down", low)
 	return "lift"
 end
 
@@ -2534,7 +2534,7 @@ function PropBuilder.BuildPortal(frame, el, parent, opts)
 	end
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = "Enter"
-	prompt.ActionText = opts.Action or "เข้าสู่มิติ"
+	prompt.ActionText = opts.Action or "Enter Realm"
 	prompt.ObjectText = opts.Label or ""
 	prompt.HoldDuration = 0.3
 	prompt.MaxActivationDistance = 14
@@ -2691,14 +2691,16 @@ function PropBuilder.BuildRealmRoom(el, xz, parent, name, rot, key)
 			end
 		end
 	else
-		-- ศาลเจ้า: กระถางไฟ 6 ใบรอบลาน
+		-- ศาลเจ้า: กระถางไฟรอบลาน · เว้นใบที่ 4 (มุม 270° = ฝั่งประตู -Z) ที่ขวางทางเดินในฉากเปิด (ตัวละครเดินไปหากรงแล้วติด)
 		for k = 0, 5 do
-			local a = k / 6 * math.pi * 2 + math.pi / 6
-			local p = (center * CF(math.cos(a) * 36, 0, math.sin(a) * 36)).Position
-			local br = PropBuilder.Imported("BrazierLP", CF(p.X, top, p.Z), 5.5, m, true)
-			local host = br and br:FindFirstChildWhichIsA("BasePart", true)
-			if host then
-				light(host, col, 26, 1.6)
+			if k ~= 4 then
+				local a = k / 6 * math.pi * 2 + math.pi / 6
+				local p = (center * CF(math.cos(a) * 36, 0, math.sin(a) * 36)).Position
+				local br = PropBuilder.Imported("BrazierLP", CF(p.X, top, p.Z), 5.5, m, true)
+				local host = br and br:FindFirstChildWhichIsA("BasePart", true)
+				if host then
+					light(host, col, 26, 1.6)
+				end
 			end
 		end
 	end
@@ -2791,13 +2793,13 @@ function PropBuilder.BuildRealm(frame, el, parent, label, action, kind)
 	local key = (kind or "Shrine") .. el
 	local th = REALM_THEME[key]
 	local outside, outVeil = PropBuilder.BuildPortal(frame, el, parent, {
-		Name = "PortalOut", Label = label, Action = action or "เข้าสู่มิติ", Model = th and th.Gate, Width = th and th.GateW, Theme = th,
+		Name = "PortalOut", Label = label, Action = action or "Enter Realm", Model = th and th.Gate, Width = th and th.GateW, Theme = th,
 	})
 	local room, center, entry, top = PropBuilder.BuildRealmRoom(el, frame.Position, parent, "Realm", frame - frame.Position, key)
 	-- ประตูกลับ: หลังจุดยืนตอนเข้า (ซุ้มเดียวกับข้างนอก ช่องประตูหันเข้าลาน)
 	local backPos = (center * CF(0, 0, -96)).Position
 	local _, backVeil = PropBuilder.BuildPortal(CFrame.lookAt(backPos, V(center.X, top, center.Z)), el, room, {
-		Name = "PortalBack", Floor = top, Label = label, Action = "กลับออกไปข้างนอก", Model = th and th.Gate, Width = th and th.GateW,
+		Name = "PortalBack", Floor = top, Label = label, Action = "Go Back Outside", Model = th and th.Gate, Width = th and th.GateW,
 	})
 	local outFront = (frame * CF(0, 0, -11)).Position
 	local outGround = terrainY(outFront, 2)
@@ -2805,6 +2807,7 @@ function PropBuilder.BuildRealm(frame, el, parent, label, action, kind)
 	outVeil:SetAttribute("DestLook", V(center.X, entry.Y, center.Z))
 	backVeil:SetAttribute("Dest", V(outFront.X, outGround + 3, outFront.Z))
 	backVeil:SetAttribute("DestLook", V(outFront.X, outGround + 3, outFront.Z) + (outFront - frame.Position) * 3)
+	backVeil:SetAttribute("DestGround", true) -- PortalService วัดพื้นจริงตอนวาร์ป (กันจมดิน)
 	outside:SetAttribute("Realm", true)
 	return room, center
 end
@@ -2817,8 +2820,8 @@ function PropBuilder.BuildShrine(sp, parent)
 	local base = faceCamp(sp.Position)
 	m.WorldPivot = base
 	-- ประตูมิติบนพื้น -> ห้องในปราสาทบนฟ้า · กรง + ผู้พิทักษ์อยู่กลางห้อง (พื้นหินเรียบ ไม่ลอย/ไม่จม)
-	local TH = { Earth = "ปฐพี", Water = "วารี", Air = "วายุ", Fire = "อัคคี" }
-	local _, center = PropBuilder.BuildRealm(base, el, m, "ศาลเจ้า" .. (TH[el] or ""), "เข้าศาลเจ้า", "Shrine")
+	local TH = { Earth = "Earth", Water = "Water", Air = "Frost", Fire = "Fire" }
+	local _, center = PropBuilder.BuildRealm(base, el, m, (TH[el] or "") .. " Shrine", "Enter Shrine", "Shrine")
 	base = center * (base - base.Position)
 	m.WorldPivot = base
 	m:SetAttribute("SitePos", sp.Position) -- ตำแหน่งลานเดิม (ใช้สร้างใหม่ตอนเริ่มรอบ)
@@ -3256,7 +3259,7 @@ function PropBuilder.BuildLair(sp, parent)
 		if el == "Air" then
 			local ok, err = pcall(decorIceLair, m, base, R, col, sp.Floating)
 			if not ok then
-				warn("[AS] ห้องบอสน้ำแข็ง:", err)
+				warn("[AS] Frost boss room:", err)
 			end
 		end
 	end

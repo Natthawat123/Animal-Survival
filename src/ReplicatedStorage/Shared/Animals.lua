@@ -23,7 +23,7 @@ local V = Vector3.new
 Animals.Data = {
 	------------------------------------------------------------ สัตว์ทั่วไป
 	Rabbit = {
-		Name = "Meadow Hare", Thai = "กระต่ายทุ่ง", Element = nil, Behaviour = "Passive",
+		Name = "Meadow Hare", Thai = "Meadow Hare", Element = nil, Behaviour = "Passive",
 		Health = 15, Damage = 0, Speed = 22, Aggro = 30,
 		Drops = { { Item = "RawMeat", Min = 1, Max = 1 }, { Item = "Fiber", Min = 1, Max = 2 } },
 		Model = {
@@ -33,7 +33,7 @@ Animals.Data = {
 		},
 	},
 	Deer = {
-		Name = "Dawn Deer", Thai = "กวางรุ่งอรุณ", Element = nil, Behaviour = "Passive",
+		Name = "Dawn Deer", Thai = "Dawn Deer", Element = nil, Behaviour = "Passive",
 		Health = 45, Damage = 0, Speed = 26, Aggro = 50,
 		Drops = { { Item = "RawMeat", Min = 2, Max = 3 }, { Item = "Pelt", Min = 1, Max = 1 }, { Item = "Bone", Min = 1, Max = 2 } },
 		Model = {
@@ -45,7 +45,7 @@ Animals.Data = {
 
 	------------------------------------------------------------ ธาตุดิน
 	MossWolf = {
-		Name = "Crystal Stag", Thai = "กวางผลึกปฐพี", Element = "Earth", Behaviour = "Hunter",
+		Name = "Crystal Stag", Thai = "Crystal Stag", Element = "Earth", Behaviour = "Hunter",
 		Health = 70, Damage = 10, Speed = 23, AttackRange = 6, AttackCooldown = 1.7, Aggro = 42, StructureDamage = 1,
 		RaidCost = 2, MinNight = 1, Pack = { 2, 4 },
 		Drops = { { Item = "RawMeat", Min = 1, Max = 2 }, { Item = "Pelt", Min = 1, Max = 1 }, { Item = "Bone", Min = 1, Max = 2 } },
@@ -57,7 +57,7 @@ Animals.Data = {
 		},
 	},
 	Thornboar = {
-		Name = "Earth Crocodile", Thai = "จระเข้ศิลา", Element = "Earth", Behaviour = "Charger",
+		Name = "Earth Crocodile", Thai = "Stone Crocodile", Element = "Earth", Behaviour = "Charger",
 		Health = 110, Damage = 16, Speed = 22, AttackRange = 6, AttackCooldown = 2.4, Aggro = 38, ChargeCooldown = 8, StructureDamage = 2,
 		RaidCost = 3, MinNight = 3,
 		Drops = { { Item = "RawMeat", Min = 2, Max = 3 }, { Item = "Pelt", Min = 1, Max = 2 }, { Item = "Fiber", Min = 1, Max = 3 }, { Item = "Bone", Min = 1, Max = 1 } },
@@ -69,7 +69,7 @@ Animals.Data = {
 		},
 	},
 	StoneBear = {
-		Name = "Earth Turtle", Thai = "เต่าหินภูผา", Element = "Earth", Behaviour = "Brute",
+		Name = "Earth Turtle", Thai = "Mountain Rock Turtle", Element = "Earth", Behaviour = "Brute",
 		Health = 260, Damage = 26, Speed = 15, AttackRange = 8, AttackCooldown = 2.6, Aggro = 36, StructureDamage = 4,
 		RaidCost = 7, MinNight = 8,
 		Drops = { { Item = "RawMeat", Min = 3, Max = 5 }, { Item = "Pelt", Min = 2, Max = 3 }, { Item = "Stone", Min = 1, Max = 3 }, { Item = "Bone", Min = 1, Max = 2 } },
@@ -83,7 +83,7 @@ Animals.Data = {
 
 	------------------------------------------------------------ ธาตุน้ำ
 	ReefCrab = {
-		Name = "Coralshell Crab", Thai = "ปูยักษ์กระดองปะการัง", Element = "Water", Behaviour = "Brute",
+		Name = "Coralshell Crab", Thai = "Coralshell Crab", Element = "Water", Behaviour = "Brute",
 		Health = 160, Damage = 16, Speed = 13, AttackRange = 8, AttackCooldown = 1.8, Aggro = 48, StructureDamage = 3, Armor = 0.3,
 		RaidCost = 4, MinNight = 4,
 		Drops = { { Item = "RawMeat", Min = 2, Max = 3 }, { Item = "Stone", Min = 1, Max = 3 }, { Item = "Fiber", Min = 1, Max = 2 } },
@@ -94,7 +94,7 @@ Animals.Data = {
 	},
 	-- วาฬเพชฌฆาต: อยู่แต่ในน้ำ (Aquatic) ว่ายวนชายฝั่ง พุ่งงับคนที่ลงน้ำ/ยืนริมน้ำ · ไม่ร่วมบุกแคมป์
 	TideOrca = {
-		Name = "Riptide Orca", Thai = "วาฬเพชฌฆาตคลื่นคลั่ง", Element = "Water", Behaviour = "Hunter", Aquatic = true,
+		Name = "Riptide Orca", Thai = "Riptide Orca", Element = "Water", Behaviour = "Hunter", Aquatic = true,
 		Health = 220, Damage = 24, Speed = 22, AttackRange = 12, AttackCooldown = 2.2, Aggro = 70, StructureDamage = 0,
 		Drops = { { Item = "RawMeat", Min = 3, Max = 5 }, { Item = "Pelt", Min = 1, Max = 2 }, { Item = "Bone", Min = 2, Max = 3 } },
 		Model = {
@@ -104,7 +104,7 @@ Animals.Data = {
 	},
 	-- หมึกยักษ์: คลานบนชายหาด หนวดฟาด + พ่นหมึกบังตา
 	InkOctopus = {
-		Name = "Inkshade Octopus", Thai = "หมึกยักษ์พ่นหมึก", Element = "Water", Behaviour = "Hunter",
+		Name = "Inkshade Octopus", Thai = "Inkshade Octopus", Element = "Water", Behaviour = "Hunter",
 		Health = 110, Damage = 14, Speed = 16, AttackRange = 9, AttackCooldown = 1.9, Aggro = 55, StructureDamage = 2,
 		RaidCost = 3, MinNight = 5,
 		Drops = { { Item = "RawMeat", Min = 2, Max = 3 }, { Item = "Fiber", Min = 2, Max = 3 } },
@@ -116,7 +116,7 @@ Animals.Data = {
 
 	------------------------------------------------------------ ธาตุลม
 	GaleHawk = {
-		Name = "Frostfang Bear", Thai = "หมีเขี้ยวน้ำแข็ง", Element = "Air", Behaviour = "Brute",
+		Name = "Frostfang Bear", Thai = "Frostfang Bear", Element = "Air", Behaviour = "Brute",
 		Health = 170, Damage = 20, Speed = 18, AttackRange = 7, AttackCooldown = 2.5, Aggro = 38, StructureDamage = 3,
 		RaidCost = 4, MinNight = 4,
 		Drops = { { Item = "RawMeat", Min = 2, Max = 4 }, { Item = "Pelt", Min = 1, Max = 2 }, { Item = "Bone", Min = 1, Max = 2 } },
@@ -127,7 +127,7 @@ Animals.Data = {
 		},
 	},
 	SkyLynx = {
-		Name = "Ice Tiger", Thai = "เสือน้ำแข็ง", Element = "Air", Behaviour = "Hunter",
+		Name = "Ice Tiger", Thai = "Ice Tiger", Element = "Air", Behaviour = "Hunter",
 		Health = 85, Damage = 14, Speed = 26, AttackRange = 7, AttackCooldown = 1.7, Aggro = 42, StructureDamage = 1,
 		RaidCost = 3, MinNight = 5, Leap = true,
 		Drops = { { Item = "RawMeat", Min = 1, Max = 2 }, { Item = "Pelt", Min = 1, Max = 2 }, { Item = "Bone", Min = 1, Max = 1 } },
@@ -139,7 +139,7 @@ Animals.Data = {
 		},
 	},
 	StormRam = {
-		Name = "Snow Bull", Thai = "กระทิงหิมะ", Element = "Air", Behaviour = "Charger",
+		Name = "Snow Bull", Thai = "Snow Bull", Element = "Air", Behaviour = "Charger",
 		Health = 140, Damage = 18, Speed = 21, AttackRange = 6, AttackCooldown = 2.5, Aggro = 38, ChargeCooldown = 8, StructureDamage = 3, Knockback = 90,
 		RaidCost = 4, MinNight = 7,
 		Drops = { { Item = "RawMeat", Min = 2, Max = 3 }, { Item = "Fiber", Min = 2, Max = 4 }, { Item = "Bone", Min = 1, Max = 2 } },
@@ -153,7 +153,7 @@ Animals.Data = {
 
 	------------------------------------------------------------ ธาตุไฟ
 	EmberFox = {
-		Name = "Ember Wolf", Thai = "หมาป่าถ่านเพลิง", Element = "Fire", Behaviour = "Hunter",
+		Name = "Ember Wolf", Thai = "Ember Wolf", Element = "Fire", Behaviour = "Hunter",
 		Health = 60, Damage = 9, Speed = 25, AttackRange = 6, AttackCooldown = 1.6, Aggro = 42, StructureDamage = 1, Burn = 3,
 		RaidCost = 2, MinNight = 3, Pack = { 2, 5 },
 		Drops = { { Item = "RawMeat", Min = 1, Max = 1 }, { Item = "Pelt", Min = 1, Max = 1 }, { Item = "Bone", Min = 1, Max = 1 }, { Item = "Coal", Min = 0, Max = 1 } },
@@ -165,7 +165,7 @@ Animals.Data = {
 		},
 	},
 	MagmaRhino = {
-		Name = "Fire Ram", Thai = "แกะเพลิงลาวา", Element = "Fire", Behaviour = "Charger",
+		Name = "Fire Ram", Thai = "Lava Fire Ram", Element = "Fire", Behaviour = "Charger",
 		Health = 300, Damage = 28, Speed = 19, AttackRange = 7, AttackCooldown = 2.8, Aggro = 38, ChargeCooldown = 9, StructureDamage = 6, Knockback = 120,
 		RaidCost = 9, MinNight = 12,
 		Drops = { { Item = "RawMeat", Min = 4, Max = 6 }, { Item = "Pelt", Min = 2, Max = 3 }, { Item = "Coal", Min = 1, Max = 3 }, { Item = "Fiber", Min = 1, Max = 2 } },
@@ -177,7 +177,7 @@ Animals.Data = {
 		},
 	},
 	LavaSalamander = {
-		Name = "Emberclaw Scorpion", Thai = "แมงป่องก้ามถ่าน", Element = "Fire", Behaviour = "Spitter",
+		Name = "Emberclaw Scorpion", Thai = "Emberclaw Scorpion", Element = "Fire", Behaviour = "Spitter",
 		Health = 90, Damage = 12, Speed = 16, AttackRange = 70, AttackCooldown = 2.8, Aggro = 45, StructureDamage = 2, Burn = 5,
 		RaidCost = 3, MinNight = 5,
 		Drops = { { Item = "RawMeat", Min = 1, Max = 2 }, { Item = "Bone", Min = 0, Max = 1 }, { Item = "Coal", Min = 0, Max = 1 } },
@@ -191,7 +191,7 @@ Animals.Data = {
 
 	------------------------------------------------------------ บอสธาตุ
 	Terragon = {
-		Name = "GOLGRAN, the Living Mountain", Thai = "โกลแกรน โกเลมขุนเขา", Element = "Earth", Behaviour = "Boss",
+		Name = "GOLGRAN, the Living Mountain", Thai = "Golgran, the Living Mountain", Element = "Earth", Behaviour = "Boss",
 		Health = 4200, Damage = 42, Speed = 12, AttackRange = 26, AttackCooldown = 3.0, Aggro = 160, StructureDamage = 10, Armor = 0.2,
 		BossNight = 25, Scale = 1,
 		Abilities = { "Quake", "Fissure", "BoulderRain" },
@@ -204,7 +204,7 @@ Animals.Data = {
 		},
 	},
 	Leviathan = {
-		Name = "TYRANNOMOSA, Terror of the Deep", Thai = "ไทรันโนโมซา โมซาซอรัสแห่งห้วงลึก", Element = "Water", Behaviour = "Boss",
+		Name = "TYRANNOMOSA, Terror of the Deep", Thai = "Tyrannomosa, Terror of the Deep", Element = "Water", Behaviour = "Boss",
 		Health = 4600, Damage = 38, Speed = 18, AttackRange = 30, AttackCooldown = 2.6, Aggro = 180, StructureDamage = 8,
 		BossNight = 50,
 		Abilities = { "TidalWave", "WaterSpout", "Quake" },
@@ -217,7 +217,7 @@ Animals.Data = {
 		},
 	},
 	TempestRoc = {
-		Name = "FROSTMAW, the Glacier Yeti", Thai = "ฟรอสต์มอว์ เยติธารน้ำแข็ง", Element = "Air", Behaviour = "Boss",
+		Name = "FROSTMAW, the Glacier Yeti", Thai = "Frostmaw, the Glacier Yeti", Element = "Air", Behaviour = "Boss",
 		Health = 4000, Damage = 40, Speed = 20, AttackRange = 22, AttackCooldown = 2.4, Aggro = 220, StructureDamage = 8,
 		BossNight = 75,
 		Abilities = { "Blizzard", "IceSpikes", "Quake" },
@@ -230,7 +230,7 @@ Animals.Data = {
 		},
 	},
 	Solfang = {
-		Name = "IGNARAX, the Molten Dragon", Thai = "อิกนาแรกซ์ มังกรเพลิงลาวา", Element = "Fire", Behaviour = "Boss",
+		Name = "IGNARAX, the Molten Dragon", Thai = "Ignarax, the Molten Dragon", Element = "Fire", Behaviour = "Boss",
 		Health = 5200, Damage = 52, Speed = 34, AttackRange = 26, AttackCooldown = 2.2, Aggro = 200, StructureDamage = 10, Burn = 8, Flying = true,
 		BossNight = 99,
 		Abilities = { "FireBreath", "FlameNova", "MeteorRoar" },
@@ -245,7 +245,7 @@ Animals.Data = {
 
 	------------------------------------------------------------ ปีศาจกลางคืน
 	HollowStag = {
-		Name = "THE HOLLOW STAG", Thai = "กวางกลวงแห่งราตรี", Element = nil, Behaviour = "Stalker",
+		Name = "THE HOLLOW STAG", Thai = "The Hollow Stag", Element = nil, Behaviour = "Stalker",
 		Health = math.huge, Damage = 55, Speed = 27, AttackRange = 9, AttackCooldown = 2.5, Aggro = 260,
 		Model = {
 			Template = "Quadruped", Body = V(2.6, 3.2, 6.0), Head = V(1.6, 2.2, 1.6), Snout = V(1.0, 0.9, 1.6), LegLen = 6.4, LegThick = 0.5,
@@ -256,36 +256,48 @@ Animals.Data = {
 
 	------------------------------------------------------------ ลูกสัตว์ธาตุ (ภารกิจช่วยเหลือ)
 	TerraPup = {
-		Name = "Terra Pup", Thai = "ลูกหมีปฐพี", Element = "Earth", Behaviour = "Spirit", Health = math.huge, Speed = 26,
+		Name = "Terra Pup", Thai = "Earth Bear Cub", Element = "Earth", Behaviour = "Spirit", Health = math.huge, Speed = 26,
 		Model = {
-			Skin = { Size = 4.2, Rig = "Static", Yaw = -90 }, -- หมี (Creator Store) · ชั่วคราว รอเลือกโมเดลใหม่
+			Skin = { Size = 4.2, Rig = "Skeleton", Yaw = 180, PetScale = 1.75, Back = 0.58, -- หมีหินปฐพี (Meshy · โครง SmartRig + ขาหลังเพิ่มใน Blender)
+				Body = "Bone_000", Neck = { "Bone_011", "Bone_010" }, Tail = { "Bone_009", "Bone_008", "Bone_007" },
+				Legs = { FL = { "Bone_017", "Bone_016", "Bone_015" }, FR = { "Bone_014", "Bone_013", "Bone_012" }, BL = { "HindR" }, BR = { "HindL" } },
+				Gait = { Hip = 0.55, Knee = 0.75, Foot = 0.4, Stride = 0.5, Bob = 0.03, Tail = 0.28 } },
 			Template = "Quadruped", Body = V(1.4, 1.4, 2.2), Head = V(1.5, 1.4, 1.4), Snout = V(0.6, 0.5, 0.6), LegLen = 1.0, LegThick = 0.4, Neck = 0.3,
 			Colors = { Main = C(140, 210, 100), Belly = C(230, 250, 210), Dark = C(60, 110, 50), Eye = C(255, 255, 255), Glow = C(150, 255, 110) },
 			Ears = "Big", Tail = "Bushy", Extras = { "SpiritGlow", "Sprout" },
 		},
 	},
 	TidePup = {
-		Name = "Tide Pup", Thai = "ลูกฉลามวารี", Element = "Water", Behaviour = "Spirit", Health = math.huge, Speed = 26,
+		Name = "Tide Pup", Thai = "Tide Fox Pup", Element = "Water", Behaviour = "Spirit", Health = math.huge, Speed = 26,
 		Model = {
-			Skin = { Size = 4.4, Rig = "Static" }, -- ฉลาม (Creator Store) · ชั่วคราว รอเลือกโมเดลใหม่
+			Skin = { Size = 4.4, Rig = "Skeleton", Yaw = 180, PetScale = 1.8, Back = 0.52, -- จิ้งจอกวารี (Meshy · โครง SmartRig)
+				Body = "Bone_000", Neck = { "Bone_034", "Bone_033" }, Tail = { "Bone_019", "Bone_018", "Bone_017", "Bone_016", "Bone_015", "Bone_014" },
+				Legs = { FL = { "Bone_026", "Bone_025", "Bone_024" }, FR = { "Bone_031", "Bone_030", "Bone_029" }, BL = { "Bone_007", "Bone_006", "Bone_005" }, BR = { "Bone_011", "Bone_010", "Bone_009" } },
+				Gait = { Hip = 0.55, Knee = 0.75, Foot = 0.4, Stride = 0.5, Bob = 0.03, Tail = 0.28 } },
 			Template = "Quadruped", Body = V(1.4, 1.4, 2.2), Head = V(1.5, 1.4, 1.4), Snout = V(0.6, 0.5, 0.6), LegLen = 1.0, LegThick = 0.4, Neck = 0.3,
 			Colors = { Main = C(90, 180, 255), Belly = C(220, 244, 255), Dark = C(40, 90, 160), Eye = C(255, 255, 255), Glow = C(110, 230, 255) },
 			Ears = "Big", Tail = "Bushy", Extras = { "SpiritGlow", "Fins" },
 		},
 	},
 	GalePup = {
-		Name = "Gale Pup", Thai = "ลูกเพนกวินวายุ", Element = "Air", Behaviour = "Spirit", Health = math.huge, Speed = 26,
+		Name = "Gale Pup", Thai = "Frost Wolf Pup", Element = "Air", Behaviour = "Spirit", Health = math.huge, Speed = 26,
 		Model = {
-			Skin = { Size = 3.4, Rig = "Static", Yaw = 30 }, -- เพนกวิน (Creator Store) · ชั่วคราว รอเลือกโมเดลใหม่
+			Skin = { Size = 4.4, Rig = "Skeleton", Yaw = 180, PetScale = 1.8, Back = 0.52, -- หมาป่าน้ำแข็ง (Meshy · โครง SmartRig · หางสองแฉก)
+				Body = "Bone_000", Neck = { "Bone_038", "Bone_037" }, Tail = { "Bone_020", "Bone_019", "Bone_018", "Bone_017", "Bone_028", "Bone_027", "Bone_026", "Bone_025" },
+				Legs = { FL = { "Bone_036", "Bone_035", "Bone_034" }, FR = { "Bone_032", "Bone_031", "Bone_030" }, BL = { "Bone_008", "Bone_007", "Bone_005" }, BR = { "Bone_013", "Bone_012", "Bone_010" } },
+				Gait = { Hip = 0.55, Knee = 0.75, Foot = 0.4, Stride = 0.5, Bob = 0.03, Tail = 0.28 } },
 			Template = "Quadruped", Body = V(1.4, 1.4, 2.2), Head = V(1.5, 1.4, 1.4), Snout = V(0.6, 0.5, 0.6), LegLen = 1.0, LegThick = 0.4, Neck = 0.3,
 			Colors = { Main = C(236, 242, 255), Belly = C(255, 255, 255), Dark = C(140, 160, 210), Eye = C(90, 140, 255), Glow = C(200, 230, 255) },
 			Ears = "Big", Tail = "Bushy", Extras = { "SpiritGlow", "WindRibbons" },
 		},
 	},
 	EmberPup = {
-		Name = "Ember Pup", Thai = "ลูกมังกรอัคคี", Element = "Fire", Behaviour = "Spirit", Health = math.huge, Speed = 26,
+		Name = "Ember Pup", Thai = "Ember Fox Pup", Element = "Fire", Behaviour = "Spirit", Health = math.huge, Speed = 26,
 		Model = {
-			Skin = { Size = 3.6, Rig = "Static", Yaw = 150 }, -- ลูกมังกร (Creator Store) · ชั่วคราว รอเลือกโมเดลใหม่
+			Skin = { Size = 4.2, Rig = "Skeleton", Yaw = 180, PetScale = 1.8, Back = 0.52, -- จิ้งจอกเพลิง (Meshy · โครง SmartRig)
+				Body = "Bone_000", Neck = { "Bone_017", "Bone_016" }, Tail = { "Bone_035", "Bone_034", "Bone_033" },
+				Legs = { FL = { "Bone_009", "Bone_008", "Bone_007" }, FR = { "Bone_014", "Bone_013", "Bone_012" }, BL = { "Bone_029", "Bone_028", "Bone_026" }, BR = { "Bone_023", "Bone_022", "Bone_020" } },
+				Gait = { Hip = 0.55, Knee = 0.75, Foot = 0.4, Stride = 0.5, Bob = 0.03, Tail = 0.28 } },
 			Template = "Quadruped", Body = V(1.4, 1.4, 2.2), Head = V(1.5, 1.4, 1.4), Snout = V(0.6, 0.5, 0.6), LegLen = 1.0, LegThick = 0.4, Neck = 0.3,
 			Colors = { Main = C(255, 120, 50), Belly = C(255, 230, 190), Dark = C(150, 50, 20), Eye = C(255, 255, 255), Glow = C(255, 170, 60) },
 			Ears = "Big", Tail = "FlameBushy", Extras = { "SpiritGlow", "FlameTips" },

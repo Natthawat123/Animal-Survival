@@ -380,7 +380,7 @@ function Backpack.Build()
 	title.TextSize = 18
 	title.TextXAlignment = Enum.TextXAlignment.Left
 	title.TextColor3 = Color3.new(1, 1, 1)
-	title.Text = "กระเป๋า  ·  ลากของไปวางที่ช่องด้านล่าง (สลับช่องได้)"
+	title.Text = "Bag  ·  Drag items into the slots below (you can swap slots)"
 	title.Parent = inv
 	ui.InvTitle = title
 	local scroll = Instance.new("ScrollingFrame")
@@ -586,7 +586,7 @@ function Backpack.RefreshInventory(list)
 			c:Destroy()
 		end
 	end
-	ui.InvTitle.Text = picked and ("เลือก " .. picked.Name .. " แล้ว — แตะช่องด้านล่างที่จะใส่") or "กระเป๋า  ·  ลากของไปวางที่ช่องด้านล่าง (สลับช่องได้)"
+	ui.InvTitle.Text = picked and ("Selected " .. picked.Name .. " — tap a slot below to put it in") or "Bag  ·  Drag items into the slots below (you can swap slots)"
 	table.sort(list, function(a, b)
 		return a.Name < b.Name
 	end)

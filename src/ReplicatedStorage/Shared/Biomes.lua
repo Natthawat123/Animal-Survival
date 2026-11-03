@@ -37,7 +37,7 @@ Biomes.Data = {
 	-- ล็อบบี้: ค่ายฟาร์มยามค่ำคืน โทนน้ำเงินสว่าง (แบบ 99 Nights) ไม่ใช่ไบโอมในแมพ
 	Lobby = {
 		Name = "Wildheart Camp",
-		Thai = "ค่ายผู้รอดชีวิต",
+		Thai = "Survivor Camp",
 		Color = Color3.fromRGB(150, 200, 255),
 		Element = nil,
 		Terrain = { Top = "Grass", Sub = "Ground", Cliff = "Rock", Shore = "Sand" },
@@ -59,7 +59,7 @@ Biomes.Data = {
 
 	Heart = {
 		Name = "Whispering Pines",
-		Thai = "ป่าสนรอบแคมป์",
+		Thai = "Pine Forest",
 		Color = Color3.fromRGB(255, 196, 92),
 		Element = nil,
 		Terrain = { Top = "Grass", Sub = "Ground", Cliff = "Rock", Shore = "Sand" },
@@ -85,7 +85,7 @@ Biomes.Data = {
 
 	Earth = {
 		Name = "Verdant Wilds",
-		Thai = "ป่าดึกดำบรรพ์แห่งปฐพี",
+		Thai = "Primeval Earth Forest",
 		Color = Color3.fromRGB(120, 200, 90),
 		Element = "Earth",
 		Terrain = { Top = "LeafyGrass", Sub = "Mud", Cliff = "Rock", Shore = "Mud" },
@@ -115,7 +115,7 @@ Biomes.Data = {
 
 	Water = {
 		Name = "Tidal Expanse",
-		Thai = "ทะเลสาบกระแสน้ำวน",
+		Thai = "Whirlpool Lake",
 		Color = Color3.fromRGB(70, 170, 255),
 		Element = "Water",
 		Terrain = { Top = "Sand", Sub = "Sand", Cliff = "Limestone", Shore = "Salt" },
@@ -141,7 +141,7 @@ Biomes.Data = {
 
 	Air = {
 		Name = "Skyreach Highlands",
-		Thai = "ที่ราบสูงเหนือเมฆ",
+		Thai = "Skyreach Highlands",
 		Color = Color3.fromRGB(200, 225, 255),
 		Element = "Air",
 		Terrain = { Top = "Snow", Sub = "Slate", Cliff = "Slate", Shore = "Pavement", Peak = "Glacier" },
@@ -166,7 +166,7 @@ Biomes.Data = {
 
 	Fire = {
 		Name = "Ember Caldera",
-		Thai = "ปล่องภูเขาไฟเพลิงกัลป์",
+		Thai = "Inferno Volcano",
 		Color = Color3.fromRGB(255, 96, 40),
 		Element = "Fire",
 		Terrain = { Top = "Asphalt", Sub = "Basalt", Cliff = "Sandstone", Shore = "Basalt", Lava = "CrackedLava" },

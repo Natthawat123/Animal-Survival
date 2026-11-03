@@ -79,39 +79,39 @@ function BuildingService:Place(player, kind, cf)
 	end
 	local inv = self.ctx.Services.InventoryService
 	if inv:Count(player, kind) <= 0 then
-		self.ctx.Notify(player, "ไม่มี " .. Items.DisplayName(kind) .. " ในกระเป๋า (คราฟต์ที่โต๊ะก่อน)", "Error")
+		self.ctx.Notify(player, "You have no " .. Items.DisplayName(kind) .. " in your bag (craft it at the bench first)", "Error")
 		return false
 	end
 	local char = player.Character
 	local root = char and char:FindFirstChild("HumanoidRootPart")
 	if not root or (root.Position - cf.Position).Magnitude > Config.BuildRange then
-		self.ctx.Notify(player, "ไกลเกินไป", "Error")
+		self.ctx.Notify(player, "Too far away", "Error")
 		return false
 	end
 	-- หาพื้น
 	local hit = Workspace:Raycast(cf.Position + Vector3.new(0, 20, 0), Vector3.new(0, -60, 0), self.rayParams)
 	if not hit then
-		self.ctx.Notify(player, "ต้องวางบนพื้น", "Error")
+		self.ctx.Notify(player, "Must be placed on the ground", "Error")
 		return false
 	end
 	if hit.Material == Enum.Material.Water or hit.Material == Enum.Material.CrackedLava then
-		self.ctx.Notify(player, "วางบนน้ำ/ลาวาไม่ได้", "Error")
+		self.ctx.Notify(player, "Can't place on water/lava", "Error")
 		return false
 	end
 	local pos = hit.Position
 	-- เตียง: วางแล้วข้ามไป 1 วัน (ทั้งเซิร์ฟได้ 2 ครั้งต่อเกม)
 	if kind == "Bed" and not self.ctx.Services.DirectorService:CanSkipDay() then
-		self.ctx.Notify(player, "ตอนนี้ใช้เตียงข้ามวันไม่ได้", "Error")
+		self.ctx.Notify(player, "Can't use a bed to skip a day right now", "Error")
 		return false
 	end
 	if (pos - self.ctx.CampPosition).Magnitude < 9 then
-		self.ctx.Notify(player, "ใกล้กองไฟเกินไป", "Error")
+		self.ctx.Notify(player, "Too close to the campfire", "Error")
 		return false
 	end
 	-- วางได้เฉพาะในเขตแคมป์ (รัศมีตามเลเวลกองไฟ — อัปเกรดกองไฟ = เขตกว้างขึ้น)
 	local campR = self.ctx.Services.CampService:CampRadius()
 	if ((pos - self.ctx.CampPosition) * Vector3.new(1, 0, 1)).Magnitude > campR then
-		self.ctx.Notify(player, "วางได้เฉพาะในเขตแคมป์ (อัปเกรดกองไฟเพื่อขยายเขต)", "Error")
+		self.ctx.Notify(player, "Can only be placed inside the camp (upgrade the campfire to expand it)", "Error")
 		return false
 	end
 	local _, yaw = cf:ToOrientation()
@@ -122,7 +122,7 @@ function BuildingService:Place(player, kind, cf)
 	params.FilterDescendantsInstances = { self.folder }
 	local overlap = Workspace:GetPartBoundsInBox(final * CFrame.new(0, spec.Size.Y / 2 + 0.5, 0), spec.Size * 0.85, params)
 	if #overlap > 0 then
-		self.ctx.Notify(player, "ทับกับสิ่งก่อสร้างอื่น", "Error")
+		self.ctx.Notify(player, "Overlaps another building", "Error")
 		return false
 	end
 	inv:Remove(player, kind, 1)
@@ -204,9 +204,9 @@ function BuildingService:Cook(player, dish)
 	local cost, need
 	if dish == "Stew" then
 		local meat = inv:Count(player, "CookedMeat") >= 2 and "CookedMeat" or "RawMeat"
-		cost, need = { [meat] = 2, Berries = 2 }, "ต้องมีเนื้อ 2 และเบอร์รี่ 2"
+		cost, need = { [meat] = 2, Berries = 2 }, "Needs 2 meat and 2 berries"
 	elseif dish == "BerryPie" then
-		cost, need = { Berries = 5, Wood = 1 }, "ต้องมีเบอร์รี่ 5 และไม้ 1"
+		cost, need = { Berries = 5, Wood = 1 }, "Needs 5 berries and 1 wood"
 	else
 		return false
 	end
@@ -224,8 +224,8 @@ function BuildingService:Setup(model, kind)
 		model:SetAttribute("GrowAt", os.clock() + Items.Structures.FarmPlot.GrowTime)
 		showCrops(model, false)
 		local p = Instance.new("ProximityPrompt")
-		p.ActionText = "เก็บเบอร์รี่"
-		p.ObjectText = "แปลงเบอร์รี่"
+		p.ActionText = "Pick Berries"
+		p.ObjectText = "Berry Patch"
 		p.MaxActivationDistance = 12
 		p.Enabled = false
 		-- โมเดล Store มีแต่ Model ซ้อนกัน (ไม่มี BasePart ชั้นบน) -> ทำจุดกดใสไว้กลางแปลงเอง
@@ -247,8 +247,8 @@ function BuildingService:Setup(model, kind)
 		end)
 	elseif kind == "CookPot" then
 		local p = Instance.new("ProximityPrompt")
-		p.ActionText = "ทำสตูว์ (เนื้อ 2 + เบอร์รี่ 2)"
-		p.ObjectText = "หม้อตุ๋น"
+		p.ActionText = "Make Stew (2 meat + 2 berries)"
+		p.ObjectText = "Stew Pot"
 		p.HoldDuration = 1.2
 		p.MaxActivationDistance = 12
 		p.Parent = model:FindFirstChild("Pot")
@@ -258,8 +258,8 @@ function BuildingService:Setup(model, kind)
 		p.UIOffset = Vector2.new(0, -40)
 		local pie = Instance.new("ProximityPrompt")
 		pie.Name = "PiePrompt"
-		pie.ActionText = "อบพายเบอร์รี่ (เบอร์รี่ 5 + ไม้ 1)"
-		pie.ObjectText = "หม้อตุ๋น"
+		pie.ActionText = "Bake Berry Pie (5 berries + 1 wood)"
+		pie.ObjectText = "Stew Pot"
 		pie.KeyboardKeyCode = Enum.KeyCode.F
 		pie.HoldDuration = 1.2
 		pie.MaxActivationDistance = 12

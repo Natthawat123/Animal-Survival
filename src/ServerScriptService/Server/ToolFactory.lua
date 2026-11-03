@@ -45,6 +45,20 @@ local STORE_WEAPONS = {
 	EmberBlade = { Length = 4.6, Head = Vector3.new(0, 0, -1), Flip = true, Aura = "Fire" },
 	FourfoldBlade = { Length = 4.8, Front = Vector3.new(0, 0, 1), Aura = "Rainbow" },
 	EmberStaff = { Length = 5.4, Head = Vector3.new(0, 1, 0), TipFire = true }, -- Store "Fire Staff" (52093942) ตั้งตรงแกน +Y หัวไฟอยู่บน
+	-- อาวุธทั่วไปชุดใหม่ (Creator Store) · HeadUp = โมเดลต้นฉบับตั้งตรงหัวอยู่บน -> วัดทิศหัวจากด้านบนของโลก
+	--   (ชิ้นส่วนในไฟล์หมุนแกนไว้ไม่เหมือนกัน: บอกแกน +Y ของชิ้นตรงๆ แล้วดาบ/คทาออกมานอน)
+	--   Head = ตั้งแกนหัวเอง (ชิ้นที่แกนในไฟล์ตรงกับรูปทรง) · ตรวจด้วย build_rbxlx.py --chestprobe (ภาพ wpn_*)
+	Dagger = { Length = 2.7, Head = Vector3.new(0, 1, 0) },
+	SpikedClub = { Length = 3.6, HeadUp = true },
+	IronSword = { Length = 4.2, Head = Vector3.new(0, 1, 0) },
+	Mace = { Length = 3.9, HeadUp = true },
+	BattleAxe = { Length = 4.4, Head = Vector3.new(0, 1, 0) },
+	-- หน้าไม้: ถือแนวนอนแบบปืน ด้ามในมือ คันธนูอยู่ปลายหน้า (ด้ามยาวแกน Z ของชิ้น · ลูกศรอยู่ +Y = ด้านบน) · Grip = ท่าจับตายตัว
+	Crossbow = { Length = 3.4, Grip = (CFrame.new(0, -0.25, -0.5) * CFrame.Angles(0, math.pi, 0)):Inverse() },
+	Katana = { Length = 4.8, HeadUp = true },
+	WarHammer = { Length = 4.6, Head = Vector3.new(0, 1, 0) },
+	-- เคียว: ด้ามตั้ง ใบอยู่บนหันไปข้างหน้า · เลื่อนไปหน้า 1.8 ให้ด้ามอยู่ในมือพอดี (ตรวจด้วย --gripprobe)
+	Scythe = { Length = 5.6, Head = Vector3.new(0, 1, 0), GripTurn = CFrame.new(0, 0, 1.8) },
 }
 
 -- ออร่าธาตุ: ประกายลอยรอบตัวอาวุธ + หมอกเรืองแสงบางๆ + แสงส่อง
@@ -178,6 +192,19 @@ local function buildStore(itemId, tool)
 	if not big then
 		return nil
 	end
+	-- ทิศหัวจากท่าที่โมเดลตั้งอยู่ในไฟล์ (ขึ้นบนของโลก -> แกนหลักของ Handle ที่ใกล้ที่สุด)
+	local upDir
+	if cfg.HeadUp then
+		local v = big.CFrame:VectorToObjectSpace(Vector3.yAxis)
+		local a = Vector3.new(math.abs(v.X), math.abs(v.Y), math.abs(v.Z))
+		if a.X >= a.Y and a.X >= a.Z then
+			upDir = Vector3.new(math.sign(v.X), 0, 0)
+		elseif a.Y >= a.Z then
+			upDir = Vector3.new(0, math.sign(v.Y), 0)
+		else
+			upDir = Vector3.new(0, 0, math.sign(v.Z))
+		end
+	end
 	local _, size = m:GetBoundingBox()
 	pcall(function()
 		m:ScaleTo(m:GetScale() * cfg.Length / math.max(size.X, size.Y, size.Z))
@@ -242,7 +269,7 @@ local function buildStore(itemId, tool)
 			return big, Vector3.new(0, 0, math.sign(rel.Z))
 		end
 	end
-	return big
+	return big, upDir
 end
 
 local V = Vector3.new
@@ -428,7 +455,7 @@ local function buildSack(itemId)
 	tool:SetAttribute("ItemId", itemId)
 	tool.TextureId = ItemThumbs.Url(itemId) -- รูปในแถบเครื่องมือ
 	tool:SetAttribute("Kind", "Sack")
-	tool.ToolTip = string.format("ความจุ %d ชิ้น · คลิกของบนพื้นเพื่อเก็บ", Items.Sacks[itemId])
+	tool.ToolTip = string.format("Capacity %d items · Click items on the ground to collect", Items.Sacks[itemId])
 	local s = itemId == "GiantSack" and 1.35 or (itemId == "GoodSack" and 1.15 or 1)
 	local color = Items.SackColor[itemId]
 	local h = part(tool, "Handle", V(0.4, 1.2, 0.4), C(120, 90, 60), Enum.Material.Fabric)
@@ -630,8 +657,12 @@ function ToolFactory.Build(itemId)
 	end
 	local spec = Items.Tools[itemId]
 	local shape = Shapes[itemId]
-	if not (spec and shape) then
+	-- อาวุธจาก Store ที่ไม่มีแบบปั้นเองสำรอง: ใช้ด้ามไม้ธรรมดาแทนถ้าโหลดโมเดลไม่ได้
+	if not (spec and (shape or STORE_WEAPONS[itemId])) then
 		return nil
+	end
+	shape = shape or function(t)
+		shaft(t, 3.4, 0.35, C(110, 80, 50))
 	end
 	local tool = Instance.new("Tool")
 	tool.Name = Items.DisplayName(itemId)
@@ -648,7 +679,10 @@ function ToolFactory.Build(itemId)
 		elseif spec.Light then
 			glow(handle, C(255, 245, 220), spec.Light)
 		end
-		tool.Grip = ToolFactory.GripFor(tool, handle, spec.Kind, cfg.Front, cfg.Head or headDir)
+		tool.Grip = cfg.Grip or ToolFactory.GripFor(tool, handle, spec.Kind, cfg.Front, cfg.Head or headDir)
+		if cfg.GripTurn then
+			tool.Grip *= cfg.GripTurn -- หมุนท่าจับเพิ่ม (เช่น ใบเคียวให้หันไปข้างหน้า)
+		end
 		if cfg.Flip then
 			-- หันกลับด้าน 180° รอบแกนด้าม (โมเดลบางชิ้นวางหน้า-หลังสลับกัน)
 			tool.Grip *= CFrame.Angles(0, math.pi, 0)

@@ -19,7 +19,7 @@ local Analytics = require(script.Parent.Analytics)
 
 local DirectorService = {}
 
-local ELEMENT_THAI = { Earth = "ปฐพี", Water = "วารี", Air = "วายุ", Fire = "อัคคี", All = "ทุกธาตุ" }
+local ELEMENT_THAI = { Earth = "Earth", Water = "Water", Air = "Frost", Fire = "Fire", All = "All Elements" }
 
 function DirectorService:Init(ctx)
 	self.ctx = ctx
@@ -105,20 +105,20 @@ function DirectorService:RunNight(night, runId)
 	s:SetAttribute("NightElement", plan.Element)
 	s:SetAttribute("BloodMoon", plan.BloodMoon)
 	self:SetPhase("Night", Config.NightLength)
-	local title = Nights.Named[plan.OriginNight or night] or ((plan.BigRaid and "คืนบุกใหญ่ · " or "") .. "คืนแห่ง" .. (ELEMENT_THAI[plan.Element] or ""))
+	local title = Nights.Named[plan.OriginNight or night] or ((plan.BigRaid and "Big Raid Night · " or "") .. "Night of " .. (ELEMENT_THAI[plan.Element] or ""))
 	if Nights.IsEndless(night) then
-		title = "♾ ไร้ขีดจำกัด · " .. title
+		title = "♾ Endless · " .. title
 	end
 	ctx.FireRun("Cinematic", "NightStart", {
 		Night = night, Element = plan.Element, BloodMoon = plan.BloodMoon, Boss = plan.Boss, Title = title, Endless = Nights.IsEndless(night),
 		Elements = plan.Elements,
 	})
-	-- ฝูงบุกทุกคืน: คืนธรรมดาฝูงเล็ก · ทุก 5 คืน (และคืน 99) = คืนบุกใหญ่
+	-- ฝูงบุกเฉพาะคืนบุกใหญ่ (ทุก 5 คืน + คืน 99) · คืนอื่นสงบ: บอกว่าอีกกี่คืนฝูงจะมา
 	if not plan.BigRaid then
 		local left = Nights.NextBigRaid(night) - night
 		task.delay(6, function()
 			if runId == self.runId then
-				ctx.Broadcast(string.format("บุกใหญ่ในอีก %d คืน", left), "Info")
+				ctx.Broadcast(string.format("Big raid in %d nights", left), "Info")
 			end
 		end)
 	end
@@ -150,7 +150,7 @@ function DirectorService:RunNight(night, runId)
 		if animals:CountKind("Stalker") == 0 then
 			local pos = ctx.Layout:RaidSpawnPoint(self.rng, 260, 340)
 			if animals:Spawn("HollowStag", pos, { Kind = "Stalker" }) then
-				ctx.Broadcast("มีบางอย่างจ้องมองจากความมืด", "Danger")
+				ctx.Broadcast("Something is watching from the darkness", "Danger")
 			end
 		end
 	end)
@@ -163,7 +163,7 @@ function DirectorService:RunNight(night, runId)
 				return
 			end
 			if not wave.Boss then
-				ctx.Broadcast(string.format("ฝูงสัตว์ระลอกที่ %d มาแล้ว", wi), "Danger")
+				ctx.Broadcast(string.format("Animal wave %d has arrived", wi), "Danger")
 				ctx.FireRun("Cinematic", "WaveIncoming", { Wave = wi, Element = plan.Element })
 			end
 			for i, id in ipairs(wave.Spawns) do
@@ -217,7 +217,7 @@ function DirectorService:HoldForBoss(runId)
 	local s = self.ctx.State
 	local left = Config.BossHoldMax
 	s:SetAttribute("BossHoldEnd", Workspace:GetServerTimeNow() + left)
-	self.ctx.Broadcast("ฆ่าบอสก่อนเช้า!", "Danger")
+	self.ctx.Broadcast("The boss is still alive — dawn is held back!", "Danger")
 	while left > 0 and not boss.Dead and not boss.Removed do
 		local dt = task.wait(0.25)
 		if runId ~= self.runId then
@@ -257,11 +257,11 @@ function DirectorService:RewardNight(night)
 			end
 			local bonus = Classes.NightRewards[night]
 			if bonus then
-				ctx.Services.DataService:AddDiamonds(p, bonus, "รอดถึงคืนที่ " .. night)
+				ctx.Services.DataService:AddDiamonds(p, bonus, "Survived to night " .. night)
 			elseif night > Config.TotalNights and night % 10 == 0 then
-				ctx.Services.DataService:AddDiamonds(p, 10, "โหมดไร้ขีดจำกัด คืนที่ " .. night)
+				ctx.Services.DataService:AddDiamonds(p, 10, "Endless mode night " .. night)
 			elseif night >= 3 then
-				ctx.Services.DataService:AddDiamonds(p, 1, "รอดคืนที่ " .. night)
+				ctx.Services.DataService:AddDiamonds(p, 1, "Survived night " .. night)
 			end
 		end
 	end
@@ -270,14 +270,21 @@ end
 function DirectorService:Dawn(night)
 	local ctx = self.ctx
 	local animals = ctx.Services.AnimalService
-	-- ฝูงบุกและกวางกลวงหายไปกับแสงเช้า (บอสที่ยังไม่ตายจะหนีกลับ)
-	animals:ClearKind("Raid", true)
+	-- กวางกลวงหายไปกับแสงเช้า · ฝูงบุก/บอสที่ยังไม่ตาย "ไม่หาย" อยู่บุกแคมป์ต่อจนกว่าจะโดนฆ่า
+	-- (กันหนีออกจากแคมป์ตอนฝูงบุกแล้วรอเช้าให้หายเอง — ทิ้งแคมป์ = กองไฟ/กำแพงโดนพัง)
 	animals:ClearKind("Stalker", true)
-	animals:ClearKind("Boss", true)
-	ctx.State:SetAttribute("BossId", "")
+	if animals:CountKind("Boss") == 0 then
+		ctx.State:SetAttribute("BossId", "")
+	end
 	ctx.State:SetAttribute("BloodMoon", false)
 	ctx.FireRun("Cinematic", "Dawn", { Night = night })
 	self:RewardNight(night)
+	local left = animals.raidCount + animals:CountKind("Boss")
+	if left > 0 then
+		task.delay(4, function()
+			ctx.Broadcast(string.format("%d animals are still attacking the camp — kill them all!", left), "Danger")
+		end)
+	end
 end
 
 function DirectorService:Loop(runId)
@@ -346,7 +353,7 @@ function DirectorService:ApplyPendingSkips()
 		self.ctx.Services.TraderService:OnDay(self.night) -- ไม่ให้พลาดรอบพ่อค้า
 	end
 	if applied > 0 then
-		self.ctx.Broadcast(string.format("ข้าม %d วัน · วันที่ %d", applied, self.night), "Good")
+		self.ctx.Broadcast(string.format("Skipped %d days · Day %d", applied, self.night), "Good")
 	end
 end
 
@@ -370,12 +377,12 @@ function DirectorService:SkipDay(player, fmt)
 		if fmt then
 			self.ctx.Broadcast(string.format(fmt, self.night), "Good")
 		else
-			self.ctx.Broadcast(string.format("%s ข้าม 1 วัน · วันที่ %d", player and player.DisplayName or "ทีม", self.night), "Good")
+			self.ctx.Broadcast(string.format("%s skipped 1 day · Day %d", player and player.DisplayName or "The team", self.night), "Good")
 		end
 	else
 		self.pendingSkips += 1
-		local when = self.night == Config.TotalNights and "หลังจบคืนสุดท้าย" or "ตอนเช้า"
-		self.ctx.Broadcast(string.format("+1 วัน (นับให้%s)", when), "Good")
+		local when = self.night == Config.TotalNights and "after the final night" or "in the morning"
+		self.ctx.Broadcast(string.format("+1 Day (counted %s)", when), "Good")
 	end
 	return true
 end
@@ -406,12 +413,12 @@ function DirectorService:Complete()
 					data.TrueEndings = (data.TrueEndings or 0) + 1
 				end
 			end
-			ctx.Services.DataService:AddDiamonds(p, kind == "True" and 300 or 100, "พิชิต 99 คืน")
+			ctx.Services.DataService:AddDiamonds(p, kind == "True" and 300 or 100, "Conquer 99 Nights")
 			ctx.Services.DataService:CheckBadges(p)
 			ctx.Services.DataService:Save(p)
 		end
 	end
-	ctx.Broadcast("โหมดไร้ขีดจำกัด · ฝูงแรงขึ้นทุกคืน", "Reward")
+	ctx.Broadcast("Endless mode · Packs get stronger every night", "Reward")
 end
 
 function DirectorService:GameOver()
@@ -512,7 +519,7 @@ function DirectorService:ResetRun()
 	end
 	ctx.Services.LobbyService:ReturnAll()
 	self:SetPhase("Lobby", 0)
-	ctx.Broadcast("กลับล็อบบี้แล้ว", "Info")
+	ctx.Broadcast("Back to the lobby", "Info")
 end
 
 function DirectorService:Start(ctx)

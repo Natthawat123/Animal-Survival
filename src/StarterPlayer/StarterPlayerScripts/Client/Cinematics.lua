@@ -22,18 +22,18 @@ local C = UIKit.Colors
 local gui
 
 local TIPS = {
-	"กองไฟคือชีวิต — ไฟดับเมื่อไร กวางกลวงจะเข้ามาในแคมป์",
-	"อัปเกรดกองไฟเพื่อเปิดหมอก และขยายเขตปลอดภัย",
-	"ถือคบเพลิงไว้ กวางกลวงจะไม่กล้าเข้าใกล้",
-	"น้ำชนะไฟ · ไฟชนะลม · ลมชนะดิน · ดินชนะน้ำ",
-	"ลูกสัตว์ธาตุ 4 ตัวถูกขังอยู่ในศาลเจ้า ช่วยครบเพื่อฉากจบที่แท้จริง",
-	"ทุก 10 คืนจะเกิดพระจันทร์เลือด ฝูงทุกธาตุบุกพร้อมกัน",
-	"เพื่อนล้มลง? ใช้ผ้าพันแผลช่วยให้ทันใน 30 วินาที — ไม่เหลือใครยืนอยู่ = แพ้ทั้งทีม",
-	"ตายแล้วไม่เกิดใหม่ในรอบนั้น — ช่วยกันระวังหลังให้กัน",
-	"รอดครบ 99 คืน = พิชิต! แต่เล่นต่อได้ไม่จำกัดเพื่อทำสถิติขึ้นกระดานอันดับ",
-	"หน้าไม้ยักษ์ยิงเองอัตโนมัติ วางไว้รอบกองไฟ",
-	"ลมพัดขึ้นในเขตวายุจะส่งคุณขึ้นสู่เกาะลอยฟ้า",
-	"รังบอสอยู่ใจกลางแต่ละธาตุ — เตรียมตัวให้พร้อมก่อนเข้าไป",
+	"The campfire is life — when it goes out, the Hollow Stag enters the camp",
+	"Upgrade the campfire to clear the fog and expand the safe zone",
+	"Hold a torch and the Hollow Stag won't dare come near",
+	"Water beats Fire · Fire beats Frost · Frost beats Earth · Earth beats Water",
+	"4 Spirit Pups are trapped in the shrines. Rescue them all for the true ending",
+	"Every 10 nights a Blood Moon rises and every element's pack attacks at once",
+	"Teammate down? Use a bandage within 30 seconds — if nobody is left standing, the whole team loses",
+	"No respawning in a run after you die — watch each other's backs",
+	"Survive 99 nights = conquered! But you can keep playing endlessly to climb the leaderboard",
+	"The Ballista fires on its own. Place them around the campfire",
+	"Updrafts in the Frost zone lift you up to the floating islands",
+	"Boss lairs are at the heart of each element zone — get ready before you go in",
 }
 
 local function bigText(parent)
@@ -351,7 +351,7 @@ local function sceneLoadingScreen(title, subtitle)
 	local pct = UIKit.Text(barBox, { Size = UDim2.new(0, barW, 0, 30), Position = UDim2.fromOffset(0, -36), TextXAlignment = Enum.TextXAlignment.Right, TextSize = 28, Font = UIKit.Fonts.Title, ZIndex = 104, TextColor3 = C.Gold, Text = "0%" })
 	local status = UIKit.Text(barBox, { Size = UDim2.new(0, barW - 100, 0, 30), Position = UDim2.fromOffset(0, -36), TextXAlignment = Enum.TextXAlignment.Left, TextSize = 19, Font = UIKit.Fonts.Black, ZIndex = 104, TextColor3 = Color3.fromRGB(230, 216, 194), Text = "" })
 	-- ขั้นตอน (ติ๊กถูกเมื่อผ่าน)
-	local steps = { { 0.4, "🌍 สร้างโลกสี่ธาตุ" }, { 0.9, "🎨 โหลดโมเดลและพื้นผิว" }, { 1, "🔥 จุดไฟในค่าย" } }
+	local steps = { { 0.4, "🌍 Building the four-element world" }, { 0.9, "🎨 Loading models and textures" }, { 1, "🔥 Lighting the camp fire" } }
 	local stepRow = UIKit.Frame(barBox, { Size = UDim2.new(0, barW, 0, 26), Position = UDim2.fromOffset(0, 34), BackgroundTransparency = 1, ZIndex = 104 })
 	local sl = Instance.new("UIListLayout")
 	sl.FillDirection = Enum.FillDirection.Horizontal
@@ -439,7 +439,7 @@ local function sceneLoadingScreen(title, subtitle)
 				f:Destroy()
 			end
 		end)
-		api.Set(1, "พร้อมแล้ว!")
+		api.Set(1, "Ready!")
 		local tw = os.clock()
 		while shown < 0.995 and os.clock() - tw < 1.2 do
 			task.wait()
@@ -616,7 +616,7 @@ local function artLoadingScreen(img)
 				f:Destroy()
 			end
 		end)
-		api.Set(1, "พร้อมแล้ว!")
+		api.Set(1, "Ready!")
 		local tw = os.clock()
 		while shown < 0.995 and os.clock() - tw < 1.2 do
 			task.wait()
@@ -771,12 +771,12 @@ function Cinematics.Loading(state)
 				break
 			end
 			local k = want and math.clamp(have / want, 0, 1) or 0
-			ui.Set(0.25 * k, string.format("กำลังโหลดค่าย... %d%%", math.floor(k * 100)))
+			ui.Set(0.25 * k, string.format("Loading camp... %d%%", math.floor(k * 100)))
 			task.wait(0.1)
 		end
 		-- 2) พื้นผิว/โมเดลของค่าย 25-50%
 		if not team then
-			preload(lobby and collect(lobby) or {}, 0.25, 0.5, "กำลังโหลดค่าย", 60)
+			preload(lobby and collect(lobby) or {}, 0.25, 0.5, "Loading camp", 60)
 		end
 		-- 3) รอเซิร์ฟเวอร์สร้างแมพเสร็จ 50-85%
 		local g0 = os.clock()
@@ -785,16 +785,16 @@ function Cinematics.Loading(state)
 			if lp >= 1 then
 				break
 			end
-			ui.Set(0.5 + 0.35 * lp, string.format("กำลังสร้างโลก... %d%%", math.floor(lp * 100)))
+			ui.Set(0.5 + 0.35 * lp, string.format("Generating world... %d%%", math.floor(lp * 100)))
 			task.wait(0.2)
 		end
-		ui.Set(0.85, "สร้างโลกเสร็จแล้ว")
+		ui.Set(0.85, "World ready")
 		-- 4) โมเดลในแมพ/สัตว์/บอส/อาวุธ/เอฟเฟกต์ 85-97%
 		local assets = ReplicatedStorage:FindFirstChild("Assets")
-		preload(assets and collect(assets) or {}, 0.85, 0.97, "กำลังโหลดโมเดล", team and 12 or 45)
+		preload(assets and collect(assets) or {}, 0.85, 0.97, "Loading models", team and 12 or 45)
 		-- 5) ตัวละคร + พื้นใต้เท้า 97-100% · เซิร์ฟเวอร์ทีม: รอจนตัวละครไปเกิดในแมพแล้ว (ไม่เปิดจอที่ล็อบบี้แล้วโหลดเดินทางซ้ำ)
 		--   เช็ก "ออกห่างล็อบบี้" (ล็อบบี้อยู่นอกแมพไกลมาก) ไม่ใช่ "ใกล้แคมป์" -> กลับเข้ารอบเดิมไปเกิดที่เตียงไกลแคมป์ก็ผ่าน
-		ui.Set(0.97, team and "กำลังเข้าสู่แคมป์..." or "กำลังจุดกองไฟในค่าย...")
+		ui.Set(0.97, team and "Entering camp..." or "Lighting the campfire...")
 		local function atCamp()
 			if not team then
 				return true
@@ -825,7 +825,7 @@ function Cinematics.Travel()
 		return
 	end
 	Cinematics.Traveling = true
-	local ui = loadingScreen("ออกเดินทาง", "สู่ดินแดนสี่ธาตุ")
+	local ui = loadingScreen("Setting Out", "To the Land of Four Elements")
 	task.spawn(function()
 		local t0 = os.clock()
 		while os.clock() - t0 < 25 do
@@ -833,7 +833,7 @@ function Cinematics.Travel()
 			if player:GetAttribute("InRun") and groundReady() and k >= 1 then
 				break
 			end
-			ui.Set(math.min(0.95, k * 0.7 + (groundReady() and 0.25 or 0)), groundReady() and "กำลังเข้าสู่แคมป์..." or "กำลังโหลดพื้นที่รอบแคมป์...")
+			ui.Set(math.min(0.95, k * 0.7 + (groundReady() and 0.25 or 0)), groundReady() and "Entering camp..." or "Loading the area around camp...")
 			task.wait(0.1)
 		end
 		ui.Close()
@@ -865,7 +865,7 @@ local function bossNameCard(d, color)
 	UIKit.AutoScale(f)
 	UIKit.Text(f, {
 		Size = UDim2.new(1, 0, 0, 26), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 20, Font = UIKit.Fonts.Bold,
-		Text = "— บอสประจำธาตุ —", TextColor3 = color, TextTransparency = 1, TextStrokeTransparency = 1, ZIndex = 61,
+		Text = "— Element Boss —", TextColor3 = color, TextTransparency = 1, TextStrokeTransparency = 1, ZIndex = 61,
 	})
 	local name = UIKit.Text(f, {
 		Size = UDim2.new(1, 0, 0, 78), Position = UDim2.fromOffset(0, 26), TextXAlignment = Enum.TextXAlignment.Center, Font = UIKit.Fonts.Title, TextSize = 64,
@@ -1449,7 +1449,7 @@ function Cinematics.ShrineIntro(d)
 	toEntry = toEntry.Magnitude > 0.1 and toEntry.Unit or Vector3.new(0, 0, -1)
 	local side = toEntry:Cross(Vector3.new(0, 1, 0))
 	local DUR, TURN = d.Dur or 12, d.Turn or 9
-	local name = d.Name or "ลูกสัตว์ธาตุ"
+	local name = d.Name or "Spirit Pup"
 	local elThai = UIKit.ElementThai and UIKit.ElementThai[d.Element] or ""
 	Cinematics.ShrineCut = true
 	Cinematics.Cutscene = true
@@ -1483,14 +1483,14 @@ function Cinematics.ShrineIntro(d)
 	local cageSpark = false
 	local run = timeline({
 		{ 0.1, function() sfx("Dusk", 0.7) end },
-		{ 0.35, function() titleCard("ศาลเจ้า" .. elThai, "มีเสียงร้องดังมาจากกลางลาน...", col, 1.7) end },
+		{ 0.35, function() titleCard(elThai .. " Shrine", "Cries are coming from the middle of the plaza...", col, 1.7) end },
 		{ 2.6, function() flash(Color3.new(0, 0, 0), 0.45) sfx("StalkerWarn", 1.5) end },
-		{ 2.9, function() caption(name .. " ถูกขังอยู่ในกรงผนึก...", col, 1.9) end },
+		{ 2.9, function() caption(name .. " is trapped in a sealed cage...", col, 1.9) end },
 		{ 4.9, function() flash(Color3.new(0, 0, 0), 0.4) sfx("WaveIncoming", 0.8) end },
-		{ 5.1, function() caption("ผู้พิทักษ์ศาลเจ้ากำลังเดินเข้าไปหามัน!", Color3.fromRGB(255, 130, 110), 2.1) end },
+		{ 5.1, function() caption("The shrine guardians are closing in on it!", Color3.fromRGB(255, 130, 110), 2.1) end },
 		{ 7.4, function()
 			flash(Color3.new(1, 1, 1), 0.3)
-			caption("ต้องรีบเข้าไปช่วย!", C.Gold, 1.5)
+			caption("Hurry, go save it!", C.Gold, 1.5)
 			player:SetAttribute("CineRun", 1.6)
 			local ch = player.Character
 			local hum = ch and ch:FindFirstChildOfClass("Humanoid")
@@ -1507,7 +1507,7 @@ function Cinematics.ShrineIntro(d)
 				Cinematics.Combat.Shake(0.7, 1)
 			end
 			flash(Color3.new(1, 0.5, 0.4), 0.3)
-			titleCard("ผู้พิทักษ์เห็นคุณแล้ว!", "ปราบให้หมด เพื่อปลดผนึกกรงช่วย " .. name, Color3.fromRGB(255, 110, 90), 1.9)
+			titleCard("The guardians have spotted you!", "Defeat them all to unseal the cage and save " .. name, Color3.fromRGB(255, 110, 90), 1.9)
 		end },
 	})
 	runShots(DUR, function(t)
@@ -1589,7 +1589,7 @@ function Cinematics.ShrineCleared(d)
 	if pup then
 		pup:SetAttribute("Cheer", true)
 	end
-	local name = d.Name or "ลูกสัตว์ธาตุ"
+	local name = d.Name or "Spirit Pup"
 	local elThai = UIKit.ElementThai and UIKit.ElementThai[d.Element] or ""
 	local away = (pillar - home) * Vector3.new(1, 0, 1)
 	away = away.Magnitude > 1 and away.Unit or Vector3.new(1, 0, 0)
@@ -1618,14 +1618,14 @@ function Cinematics.ShrineCleared(d)
 				Cinematics.Combat.Shake(0.45, 0.5)
 			end
 		end },
-		{ 0.5, function() titleCard("ปลดผนึกสำเร็จ!", name .. " เป็นอิสระแล้ว", col, 2.2) end },
+		{ 0.5, function() titleCard("Unsealed!", name .. " is free", col, 2.2) end },
 		{ PA - 0.25, function() flash(Color3.new(1, 1, 1), 0.55) end },
 		{ PA, function()
 			sfx("NightStart", 0.65)
 			if Cinematics.Combat then
 				Cinematics.Combat.Shake(0.5, 3)
 			end
-			caption("แผ่นดินสั่นสะเทือน...", C.Text, 1.8)
+			caption("The ground is shaking...", C.Text, 1.8)
 		end },
 		{ PA + 3.1, function()
 			-- เสาโผล่สุด: คลื่นแสง + ประกาศเคลียร์
@@ -1633,7 +1633,7 @@ function Cinematics.ShrineCleared(d)
 			shockRing(pillar, col, 90)
 			sparkBurst(pillar + Vector3.new(0, 40, 0), col, 120, 30)
 			sfx("CampUpgrade")
-			titleCard("เคลียร์ศาลเจ้า" .. elThai .. "แล้ว!", "เสาผลึก" .. elThai .. "ส่องแสงเหนือไบโอม", col, 1.6)
+			titleCard("Shrine cleared: " .. elThai .. "!", "The crystal pillar of " .. elThai .. " shines over the biome", col, 1.6)
 		end },
 		{ HA - 0.25, function() flash(col:Lerp(Color3.new(1, 1, 1), 0.6), 0.55) end },
 		{ HA + 0.15, function()
@@ -1646,10 +1646,10 @@ function Cinematics.ShrineCleared(d)
 			local st = Cinematics.State
 			local phase = st and st:GetAttribute("Phase")
 			local now = phase == "Day" or phase == "Dusk"
-			local dayText = now and st:GetAttribute("Night") and ("ตอนนี้วันที่ " .. st:GetAttribute("Night")) or "นับให้ตอนเช้า"
-			titleCard("+1 วัน", dayText .. " · " .. name .. " มาอยู่ที่บ้านแล้ว", C.Gold, 1.7)
+			local dayText = now and st:GetAttribute("Night") and ("Now day " .. st:GetAttribute("Night")) or "Counted in the morning"
+			titleCard("+1 Day", dayText .. " · " .. name .. " is now living at camp", C.Gold, 1.7)
 		end },
-		{ HA + 2.6, function() caption("บัฟ: " .. (d.Buff or "") .. " · กด E ที่ตัวมันเพื่อขี่ได้", C.Text, 1.5) end },
+		{ HA + 2.6, function() caption("Buff: " .. (d.Buff or "") .. " · Press E on it to ride", C.Text, 1.5) end },
 	})
 	runShots(DUR, function(t)
 		run(t)
@@ -1756,7 +1756,7 @@ function Cinematics.Died(d)
 	local alive = d and d.Alive or 0
 	local s = UIKit.Text(inner, {
 		Size = UDim2.new(1, 0, 0, 30), Position = UDim2.fromOffset(0, 124), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 20,
-		Text = alive > 0 and string.format("สิ้นชีพ... ไม่มีการเกิดใหม่ในรอบนี้ · เพื่อนยังรอดอยู่ %d คน", alive) or "สิ้นชีพ... ไม่มีการเกิดใหม่ในรอบนี้",
+		Text = alive > 0 and string.format("You died... no respawning this run · %d teammates still alive", alive) or "You died... no respawning this run",
 		TextColor3 = Color3.fromRGB(200, 170, 160), TextTransparency = 1, ZIndex = 72,
 	})
 	UIKit.Tween(band, 1.5, { BackgroundTransparency = 0 })
@@ -1816,11 +1816,11 @@ end
 
 ---------------------------------------------------------------- ตัวจัดการ
 local ELEMENT_NIGHT_TEXT = {
-	Earth = "ป่าทั้งผืนตื่นขึ้น... ฝูงสัตว์แห่งปฐพีกำลังมา",
-	Water = "เสียงคลื่นคำราม... สัตว์แห่งวารีขึ้นจากน้ำ",
-	Air = "ลมหวีดหวิว... ผู้ล่าแห่งท้องฟ้าโฉบลงมา",
-	Fire = "ภูเขาไฟปะทุ... อสูรเพลิงลุกลาม",
-	All = "ทุกธาตุโกรธเกรี้ยว...",
+	Earth = "The whole forest awakens... the beasts of Earth are coming",
+	Water = "The waves roar... the beasts of Water rise from the sea",
+	Air = "The wind howls... the hunters of the sky swoop down",
+	Fire = "The volcano erupts... the fire beasts spread",
+	All = "Every element is enraged...",
 }
 
 -- กวางกลวงกำลังจะออกล่า (เตือนก่อน ~5 วินาที): ขอบจอมืดเต้นแบบหลอน + ป้ายเตือน (เสียงเล่นจาก SoundController)
@@ -1845,7 +1845,7 @@ function Cinematics.StalkerWarning(d, combat)
 		g.Parent = e
 		table.insert(edges, e)
 	end
-	Cinematics.Banner("มีบางอย่างกำลังเข้ามา...", "", Color3.fromRGB(255, 70, 60), 2.5, { Size = 50, Y = 0.2 })
+	Cinematics.Banner("Something is coming...", "", Color3.fromRGB(255, 70, 60), 2.5, { Size = 50, Y = 0.2 })
 	if combat and combat.Shake then
 		combat.Shake(0.12, 0.5)
 	end
@@ -1880,12 +1880,12 @@ function Cinematics.Handle(kind, d, menus, combat)
 		local color = d.BloodMoon and Color3.fromRGB(220, 40, 40) or (C.Element[d.Element] or C.Gold)
 		local title = d.BloodMoon and "BLOOD MOON" or ("NIGHT " .. d.Night)
 		-- ข้อความสั้น: บอกแค่ธาตุ/บอส · ไม่มีแถบดำบน-ล่าง (เคยบังปุ่มและแถบของบนมือถือ)
-		local sub = "คืนแห่ง" .. (UIKit.ElementThai[d.Element] or "")
+		local sub = "Night of " .. (UIKit.ElementThai[d.Element] or "")
 		if type(d.Elements) == "table" and #d.Elements > 0 then
-			sub = "ทุกธาตุบุกพร้อมกัน"
+			sub = "Every element attacks at once"
 		end
 		if d.Boss then
-			sub = "บอสกำลังมา"
+			sub = "The boss is coming"
 		end
 		Cinematics.Banner(title, sub, color, 3)
 		combat.Shake(0.3, 1)
@@ -1893,10 +1893,10 @@ function Cinematics.Handle(kind, d, menus, combat)
 		if d.Day > 1 then
 			Cinematics.Banner("DAY " .. d.Day, "", C.Gold, 2, { Size = 54, Y = 0.22 })
 		else
-			Cinematics.Banner("DAY 1", "จุดไฟให้ลุกโชน", C.Gold, 3, { Size = 60, Y = 0.22 })
+			Cinematics.Banner("DAY 1", "Keep the fire burning", C.Gold, 3, { Size = 60, Y = 0.22 })
 		end
 	elseif kind == "Dusk" then
-		Cinematics.Banner("DUSK", "กลับไปที่กองไฟ", C.Fire, 2.5, { Size = 50, Y = 0.22 })
+		Cinematics.Banner("DUSK", "Return to the campfire", C.Fire, 2.5, { Size = 50, Y = 0.22 })
 	elseif kind == "Dawn" then
 		-- ไม่มีป้าย DAWN: ซ้ำกับป้าย DAY ที่ขึ้นตามมาทันที
 	elseif kind == "WaveIncoming" then
@@ -1916,58 +1916,60 @@ function Cinematics.Handle(kind, d, menus, combat)
 			Cinematics.BossIntro(d)
 		end)
 	elseif kind == "BossFelled" then
-		Cinematics.Banner("BEAST VANQUISHED", "ปราบ " .. (d.Thai or "") .. " สำเร็จ", Color3.fromRGB(255, 214, 120), 3.5, { Size = 76 })
+		Cinematics.Banner("BEAST VANQUISHED", "Defeated " .. (d.Thai or "") .. "!", Color3.fromRGB(255, 214, 120), 3.5, { Size = 76 })
 	elseif kind == "Died" then
 		Cinematics.Died(d)
 	elseif kind == "Downed" then
 		combat.Shake(0.5, 0.4)
 		-- ไม่มีป้าย DOWNED: ข้อความติดจอ "ล้มแล้ว — รอเพื่อนมาช่วย" บอกอยู่แล้ว
 	elseif kind == "Revived" then
-		Cinematics.Banner("", "ได้รับการช่วยชีวิต", C.Good, 1.5, { Size = 10, Y = 0.5 })
+		Cinematics.Banner("", "You were revived", C.Good, 1.5, { Size = 10, Y = 0.5 })
 	elseif kind == "GameOver" then
 		clearDeath(0.3)
 		if Cinematics.Death then
 			Cinematics.Death.StopSpectate()
 		end
 		local lines = {
-			string.format("ทีมล้มลงทั้งหมดในคืนที่ %d", d.Night or 1),
-			string.format("รอดได้ %d คืน · สถิติสูงสุดของคุณ %d คืน", d.Survived or 0, d.Best or 0),
-			"กองไฟมอดดับลง... ป่ากลืนกินทุกสิ่ง",
-			"กำลังพากลับสู่ล็อบบี้...",
+			string.format("The whole team fell on night %d", d.Night or 1),
+			string.format("Survived %d nights · Your best is %d nights", d.Survived or 0, d.Best or 0),
+			"The campfire died out... the forest swallowed everything",
+			"Taking you back to the lobby...",
 		}
 		Cinematics.FullScreen("ALL HAVE PERISHED", lines, Color3.fromRGB(170, 20, 24), 11)
 	elseif kind == "Ending" then
-		local tail = d.Continue and "♾ เกมยังไม่จบ! เล่นต่อได้ไม่จำกัด — รอดให้นานที่สุดเพื่อขึ้นกระดานอันดับ" or ""
+		local tail = d.Continue and "♾ The game isn't over! Keep playing endlessly — survive as long as you can to climb the leaderboard" or ""
 		if d.Kind == "True" then
 			Cinematics.FullScreen("THE FOUR SPIRITS REUNITE", {
-				"ลูกสัตว์ทั้ง 4 ธาตุกลับมาพร้อมหน้า", "คุณพิชิต 99 คืน — จบแบบสมบูรณ์", "♦️ +300 Ruby", tail,
+				"All 4 Spirit Pups are back together", "You conquered 99 nights — the true ending", "♦️ +300 Ruby", tail,
 			}, Color3.fromRGB(255, 226, 150), 12)
 		else
 			Cinematics.FullScreen("99 NIGHTS CONQUERED", {
-				"คุณพิชิต 99 คืนแห่งผืนป่า!", string.format("ลูกสัตว์ธาตุกลับมา %d/4 ตัว — ช่วยครบเพื่อฉากจบที่แท้จริง", d.Spirits or 0),
+				"You conquered 99 Nights in the Wilds!", string.format("Spirit Pups rescued %d/4 — rescue them all for the true ending", d.Spirits or 0),
 				"♦️ +100 Ruby", tail,
 			}, C.Gold, 12)
 		end
 	elseif kind == "Purchased" then
-		if d.Kind == "Pack" then
-			Cinematics.Banner("♦️ +" .. tostring(d.Diamonds or 0), "เติม " .. (d.Name or "Ruby") .. " สำเร็จ", Color3.fromRGB(120, 230, 255), 3, { Size = 72, Y = 0.3 })
+		if d.Kind == "Gift" then
+			Cinematics.Banner("+" .. tostring(d.Diamonds or 0) .. " Ruby", (d.Name or "A friend") .. " sent you a gift!", Color3.fromRGB(120, 230, 255), 3.5, { Size = 72, Y = 0.3 })
+		elseif d.Kind == "Pack" then
+			Cinematics.Banner("♦️ +" .. tostring(d.Diamonds or 0), "Top-up: " .. (d.Name or "Ruby") .. "!", Color3.fromRGB(120, 230, 255), 3, { Size = 72, Y = 0.3 })
 		else
-			Cinematics.Banner("🎫 " .. (d.Name or "GAME PASS"), "ปลดล็อกแล้ว", C.Gold, 3, { Size = 64, Y = 0.3 })
+			Cinematics.Banner("🎫 " .. (d.Name or "GAME PASS"), "Unlocked", C.Gold, 3, { Size = 64, Y = 0.3 })
 		end
 	elseif kind == "SpiritFreed" then
-		Cinematics.Banner("SPIRIT UNSEALED", "พา" .. (d.Name or "") .. "กลับกองไฟ", C.Element[d.Element] or C.Gold, 3.5, { Size = 56 })
+		Cinematics.Banner("SPIRIT UNSEALED", "Bring " .. (d.Name or "") .. " back to the campfire", C.Element[d.Element] or C.Gold, 3.5, { Size = 56 })
 	elseif kind == "SpiritRescued" then
 		if not Cinematics.ShrineCut then -- คนที่ดูฉากจบศาลเจ้าอยู่เห็นข้อความในฉากแล้ว
-			Cinematics.Banner("SPIRIT RETURNED", string.format("%s กลับแคมป์ (%d/4)", d.Name or "", d.Count or 0), C.Element[d.Element] or C.Gold, 4.5, { Size = 60 })
+			Cinematics.Banner("SPIRIT RETURNED", string.format("%s returned to camp (%d/4)", d.Name or "", d.Count or 0), C.Element[d.Element] or C.Gold, 4.5, { Size = 60 })
 		end
 	elseif kind == "ShrineIntro" then
 		Cinematics.ShrineIntro(d)
 	elseif kind == "ShrineCleared" then
 		Cinematics.ShrineCleared(d)
 	elseif kind == "CampUpgrade" then
-		Cinematics.Banner("BONFIRE LV." .. d.Level, "เขตปลอดภัยขยาย", C.Fire, 3, { Size = 54, Y = 0.22 })
+		Cinematics.Banner("BONFIRE LV." .. d.Level, "Safe zone expanded", C.Fire, 3, { Size = 54, Y = 0.22 })
 	elseif kind == "FireOut" then
-		Cinematics.Banner("THE FIRE IS OUT", "เติมไม้ด่วน", Color3.fromRGB(255, 80, 60), 3, { Size = 56 })
+		Cinematics.Banner("THE FIRE IS OUT", "Add wood, quick", Color3.fromRGB(255, 80, 60), 3, { Size = 56 })
 		combat.Shake(0.3, 0.5)
 	elseif kind == "OpenCraft" then
 		menus.OpenCraft()
@@ -1979,12 +1981,12 @@ function Cinematics.Handle(kind, d, menus, combat)
 		menus.OpenTrader()
 	elseif kind == "Teleporting" then
 		if d.Back then
-			Cinematics.Banner("RETURNING", "กำลังกลับค่าย...", C.Gold, 8, { Size = 60, Y = 0.62 })
+			Cinematics.Banner("RETURNING", "Returning to camp...", C.Gold, 8, { Size = 60, Y = 0.62 })
 		else
-			Cinematics.Banner("DEPARTING", "กำลังเดินทาง...", C.Gold, 6, { Size = 60 })
+			Cinematics.Banner("DEPARTING", "Traveling...", C.Gold, 6, { Size = 60 })
 		end
 	elseif kind == "Depart" then
-		Cinematics.Banner("INTO THE WILDS", "รอดให้ได้ 99 คืน", C.Gold, 3, { Size = 64 })
+		Cinematics.Banner("INTO THE WILDS", "Survive 99 nights", C.Gold, 3, { Size = 64 })
 	elseif kind == "Shake" then
 		combat.Shake(d.Power or 0.5, d.Time or 0.5)
 	elseif kind == "Flash" then

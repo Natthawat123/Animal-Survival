@@ -87,7 +87,7 @@ function SeasonService:AddXP(player, n)
 	data.Season.XP += n
 	local after = Quests.TierOf(data.Season.XP)
 	if after > before then
-		self.ctx.Notify(player, string.format("🎟 Season Pass ขึ้นขั้น %d! กดรับรางวัลได้ที่เมนู \"ภารกิจ\"", after), "Reward")
+		self.ctx.Notify(player, string.format("🎟 Season Pass tier %d! Claim rewards in the \"Quests\" menu", after), "Reward")
 	end
 	local qs = self.ctx.Services.QuestService
 	if qs then
@@ -106,7 +106,7 @@ function SeasonService:GrantCosmetics(player, reward)
 	if reward.Title and Quests.Titles[reward.Title] then
 		if not data.Titles[reward.Title] then
 			data.Titles[reward.Title] = true
-			self.ctx.Notify(player, "🏷 ได้ฉายาใหม่: " .. Quests.Titles[reward.Title].Text, "Reward")
+			self.ctx.Notify(player, "🏷 New title: " .. Quests.Titles[reward.Title].Text, "Reward")
 		end
 		if data.EquipTitle == "" then
 			data.EquipTitle = reward.Title
@@ -116,7 +116,7 @@ function SeasonService:GrantCosmetics(player, reward)
 	if reward.Color and Quests.Colors[reward.Color] then
 		if not data.NameColors[reward.Color] then
 			data.NameColors[reward.Color] = true
-			self.ctx.Notify(player, "🎨 ได้สีฉายาใหม่: " .. Quests.Colors[reward.Color].Text, "Reward")
+			self.ctx.Notify(player, "🎨 New title color: " .. Quests.Colors[reward.Color].Text, "Reward")
 		end
 		if data.EquipColor == "" then
 			data.EquipColor = reward.Color
@@ -138,12 +138,12 @@ function SeasonService:GrantClass(player, classId, reason)
 	data.Owned = type(data.Owned) == "table" and data.Owned or {}
 	if data.Owned[classId] then
 		local refund = Quests.ClassRefund(classId)
-		self.ctx.Notify(player, string.format("มีคลาส %s แล้ว — ได้ %d Ruby แทน", c.Thai, refund), "Reward")
+		self.ctx.Notify(player, string.format("You already have the %s class — got %d Ruby instead", c.Thai, refund), "Reward")
 		ds(self):AddDiamonds(player, refund, reason)
 		return
 	end
 	data.Owned[classId] = true
-	self.ctx.Notify(player, c.Icon .. " ปลดล็อกคลาส " .. c.Thai .. " จาก Season Pass!", "Reward")
+	self.ctx.Notify(player, c.Icon .. " Unlocked class " .. c.Thai .. " from the Season Pass!", "Reward")
 	ds(self):Push(player)
 end
 
@@ -188,10 +188,10 @@ function SeasonService:Claim(player, track, tier)
 		local key = "T" .. t
 		if reward and t >= 1 and t <= reached and not data.Season[tr][key] then
 			if tr == "Prem" and not prem then
-				self.ctx.Notify(player, "🔒 สายพรีเมียมต้องมี Season Pass (ร้านค้า → Game Pass)", "Info")
+				self.ctx.Notify(player, "🔒 The premium track needs the Season Pass (Shop → Game Pass)", "Info")
 			else
 				data.Season[tr][key] = true
-				grant(self, player, reward, string.format("Season Pass ขั้น %d%s", t, tr == "Prem" and " (พรีเมียม)" or ""))
+				grant(self, player, reward, string.format("Season Pass tier %d%s", t, tr == "Prem" and " (Premium)" or ""))
 				got += 1
 			end
 		end
@@ -203,7 +203,7 @@ function SeasonService:Claim(player, track, tier)
 			qs:SaveSoon(player)
 		end
 	elseif track == "All" then
-		self.ctx.Notify(player, "ยังไม่มีรางวัลให้รับ — สะสม XP เพิ่มอีกนิด!", "Info")
+		self.ctx.Notify(player, "No rewards to claim yet — earn a bit more XP!", "Info")
 	end
 end
 

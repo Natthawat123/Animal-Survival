@@ -212,7 +212,7 @@ UIKit.Colors = {
 		All = Color3.fromRGB(255, 70, 90),
 	},
 }
-UIKit.ElementThai = { Earth = "ปฐพี", Water = "วารี", Air = "วายุ", Fire = "อัคคี", All = "ทุกธาตุ" }
+UIKit.ElementThai = { Earth = "Earth", Water = "Water", Air = "Frost", Fire = "Fire", All = "All Elements" }
 UIKit.ElementIcon = { Earth = "🌿", Water = "🌊", Air = "🌪", Fire = "🔥", All = "🩸" }
 
 UIKit.Fonts = {

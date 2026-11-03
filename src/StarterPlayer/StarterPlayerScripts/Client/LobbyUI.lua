@@ -195,14 +195,14 @@ function LobbyUI.Build(gui, handlers)
 		end
 		return dockButton(side, order, icon, name, color, onClick)
 	end
-	menuButton(1, "Classes", "Shield", "คลาส", C(230, 132, 64), handlers.Classes)
-	local _, qdot, qdotText = menuButton(2, "Quests", "Scroll", "ภารกิจ", C(236, 178, 52), function()
+	menuButton(1, "Classes", "Shield", "Classes", C(230, 132, 64), handlers.Classes)
+	local _, qdot, qdotText = menuButton(2, "Quests", "Scroll", "Quests", C(236, 178, 52), function()
 		if LobbyUI.OnQuests then
 			LobbyUI.OnQuests()
 		end
 	end)
 	ui.QuestDot, ui.QuestDotText = qdot, qdotText
-	local _, dot, dotText = menuButton(3, "Badges", "Trophy", "ป้าย", C(146, 104, 222), function()
+	local _, dot, dotText = menuButton(3, "Badges", "Trophy", "Badges", C(146, 104, 222), function()
 		ui.Badges.Visible = not ui.Badges.Visible
 		if ui.Badges.Visible then
 			UIKit.Pop(ui.Badges)
@@ -210,8 +210,8 @@ function LobbyUI.Build(gui, handlers)
 		LobbyUI.Refresh()
 	end)
 	ui.BadgeDot, ui.BadgeDotText = dot, dotText
-	menuButton(4, "Shop", "Ruby", "ร้านค้า", C(64, 182, 120), handlers.Shop)
-	menuButton(5, "Settings", "⚙", "ตั้งค่า", C(74, 132, 220), handlers.Settings)
+	menuButton(4, "Shop", "Ruby", "Shop", C(64, 182, 120), handlers.Shop)
+	menuButton(5, "Settings", "⚙", "Settings", C(74, 132, 220), handlers.Settings)
 
 	-- Ruby: แคปซูลมุมซ้ายบน + ปุ่ม + (เปิดร้านค้า)
 	-- (ธีมไม้เดียวกับหน้าต่างร้านค้า: ไม้เข้มขอบทอง + ปุ่ม + แดง)
@@ -226,7 +226,7 @@ function LobbyUI.Build(gui, handlers)
 	UIKit.EnsureTouchSize(plus, 44, handlers.Shop)
 
 	-- หน้าต่างป้ายความสำเร็จ (ธีมกรอบไม้)
-	local win = WoodKit.Window(root, { Name = "BadgeWindow", Size = Vector2.new(760, 600), Title = "🏅 ป้ายความสำเร็จ", OnClose = function()
+	local win = WoodKit.Window(root, { Name = "BadgeWindow", Size = Vector2.new(760, 600), Title = "🏅 Achievement Badges", OnClose = function()
 		ui.Badges.Visible = false
 	end })
 	local panel = win.Frame
@@ -289,7 +289,7 @@ function LobbyUI.Refresh()
 		-- รับได้ขึ้นบนสุด · ยังไม่ครบตรงกลาง · รับแล้วไว้ล่างสุด
 		r.Row.LayoutOrder = (canClaim and 0 or (got and 2000 or 1000)) + i
 		if ui.Badges.Visible then
-			r.Prog.Text = done and "✅ สำเร็จ" or string.format("%d/%d", math.min(v, need), need)
+			r.Prog.Text = done and "✅ Completed" or string.format("%d/%d", math.min(v, need), need)
 			r.Prog.TextColor3 = done and WoodKit.Colors.Good or WoodKit.Colors.Ink
 			r.Name.TextTransparency = done and 0 or 0.2
 			r.Bar.Set(math.min(v / need, 1))
@@ -297,10 +297,10 @@ function LobbyUI.Refresh()
 			-- กระดาษ: รับได้ = ทองสว่าง · สำเร็จแล้ว = เขียวอ่อน · ยังไม่ครบ = กระดาษปกติ
 			r.Row.BackgroundColor3 = canClaim and C(255, 228, 150) or (done and C(206, 216, 168) or WoodKit.Colors.Parch)
 			if got then
-				r.Claim.Text = "✔ รับแล้ว"
+				r.Claim.Text = "✔ Claimed"
 				WoodKit.Style(r.Claim, "Green")
 			elseif canClaim then
-				r.Claim.Text = "รับ ♦️ " .. b.Ruby
+				r.Claim.Text = "Claim ♦️ " .. b.Ruby
 				WoodKit.Style(r.Claim, "Red")
 			else
 				r.Claim.Text = "♦️ " .. b.Ruby

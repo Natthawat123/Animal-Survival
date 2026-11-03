@@ -202,8 +202,8 @@ function InventoryService:SyncStructureTools(player)
 			end
 			t.Name = string.format("%s x%d", item.Thai, n)
 			t:SetAttribute("Count", n)
-			t.ToolTip = med and string.format("%s x%d · คลิก = ช่วยเพื่อนที่ล้ม / ฟื้นเลือดตัวเอง", item.Thai, n)
-				or string.format("%s x%d · คลิก = วาง · R = หมุน", item.Thai, n)
+			t.ToolTip = med and string.format("%s x%d · Click = revive downed teammate / heal yourself", item.Thai, n)
+				or string.format("%s x%d · Click = place · R = rotate", item.Thai, n)
 		end
 	end
 end
@@ -242,7 +242,7 @@ function InventoryService:Add(player, id, n, silent)
 	if Limits.Structures[id] then
 		local room = self:Room(player, id)
 		if room < n then
-			self.ctx.Notify(player, self:LimitText(id) .. " — ครบแล้ว", "Error")
+			self.ctx.Notify(player, self:LimitText(id) .. " — maxed out", "Error")
 			n = room
 		end
 		if n <= 0 then
@@ -490,7 +490,7 @@ end
 
 function InventoryService:LimitText(id)
 	local lim = Limits.Structures[id]
-	return lim and string.format("%s ได้สูงสุด %d %s", Items.DisplayName(id), lim.Max, lim.Scope == "Server" and "ต่อเกม (ทั้งเซิร์ฟ)" or "ต่อคน") or ""
+	return lim and string.format("%s: max %d %s", Items.DisplayName(id), lim.Max, lim.Scope == "Server" and "per game (whole server)" or "per player") or ""
 end
 
 -- ตั้ง attribute จำนวนปัจจุบันให้ client (หน้าคราฟต์โชว์ 3/8)

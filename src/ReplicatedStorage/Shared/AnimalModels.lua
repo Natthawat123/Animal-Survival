@@ -550,7 +550,7 @@ end
 function AnimalModels.Build(id, opts)
 	opts = opts or {}
 	local info = Animals.Data[id]
-	assert(info, "ไม่รู้จักสัตว์: " .. tostring(id))
+	assert(info, "Unknown animal: " .. tostring(id))
 	local spec = info.Model
 	local assets = ReplicatedStorage:FindFirstChild("Assets")
 	local custom = assets and assets:FindFirstChild("Animals") and assets.Animals:FindFirstChild(id)

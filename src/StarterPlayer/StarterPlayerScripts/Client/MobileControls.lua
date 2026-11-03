@@ -53,13 +53,13 @@ function MobileControls.Init(deps)
 
 	-- ปุ่มรอบปุ่มกระโดด (ตำแหน่งคำนวณใหม่ทุกครั้งที่จอเปลี่ยนขนาด)
 	local ring = UIKit.Frame(gui, { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1 })
-	local sprint, _, sprintLabel = roundButton(ring, nil, "วิ่ง", C.Cyan, function()
+	local sprint, _, sprintLabel = roundButton(ring, nil, "Sprint", C.Cyan, function()
 		if combat then
 			combat.SetSprint(not combat.IsSprinting())
 		end
 	end)
 	-- คราฟต์ = กด E ที่โต๊ะ · สร้าง = เลือกของในแถบไอเทม · กระสอบ = ปุ่มกระเป๋ามุมขวาบน -> ไม่ต้องมีปุ่มซ้ำ
-	local dropB = roundButton(ring, nil, "เอาออก", C.Pink, function()
+	local dropB = roundButton(ring, nil, "Take Out", C.Pink, function()
 		Remotes.Get("DropItem"):FireServer(nil, 1)
 	end)
 	-- 🔒 ล็อกกล้อง (Shift Lock แบบมือถือ): ตัวละครหันตามกล้องตลอด + กล้องเยื้องข้างไหล่ · ปัดจอหมุนกล้อง = หมุนตัว
@@ -81,10 +81,10 @@ function MobileControls.Init(deps)
 		end
 		if lockB then
 			lockB.BackgroundColor3 = on and C.Gold or C.Blue
-			lockLabel.Text = on and "ล็อกอยู่" or "ล็อก"
+			lockLabel.Text = on and "Locked" or "Lock"
 		end
 	end
-	lockB, _, lockLabel = roundButton(ring, nil, "ล็อก", C.Blue, function()
+	lockB, _, lockLabel = roundButton(ring, nil, "Lock", C.Blue, function()
 		setLock(not locked)
 	end)
 	RunService:BindToRenderStep("ASMobileLock", Enum.RenderPriority.Camera.Value + 1, function()
@@ -135,7 +135,7 @@ function MobileControls.Init(deps)
 	bl.Parent = buildBar
 	local bscale = Instance.new("UIScale")
 	bscale.Parent = buildBar
-	for i, spec in ipairs({ { "↻", "หมุน", C.Blue, menus.RotateBuild }, { "⇄", "เปลี่ยน", C.Purple, menus.CycleBuild }, { "✔", "วาง", C.Green, menus.PlaceBuild }, { "✕", "ยกเลิก", C.Red, menus.StopBuild } }) do
+	for i, spec in ipairs({ { "↻", "Rotate", C.Blue, menus.RotateBuild }, { "⇄", "Switch", C.Purple, menus.CycleBuild }, { "✔", "Place", C.Green, menus.PlaceBuild }, { "✕", "Cancel", C.Red, menus.StopBuild } }) do
 		local b = roundButton(buildBar, spec[1], spec[2], spec[3], spec[4])
 		b.AnchorPoint = Vector2.new(0, 0)
 		b.Size = UDim2.fromOffset(i == 3 and 64 or 56, i == 3 and 64 or 56)
@@ -186,7 +186,7 @@ function MobileControls.Init(deps)
 		end
 		local on = combat and combat.IsSprinting()
 		sprint.BackgroundColor3 = on and C.Gold or C.Cyan
-		sprintLabel.Text = on and "วิ่งอยู่" or "วิ่ง"
+		sprintLabel.Text = on and "Sprinting" or "Sprint"
 	end
 	local function watchTools(container)
 		container.ChildAdded:Connect(function(t)

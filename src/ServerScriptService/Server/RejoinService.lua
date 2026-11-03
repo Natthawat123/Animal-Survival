@@ -167,6 +167,7 @@ end
 
 function RejoinService:OnRemoving(player)
 	local uid = player.UserId
+	pcall(self.SaveRunFor, self, player, true) -- มี Save Run: ออกเกมกลางรอบ = เซฟไว้เล่นต่อ
 	-- ออกจากรอบตามปกติ (ตาย/รอบจบ/กลับล็อบบี้) ไม่ต้องเก็บ
 	if not player:GetAttribute("InRun") or player:GetAttribute("Dead") or not runActive(self) then
 		return
@@ -234,6 +235,36 @@ function RejoinService:WriteRun()
 		return
 	end
 	self:MSet("run_" .. game.PrivateServerId, run, self.TTL)
+end
+
+-- Save Run (Game Pass): เก็บทั้งรอบ + ของของทุกคนที่ยังเล่นอยู่ ลงเซฟถาวรของคนนี้ (DataService:SaveRun)
+--   เรียกตอนรุ่งเช้าทุกวัน และตอนคนนี้ออกเกมกลางรอบ · คืนค่า true = เซฟแล้ว
+function RejoinService:SaveRunFor(player, leaving)
+	local shop = self.ctx.Services.MonetizationService
+	if not (shop and shop:HasPass(player, "SaveRun") and player:GetAttribute("InRun") and not player:GetAttribute("Dead") and runActive(self)) then
+		return false
+	end
+	local ok, run = pcall(self.SerializeRun, self)
+	if not ok or type(run) ~= "table" then
+		warn("[AS] save run serialize:", run)
+		return false
+	end
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p:GetAttribute("InRun") and not p:GetAttribute("Dead") then
+			local ok2, snap = pcall(self.Snapshot, self, p)
+			if ok2 and snap then
+				snap.Downed = false
+				run.Players[tostring(p.UserId)] = snap
+			end
+		end
+	end
+	run.SavedAt = os.time()
+	local ds = self.ctx.Services.DataService
+	if leaving then
+		task.spawn(ds.SaveRun, ds, player, run)
+		return true
+	end
+	return ds:SaveRun(player, run)
 end
 
 -- คนสุดท้ายออกจากรอบ (ไม่ได้ตาย): เก็บรอบไว้ แทนการจบรอบ (เซิร์ฟเวอร์ทีมที่มี MemoryStore เท่านั้น)
@@ -331,8 +362,8 @@ function RejoinService:TryRestore(player)
 		end)
 	end)
 	surv:Spawn(player)
-	ctx.Notify(player, "↩ กลับเข้ารอบเดิมแล้ว — ของในกระสอบ/เครื่องมือยังอยู่ครบ", "Good")
-	ctx.Broadcast(string.format("%s กลับเข้ารอบ", player.DisplayName), "Info")
+	ctx.Notify(player, "↩ Rejoined your run — your sack items and tools are all still here", "Good")
+	ctx.Broadcast(string.format("%s rejoined the run", player.DisplayName), "Info")
 	return true
 end
 
@@ -406,7 +437,7 @@ function RejoinService:OnTeamArrive(player)
 		if lobby and lobby:ReturnToMainLobby({ player }, { Result = "RunGone" }) then
 			return true
 		end
-		self.ctx.Notify(player, "รอบเดิมจบไปแล้ว — เริ่มรอบใหม่แทน", "Info")
+		self.ctx.Notify(player, "Your previous run has ended — starting a new run instead", "Info")
 	end
 	return false
 end
@@ -469,14 +500,14 @@ function RejoinService:Answer(player, accept)
 	if offer.Local then
 		self.offers[player] = nil
 		if not self:TryRestore(player) then
-			self.ctx.Notify(player, "รอบเดิมจบไปแล้ว", "Error")
+			self.ctx.Notify(player, "Your previous run has ended", "Error")
 		end
 		return
 	end
 	local rec = offer.Record
 	if not (rec and rec.Expire > os.time()) then
 		self.offers[player] = nil
-		self.ctx.Notify(player, "หมดเวลากลับเข้ารอบเดิมแล้ว", "Error")
+		self.ctx.Notify(player, "Time to rejoin your previous run has expired", "Error")
 		task.spawn(self.MRemove, self, "u_" .. uid)
 		return
 	end
@@ -490,13 +521,26 @@ function RejoinService:Answer(player, accept)
 	end)
 	if not ok then
 		warn("[AS] rejoin teleport failed:", err)
-		self.ctx.Notify(player, "กลับเข้ารอบเดิมไม่สำเร็จ ลองใหม่อีกครั้ง", "Error")
+		self.ctx.Notify(player, "Couldn't rejoin your previous run, try again", "Error")
 		-- ให้กดใหม่ได้
 		self.ctx.Remotes.Get("RejoinOffer"):FireClient(player, { Left = rec.Expire - os.time(), Local = false })
 	end
 end
 
 function RejoinService:Start(ctx)
+	-- Save Run: รุ่งเช้าทุกวัน เซฟรอบให้คนที่มี Pass อัตโนมัติ
+	ctx.State:GetAttributeChangedSignal("Phase"):Connect(function()
+		if ctx.State:GetAttribute("Phase") ~= "Day" then
+			return
+		end
+		for _, p in ipairs(Players:GetPlayers()) do
+			task.spawn(function()
+				if self:SaveRunFor(p) then
+					ctx.Notify(p, string.format("Run saved · Night %d", ctx.Services.DirectorService.night or 1), "Good")
+				end
+			end)
+		end
+	end)
 	Players.PlayerRemoving:Connect(function(p)
 		self.offers[p] = nil
 		self.lastAnswer[p] = nil
@@ -509,7 +553,7 @@ function RejoinService:Start(ctx)
 	pcall(function()
 		TeleportService.TeleportInitFailed:Connect(function(player, _, msg)
 			if self.offers[player] and not self.offers[player].Local then
-				ctx.Notify(player, "กลับเข้ารอบเดิมไม่สำเร็จ: " .. tostring(msg or ""), "Error")
+				ctx.Notify(player, "Couldn't rejoin your previous run: " .. tostring(msg or ""), "Error")
 				local rec = self.offers[player].Record
 				if rec and rec.Expire > os.time() then
 					ctx.Remotes.Get("RejoinOffer"):FireClient(player, { Left = rec.Expire - os.time(), Local = false })
@@ -554,7 +598,7 @@ function RejoinService:Start(ctx)
 				return
 			end
 			if runGone then
-				ctx.Notify(player, "รอบเดิมจบไปแล้ว — เริ่มรอบใหม่ได้ที่แท่นเริ่มเกม", "Info")
+				ctx.Notify(player, "Your previous run has ended — start a new one at the start pad", "Info")
 				return
 			end
 			if not isTeamServer(self) then

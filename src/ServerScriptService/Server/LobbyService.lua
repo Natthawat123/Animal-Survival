@@ -380,7 +380,7 @@ local function classesTent(self, parent, cf)
 		t2.Size = UDim2.fromScale(1, 0.26)
 		t2.Position = UDim2.fromScale(0, 0.72)
 		t2.BackgroundTransparency = 1
-		t2.Text = "ร้านคลาส · เดินเข้าไปคุยได้เลย"
+		t2.Text = "Class Shop · Walk in to talk"
 		t2.TextScaled = true
 		t2.Font = Enum.Font.GothamBold
 		t2.TextColor3 = C(255, 236, 190)
@@ -442,7 +442,7 @@ local function classesTent(self, parent, cf)
 			end
 		end
 	end
-	prompt(kbody, "ดูคลาส", "ที่ปรึกษาค่าย", Enum.KeyCode.E, 18).Triggered:Connect(function(p)
+	prompt(kbody, "View Classes", "Camp Advisor", Enum.KeyCode.E, 18).Triggered:Connect(function(p)
 		self.ctx.Remotes.Get("Cinematic"):FireClient(p, "OpenClasses", {})
 	end)
 	if hut then
@@ -453,7 +453,7 @@ local function classesTent(self, parent, cf)
 		board:ClearAllChildren()
 	end
 	if not hut then
-		prompt(board, "ร้านคลาส", "Classes", Enum.KeyCode.E, 30).Triggered:Connect(function(p)
+		prompt(board, "Class Shop", "Classes", Enum.KeyCode.E, 30).Triggered:Connect(function(p)
 			self.ctx.Remotes.Get("Cinematic"):FireClient(p, "OpenClasses", {})
 		end)
 	end
@@ -463,7 +463,7 @@ local function classesTent(self, parent, cf)
 	for _, x in ipairs({ -3.5, 3.5 }) do
 		P(tentFolder, { Size = V(0.3, 8, 0.3), CFrame = wbCf * CF(x, 4, 0.4) * ANG(math.rad(8), 0, 0), Color = C(200, 200, 206), Material = Enum.Material.Metal })
 	end
-	label(wb, Enum.NormalId.Front, "แผนวันนี้:\n1. เลือกคลาส\n2. ขึ้นแท่นเริ่มเกม\n3. พิชิตคืนสุดท้าย!", C(40, 60, 160), Enum.Font.GothamBold)
+	label(wb, Enum.NormalId.Front, "Today's plan:\n1. Pick a class\n2. Step on a start pad\n3. Conquer the final night!", C(40, 60, 160), Enum.Font.GothamBold)
 	-- ตอไม้มีไฟ (หลังเวที ขวา) + ลังไม้
 	fireStump(tentFolder, cf * CF(10, 1.5, D / 2 - 4), 0.7, 14) -- ไฟอ่อนๆ ไม่ให้หน้าตัวละครบนเวทีสว่างจ้า
 	crate(tentFolder, cf * CF(16, 1.5, D / 2 - 3))
@@ -538,7 +538,7 @@ local function dailyCauldron(self, parent, cf)
 	local t = Instance.new("TextLabel")
 	t.Size = UDim2.fromScale(1, 0.6)
 	t.BackgroundTransparency = 1
-	t.Text = "รางวัลประจำวัน ♦️"
+	t.Text = "Daily Reward ♦️"
 	t.TextScaled = true
 	t.Font = Enum.Font.GothamBlack
 	t.TextColor3 = C(130, 255, 120)
@@ -549,14 +549,14 @@ local function dailyCauldron(self, parent, cf)
 	t2.Size = UDim2.fromScale(1, 0.38)
 	t2.Position = UDim2.fromScale(0, 0.62)
 	t2.BackgroundTransparency = 1
-	t2.Text = "- รับ Ruby ฟรีทุกวัน -"
+	t2.Text = "- Free Ruby every day -"
 	t2.TextScaled = true
 	t2.Font = Enum.Font.GothamBold
 	t2.TextColor3 = C(255, 255, 255)
 	t2.Parent = bb
 	local s2 = Instance.new("UIStroke")
 	s2.Thickness, s2.Parent = 2, t2
-	prompt(pot, "รับรางวัลประจำวัน", "หม้อวิเศษ", Enum.KeyCode.E, 14).Triggered:Connect(function(p)
+	prompt(pot, "Claim Daily Reward", "Magic Cauldron", Enum.KeyCode.E, 14).Triggered:Connect(function(p)
 		self.ctx.Services.DataService:ClaimDaily(p)
 	end)
 end
@@ -635,7 +635,7 @@ local function portalHook(art, parent, i)
 		return t
 	end
 	local count = line(0.0, 0.5, "0/4", Enum.Font.FredokaOne)
-	local sub = line(0.52, 0.24, "เดินขึ้นแท่นเพื่อเริ่ม", Enum.Font.GothamBold)
+	local sub = line(0.52, 0.24, "Step on the pad to start", Enum.Font.GothamBold)
 	local names = line(0.78, 0.2, "", Enum.Font.GothamBold)
 	names.TextColor3 = C(170, 245, 255)
 	-- วงฟ้าเรืองแสงบนลานหน้าประตู (เขตยืนรอ เห็นชัดว่าใครอยู่ในวง แบบเกมเอาชีวิตรอดซอมบี้) + ประกายลอยขึ้นจากวง
@@ -784,13 +784,13 @@ function LobbyService:Build()
 			end
 		elseif groveSign then
 			for _, face in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back }) do
-				local t = label(groveSign, face, "⚔ เดินเข้าประตูมิติเพื่อเริ่มเกม", C(150, 240, 255), Enum.Font.GothamBlack)
+				local t = label(groveSign, face, "⚔ Walk through the portal to start the game", C(150, 240, 255), Enum.Font.GothamBlack)
 				local st = Instance.new("UIStroke")
 				st.Color, st.Thickness, st.Parent = C(8, 40, 60), 2, t
 			end
 		end
 	else
-		warn("[AS] ไม่พบ ServerStorage.LobbyArt.LobbyRuins (รัน python tools/lobby_art.py แล้ว build ใหม่)")
+		warn("[AS] ServerStorage.LobbyArt.LobbyRuins not found (run python tools/lobby_art.py then rebuild)")
 	end
 	-- กำแพงหินรอบค่าย (มองเห็นจริง สูง 11) + กำแพงล่องหนสูง 300 ทับอีกชั้น -> ปีน/กระโดดออกนอกค่ายไม่ได้ (กันตกแมพ)
 	local walls = Instance.new("Folder")
@@ -934,7 +934,7 @@ function LobbyService:Build()
 	nt.TextColor3 = C(255, 240, 200)
 	local nst = Instance.new("UIStroke")
 	nst.Color, nst.Thickness, nst.Parent = C(70, 40, 20), 2, nt
-	nt.Text = '<font color="#FFE066" size="40">กระดานข่าวค่าย</font>\n\nรอดคืนสำคัญ (ทุก 5-25 คืน)\n= รับ Ruby ♦️\n\nช่วยลูกสัตว์ธาตุ = ♦️15\n<font color="#8CFF8C">รับ Ruby ฟรีที่หม้อเขียวทุกวัน!</font>'
+	nt.Text = '<font color="#FFE066" size="40">Camp News</font>\n\nSurvive milestone nights (every 5-25 nights)\n= Earn Ruby ♦️\n\nRescue a Spirit Pup = ♦️15\n<font color="#8CFF8C">Free Ruby at the green cauldron every day!</font>'
 	nt.Parent = nbg
 	local nlamp = P(deco, { Size = V(0.9, 0.9, 0.9), CFrame = nbCf * CF(0, 12, -1.6), Color = C(255, 214, 150), Material = Enum.Material.Neon, CanCollide = false })
 	light(nlamp, C(255, 196, 130), 14, 1.6)
@@ -1094,7 +1094,7 @@ function LobbyService:Depart(player)
 				for id, n in pairs(kit.Items) do
 					ctx.Services.InventoryService:Add(player, id, n, true)
 				end
-				ctx.Notify(player, "🎒 ได้รับ " .. kit.Name, "Reward")
+				ctx.Notify(player, "🎒 Received " .. kit.Name, "Reward")
 			end
 		end
 		data.PendingKits = {}
@@ -1125,7 +1125,7 @@ function LobbyService:RetryTeleport(player, reason)
 		self.departing[player] = nil
 		player:SetAttribute("Departing", nil)
 		warn("[AS] teleport gave up", player.Name, reason)
-		self.ctx.Notify(player, "ส่งไปเซิร์ฟเวอร์ทีมไม่สำเร็จ (" .. tostring(reason or "") .. ") — ขึ้นแท่นใหม่อีกครั้ง", "Error")
+		self.ctx.Notify(player, "Couldn't send you to the team server (" .. tostring(reason or "") .. ") — step on the pad again", "Error")
 		return
 	end
 	d.Tries += 1
@@ -1142,8 +1142,20 @@ function LobbyService:RetryTeleport(player, reason)
 	end)
 end
 
-function LobbyService:DepartTeam(list)
+function LobbyService:DepartTeam(list, resumeFrom)
 	local canTeleport = not RunService:IsStudio() and game.PlaceId ~= 0 and not self.IsTeamServer
+	-- เล่นต่อจากเซฟ (Save Run ของหัวหน้าแท่น): โหลดรอบที่เซฟไว้ แล้วฝากให้เซิร์ฟเวอร์ใหม่ของทีมอ่านตอนเปิด
+	local resumeRun
+	if resumeFrom and resumeFrom.Parent then
+		if canTeleport then
+			resumeRun = self.ctx.Services.DataService:LoadRun(resumeFrom.UserId)
+		end
+		if not resumeRun then
+			for _, p in ipairs(list) do
+				self.ctx.Notify(p, canTeleport and "Couldn't load the saved run — starting a new run" or "Continue only works in the published game — starting a new run", "Warn")
+			end
+		end
+	end
 	if canTeleport then
 		self.departing = self.departing or {}
 		for _, p in ipairs(list) do
@@ -1159,10 +1171,17 @@ function LobbyService:DepartTeam(list)
 			local rejoin = self.ctx.Services.RejoinService
 			if rejoin then
 				rejoin:RegisterServer(privateServerId, code)
+				if resumeRun then
+					-- เซิร์ฟเวอร์ใหม่อ่าน run_<PrivateServerId> ตอนเปิด (RejoinService.LoadHeldRun) -> แมพเดิม คืนเดิม ของเดิม
+					resumeRun.Expire = os.time() + rejoin.TTL
+					if not rejoin:MSet("run_" .. privateServerId, resumeRun, rejoin.TTL) then
+						error("couldn't hand the saved run to the team server")
+					end
+				end
 			end
 			local opts = Instance.new("TeleportOptions")
 			opts.ReservedServerAccessCode = code
-			opts:SetTeleportData({ Team = true })
+			opts:SetTeleportData({ Team = true, Resumed = resumeRun ~= nil })
 			for _, p in ipairs(list) do
 				if self.departing[p] then
 					self.departing[p].Opts = opts -- คนที่ล้มเหลวลองใหม่เข้าเซิร์ฟเวอร์เดียวกับทีม
@@ -1290,7 +1309,7 @@ function LobbyService:RefreshTag(player)
 	local best = player:GetAttribute("BestNight") or 0
 	local color, icon = tierColor(best)
 	local bestL = bb:FindFirstChild("Best")
-	bestL.Text = string.format("%s %d วัน", icon, best)
+	bestL.Text = string.format("%s %d days", icon, best)
 	bestL.TextColor3 = color
 	local vip = bb:FindFirstChild("VIP")
 	vip.Visible = player:GetAttribute("Pass_VIP") == true
@@ -1348,7 +1367,7 @@ function LobbyService:BuildBoardGui(board, face)
 	title.BackgroundTransparency = 1
 	title.Font = Enum.Font.FredokaOne
 	title.TextScaled = true
-	title.Text = "🏆 ผู้รอดนานสุดทั้งเกม"
+	title.Text = "🏆 Longest Survivors of All Time"
 	title.TextColor3 = C(255, 255, 255)
 	title.Parent = head
 	local ts = Instance.new("UIStroke")
@@ -1363,7 +1382,7 @@ function LobbyService:BuildBoardGui(board, face)
 	sub.BackgroundTransparency = 1
 	sub.Font = Enum.Font.GothamBold
 	sub.TextScaled = true
-	sub.Text = "กำลังโหลดอันดับ..."
+	sub.Text = "Loading leaderboard..."
 	sub.TextColor3 = C(200, 205, 235)
 	sub.Parent = bg
 	local rows = {}
@@ -1446,7 +1465,7 @@ local function displayName(userId)
 		nameCache[userId] = infos[1].DisplayName
 	else
 		local ok2, n = pcall(Players.GetNameFromUserIdAsync, Players, userId)
-		nameCache[userId] = ok2 and n or ("ผู้เล่น " .. userId)
+		nameCache[userId] = ok2 and n or ("Player " .. userId)
 	end
 	return nameCache[userId]
 end
@@ -1557,16 +1576,22 @@ function LobbyService:Tick(dt)
 		box.Zone:SetAttribute("Countdown", box.Countdown and math.max(0, math.ceil(box.Countdown)) or -1)
 		box.Zone:SetAttribute("Host", list[1] and list[1].UserId or 0)
 		box.Zone:SetAttribute("Picked", box.Picked == true)
+		-- เล่นต่อจากเซฟ: ใช้ได้เฉพาะตอนคนเลือกยังเป็นหัวหน้าแท่น
+		if box.Resume and list[1] ~= box.Resume then
+			box.Resume = nil
+		end
+		box.Zone:SetAttribute("ResumeNight", box.Resume and box.Resume:GetAttribute("SavedNight") or nil)
 		if not worldReady then
-			box.Sub.Text = string.format("⏳ กำลังสร้างโลก %d%%", math.floor((s:GetAttribute("LoadProgress") or 0) * 100))
+			box.Sub.Text = string.format("⏳ Generating world %d%%", math.floor((s:GetAttribute("LoadProgress") or 0) * 100))
 			box.Countdown = nil
 		elseif s:GetAttribute("Phase") == "Ended" then
-			box.Sub.Text = "รอรอบก่อนจบ..."
+			box.Sub.Text = "Waiting for the previous run to end..."
 			box.Countdown = nil
 		elseif n == 0 then
 			box.Countdown = nil
 			box.Picked = false
-			box.Sub.Text = running and "⚔ ร่วมทีมที่เล่นอยู่" or "เดินขึ้นแท่นเพื่อเริ่ม"
+			box.Resume = nil
+			box.Sub.Text = running and "⚔ Join the team in progress" or "Step on the pad to start"
 			box.Pad.Color = PORTAL_VEIL
 			box.Ring.Color = PORTAL_IDLE
 			if box.Disc then
@@ -1578,7 +1603,7 @@ function LobbyService:Tick(dt)
 		elseif not box.Picked and not running then
 			-- ยังไม่เลือกจำนวนคน: ยังไม่นับถอยหลัง (หัวหน้าแท่นเลือกก่อน แล้วค่อยเริ่มนับ)
 			box.Countdown = nil
-			box.Sub.Text = "👥 รอหัวหน้าแท่นเลือกจำนวนคน"
+			box.Sub.Text = "👥 Waiting for the pad leader to choose the team size"
 			box.Pad.Color = PORTAL_VEIL
 			box.Ring.Color = PORTAL_IDLE
 			if box.Disc then
@@ -1588,7 +1613,7 @@ function LobbyService:Tick(dt)
 		else
 			local target = running and COUNTDOWN_JOIN or ((n >= box.Size) and COUNTDOWN_FULL or COUNTDOWN)
 			box.Countdown = math.min(box.Countdown or target, target) - dt
-			box.Sub.Text = string.format("ออกเดินทางใน %d", math.max(0, math.ceil(box.Countdown)))
+			box.Sub.Text = string.format("Departing in %d", math.max(0, math.ceil(box.Countdown)))
 			box.Pad.Color = PORTAL_GO_VEIL
 			box.Ring.Color = PORTAL_GO
 			if box.Disc then
@@ -1601,7 +1626,9 @@ function LobbyService:Tick(dt)
 			anyCount += n
 			if box.Countdown <= 0 then
 				box.Countdown = nil
-				self:DepartTeam(list)
+				local resume = not running and box.Resume or nil
+				box.Resume = nil
+				self:DepartTeam(list, resume)
 			end
 		end
 	end
@@ -1679,16 +1706,16 @@ function LobbyService:ShowBoard()
 	end
 	for _, gui in ipairs(self.boardGuis) do
 		if gui.Title then
-			gui.Title.Text = mode == "Week" and "📅 ผู้รอดนานสุดสัปดาห์นี้" or "🏆 ผู้รอดนานสุดทั้งเกม"
+			gui.Title.Text = mode == "Week" and "📅 Longest Survivors This Week" or "🏆 Longest Survivors of All Time"
 		end
-		local tabs = mode == "Week" and "ทั้งเกม · [ สัปดาห์นี้ ]" or "[ ทั้งเกม ] · สัปดาห์นี้"
-		gui.Sub.Text = tabs .. "  —  " .. (global and "ทุกเซิร์ฟเวอร์ · อัปเดตทุก 1 นาที" or "เฉพาะคนในเซิร์ฟเวอร์นี้ (ยังเชื่อมระบบเซฟไม่ได้)")
+		local tabs = mode == "Week" and "All Time · [ This Week ]" or "[ All Time ] · This Week"
+		gui.Sub.Text = tabs .. "  —  " .. (global and "All servers · Updates every minute" or "This server only (save system not connected yet)")
 		for i, r in ipairs(gui.Rows) do
 			local e = list[i]
 			if e and (e.Value or 0) > 0 then
 				r.Name.Text = displayName(e.UserId)
 				r.Name.TextColor3 = vipNames[e.UserId] and Color3.fromRGB(255, 214, 90) or nameColors[e.UserId] or Color3.fromRGB(240, 240, 250)
-				r.Value.Text = string.format("%d วัน", e.Value)
+				r.Value.Text = string.format("%d days", e.Value)
 				r.Face.Image = thumb(e.UserId)
 				r.Row.Visible = true
 			else
@@ -1728,7 +1755,7 @@ function LobbyService:Start(ctx)
 		if type(td) == "table" and td.Back and not self.IsTeamServer then
 			task.delay(6, function()
 				if player.Parent and td.Result == "Defeat" then
-					ctx.Notify(player, string.format("🔥 รอบที่แล้ว: ทีมไปถึงคืนที่ %d — ลองใหม่อีกครั้ง!", tonumber(td.Night) or 0), "Info")
+					ctx.Notify(player, string.format("🔥 Last run: the team reached night %d — try again!", tonumber(td.Night) or 0), "Info")
 				end
 			end)
 		end
@@ -1762,12 +1789,32 @@ function LobbyService:Start(ctx)
 			return
 		end
 		if box.List and box.List[1] ~= player then
-			ctx.Notify(player, "เฉพาะหัวหน้าแท่น (คนแรกที่ขึ้น) เลือกจำนวนคนได้", "Info")
+			ctx.Notify(player, "Only the pad leader (first one on) can choose the team size", "Info")
 			return
 		end
 		box.Size = math.max(n, #(box.List or {}))
 		box.Countdown = nil
 		box.Picked = true -- เริ่มนับถอยหลังหลังเลือกจำนวนแล้วเท่านั้น
+	end)
+	-- หัวหน้าแท่นที่มี Save Run: เลือกเล่นต่อจากรอบที่เซฟไว้ (on = false ยกเลิก)
+	ctx.Remotes.Get("PadResume").OnServerEvent:Connect(function(player, index, on)
+		local box = self.boxes and self.boxes[tonumber(index) or 0]
+		if not box or not (box.List and box.List[1] == player) then
+			return
+		end
+		if on then
+			if not ctx.Services.MonetizationService:HasPass(player, "SaveRun") then
+				ctx.Notify(player, "Requires the Save Run pass", "Info")
+				return
+			end
+			if not player:GetAttribute("SavedNight") then
+				ctx.Notify(player, "You don't have a saved run yet", "Info")
+				return
+			end
+			box.Resume = player
+		else
+			box.Resume = nil
+		end
 	end)
 	ctx.Remotes.Get("LeavePad").OnServerEvent:Connect(function(player)
 		self:LeavePad(player, true)
@@ -1779,22 +1826,22 @@ function LobbyService:Start(ctx)
 			return
 		end
 		if player:GetAttribute("InRun") then
-			ctx.Notify(player, "ซื้อชุดเริ่มต้นได้เฉพาะในล็อบบี้", "Error")
+			ctx.Notify(player, "Starter kits can only be bought in the lobby", "Error")
 			return
 		end
 		data.PendingKits = data.PendingKits or {}
 		if data.PendingKits[kitId] then
-			ctx.Notify(player, "ซื้อชุดนี้ไว้แล้ว (ได้ตอนออกเดินทาง)", "Info")
+			ctx.Notify(player, "You already bought this kit (you'll get it when you depart)", "Info")
 			return
 		end
 		if data.Diamonds < kit.Price then
-			ctx.Notify(player, "♦️ Ruby ไม่พอ", "Error")
+			ctx.Notify(player, "♦️ Not enough Ruby", "Error")
 			return
 		end
 		data.Diamonds -= kit.Price
 		data.PendingKits[kitId] = true
 		player:SetAttribute("Diamonds", data.Diamonds)
-		ctx.Notify(player, "🛒 ซื้อ " .. kit.Name .. " แล้ว — ได้ของตอนออกเดินทาง", "Reward")
+		ctx.Notify(player, "🛒 Bought " .. kit.Name .. " — you'll get it when you depart", "Reward")
 		ctx.Remotes.Get("Profile"):FireClient(player, data)
 	end)
 	-- เซิร์ฟเวอร์ของทีม: ไม่มีล็อบบี้ ลงแมพทันทีที่โลกพร้อม

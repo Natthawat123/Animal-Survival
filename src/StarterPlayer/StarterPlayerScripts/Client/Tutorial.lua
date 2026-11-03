@@ -161,14 +161,14 @@ local SCENES = {
 }
 
 local PANELS = {
-	{ Title = "ผืนป่าสี่ธาตุตื่นขึ้นแล้ว", Text = "เอาชีวิตรอดในป่าแห่ง ดิน น้ำ ลม ไฟ ให้ได้ 99 คืน" },
-	{ Title = "กองไฟคือชีวิต", Text = "โยนไม้/ถ่านเข้ากองไฟ — ไฟดับ = เขตปลอดภัยหาย!" },
-	{ Title = "ออกหาของตอนกลางวัน", Text = "ตัดไม้ ทุบหิน ล่าสัตว์ ถือกระสอบแล้วเก็บของ" },
-	{ Title = "คราฟต์ & สร้างฐาน", Text = "โยนวัตถุดิบลงเครื่องคราฟต์ แล้วสร้างกำแพง กับดัก หน้าไม้" },
-	{ Title = "กลางคืน ฝูงสัตว์บุก!", Text = "ฝูงธาตุบุกกองไฟทุกคืน — ป้องกันให้ถึงเช้า" },
-	{ Title = "บอสธาตุ", Text = "คืน 25 · 50 · 75 · 99 บอสบุก — หลบวงเตือนบนพื้น!" },
-	{ Title = "ช่วยเพื่อนที่ล้ม", Text = "ใช้ผ้าพันแผลช่วยเพื่อน — ไม่เหลือใครยืนอยู่ = แพ้ทั้งทีม" },
-	{ Title = "99 คืน... และไกลกว่านั้น", Text = "รอดครบ 99 คืน = พิชิต! เล่นต่อเพื่อขึ้นกระดานอันดับ" },
+	{ Title = "The Wilds Awaken", Text = "Survive 99 nights in the wilds of Earth, Water, Frost and Fire" },
+	{ Title = "The campfire is life", Text = "Throw wood/coal into the campfire — if it goes out, the safe zone is gone!" },
+	{ Title = "Gather during the day", Text = "Chop wood, break rocks, hunt animals, hold your sack to collect items" },
+	{ Title = "Craft & Build a Base", Text = "Throw materials into the crafter, then build walls, traps and ballistas" },
+	{ Title = "At night, the packs attack!", Text = "Element packs attack the campfire every night — hold out until morning" },
+	{ Title = "Element Bosses", Text = "Bosses attack on nights 25 · 50 · 75 · 99 — dodge the warning circles on the ground!" },
+	{ Title = "Revive Downed Teammates", Text = "Use bandages to revive teammates — if nobody is left standing, the whole team loses" },
+	{ Title = "99 nights... and beyond", Text = "Survive 99 nights = conquered! Keep playing to climb the leaderboard" },
 }
 
 ---------------------------------------------------------------- ช่องการ์ตูน
@@ -235,9 +235,9 @@ local function buildPage(p)
 		sc.Parent = holder
 		TweenService:Create(sc, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out, 0, false, (i - 1) * 0.12), { Scale = 1 }):Play()
 	end
-	ui.PageLabel.Text = string.format("หน้า %d / %d", p, #PANELS // 4)
+	ui.PageLabel.Text = string.format("Page %d / %d", p, #PANELS // 4)
 	ui.Prev.Visible = p > 1
-	ui.Next.Text = p < #PANELS // 4 and "ถัดไป ▶" or "เล่น!"
+	ui.Next.Text = p < #PANELS // 4 and "Next ▶" or "Play!"
 	ui.Next.BackgroundColor3 = p < #PANELS // 4 and C.Blue or C.Green
 end
 
@@ -273,7 +273,7 @@ function Tutorial.Init(gui)
 	})
 	ui.Card = card
 	UIKit.AutoScale(card)
-	UIKit.Header(card, "📖 วิธีเอาชีวิตรอด", C.Orange)
+	UIKit.Header(card, "📖 How to Survive", C.Orange)
 	local row = UIKit.Frame(card, { Size = UDim2.new(1, -60, 1, -150), Position = UDim2.fromOffset(30, 44), BackgroundTransparency = 1 })
 	local grid = Instance.new("UIGridLayout")
 	grid.CellSize = UDim2.new(0.25, -18, 1, 0)
@@ -282,11 +282,11 @@ function Tutorial.Init(gui)
 	grid.Parent = row
 	ui.Row = row
 	ui.PageLabel = UIKit.Text(card, { Size = UDim2.fromOffset(200, 24), Position = UDim2.new(0, 30, 1, -66), Text = "", TextSize = 18, TextColor3 = C.TextDim })
-	ui.Prev = UIKit.ColorButton(card, rgb(90, 96, 140), { Size = UDim2.fromOffset(180, 56), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, -200, 1, -84), Text = "◀ ก่อนหน้า", TextSize = 24, Font = UIKit.Fonts.Title }, function()
+	ui.Prev = UIKit.ColorButton(card, rgb(90, 96, 140), { Size = UDim2.fromOffset(180, 56), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, -200, 1, -84), Text = "◀ Back", TextSize = 24, Font = UIKit.Fonts.Title }, function()
 		page = math.max(1, page - 1)
 		buildPage(page)
 	end)
-	ui.Next = UIKit.ColorButton(card, C.Green, { Size = UDim2.fromOffset(340, 64), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 80, 1, -90), Text = "ถัดไป ▶", TextSize = 34, Font = UIKit.Fonts.Title }, function()
+	ui.Next = UIKit.ColorButton(card, C.Green, { Size = UDim2.fromOffset(340, 64), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 80, 1, -90), Text = "Next ▶", TextSize = 34, Font = UIKit.Fonts.Title }, function()
 		if page < #PANELS // 4 then
 			page += 1
 			buildPage(page)
@@ -294,7 +294,7 @@ function Tutorial.Init(gui)
 			Tutorial.Close()
 		end
 	end)
-	local skip = UIKit.Button(card, { Size = UDim2.fromOffset(120, 34), Position = UDim2.new(1, -150, 1, -62), Text = "ข้าม", TextSize = 16 }, Tutorial.Close)
+	local skip = UIKit.Button(card, { Size = UDim2.fromOffset(120, 34), Position = UDim2.new(1, -150, 1, -62), Text = "Skip", TextSize = 16 }, Tutorial.Close)
 	UIKit.EnsureTouchSize(skip, 44, Tutorial.Close)
 	-- Esc = ข้าม (ไม่ปิดเมื่อแตะนอกการ์ด กันกดพลาดตอนอ่าน)
 	UIKit.RegisterWindow(root, Tutorial.Close, { Backdrop = false })

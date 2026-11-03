@@ -59,6 +59,17 @@ local function groundBelow(pos, ignore)
 	local hit = workspace:Raycast(pos + Vector3.new(0, 2, 0), Vector3.new(0, -60, 0), rp)
 	return hit and hit.Position.Y
 end
+-- ผิวพื้นจริง: ยิงจากข้างบนลงมา (ดิน + ของแข็ง) ไม่นับตัวผู้เล่น
+local function surfaceAt(pos)
+	local sp = RaycastParams.new()
+	sp.FilterType = Enum.RaycastFilterType.Exclude
+	sp.FilterDescendantsInstances = { player.Character }
+	sp.RespectCanCollide = true
+	local hit = workspace:Raycast(pos + Vector3.new(0, 14, 0), Vector3.new(0, -70, 0), sp)
+	return hit and hit.Position.Y
+end
+local portals = ReplicatedStorage:FindFirstChild("ASRealmOnly") and ReplicatedStorage.ASRealmOnly.Value == "portals"
+local fails = 0
 local function standAt(pos, look)
 	local c = player.Character
 	c:PivotTo(CFrame.lookAt(pos + Vector3.new(0, 3, 0), Vector3.new(look.X, pos.Y + 3, look.Z)))
@@ -124,13 +135,49 @@ for _, kind in ipairs(lairsOnly and {} or { "Shrine", "Sanctum" }) do
 		local back = realm and realm:FindFirstChild("PortalBack", true)
 		local bveil = back and back:FindFirstChild("PortalVeil", true)
 		if bveil then
-			PortalService:Teleport(player, bveil:GetAttribute("Dest"), bveil:GetAttribute("DestLook"))
-			task.wait(3)
+			local bd = bveil:GetAttribute("Dest")
+			local oldGap = bd and (bd.Y - 3) - (surfaceAt(bd) or bd.Y)
+			PortalService:Teleport(player, bd, bveil:GetAttribute("DestLook"), nil, bveil:GetAttribute("DestGround"))
+			task.wait(3.5)
 			local r2 = root()
 			local g2 = r2 and groundBelow(r2.Position)
 			print(string.format("[REALM] %s_%s back player-ground=%.1f", kind, el, (r2 and g2) and (r2.Position.Y - 3 - g2) or -999))
+			if portals and r2 then
+				-- จม: เท้าต่ำกว่าผิวพื้นจริง (วัดจากข้างบนลงมา ไม่ใช่จากตัวลงไป)
+				local hum = player.Character:FindFirstChildOfClass("Humanoid")
+				local feet = r2.Position.Y - hum.HipHeight - r2.Size.Y / 2
+				local surf = surfaceAt(r2.Position)
+				local sink = surf and (surf - feet) or 0
+				-- เดินได้ไหม: สั่งเดินไปข้างหน้า 16 stud
+				local p0 = r2.Position
+				hum:MoveTo(p0 + r2.CFrame.LookVector * 16)
+				task.wait(3)
+				local moved = (Vector3.new(r2.Position.X, 0, r2.Position.Z) - Vector3.new(p0.X, 0, p0.Z)).Magnitude
+				local ok = sink < 0.8 and moved > 8 and not r2.Anchored
+				if not ok then
+					fails += 1
+				end
+				print(string.format("[PORTAL] %s_%s %s oldDestGap=%.1f sink=%.2f moved=%.1f anchored=%s", kind, el, ok and "PASS" or "FAIL", oldGap or -999, sink, moved, tostring(r2.Anchored)))
+				shot(kind .. el .. "_back")
+			end
 		else
 			print("[REALM] MISSING back portal " .. kind .. "_" .. el)
+		end
+		-- ปิดผนึกหลังเคลียร์: ประตูข้างนอกต้องไม่พาเข้าไปอีก ประตูกลับในห้องต้องยังใช้ได้
+		if portals then
+			if kind == "Sanctum" then
+				local SanctumService = require(Server:WaitForChild("SanctumService"))
+				SanctumService:SealPortal(SanctumService.sites[el])
+			else
+				local SpiritService = require(Server:WaitForChild("SpiritService"))
+				SpiritService:SealPortal(SpiritService.shrines[el])
+			end
+			local prompt = veil:FindFirstChildOfClass("ProximityPrompt")
+			local sealedOk = veil:GetAttribute("Sealed") == true and prompt ~= nil and prompt.ActionText == "Sealed" and not (bveil and bveil:GetAttribute("Sealed"))
+			if not sealedOk then
+				fails += 1
+			end
+			print(string.format("[PORTAL] %s_%s seal %s outSealed=%s backSealed=%s", kind, el, sealedOk and "PASS" or "FAIL", tostring(veil:GetAttribute("Sealed")), tostring(bveil and bveil:GetAttribute("Sealed"))))
 		end
 		-- ทำความสะอาดผู้พิทักษ์ที่ตื่นในห้อง
 		for _, a in ipairs(AnimalService:All()) do
@@ -139,6 +186,11 @@ for _, kind in ipairs(lairsOnly and {} or { "Shrine", "Sanctum" }) do
 			end
 		end
 	end
+end
+
+if portals then
+	print(string.format("[PORTAL] PORTALPROBE FINISHED fails=%d", fails))
+	return
 end
 
 ---------------------------------------------------------------- 1.5) ซากวิหาร (ธาตุละ 1 แห่ง)

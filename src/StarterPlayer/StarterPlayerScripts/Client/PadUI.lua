@@ -25,13 +25,13 @@ function PadUI.Init()
 	local function close()
 		current.PickerFrame.Visible = false
 	end
-	local win = WoodKit.Window(gui, { Name = "PadPicker", Size = Vector2.new(780, 330), Title = "👥 เลือกจำนวนผู้เล่น", TitleWidth = 470, BannerHeight = 120, OnClose = close })
+	local win = WoodKit.Window(gui, { Name = "PadPicker", Size = Vector2.new(780, 330), Title = "👥 Choose Team Size", TitleWidth = 470, BannerHeight = 120, OnClose = close })
 	local picker = win.Frame
 	current.PickerFrame = picker
 	picker.Position = UDim2.fromScale(0.5, 0.52)
 	UIKit.AutoScale(picker)
 	local pickTitle = win.Title
-	UIKit.Text(win.Body, { Size = UDim2.new(1, -60, 0, 24), Position = UDim2.fromOffset(30, 46), TextSize = 18, TextColor3 = WoodKit.Colors.Gold, TextXAlignment = Enum.TextXAlignment.Center, Text = "—  ทีมจะออกเดินทางเมื่อคนครบ หรือเมื่อหมดเวลา  —" })
+	UIKit.Text(win.Body, { Size = UDim2.new(1, -60, 0, 24), Position = UDim2.fromOffset(30, 46), TextSize = 18, TextColor3 = WoodKit.Colors.Gold, TextXAlignment = Enum.TextXAlignment.Center, Text = "—  The team departs when full, or when time runs out  —" })
 	local grid = UIKit.Frame(win.Body, { Size = UDim2.new(1, -60, 0, 190), Position = UDim2.fromOffset(30, 86), BackgroundTransparency = 1 })
 	local gl = Instance.new("UIGridLayout")
 	gl.CellSize = UDim2.fromOffset(164, 84)
@@ -43,7 +43,7 @@ function PadUI.Init()
 	local pickButtons = {}
 	for n = 1, 8 do
 		local icon = n == 1 and "👤" or "👥"
-		local b = WoodKit.Button(grid, "Parch", { Text = icon .. "  " .. (n == 1 and "1 (เดี่ยว)" or (n .. " คน")), TextSize = 26, LayoutOrder = n }, function()
+		local b = WoodKit.Button(grid, "Parch", { Text = icon .. "  " .. (n == 1 and "1 (Solo)" or (n .. " players")), TextSize = 26, LayoutOrder = n }, function()
 			if current.Zone then
 				Remotes.Get("PadSize"):FireServer(current.Zone:GetAttribute("PadIndex"), n)
 				current.Picked[current.Zone] = true
@@ -73,7 +73,7 @@ function PadUI.Init()
 	local info = WoodKit.Board(barWin.Body, { Size = UDim2.new(1, -206, 1, -30), Position = UDim2.fromOffset(18, 15), ZIndex = 2 }, Color3.fromRGB(96, 30, 22), WoodKit.Colors.GoldDark)
 	local status = UIKit.Text(info, { Size = UDim2.new(1, -20, 0, 34), Position = UDim2.fromOffset(12, 4), Font = UIKit.Fonts.Title, TextSize = 28, Text = "", TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 3 })
 	local sub = UIKit.Text(info, { Size = UDim2.new(1, -20, 0, 22), Position = UDim2.fromOffset(12, 40), TextSize = 16, TextColor3 = Color3.fromRGB(245, 226, 196), Text = "", TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 3 })
-	local change = WoodKit.Button(barWin.Body, "Green", { Size = UDim2.fromOffset(160, 64), AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -18, 0.5, 0), Text = "เปลี่ยน", TextSize = 28, ZIndex = 3 }, function()
+	local change = WoodKit.Button(barWin.Body, "Green", { Size = UDim2.fromOffset(160, 64), AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -18, 0.5, 0), Text = "Switch", TextSize = 28, ZIndex = 3 }, function()
 		if current.Zone then
 			picker.Visible = true
 			UIKit.Pop(picker)
@@ -82,10 +82,17 @@ function PadUI.Init()
 
 	-- กดออก: หยุดคุมวงทันที (ไม่งั้นระหว่างรอ attribute Pad ถูกลบ วงจะดึงตัวกลับเข้าแท่น แล้วถูกจับเข้ากลุ่มใหม่)
 	local leftAt = -10
-	leave = WoodKit.Button(bar, "Red", { Size = UDim2.fromOffset(230, 56), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 1, 10), Text = "ออกจากกลุ่ม", TextSize = 26, ZIndex = 3 }, function()
+	leave = WoodKit.Button(bar, "Red", { Size = UDim2.fromOffset(230, 56), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 1, 10), Text = "Leave Group", TextSize = 26, ZIndex = 3 }, function()
 		leftAt = os.clock()
 		bar.Visible = false
 		Remotes.Get("LeavePad"):FireServer()
+	end)
+
+	-- เล่นต่อจากเซฟ (หัวหน้าแท่นที่มี Save Run และมีรอบที่เซฟไว้)
+	local resumeBtn = WoodKit.Button(bar, "Green", { Size = UDim2.fromOffset(230, 56), AnchorPoint = Vector2.new(0, 0), Position = UDim2.new(0.5, 125, 1, 10), Text = "", TextSize = 22, ZIndex = 3, Visible = false }, function()
+		if current.Zone then
+			Remotes.Get("PadResume"):FireServer(current.Zone:GetAttribute("PadIndex"), current.Zone:GetAttribute("ResumeNight") == nil)
+		end
 	end)
 
 	-- อยู่ในกลุ่มแท่น (เซิร์ฟเวอร์ตั้ง attribute Pad) = คุมตัวละครไว้ในวง เดินชนขอบวงแล้วออกไม่ได้
@@ -146,18 +153,31 @@ function PadUI.Init()
 		local size, count, cd = zone:GetAttribute("Size") or 4, zone:GetAttribute("Count") or 0, zone:GetAttribute("Countdown") or -1
 		local host = zone:GetAttribute("Host") == player.UserId
 		local picked = zone:GetAttribute("Picked") == true
-		pickTitle.Text = "👥 แท่น " .. (zone:GetAttribute("PadIndex") or "") .. " · เลือกจำนวนผู้เล่น"
+		pickTitle.Text = "👥 Pad " .. (zone:GetAttribute("PadIndex") or "") .. " · Choose team size"
 		if not picked then
 			-- ยังไม่เลือกจำนวน = ยังไม่นับเวลา
-			status.Text = string.format("%d คนบนแท่น", count)
-			sub.Text = host and "เลือกจำนวนผู้เล่นก่อน แล้วถึงจะเริ่มนับถอยหลัง" or "รอหัวหน้าแท่นเลือกจำนวนคน..."
+			status.Text = string.format("%d players on the pad", count)
+			sub.Text = host and "Choose the team size first, then the countdown starts" or "Waiting for the pad leader to choose the team size..."
 		else
-			status.Text = cd >= 0 and string.format("%d/%d คน   •   ⏳ %d วิ", count, size, cd) or string.format("%d/%d คน", count, size)
-			sub.Text = count >= size and "ทีมครบแล้ว! กำลังออกเดินทาง" or (host and "คุณเป็นหัวหน้าแท่น · รอเพื่อนหรือรอหมดเวลา" or "รอหัวหน้าแท่น / รอเพื่อน")
+			status.Text = cd >= 0 and string.format("%d/%d players   •   ⏳ %ds", count, size, cd) or string.format("%d/%d players", count, size)
+			sub.Text = count >= size and "Team is full! Departing" or (host and "You're the pad leader · Wait for friends or for time to run out" or "Waiting for the pad leader / friends")
 		end
 		change.Visible = host
-		if change.Text ~= (picked and "เปลี่ยน" or "เลือก") then
-			change.Text = picked and "เปลี่ยน" or "เลือก"
+		-- เล่นต่อจากเซฟ
+		local resumeNight = zone:GetAttribute("ResumeNight")
+		local canResume = host and player:GetAttribute("Pass_SaveRun") == true and player:GetAttribute("SavedNight") ~= nil
+		resumeBtn.Visible = canResume
+		if canResume then
+			local t = resumeNight and ("✔ Continue · Night " .. resumeNight) or ("Continue · Night " .. tostring(player:GetAttribute("SavedNight")))
+			if resumeBtn.Text ~= t then
+				resumeBtn.Text = t
+			end
+		end
+		if resumeNight and picked then
+			sub.Text = "Continuing the saved run from Night " .. resumeNight
+		end
+		if change.Text ~= (picked and "Switch" or "Choose") then
+			change.Text = picked and "Switch" or "Choose"
 		end
 		for n, b in ipairs(pickButtons) do
 			local style = (picked and n == size) and "Green" or "Parch" -- ยังไม่เลือก = ไม่ไฮไลต์ค่าเริ่มต้น

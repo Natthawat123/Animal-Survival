@@ -36,10 +36,10 @@ local function build()
 	local gui = UIKit.Screen("Rejoin", 55)
 	local panel = UIKit.Card(gui, { Size = UDim2.fromOffset(480, 250), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.45), Visible = false })
 	UIKit.AutoScale(panel)
-	UIKit.Header(panel, "↩ กลับเข้ารอบเดิม?", C.Purple)
+	UIKit.Header(panel, "↩ Rejoin your run?", C.Purple)
 	UIKit.Text(panel, {
 		Size = UDim2.new(1, -40, 0, 56), Position = UDim2.fromOffset(20, 36), TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Center, TextSize = 18,
-		Text = "คุณออกจากรอบกลางทาง — กลับไปเล่นรอบเดิมต่อได้ (คืนเดิม กองไฟ สิ่งก่อสร้าง และของในกระสอบอยู่ครบ)",
+		Text = "You left mid-run — you can go back to the same run (same night, campfire, buildings and sack items)",
 	})
 	ui.Time = UIKit.Text(panel, { Size = UDim2.new(1, -40, 0, 30), Position = UDim2.fromOffset(20, 96), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 22, Font = UIKit.Fonts.Title, TextColor3 = C.Gold, Text = "" })
 	local row = UIKit.Frame(panel, { Size = UDim2.new(1, -40, 0, 56), Position = UDim2.new(0, 20, 1, -76), BackgroundTransparency = 1 })
@@ -48,11 +48,11 @@ local function build()
 	l.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	l.Padding = UDim.new(0, 16)
 	l.Parent = row
-	ui.Yes = UIKit.ColorButton(row, C.Green, { Size = UDim2.fromOffset(200, 54), Text = "✔ กลับเข้ารอบ", TextSize = 20, Font = UIKit.Fonts.Title }, function()
+	ui.Yes = UIKit.ColorButton(row, C.Green, { Size = UDim2.fromOffset(200, 54), Text = "✔ Rejoin", TextSize = 20, Font = UIKit.Fonts.Title }, function()
 		close()
 		Remotes.Get("RejoinAnswer"):FireServer(true)
 	end)
-	UIKit.ColorButton(row, C.Red, { Size = UDim2.fromOffset(160, 54), Text = "✕ ไม่ล่ะ", TextSize = 20, Font = UIKit.Fonts.Title }, function()
+	UIKit.ColorButton(row, C.Red, { Size = UDim2.fromOffset(160, 54), Text = "✕ No thanks", TextSize = 20, Font = UIKit.Fonts.Title }, function()
 		close()
 		Remotes.Get("RejoinAnswer"):FireServer(false)
 	end)
@@ -76,7 +76,7 @@ local function open(data)
 				close()
 				break
 			end
-			ui.Time.Text = "⏳ เหลือเวลา " .. fmt(left)
+			ui.Time.Text = "⏳ Time left " .. fmt(left)
 			task.wait(0.5)
 		end
 	end)

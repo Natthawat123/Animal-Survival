@@ -34,8 +34,8 @@ local GOLD_A, GOLD_B = C(255, 240, 140), C(244, 170, 36)
 local GREEN, RED, BLUE, GRAY = C(76, 200, 64), C(222, 64, 64), C(58, 160, 240), C(96, 96, 104)
 local LEVEL_COLOR = { C(90, 200, 90), C(70, 150, 245), C(180, 90, 245) }
 -- ป้ายสถิติขึ้นเลเวล (สั้น อ่านง่ายบนมือถือ)
-local STAT_LABEL = { Kills = "⚔ ฆ่า", Nights = "🌙 รอด" }
-local STAT_SHORT = { Kills = "ฆ่า %d/%d", Nights = "รอด %d/%d คืน" }
+local STAT_LABEL = { Kills = "⚔ Kill", Nights = "🌙 Survive" }
+local STAT_SHORT = { Kills = "Kills %d/%d", Nights = "Survived %d/%d nights" }
 local BAR_COLOR = { Kills = C(255, 120, 90), Nights = C(120, 170, 255) }
 local ITEM_EMOJI = {
 	Torch = "🔥", Bandage = "🩹", Medkit = "⛑", Berries = "🍇", Coal = "⚫", LogWall = "🧱", Bow = "🏹",
@@ -436,7 +436,7 @@ function ClassShop.Build(gui)
 
 	-------------------------------------------------- ซ้าย
 	local left = panel(canvas, UDim2.fromScale(0.012, 0.03), UDim2.fromScale(0.285, 0.94))
-	local title = text(left, { Position = UDim2.fromScale(0.06, 0.018), Size = UDim2.fromScale(0.45, 0.085), Text = "คลาส", TextXAlignment = Enum.TextXAlignment.Left }, 72, 3)
+	local title = text(left, { Position = UDim2.fromScale(0.06, 0.018), Size = UDim2.fromScale(0.45, 0.085), Text = "Classes", TextXAlignment = Enum.TextXAlignment.Left }, 72, 3)
 	gradient(title, GOLD_A, GOLD_B, 90)
 	local gemPill = frame(left, { Position = UDim2.fromScale(0.55, 0.03), Size = UDim2.fromScale(0.4, 0.062), BackgroundColor3 = C(22, 24, 44), BackgroundTransparency = 0.15 })
 	corner(gemPill, UDim.new(0.5, 0))
@@ -469,16 +469,16 @@ function ClassShop.Build(gui)
 	for i, id in ipairs(Classes.Order) do
 		ClassShop.MakeCard(id, i)
 	end
-	button(left, { Position = UDim2.fromScale(0.05, 0.887), Size = UDim2.fromScale(0.58, 0.08), Text = "🎲 รีโรลสต็อค  ♦️" .. Classes.RerollPrice }, GREEN, function()
+	button(left, { Position = UDim2.fromScale(0.05, 0.887), Size = UDim2.fromScale(0.58, 0.08), Text = "🎲 Reroll Stock  ♦️" .. Classes.RerollPrice }, GREEN, function()
 		Remotes.Get("RerollStock"):FireServer()
 	end, 28)
-	button(left, { Position = UDim2.fromScale(0.66, 0.887), Size = UDim2.fromScale(0.29, 0.08), Text = "อัตราต่อรอง" }, GRAY, function()
+	button(left, { Position = UDim2.fromScale(0.66, 0.887), Size = UDim2.fromScale(0.29, 0.08), Text = "Odds" }, GRAY, function()
 		ui.Odds.Visible = not ui.Odds.Visible
 	end, 20)
 	local odds = panel(canvas, UDim2.fromScale(0.305, 0.6), UDim2.fromScale(0.16, 0.32))
 	odds.Visible = false
 	odds.ZIndex = 5
-	text(odds, { Position = UDim2.fromScale(0.06, 0.04), Size = UDim2.fromScale(0.88, 0.14), Text = "โอกาสติดสต็อคต่อวัน" }, 22)
+	text(odds, { Position = UDim2.fromScale(0.06, 0.04), Size = UDim2.fromScale(0.88, 0.14), Text = "Chance to be in stock per day" }, 22)
 	for s = 1, 5 do
 		text(odds, {
 			Position = UDim2.fromScale(0.1, 0.06 + s * 0.15), Size = UDim2.fromScale(0.8, 0.12), TextXAlignment = Enum.TextXAlignment.Left,
@@ -516,13 +516,13 @@ function ClassShop.Build(gui)
 	ui.Main = button(canvas, { Position = UDim2.fromScale(0.345, 0.845), Size = UDim2.fromScale(0.215, 0.095), Text = "" }, GREEN, function()
 		ClassShop.MainAction()
 	end, 40)
-	button(canvas, { Position = UDim2.fromScale(0.57, 0.845), Size = UDim2.fromScale(0.085, 0.095), Text = "ปิด" }, RED, function()
+	button(canvas, { Position = UDim2.fromScale(0.57, 0.845), Size = UDim2.fromScale(0.085, 0.095), Text = "Close" }, RED, function()
 		ClassShop.Close()
 	end, 32)
 
 	-------------------------------------------------- ขวา
 	local right = panel(canvas, UDim2.fromScale(0.703, 0.03), UDim2.fromScale(0.285, 0.94))
-	local toolsTitle = text(right, { Position = UDim2.fromScale(0.06, 0.02), Size = UDim2.fromScale(0.88, 0.06), Text = "เครื่องมือเริ่มต้น" }, 40, 3)
+	local toolsTitle = text(right, { Position = UDim2.fromScale(0.06, 0.02), Size = UDim2.fromScale(0.88, 0.06), Text = "Starting Tools" }, 40, 3)
 	gradient(toolsTitle, GOLD_A, GOLD_B, 90)
 	ui.Tools = frame(right, { Position = UDim2.fromScale(0.05, 0.09), Size = UDim2.fromScale(0.9, 0.17), BackgroundTransparency = 1 })
 	local tl = Instance.new("UIListLayout")
@@ -530,7 +530,7 @@ function ClassShop.Build(gui)
 	tl.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	tl.Padding = UDim.new(0.04, 0)
 	tl.Parent = ui.Tools
-	local skillTitle = text(right, { Position = UDim2.fromScale(0.06, 0.285), Size = UDim2.fromScale(0.88, 0.06), Text = "ทักษะ" }, 40, 3)
+	local skillTitle = text(right, { Position = UDim2.fromScale(0.06, 0.285), Size = UDim2.fromScale(0.88, 0.06), Text = "Skills" }, 40, 3)
 	gradient(skillTitle, C(220, 245, 255), C(110, 185, 255), 90)
 	ui.Skills = {}
 	for lv = 1, 3 do
@@ -630,7 +630,7 @@ function ClassShop.Refresh()
 	local current = player:GetAttribute("Class") or "Survivor"
 	ui.Gems.Text = "♦️ " .. tostring(gems())
 	local s = Classes.SecondsToRestock(now())
-	ui.Restock.Text = string.format("สต็อกใหม่ใน %d ชม. %d นาที", s // 3600, (s % 3600) // 60)
+	ui.Restock.Text = string.format("New stock in %dh %dm", s // 3600, (s % 3600) // 60)
 	local h = cardHeight()
 	for id, cd in pairs(ui.Cards) do
 		local c = Classes.Data[id]
@@ -640,9 +640,9 @@ function ClassShop.Refresh()
 		cd.Stroke.Thickness = (id == selected) and 3.5 or 2
 		cd.Stroke.Transparency = (id == selected) and 0 or 0.2
 		if id == current then
-			cd.Tag.Text, cd.Tag.TextColor3 = "✔ สวมใส่อยู่", C(255, 220, 60)
+			cd.Tag.Text, cd.Tag.TextColor3 = "✔ Equipped", C(255, 220, 60)
 		elseif owned then
-			cd.Tag.Text, cd.Tag.TextColor3 = "มีแล้ว", C(140, 240, 100)
+			cd.Tag.Text, cd.Tag.TextColor3 = "Owned", C(140, 240, 100)
 		else
 			cd.Tag.Text, cd.Tag.TextColor3 = "♦️ " .. c.Price, C(150, 225, 255)
 		end
@@ -650,9 +650,9 @@ function ClassShop.Refresh()
 			local _, _, frac = progressOf(id)
 			setButton(cd.Button, frac and string.format("Lv.%d · %d%%", levelOf(id), math.floor(frac * 100)) or ("Lv.%d ⭐MAX"):format(levelOf(id)), BLUE)
 		elseif st[id] then
-			setButton(cd.Button, "มีในสต็อค", GREEN)
+			setButton(cd.Button, "In Stock", GREEN)
 		else
-			setButton(cd.Button, "ไม่มีสต๊อค", RED)
+			setButton(cd.Button, "Out of Stock", RED)
 		end
 	end
 	-- กลาง
@@ -660,7 +660,7 @@ function ClassShop.Refresh()
 	local owned = d.Owned and d.Owned[selected]
 	local lv = levelOf(selected)
 	ui.Name.Text = c.Thai
-	ui.Sub.Text = string.format('<font color="#FFCD32">%s</font>  ·  %s  ·  %s', stars(c.Stars), c.Role, owned and ("เลเวล " .. lv .. "/" .. Classes.MaxLevel) or "ยังไม่ปลดล็อก")
+	ui.Sub.Text = string.format('<font color="#FFCD32">%s</font>  ·  %s  ·  %s', stars(c.Stars), c.Role, owned and ("Level " .. lv .. "/" .. Classes.MaxLevel) or "Locked")
 	local stats = (d.ClassStats and d.ClassStats[selected]) or {}
 	local req = Classes.Requirement(selected, lv + 1)
 	local showBars = owned and req ~= nil
@@ -669,8 +669,8 @@ function ClassShop.Refresh()
 	end
 	ui.Info.Visible = not showBars
 	if not owned then
-		ui.ProgTitle.Text = "ปลดล็อกคลาสนี้"
-		ui.Info.Text = st[selected] and string.format("ราคา ♦️%d — มีในสต็อควันนี้", c.Price) or "ไม่มีสต๊อควันนี้ — รอรีสต็อกหรือกดรีโรล"
+		ui.ProgTitle.Text = "Unlock This Class"
+		ui.Info.Text = st[selected] and string.format("Price ♦️%d — in stock today", c.Price) or "Not in stock today — wait for restock or reroll"
 		ui.Info.TextColor3 = st[selected] and C(140, 240, 100) or C(255, 130, 120)
 	elseif req then
 		-- สรุปบรรทัดเดียว: "Lv2: ฆ่า 12/60 · รอด 2/4 คืน" + แถบแยกของแต่ละเงื่อนไข (ครบแล้ว = เขียว ✔)
@@ -687,24 +687,24 @@ function ClassShop.Refresh()
 		end
 		ui.ProgTitle.Text = string.format("Lv%d: %s", lv + 1, table.concat(parts, " · "))
 	else
-		ui.ProgTitle.Text = "⭐ เลเวลสูงสุดแล้ว"
-		ui.Info.Text = string.format("ล่าสัตว์ %d ตัว · รอด %d คืน กับคลาสนี้", stats.Kills or 0, stats.Nights or 0)
+		ui.ProgTitle.Text = "⭐ Max level reached"
+		ui.Info.Text = string.format("Hunt %d animals · Survive %d nights with this class", stats.Kills or 0, stats.Nights or 0)
 		ui.Info.TextColor3 = C(255, 220, 120)
 	end
 	if selected == current then
 		if selected == "Survivor" then
-			setButton(ui.Main, "สวมใส่อยู่", GRAY, false)
+			setButton(ui.Main, "Equipped", GRAY, false)
 		else
-			setButton(ui.Main, "ถอดออก", RED)
+			setButton(ui.Main, "Unequip", RED)
 		end
 	elseif owned then
-		setButton(ui.Main, "สวมใส่", GREEN)
+		setButton(ui.Main, "Equip", GREEN)
 	elseif not st[selected] then
-		setButton(ui.Main, "ไม่มีสต๊อค", GRAY, false)
+		setButton(ui.Main, "Out of Stock", GRAY, false)
 	elseif gems() < c.Price then
-		setButton(ui.Main, "♦️ ไม่พอ (" .. c.Price .. ")", GRAY, false)
+		setButton(ui.Main, "Not enough ♦️ (" .. c.Price .. ")", GRAY, false)
 	else
-		setButton(ui.Main, "ซื้อ  ♦️" .. c.Price, GREEN)
+		setButton(ui.Main, "Buy  ♦️" .. c.Price, GREEN)
 	end
 	-- ขวา
 	if shownTools ~= selected then
@@ -723,10 +723,10 @@ function ClassShop.Refresh()
 		sk.Lock.Visible = not unlocked
 		local canSkip = owned and i == lv + 1
 		sk.Foot.Visible = not unlocked
-		sk.Foot.Text = owned and ("ปลดที่เลเวล " .. i) or "ซื้อคลาสก่อน"
+		sk.Foot.Text = owned and ("Unlocks at level " .. i) or "Buy the class first"
 		sk.Skip.Visible = canSkip
 		if canSkip then
-			sk.Skip.Text = "ข้าม ♦️" .. Classes.SkipPrice(selected, i)
+			sk.Skip.Text = "Skip ♦️" .. Classes.SkipPrice(selected, i)
 		end
 	end
 end

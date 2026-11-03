@@ -1,11 +1,3322 @@
-<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">
-<Item class="Model" referent="S5049368586_1"><Properties><string name="Name">TerraPup</string></Properties><Item class="MeshPart" referent="S5049368586_2"><Properties><string name="Name">MeshPart</string><CoordinateFrame name="CFrame"><X>-0.003</X><Y>1.1362</Y><Z>-4.0874</Z><R00>0</R00><R01>0</R01><R02>-1</R02><R10>-0.4001</R10><R11>-0.9165</R11><R12>0</R12><R20>-0.9165</R20><R21>0.4001</R21><R22>0</R22></CoordinateFrame><Vector3 name="size"><X>0.192</X><Y>0.302</Y><Z>0.315</Z></Vector3><Color3uint8 name="Color3uint8">4279308561</Color3uint8><token name="Material">1296</token><float name="Transparency">0</float><float name="Reflectance">0</float><bool name="Anchored">false</bool><bool name="CanCollide">false</bool><bool name="CanTouch">false</bool><bool name="CanQuery">false</bool><bool name="Massless">true</bool><bool name="CastShadow">true</bool><Content name="MeshId"><url>rbxassetid://430045345</url></Content><Content name="TextureID"><null></null></Content><Vector3 name="InitialSize"><X>46.749</X><Y>62.212</Y><Z>56.381</Z></Vector3><token name="CollisionFidelity">2</token><token name="RenderFidelity">1</token><bool name="DoubleSided">false</bool></Properties></Item>
-<Item class="Part" referent="S5049368586_3"><Properties><string name="Name">Part</string><CoordinateFrame name="CFrame"><X>-0.0237</X><Y>0.9732</Y><Z>-3.5779</Z><R00>0.079</R00><R01>0.0368</R01><R02>0.9962</R02><R10>-0.4226</R10><R11>0.9063</R11><R12>0</R12><R20>-0.9029</R20><R21>-0.421</R21><R22>0.0872</R22></CoordinateFrame><Vector3 name="size"><X>0.874</X><Y>0.497</Y><Z>0.367</Z></Vector3><Color3uint8 name="Color3uint8">4279308561</Color3uint8><token name="Material">272</token><float name="Transparency">0</float><float name="Reflectance">0</float><bool name="Anchored">false</bool><bool name="CanCollide">false</bool><bool name="CanTouch">false</bool><bool name="CanQuery">false</bool><bool name="Massless">true</bool><bool name="CastShadow">true</bool><token name="shape">1</token></Properties><Item class="SpecialMesh" referent="S5049368586_4"><Properties><string name="Name">Mesh</string><Content name="MeshId"><null></null></Content><Content name="TextureId"><null></null></Content><Vector3 name="Scale"><X>1</X><Y>1</Y><Z>1</Z></Vector3><Vector3 name="Offset"><X>0</X><Y>0</Y><Z>0</Z></Vector3><Vector3 name="VertexColor"><X>1</X><Y>1</Y><Z>1</Z></Vector3><token name="MeshType">3</token></Properties></Item>
-</Item>
-<Item class="Part" referent="S5049368586_5"><Properties><string name="Name">Part</string><CoordinateFrame name="CFrame"><X>0.0048</X><Y>0.9856</Y><Z>-3.5266</Z><R00>0.079</R00><R01>0.0368</R01><R02>0.9962</R02><R10>-0.4226</R10><R11>0.9063</R11><R12>0</R12><R20>-0.9029</R20><R21>-0.421</R21><R22>0.0872</R22></CoordinateFrame><Vector3 name="size"><X>0.874</X><Y>0.516</Y><Z>0.363</Z></Vector3><Color3uint8 name="Color3uint8">4279308561</Color3uint8><token name="Material">272</token><float name="Transparency">0</float><float name="Reflectance">0</float><bool name="Anchored">false</bool><bool name="CanCollide">false</bool><bool name="CanTouch">false</bool><bool name="CanQuery">false</bool><bool name="Massless">true</bool><bool name="CastShadow">true</bool><token name="shape">1</token></Properties><Item class="SpecialMesh" referent="S5049368586_6"><Properties><string name="Name">Mesh</string><Content name="MeshId"><null></null></Content><Content name="TextureId"><null></null></Content><Vector3 name="Scale"><X>1</X><Y>1</Y><Z>1</Z></Vector3><Vector3 name="Offset"><X>0</X><Y>0</Y><Z>0</Z></Vector3><Vector3 name="VertexColor"><X>1</X><Y>1</Y><Z>1</Z></Vector3><token name="MeshType">3</token></Properties></Item>
-</Item>
-<Item class="MeshPart" referent="S5049368586_7"><Properties><string name="Name">Meshes/Grizzly Bear (2)</string><CoordinateFrame name="CFrame"><X>0</X><Y>0</Y><Z>0.0389</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>2.566</X><Y>5.432</Y><Z>8.394</Z></Vector3><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0</float><float name="Reflectance">0</float><bool name="Anchored">false</bool><bool name="CanCollide">false</bool><bool name="CanTouch">false</bool><bool name="CanQuery">false</bool><bool name="Massless">true</bool><bool name="CastShadow">true</bool><Content name="MeshId"><url>rbxassetid://2752694437</url></Content><Content name="TextureID"><url>http://www.roblox.com/asset/?id=457917100</url></Content><Vector3 name="InitialSize"><X>50</X><Y>92.348</Y><Z>153.16</Z></Vector3><token name="CollisionFidelity">2</token><token name="RenderFidelity">1</token><bool name="DoubleSided">false</bool></Properties></Item>
-<Item class="Part" referent="S5049368586_8"><Properties><string name="Name">Part</string><CoordinateFrame name="CFrame"><X>-0.2719</X><Y>1.6155</Y><Z>-3.4003</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>0.143</X><Y>0.143</Y><Z>0.143</Z></Vector3><Color3uint8 name="Color3uint8">4279308561</Color3uint8><token name="Material">272</token><float name="Transparency">0</float><float name="Reflectance">0</float><bool name="Anchored">false</bool><bool name="CanCollide">false</bool><bool name="CanTouch">false</bool><bool name="CanQuery">false</bool><bool name="Massless">true</bool><bool name="CastShadow">true</bool><token name="shape">0</token></Properties></Item>
-<Item class="Part" referent="S5049368586_9"><Properties><string name="Name">Part</string><CoordinateFrame name="CFrame"><X>0.2553</X><Y>1.6155</Y><Z>-3.4003</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>0.143</X><Y>0.143</Y><Z>0.143</Z></Vector3><Color3uint8 name="Color3uint8">4279308561</Color3uint8><token name="Material">272</token><float name="Transparency">0</float><float name="Reflectance">0</float><bool name="Anchored">false</bool><bool name="CanCollide">false</bool><bool name="CanTouch">false</bool><bool name="CanQuery">false</bool><bool name="Massless">true</bool><bool name="CastShadow">true</bool><token name="shape">0</token></Properties></Item>
-</Item>
+<roblox version="4">
+<Item class="Model" referent="RBX600E68574A354DCEB8B01E46ADCFF89E">
+			<Properties>
+				<token name="LevelOfDetail">0</token>
+				<CoordinateFrame name="ModelMeshCFrame">
+					<X>0</X>
+					<Y>0</Y>
+					<Z>0</Z>
+					<R00>1</R00>
+					<R01>0</R01>
+					<R02>0</R02>
+					<R10>0</R10>
+					<R11>1</R11>
+					<R12>0</R12>
+					<R20>0</R20>
+					<R21>0</R21>
+					<R22>1</R22>
+				</CoordinateFrame>
+				<SharedString name="ModelMeshData">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+				<Vector3 name="ModelMeshSize">
+					<X>0</X>
+					<Y>0</Y>
+					<Z>0</Z>
+				</Vector3>
+				<token name="ModelStreamingMode">0</token>
+				<bool name="NeedsPivotMigration">false</bool>
+				<Ref name="PrimaryPart">RBX8A94245C44864B5A8C5E41883EC17A98</Ref>
+				<float name="ScaleFactor">1</float>
+				<SharedString name="SlimHash">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+				<OptionalCoordinateFrame name="WorldPivotData">
+					<CFrame>
+						<X>0</X>
+						<Y>0</Y>
+						<Z>0</Z>
+						<R00>1</R00>
+						<R01>0</R01>
+						<R02>0</R02>
+						<R10>0</R10>
+						<R11>1</R11>
+						<R12>0</R12>
+						<R20>0</R20>
+						<R21>0</R21>
+						<R22>1</R22>
+					</CFrame>
+				</OptionalCoordinateFrame>
+				<BinaryString name="AttributesSerialize">AQAAAA4AAABSQlhfUmVpbXBvcnRJZAIkAAAAZjlmNWNlMWUtZjRiMi00YTM3LWIzMGItNThj
+MDgxZDlmNzRk</BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+				<string name="Name">TerraPup</string>
+				<BinaryString name="SerializedOverrides" />
+				<int64 name="SourceAssetId">86683877467658</int64>
+				<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+				<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b58</UniqueId>
+			</Properties>
+			<Item class="MeshPart" referent="RBX8A94245C44864B5A8C5E41883EC17A98">
+				<Properties>
+					<bool name="DoubleSided">false</bool>
+					<bool name="HasJointOffset">false</bool>
+					<bool name="HasSkinnedMesh">true</bool>
+					<Vector3 name="InitialSize">
+						<X>1.36245203</X>
+						<Y>1.70095026</Y>
+						<Z>2.55721498</Z>
+					</Vector3>
+					<Vector3 name="JointOffset">
+						<X>0</X>
+						<Y>0</Y>
+						<Z>0</Z>
+					</Vector3>
+					<Content name="MeshId"><url>rbxassetid://135217941919531</url></Content>
+					<BinaryString name="PhysicsData" />
+					<token name="RenderFidelity">0</token>
+					<Content name="TextureID"><null /></Content>
+					<int name="VertexCount">13766</int>
+					<SharedString name="AeroMeshData">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+					<token name="FluidFidelityInternal">0</token>
+					<bool name="InertiaMigrated">false</bool>
+					<SharedString name="PhysicalConfigData">HkSwb/eX1hh0Nk3c/OyK3g==</SharedString>
+					<Vector3 name="UnscaledCofm">
+						<X>0.000305307272</X>
+						<Y>-0.105858006</Y>
+						<Z>-0.259740591</Z>
+					</Vector3>
+					<Vector3 name="UnscaledVolInertiaDiags">
+						<X>0.595228076</X>
+						<Y>0.510953367</Y>
+						<Z>0.33289665</Z>
+					</Vector3>
+					<Vector3 name="UnscaledVolInertiaOffDiags">
+						<X>-0.000629791</X>
+						<Y>-0.0019671896</Y>
+						<Z>0.108027317</Z>
+					</Vector3>
+					<float name="UnscaledVolume">1.60088027</float>
+					<bool name="Anchored">false</bool>
+					<bool name="AudioCanCollide">true</bool>
+					<float name="BackParamA">-0.5</float>
+					<float name="BackParamB">0.5</float>
+					<token name="BackSurface">0</token>
+					<token name="BackSurfaceInput">0</token>
+					<float name="BottomParamA">-0.5</float>
+					<float name="BottomParamB">0.5</float>
+					<token name="BottomSurface">0</token>
+					<token name="BottomSurfaceInput">0</token>
+					<CoordinateFrame name="CFrame">
+						<X>0</X>
+						<Y>-71.298645</Y>
+						<Z>-99.9511948</Z>
+						<R00>1</R00>
+						<R01>0</R01>
+						<R02>0</R02>
+						<R10>0</R10>
+						<R11>1</R11>
+						<R12>0</R12>
+						<R20>0</R20>
+						<R21>0</R21>
+						<R22>1</R22>
+					</CoordinateFrame>
+					<bool name="CanCollide">true</bool>
+					<bool name="CanQuery">true</bool>
+					<bool name="CanTouch">true</bool>
+					<bool name="CastShadow">true</bool>
+					<string name="CollisionGroup">Default</string>
+					<int name="CollisionGroupId">0</int>
+					<Color3uint8 name="Color3uint8">4288914085</Color3uint8>
+					<PhysicalProperties name="CustomPhysicalProperties">
+						<CustomPhysics>false</CustomPhysics>
+					</PhysicalProperties>
+					<bool name="EnableFluidForces">true</bool>
+					<float name="FrontParamA">-0.5</float>
+					<float name="FrontParamB">0.5</float>
+					<token name="FrontSurface">0</token>
+					<token name="FrontSurfaceInput">0</token>
+					<float name="LeftParamA">-0.5</float>
+					<float name="LeftParamB">0.5</float>
+					<token name="LeftSurface">0</token>
+					<token name="LeftSurfaceInput">0</token>
+					<bool name="Locked">false</bool>
+					<bool name="Massless">false</bool>
+					<token name="Material">256</token>
+					<string name="MaterialVariantSerialized" />
+					<CoordinateFrame name="PivotOffset">
+						<X>0</X>
+						<Y>0</Y>
+						<Z>0</Z>
+						<R00>1</R00>
+						<R01>0</R01>
+						<R02>0</R02>
+						<R10>0</R10>
+						<R11>1</R11>
+						<R12>0</R12>
+						<R20>0</R20>
+						<R21>0</R21>
+						<R22>1</R22>
+					</CoordinateFrame>
+					<float name="Reflectance">0</float>
+					<float name="RightParamA">-0.5</float>
+					<float name="RightParamB">0.5</float>
+					<token name="RightSurface">0</token>
+					<token name="RightSurfaceInput">0</token>
+					<int name="RootPriority">0</int>
+					<Vector3 name="RotVelocity">
+						<X>0</X>
+						<Y>0</Y>
+						<Z>0</Z>
+					</Vector3>
+					<float name="TopParamA">-0.5</float>
+					<float name="TopParamB">0.5</float>
+					<token name="TopSurface">0</token>
+					<token name="TopSurfaceInput">0</token>
+					<float name="Transparency">0</float>
+					<Vector3 name="Velocity">
+						<X>0</X>
+						<Y>0</Y>
+						<Z>0</Z>
+					</Vector3>
+					<Vector3 name="size">
+						<X>1.36245203</X>
+						<Y>1.70095026</Y>
+						<Z>2.55721498</Z>
+					</Vector3>
+					<BinaryString name="AttributesSerialize" />
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<string name="Name">output_unwrapped</string>
+					<BinaryString name="SerializedOverrides" />
+					<int64 name="SourceAssetId">-1</int64>
+					<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+					<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b59</UniqueId>
+				</Properties>
+				<Item class="SurfaceAppearance" referent="RBXD0995009AE0F46D7A510D3BEE8884A57">
+					<Properties>
+						<token name="AlphaMode">0</token>
+						<Color3 name="Color">
+							<R>1</R>
+							<G>1</G>
+							<B>1</B>
+						</Color3>
+						<Content name="ColorMap"><url>rbxassetid://131314050417193</url></Content>
+						<Content name="EmissiveMaskContent">
+							<null />
+						</Content>
+						<float name="EmissiveStrength">1</float>
+						<Color3 name="EmissiveTint">
+							<R>1</R>
+							<G>1</G>
+							<B>1</B>
+						</Color3>
+						<Content name="MetalnessMap"><url>rbxassetid://125641463606124</url></Content>
+						<Content name="NormalMap"><url>rbxassetid://92541635788978</url></Content>
+						<token name="ResampleMode">0</token>
+						<Content name="RoughnessMap"><url>rbxassetid://94362776906809</url></Content>
+						<int name="SurfaceSlot">-1</int>
+						<Content name="TexturePack"><url>rbxassetid://103453752662252</url></Content>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">SurfaceAppearance</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b5a</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="Bone" referent="RBX12D0C47B191448B6BBA40FA62B754CC5">
+					<Properties>
+						<CoordinateFrame name="CFrame">
+							<X>-0.00533812959</X>
+							<Y>-0.215167761</Y>
+							<Z>0.334757149</Z>
+							<R00>1</R00>
+							<R01>0</R01>
+							<R02>1.74845553e-07</R02>
+							<R10>0</R10>
+							<R11>1</R11>
+							<R12>-0</R12>
+							<R20>-1.74845553e-07</R20>
+							<R21>0</R21>
+							<R22>1</R22>
+						</CoordinateFrame>
+						<bool name="Visible">false</bool>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_000</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b5b</UniqueId>
+					</Properties>
+					<Item class="Bone" referent="RBXC76646ECC6FD4AE19F66A80B3E64EB49">
+						<Properties>
+							<CoordinateFrame name="CFrame">
+								<X>-9.31322575e-10</X>
+								<Y>0.0199714899</Y>
+								<Z>0</Z>
+								<R00>1</R00>
+								<R01>8.71443717e-08</R01>
+								<R02>9.01269743e-07</R02>
+								<R10>-8.914501e-07</R10>
+								<R11>-0.0797450468</R11>
+								<R12>0.996815324</R12>
+								<R20>1.58738629e-07</R20>
+								<R21>-0.996815324</R21>
+								<R22>-0.0797450468</R22>
+							</CoordinateFrame>
+							<bool name="Visible">false</bool>
+							<BinaryString name="AttributesSerialize" />
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<string name="Name">Bone_001</string>
+							<BinaryString name="SerializedOverrides" />
+							<int64 name="SourceAssetId">-1</int64>
+							<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+							<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b5c</UniqueId>
+						</Properties>
+						<Item class="Bone" referent="RBX6C538AA792D545729C9C7BEE73FA280B">
+							<Properties>
+								<CoordinateFrame name="CFrame">
+									<X>4.65661287e-10</X>
+									<Y>0.25044027</Y>
+									<Z>5.96046448e-08</Z>
+									<R00>1</R00>
+									<R01>9.83152475e-08</R01>
+									<R02>-6.37542598e-07</R02>
+									<R10>-2.76306693e-08</R10>
+									<R11>0.993938744</R11>
+									<R12>0.109935649</R12>
+									<R20>6.4448659e-07</R20>
+									<R21>-0.109935649</R21>
+									<R22>0.993938744</R22>
+								</CoordinateFrame>
+								<bool name="Visible">false</bool>
+								<BinaryString name="AttributesSerialize" />
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<string name="Name">Bone_003</string>
+								<BinaryString name="SerializedOverrides" />
+								<int64 name="SourceAssetId">-1</int64>
+								<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+								<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b5d</UniqueId>
+							</Properties>
+							<Item class="Bone" referent="RBX48320D91D49A4544813EE7E6EB3FA7AA">
+								<Properties>
+									<CoordinateFrame name="CFrame">
+										<X>0</X>
+										<Y>0.264385581</Y>
+										<Z>0</Z>
+										<R00>1</R00>
+										<R01>-1.45341289e-07</R01>
+										<R02>4.7016772e-07</R02>
+										<R10>3.90462446e-07</R10>
+										<R11>0.815840542</R11>
+										<R12>-0.578276932</R12>
+										<R20>-2.99534406e-07</R20>
+										<R21>0.578276932</R21>
+										<R22>0.815840542</R22>
+									</CoordinateFrame>
+									<bool name="Visible">false</bool>
+									<BinaryString name="AttributesSerialize" />
+									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+									<bool name="DefinesCapabilities">false</bool>
+									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+									<string name="Name">Bone_002</string>
+									<BinaryString name="SerializedOverrides" />
+									<int64 name="SourceAssetId">-1</int64>
+									<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+									<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b5e</UniqueId>
+								</Properties>
+								<Item class="Bone" referent="RBX61E7B4220EB84FBC881997803CF3847B">
+									<Properties>
+										<CoordinateFrame name="CFrame">
+											<X>0</X>
+											<Y>0.120657682</Y>
+											<Z>0</Z>
+											<R00>1</R00>
+											<R01>4.63663781e-07</R01>
+											<R02>-1.59970455e-08</R02>
+											<R10>-3.26076218e-07</R10>
+											<R11>0.726951718</R11>
+											<R12>0.686688602</R12>
+											<R20>3.3002172e-07</R20>
+											<R21>-0.686688602</R21>
+											<R22>0.726951718</R22>
+										</CoordinateFrame>
+										<bool name="Visible">false</bool>
+										<BinaryString name="AttributesSerialize" />
+										<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+										<bool name="DefinesCapabilities">false</bool>
+										<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+										<string name="Name">Bone_011</string>
+										<BinaryString name="SerializedOverrides" />
+										<int64 name="SourceAssetId">-1</int64>
+										<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+										<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b5f</UniqueId>
+									</Properties>
+									<Item class="Bone" referent="RBXC45A304D6D014A3D86A016B706FB617C">
+										<Properties>
+											<CoordinateFrame name="CFrame">
+												<X>-4.65661287e-10</X>
+												<Y>0.369471312</Y>
+												<Z>-5.96046448e-08</Z>
+												<R00>1</R00>
+												<R01>1.02066589e-13</R01>
+												<R02>-6.50690097e-08</R02>
+												<R10>-9.23705556e-14</R10>
+												<R11>1</R11>
+												<R12>1.49011598e-07</R12>
+												<R20>6.50690097e-08</R20>
+												<R21>-1.49011598e-07</R21>
+												<R22>1</R22>
+											</CoordinateFrame>
+											<bool name="Visible">false</bool>
+											<BinaryString name="AttributesSerialize" />
+											<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+											<bool name="DefinesCapabilities">false</bool>
+											<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+											<string name="Name">Bone_010</string>
+											<BinaryString name="SerializedOverrides" />
+											<int64 name="SourceAssetId">-1</int64>
+											<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+											<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b60</UniqueId>
+										</Properties>
+									</Item>
+								</Item>
+								<Item class="Bone" referent="RBXB6DF409A6FB945CD89225003D172144B">
+									<Properties>
+										<CoordinateFrame name="CFrame">
+											<X>0.3495</X>
+											<Y>0.236357331</Y>
+											<Z>-0.228092223</Z>
+											<R00>0.980941772</R00>
+											<R01>0.141265064</R01>
+											<R02>-0.133407056</R02>
+											<R10>0.183806628</R10>
+											<R11>-0.452056825</R11>
+											<R12>0.872845829</R12>
+											<R20>0.0629950538</R20>
+											<R21>-0.880732059</R21>
+											<R22>-0.469406873</R22>
+										</CoordinateFrame>
+										<bool name="Visible">false</bool>
+										<BinaryString name="AttributesSerialize" />
+										<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+										<bool name="DefinesCapabilities">false</bool>
+										<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+										<string name="Name">Bone_014</string>
+										<BinaryString name="SerializedOverrides" />
+										<int64 name="SourceAssetId">-1</int64>
+										<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+										<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b61</UniqueId>
+									</Properties>
+									<Item class="Bone" referent="RBXA006F2669B564D6EB278FF4E952240D9">
+										<Properties>
+											<CoordinateFrame name="CFrame">
+												<X>-1.1920929e-07</X>
+												<Y>0.212064236</Y>
+												<Z>-1.1920929e-07</Z>
+												<R00>0.992531061</R00>
+												<R01>-0.0103214113</R01>
+												<R02>0.121555544</R02>
+												<R10>0.072639659</R10>
+												<R11>0.850520134</R11>
+												<R12>-0.520902276</R12>
+												<R20>-0.0980089754</R20>
+												<R21>0.525841355</R21>
+												<R22>0.844917417</R22>
+											</CoordinateFrame>
+											<bool name="Visible">false</bool>
+											<BinaryString name="AttributesSerialize" />
+											<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+											<bool name="DefinesCapabilities">false</bool>
+											<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+											<string name="Name">Bone_013</string>
+											<BinaryString name="SerializedOverrides" />
+											<int64 name="SourceAssetId">-1</int64>
+											<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+											<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b62</UniqueId>
+										</Properties>
+										<Item class="Bone" referent="RBX524DE2CA70A9431980B587AFD21A69A7">
+											<Properties>
+												<CoordinateFrame name="CFrame">
+													<X>2.98023224e-08</X>
+													<Y>0.25044018</Y>
+													<Z>-5.96046448e-08</Z>
+													<R00>1</R00>
+													<R01>2.25379992e-07</R01>
+													<R02>4.09782714e-08</R02>
+													<R10>-2.25380006e-07</R10>
+													<R11>1</R11>
+													<R12>3.87430106e-07</R12>
+													<R20>-4.09781826e-08</R20>
+													<R21>-3.87430106e-07</R21>
+													<R22>1</R22>
+												</CoordinateFrame>
+												<bool name="Visible">false</bool>
+												<BinaryString name="AttributesSerialize" />
+												<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+												<bool name="DefinesCapabilities">false</bool>
+												<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+												<string name="Name">Bone_012</string>
+												<BinaryString name="SerializedOverrides" />
+												<int64 name="SourceAssetId">-1</int64>
+												<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+												<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b63</UniqueId>
+											</Properties>
+										</Item>
+									</Item>
+								</Item>
+								<Item class="Bone" referent="RBX33F0E165D23F42D0B49FC91A5B967EDB">
+									<Properties>
+										<CoordinateFrame name="CFrame">
+											<X>-0.359485269</X>
+											<Y>0.236357093</Y>
+											<Z>-0.228092805</Z>
+											<R00>0.991436899</R00>
+											<R01>-0.0947021991</R01>
+											<R02>0.0899135247</R02>
+											<R10>-0.123420708</R10>
+											<R11>-0.454583585</R11>
+											<R12>0.882111728</R12>
+											<R20>-0.0426647179</R20>
+											<R21>-0.885655284</R21>
+											<R22>-0.462379128</R22>
+										</CoordinateFrame>
+										<bool name="Visible">false</bool>
+										<BinaryString name="AttributesSerialize" />
+										<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+										<bool name="DefinesCapabilities">false</bool>
+										<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+										<string name="Name">Bone_017</string>
+										<BinaryString name="SerializedOverrides" />
+										<int64 name="SourceAssetId">-1</int64>
+										<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+										<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b64</UniqueId>
+									</Properties>
+									<Item class="Bone" referent="RBX44CFF476FCD6446284BE25C82A78FC05">
+										<Properties>
+											<CoordinateFrame name="CFrame">
+												<X>-2.98023224e-08</X>
+												<Y>0.210885257</Y>
+												<Z>-2.98023224e-08</Z>
+												<R00>0.998942018</R00>
+												<R01>-0.0453956649</R01>
+												<R02>0.007356341</R02>
+												<R10>0.0426648706</R10>
+												<R11>0.855125427</R11>
+												<R12>-0.516662598</R12>
+												<R20>0.0171636473</R20>
+												<R21>0.516429842</R21>
+												<R22>0.856157541</R22>
+											</CoordinateFrame>
+											<bool name="Visible">false</bool>
+											<BinaryString name="AttributesSerialize" />
+											<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+											<bool name="DefinesCapabilities">false</bool>
+											<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+											<string name="Name">Bone_016</string>
+											<BinaryString name="SerializedOverrides" />
+											<int64 name="SourceAssetId">-1</int64>
+											<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+											<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b65</UniqueId>
+										</Properties>
+										<Item class="Bone" referent="RBX333DAAB1730245A2B5E4E665432C158B">
+											<Properties>
+												<CoordinateFrame name="CFrame">
+													<X>-1.1920929e-07</X>
+													<Y>0.251036614</Y>
+													<Z>2.38418579e-07</Z>
+													<R00>1</R00>
+													<R01>1.4210853e-14</R01>
+													<R02>-4.47034836e-07</R02>
+													<R10>0</R10>
+													<R11>1</R11>
+													<R12>2.9802333e-08</R12>
+													<R20>4.47034836e-07</R20>
+													<R21>-2.9802333e-08</R21>
+													<R22>1</R22>
+												</CoordinateFrame>
+												<bool name="Visible">false</bool>
+												<BinaryString name="AttributesSerialize" />
+												<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+												<bool name="DefinesCapabilities">false</bool>
+												<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+												<string name="Name">Bone_015</string>
+												<BinaryString name="SerializedOverrides" />
+												<int64 name="SourceAssetId">-1</int64>
+												<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+												<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b66</UniqueId>
+											</Properties>
+										</Item>
+									</Item>
+								</Item>
+							</Item>
+						</Item>
+						<Item class="Bone" referent="RBX58C5B493C9F44B4CB135643A72916D70">
+							<Properties>
+								<CoordinateFrame name="CFrame">
+									<X>0.0898710564</X>
+									<Y>-0.141345382</Y>
+									<Z>0.389396966</Z>
+									<R00>0.968052149</R00>
+									<R01>0.173493668</R01>
+									<R02>0.181038573</R02>
+									<R10>0.187379152</R10>
+									<R11>-0.0207531732</R11>
+									<R12>-0.982068539</R12>
+									<R20>-0.1666255</R20>
+									<R21>0.984616399</R21>
+									<R22>-0.0525992513</R22>
+								</CoordinateFrame>
+								<bool name="Visible">false</bool>
+								<BinaryString name="AttributesSerialize" />
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<string name="Name">Bone_006</string>
+								<BinaryString name="SerializedOverrides" />
+								<int64 name="SourceAssetId">-1</int64>
+								<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+								<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b67</UniqueId>
+							</Properties>
+							<Item class="Bone" referent="RBXDC0B4B727D0D43CDA4035DD2D31CFDCF">
+								<Properties>
+									<CoordinateFrame name="CFrame">
+										<X>0</X>
+										<Y>0.172668815</Y>
+										<Z>1.1920929e-07</Z>
+										<R00>0.984050632</R00>
+										<R01>0.0856753811</R01>
+										<R02>0.155897796</R02>
+										<R10>0.0901046395</R10>
+										<R11>0.515574515</R11>
+										<R12>-0.852093935</R12>
+										<R20>-0.153380409</R20>
+										<R21>0.852550685</R21>
+										<R22>0.499631643</R22>
+									</CoordinateFrame>
+									<bool name="Visible">false</bool>
+									<BinaryString name="AttributesSerialize" />
+									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+									<bool name="DefinesCapabilities">false</bool>
+									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+									<string name="Name">Bone_005</string>
+									<BinaryString name="SerializedOverrides" />
+									<int64 name="SourceAssetId">-1</int64>
+									<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+									<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b68</UniqueId>
+								</Properties>
+								<Item class="Bone" referent="RBX0772571E6DC449F6A372A6E7EC29935B">
+									<Properties>
+										<CoordinateFrame name="CFrame">
+											<X>5.96046448e-08</X>
+											<Y>0.21393621</Y>
+											<Z>1.1920929e-07</Z>
+											<R00>1</R00>
+											<R01>2.9802333e-08</R01>
+											<R02>-1.49011372e-08</R02>
+											<R10>-2.98023188e-08</R10>
+											<R11>1</R11>
+											<R12>7.45057946e-07</R12>
+											<R20>1.49011594e-08</R20>
+											<R21>-7.45057946e-07</R21>
+											<R22>1</R22>
+										</CoordinateFrame>
+										<bool name="Visible">false</bool>
+										<BinaryString name="AttributesSerialize" />
+										<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+										<bool name="DefinesCapabilities">false</bool>
+										<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+										<string name="Name">Bone_004</string>
+										<BinaryString name="SerializedOverrides" />
+										<int64 name="SourceAssetId">-1</int64>
+										<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+										<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b69</UniqueId>
+									</Properties>
+								</Item>
+							</Item>
+						</Item>
+						<Item class="Bone" referent="RBXDF482C05235541C780A7BFE26A57278C">
+							<Properties>
+								<CoordinateFrame name="CFrame">
+									<X>1.05239451e-07</X>
+									<Y>-0.331266165</Y>
+									<Z>-0.116659939</Z>
+									<R00>1</R00>
+									<R01>4.52476826e-07</R01>
+									<R02>9.25447807e-07</R02>
+									<R10>-7.79493803e-08</R10>
+									<R11>-0.862558544</R11>
+									<R12>0.505957365</R12>
+									<R20>1.02718684e-06</R20>
+									<R21>-0.505957365</R21>
+									<R22>-0.862558544</R22>
+								</CoordinateFrame>
+								<bool name="Visible">false</bool>
+								<BinaryString name="AttributesSerialize" />
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<string name="Name">Bone_009</string>
+								<BinaryString name="SerializedOverrides" />
+								<int64 name="SourceAssetId">-1</int64>
+								<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+								<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b6a</UniqueId>
+							</Properties>
+							<Item class="Bone" referent="RBX526EB6EDBE174763941F67636EBE2700">
+								<Properties>
+									<CoordinateFrame name="CFrame">
+										<X>-9.31322575e-10</X>
+										<Y>0.343891382</Y>
+										<Z>0</Z>
+										<R00>1</R00>
+										<R01>1.53531786e-07</R01>
+										<R02>1.34247784e-07</R02>
+										<R10>-1.46520733e-07</R10>
+										<R11>0.0829510987</R11>
+										<R12>0.996553659</R12>
+										<R20>1.4186665e-07</R20>
+										<R21>-0.996553659</R21>
+										<R22>0.0829510987</R22>
+									</CoordinateFrame>
+									<bool name="Visible">false</bool>
+									<BinaryString name="AttributesSerialize" />
+									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+									<bool name="DefinesCapabilities">false</bool>
+									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+									<string name="Name">Bone_008</string>
+									<BinaryString name="SerializedOverrides" />
+									<int64 name="SourceAssetId">-1</int64>
+									<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+									<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b6b</UniqueId>
+								</Properties>
+								<Item class="Bone" referent="RBXADEFEA9368954229ADAF4007FBFA8C3B">
+									<Properties>
+										<CoordinateFrame name="CFrame">
+											<X>4.65661287e-10</X>
+											<Y>0.255173504</Y>
+											<Z>-5.96046448e-08</Z>
+											<R00>1</R00>
+											<R01>2.8421706e-14</R01>
+											<R02>-5.9604659e-08</R02>
+											<R10>-2.13162821e-14</R10>
+											<R11>1</R11>
+											<R12>1.19209275e-07</R12>
+											<R20>5.9604659e-08</R20>
+											<R21>-1.19209275e-07</R21>
+											<R22>1</R22>
+										</CoordinateFrame>
+										<bool name="Visible">false</bool>
+										<BinaryString name="AttributesSerialize" />
+										<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+										<bool name="DefinesCapabilities">false</bool>
+										<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+										<string name="Name">Bone_007</string>
+										<BinaryString name="SerializedOverrides" />
+										<int64 name="SourceAssetId">-1</int64>
+										<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+										<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b6c</UniqueId>
+									</Properties>
+								</Item>
+							</Item>
+						</Item>
+					</Item>
+					<Item class="Bone" referent="RBXD8BCE75F9D0142EFA5CA14EB8C2FDE48">
+						<Properties>
+							<CoordinateFrame name="CFrame">
+								<X>0.358196557</X>
+								<Y>0.0178573728</Y>
+								<Z>0.112343222</Z>
+								<R00>1</R00>
+								<R01>0</R01>
+								<R02>8.74227766e-08</R02>
+								<R10>0</R10>
+								<R11>-1</R11>
+								<R12>0</R12>
+								<R20>8.74227766e-08</R20>
+								<R21>0</R21>
+								<R22>-1</R22>
+							</CoordinateFrame>
+							<bool name="Visible">false</bool>
+							<BinaryString name="AttributesSerialize" />
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<string name="Name">HindL</string>
+							<BinaryString name="SerializedOverrides" />
+							<int64 name="SourceAssetId">-1</int64>
+							<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+							<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b6d</UniqueId>
+						</Properties>
+					</Item>
+					<Item class="Bone" referent="RBXFAF3DBF37F11400EB863EC137D89CB58">
+						<Properties>
+							<CoordinateFrame name="CFrame">
+								<X>-0.374332517</X>
+								<Y>0.0178573728</Y>
+								<Z>0.0399211347</Z>
+								<R00>1</R00>
+								<R01>0</R01>
+								<R02>8.74227766e-08</R02>
+								<R10>0</R10>
+								<R11>-1</R11>
+								<R12>0</R12>
+								<R20>8.74227766e-08</R20>
+								<R21>0</R21>
+								<R22>-1</R22>
+							</CoordinateFrame>
+							<bool name="Visible">false</bool>
+							<BinaryString name="AttributesSerialize" />
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<string name="Name">HindR</string>
+							<BinaryString name="SerializedOverrides" />
+							<int64 name="SourceAssetId">-1</int64>
+							<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+							<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b6e</UniqueId>
+						</Properties>
+					</Item>
+				</Item>
+			</Item>
+			<Item class="Folder" referent="RBX61A84ED3AB374BB682BF329CE6FE161B">
+				<Properties>
+					<Color3 name="IconTint">
+						<R>0</R>
+						<G>0</G>
+						<B>0</B>
+					</Color3>
+					<BinaryString name="AttributesSerialize" />
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<string name="Name">InitialPoses</string>
+					<BinaryString name="SerializedOverrides" />
+					<int64 name="SourceAssetId">-1</int64>
+					<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+					<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b6f</UniqueId>
+				</Properties>
+				<Item class="CFrameValue" referent="RBX0098D7D162C147F09AAA51DF21675743">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>0</X>
+							<Y>0</Y>
+							<Z>0</Z>
+							<R00>1</R00>
+							<R01>0</R01>
+							<R02>1.74845553e-07</R02>
+							<R10>0</R10>
+							<R11>1</R11>
+							<R12>0</R12>
+							<R20>-1.74845553e-07</R20>
+							<R21>0</R21>
+							<R22>1</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">SmartRigArmature_Composited</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b70</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBXD29C2AEF80C148688D217171D1D14690">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>0</X>
+							<Y>0</Y>
+							<Z>0</Z>
+							<R00>1</R00>
+							<R01>0</R01>
+							<R02>0</R02>
+							<R10>0</R10>
+							<R11>1</R11>
+							<R12>0</R12>
+							<R20>0</R20>
+							<R21>0</R21>
+							<R22>1</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">SmartRigArmature_Original</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b71</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX565197170263484C9037D2FD561EB18C">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>0</X>
+							<Y>0</Y>
+							<Z>0</Z>
+							<R00>1</R00>
+							<R01>0</R01>
+							<R02>0</R02>
+							<R10>0</R10>
+							<R11>1</R11>
+							<R12>0</R12>
+							<R20>0</R20>
+							<R21>0</R21>
+							<R22>1</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">SmartRigArmature_Initial</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b72</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX57FC78118F7045E69EBC4F2D84E88E7F">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>0</X>
+							<Y>0</Y>
+							<Z>0</Z>
+							<R00>1</R00>
+							<R01>0</R01>
+							<R02>1.74845553e-07</R02>
+							<R10>0</R10>
+							<R11>1</R11>
+							<R12>0</R12>
+							<R20>-1.74845553e-07</R20>
+							<R21>0</R21>
+							<R22>1</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">output_unwrapped_Node_Composited</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b73</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX39736ADC5B5148DBA1697CA33C62E861">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>0</X>
+							<Y>0</Y>
+							<Z>0</Z>
+							<R00>1</R00>
+							<R01>0</R01>
+							<R02>0</R02>
+							<R10>0</R10>
+							<R11>1</R11>
+							<R12>0</R12>
+							<R20>0</R20>
+							<R21>0</R21>
+							<R22>1</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">output_unwrapped_Node_Original</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b74</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBXF04EEDFCF3DD4DC2B9235C15DA0DC761">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>0</X>
+							<Y>0</Y>
+							<Z>0</Z>
+							<R00>1</R00>
+							<R01>0</R01>
+							<R02>0</R02>
+							<R10>0</R10>
+							<R11>1</R11>
+							<R12>0</R12>
+							<R20>0</R20>
+							<R21>0</R21>
+							<R22>1</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">output_unwrapped_Node_Initial</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b75</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX3B43D848FDF042B28571C2A710694C96">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>0</X>
+							<Y>0</Y>
+							<Z>0</Z>
+							<R00>-1</R00>
+							<R01>0</R01>
+							<R02>-8.74227766e-08</R02>
+							<R10>0</R10>
+							<R11>1</R11>
+							<R12>0</R12>
+							<R20>8.74227766e-08</R20>
+							<R21>0</R21>
+							<R22>-1</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">output_unwrapped_Composited</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b76</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX6028C5A62F8A4D95AA3BA136AF3B179E">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>0</X>
+							<Y>0</Y>
+							<Z>0</Z>
+							<R00>-1</R00>
+							<R01>0</R01>
+							<R02>8.74227766e-08</R02>
+							<R10>0</R10>
+							<R11>1</R11>
+							<R12>0</R12>
+							<R20>-8.74227766e-08</R20>
+							<R21>0</R21>
+							<R22>-1</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">output_unwrapped_Original</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b77</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX7AF2573636E146038E5F6B984823EAC8">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>0</X>
+							<Y>0</Y>
+							<Z>0</Z>
+							<R00>-1</R00>
+							<R01>0</R01>
+							<R02>8.74227766e-08</R02>
+							<R10>0</R10>
+							<R11>1</R11>
+							<R12>0</R12>
+							<R20>-8.74227766e-08</R20>
+							<R21>0</R21>
+							<R22>-1</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">output_unwrapped_Initial</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b78</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX67EE09A5BB484EACA7B6867EA903C20F">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-0.00499283988</X>
+							<Y>0.635307252</Y>
+							<Z>0.334521234</Z>
+							<R00>1</R00>
+							<R01>0</R01>
+							<R02>1.74845553e-07</R02>
+							<R10>0</R10>
+							<R11>1</R11>
+							<R12>0</R12>
+							<R20>-1.74845553e-07</R20>
+							<R21>0</R21>
+							<R22>1</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_000_Composited</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b79</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBXF4A5678956FC48C3B96A9C32FDF9B276">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-0.00499289855</X>
+							<Y>0.635307252</Y>
+							<Z>0.334521234</Z>
+							<R00>1</R00>
+							<R01>0</R01>
+							<R02>0</R02>
+							<R10>0</R10>
+							<R11>1</R11>
+							<R12>0</R12>
+							<R20>0</R20>
+							<R21>0</R21>
+							<R22>1</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_000_Original</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b7a</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBXB829C792CACD41518B75863C1D4D8ECC">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-0.00499289855</X>
+							<Y>0.635307252</Y>
+							<Z>0.334521234</Z>
+							<R00>1</R00>
+							<R01>0</R01>
+							<R02>0</R02>
+							<R10>0</R10>
+							<R11>1</R11>
+							<R12>0</R12>
+							<R20>0</R20>
+							<R21>0</R21>
+							<R22>1</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_000_Initial</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b7b</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBXC23525975BA04DBE9AB49C20479741DE">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-0.00499284081</X>
+							<Y>0.655278742</Y>
+							<Z>0.334521234</Z>
+							<R00>1</R00>
+							<R01>-8.71443575e-08</R01>
+							<R02>8.87326678e-07</R02>
+							<R10>-8.914501e-07</R10>
+							<R11>-0.0797450468</R11>
+							<R12>0.996815324</R12>
+							<R20>-1.61069291e-08</R20>
+							<R21>-0.996815324</R21>
+							<R22>-0.0797450468</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_001_Composited</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b7c</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX40C076BC52584FC1ABBA0F696BFD30BE">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-9.31322575e-10</X>
+							<Y>0.0199714899</Y>
+							<Z>0</Z>
+							<R00>1</R00>
+							<R01>8.71443717e-08</R01>
+							<R02>9.01269743e-07</R02>
+							<R10>-8.914501e-07</R10>
+							<R11>-0.0797450468</R11>
+							<R12>0.996815324</R12>
+							<R20>1.58738629e-07</R20>
+							<R21>-0.996815324</R21>
+							<R22>-0.0797450468</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_001_Original</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b7d</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX3644D6205D114EFF9C0B9FEDCA550DEC">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-9.31322575e-10</X>
+							<Y>0.0199714899</Y>
+							<Z>0</Z>
+							<R00>1</R00>
+							<R01>8.71443717e-08</R01>
+							<R02>9.01269743e-07</R02>
+							<R10>-8.914501e-07</R10>
+							<R11>-0.0797450468</R11>
+							<R12>0.996815324</R12>
+							<R20>1.58738629e-07</R20>
+							<R21>-0.996815324</R21>
+							<R22>-0.0797450468</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_001_Initial</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b7e</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBXDD0CDEA92FD8479E9B383313BF6A8E49">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-0.00499286223</X>
+							<Y>0.635307372</Y>
+							<Z>0.084878549</Z>
+							<R00>1</R00>
+							<R01>-8.58497273e-08</R01>
+							<R02>2.34825492e-07</R02>
+							<R10>-2.46812618e-07</R10>
+							<R11>-0.188847214</R11>
+							<R12>0.98200655</R12>
+							<R20>-3.99588593e-08</R20>
+							<R21>-0.98200649</R21>
+							<R22>-0.188847244</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_003_Composited</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b7f</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX5DC7B10599D74114A13EE032E93FF09A">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>4.65661287e-10</X>
+							<Y>0.25044027</Y>
+							<Z>5.96046448e-08</Z>
+							<R00>1</R00>
+							<R01>9.83152475e-08</R01>
+							<R02>-6.37542598e-07</R02>
+							<R10>-2.76306693e-08</R10>
+							<R11>0.993938744</R11>
+							<R12>0.109935671</R12>
+							<R20>6.4448659e-07</R20>
+							<R21>-0.109935649</R21>
+							<R22>0.993938804</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_003_Original</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b80</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX717E2551C0824CDC82F1A2D62F913F86">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>4.65661287e-10</X>
+							<Y>0.25044027</Y>
+							<Z>5.96046448e-08</Z>
+							<R00>1</R00>
+							<R01>9.83152475e-08</R01>
+							<R02>-6.37542598e-07</R02>
+							<R10>-2.76306693e-08</R10>
+							<R11>0.993938744</R11>
+							<R12>0.109935671</R12>
+							<R20>6.4448659e-07</R20>
+							<R21>-0.109935649</R21>
+							<R22>0.993938804</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_003_Initial</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b81</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX8390E381AB01493886FAF5C042D953A2">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-0.00499288505</X>
+							<Y>0.585378945</Y>
+							<Z>-0.174749792</Z>
+							<R00>1</R00>
+							<R01>-7.95868189e-08</R01>
+							<R02>7.11392772e-07</R02>
+							<R10>-6.14695068e-07</R10>
+							<R11>0.413802475</R11>
+							<R12>0.910366714</R12>
+							<R20>-3.66829255e-07</R20>
+							<R21>-0.910366774</R21>
+							<R22>0.413802475</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_002_Composited</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b82</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX45836061664242328632748BF6913B23">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>0</X>
+							<Y>0.264385551</Y>
+							<Z>5.96046448e-08</Z>
+							<R00>1</R00>
+							<R01>-1.45341275e-07</R01>
+							<R02>4.7016772e-07</R02>
+							<R10>3.90462446e-07</R10>
+							<R11>0.815840662</R11>
+							<R12>-0.578276932</R12>
+							<R20>-2.99534406e-07</R20>
+							<R21>0.578276992</R21>
+							<R22>0.815840602</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_002_Original</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b83</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX2736C5D67599429CB3902EC79CA36107">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>0</X>
+							<Y>0.264385551</Y>
+							<Z>5.96046448e-08</Z>
+							<R00>1</R00>
+							<R01>-1.45341275e-07</R01>
+							<R02>4.7016772e-07</R02>
+							<R10>3.90462446e-07</R10>
+							<R11>0.815840662</R11>
+							<R12>-0.578276932</R12>
+							<R20>-2.99534406e-07</R20>
+							<R21>0.578276992</R21>
+							<R22>0.815840602</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_002_Initial</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b84</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX577A913D4401470C87C236E00F288B1A">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-0.00499289436</X>
+							<Y>0.635307372</Y>
+							<Z>-0.284592628</Z>
+							<R00>1</R00>
+							<R01>-8.26972908e-08</R01>
+							<R02>4.46499854e-07</R02>
+							<R10>-4.4918545e-07</R10>
+							<R11>-0.324324042</R11>
+							<R12>0.945946157</R12>
+							<R20>6.65834321e-08</R20>
+							<R21>-0.945946157</R21>
+							<R22>-0.324324042</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_011_Composited</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b85</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX831B536F517145888F8F7AD37BCBD0B7">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>0</X>
+							<Y>0.120657742</Y>
+							<Z>-5.96046448e-08</Z>
+							<R00>1</R00>
+							<R01>4.63663838e-07</R01>
+							<R02>-1.59970384e-08</R02>
+							<R10>-3.26076218e-07</R10>
+							<R11>0.726951838</R11>
+							<R12>0.686688662</R12>
+							<R20>3.30021692e-07</R20>
+							<R21>-0.686688662</R21>
+							<R22>0.726951838</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_011_Original</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b86</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBXDB529A7067AE43EAAC37FF10328EEEEC">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>0</X>
+							<Y>0.120657742</Y>
+							<Z>-5.96046448e-08</Z>
+							<R00>1</R00>
+							<R01>4.63663838e-07</R01>
+							<R02>-1.59970384e-08</R02>
+							<R10>-3.26076218e-07</R10>
+							<R11>0.726951838</R11>
+							<R12>0.686688662</R12>
+							<R20>3.30021692e-07</R20>
+							<R21>-0.686688662</R21>
+							<R22>0.726951838</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_011_Initial</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b87</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX19CC4EE2176746A2B8929FC94BD6E6C9">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-0.00499292603</X>
+							<Y>0.515479028</Y>
+							<Z>-0.63409245</Z>
+							<R00>1</R00>
+							<R01>-8.26972979e-08</R01>
+							<R02>3.81430766e-07</R02>
+							<R10>-3.87633634e-07</R10>
+							<R11>-0.324324131</R11>
+							<R12>0.945946097</R12>
+							<R20>4.54800215e-08</R20>
+							<R21>-0.945946038</R21>
+							<R22>-0.324324161</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_010_Composited</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b88</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX40DBE2A4D1A7496E869AB973A15F513F">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-9.31322575e-10</X>
+							<Y>0.369471252</Y>
+							<Z>5.96046448e-08</Z>
+							<R00>1</R00>
+							<R01>4.97379915e-14</R01>
+							<R02>-6.50690595e-08</R02>
+							<R10>-2.84217094e-14</R10>
+							<R11>1.00000012</R11>
+							<R12>1.1920929e-07</R12>
+							<R20>6.50690382e-08</R20>
+							<R21>-1.1920929e-07</R21>
+							<R22>1.00000024</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_010_Original</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b89</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBXA3DC6ECAAD5847CFACA14AF415E044E1">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-9.31322575e-10</X>
+							<Y>0.369471252</Y>
+							<Z>5.96046448e-08</Z>
+							<R00>1</R00>
+							<R01>4.97379915e-14</R01>
+							<R02>-6.50690595e-08</R02>
+							<R10>-2.84217094e-14</R10>
+							<R11>1.00000012</R11>
+							<R12>1.1920929e-07</R12>
+							<R20>6.50690382e-08</R20>
+							<R21>-1.1920929e-07</R21>
+							<R22>1.00000024</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_010_Initial</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b8a</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX11EE33C0540842FBB1EED04B95DF4A47">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>0.344506949</X>
+							<Y>0.475536376</Y>
+							<Z>-0.484306902</Z>
+							<R00>0.980941892</R00>
+							<R01>0.141264468</R01>
+							<R02>-0.133407444</R02>
+							<R10>0.133407637</R10>
+							<R11>-0.988851428</R11>
+							<R12>-0.0661465228</R12>
+							<R20>-0.14126429</R20>
+							<R21>0.0470883213</R21>
+							<R22>-0.988851488</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_014_Composited</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b8b</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBXC718584435F546359E36C3FF6835748A">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>0.3495</X>
+							<Y>0.236357331</Y>
+							<Z>-0.228092298</Z>
+							<R00>0.980941892</R00>
+							<R01>0.141265064</R01>
+							<R02>-0.133407041</R02>
+							<R10>0.183806643</R10>
+							<R11>-0.452056795</R11>
+							<R12>0.872845948</R12>
+							<R20>0.0629950613</R20>
+							<R21>-0.880732059</R21>
+							<R22>-0.469406873</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_014_Original</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b8c</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX89A3AF1A5F5B40C590869ABD8BAEC336">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>0.3495</X>
+							<Y>0.236357331</Y>
+							<Z>-0.228092298</Z>
+							<R00>0.980941892</R00>
+							<R01>0.141265064</R01>
+							<R02>-0.133407041</R02>
+							<R10>0.183806643</R10>
+							<R11>-0.452056795</R11>
+							<R12>0.872845948</R12>
+							<R20>0.0629950613</R20>
+							<R21>-0.880732059</R21>
+							<R22>-0.469406873</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_014_Initial</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b8d</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBXA530DE21D5094435BFCFE37013238D00">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>0.374464005</X>
+							<Y>0.265836418</Y>
+							<Z>-0.474321097</Z>
+							<R00>0.996951699</R00>
+							<R01>0.0398724154</R01>
+							<R02>-0.0670643225</R02>
+							<R10>0.0670643374</R10>
+							<R11>-0.877197504</R11>
+							<R12>0.475422949</R12>
+							<R20>-0.0398724042</R20>
+							<R21>-0.478471309</R21>
+							<R22>-0.877197504</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_013_Composited</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b8e</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBXC226CC63309646D589A861BCFA99CCB2">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-5.96046448e-08</X>
+							<Y>0.212064192</Y>
+							<Z>-5.96046448e-08</Z>
+							<R00>0.992531121</R00>
+							<R01>-0.010321416</R01>
+							<R02>0.12155553</R02>
+							<R10>0.0726396665</R10>
+							<R11>0.850520134</R11>
+							<R12>-0.520902216</R12>
+							<R20>-0.0980089605</R20>
+							<R21>0.525841355</R21>
+							<R22>0.844917357</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_013_Original</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b8f</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX870537DFE1BC47D9AEBF92A2312EBFBE">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-5.96046448e-08</X>
+							<Y>0.212064192</Y>
+							<Z>-5.96046448e-08</Z>
+							<R00>0.992531121</R00>
+							<R01>-0.010321416</R01>
+							<R02>0.12155553</R02>
+							<R10>0.0726396665</R10>
+							<R11>0.850520134</R11>
+							<R12>-0.520902216</R12>
+							<R20>-0.0980089605</R20>
+							<R21>0.525841355</R21>
+							<R22>0.844917357</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_013_Initial</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b90</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX008110F65A4E4A68BBE18E56DBC3D37C">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>0.384449631</X>
+							<Y>0.0461508632</Y>
+							<Z>-0.59414947</Z>
+							<R00>0.996951699</R00>
+							<R01>0.0398726612</R01>
+							<R02>-0.0670642629</R02>
+							<R10>0.0670645088</R10>
+							<R11>-0.877197683</R11>
+							<R12>0.475422591</R12>
+							<R20>-0.0398722626</R20>
+							<R21>-0.478470951</R21>
+							<R22>-0.877197683</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_012_Composited</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b91</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX42C61D4F9F9948258B6DCF87904DE5C2">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>0</X>
+							<Y>0.25044021</Y>
+							<Z>-1.1920929e-07</Z>
+							<R00>1.00000012</R00>
+							<R01>2.21654773e-07</R01>
+							<R02>4.84287739e-08</R02>
+							<R10>-2.12341547e-07</R10>
+							<R11>1.00000012</R11>
+							<R12>3.87430191e-07</R12>
+							<R20>-3.7252903e-08</R20>
+							<R21>-4.17232513e-07</R21>
+							<R22>1</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_012_Original</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b92</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBXCCFBD29BBC11446996B5426263BC2AEE">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>0</X>
+							<Y>0.25044021</Y>
+							<Z>-1.1920929e-07</Z>
+							<R00>1.00000012</R00>
+							<R01>2.21654773e-07</R01>
+							<R02>4.84287739e-08</R02>
+							<R10>-2.12341547e-07</R10>
+							<R11>1.00000012</R11>
+							<R12>3.87430191e-07</R12>
+							<R20>-3.7252903e-08</R20>
+							<R21>-4.17232513e-07</R21>
+							<R22>1</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_012_Initial</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b93</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX2A5B24C8EEF340E08643CB1AEC0D43B5">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-0.36447832</X>
+							<Y>0.475536197</Y>
+							<Z>-0.484306663</Z>
+							<R00>0.991436899</R00>
+							<R01>-0.0947027951</R01>
+							<R02>0.0899131149</R02>
+							<R10>-0.0899129361</R10>
+							<R11>-0.994378865</R11>
+							<R12>-0.0559146069</R12>
+							<R20>0.0947029591</R20>
+							<R21>0.0473514535</R21>
+							<R22>-0.994378865</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_017_Composited</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b94</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX2AA25FDE20024CDD8CBF8EAE19403691">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-0.359485269</X>
+							<Y>0.236357152</Y>
+							<Z>-0.228092879</Z>
+							<R00>0.991436899</R00>
+							<R01>-0.0947021991</R01>
+							<R02>0.0899135172</R02>
+							<R10>-0.1234207</R10>
+							<R11>-0.454583615</R11>
+							<R12>0.882111847</R12>
+							<R20>-0.0426647216</R20>
+							<R21>-0.885655344</R21>
+							<R22>-0.462379158</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_017_Original</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b95</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX50E8F6B22273468395B0BD2270297D73">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-0.359485269</X>
+							<Y>0.236357152</Y>
+							<Z>-0.228092879</Z>
+							<R00>0.991436899</R00>
+							<R01>-0.0947021991</R01>
+							<R02>0.0899135172</R02>
+							<R10>-0.1234207</R10>
+							<R11>-0.454583615</R11>
+							<R12>0.882111847</R12>
+							<R20>-0.0426647216</R20>
+							<R21>-0.885655344</R21>
+							<R22>-0.462379158</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_017_Initial</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b96</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX54BDC4A5BB46423FB5BCEE0E72CFD5E8">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-0.38444978</X>
+							<Y>0.265836418</Y>
+							<Z>-0.474321038</Z>
+							<R00>0.98789072</R00>
+							<R01>-0.0795558766</R01>
+							<R02>0.133202538</R02>
+							<R10>-0.133202538</R10>
+							<R11>-0.875112951</R11>
+							<R12>0.46522522</R12>
+							<R20>0.0795558542</R20>
+							<R21>-0.477334559</R21>
+							<R22>-0.875112951</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_016_Composited</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b97</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX3C24FBDB4ECA4465A5BBE34FDD34153B">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-5.96046448e-08</X>
+							<Y>0.210885197</Y>
+							<Z>8.94069672e-08</Z>
+							<R00>0.998942137</R00>
+							<R01>-0.0453956537</R01>
+							<R02>0.00735636055</R02>
+							<R10>0.0426648594</R10>
+							<R11>0.855125487</R11>
+							<R12>-0.516662657</R12>
+							<R20>0.0171636343</R20>
+							<R21>0.516429901</R21>
+							<R22>0.856157601</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_016_Original</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b98</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBXB8600CE376EF4C74A6B1EF5E4D7F6E17">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-5.96046448e-08</X>
+							<Y>0.210885197</Y>
+							<Z>8.94069672e-08</Z>
+							<R00>0.998942137</R00>
+							<R01>-0.0453956537</R01>
+							<R02>0.00735636055</R02>
+							<R10>0.0426648594</R10>
+							<R11>0.855125487</R11>
+							<R12>-0.516662657</R12>
+							<R20>0.0171636343</R20>
+							<R21>0.516429901</R21>
+							<R22>0.856157601</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_016_Initial</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b99</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBXAAB1BF8FC7F94FCE94E53DD454C993EA">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-0.4044213</X>
+							<Y>0.0461511612</Y>
+							<Z>-0.594149649</Z>
+							<R00>0.98789072</R00>
+							<R01>-0.0795558766</R01>
+							<R02>0.133202091</R02>
+							<R10>-0.133202329</R10>
+							<R11>-0.875112951</R11>
+							<R12>0.465225279</R12>
+							<R20>0.0795554519</R20>
+							<R21>-0.477334529</R21>
+							<R22>-0.87511307</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_015_Composited</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b9a</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX293972F713D746D1B4A082987F6D2198">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-1.49011612e-07</X>
+							<Y>0.251036644</Y>
+							<Z>2.08616257e-07</Z>
+							<R00>1</R00>
+							<R01>3.7252903e-09</R01>
+							<R02>-4.47034836e-07</R02>
+							<R10>7.4505806e-09</R10>
+							<R11>1</R11>
+							<R12>2.98023224e-08</R12>
+							<R20>4.54485416e-07</R20>
+							<R21>-2.98023224e-08</R21>
+							<R22>1.00000012</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_015_Original</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b9b</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX27242ACF1DDC42149113C7501338432B">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-1.49011612e-07</X>
+							<Y>0.251036644</Y>
+							<Z>2.08616257e-07</Z>
+							<R00>1</R00>
+							<R01>3.7252903e-09</R01>
+							<R02>-4.47034836e-07</R02>
+							<R10>7.4505806e-09</R10>
+							<R11>1</R11>
+							<R12>2.98023224e-08</R12>
+							<R20>4.54485416e-07</R20>
+							<R21>-2.98023224e-08</R21>
+							<R22>1.00000012</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_015_Initial</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b9c</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX665BD73F78104C0698C9334573256F3A">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>0.0848785713</X>
+							<Y>1.05470693</Y>
+							<Z>0.444364011</Z>
+							<R00>0.968052089</R00>
+							<R01>0.173494533</R01>
+							<R02>0.181038588</R02>
+							<R10>-0.18103829</R10>
+							<R11>0.983135462</R11>
+							<R12>0.0258831978</R12>
+							<R20>-0.173494861</R20>
+							<R21>-0.0578311943</R21>
+							<R22>0.983135402</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_006_Composited</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b9d</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX02AC2663D1184D2C8D795F669A1CE9BA">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>0.0898710564</X>
+							<Y>-0.141345382</Y>
+							<Z>0.389396966</Z>
+							<R00>0.968052268</R00>
+							<R01>0.173493654</R01>
+							<R02>0.181038544</R02>
+							<R10>0.187379166</R10>
+							<R11>-0.020753175</R11>
+							<R12>-0.982068479</R12>
+							<R20>-0.166625515</R20>
+							<R21>0.984616399</R21>
+							<R22>-0.0525992513</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_006_Original</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b9e</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBXBAB433B5B56A40349020051670686C7C">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>0.0898710564</X>
+							<Y>-0.141345382</Y>
+							<Z>0.389396966</Z>
+							<R00>0.968052268</R00>
+							<R01>0.173493654</R01>
+							<R02>0.181038544</R02>
+							<R10>0.187379166</R10>
+							<R11>-0.020753175</R11>
+							<R12>-0.982068479</R12>
+							<R20>-0.166625515</R20>
+							<R21>0.984616399</R21>
+							<R22>-0.0525992513</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_006_Initial</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007b9f</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX2F78BE49092C48EA8314DB2599FA0169">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>0.114835657</X>
+							<Y>1.22446382</Y>
+							<Z>0.434378475</Z>
+							<R00>0.940477133</R00>
+							<R01>0.326732129</R01>
+							<R02>0.0935361385</R02>
+							<R10>-0.0935357586</R10>
+							<R11>0.513435781</R11>
+							<R12>-0.853015125</R12>
+							<R20>-0.326732278</R20>
+							<R21>0.793492138</R21>
+							<R22>0.513435721</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_005_Composited</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007ba0</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX58FAA6A1C7FF40EA84A4A89281396DB5">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-5.96046448e-08</X>
+							<Y>0.172668815</Y>
+							<Z>1.1920929e-07</Z>
+							<R00>0.984050751</R00>
+							<R01>0.0856753737</R01>
+							<R02>0.155897796</R02>
+							<R10>0.0901046395</R10>
+							<R11>0.515574515</R11>
+							<R12>-0.852093995</R12>
+							<R20>-0.153380424</R20>
+							<R21>0.852550745</R21>
+							<R22>0.499631733</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_005_Original</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007ba1</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBXD5E250DFBD5B4932B5B8C71A48286126">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-5.96046448e-08</X>
+							<Y>0.172668815</Y>
+							<Z>1.1920929e-07</Z>
+							<R00>0.984050751</R00>
+							<R01>0.0856753737</R01>
+							<R02>0.155897796</R02>
+							<R10>0.0901046395</R10>
+							<R11>0.515574515</R11>
+							<R12>-0.852093995</R12>
+							<R20>-0.153380424</R20>
+							<R21>0.852550745</R21>
+							<R22>0.499631733</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_005_Initial</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007ba2</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX96CFCFFA7DAE4993A6CAF8E312AA23DB">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>0.184735611</X>
+							<Y>1.33430636</Y>
+							<Z>0.604135215</Z>
+							<R00>0.940477073</R00>
+							<R01>0.326732069</R01>
+							<R02>0.093536377</R02>
+							<R10>-0.0935357735</R10>
+							<R11>0.513436377</R11>
+							<R12>-0.853014767</R12>
+							<R20>-0.326732278</R20>
+							<R21>0.793491781</R21>
+							<R22>0.513436317</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_004_Composited</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007ba3</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX25BD725CD75846CFA618C733D570D396">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>7.4505806e-08</X>
+							<Y>0.213936329</Y>
+							<Z>1.1920929e-07</Z>
+							<R00>1.00000012</R00>
+							<R01>0</R01>
+							<R02>-1.49011612e-08</R02>
+							<R10>-2.98023224e-08</R10>
+							<R11>1</R11>
+							<R12>6.85453415e-07</R12>
+							<R20>0</R20>
+							<R21>-7.15255737e-07</R21>
+							<R22>1</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_004_Original</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007ba4</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX41013C1F5812491EB354C441E205D496">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>7.4505806e-08</X>
+							<Y>0.213936329</Y>
+							<Z>1.1920929e-07</Z>
+							<R00>1.00000012</R00>
+							<R01>0</R01>
+							<R02>-1.49011612e-08</R02>
+							<R10>-2.98023224e-08</R10>
+							<R11>1</R11>
+							<R12>6.85453415e-07</R12>
+							<R20>0</R20>
+							<R21>-7.15255737e-07</R21>
+							<R22>1</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_004_Initial</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007ba5</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX74546AF17D774DCC93B093D2DDE29512">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-0.00499281054</X>
+							<Y>0.565407157</Y>
+							<Z>0.67403549</Z>
+							<R00>1</R00>
+							<R01>7.86944412e-08</R01>
+							<R02>1.15985237e-07</R02>
+							<R10>1.38681415e-07</R10>
+							<R11>-0.43556124</R11>
+							<R12>-0.900159121</R12>
+							<R20>-2.0318847e-08</R20>
+							<R21>0.900159121</R21>
+							<R22>-0.43556127</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_009_Composited</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007ba6</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX69AD6316470C4539BCBCA239AD9D3650">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>1.05239451e-07</X>
+							<Y>-0.331266165</Y>
+							<Z>-0.116659939</Z>
+							<R00>1</R00>
+							<R01>4.52476769e-07</R01>
+							<R02>9.2544775e-07</R02>
+							<R10>-7.79493803e-08</R10>
+							<R11>-0.862558544</R11>
+							<R12>0.505957365</R12>
+							<R20>1.02718684e-06</R20>
+							<R21>-0.505957365</R21>
+							<R22>-0.862558544</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_009_Original</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007ba7</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBXCD29AEB8EBA44AFDB777E9114AB1F50B">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>1.05239451e-07</X>
+							<Y>-0.331266165</Y>
+							<Z>-0.116659939</Z>
+							<R00>1</R00>
+							<R01>4.52476769e-07</R01>
+							<R02>9.2544775e-07</R02>
+							<R10>-7.79493803e-08</R10>
+							<R11>-0.862558544</R11>
+							<R12>0.505957365</R12>
+							<R20>1.02718684e-06</R20>
+							<R21>-0.505957365</R21>
+							<R22>-0.862558544</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_009_Initial</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007ba8</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBXAEA6A8FEBF5A4859B6270D65D312F989">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-0.004992784</X>
+							<Y>0.4156214</Y>
+							<Z>0.98359251</Z>
+							<R00>1</R00>
+							<R01>4.44740422e-08</R01>
+							<R02>2.22292115e-07</R02>
+							<R10>7.47976401e-08</R10>
+							<R11>0.860926509</R11>
+							<R12>-0.508729339</R12>
+							<R20>-2.14002426e-07</R20>
+							<R21>0.508729339</R21>
+							<R22>0.860926509</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_008_Composited</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007ba9</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX4FCBCED19BEC4223B1EC1B1B9C4B645A">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-4.65661287e-10</X>
+							<Y>0.343891442</Y>
+							<Z>0</Z>
+							<R00>1</R00>
+							<R01>1.53531758e-07</R01>
+							<R02>1.3424777e-07</R02>
+							<R10>-1.46520748e-07</R10>
+							<R11>0.0829511285</R11>
+							<R12>0.9965536</R12>
+							<R20>1.41866622e-07</R20>
+							<R21>-0.996553659</R21>
+							<R22>0.0829511285</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_008_Original</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007baa</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX47D546097E7B4B83B8E61BDC407C511C">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-4.65661287e-10</X>
+							<Y>0.343891442</Y>
+							<Z>0</Z>
+							<R00>1</R00>
+							<R01>1.53531758e-07</R01>
+							<R02>1.3424777e-07</R02>
+							<R10>-1.46520748e-07</R10>
+							<R11>0.0829511285</R11>
+							<R12>0.9965536</R12>
+							<R20>1.41866622e-07</R20>
+							<R21>-0.996553659</R21>
+							<R22>0.0829511285</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_008_Initial</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007bab</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX24E61149A78E45E7A3D3E07B67A95FAA">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-0.00499277189</X>
+							<Y>0.635307074</Y>
+							<Z>1.11340666</Z>
+							<R00>1</R00>
+							<R01>4.44740671e-08</R01>
+							<R02>1.62687485e-07</R02>
+							<R10>4.44749801e-08</R10>
+							<R11>0.860926628</R11>
+							<R12>-0.508729279</R12>
+							<R20>-1.62687229e-07</R20>
+							<R21>0.508729279</R21>
+							<R22>0.860926628</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_007_Composited</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007bac</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX7DD418B9D1404423894ECD4EEF89D682">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>4.65661287e-10</X>
+							<Y>0.255173564</Y>
+							<Z>-1.1920929e-07</Z>
+							<R00>1</R00>
+							<R01>4.26325641e-14</R01>
+							<R02>-5.9604659e-08</R02>
+							<R10>-3.55271368e-14</R10>
+							<R11>1</R11>
+							<R12>8.94069672e-08</R12>
+							<R20>5.96046448e-08</R20>
+							<R21>-8.94069672e-08</R21>
+							<R22>1</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_007_Original</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007bad</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX3C94A262D1F2436E8BE7CD630A17F4C0">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>4.65661287e-10</X>
+							<Y>0.255173564</Y>
+							<Z>-1.1920929e-07</Z>
+							<R00>1</R00>
+							<R01>4.26325641e-14</R01>
+							<R02>-5.9604659e-08</R02>
+							<R10>-3.55271368e-14</R10>
+							<R11>1</R11>
+							<R12>8.94069672e-08</R12>
+							<R20>5.96046448e-08</R20>
+							<R21>-8.94069672e-08</R21>
+							<R22>1</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Bone_007_Initial</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007bae</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBXEB1BBFD3F2F34349A693DCC7DEAEB2F5">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>0.353203744</X>
+							<Y>0.653164625</Y>
+							<Z>0.446864396</Z>
+							<R00>1</R00>
+							<R01>0</R01>
+							<R02>-8.74227766e-08</R02>
+							<R10>0</R10>
+							<R11>-1</R11>
+							<R12>0</R12>
+							<R20>-8.74227766e-08</R20>
+							<R21>0</R21>
+							<R22>-1</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">HindL_Composited</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007baf</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBXCB2D5A7B753643F1B2190D4245B2657C">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>0.358196557</X>
+							<Y>0.0178573728</Y>
+							<Z>0.112343222</Z>
+							<R00>1</R00>
+							<R01>0</R01>
+							<R02>8.74227766e-08</R02>
+							<R10>0</R10>
+							<R11>-1</R11>
+							<R12>0</R12>
+							<R20>8.74227766e-08</R20>
+							<R21>0</R21>
+							<R22>-1</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">HindL_Original</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007bb0</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBXFDE0C05273CA42DA9044F8584426AE0B">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>0.358196557</X>
+							<Y>0.0178573728</Y>
+							<Z>0.112343222</Z>
+							<R00>1</R00>
+							<R01>0</R01>
+							<R02>8.74227766e-08</R02>
+							<R10>0</R10>
+							<R11>-1</R11>
+							<R12>0</R12>
+							<R20>8.74227766e-08</R20>
+							<R21>0</R21>
+							<R22>-1</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">HindL_Initial</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007bb1</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBXF621DCFFCB8C4B838E34C50F6F638D68">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-0.37932536</X>
+							<Y>0.653164625</Y>
+							<Z>0.374442428</Z>
+							<R00>1</R00>
+							<R01>0</R01>
+							<R02>-8.74227766e-08</R02>
+							<R10>0</R10>
+							<R11>-1</R11>
+							<R12>0</R12>
+							<R20>-8.74227766e-08</R20>
+							<R21>0</R21>
+							<R22>-1</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">HindR_Composited</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007bb2</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX03FD9B92639E4E6ABD3F7BCF0BEDD455">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-0.374332517</X>
+							<Y>0.0178573728</Y>
+							<Z>0.0399211347</Z>
+							<R00>1</R00>
+							<R01>0</R01>
+							<R02>8.74227766e-08</R02>
+							<R10>0</R10>
+							<R11>-1</R11>
+							<R12>0</R12>
+							<R20>8.74227766e-08</R20>
+							<R21>0</R21>
+							<R22>-1</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">HindR_Original</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007bb3</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="CFrameValue" referent="RBX1166A59AA6E14FA589CAA4591B6F5607">
+					<Properties>
+						<CoordinateFrame name="Value">
+							<X>-0.374332517</X>
+							<Y>0.0178573728</Y>
+							<Z>0.0399211347</Z>
+							<R00>1</R00>
+							<R01>0</R01>
+							<R02>8.74227766e-08</R02>
+							<R10>0</R10>
+							<R11>-1</R11>
+							<R12>0</R12>
+							<R20>8.74227766e-08</R20>
+							<R21>0</R21>
+							<R22>-1</R22>
+						</CoordinateFrame>
+						<BinaryString name="AttributesSerialize" />
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">HindR_Initial</string>
+						<BinaryString name="SerializedOverrides" />
+						<int64 name="SourceAssetId">-1</int64>
+						<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+						<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007bb4</UniqueId>
+					</Properties>
+				</Item>
+			</Item>
+			<Item class="AnimationController" referent="RBXD20A9CC50B924294905F2E803EE4FD1F">
+				<Properties>
+					<BinaryString name="AttributesSerialize" />
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<string name="Name">AnimationController</string>
+					<BinaryString name="SerializedOverrides" />
+					<int64 name="SourceAssetId">-1</int64>
+					<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+					<UniqueId name="UniqueId">3c490c29b5fde5320afb0fdb00007bb5</UniqueId>
+				</Properties>
+			</Item>
+		</Item>
+		
+<SharedStrings>
+<SharedString md5="yuZpQdnvvUBOTYh1jqZ2cA==" />
+		
+<SharedString md5="HkSwb/eX1hh0Nk3c/OyK3g==">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
+Nu4hsa5/DLP+Aw==</SharedString>
+		
+</SharedStrings>
 </roblox>

@@ -155,7 +155,7 @@ local function add(model)
 		warnL.Size = UDim2.fromScale(1, 0.45)
 		warnL.Font = Enum.Font.GothamBold
 		warnL.TextScaled = true
-		warnL.Text = "ฆ่าไม่ได้ — หนี!"
+		warnL.Text = "Can't be killed — run!"
 		warnL.TextColor3 = rgb(255, 120, 110)
 		warnL.TextStrokeTransparency = 0.3
 		warnL.Parent = gui

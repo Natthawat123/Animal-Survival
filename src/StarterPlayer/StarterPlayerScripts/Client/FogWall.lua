@@ -170,7 +170,7 @@ function FogWall.Init(state)
 		local near = math.clamp((d - (cur - 70)) / 50, 0, 1)
 		if near > 0 then
 			local lv = state:GetAttribute("CampLevel") or 1
-			hint.Text = string.format("หมอกหนาเกินกว่าจะผ่านได้ — อัปเกรดกองไฟ (Lv.%d → %d) เพื่อสำรวจต่อ", lv, lv + 1)
+			hint.Text = string.format("The fog is too thick to pass — upgrade the campfire (Lv.%d → %d) to explore further", lv, lv + 1)
 		end
 		hint.TextTransparency = 1 - near
 		hint.TextStrokeTransparency = 1 - near * 0.6

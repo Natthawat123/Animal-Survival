@@ -32,13 +32,13 @@ function MapUI.Init(state, hud, atmosphere)
 	UIKit.AutoScale(panel)
 	UIKit.Corner(panel, 14)
 	UIKit.Stroke(panel, C.Outline, 3, 0)
-	UIKit.Text(panel, { Size = UDim2.new(1, 0, 0, 40), Position = UDim2.fromOffset(0, 6), TextXAlignment = Enum.TextXAlignment.Center, Font = UIKit.Fonts.Title, TextSize = 30, TextColor3 = C.Gold, Text = "แผนที่ดินแดนทั้งสี่" })
+	UIKit.Text(panel, { Size = UDim2.new(1, 0, 0, 40), Position = UDim2.fromOffset(0, 6), TextXAlignment = Enum.TextXAlignment.Center, Font = UIKit.Fonts.Title, TextSize = 30, TextColor3 = C.Gold, Text = "Map of the Four Lands" })
 	local mapFrame = UIKit.Frame(panel, { Size = UDim2.fromOffset(560, 560), Position = UDim2.fromOffset(30, 50), BackgroundColor3 = Color3.fromRGB(28, 70, 96), BackgroundTransparency = 0 })
 	UIKit.Corner(mapFrame, 8)
 	mapFrame.ClipsDescendants = true
 	local legend = UIKit.Text(panel, {
 		Size = UDim2.new(1, -20, 0, 40), Position = UDim2.new(0, 10, 1, -46), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 13, TextWrapped = true,
-		TextColor3 = C.TextDim, Text = "🔥 แคมป์   ⛩ ศาลเจ้าลูกสัตว์ธาตุ   💀 รังบอส   🏛 วิหารโบราณ   ☄📦 เหตุการณ์   ▲ คุณ   ● เพื่อน   (สถานที่จะปรากฏเมื่อค้นพบ · หมอกเปิดเมื่ออัปเกรดกองไฟ/เดินสำรวจ)",
+		TextColor3 = C.TextDim, Text = "🔥 Camp   ⛩ Spirit Pup Shrine   💀 Boss Lair   🏛 Ancient Sanctum   ☄📦 Events   ▲ You   ● Teammates   (places appear when discovered)",
 	})
 	local legendText = legend.Text
 	local function layoutMap()
@@ -226,7 +226,7 @@ function MapUI.Init(state, hud, atmosphere)
 	end
 
 	local SITE_NAMES = {
-		Shrine = "ศาลเจ้าผนึก", Lair = "รังอสูร",
+		Shrine = "Sealed Shrine", Lair = "Beast Lair",
 	}
 	task.spawn(function()
 		while true do
@@ -250,7 +250,7 @@ function MapUI.Init(state, hud, atmosphere)
 						local p = state:GetAttribute(key)
 						if p and not discovered[key] and ((p - pos) * Vector3.new(1, 0, 1)).Magnitude < 280 then
 							discovered[key] = true
-							hud.Notify(string.format("🗺 ค้นพบ: %s%s", SITE_NAMES[kind], UIKit.ElementThai[el]), "Reward")
+							hud.Notify(string.format("🗺 Discovered: %s%s", SITE_NAMES[kind], UIKit.ElementThai[el]), "Reward")
 						end
 					end
 				end

@@ -86,7 +86,7 @@ function HUD.Init(state)
 	HUD.StaminaBar = row(114, "⚡", C.Stamina, 14)
 	-- ปุ่ม "กิน" ท้ายแถบหิว: มีอาหารในกระสอบ = แตะกินชิ้นที่ดีที่สุดได้เลย (ไม่ต้องเปิดกระสอบ · มือถือก็กดได้)
 	HUD.EatBtn = UIKit.ColorButton(card, Color3.fromRGB(196, 92, 40), {
-		Size = UDim2.fromOffset(58, 26), Position = UDim2.fromOffset(222, 83), Text = "🍖 กิน", TextSize = 14, Visible = false, ZIndex = 6,
+		Size = UDim2.fromOffset(58, 26), Position = UDim2.fromOffset(222, 83), Text = "🍖 Eat", TextSize = 14, Visible = false, ZIndex = 6,
 	}, function()
 		if HUD.EatId then
 			Remotes.Get("UseItem"):FireServer(HUD.EatId)
@@ -158,7 +158,7 @@ function HUD.Init(state)
 	HUD.FireIcon = UIKit.IconBadge(right, "🔥", C.Fire, 40, { Position = UDim2.fromOffset(21, 19) })
 	HUD.FireIconScale = Instance.new("UIScale")
 	HUD.FireIconScale.Parent = HUD.FireIcon
-	HUD.FireLabel = UIKit.Text(right, { Size = UDim2.new(1, -90, 0, 20), Position = UDim2.fromOffset(82, 6), Text = "กองไฟ Lv.1", Font = UIKit.Fonts.Black, TextColor3 = C.Text, TextSize = 15 })
+	HUD.FireLabel = UIKit.Text(right, { Size = UDim2.new(1, -90, 0, 20), Position = UDim2.fromOffset(82, 6), Text = "Campfire Lv.1", Font = UIKit.Fonts.Black, TextColor3 = C.Text, TextSize = 15 })
 	HUD.FuelText = UIKit.Text(right, { Size = UDim2.new(1, -90, 0, 26), Position = UDim2.fromOffset(82, 26), Text = "", Font = UIKit.Fonts.Title, TextColor3 = C.Good, TextSize = 22 })
 	HUD.SafeLabel = UIKit.Text(right, { Size = UDim2.new(1, -90, 0, 22), Position = UDim2.fromOffset(82, 52), Text = "", TextSize = 15, TextColor3 = C.TextDim })
 	HUD.FuelLowArmed = true
@@ -213,7 +213,7 @@ function HUD.Init(state)
 	local ss = UIKit.Stroke(stock, C.Gold, 1, 0.2)
 	ss.Thickness = 1.2
 	ss.Transparency = 0.45
-	UIKit.Text(stock, { Size = UDim2.fromOffset(60, 44), Position = UDim2.fromOffset(12, 0), Text = "คลังแคมป์", TextSize = 13, Font = UIKit.Fonts.Black, TextColor3 = C.Gold })
+	UIKit.Text(stock, { Size = UDim2.fromOffset(60, 44), Position = UDim2.fromOffset(12, 0), Text = "Camp Storage", TextSize = 13, Font = UIKit.Fonts.Black, TextColor3 = C.Gold })
 	HUD.StockLabels = {}
 	for i, id in ipairs({ "Wood", "Stone", "Iron" }) do
 		local x = 78 + (i - 1) * 62
@@ -246,7 +246,7 @@ function HUD.Init(state)
 	end
 	HUD.Hint = UIKit.Text(gui, {
 		Size = UDim2.new(0.7, 0, 0, 20), AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -16), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 15, -- กว้างตามจอ: ตัวหนังสือย่อเองไม่ล้น TextColor3 = C.Text,
-		Text = "[คลิก] ตี/ตัด   [Shift] วิ่ง   [Ctrl] ล็อกกล้อง   [C] คราฟต์   [B] สร้าง   [E] เก็บของ (ถือกระสอบ)   [F] เอาของออก   [M] แผนที่   [1-9] เลือกของ",
+		Text = "[Click] Hit/Chop   [Shift] Sprint   [Ctrl] Lock camera   [C] Craft   [B] Build   [E] Pick up (hold sack)   [F] Take out   [M] Map   [1-9] Select item",
 		TextStrokeTransparency = 0.7,
 	})
 
@@ -303,6 +303,25 @@ function HUD.Init(state)
 		Font = UIKit.Fonts.Title, TextSize = 32, Text = "", TextColor3 = Color3.fromRGB(255, 200, 190), ZIndex = 21,
 	})
 	UIKit.AutoScale(HUD.DownedText)
+	-- คืนชีพ: มีตั๋ว = ใช้ตั๋ว · ไม่มี = ซื้อด้วย Robux (Config.ReviveProductId)
+	HUD.ReviveBtn = UIKit.Button(HUD.DownedFrame, {
+		Size = UDim2.fromOffset(300, 56), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0.62, 100), Text = "",
+		TextSize = 24, BackgroundColor3 = Color3.fromRGB(46, 160, 80), TextColor3 = Color3.new(1, 1, 1), ZIndex = 22, Visible = false,
+	}, function()
+		if (player:GetAttribute("ReviveTokens") or 0) > 0 then
+			Remotes.Get("UseReviveToken"):FireServer()
+		elseif (Config.ReviveProductId or 0) > 0 then
+			game:GetService("MarketplaceService"):PromptProductPurchase(player, Config.ReviveProductId)
+		end
+	end)
+	UIKit.AutoScale(HUD.ReviveBtn)
+	HUD.RevivePrice = nil
+	if (Config.ReviveProductId or 0) > 0 then
+		task.spawn(function()
+			local ok, info = pcall(game:GetService("MarketplaceService").GetProductInfo, game:GetService("MarketplaceService"), Config.ReviveProductId, Enum.InfoType.Product)
+			HUD.RevivePrice = ok and info and info.PriceInRobux or nil
+		end)
+	end
 
 	-- อัปเดต HUD 30 ครั้ง/วินาที พอ (ไม่ต้องทุกเฟรม ลดภาระเครื่องอ่อน/มือถือ)
 	local hudAcc = 0
@@ -348,7 +367,7 @@ function HUD.Update()
 		HUD.HealthBar.Badge.BackgroundColor3 = C.Health:Lerp(Color3.new(0, 0, 0), 0.55 - pulse * 0.4)
 	end
 	local hunger = player:GetAttribute("Hunger") or 100
-	HUD.HungerBar.Set(hunger / Config.HungerMax, hunger < 25 and "หิวมาก!" or string.format("%d%%", math.floor(hunger / Config.HungerMax * 100 + 0.5)))
+	HUD.HungerBar.Set(hunger / Config.HungerMax, hunger < 25 and "Starving!" or string.format("%d%%", math.floor(hunger / Config.HungerMax * 100 + 0.5)))
 	HUD.StaminaBar.Set((HUD.Stamina or 100) / 100)
 	local cls = player:GetAttribute("Class")
 	local lv = player:GetAttribute("ClassLevel")
@@ -385,51 +404,51 @@ function HUD.Update()
 		HUD.NightLabel.TextColor3 = C.Gold
 		local cd = s:GetAttribute("PortalCountdown") or -1
 		if not s:GetAttribute("Ready") then
-			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("กำลังสร้างโลก %d%%", math.floor((s:GetAttribute("LoadProgress") or 0) * 100)))
+			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("Generating world %d%%", math.floor((s:GetAttribute("LoadProgress") or 0) * 100)))
 		elseif cd >= 0 then
-			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("ทีม %d คน · ออกใน %d วิ", s:GetAttribute("PortalCount") or 0, cd))
+			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("Team of %d · Departing in %ds", s:GetAttribute("PortalCount") or 0, cd))
 		elseif phase == "Lobby" then
-			HUD.PhaseLabel.Text = UIKit.StripIcons("ขึ้นแท่นเริ่มเกมทางขวามือ")
+			HUD.PhaseLabel.Text = UIKit.StripIcons("Step on a start pad on your right")
 		else
-			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("ทีมอยู่คืนที่ %d · ขึ้นแท่นเพื่อร่วมทีม", s:GetAttribute("Night") or 1))
+			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("Team is on night %d · Step on a pad to join", s:GetAttribute("Night") or 1))
 		end
-		HUD.Hint.Text = HUD.Touch and "เต็นท์ = คลาส · หม้อเขียว = รางวัลรายวัน"
-			or "[K] ร้านคลาส   ·   หม้อเขียว = รางวัลรายวัน   ·   ขึ้นแท่นเพื่อเริ่มเกม"
+		HUD.Hint.Text = HUD.Touch and "Tent = Classes · Green cauldron = Daily reward"
+			or "[K] Class Shop   ·   Green cauldron = Daily reward   ·   Step on a pad to start"
 		HUD.TimeFill.Size = UDim2.fromScale(0, 1)
 	elseif phase == "Day" then
-		HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("กลางวัน · ค่ำใน %s", fmtTime(remain)))
+		HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("Day · Dusk in %s", fmtTime(remain)))
 		HUD.TimeIcon.Text = "☀"
 		HUD.TimeFill.BackgroundColor3 = C.Gold
 	elseif phase == "Dusk" then
-		HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("พลบค่ำ · สัตว์มาใน %s", fmtTime(remain)))
+		HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("Dusk · Animals coming in %s", fmtTime(remain)))
 		HUD.TimeIcon.Text = "🌅"
 		HUD.TimeFill.BackgroundColor3 = C.Fire
 	elseif phase == "Night" then
 		local el = s:GetAttribute("NightElement") or "Earth"
 		local bossHold = (s:GetAttribute("BossHoldEnd") or 0) - now
 		if bossHold > 0 then
-			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("ฆ่าบอส · หนีใน %s", fmtTime(bossHold)))
+			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("Boss still alive · Dawn in %s", fmtTime(bossHold)))
 		else
-			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("คืนแห่ง%s · เช้าใน %s", UIKit.ElementThai[el] or "", fmtTime(remain)))
+			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("Night of %s · Dawn in %s", UIKit.ElementThai[el] or "", fmtTime(remain)))
 		end
 		HUD.TimeIcon.Text = s:GetAttribute("BloodMoon") and "🔴" or "🌙"
 		HUD.TimeFill.BackgroundColor3 = UIKit.Colors.Element[el] or C.Gold
 	elseif phase == "Loading" then
-		HUD.PhaseLabel.Text = UIKit.StripIcons("กำลังสร้างโลก...")
+		HUD.PhaseLabel.Text = UIKit.StripIcons("Generating world...")
 	else
 		HUD.PhaseLabel.Text = UIKit.StripIcons("")
 	end
 	if not inLobby then
 		HUD.TimeFill.Size = UDim2.fromScale(frac, 1)
-		HUD.Hint.Text = HUD.Touch and "แตะจอ = ตี · กระเป๋าอยู่มุมซ้ายบน"
-			or "[คลิก] ตี   [Shift] วิ่ง   [C] คราฟต์   [E] เก็บ   [Tab] กระสอบ   [M] แผนที่"
+		HUD.Hint.Text = HUD.Touch and "Tap screen = hit · Bag is in the top-left corner"
+			or "[Click] Hit   [Shift] Sprint   [C] Craft   [E] Pick up   [Tab] Sack   [M] Map"
 	end
 	HUD.TimeIcon.Position = UDim2.new(frac, -10, 0.5, -10)
 
 	-- กองไฟ
 	local lvl = s:GetAttribute("CampLevel") or 1
 	local fuel, maxFuel = s:GetAttribute("CampFuel") or 0, s:GetAttribute("CampMaxFuel") or 1
-	HUD.FireLabel.Text = string.format("กองไฟ Lv.%d  ·  โต๊ะ Lv.%d", lvl, s:GetAttribute("BenchLevel") or 1)
+	HUD.FireLabel.Text = string.format("Campfire Lv.%d  ·  Bench Lv.%d", lvl, s:GetAttribute("BenchLevel") or 1)
 	HUD.UpdateFuel(fuel, maxFuel, inLobby, phase)
 	for id, l in pairs(HUD.StockLabels or {}) do
 		local n = s:GetAttribute("Stock" .. id) or 0
@@ -441,13 +460,13 @@ function HUD.Update()
 	if campPos and char then
 		local d = ((char:GetPivot().Position - campPos) * Vector3.new(1, 0, 1)).Magnitude
 		if fuel <= 0 then
-			HUD.SafeLabel.Text = UIKit.StripIcons("ไฟดับ! ไม่ปลอดภัย")
+			HUD.SafeLabel.Text = UIKit.StripIcons("Fire is out! Not safe")
 			HUD.SafeLabel.TextColor3 = C.Bad
 		elseif d < safe then
-			HUD.SafeLabel.Text = "อยู่ในแสงไฟ"
+			HUD.SafeLabel.Text = "In the firelight"
 			HUD.SafeLabel.TextColor3 = C.Good
 		else
-			HUD.SafeLabel.Text = UIKit.StripIcons(string.format("ห่างกองไฟ %d m", math.floor(d * 0.28)))
+			HUD.SafeLabel.Text = UIKit.StripIcons(string.format("%d m from the campfire", math.floor(d * 0.28)))
 			HUD.SafeLabel.TextColor3 = C.TextDim
 		end
 	end
@@ -483,7 +502,17 @@ function HUD.Update()
 	local downed = player:GetAttribute("Downed")
 	HUD.DownedFrame.Visible = downed == true
 	if downed then
-		HUD.DownedText.Text = UIKit.StripIcons("ล้มแล้ว — รอเพื่อนมาช่วย")
+		local text = "Down — wait for a teammate to help"
+		local wipeAt = s:GetAttribute("WipeAt")
+		if wipeAt then
+			text = string.format("Whole team is down — game over in %ds", math.max(0, math.ceil(wipeAt - Workspace:GetServerTimeNow())))
+		end
+		HUD.DownedText.Text = text
+		local tokens = player:GetAttribute("ReviveTokens") or 0
+		local canBuy = (Config.ReviveProductId or 0) > 0
+		HUD.ReviveBtn.Visible = tokens > 0 or canBuy
+		HUD.ReviveBtn.Text = tokens > 0 and string.format("Use Revive Ticket (%d)", tokens)
+			or ("Revive Now  " .. utf8.char(0xE002) .. " " .. tostring(HUD.RevivePrice or 79))
 	end
 
 	-- เข็มทิศ
@@ -562,14 +591,14 @@ function HUD.UpdateFuel(fuel, maxFuel, inLobby, phase)
 	if fuel > 0 and drain > 0 then
 		est = "  ⏱ ~" .. fmtTime(fuel / drain)
 	end
-	HUD.FuelText.Text = fuel <= 0 and "ไฟดับ!" or (string.format("%d%%", math.floor(frac * 100 + 0.5)) .. est)
+	HUD.FuelText.Text = fuel <= 0 and "Fire's out!" or (string.format("%d%%", math.floor(frac * 100 + 0.5)) .. est)
 	HUD.FuelText.TextColor3 = fuel <= 0 and C.Bad or col
 	-- เตือนครั้งเดียวต่อการลดลงต่ำกว่า 20% (เติมกลับถึง 25% ค่อยเตือนใหม่ได้)
 	local active = not inLobby and (phase == "Day" or phase == "Dusk" or phase == "Night")
 	if low and active and HUD.FuelLowArmed then
 		HUD.FuelLowArmed = false
 		SoundController.Play("FireLow")
-		HUD.Notify(string.format("🔥 ไฟใกล้มอด! เหลือราว %s — โยนไม้/ถ่านเข้ากองไฟด่วน", drain > 0 and fmtTime(fuel / drain) or "ไม่กี่นาที"), "Warn")
+		HUD.Notify(string.format("🔥 The fire is dying! About %s left — throw wood/coal in, quick", drain > 0 and fmtTime(fuel / drain) or "a few minutes"), "Warn")
 	elseif frac >= 0.25 or not active then
 		HUD.FuelLowArmed = true
 	end
@@ -647,11 +676,11 @@ function HUD.UpdateTeam(inLobby, now)
 		local dead, downed = p:GetAttribute("Dead") == true, p:GetAttribute("Downed") == true
 		if dead then
 			r.Icon.Text = "💀"
-			r.Status.Text = "ตายแล้ว"
+			r.Status.Text = "Dead"
 			r.Status.TextColor3 = C.TextDim
 		elseif downed then
 			r.Icon.Text = "🩸"
-			r.Status.Text = "ล้ม! รอช่วย"
+			r.Status.Text = "Down! Waiting for help"
 			r.Status.TextColor3 = (math.floor(os.clock() * 3) % 2 == 0) and C.Bad or Color3.fromRGB(255, 220, 200)
 		else
 			r.Icon.Text = "❤"
@@ -721,7 +750,7 @@ function HUD.SetSack(used, cap)
 	if not HUD.SackLabel then
 		return
 	end
-	HUD.SackLabel.Text = cap > 0 and string.format("🎒 %d/%d", used, cap) or "🎒 ไม่มีกระสอบ"
+	HUD.SackLabel.Text = cap > 0 and string.format("🎒 %d/%d", used, cap) or "🎒 No sack"
 	HUD.SackLabel.TextColor3 = (cap > 0 and used >= cap) and Color3.fromRGB(255, 110, 100) or Color3.fromRGB(240, 226, 190)
 end
 
@@ -745,7 +774,7 @@ function HUD.SetInventory(inv)
 	HUD.EatId = bestFood(inv)
 	if HUD.EatBtn then
 		HUD.EatBtn.Visible = HUD.EatId ~= nil
-		HUD.EatBtn.Text = HUD.EatId and "🍖 กิน" or ""
+		HUD.EatBtn.Text = HUD.EatId and "🍖 Eat" or ""
 		HUD.HungerBar.Holder.Size = UDim2.fromOffset(HUD.EatId and 160 or 222, 18)
 	end
 	for id, slot in pairs(HUD.Slots) do

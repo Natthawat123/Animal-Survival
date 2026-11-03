@@ -41,43 +41,43 @@ local profile = nil
 
 -- Art = ไอคอนภาพวาดบนแท็บ (Shared/PanelArt) · โหลดไม่ได้ใช้อีโมจิใน Thai แทน
 local CATS = {
-	{ Id = "Tool", Thai = "⚔ อาวุธ/เครื่องมือ", Label = "อาวุธ/เครื่องมือ", Art = "TabTool" },
-	{ Id = "Structure", Thai = "🏗 สิ่งก่อสร้าง", Label = "สิ่งก่อสร้าง", Art = "TabStructure" },
-	{ Id = "Medical", Thai = "🩹 ยา", Label = "ยา", Art = "TabMedical" },
-	{ Id = "Armor", Thai = "🛡 เกราะ", Label = "เกราะ" },
+	{ Id = "Tool", Thai = "⚔ Weapons/Tools", Label = "Weapons/Tools", Art = "TabTool" },
+	{ Id = "Structure", Thai = "🏗 Buildings", Label = "Buildings", Art = "TabStructure" },
+	{ Id = "Medical", Thai = "🩹 Medicine", Label = "Medicine", Art = "TabMedical" },
+	{ Id = "Armor", Thai = "🛡 Armor", Label = "Armor" },
 }
 
 local function itemDesc(id)
 	local t = Items.Tools[id]
 	if t then
-		local s = string.format("ดาเมจ %d · ระยะ %d", t.Damage, t.Range)
+		local s = string.format("Damage %d · Range %d", t.Damage, t.Range)
 		if t.Chop and t.Chop > 0 then
-			s ..= " · ตัดไม้ " .. t.Chop
+			s ..= " · Chop " .. t.Chop
 		end
 		if t.Mine and t.Mine > 0 then
-			s ..= " · ขุด " .. t.Mine
+			s ..= " · Mine " .. t.Mine
 		end
 		if t.Element then
-			s ..= " · ธาตุ" .. (UIKit.ElementThai[t.Element] or t.Element)
+			s ..= " · Element " .. (UIKit.ElementThai[t.Element] or t.Element)
 		end
 		if t.Light then
-			s ..= " · ส่องแสงไล่กวางกลวง"
+			s ..= " · Light scares off the Hollow Stag"
 		end
 		return s
 	end
 	local st = Items.Structures[id]
 	if st then
 		local extra = {
-			LogWall = "ขวางฝูงสัตว์", StoneWall = "กำแพงถึกมาก", SpikeTrap = "แทงสัตว์ที่เหยียบ", Lantern = "แสงไล่กวางกลวง",
-			Ballista = "ยิงสัตว์อัตโนมัติ", Bed = "วางแล้วข้ามไป 1 วัน (+1 วัน)", FarmPlot = "ปลูกเบอร์รี่", CookPot = "ทำสตูว์",
-			TerraTotem = "ซ่อมกำแพงรอบๆ", TideTotem = "สัตว์ในรัศมีช้าลง", GaleTotem = "ผลักสัตว์กระเด็น", EmberTotem = "เผาสัตว์รอบๆ",
-			SunBeacon = "แสงสว่างมหาศาล",
+			LogWall = "Blocks animal packs", StoneWall = "Very tough wall", SpikeTrap = "Stabs animals that step on it", Lantern = "Light scares off the Hollow Stag",
+			Ballista = "Shoots animals automatically", Bed = "Place to skip 1 day (+1 day)", FarmPlot = "Grows berries", CookPot = "Makes stew",
+			TerraTotem = "Repairs nearby walls", TideTotem = "Slows animals in range", GaleTotem = "Knocks animals back", EmberTotem = "Burns nearby animals",
+			SunBeacon = "Massive light",
 		}
 		return string.format("HP %d · %s", st.Health, extra[id] or "")
 	end
 	local it = Items.Data[id]
 	if it and it.Heal then
-		return "ฟื้นเลือด " .. it.Heal .. (it.Revive and " · ใช้ช่วยเพื่อนที่ล้ม" or "")
+		return "Heal " .. it.Heal .. (it.Revive and " · Can revive downed teammates" or "")
 	end
 	return ""
 end
@@ -162,7 +162,7 @@ end
 
 function craft.Build(gui)
 	-- หน้าต่างธีมไม้ (WoodKit): ป้ายชื่อ + หมาป่า/อินทรี + ธง + โคม
-	local win = WoodKit.Window(gui, { Name = "CraftWindow", Size = Vector2.new(1000, 640), Title = "🔨 โต๊ะคราฟต์ Lv.1", TitleWidth = 380, OnClose = function()
+	local win = WoodKit.Window(gui, { Name = "CraftWindow", Size = Vector2.new(1000, 640), Title = "🔨 Crafting Bench Lv.1", TitleWidth = 380, OnClose = function()
 		Menus.CloseCraft()
 	end })
 	local panel = win.Frame
@@ -218,7 +218,7 @@ function craft.Build(gui)
 	search.BorderSizePixel = 0
 	search.ClearTextOnFocus = false
 	search.Text = ""
-	search.PlaceholderText = "🔍 ค้นหา (ไทย/English)"
+	search.PlaceholderText = "🔍 Search"
 	search.PlaceholderColor3 = Color3.fromRGB(170, 150, 126)
 	search.TextColor3 = Color3.fromRGB(255, 244, 224)
 	search.Font = UIKit.Fonts.Bold
@@ -262,10 +262,10 @@ function craft.UpdateStatus()
 		return
 	end
 	if inCampNow() then
-		craft.Status.Text = "📦 อยู่ในแคมป์: ใช้ของในกระสอบก่อน แล้วค่อยหยิบจากคลังแคมป์"
+		craft.Status.Text = "📦 In camp: uses items in your sack first, then takes from camp storage"
 		craft.Status.TextColor3 = GOOD_C
 	else
-		craft.Status.Text = "⚠ อยู่นอกแคมป์: กลับไปที่แคมป์ก่อนถึงจะคราฟต์ได้ (ตัวเลขนับรวมคลังแคมป์แล้ว)"
+		craft.Status.Text = "⚠ Outside camp: go back to camp to craft (counts include camp storage)"
 		craft.Status.TextColor3 = Color3.fromRGB(255, 196, 110)
 	end
 end
@@ -338,7 +338,7 @@ function craft.Refresh()
 	end
 	local state = Menus.State
 	local bench = state:GetAttribute("BenchLevel") or 1
-	craft.Title.Text = string.format("🔨 โต๊ะคราฟต์ Lv.%d", bench)
+	craft.Title.Text = string.format("🔨 Crafting Bench Lv.%d", bench)
 	craft.UpdateStatus()
 	local query = craft.Search and craft.Search.Text or ""
 	query = string.match(query, "^%s*(.-)%s*$") or ""
@@ -356,8 +356,8 @@ function craft.Refresh()
 	local upgrades = {}
 	if not searching then
 		upgrades = {
-			{ Id = "UpgradeFire", Glyph = "🔥", Art = "Campfire", Title = "🔥 อัปเกรดกองไฟ", Lv = fireLv, Next = Recipes.Campfire[fireLv + 1], Desc = "ไฟใหญ่ขึ้น เขตปลอดภัยกว้างขึ้น หมอกถอยออกไป สำรวจได้ไกลขึ้น" },
-			{ Id = "UpgradeBench", Glyph = "🔨", Art = "Bench", Title = "⚒ อัปเกรดโต๊ะคราฟต์", Lv = bench, Next = Recipes.BenchUpgrade[bench + 1] and { Cost = Recipes.BenchUpgrade[bench + 1] }, Desc = "ปลดล็อกของที่คราฟต์ได้มากขึ้น" },
+			{ Id = "UpgradeFire", Glyph = "🔥", Art = "Campfire", Title = "🔥 Upgrade Campfire", Lv = fireLv, Next = Recipes.Campfire[fireLv + 1], Desc = "Bigger fire, wider safe zone, less fog" },
+			{ Id = "UpgradeBench", Glyph = "🔨", Art = "Bench", Title = "⚒ Upgrade Crafting Bench", Lv = bench, Next = Recipes.BenchUpgrade[bench + 1] and { Cost = Recipes.BenchUpgrade[bench + 1] }, Desc = "Unlocks more craftable items" },
 		}
 	end
 	for i, up in ipairs(upgrades) do
@@ -377,7 +377,7 @@ function craft.Refresh()
 		if up.Next then
 			can = costChips(card, up.Next.Cost, nil, UDim2.fromOffset(122, 66), UDim2.new(1, -134, 0, 66)) and can
 		end
-		WoodKit.Button(card, can and "Night" or "Off", { Size = UDim2.fromOffset(150, 44), Position = UDim2.new(1, -162, 1, -54), Text = up.Next and "⚒ อัปเกรด" or "สูงสุด", TextSize = 18, ZIndex = 4 }, function()
+		WoodKit.Button(card, can and "Night" or "Off", { Size = UDim2.fromOffset(150, 44), Position = UDim2.new(1, -162, 1, -54), Text = up.Next and "⚒ Upgrade" or "Max", TextSize = 18, ZIndex = 4 }, function()
 			if up.Next then
 				Remotes.Get("Craft"):FireServer(up.Id)
 			end
@@ -408,7 +408,7 @@ function craft.Refresh()
 			ItemTooltip.Attach(card, r.Id)
 			-- รูปของที่จะคราฟต์ (โมเดลจริง)
 			picBox(card, r.Id, nil, 100, UDim2.fromOffset(12, 14))
-			WoodKit.Ink(card, { Size = UDim2.new(1, -192, 0, 26), Position = UDim2.fromOffset(122, 10), Text = item.Thai .. (lim and string.format("  (%d/%d%s)", limN, lim.Max, lim.Scope == "Server" and " ทั้งเซิร์ฟ" or "") or "") .. (can and "  ✔" or ""), TextSize = 21, TextColor3 = locked and WoodKit.Colors.InkDim or (can and WoodKit.Colors.Good or WoodKit.Colors.Ink) })
+			WoodKit.Ink(card, { Size = UDim2.new(1, -192, 0, 26), Position = UDim2.fromOffset(122, 10), Text = item.Thai .. (lim and string.format("  (%d/%d%s)", limN, lim.Max, lim.Scope == "Server" and " whole server" or "") or "") .. (can and "  ✔" or ""), TextSize = 21, TextColor3 = locked and WoodKit.Colors.InkDim or (can and WoodKit.Colors.Good or WoodKit.Colors.Ink) })
 			WoodKit.Ink(card, { Size = UDim2.new(1, -192, 0, 18), Position = UDim2.fromOffset(122, 36), Text = item.Name, TextSize = 14, Font = UIKit.Fonts.Bold, TextColor3 = WoodKit.Colors.InkDim })
 			WoodKit.Ink(card, { Size = UDim2.new(1, -134, 0, 18), Position = UDim2.fromOffset(122, 56), Text = itemDesc(r.Id), TextSize = 14, Font = UIKit.Fonts.Bold, TextColor3 = Color3.fromRGB(96, 66, 40), TextTruncate = Enum.TextTruncate.AtEnd })
 			-- 📌 ปักหมุดสูตร (แถบติดตามบนจอ)
@@ -434,22 +434,22 @@ function craft.Refresh()
 				end)
 			end
 			if locked then
-				craftButton(1, "🔒 ต้องโต๊ะ Lv." .. r.Bench, 160, false, 1)
+				craftButton(1, "🔒 Needs bench Lv." .. r.Bench, 160, false, 1)
 			elseif isTool then
-				local done = item.Category == "Armor" and (player:GetAttribute("Armor") == r.Id and "🛡 สวมอยู่" or "✔ มีที่ดีกว่า") or "✔ มีแล้ว"
-				craftButton(1, owned and done or (item.Category == "Armor" and "🛡 คราฟต์+สวม" or "⚒ คราฟต์"), 150, can, 1)
+				local done = item.Category == "Armor" and (player:GetAttribute("Armor") == r.Id and "🛡 Wearing" or "✔ Have a better one") or "✔ Owned"
+				craftButton(1, owned and done or (item.Category == "Armor" and "🛡 Craft + Equip" or "⚒ Craft"), 150, can, 1)
 			elseif full then
-				craftButton(1, string.format("✔ ครบ %d/%d", limN, lim.Max), 160, false, 1)
+				craftButton(1, string.format("✔ Done %d/%d", limN, lim.Max), 160, false, 1)
 			else
-				craftButton(1, "⚒ คราฟต์ x1", 120, can, 1)
+				craftButton(1, "⚒ Craft x1", 120, can, 1)
 				craftButton(2, "x5", 56, maxN >= 5, 5)
-				craftButton(3, maxN > 1 and ("สูงสุด x" .. maxN) or "สูงสุด", 110, maxN > 1, CRAFT_CAP)
+				craftButton(3, maxN > 1 and ("Max x" .. maxN) or "Max", 110, maxN > 1, CRAFT_CAP)
 			end
 		end
 	end
 	if searching and shown == 0 then
 		local f = UIKit.Frame(craft.Scroll, { BackgroundTransparency = 1, LayoutOrder = 1 })
-		UIKit.Text(f, { Size = UDim2.fromScale(1, 1), Text = "ไม่พบสูตรที่ค้นหา", TextSize = 18, TextColor3 = Color3.fromRGB(226, 206, 176), TextXAlignment = Enum.TextXAlignment.Center })
+		UIKit.Text(f, { Size = UDim2.fromScale(1, 1), Text = "No recipes match your search", TextSize = 18, TextColor3 = Color3.fromRGB(226, 206, 176), TextXAlignment = Enum.TextXAlignment.Center })
 	end
 end
 
@@ -475,7 +475,7 @@ function bag.Build(gui)
 	UIKit.Corner(panel, 14)
 	UIKit.Stroke(panel, C.Outline, 3, 0)
 	UIKit.Gradient(panel, Color3.fromRGB(52, 58, 100), Color3.fromRGB(26, 28, 50), 90)
-	UIKit.Text(panel, { Size = UDim2.new(1, -40, 0, 40), Position = UDim2.fromOffset(20, 8), Font = UIKit.Fonts.Title, TextSize = 28, TextColor3 = C.Gold, Text = "🎒 กระสอบ" })
+	UIKit.Text(panel, { Size = UDim2.new(1, -40, 0, 40), Position = UDim2.fromOffset(20, 8), Font = UIKit.Fonts.Title, TextSize = 28, TextColor3 = C.Gold, Text = "🎒 Sack" })
 	bag.Title = panel:FindFirstChildWhichIsA("TextLabel")
 	UIKit.CloseButton(panel, function()
 		panel.Visible = false
@@ -510,7 +510,7 @@ function bag.Refresh()
 		end
 	end
 	if bag.Title then
-		bag.Title.Text = string.format("🎒 กระสอบ  %d/%d", sackUsed, sackCap)
+		bag.Title.Text = string.format("🎒 Sack  %d/%d", sackUsed, sackCap)
 	end
 	local ids = {}
 	for id, n in pairs(sack) do
@@ -534,16 +534,16 @@ function bag.Refresh()
 		UIKit.Text(card, { Size = UDim2.new(1, -12, 0, 20), Position = UDim2.fromOffset(8, 6), Text = item.Thai, TextSize = 14, TextTruncate = Enum.TextTruncate.AtEnd })
 		UIKit.Text(card, { Size = UDim2.new(0, 60, 0, 18), Position = UDim2.fromOffset(8, 36), Text = "x" .. sack[id], TextSize = 14, TextColor3 = C.Gold })
 		if Items.Bulk(id) then
-			UIKit.Button(card, { Size = UDim2.fromOffset(36, 22), Position = UDim2.new(1, -42, 0, 4), Text = "ทิ้ง", TextSize = 11 }, function()
+			UIKit.Button(card, { Size = UDim2.fromOffset(36, 22), Position = UDim2.new(1, -42, 0, 4), Text = "Drop", TextSize = 11 }, function()
 				Remotes.Get("DropItem"):FireServer(id, 1)
 			end)
 		end
 		if item.Category == "Food" or item.Category == "Medical" then
-			UIKit.Button(card, { Size = UDim2.fromOffset(64, 26), Position = UDim2.new(1, -70, 1, -32), Text = item.Category == "Food" and "กิน" or "ใช้", TextSize = 13 }, function()
+			UIKit.Button(card, { Size = UDim2.fromOffset(64, 26), Position = UDim2.new(1, -70, 1, -32), Text = item.Category == "Food" and "Eat" or "Use", TextSize = 13 }, function()
 				Remotes.Get("UseItem"):FireServer(id)
 			end)
 		elseif item.Category == "Structure" then
-			UIKit.Button(card, { Size = UDim2.fromOffset(64, 26), Position = UDim2.new(1, -70, 1, -32), Text = "วาง", TextSize = 13 }, function()
+			UIKit.Button(card, { Size = UDim2.fromOffset(64, 26), Position = UDim2.new(1, -70, 1, -32), Text = "Place", TextSize = 13 }, function()
 				bag.Panel.Visible = false
 				Menus.StartBuild(id)
 			end)
@@ -564,7 +564,7 @@ function bag.Refresh()
 		UIKit.Corner(card, 8)
 		UIKit.Stroke(card, Color3.fromRGB(120, 200, 140), 1, 0.6)
 		UIKit.Text(card, { Size = UDim2.new(1, -12, 0, 20), Position = UDim2.fromOffset(8, 6), Text = "📦 " .. item.Thai, TextSize = 14, TextTruncate = Enum.TextTruncate.AtEnd })
-		UIKit.Text(card, { Size = UDim2.new(1, -12, 0, 18), Position = UDim2.fromOffset(8, 36), Text = "คลังแคมป์ x" .. campStock[id], TextSize = 13, TextColor3 = Color3.fromRGB(150, 230, 170) })
+		UIKit.Text(card, { Size = UDim2.new(1, -12, 0, 18), Position = UDim2.fromOffset(8, 36), Text = "Camp storage x" .. campStock[id], TextSize = 13, TextColor3 = Color3.fromRGB(150, 230, 170) })
 	end
 end
 
@@ -682,8 +682,8 @@ function Menus.StartBuild(kind)
 	end
 	fp.Parent = Workspace.CurrentCamera
 	build.Footprint = fp
-	Menus.BuildHint.Text = Menus.TouchMode and string.format("🏗 วาง %s (เหลือ %d) — เล็งกลางจอแล้วกด ✔", Items.DisplayName(kind), inventory[kind] or 0)
-		or string.format("🏗 วาง %s (เหลือ %d)  ·  คลิก = วาง  ·  R = หมุน  ·  B/Esc = ยกเลิก", Items.DisplayName(kind), inventory[kind] or 0)
+	Menus.BuildHint.Text = Menus.TouchMode and string.format("🏗 Place %s (%d left) — aim at the center of the screen and tap ✔", Items.DisplayName(kind), inventory[kind] or 0)
+		or string.format("🏗 Place %s (%d left)  ·  Click = place  ·  R = rotate  ·  B/Esc = cancel", Items.DisplayName(kind), inventory[kind] or 0)
 	Menus.BuildHint.Visible = true
 end
 
@@ -730,7 +730,7 @@ function Menus.ToggleBuildPicker()
 		Menus.StartBuild("LogWall")
 		return
 	end
-	Menus.Hud.Notify("ยังไม่มีสิ่งก่อสร้างในกระเป๋า — ไปคราฟต์ที่โต๊ะคราฟต์ก่อน", "Error")
+	Menus.Hud.Notify("No buildings in your bag yet — craft one at the crafting bench first", "Error")
 end
 
 -- เลื่อนชนิดถัดไป
@@ -802,14 +802,14 @@ local trader = {}
 function trader.Build(gui)
 	-- หน้าต่างธีมไม้เดียวกับโต๊ะคราฟต์
 	local panel
-	local win = WoodKit.Window(gui, { Name = "TraderWindow", Size = Vector2.new(960, 600), Title = "🐾 พ่อค้าเร่", TitleWidth = 320, OnClose = function()
+	local win = WoodKit.Window(gui, { Name = "TraderWindow", Size = Vector2.new(960, 600), Title = "🐾 Wandering Trader", TitleWidth = 320, OnClose = function()
 		panel.Visible = false
 	end })
 	panel = win.Frame
 	panel.Position = UDim2.fromScale(0.5, 0.52)
 	UIKit.AutoScale(panel)
 	local quote = WoodKit.Parchment(win.Body, { Size = UDim2.new(1, -64, 0, 44), Position = UDim2.fromOffset(32, 44) })
-	WoodKit.Ink(quote, { Size = UDim2.new(1, -20, 1, 0), Position = UDim2.fromOffset(10, 0), TextSize = 17, Font = UIKit.Fonts.Bold, TextColor3 = WoodKit.Colors.InkDim, TextXAlignment = Enum.TextXAlignment.Center, Text = "\"หนังสัตว์ดีๆ แลกของจำเป็นได้นะสหาย... รีบหน่อย ข้าจะไปก่อนพระอาทิตย์ตก\"" })
+	WoodKit.Ink(quote, { Size = UDim2.new(1, -20, 1, 0), Position = UDim2.fromOffset(10, 0), TextSize = 17, Font = UIKit.Fonts.Bold, TextColor3 = WoodKit.Colors.InkDim, TextXAlignment = Enum.TextXAlignment.Center, Text = "\"Good pelts get you what you need, friend... be quick, I'm leaving before sundown\"" })
 	local scroll = Instance.new("ScrollingFrame")
 	scroll.Size = UDim2.new(1, -56, 1, -128)
 	scroll.Position = UDim2.fromOffset(28, 104)
@@ -866,12 +866,12 @@ function trader.Refresh()
 		-- รูปของที่ได้ (ชิ้นแรก) + ชื่อ
 		local giveId = next(o.Give)
 		picBox(f, giveId, "🎁", 100, UDim2.fromOffset(12, 16))
-		WoodKit.Ink(f, { Size = UDim2.new(1, -134, 0, 26), Position = UDim2.fromOffset(122, 12), Text = "ได้: " .. listText(o.Give), TextSize = 19, TextTruncate = Enum.TextTruncate.AtEnd })
-		WoodKit.Ink(f, { Size = UDim2.new(1, -134, 0, 16), Position = UDim2.fromOffset(122, 40), Text = "จ่าย:", TextSize = 14, Font = UIKit.Fonts.Bold, TextColor3 = WoodKit.Colors.InkDim })
+		WoodKit.Ink(f, { Size = UDim2.new(1, -134, 0, 26), Position = UDim2.fromOffset(122, 12), Text = "Get: " .. listText(o.Give), TextSize = 19, TextTruncate = Enum.TextTruncate.AtEnd })
+		WoodKit.Ink(f, { Size = UDim2.new(1, -134, 0, 16), Position = UDim2.fromOffset(122, 40), Text = "Pay:", TextSize = 14, Font = UIKit.Fonts.Bold, TextColor3 = WoodKit.Colors.InkDim })
 		-- ป้ายของที่ต้องจ่าย (รูป + มี/ต้องใช้ จากกระสอบ)
 		costChips(f, o.Cost, nil, UDim2.fromOffset(122, 58), UDim2.new(1, -262, 0, 66))
-		WoodKit.Ink(f, { Size = UDim2.fromOffset(116, 18), Position = UDim2.new(1, -128, 1, -82), Text = left > 0 and string.format("แลกได้อีก %d/%d", left, Limits.TradesPerVisit) or "ครบแล้ว", TextSize = 14, Font = UIKit.Fonts.Bold, TextXAlignment = Enum.TextXAlignment.Center, TextColor3 = left > 0 and WoodKit.Colors.InkDim or Color3.fromRGB(170, 50, 40) })
-		WoodKit.Button(f, okAll and "Red" or "Off", { Size = UDim2.fromOffset(116, 48), Position = UDim2.new(1, -128, 1, -60), Text = "🤝 แลก", TextSize = 20, ZIndex = 4 }, function()
+		WoodKit.Ink(f, { Size = UDim2.fromOffset(116, 18), Position = UDim2.new(1, -128, 1, -82), Text = left > 0 and string.format("%d/%d trades left", left, Limits.TradesPerVisit) or "Sold out", TextSize = 14, Font = UIKit.Fonts.Bold, TextXAlignment = Enum.TextXAlignment.Center, TextColor3 = left > 0 and WoodKit.Colors.InkDim or Color3.fromRGB(170, 50, 40) })
+		WoodKit.Button(f, okAll and "Red" or "Off", { Size = UDim2.fromOffset(116, 48), Position = UDim2.new(1, -128, 1, -60), Text = "🤝 Trade", TextSize = 20, ZIndex = 4 }, function()
 			Remotes.Get("Trade"):FireServer(o.Id)
 		end)
 	end
@@ -895,8 +895,8 @@ function Menus.SetInventory(inv, bagOnly, camp, used, cap)
 	if build.Active and (inventory[build.Kind] or 0) <= 0 then
 		Menus.StopBuild()
 	elseif build.Active then
-		Menus.BuildHint.Text = Menus.TouchMode and string.format("🏗 วาง %s (เหลือ %d) — เล็งกลางจอแล้วกด ✔", Items.DisplayName(build.Kind), inventory[build.Kind] or 0)
-			or string.format("🏗 วาง %s (เหลือ %d)  ·  คลิก = วาง  ·  R = หมุน  ·  Q = เปลี่ยนชนิด  ·  B = ยกเลิก", Items.DisplayName(build.Kind), inventory[build.Kind] or 0)
+		Menus.BuildHint.Text = Menus.TouchMode and string.format("🏗 Place %s (%d left) — aim at the center of the screen and tap ✔", Items.DisplayName(build.Kind), inventory[build.Kind] or 0)
+			or string.format("🏗 Place %s (%d left)  ·  Click = place  ·  R = rotate  ·  Q = change type  ·  B = cancel", Items.DisplayName(build.Kind), inventory[build.Kind] or 0)
 	end
 end
 
@@ -964,7 +964,7 @@ function Menus.Init(state, hud)
 		TextSize = 16, TextColor3 = C.Gold, Visible = false, BackgroundTransparency = 0.4, BackgroundColor3 = C.Panel,
 	})
 	-- ปุ่มหมุนสิ่งก่อสร้าง (คอม: นอกจากปุ่ม R) — มือถือมีปุ่มหมุนในแถบโหมดสร้างอยู่แล้ว
-	local rot = UIKit.Button(Menus.BuildHint, { Size = UDim2.fromOffset(120, 36), AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 0, -6), Text = "⟳ หมุน (R)", TextSize = 16, BackgroundColor3 = Color3.fromRGB(72, 120, 200) }, function()
+	local rot = UIKit.Button(Menus.BuildHint, { Size = UDim2.fromOffset(120, 36), AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 0, -6), Text = "⟳ Rotate (R)", TextSize = 16, BackgroundColor3 = Color3.fromRGB(72, 120, 200) }, function()
 		Menus.RotateBuild()
 	end)
 	rot.Visible = not UIKit.IsTouch

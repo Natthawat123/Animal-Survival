@@ -134,7 +134,7 @@ function AnimalService:Spawn(id, position, opts)
 		-- ปรับความยากทั้งเกม (Config): มอนทั่วไป/บอส ตีเบาลง — ทุกท่า/สกิลบอสคูณ DamageMult ตัวนี้
 		DamageMult = (opts.DamageMult or 1) * partyScale.Damage * (model:GetAttribute("IsBoss") and Config.BossDamageScale or Config.MonsterDamageScale),
 		NextAttack = 0, NextThink = 0, NextAbility = os.clock() + 6, LastPos = position, StuckSince = nil,
-		Leash = opts.Leash, Night = opts.Night or 0,
+		Leash = opts.Leash or (kind == "Wild" and Config.WildLeash or nil), Night = opts.Night or 0,
 	}
 	if info.Aquatic then
 		-- ลอยที่ผิวน้ำ (ครีบหลังโผล่) : ดันเฉพาะแกนตั้ง ไม่ให้ Humanoid ดำดิ่งลงก้นทะเล
@@ -360,7 +360,7 @@ function AnimalService:Kill(a, attacker)
 		for _, p in ipairs(Players:GetPlayers()) do
 			local c = p.Character
 			if c and (c:GetPivot().Position - pos).Magnitude < 260 then
-				self.ctx.Services.DataService:AddDiamonds(p, Classes.BossReward, "ปราบ " .. a.Info.Thai)
+				self.ctx.Services.DataService:AddDiamonds(p, Classes.BossReward, "Defeated " .. a.Info.Thai)
 				local pd = self.ctx.Services.DataService:Get(p)
 				if pd then
 					pd.BossKills = (pd.BossKills or 0) + 1
@@ -414,7 +414,7 @@ function AnimalService:PickTarget(a)
 	local info = a.Info
 	local surv = self.ctx.Services.SurvivalService
 	local night = self.ctx.State:GetAttribute("Phase") == "Night"
-	local aggro = (info.Aggro or 60) * (night and 1.3 or 1)
+	local aggro = (info.Aggro or 60) * ((night and a.Kind ~= "Wild") and 1.3 or 1) -- สัตว์ป่าไม่ตาไวขึ้นตอนกลางคืน
 	if a.Kind == "Boss" or a.Kind == "Guardian" then
 		aggro = math.max(aggro, 120)
 	end
@@ -431,6 +431,8 @@ function AnimalService:PickTarget(a)
 					ok = false
 				elseif surv:Perk(p, "WildPeace", false) and a.Provoked ~= p then
 					ok = false
+				elseif a.Ignore and a.Ignore[p] and os.clock() < a.Ignore[p] then
+					ok = false -- เพิ่งเลิกไล่คนนี้
 				end
 			end
 			if ok and a.Leash and (r.Position - a.Home).Magnitude > a.Leash + 40 then
@@ -835,6 +837,18 @@ function AnimalService:ThinkHostile(a, now)
 	end
 	local target, dist = self:PickTarget(a)
 	local campMode = (a.Kind == "Raid") or (a.Kind == "Boss" and not a.Leash)
+	-- สัตว์ป่า: ไล่ไม่ถึงตัวนานเกิน WildChaseTime = เลิกไล่คนนั้นสักพัก แล้วกลับถิ่น (ไม่ตามยาวจนถึงแคมป์)
+	if target and a.Kind == "Wild" then
+		local close = dist and dist <= (info.AttackRange or 6) + a.Radius + 3
+		if a.ChaseTarget ~= target or close then
+			a.ChaseTarget, a.ChaseSince = target, now
+		elseif now - a.ChaseSince > Config.WildChaseTime then
+			a.Ignore = a.Ignore or {}
+			a.Ignore[target] = os.clock() + Config.WildGiveUpTime
+			a.ChaseTarget = nil
+			target, dist = nil, nil
+		end
+	end
 
 	if a.Flying then
 		return self:ThinkFlyer(a, now, target, dist)

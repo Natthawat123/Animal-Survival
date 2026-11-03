@@ -6,6 +6,7 @@
 
 local BadgeService = game:GetService("BadgeService")
 local DataStoreService = game:GetService("DataStoreService")
+local MessagingService = game:GetService("MessagingService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -26,7 +27,7 @@ local function default()
 		-- ภารกิจ / ล็อกอิน 7 วัน / Season Pass / โค้ด / ความสำเร็จ (QuestService, SeasonService)
 		Quests = {}, LoginStreak = 0, BestStreak = 0, AchClaimed = {}, CodesUsed = {}, WeekBest = {},
 		Season = {}, Titles = {}, NameColors = {}, EquipTitle = "", EquipColor = "",
-		Revives = 0, FuelAdded = 0, Crafts = 0, Gathered = 0, SpiritsSaved = 0, QuestsDone = 0,
+		Revives = 0, ReviveTokens = 0, FuelAdded = 0, Crafts = 0, Gathered = 0, SpiritsSaved = 0, QuestsDone = 0,
 	}
 end
 
@@ -56,7 +57,7 @@ function DataService:Load(player)
 		if ok and type(res) == "table" then
 			data = res
 		elseif not ok then
-			warn("[AS] โหลดเซฟไม่ได้ (ยังไม่เปิด API Services?)", res)
+			warn("[AS] Couldn't load save (API Services not enabled?)", res)
 		end
 	end
 	data = data or default()
@@ -72,11 +73,20 @@ function DataService:Load(player)
 	self:EnsureStock(data)
 	player:SetAttribute("Diamonds", data.Diamonds)
 	player:SetAttribute("BestNight", data.BestNight or 0)
+	player:SetAttribute("ReviveTokens", data.ReviveTokens or 0)
 	data.Joined = 1
 	if self.ctx.Services.QuestService then
 		self.ctx.Services.QuestService:OnLoad(player, data)
 	end
 	task.spawn(function()
+		-- มีรอบที่เซฟไว้ (Save Run) -> บอกแท่นเริ่มเกมว่าเล่นต่อได้จากคืนไหน
+		local run = self:LoadRun(player.UserId)
+		if run and player.Parent then
+			player:SetAttribute("SavedNight", run.Night)
+		end
+	end)
+	task.spawn(function()
+		self:ClaimGifts(player)
 		self:CheckBadges(player)
 		-- ใส่ชื่อลงกระดานอันดับ (เผื่อเคยเล่นก่อนมีระบบนี้)
 		if (data.BestNight or 0) > 0 then
@@ -127,7 +137,7 @@ function DataService:AddClassStat(player, stat, n)
 		end
 		if ok then
 			self:SetClassLevel(player, cls, level + 1)
-			self.ctx.Notify(player, string.format("⭐ คลาส %s ขึ้นเลเวล %d! ปลดทักษะใหม่", Classes.Data[cls].Thai, level + 1), "Reward")
+			self.ctx.Notify(player, string.format("⭐ Class %s reached level %d! New skill unlocked", Classes.Data[cls].Thai, level + 1), "Reward")
 		end
 	end
 end
@@ -145,11 +155,11 @@ function DataService:ClaimDaily(player)
 	local today = Classes.Day()
 	if data.LastDaily == today then
 		local s = Classes.SecondsToRestock()
-		self.ctx.Notify(player, string.format("รับรางวัลวันนี้แล้ว — มาใหม่ใน %d ชม. %d นาที", s // 3600, (s % 3600) // 60), "Info")
+		self.ctx.Notify(player, string.format("Already claimed today's reward — come back in %dh %dm", s // 3600, (s % 3600) // 60), "Info")
 		return
 	end
 	data.LastDaily = today
-	self:AddDiamonds(player, Classes.DailyReward, "รางวัลประจำวัน")
+	self:AddDiamonds(player, Classes.DailyReward, "Daily Reward")
 	self:Save(player)
 end
 
@@ -223,7 +233,7 @@ function DataService:CheckBadges(player)
 				local awarded = pcall(BadgeService.AwardBadge, BadgeService, player.UserId, b.BadgeId)
 				if awarded then
 					data.BadgesAwarded[b.Id] = true
-					self.ctx.Notify(player, "🏅 ได้รับป้าย: " .. b.Name, "Reward")
+					self.ctx.Notify(player, "🏅 Badge earned: " .. b.Name, "Reward")
 				end
 			end
 		end
@@ -239,6 +249,85 @@ function DataService:Save(player)
 		store:SetAsync(key(player), data)
 	end)
 	return ok
+end
+
+---------------------------------------------------------------- เซฟรอบ (Game Pass Save Run)
+-- เก็บแยกคีย์ "runsave_<UserId>" (ตารางเดียวกับ RejoinService:SerializeRun) · ช่องเดียว เซฟใหม่ทับของเก่า
+local function runKey(userId)
+	return "runsave_" .. userId
+end
+
+function DataService:SaveRun(player, run)
+	if not storeOk then
+		return false
+	end
+	local ok, err = pcall(function()
+		store:SetAsync(runKey(player.UserId), run)
+	end)
+	if not ok then
+		warn("[AS] save run:", err)
+	elseif player.Parent then
+		player:SetAttribute("SavedNight", run.Night)
+	end
+	return ok
+end
+
+function DataService:LoadRun(userId)
+	if not storeOk then
+		return nil
+	end
+	local ok, v = pcall(function()
+		return store:GetAsync(runKey(userId))
+	end)
+	return ok and type(v) == "table" and type(v.Seed) == "number" and v or nil
+end
+
+---------------------------------------------------------------- ของขวัญ Ruby (dev ส่งให้ tester)
+-- เก็บแยกคีย์ "gift_<UserId>" (ไม่แตะเซฟหลักของคนรับ -> ไม่โดนเซฟของเซิร์ฟอื่นเขียนทับ)
+-- คนรับอยู่เซิร์ฟไหนก็ได้/ออฟไลน์: รับตอนเข้าเกม · ออนไลน์อยู่ = MessagingService แจ้งให้เซิร์ฟนั้นรับทันที
+local GIFT_TOPIC = "ASGift"
+local function giftKey(userId)
+	return "gift_" .. userId
+end
+
+function DataService:QueueGift(userId, n, from)
+	if not storeOk then
+		return false, "DataStore unavailable (enable API Services first)"
+	end
+	local ok, err = pcall(function()
+		store:UpdateAsync(giftKey(userId), function(old)
+			old = type(old) == "table" and old or {}
+			old.Diamonds = (old.Diamonds or 0) + n
+			old.From = from
+			return old
+		end)
+	end)
+	if ok then
+		pcall(MessagingService.PublishAsync, MessagingService, GIFT_TOPIC, userId)
+	end
+	return ok, err
+end
+
+-- รับของขวัญที่ค้างอยู่ (เข้าเกม / มีข้อความแจ้งจากเซิร์ฟอื่น) แล้วเซฟทันที
+function DataService:ClaimGifts(player)
+	if not (storeOk and profiles[player] and player.UserId > 0) then
+		return
+	end
+	local got, from = 0, nil
+	local ok = pcall(function()
+		store:UpdateAsync(giftKey(player.UserId), function(old)
+			got, from = 0, nil
+			if type(old) ~= "table" or (old.Diamonds or 0) <= 0 then
+				return nil
+			end
+			got, from = old.Diamonds, old.From
+			return { Diamonds = 0 }
+		end)
+	end)
+	if ok and got > 0 and player.Parent then
+		self:AddDiamonds(player, got, "Gift from " .. tostring(from or "the team"), { Flat = true })
+		self:Save(player)
+	end
 end
 
 -- opts.Purchased = Ruby ที่ซื้อด้วย Robux (ไม่คูณ VIP) · opts.Flat = จำนวนตายตัว เช่นโค้ด (ไม่คูณ VIP/โบนัสเพื่อน)
@@ -258,7 +347,7 @@ function DataService:AddDiamonds(player, n, reason, opts)
 		local extra = friends:Extra(player, n)
 		if extra > 0 then
 			n += extra
-			reason = (reason or "") .. " · เพื่อน +10%"
+			reason = (reason or "") .. " · Friends +10%"
 		end
 	end
 	data.Diamonds += n
@@ -269,6 +358,16 @@ end
 
 function DataService:Start(ctx)
 	local Remotes = ctx.Remotes
+	-- ของขวัญจากเซิร์ฟอื่น: ถ้าคนรับอยู่เซิร์ฟนี้ -> รับเลย
+	--   SubscribeAsync รอเน็ตได้นาน (Studio ค้างหลายนาที) -> ทำเบื้องหลัง ไม่ให้บล็อกการเริ่มระบบอื่น
+	task.spawn(pcall, function()
+		MessagingService:SubscribeAsync(GIFT_TOPIC, function(msg)
+			local p = Players:GetPlayerByUserId(tonumber(msg.Data) or 0)
+			if p then
+				self:ClaimGifts(p)
+			end
+		end)
+	end)
 	Remotes.Get("GetProfile").OnServerInvoke = function(player)
 		return profiles[player]
 	end
@@ -280,17 +379,17 @@ function DataService:Start(ctx)
 		end
 		self:EnsureStock(data)
 		if not Classes.Stock(data.StockDay, data.StockRoll, player.UserId)[classId] then
-			ctx.Notify(player, "คลาสนี้ไม่มีสต๊อควันนี้ — รอรีสต็อกหรือกดรีโรล", "Error")
+			ctx.Notify(player, "This class isn't in stock today — wait for restock or reroll", "Error")
 			return
 		end
 		if data.Diamonds < c.Price then
-			ctx.Notify(player, "♦️ Ruby ไม่พอ", "Error")
+			ctx.Notify(player, "♦️ Not enough Ruby", "Error")
 			return
 		end
 		data.Diamonds -= c.Price
 		data.Owned[classId] = true
 		player:SetAttribute("Diamonds", data.Diamonds)
-		ctx.Notify(player, "ปลดล็อกคลาส " .. c.Thai .. " แล้ว!", "Reward")
+		ctx.Notify(player, "Unlocked class " .. c.Thai .. "!", "Reward")
 		Remotes.Get("Profile"):FireClient(player, data)
 		self:Save(player)
 	end)
@@ -315,13 +414,13 @@ function DataService:Start(ctx)
 			return
 		end
 		if data.Diamonds < Classes.RerollPrice then
-			ctx.Notify(player, "♦️ Ruby ไม่พอรีโรลสต็อค", "Error")
+			ctx.Notify(player, "♦️ Not enough Ruby to reroll the stock", "Error")
 			return
 		end
 		self:EnsureStock(data)
 		data.Diamonds -= Classes.RerollPrice
 		data.StockRoll += 1
-		ctx.Notify(player, "🎲 สุ่มสต็อคร้านคลาสใหม่แล้ว", "Info")
+		ctx.Notify(player, "🎲 Class shop stock rerolled", "Info")
 		self:Push(player)
 	end)
 	Remotes.Get("SkipClassLevel").OnServerEvent:Connect(function(player, classId)
@@ -336,11 +435,11 @@ function DataService:Start(ctx)
 		end
 		local price = Classes.SkipPrice(classId, level + 1)
 		if data.Diamonds < price then
-			ctx.Notify(player, "♦️ Ruby ไม่พอข้ามเลเวล", "Error")
+			ctx.Notify(player, "♦️ Not enough Ruby to skip a level", "Error")
 			return
 		end
 		data.Diamonds -= price
-		ctx.Notify(player, string.format("⭐ %s เลเวล %d!", c.Thai, level + 1), "Reward")
+		ctx.Notify(player, string.format("⭐ %s level %d!", c.Thai, level + 1), "Reward")
 		self:SetClassLevel(player, classId, level + 1)
 		self:Save(player)
 	end)

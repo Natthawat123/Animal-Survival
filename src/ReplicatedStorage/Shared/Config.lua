@@ -50,6 +50,13 @@ Config.BossDamageScale = 0.75 -- ดาเมจบอส (ตีธรรมด
 Config.MaxWildAnimals = 70 -- สัตว์ป่ากลางวันทั้งแมพ
 Config.WildSpawnRadius = { Min = 140, Max = 420 } -- เกิดรอบตัวผู้เล่น
 Config.WildDespawnRadius = 900
+-- กล่องทั่วแมพ: จำนวนทั้งหมด + จำนวนแต่ละระดับ (ธรรมดา / หายาก / ตำนาน) · วิหาร = ระดับ 3 เสมอ
+Config.CrateCount = 40
+Config.CrateTierWeight = { 24, 12, 4 }
+-- สัตว์ป่ากลางวันมีถิ่นของตัวเอง (ไม่ใช่ฝูงบุกกลางคืน): ไม่ไล่ตามข้ามแมพจนถึงแคมป์
+Config.WildLeash = 70 -- รัศมีถิ่นจากจุดเกิด (stud) · ผู้เล่นออกนอกถิ่น +40 = เลิกไล่ แล้วเดินกลับถิ่น
+Config.WildChaseTime = 14 -- ไล่ไม่ถึงตัวนานเกินนี้ (วินาที) = เลิกไล่
+Config.WildGiveUpTime = 10 -- เลิกไล่แล้ว ไม่สนใจคนนั้นอีกกี่วินาที
 Config.RaidSpawnRadius = { Min = 220, Max = 320 } -- ฝูงบุกเกิดรอบกองไฟ
 Config.MaxRaidAnimals = 55
 Config.AnimalThinkRate = 0.25 -- วินาทีต่อรอบคิดของ AI
@@ -68,31 +75,33 @@ Config.LeaderboardSize = 10
 --   Game Pass       : Creator Hub → เกม → การสร้างรายได้ → บัตรผ่าน
 --   Badge           : Creator Hub → เกม → การมีส่วนร่วม → ป้าย
 Config.DiamondPacks = {
-	{ Id = "Pack1", ProductId = 0, Diamonds = 60, Bonus = 0, Robux = 25, Icon = "♦️", Name = "ถุง Ruby เล็ก" },
-	{ Id = "Pack2", ProductId = 0, Diamonds = 150, Bonus = 15, Robux = 59, Icon = "♦️", Name = "ถุง Ruby" },
-	{ Id = "Pack3", ProductId = 0, Diamonds = 320, Bonus = 50, Robux = 119, Icon = "💰", Name = "หีบ Ruby", Tag = "ยอดนิยม" },
-	{ Id = "Pack4", ProductId = 0, Diamonds = 700, Bonus = 150, Robux = 239, Icon = "👑", Name = "กอง Ruby มหึมา" },
-	{ Id = "Pack5", ProductId = 0, Diamonds = 1500, Bonus = 400, Robux = 479, Icon = "🏆", Name = "ขุมทรัพย์ราชา", Tag = "คุ้มสุด" },
+	{ Id = "Pack1", ProductId = 3726330739, Diamonds = 60, Bonus = 0, Robux = 25, Icon = "♦️", Name = "Small Ruby Pouch" },
+	{ Id = "Pack2", ProductId = 3726331233, Diamonds = 150, Bonus = 15, Robux = 59, Icon = "♦️", Name = "Ruby Pouch" },
+	{ Id = "Pack3", ProductId = 3726331718, Diamonds = 320, Bonus = 50, Robux = 119, Icon = "💰", Name = "Ruby Chest", Tag = "Popular" },
+	{ Id = "Pack4", ProductId = 3726332457, Diamonds = 700, Bonus = 150, Robux = 239, Icon = "👑", Name = "Huge Ruby Pile" },
+	{ Id = "Pack5", ProductId = 3726332759, Diamonds = 1500, Bonus = 400, Robux = 479, Icon = "🏆", Name = "King's Treasure", Tag = "Best Value" },
 }
+-- Game Pass (ซื้อครั้งเดียว) · PassId 0 = ยังไม่ได้สร้างใน Creator Hub
 Config.GamePasses = {
-	{ Id = "VIP", PassId = 0, Robux = 199, Icon = "👑", Name = "VIP", Desc = "Ruby ที่ได้จากการเล่น x2 · ป้าย VIP บนหัว · ชื่อสีทองในกระดานอันดับ" },
-	{ Id = "GiantSack", PassId = 0, Robux = 149, Icon = "🎒", Name = "กระสอบยักษ์", Desc = "เริ่มทุกรอบด้วยกระสอบยักษ์ (ใส่ของได้มากสุด) แทนกระสอบเก่า" },
-	{ Id = "Medic", PassId = 0, Robux = 99, Icon = "🩹", Name = "หน่วยแพทย์", Desc = "เริ่มทุกรอบด้วยผ้าพันแผล 3 + ชุดปฐมพยาบาล 1 (ช่วยเพื่อนที่ล้มได้ทันที)" },
-	{ Id = "Torch", PassId = 0, Robux = 79, Icon = "🔥", Name = "คบเพลิงนิรันดร์", Desc = "เริ่มทุกรอบพร้อมคบเพลิง (ไล่กวางกลวง) + ถ่านหิน 5" },
-	{ Id = "SeasonPass", PassId = 0, Robux = 299, Icon = "🎟", Name = "Season Pass", Desc = "ปลดล็อกสายพรีเมียมของ Season Pass ทุกซีซั่น · Ruby มากขึ้น + ฉายา/สีฉายาพิเศษ" },
+	{ Id = "SeasonPass", PassId = 2063569631, Robux = 499, Icon = "🎟", Name = "Season Pass", Desc = "Unlocks the Season Pass premium track every season · More Ruby + special titles/title colors" },
+	{ Id = "SaveRun", PassId = 2064000575, Robux = 799, Icon = "💾", Name = "Save Run", Desc = "Your run is saved every dawn and when you leave · Continue from the saved night at the start pad" },
 }
+-- คืนชีพทันที (Developer Product ซื้อซ้ำได้) · 0 = ยังไม่ได้สร้าง -> ไม่มีปุ่มซื้อ
+Config.ReviveProductId = 3726412294
+-- ล้มหมดทั้งทีม: รอให้กดคืนชีพก่อนแพ้กี่วินาที (มีสินค้าคืนชีพ/ตั๋วคืนชีพ) · ไม่มี = 2 วินาทีเหมือนเดิม
+Config.WipeGrace = 15
 -- ป้าย Roblox: Stat = ค่าในเซฟที่ใช้เช็ก, Need = ต้องถึงเท่าไร
 Config.Badges = {
-	{ Id = "Welcome", BadgeId = 0, Name = "ยินดีต้อนรับสู่ป่า", Stat = "Joined", Need = 1 },
-	{ Id = "Night5", BadgeId = 0, Name = "รอดถึงคืนที่ 5", Stat = "BestNight", Need = 5 },
-	{ Id = "Night10", BadgeId = 0, Name = "รอดถึงคืนที่ 10", Stat = "BestNight", Need = 10 },
-	{ Id = "Night25", BadgeId = 0, Name = "รอดถึงคืนที่ 25", Stat = "BestNight", Need = 25 },
-	{ Id = "Night50", BadgeId = 0, Name = "รอดถึงคืนที่ 50", Stat = "BestNight", Need = 50 },
-	{ Id = "Night99", BadgeId = 0, Name = "พิชิต 99 คืน", Stat = "BestNight", Need = 99 },
-	{ Id = "Night150", BadgeId = 0, Name = "ตำนานแห่งป่า (150 คืน)", Stat = "BestNight", Need = 150 },
-	{ Id = "Boss1", BadgeId = 0, Name = "ผู้ปราบอสูร", Stat = "BossKills", Need = 1 },
-	{ Id = "Spirits4", BadgeId = 0, Name = "ผู้พิทักษ์สี่ธาตุ", Stat = "TrueEndings", Need = 1 },
-	{ Id = "Kills250", BadgeId = 0, Name = "นายพรานผู้ยิ่งใหญ่ (250 ตัว)", Stat = "Kills", Need = 250 },
+	{ Id = "Welcome", BadgeId = 0, Name = "Welcome to the Wilds", Stat = "Joined", Need = 1 },
+	{ Id = "Night5", BadgeId = 0, Name = "Survive to Night 5", Stat = "BestNight", Need = 5 },
+	{ Id = "Night10", BadgeId = 0, Name = "Survive to Night 10", Stat = "BestNight", Need = 10 },
+	{ Id = "Night25", BadgeId = 0, Name = "Survive to Night 25", Stat = "BestNight", Need = 25 },
+	{ Id = "Night50", BadgeId = 0, Name = "Survive to Night 50", Stat = "BestNight", Need = 50 },
+	{ Id = "Night99", BadgeId = 0, Name = "Conquer 99 Nights", Stat = "BestNight", Need = 99 },
+	{ Id = "Night150", BadgeId = 0, Name = "Legend of the Wilds (150 Nights)", Stat = "BestNight", Need = 150 },
+	{ Id = "Boss1", BadgeId = 0, Name = "Beast Slayer", Stat = "BossKills", Need = 1 },
+	{ Id = "Spirits4", BadgeId = 0, Name = "Guardian of Four Elements", Stat = "TrueEndings", Need = 1 },
+	{ Id = "Kills250", BadgeId = 0, Name = "Master Hunter (250 kills)", Stat = "Kills", Need = 250 },
 }
 
 ---------------------------------------------------------------- การทดสอบ

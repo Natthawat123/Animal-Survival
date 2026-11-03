@@ -21,76 +21,76 @@ Classes.MaxLevel = 3
 -- Skills[1..3] = ทักษะเลเวล 1/2/3: { Name, Text, Perks } — Perks ของเลเวลหลังทับค่าเดียวกันของเลเวลก่อน
 Classes.Data = {
 	Survivor = {
-		Name = "Survivor", Thai = "ผู้รอดชีวิต", Role = "รอบด้าน", Stars = 1, Price = 0, Icon = "🔥",
+		Name = "Survivor", Thai = "Survivor", Role = "All-Rounder", Stars = 1, Price = 0, Icon = "🔥",
 		StartItems = { OldAxe = 1, Torch = 1 },
 		Skills = {
-			{ Name = "ใจไม่ยอมแพ้", Text = "เลือดสูงสุด +15 · หิวช้าลง 10%", Perks = { MaxHealthBonus = 15, HungerMult = 0.9 } },
-			{ Name = "นักเดินทาง", Text = "วิ่งเร็วขึ้น 5% · สตามิน่า +15%", Perks = { SpeedMult = 1.05, StaminaMult = 1.15 } },
-			{ Name = "สัญชาตญาณรอด", Text = "เลือดสูงสุด +25 · ฟื้นเลือด 0.3 ต่อวินาที", Perks = { MaxHealthBonus = 25, Regen = 0.3 } },
+			{ Name = "Never Give Up", Text = "Max HP +15 · Hunger 10% slower", Perks = { MaxHealthBonus = 15, HungerMult = 0.9 } },
+			{ Name = "Traveler", Text = "Run 5% faster · Stamina +15%", Perks = { SpeedMult = 1.05, StaminaMult = 1.15 } },
+			{ Name = "Survival Instinct", Text = "Max HP +25 · Regen 0.3 HP/sec", Perks = { MaxHealthBonus = 25, Regen = 0.3 } },
 		},
 	},
 	Forager = {
-		Name = "Forager", Thai = "นักหาของป่า", Role = "เสบียง", Stars = 2, Price = 100, Icon = "🍓",
+		Name = "Forager", Thai = "Forager", Role = "Supplies", Stars = 2, Price = 100, Icon = "🍓",
 		StartItems = { OldAxe = 1, Berries = 6 },
 		Skills = {
-			{ Name = "ตะกร้าใหญ่", Text = "ล่าสัตว์ได้ เนื้อ/หนัง/กระดูก/เส้นใย เพิ่ม +1 ชิ้น", Perks = { ExtraDrops = 1 } },
-			{ Name = "รู้จักของกิน", Text = "หิวช้าลง 25% · อาหาร/ยาฟื้นเลือดแรงขึ้น 20%", Perks = { HungerMult = 0.75, HealMult = 1.2 } },
-			{ Name = "เก็บเกี่ยวเต็มมือ", Text = "ล่าสัตว์ได้ เนื้อ/หนัง/กระดูก/เส้นใย เพิ่มเป็น +2 ชิ้น", Perks = { ExtraDrops = 2 } },
+			{ Name = "Big Basket", Text = "Hunting drops +1 extra meat/pelt/bone/fiber", Perks = { ExtraDrops = 1 } },
+			{ Name = "Food Expert", Text = "Hunger 25% slower · Food and healing 20% stronger", Perks = { HungerMult = 0.75, HealMult = 1.2 } },
+			{ Name = "Full Harvest", Text = "Hunting drops +2 extra meat/pelt/bone/fiber", Perks = { ExtraDrops = 2 } },
 		},
 	},
 	Lumberjack = {
-		Name = "Lumberjack", Thai = "คนตัดไม้", Role = "เก็บทรัพยากร", Stars = 2, Price = 150, Icon = "🪓",
+		Name = "Lumberjack", Thai = "Lumberjack", Role = "Gathering", Stars = 2, Price = 150, Icon = "🪓",
 		StartItems = { StoneAxe = 1 },
 		Skills = {
-			{ Name = "แขนท่อนซุง", Text = "ตัดไม้แรง x1.6", Perks = { ChopMult = 1.6 } },
-			{ Name = "ขวานคู่ใจ", Text = "ทุบหินและแร่แรง x1.4 · สตามิน่า +20%", Perks = { MineMult = 1.4, StaminaMult = 1.2 } },
-			{ Name = "ล้มป่าในพริบตา", Text = "ตัดไม้แรง x2.2 · ทุบหิน/แร่แรง x1.6", Perks = { ChopMult = 2.2, MineMult = 1.6 } },
+			{ Name = "Log Arms", Text = "Chop wood x1.6", Perks = { ChopMult = 1.6 } },
+			{ Name = "Trusty Axe", Text = "Mine rock and ore x1.4 · Stamina +20%", Perks = { MineMult = 1.4, StaminaMult = 1.2 } },
+			{ Name = "Forest Feller", Text = "Chop wood x2.2 · Mine rock/ore x1.6", Perks = { ChopMult = 2.2, MineMult = 1.6 } },
 		},
 	},
 	Medic = {
-		Name = "Medic", Thai = "หมอสนาม", Role = "สนับสนุน", Stars = 2, Price = 200, Icon = "🩹",
+		Name = "Medic", Thai = "Field Medic", Role = "Support", Stars = 2, Price = 200, Icon = "🩹",
 		StartItems = { OldAxe = 1, Bandage = 3 },
 		Skills = {
-			{ Name = "มือหมอ", Text = "ผ้าพันแผล ยา และการชุบชีวิตเพื่อน ฮีลแรง x1.5", Perks = { HealMult = 1.5 } },
-			{ Name = "ร่างกายฟื้นตัว", Text = "ฟื้นเลือด 0.5 ต่อวินาทีตลอดเวลา", Perks = { Regen = 0.5 } },
-			{ Name = "แพทย์สนามรบ", Text = "ฮีลแรง x2 · เลือดสูงสุด +15", Perks = { HealMult = 2, MaxHealthBonus = 15 } },
+			{ Name = "Healer's Hands", Text = "Bandages, medicine and reviving teammates heal x1.5", Perks = { HealMult = 1.5 } },
+			{ Name = "Recovery", Text = "Regen 0.5 HP/sec at all times", Perks = { Regen = 0.5 } },
+			{ Name = "Battlefield Doctor", Text = "Healing x2 · Max HP +15", Perks = { HealMult = 2, MaxHealthBonus = 15 } },
 		},
 	},
 	Hunter = {
-		Name = "Hunter", Thai = "นายพราน", Role = "ต่อสู้", Stars = 3, Price = 350, Icon = "🏹",
+		Name = "Hunter", Thai = "Hunter", Role = "Combat", Stars = 3, Price = 350, Icon = "🏹",
 		StartItems = { OldAxe = 1, Bow = 1 },
 		Skills = {
-			{ Name = "ตาเหยี่ยว", Text = "ดาเมจทุกอาวุธ +15%", Perks = { DamageMult = 1.15 } },
-			{ Name = "ล่าไม่พลาด", Text = "ดาเมจ +25% · ล่าสัตว์ได้ เนื้อ/หนัง/กระดูก/เส้นใย +1 ชิ้น", Perks = { DamageMult = 1.25, ExtraDrops = 1 } },
-			{ Name = "นักล่าจ่าฝูง", Text = "ดาเมจ +40% · วิ่งเร็วขึ้น 5%", Perks = { DamageMult = 1.4, SpeedMult = 1.05 } },
+			{ Name = "Hawk Eye", Text = "All weapon damage +15%", Perks = { DamageMult = 1.15 } },
+			{ Name = "Never Miss", Text = "Damage +25% · Hunting drops +1 extra meat/pelt/bone/fiber", Perks = { DamageMult = 1.25, ExtraDrops = 1 } },
+			{ Name = "Alpha Hunter", Text = "Damage +40% · Run 5% faster", Perks = { DamageMult = 1.4, SpeedMult = 1.05 } },
 		},
 	},
 	Builder = {
-		Name = "Builder", Thai = "ช่างสร้าง", Role = "ป้องกันฐาน", Stars = 3, Price = 400, Icon = "🔨",
+		Name = "Builder", Thai = "Builder", Role = "Base Defense", Stars = 3, Price = 400, Icon = "🔨",
 		StartItems = { OldAxe = 1, LogWall = 2 },
 		Skills = {
-			{ Name = "ช่างประหยัด", Text = "สร้างสิ่งก่อสร้างใช้วัตถุดิบน้อยลง 20%", Perks = { BuildDiscount = 0.2 } },
-			{ Name = "ไม้เนื้อแข็ง", Text = "กำแพงและสิ่งก่อสร้างถึกขึ้น x1.5", Perks = { WallHealthMult = 1.5 } },
-			{ Name = "ป้อมปราการ", Text = "วัตถุดิบน้อยลง 35% · สิ่งก่อสร้างถึก x2", Perks = { BuildDiscount = 0.35, WallHealthMult = 2 } },
+			{ Name = "Thrifty Builder", Text = "Buildings cost 20% fewer materials", Perks = { BuildDiscount = 0.2 } },
+			{ Name = "Hardwood", Text = "Walls and buildings are x1.5 tougher", Perks = { WallHealthMult = 1.5 } },
+			{ Name = "Fortress", Text = "35% fewer materials · Buildings x2 tougher", Perks = { BuildDiscount = 0.35, WallHealthMult = 2 } },
 		},
 	},
 	Scout = {
-		Name = "Scout", Thai = "หน่วยลาดตระเวน", Role = "สำรวจ", Stars = 4, Price = 650, Icon = "🧭",
+		Name = "Scout", Thai = "Scout", Role = "Exploration", Stars = 4, Price = 650, Icon = "🧭",
 		StartItems = { OldAxe = 1, IronArmor = 1 }, -- เกราะเงิน (เกราะเหล็ก) สวมตั้งแต่เริ่ม
 		Skills = {
-			{ Name = "ขาไว", Text = "วิ่งเร็วขึ้น 12%", Perks = { SpeedMult = 1.12 } },
-			{ Name = "ปอดเหล็ก", Text = "สตามิน่า x1.6 · หิวช้าลง 10%", Perks = { StaminaMult = 1.6, HungerMult = 0.9 } },
-			{ Name = "เงาแห่งพงไพร", Text = "วิ่งเร็วขึ้น 20% · สตามิน่า x2 · ล่าสัตว์ได้ของเพิ่ม +1 ชิ้น", Perks = { SpeedMult = 1.2, StaminaMult = 2, ExtraDrops = 1 } },
+			{ Name = "Quick Feet", Text = "Run 12% faster", Perks = { SpeedMult = 1.12 } },
+			{ Name = "Iron Lungs", Text = "Stamina x1.6 · Hunger 10% slower", Perks = { StaminaMult = 1.6, HungerMult = 0.9 } },
+			{ Name = "Shadow of the Wilds", Text = "Run 20% faster · Stamina x2 · Hunting drops +1 extra item", Perks = { SpeedMult = 1.2, StaminaMult = 2, ExtraDrops = 1 } },
 		},
 	},
 
 	Elementalist = {
-		Name = "Elementalist", Thai = "จอมเวทธาตุ", Role = "เวทธาตุ", Stars = 5, Price = 1000, Icon = "🔮",
+		Name = "Elementalist", Thai = "Elementalist", Role = "Elemental Magic", Stars = 5, Price = 1000, Icon = "🔮",
 		StartItems = { OldAxe = 1, EmberStaff = 1 }, -- ขวาน (ทุกคลาสมี) + คทาเพลิง (ยิงลูกไฟ + ฟาดตัดไม้ได้)
 		Skills = {
-			{ Name = "สัมผัสธาตุ", Text = "อาวุธธาตุ (รวมคทาเพลิง) แรงขึ้น 20% · ร่างบาง เลือดสูงสุด -10", Perks = { ElementDamageMult = 1.2, MaxHealthBonus = -10 } },
-			{ Name = "พลังธาตุ", Text = "อาวุธธาตุแรงขึ้น 40% · สตามิน่า +15%", Perks = { ElementDamageMult = 1.4, StaminaMult = 1.15 } },
-			{ Name = "ผู้ควบคุมธาตุ", Text = "อาวุธธาตุแรงขึ้น 65% · เลือดสูงสุด +10", Perks = { ElementDamageMult = 1.65, MaxHealthBonus = 10 } },
+			{ Name = "Elemental Touch", Text = "Elemental weapons (incl. Fire Staff) 20% stronger · Frail: Max HP -10", Perks = { ElementDamageMult = 1.2, MaxHealthBonus = -10 } },
+			{ Name = "Elemental Power", Text = "Elemental weapons 40% stronger · Stamina +15%", Perks = { ElementDamageMult = 1.4, StaminaMult = 1.15 } },
+			{ Name = "Element Master", Text = "Elemental weapons 65% stronger · Max HP +10", Perks = { ElementDamageMult = 1.65, MaxHealthBonus = 10 } },
 		},
 	},
 
@@ -116,7 +116,7 @@ end
 
 ---------------------------------------------------------------- เลเวล
 -- ข้อกำหนดเพื่อขึ้นเลเวล (สถิติที่เก็บตอนสวมใส่คลาสนั้น)
-Classes.StatNames = { Kills = "ล่าสัตว์", Nights = "รอดคืน" }
+Classes.StatNames = { Kills = "Hunt", Nights = "Survive nights" }
 Classes.StatOrder = { "Kills", "Nights" }
 
 function Classes.Requirement(id, level)

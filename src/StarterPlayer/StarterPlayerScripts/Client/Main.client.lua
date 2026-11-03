@@ -57,7 +57,7 @@ task.spawn(function()
 	local camMod = pm and pm:WaitForChild("CameraModule", 10)
 	local mlc = camMod and camMod:WaitForChild("MouseLockController", 10)
 	if not mlc then
-		warn("[AS] ไม่เจอ MouseLockController — ปุ่มล็อกหน้าจอยังเป็น Shift")
+		warn("[AS] MouseLockController not found — the screen lock key is still Shift")
 		return
 	end
 	local keys = mlc:FindFirstChild("BoundKeys")

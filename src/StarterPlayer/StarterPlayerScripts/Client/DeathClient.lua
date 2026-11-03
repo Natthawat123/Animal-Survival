@@ -48,9 +48,9 @@ local function watch(p)
 	if hum then
 		cam.CameraType = Enum.CameraType.Custom
 		cam.CameraSubject = hum
-		ui.Name.Text = "👁 กำลังดู: " .. p.DisplayName .. (p:GetAttribute("Downed") and "  (ล้มอยู่!)" or "")
+		ui.Name.Text = "👁 Spectating: " .. p.DisplayName .. (p:GetAttribute("Downed") and "  (down!)" or "")
 	else
-		ui.Name.Text = "ไม่มีเพื่อนเหลือรอด... รอผลรอบนี้"
+		ui.Name.Text = "No teammates left alive... waiting for the run result"
 	end
 end
 
@@ -68,7 +68,7 @@ end
 function DeathClient.StartSpectate(d)
 	ui.Spectate.Visible = true
 	UIKit.Pop(ui.Spectate)
-	ui.Sub.Text = string.format("คุณสิ้นชีพในคืนที่ %d — รอดูเพื่อนเอาชีวิตรอดต่อ หรือกลับล็อบบี้", d and d.Night or 1)
+	ui.Sub.Text = string.format("You died on night %d — watch your teammates survive, or go back to the lobby", d and d.Night or 1)
 	setBackpack(false)
 	ProximityPromptService.Enabled = false
 	task.delay(3.5, function()
@@ -112,7 +112,7 @@ function DeathClient.Init()
 	})
 	ui.Spectate = bar
 	UIKit.AutoScale(bar, { maxW = 0.9, maxH = 0.4 })
-	UIKit.Header(bar, "☠ คุณเสียชีวิต", C.Blood)
+	UIKit.Header(bar, "☠ You Died", C.Blood)
 	ui.Name = UIKit.Text(bar, { Size = UDim2.new(1, -150, 0, 30), Position = UDim2.new(0, 75, 0, 32), TextXAlignment = Enum.TextXAlignment.Center, Font = UIKit.Fonts.Title, TextSize = 24, Text = "" })
 	ui.Sub = UIKit.Text(bar, { Size = UDim2.new(1, -40, 0, 20), Position = UDim2.new(0, 20, 0, 64), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 15, TextColor3 = C.TextDim, Text = "" })
 	local prev = UIKit.ColorButton(bar, C.Blue, { Size = UDim2.fromOffset(56, 48), Position = UDim2.fromOffset(14, 26), Text = "◀", TextSize = 26 }, function()
@@ -121,7 +121,7 @@ function DeathClient.Init()
 	local nextB = UIKit.ColorButton(bar, C.Blue, { Size = UDim2.fromOffset(56, 48), Position = UDim2.new(1, -70, 0, 26), Text = "▶", TextSize = 26 }, function()
 		cycle(1)
 	end)
-	local leave = UIKit.ColorButton(bar, C.Orange, { Size = UDim2.fromOffset(220, 34), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 88), Text = "🏠 กลับล็อบบี้", TextSize = 18 }, function()
+	local leave = UIKit.ColorButton(bar, C.Orange, { Size = UDim2.fromOffset(220, 34), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 88), Text = "🏠 Back to Lobby", TextSize = 18 }, function()
 		Remotes.Get("LeaveRun"):FireServer()
 	end)
 	-- มือถือ: พื้นที่แตะอย่างน้อย 44px
@@ -160,7 +160,7 @@ function DeathClient.Init()
 				if not target or not target.Parent or target:GetAttribute("Dead") or not target:GetAttribute("InRun") then
 					cycle(1)
 				elseif target then
-					ui.Name.Text = "👁 กำลังดู: " .. target.DisplayName .. (target:GetAttribute("Downed") and "  (ล้มอยู่!)" or "")
+					ui.Name.Text = "👁 Spectating: " .. target.DisplayName .. (target:GetAttribute("Downed") and "  (down!)" or "")
 				end
 			end
 		end

@@ -123,7 +123,7 @@ local Abilities = {}
 Abilities.Quake = function(ctx, a)
 	local radius = 34 + a.Radius * 0.5
 	local windup = 1.5
-	cast(ctx, a, "Slam", windup, ({ Earth = "ทุบแผ่นดิน!", Air = "ทุบธารน้ำแข็ง!", Water = "ฟาดคลื่น!", Fire = "ทุบลาวา!" })[a.Info.Element] or "ทุบพื้น!")
+	cast(ctx, a, "Slam", windup, ({ Earth = "Earth Smash!", Air = "Glacier Smash!", Water = "Wave Slam!", Fire = "Lava Smash!" })[a.Info.Element] or "Ground Smash!")
 	local center = tele(ctx, a, a.Root.Position, radius, windup)
 	task.wait(windup)
 	if a.Dead then
@@ -143,7 +143,7 @@ Abilities.Fissure = function(ctx, a, target)
 	local dir = aim(a, target, 0.7)
 	local from = ground(a.Root.Position + dir * (a.Radius * 0.6))
 	local length, width, windup = 130, 16, 1.2
-	cast(ctx, a, "Slam", windup, "รอยแยกปฐพี!")
+	cast(ctx, a, "Slam", windup, "Earth Rift!")
 	fx(ctx, "BossTelegraph", { Pos = from, Dir = dir, Length = length, Width = width, Time = windup, Element = a.Info.Element, Shape = "Line" })
 	task.wait(windup)
 	if a.Dead then
@@ -196,13 +196,13 @@ local function rain(ctx, a, count, radius, damage, color, fire, size)
 end
 
 Abilities.BoulderRain = function(ctx, a)
-	cast(ctx, a, "Summon", 1.6, "หินถล่ม!")
+	cast(ctx, a, "Summon", 1.6, "Rockslide!")
 	task.wait(0.4)
 	rain(ctx, a, 9, 11, a.Info.Damage * a.DamageMult * 0.75, Color3.fromRGB(112, 98, 82), false, 9)
 end
 
 Abilities.MeteorRoar = function(ctx, a)
-	cast(ctx, a, "Roar", 1.5, "อุกกาบาตเพลิง!")
+	cast(ctx, a, "Roar", 1.5, "Fire Meteor!")
 	ctx.FireRun("Cinematic", "Shake", { Power = 0.7, Time = 1.6 })
 	task.wait(0.4)
 	rain(ctx, a, 11, 12, a.Info.Damage * a.DamageMult * 0.7, Color3.fromRGB(255, 120, 40), true, 7)
@@ -213,7 +213,7 @@ Abilities.TidalWave = function(ctx, a, target)
 	local dir = aim(a, target, 0.7)
 	local from = ground(a.Root.Position + dir * (a.Radius * 0.5))
 	local length, width, windup, travel = 140, 34, 1.3, 1.5
-	cast(ctx, a, "Rear", windup, "คลื่นยักษ์!")
+	cast(ctx, a, "Rear", windup, "Tidal Wave!")
 	fx(ctx, "BossTelegraph", { Pos = from, Dir = dir, Length = length, Width = width, Time = windup, Element = a.Info.Element, Shape = "Line" })
 	task.wait(windup)
 	if a.Dead then
@@ -239,7 +239,7 @@ end
 
 -- โมซาซอรัส: พวยน้ำพุ่งใต้เท้าผู้เล่น
 Abilities.WaterSpout = function(ctx, a)
-	cast(ctx, a, "Roar", 1.4, "พวยน้ำ!")
+	cast(ctx, a, "Roar", 1.4, "Waterspout!")
 	for _, r in ipairs(playersNear(a, 160)) do
 		local spots = { r.Position }
 		for k = 1, 2 do
@@ -264,7 +264,7 @@ end
 -- เยติ: พายุหิมะหมุนรอบตัว ดูดเข้า แล้วระเบิดน้ำแข็ง
 Abilities.Blizzard = function(ctx, a)
 	local windup = 2.2
-	cast(ctx, a, "Roar", windup, "พายุหิมะ!")
+	cast(ctx, a, "Roar", windup, "Blizzard!")
 	local center = ground(a.Root.Position)
 	fx(ctx, "BossBlizzard", { Pos = center, Radius = 55, Time = windup + 0.6, Element = a.Info.Element })
 	for _, p in ipairs(Players:GetPlayers()) do
@@ -288,7 +288,7 @@ end
 
 -- เยติ: หนามน้ำแข็งผุดใต้เท้าผู้เล่น
 Abilities.IceSpikes = function(ctx, a)
-	cast(ctx, a, "Slam", 1.2, "หนามน้ำแข็ง!")
+	cast(ctx, a, "Slam", 1.2, "Ice Spikes!")
 	for _, r in ipairs(playersNear(a, 160)) do
 		local spots = { r.Position }
 		for k = 1, 3 do
@@ -316,7 +316,7 @@ Abilities.FireBreath = function(ctx, a, target)
 	local dir = aim(a, target, 0.7)
 	local from = ground(a.Root.Position)
 	local length, width, windup, dur = 110, 22, 1.1, 1.8
-	cast(ctx, a, "Breath", windup, "ลมหายใจเพลิง!")
+	cast(ctx, a, "Breath", windup, "Fire Breath!")
 	fx(ctx, "BossTelegraph", { Pos = from, Dir = dir, Length = length, Width = width, Time = windup, Element = a.Info.Element, Shape = "Line" })
 	task.wait(windup)
 	if a.Dead then
@@ -336,7 +336,7 @@ end
 
 -- มังกร: วงแหวนเพลิง 2 ชั้น + เสาไฟ
 Abilities.FlameNova = function(ctx, a)
-	cast(ctx, a, "Nova", 1.4, "วงแหวนเพลิง!")
+	cast(ctx, a, "Nova", 1.4, "Ring of Fire!")
 	local base = ground(a.Root.Position)
 	local center = tele(ctx, a, base, 24, 1.4)
 	task.wait(1.4)

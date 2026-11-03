@@ -73,11 +73,11 @@ for _, n in ipairs({ 1, 2, 4, 5, 9, 10, 20, 24, 25, 30, 50, 75, 98, 99, 100 }) d
 			end
 		end
 		lo, hi = math.min(lo, c), math.max(hi, c)
-		if c == 0 then
-			check("plan-empty night " .. n, false)
+		if (c > 0) ~= Nights.IsBigRaid(n) then
+			check("plan-count night " .. n, false, c)
 		end
 	end
-	print(string.format("[AS] SKIPPROBE count night=%d big=%s min=%d max=%d cap=%d", n, tostring(Nights.IsBigRaid(n)), lo, hi, Nights.MaxCount(n, 1, Nights.IsBigRaid(n))))
+	print(string.format("[AS] SKIPPROBE count night=%d big=%s min=%d max=%d cap=%d", n, tostring(Nights.IsBigRaid(n)), lo, hi, Nights.MaxCount(n, 1)))
 	last = hi
 end
 check("plan-99-has-swarm", last > 0)

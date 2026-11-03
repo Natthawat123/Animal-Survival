@@ -1,7 +1,9 @@
 --[[
 	MonetizationService — ร้านค้า Robux
 	  · เติม Ruby (Developer Product): Config.DiamondPacks — กันเติมซ้ำด้วยเลขใบเสร็จ (PurchaseId) ที่เก็บไว้ในเซฟ
-	  · Game Pass: Config.GamePasses — VIP (Ruby x2 + ป้ายบนหัว), ของเริ่มต้นทุกรอบ (ให้ตอนลงแมพ)
+	  · ซื้อเป็นของขวัญ: เลือกเพื่อนในเซิร์ฟก่อน (GiftTarget) -> ซื้อแพ็ก -> Ruby เข้าเพื่อน (ออกเกมไปแล้ว = ได้ตอนเข้าเกม)
+	  · คืนชีพ: Config.ReviveProductId — ล้มอยู่ = ลุกทันที เลือดเต็ม · ไม่ได้ล้ม (เพื่อนช่วยไปก่อน) = เก็บเป็นตั๋วคืนชีพ
+	  · Game Pass: Config.GamePasses — Season Pass, Save Run (เซฟรอบ: RejoinService:SaveRunFor)
 	  · ID ที่ยังเป็น 0 = ยังไม่ได้สร้างใน Creator Hub → ข้ามไป (ปุ่มในร้านขึ้นว่า "เร็วๆ นี้")
 ]]
 
@@ -13,6 +15,8 @@ local Config = require(ReplicatedStorage.Shared.Config)
 
 local MonetizationService = {}
 local owned = {} -- [player] = { [passKey] = true }
+local giftTo = {} -- [ผู้ซื้อ] = { UserId, Name, At } เพื่อนที่จะได้ Ruby จากการซื้อครั้งถัดไป
+local GIFT_WINDOW = 300 -- เลือกเพื่อนแล้วต้องซื้อภายในกี่วินาที
 
 local packByProduct = {}
 for _, pack in ipairs(Config.DiamondPacks) do
@@ -69,14 +73,71 @@ function MonetizationService:GiveRunPerks(player)
 			for id, n in pairs(items) do
 				inv:Add(player, id, n, true)
 			end
-			self.ctx.Notify(player, "🎫 ของจาก Game Pass: " .. passByKey[key].Name, "Reward")
+			self.ctx.Notify(player, "🎫 Game Pass items: " .. passByKey[key].Name, "Reward")
 		end
 	end
 end
 
+local function remember(data, purchaseId)
+	table.insert(data.Receipts, purchaseId)
+	while #data.Receipts > 100 do
+		table.remove(data.Receipts, 1)
+	end
+end
+
+-- คืนชีพ: ล้มอยู่ = ลุกเลือดเต็ม · ไม่ได้ล้ม = ตั๋วคืนชีพ 1 ใบ (ใช้ตอนล้มครั้งหน้า)
+local function reviveReceipt(self, receipt, player, data)
+	local ds = self.ctx.Services.DataService
+	local surv = self.ctx.Services.SurvivalService
+	if surv:IsDowned(player) then
+		surv:Revive(player, 1)
+		self.ctx.Notify(player, "Revived!", "Good")
+	else
+		data.ReviveTokens = (data.ReviveTokens or 0) + 1
+		player:SetAttribute("ReviveTokens", data.ReviveTokens)
+		self.ctx.Notify(player, "Got 1 Revive Ticket — use it next time you're down", "Reward")
+	end
+	remember(data, receipt.PurchaseId)
+	if ds:StoreReady() then
+		ds:Save(player)
+	end
+	return Enum.ProductPurchaseDecision.PurchaseGranted
+end
+
+-- ซื้อแพ็กเป็นของขวัญ: Ruby เข้าเพื่อน (อยู่เซิร์ฟนี้ = ทันที · ไม่อยู่ = เก็บไว้ให้ตอนเข้าเกม)
+local function giftReceipt(self, receipt, player, data, pack, gift)
+	local ds = self.ctx.Services.DataService
+	local total = pack.Diamonds + (pack.Bonus or 0)
+	local friend = Players:GetPlayerByUserId(gift.UserId)
+	local fdata = friend and ds:Get(friend)
+	if fdata then
+		ds:AddDiamonds(friend, total, "Gift from " .. player.DisplayName, { Purchased = true })
+		if ds:StoreReady() and not ds:Save(friend) then
+			fdata.Diamonds -= total
+			friend:SetAttribute("Diamonds", fdata.Diamonds)
+			return Enum.ProductPurchaseDecision.NotProcessedYet
+		end
+		self.ctx.Remotes.Get("Cinematic"):FireClient(friend, "Purchased", { Kind = "Gift", Name = player.DisplayName, Diamonds = total })
+	else
+		local ok = ds:QueueGift(gift.UserId, total, player.DisplayName)
+		if not ok then
+			return Enum.ProductPurchaseDecision.NotProcessedYet
+		end
+	end
+	giftTo[player] = nil
+	player:SetAttribute("GiftTo", nil)
+	remember(data, receipt.PurchaseId)
+	if ds:StoreReady() then
+		ds:Save(player)
+	end
+	self.ctx.Notify(player, string.format("Sent %d Ruby to %s!", total, gift.Name), "Reward")
+	return Enum.ProductPurchaseDecision.PurchaseGranted
+end
+
 local function processReceipt(self, receipt)
+	local isRevive = (Config.ReviveProductId or 0) > 0 and receipt.ProductId == Config.ReviveProductId
 	local pack = packByProduct[receipt.ProductId]
-	if not pack then
+	if not (pack or isRevive) then
 		return Enum.ProductPurchaseDecision.NotProcessedYet
 	end
 	local player = Players:GetPlayerByUserId(receipt.PlayerId)
@@ -90,12 +151,16 @@ local function processReceipt(self, receipt)
 	if table.find(data.Receipts, receipt.PurchaseId) then
 		return Enum.ProductPurchaseDecision.PurchaseGranted
 	end
-	local total = pack.Diamonds + (pack.Bonus or 0)
-	ds:AddDiamonds(player, total, "เติม " .. pack.Name, { Purchased = true })
-	table.insert(data.Receipts, receipt.PurchaseId)
-	while #data.Receipts > 100 do
-		table.remove(data.Receipts, 1)
+	if isRevive then
+		return reviveReceipt(self, receipt, player, data)
 	end
+	local gift = giftTo[player]
+	if gift and os.clock() - gift.At < GIFT_WINDOW then
+		return giftReceipt(self, receipt, player, data, pack, gift)
+	end
+	local total = pack.Diamonds + (pack.Bonus or 0)
+	ds:AddDiamonds(player, total, "Top-up: " .. pack.Name, { Purchased = true })
+	remember(data, receipt.PurchaseId)
 	if ds:StoreReady() and not ds:Save(player) then
 		-- เซฟไม่ผ่าน: คืนค่าแล้วให้ Roblox ส่งใบเสร็จมาใหม่ (กัน Ruby หาย/ได้ซ้ำ)
 		data.Diamonds -= total
@@ -120,10 +185,34 @@ function MonetizationService:Start(ctx)
 		local pass = passById[passId]
 		if purchased and pass then
 			setOwned(player, pass.Id)
-			ctx.Notify(player, "🎫 ได้รับ Game Pass: " .. pass.Name .. " — ขอบคุณที่สนับสนุน!", "Reward")
+			ctx.Notify(player, "🎫 Game Pass received: " .. pass.Name .. " — thanks for your support!", "Reward")
 			ctx.Remotes.Get("Cinematic"):FireClient(player, "Purchased", { Kind = "Pass", Name = pass.Name })
 			ctx.Services.LobbyService:RefreshTag(player)
 		end
+	end)
+	-- เลือกเพื่อนที่จะซื้อ Ruby ให้ (ต้องอยู่เซิร์ฟเดียวกัน · nil = ยกเลิก ซื้อให้ตัวเอง)
+	ctx.Remotes.Get("GiftTarget").OnServerEvent:Connect(function(player, userId)
+		local friend = type(userId) == "number" and Players:GetPlayerByUserId(userId)
+		if friend and friend ~= player then
+			giftTo[player] = { UserId = friend.UserId, Name = friend.DisplayName, At = os.clock() }
+			player:SetAttribute("GiftTo", friend.DisplayName)
+		else
+			giftTo[player] = nil
+			player:SetAttribute("GiftTo", nil)
+		end
+	end)
+	-- ใช้ตั๋วคืนชีพตอนล้ม
+	ctx.Remotes.Get("UseReviveToken").OnServerEvent:Connect(function(player)
+		local ds, surv = ctx.Services.DataService, ctx.Services.SurvivalService
+		local data = ds:Get(player)
+		if not (data and (data.ReviveTokens or 0) > 0 and surv:IsDowned(player)) then
+			return
+		end
+		data.ReviveTokens -= 1
+		player:SetAttribute("ReviveTokens", data.ReviveTokens)
+		surv:Revive(player, 1)
+		ctx.Notify(player, "Revived!", "Good")
+		task.spawn(ds.Save, ds, player)
 	end)
 	ctx.Remotes.Get("GetShopInfo").OnServerInvoke = function(player)
 		local passes = {}
@@ -142,6 +231,7 @@ function MonetizationService:Start(ctx)
 	end
 	Players.PlayerRemoving:Connect(function(p)
 		owned[p] = nil
+		giftTo[p] = nil
 	end)
 end
 

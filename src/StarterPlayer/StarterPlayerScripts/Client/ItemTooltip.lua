@@ -41,73 +41,73 @@ function ItemTooltip.Info(id)
 	local stats = {}
 	local t = Items.Tools[id]
 	if t then
-		table.insert(stats, "⚔ ดาเมจ " .. num(t.Damage))
-		table.insert(stats, string.format("⏱ ความเร็ว %.1f ครั้ง/วิ", 1 / math.max(t.Cooldown, 0.05)))
-		table.insert(stats, "📏 ระยะ " .. num(t.Range))
+		table.insert(stats, "⚔ Damage " .. num(t.Damage))
+		table.insert(stats, string.format("⏱ Speed %.1f hits/sec", 1 / math.max(t.Cooldown, 0.05)))
+		table.insert(stats, "📏 Range " .. num(t.Range))
 		if (t.Chop or 0) > 0 then
-			table.insert(stats, "🪓 ตัดไม้ x" .. num(t.Chop))
+			table.insert(stats, "🪓 Chop wood x" .. num(t.Chop))
 		end
 		if (t.Mine or 0) > 0 then
-			table.insert(stats, "⛏ ขุดหิน/แร่ x" .. num(t.Mine))
+			table.insert(stats, "⛏ Mine rock/ore x" .. num(t.Mine))
 		end
 		if t.Aoe then
-			table.insert(stats, "💥 โจมตีเป็นวง " .. num(t.Aoe))
+			table.insert(stats, "💥 Area attack " .. num(t.Aoe))
 		end
 		if t.Burn then
-			table.insert(stats, "🔥 เผา " .. num(t.Burn) .. "/วิ")
+			table.insert(stats, "🔥 Burn " .. num(t.Burn) .. "/s")
 		end
 		if t.Slow then
-			table.insert(stats, "🧊 ทำให้ช้าลง")
+			table.insert(stats, "🧊 Slows enemies")
 		end
 		if t.Pierce then
-			table.insert(stats, "➶ ทะลุ " .. num(t.Pierce) .. " ตัว")
+			table.insert(stats, "➶ Pierces " .. num(t.Pierce) .. " enemies")
 		end
 		if t.Light then
-			table.insert(stats, "💡 ส่องแสงไล่กวางกลวง")
+			table.insert(stats, "💡 Light scares off the Hollow Stag")
 		end
 	end
 	local sack = Items.Sacks[id]
 	if sack then
-		table.insert(stats, "🎒 ความจุ " .. sack .. " ชิ้น")
+		table.insert(stats, "🎒 Capacity " .. sack .. " items")
 	end
 	if d.ArmorHP then
-		table.insert(stats, "🛡 เลือดสูงสุด +" .. num(d.ArmorHP))
+		table.insert(stats, "🛡 Max HP +" .. num(d.ArmorHP))
 	end
 	if d.Food then
-		table.insert(stats, "🍖 อิ่ม +" .. num(d.Food))
+		table.insert(stats, "🍖 Food +" .. num(d.Food))
 	end
 	if d.Heal then
-		table.insert(stats, (d.Heal >= 0 and "❤ ฟื้นเลือด +" or "💔 เสียเลือด ") .. num(math.abs(d.Heal)))
+		table.insert(stats, (d.Heal >= 0 and "❤ Heal +" or "💔 HP loss ") .. num(math.abs(d.Heal)))
 	end
 	if d.Revive then
-		table.insert(stats, "✨ ใช้ช่วยเพื่อนที่ล้มได้")
+		table.insert(stats, "✨ Can revive downed teammates")
 	end
 	if d.CooksInto then
-		table.insert(stats, "♨ ย่างที่กองไฟได้ " .. Items.DisplayName(d.CooksInto))
+		table.insert(stats, "♨ Can be cooked at the campfire " .. Items.DisplayName(d.CooksInto))
 	end
 	if d.Fuel then
-		table.insert(stats, "🔥 เชื้อเพลิง +" .. num(d.Fuel))
+		table.insert(stats, "🔥 Fuel +" .. num(d.Fuel))
 	end
 	local st = Items.Structures[id]
 	if st then
 		table.insert(stats, "🛡 HP " .. num(st.Health))
 		if st.Damage then
-			table.insert(stats, "⚔ ดาเมจ " .. num(st.Damage))
+			table.insert(stats, "⚔ Damage " .. num(st.Damage))
 		end
 		if st.Range or st.Radius then
-			table.insert(stats, "📏 รัศมี " .. num(st.Range or st.Radius))
+			table.insert(stats, "📏 Radius " .. num(st.Range or st.Radius))
 		end
 		if st.Light then
-			table.insert(stats, "💡 แสง " .. num(st.Light))
+			table.insert(stats, "💡 Light " .. num(st.Light))
 		end
 	end
 	local el = d.Element
 	if el then
-		table.insert(stats, (UIKit.ElementIcon[el] or "") .. " ธาตุ" .. (UIKit.ElementThai[el] or el))
+		table.insert(stats, (UIKit.ElementIcon[el] or "") .. " Element: " .. (UIKit.ElementThai[el] or el))
 	end
 	local r = Recipes.ById[id]
 	if r then
-		table.insert(stats, "🔨 คราฟต์ได้ที่โต๊ะ Lv." .. r.Bench)
+		table.insert(stats, "🔨 Craft at bench Lv." .. r.Bench)
 	end
 	return {
 		Title = d.Thai or d.Name or id,
@@ -204,7 +204,7 @@ function ItemTooltip.Show(id, mode)
 	ui.Stroke.Color = info.Color
 	ui.Sub.Text = info.Sub or ""
 	ui.Sub.Visible = info.Sub ~= nil and info.Sub ~= info.Title
-	ui.Cat.Text = "หมวด: " .. info.Category
+	ui.Cat.Text = "Category: " .. info.Category
 	ui.Desc.Text = info.Desc
 	ui.Desc.Visible = info.Desc ~= ""
 	ui.Stats.Text = table.concat(info.Stats, "\n")

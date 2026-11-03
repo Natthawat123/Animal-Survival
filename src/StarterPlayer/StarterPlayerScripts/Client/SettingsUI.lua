@@ -114,7 +114,7 @@ local function toggle(order, key, icon, label, sub)
 	controls[key] = function()
 		local on = ClientSettings.Get(key)
 		WoodKit.Style(sw, on and "Red" or "Dark")
-		word.Text = on and "เปิด" or "ปิด"
+		word.Text = on and "On" or "Close"
 		word.Position = on and UDim2.fromOffset(4, 0) or UDim2.fromOffset(40, 0)
 		knob.Position = on and UDim2.new(1, -22, 0.5, 0) or UDim2.new(0, 22, 0.5, 0)
 	end
@@ -190,7 +190,7 @@ end
 
 function SettingsUI.Init(gui, handlers)
 	handlers = handlers or {}
-	local win = WoodKit.Window(gui, { Name = "SettingsWindow", Size = Vector2.new(860, 680), Title = "⚙ ตั้งค่า", TitleWidth = 290, OnClose = SettingsUI.Close })
+	local win = WoodKit.Window(gui, { Name = "SettingsWindow", Size = Vector2.new(860, 680), Title = "⚙ Settings", TitleWidth = 290, OnClose = SettingsUI.Close })
 	ui.Panel = win.Frame
 	local body = win.Body
 	UIKit.RegisterWindow(ui.Panel, SettingsUI.Close, { Dim = 0.55 })
@@ -216,26 +216,26 @@ function SettingsUI.Init(gui, handlers)
 	local pct = function(v)
 		return math.floor(v * 100 + 0.5) .. "%"
 	end
-	section(1, "🔊", "เสียง")
+	section(1, "🔊", "Audio")
 	local hasMusic = false
 	for _, def in pairs(Audio.Music) do
 		if def.Id ~= "" then
 			hasMusic = true
 		end
 	end
-	slider(2, "MusicVol", "🎵", "เพลง", 0, 1, pct, not hasMusic and "ยังไม่ได้ใส่เพลง (ใส่ ID ใน Audio.lua)" or nil)
-	slider(3, "AmbientVol", "🌲", "เสียงบรรยากาศ", 0, 1, pct)
-	slider(4, "SfxVol", "💥", "เอฟเฟกต์", 0, 1, pct)
-	section(10, "🎨", "กราฟิก")
-	segmented(11, "Quality", "🖥", "คุณภาพภาพ", { { "Low", "ต่ำ" }, { "Medium", "กลาง" }, { "High", "สูง" } }, "มือถือ/เครื่องช้า แนะนำ \"ต่ำ\"")
-	section(20, "🎮", "การเล่น")
-	toggle(21, "Shake", "⚔", "จอสั่น", "ตอนโดนตี / บอสกระแทก")
-	toggle(22, "Hints", "🏃", "คำแนะนำปุ่ม", "แถบบอกปุ่มด้านล่างจอ")
-	toggle(23, "ShowFPS", "📈", "แสดง FPS", "ดูความลื่นของเกม")
-	toggle(24, "AutoTool", "🪓", "สลับเครื่องมืออัตโนมัติ", "ตีต้นไม้/หิน/สัตว์ = หยิบขวาน/อีเต้อ/อาวุธที่ดีที่สุดเอง")
-	section(30, "📱", "หน้าจอ")
-	slider(31, "UIScale", "🔍", "ขนาด UI", 0.7, 1.3, pct, "ย่อ/ขยายหน้าต่างทั้งหมด")
-	slider(32, "TouchSize", "👆", "ขนาดปุ่มมือถือ", 0.8, 1.4, pct, "ปุ่มบนจอสำหรับนิ้ว")
+	slider(2, "MusicVol", "🎵", "Music", 0, 1, pct, not hasMusic and "No music set yet (add IDs in Audio.lua)" or nil)
+	slider(3, "AmbientVol", "🌲", "Ambient Sounds", 0, 1, pct)
+	slider(4, "SfxVol", "💥", "Effects", 0, 1, pct)
+	section(10, "🎨", "Graphics")
+	segmented(11, "Quality", "🖥", "Graphics Quality", { { "Low", "Low" }, { "Medium", "Medium" }, { "High", "High" } }, "Phones/slow devices: \"Low\" recommended")
+	section(20, "🎮", "Gameplay")
+	toggle(21, "Shake", "⚔", "Screen Shake", "When hit / boss impacts")
+	toggle(22, "Hints", "🏃", "Control Hints", "Key hint bar at the bottom of the screen")
+	toggle(23, "ShowFPS", "📈", "Show FPS", "See how smooth the game runs")
+	toggle(24, "AutoTool", "🪓", "Auto Tool Switch", "Hitting trees/rocks/animals picks the best axe/pickaxe/weapon for you")
+	section(30, "📱", "Display")
+	slider(31, "UIScale", "🔍", "UI Size", 0.7, 1.3, pct, "Scale all windows up/down")
+	slider(32, "TouchSize", "👆", "Mobile Button Size", 0.8, 1.4, pct, "On-screen touch buttons")
 
 	local bottom = UIKit.Frame(body, { Size = UDim2.new(1, -40, 0, 54), Position = UDim2.new(0, 20, 1, -84), BackgroundTransparency = 1 })
 	local bl = Instance.new("UIListLayout")
@@ -243,13 +243,13 @@ function SettingsUI.Init(gui, handlers)
 	bl.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	bl.Padding = UDim.new(0, 16)
 	bl.Parent = bottom
-	WoodKit.Button(bottom, "Red", { Size = UDim2.fromOffset(240, 52), Text = "📖 ดูวิธีเล่น", TextSize = 21 }, function()
+	WoodKit.Button(bottom, "Red", { Size = UDim2.fromOffset(240, 52), Text = "📖 How to Play", TextSize = 21 }, function()
 		SettingsUI.Close()
 		if handlers.Tutorial then
 			handlers.Tutorial()
 		end
 	end)
-	WoodKit.Button(bottom, "Dark", { Size = UDim2.fromOffset(240, 52), Text = "🔄 ค่าเริ่มต้น", TextSize = 21 }, function()
+	WoodKit.Button(bottom, "Dark", { Size = UDim2.fromOffset(240, 52), Text = "🔄 Defaults", TextSize = 21 }, function()
 		for k, v in pairs(ClientSettings.Defaults) do
 			ClientSettings.Set(k, v)
 		end
