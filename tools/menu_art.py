@@ -154,6 +154,11 @@ def write_lua(out_path, mod, doc, items):
 
 
 def main():
+    if "--th" in sys.argv:
+        # ชุดภาษาไทย (ต้นฉบับเดิมใน assets/ui/menu_th) -> MenuArt_th.lua (Localizer สลับให้ผู้เล่นภาษาไทย)
+        items = [(n, os.path.join(ROOT, "assets", "ui", "menu_th", n + ".png"), WIDTH) for n in NAMES]
+        write_lua(OUT.replace("MenuArt.lua", "MenuArt_th.lua"), "MenuArt", "รูปปุ่มเมนูล็อบบี้ ภาษาไทย (สร้างโดย tools/menu_art.py --th — อย่าแก้มือ)", items)
+        return
     if len(sys.argv) > 1:
         cut_sheet(sys.argv[1])
     items = [(n, os.path.join(ART, n + ".png"), WIDTH) for n in NAMES]

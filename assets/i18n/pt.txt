@@ -1,0 +1,1279 @@
+0	      Comprar Ruby
+2	  (caído!)
+3	  (na barra de baixo, toque para colocar)
+4	  ·  Concluído! 🎉
+8	 (Premium)
+9	 (dura a partida toda)
+10	 (igual ou melhor)
+11	 Bônus!
+12	 Classe
+13	 Meteoro elemental
+14	 Elemento:
+16	 Baú do santuário
+17	 Santuário · Desperte os pilares rúnicos na ordem das luzes
+18	 Santuário · Liberado
+19	 Jaula selada
+20	 Altar
+21	 Título
+22	 Classe desbloqueada
+23	 de volta à fogueira
+24	 falhou:
+25	 para reviver aliados caídos
+26	 do Season Pass!
+27	 na sua bolsa (crie na bancada primeiro)
+28	 está livre
+29	 agora mora no acampamento
+30	 está preso numa jaula selada...
+31	 na página "Insígnias" do lobby
+32	 ou um maior
+33	 te enviou um presente!
+34	 brilha sobre o bioma
+35	 servidor inteiro
+36	 · Pode reviver aliados caídos
+37	 · Escolha o tamanho da equipe
+38	 · Cortar
+39	 · Elemento
+40	 · Amigos +10%
+41	 · A luz espanta o Cervo Oco
+42	 · Minerar
+43	 · Aperte E nele para montar
+45	 — pegue ♦️
+46	 — no máximo
+47	 — pulou 1 dia! Agora é o dia %d
+48	 — toque num espaço abaixo para colocar
+49	 — obrigado pelo apoio!
+50	 — você recebe ao partir
+51	"Peles boas te trazem o que você precisa, amigo... seja rápido, vou embora antes do pôr do sol"
+54	%d animais ainda atacam o acampamento — derrote todos!
+55	%d dias
+56	Restam %d guardiões
+57	A %d m da fogueira
+58	%d jogadores na plataforma
+62	%d/%d jogadores
+63	%d/%d jogadores   •   ⏳ %ds
+64	Restam %d/%d trocas
+66	%dd %dh
+67	%dh %dm
+68	%dm
+71	%s %d dias
+76	%s libertou %s
+77	%s morreu
+78	%s voltou ao covil
+79	%s caiu! Vá ajudar, rápido
+80	%s minerou o núcleo do meteoro de %s!
+81	%s abriu o baú de suprimentos
+82	%s voltou à partida
+83	%s voltou ao acampamento (%d/4)
+84	%s reviveu %s bem a tempo
+85	%s pulou 1 dia · Dia %d
+87	%s x%d · Clique = colocar · R = girar
+88	%s x%d · Clique = reviver aliado caído / se curar
+92	%s: máx. %d %s
+93	) — suba na plataforma de novo
+95	+1 dia
+96	+1 dia (contado %s)
+97	- Ruby grátis todo dia -
+98	1 (Solo)
+99	2 essências de cada elemento
+100	3 bandagens + 1 kit de primeiros socorros
+101	35% menos materiais · Construções x2 mais resistentes
+102	4 Filhotes Espirituais estão presos nos altares. Resgate todos para o final verdadeiro
+103	40 madeira, 20 pedra, 2 muros de madeira
+104	8 carvão, tocha, lanterna
+106	99 NOITES CONQUISTADAS
+107	99 noites... e além
+110	<font color="#FFE066" size="40">Notícias do acampamento</font>\n\nSobreviva às noites marco (a cada 5-25 noites)\n= Ganhe Ruby ♦️\n\nResgate um Filhote Espiritual = ♦️15\n<font color="#8CFF8C">Ruby grátis no caldeirão verde todo dia!</font>
+111	Caiu um meteoro de %s · Vá minerar o núcleo de cristal
+112	Um amigo
+114	TODOS PERECERAM
+115	SANTUÁRIO ANTIGO
+117	Conquista:
+118	Adicione %d de combustível à fogueira
+119	Adicione madeira, rápido
+120	Ar
+121	Tudo
+122	Os 4 Filhotes Espirituais estão juntos de novo
+123	Todos os elementos
+124	Sempre · [ Esta semana ]
+125	Todos os servidores · Atualiza a cada minuto
+126	Dano de todas as armas +15%
+127	Versátil
+128	Caçador alfa
+129	Já resgatado hoje — volte em
+130	Já resgatou a recompensa de hoje — volte em %dh %dm
+131	Já está usando
+132	Sons ambientes
+133	Ametista
+134	Uma manada passa perto do acampamento
+135	Baú antigo
+136	Pilar rúnico antigo
+137	Santuário antigo:
+138	Animal
+139	Migração animal
+140	Osso de animal. Usado para lanças e o Saco gigante
+141	Pele de animal. Usada para sacos/camas e trocas com o mercador
+142	Chegou a onda de animais %d
+143	Animais
+144	Chifres
+145	Armadura
+146	Flecha
+152	Áudio
+153	Troca automática de ferramenta
+154	Despertar pilar rúnico
+155	Kit elemental desperto
+156	Machado
+157	FERA DERROTADA
+158	LUA DE SANGUE
+159	FOGUEIRA NV.
+160	Voltar ao lobby
+162	Mochila
+163	Insígnias
+164	Bolsa  ·  Arraste itens para os espaços abaixo (dá para trocar)
+165	Assar torta de frutas (5 frutas + 1 madeira)
+166	Espada de ferro equilibrada · Rápida, bom dano
+167	Balista
+168	Balista. Atira nos animais sozinha
+169	Bandagem
+170	Use bandagem para curar e reviver aliados caídos
+171	Bandagens, remédios e reviver curam x1.5
+172	Basalto
+173	Defesa da base
+174	Machado de batalha
+175	Médico de guerra
+177	Coração de fera (qualquer elemento)
+178	Caçador de feras
+179	Covil da fera
+180	Matador de feras
+181	Cama
+182	Cama (+1 dia)
+183	Bancada
+184	Frutas
+185	Arbusto de frutas
+186	Arbusto de frutas %d/%d
+187	Suco de frutas
+188	Canteiro de frutas
+189	Torta de frutas
+190	Torta de frutas da panela. Sacia muito, a fome cai pela metade por 2 minutos
+191	Melhor
+192	Melhor custo
+193	Grande
+194	Cesto grande
+195	Noite de grande ataque ·
+196	Grande ataque em %d noites
+197	Fogo maior, zona segura maior, menos névoa
+200	Nevasca
+201	Nevasca!
+202	Bloqueia bandos de animais
+203	Lua de sangue
+205	Osso
+206	Lança de osso
+207	Lança de osso + machado de ferro
+208	Lança de osso. Longo alcance, muito dano
+209	Chefe
+210	Os covis dos chefes ficam no coração de cada zona — prepare-se antes de entrar
+211	Chefe ainda vivo · Amanhece em %s
+212	Chefes atacam nas noites 25 · 50 · 75 · 99 — desvie dos círculos de aviso no chão!
+213	Rochedo
+215	Arco
+216	Traga
+218	Bônus:
+219	Construtor
+220	Construções
+221	Construções custam 20% menos materiais
+222	Construções se consertam aos poucos
+223	Queima animais próximos
+224	Arbusto
+226	Comprar  ♦️
+227	Compre a classe primeiro
+229	Conselheiro do acampamento
+230	Depósito do acampamento
+231	Depósito do acampamento x
+232	Campista
+233	Fogueira
+234	Fogueira Nv.
+235	Fogueira Nv.%d  ·  Bancada Nv.%d
+236	Fogueira Nv.1
+237	Só pode ser colocado dentro do acampamento (melhore a fogueira para expandir)
+238	Não pode ser morto — corra!
+239	Não pode ser morto... espante-o com luz!
+240	Não dá para colocar na água/lava
+241	Não dá para usar a cama para pular o dia agora
+242	Cancelar
+243	Capacidade %d itens · Clique nos itens do chão para coletar
+244	Kit de carpinteiro
+245	Categoria:
+246	Chance de estar no estoque por dia
+248	Investida
+250	Escolher
+251	Escolha o tamanho da equipe primeiro, depois começa a contagem
+252	Cortar madeira x1.6
+253	Cortar madeira x2.2 · Minerar rocha/minério x1.6
+254	Corte madeira, quebre rochas, cace animais, segure o saco para coletar itens
+257	Pegar recompensa diária
+258	Pegar ♦️
+259	Pegar!
+260	Classe
+261	Classe
+262	Loja de classes
+263	Loja de classes · Entre para conversar
+264	Classes
+265	Concluído
+266	Santuário de %s concluído · Ganhou %s
+268	Fechar
+269	Carvão
+270	Carvão. Combustível premium que mantém a fogueira acesa por muito tempo
+271	Códigos
+272	Códigos usados: %d
+273	Cor
+275	Venha cá
+276	Em breve
+277	Conquiste 99 noites
+278	Continuar só funciona no jogo publicado — começando nova partida
+279	Continuar · Noite
+280	Continuando a partida salva da noite
+281	Dicas de controles
+282	Assar carne
+283	Panela
+284	Carne assada
+285	Coral
+286	Caranguejo-coral
+287	Não foi possível carregar a partida salva — começando uma nova
+288	Não foi possível conectar ao servidor, tente de novo
+289	Não foi possível voltar à partida anterior, tente de novo
+290	Não foi possível voltar à partida anterior:
+291	Não foi possível te enviar ao servidor da equipe (
+292	Conselheiro
+295	Contado de manhã
+296	Caranguejo
+298	Criar
+299	Criar %d itens
+300	Crie e construa uma base
+301	Criador
+302	Bancada de criação
+303	Bancada de criação Nv.
+304	Bancada de criação Nv.%d · Novas receitas
+305	Criações
+306	Caixote
+307	Crista
+308	Gritos vêm do meio da praça...
+309	Carmesim
+310	Besta
+311	Coroa das tempestades
+312	Cervo de cristal
+313	Cristais
+314	DIA %d
+315	DIA 1
+316	Adaga
+317	Diária
+318	Recompensa diária
+319	Recompensa diária ♦️
+320	Missão diária:
+321	Dano %d · Alcance %d
+322	Dano +25% · Caça dá +1 carne/pele/osso/fibra extra
+323	Dano +40% · Corre 5% mais rápido
+324	Perigo
+326	Os dados ainda estão carregando, tente de novo
+327	DataStore indisponível (ative API Services primeiro)
+328	Amanhecer
+329	Cervo da aurora
+330	Dia
+331	Dia
+332	Dia · Anoitece em %s
+333	Morto
+338	Derrota
+339	Derrote %d chefes elementais
+340	Derrote todos para abrir a jaula e salvar
+341	Derrotado
+342	%s derrotado · Renasce em %d min
+343	Partir
+344	Partindo
+345	Partindo em %d
+346	Diamantes
+347	Morreu
+348	Desmontar [X]
+349	Tela
+350	Machado de dois gumes · Bate forte e corta árvores mais rápido
+351	Caído — espere um aliado ajudar
+352	Caído! Esperando ajuda
+353	Caído
+354	Dragão
+355	Largar
+356	Anoitecer
+357	Anoitecer · Animais chegam em %s
+358	Terra
+359	Aura da terra: Vida máx. +15%
+360	Filhote de urso da terra
+361	Coração de fera da terra
+362	Crocodilo da terra
+363	Pilar da terra
+364	Fenda na terra!
+365	Golpe da terra!
+366	Tartaruga da terra
+367	Essência da terra · Quebre cristais verdes na floresta da terra / baús / meteoros / santuários / chefe da terra · Usada no Martelo Terra, Pilar da terra e melhorias de bancada e fogueira
+368	Martelo da terra. Golpeia uma área grande
+369	Pilar da terra. Conserta muros próximos
+370	Comer
+371	Comer frutas
+372	Efeitos
+373	Chefes elementais
+374	Essência elemental (qualquer elemento)
+375	Mestre elemental
+376	Meteoro elemental
+377	Bandos elementais atacam a fogueira toda noite — aguente até de manhã
+378	Fraqueza elemental!
+379	Elemental
+380	Magia elemental
+381	Poder elemental
+382	Toque elemental
+383	Armas elementais (incl. Cajado de fogo) 20% mais fortes · Frágil: Vida máx. -10
+384	Armas elementais 40% mais fortes · Fôlego +15%
+385	Armas elementais 65% mais fortes · Vida máx. +10
+386	Elementalista
+387	Brasa
+388	Caldeira de brasas
+389	Filhote de raposa-brasa
+390	Montante de brasas
+391	Coração de brasa
+392	Filhote brasa
+393	Vermelho brasa
+394	Fragmento de brasa
+395	Cajado de brasas
+396	Totem de brasas
+397	Lobo de brasas
+398	Escorpião garra-de-fogo
+399	Brasas
+402	Modo infinito noite
+403	Modo infinito · Os bandos ficam mais fortes a cada noite
+404	Inimigo
+405	Inimigo!
+406	Armadura de guerreiro de ouro gravado. Aumenta mais a vida máx.
+407	Entrar no santuário
+408	Digite um código e aperte "Resgatar" · Cada código vale uma vez por jogador
+409	Entrando no acampamento...
+410	Equipar
+411	Equipado
+412	Erro
+413	Essência
+414	A cada 10 noites surge uma Lua de sangue e os bandos de todos os elementos atacam juntos
+415	Todos os elementos atacam juntos
+416	Todos os elementos estão furiosos...
+417	Todos correm 10% mais rápido
+418	Exploração
+419	FROSTMAW, o Yeti da Geleira
+420	Canteiro
+421	Samambaia
+422	Fibra
+423	Fibra da caça (lebre, crocodilo, caranguejo, polvo, touro da neve, carneiro de fogo) / baús / caixas de suprimento · Usada em bandagens, arcos e sacos
+424	Médico de campo
+426	Ache códigos novos na página do jogo e no grupo · Tente o código WELCOME!
+428	Fogo
+429	Aura do fogo: Dano +15%
+430	Coração de fera de fogo
+431	Sopro de fogo!
+432	Meteoro de fogo!
+433	Pilar de fogo
+434	Carneiro de fogo
+435	Cajado de fogo
+436	Essência de fogo · Quebre cristais laranja no vulcão / baús / meteoros / santuários / chefe de fogo · Usada no Montante de brasas, Pilar de fogo, Farol · Combustível forte
+437	O fogo apagou! Não é seguro
+438	Pilar de fogo. Queima animais próximos
+439	Espada de fogo. Queima inimigos e ilumina
+440	O fogo apagou!
+441	Vaga-lumes
+442	Guardião do fogo
+443	Kit de primeiros socorros
+444	Primeira Lua de sangue
+445	Primeira noite na floresta
+446	Fissura
+447	Guardião da chama
+448	Kit do guardião da chama
+451	Flores
+452	Voando
+454	Comida
+455	Especialista em comida
+457	Coletor
+458	Derrubador da floresta
+459	Fortaleza
+460	Espada dos Quatro Elementos
+461	Espada dos Quatro Elementos. A arma suprema do jogo
+462	Lâmina quádrupla
+464	Grátis
+465	Frutas frescas. Coma para matar a fome · Faça suco/remédio de ervas (Bancada Nv.1) · Plante canteiros · Tortas e ensopado na panela
+466	Suco de frutas feito na hora. Mata a fome e recarrega todo o fôlego
+468	Gelo
+469	Aura do gelo: O fôlego cai 15% mais devagar
+470	Coração de fera de gelo
+471	Pena de gelo
+472	Coração de gelo
+473	Pilar de gelo
+474	Filhote de lobo de gelo
+475	Essência de gelo · Quebre cristais brancos nas Terras Altas / baús / meteoros / santuários / chefe de gelo · Usada no Arco da tempestade, Pilar de gelo e melhorias de bancada e fogueira
+476	Pilar de gelo. Empurra animais para longe
+477	Urso presa-de-gelo
+478	Frostmaw, o Yeti da Geleira
+479	Combustível
+480	Colheita completa
+481	Cura toda a vida e revive aliados caídos
+483	GOLGRAN, a Montanha Viva
+484	Arco longo do vendaval
+485	Filhote do vendaval
+486	Totem do vendaval
+487	Jogabilidade
+488	Colete %d de pedra
+489	Colete %d de madeira
+490	Colete durante o dia
+491	Coletado
+492	Coleta
+493	Gerando mundo %d%%
+494	Gerando mundo...
+495	Gerando mundo... %d%%
+496	Ganhe:
+497	Fantasma
+498	Saco gigante
+499	Presente
+500	Presente de
+501	Geleira
+502	Golpe da geleira!
+503	Faça %d expedições
+504	Ouro
+505	Armadura de ouro
+506	Golgran, a Montanha Viva
+507	Saco bom
+508	Ganhou 1 ticket de reviver — use na próxima vez que cair
+509	Atingido
+510	Gráficos
+511	Qualidade gráfica
+512	Grama
+513	Verde
+514	Chão
+515	Golpe no chão!
+517	Cultiva frutas
+518	Cultiva frutas que você pode colher sempre
+520	Guardião
+521	Guardião dos Quatro Elementos
+523	Martelo
+524	Madeira de lei
+525	Olho de falcão
+526	Risco
+528	Cura
+529	Mãos de curandeiro
+530	Cura x2 · Vida máx. +15
+531	Coração
+532	Coração do chefe da terra (Golgran) · Usado no Martelo Terra e na Espada dos Quatro Elementos
+533	Coração do chefe do fogo (Ignarax) · Usado no Montante de brasas e na Espada dos Quatro Elementos
+534	Coração do chefe do gelo (Frostmaw) · Usado no Arco da tempestade e na Espada dos Quatro Elementos
+535	Coração do chefe da água (Tyrannomosa) · Usado no Tridente da maré e na Espada dos Quatro Elementos
+536	Ensopado reforçado
+537	Besta pesada · Recarga lenta, virotes fortes de longo alcance
+538	Clava pesada com cravos de ferro · Também quebra rochas
+539	Pomada de ervas
+540	Remédio de ervas
+541	Remédio de ervas feito de frutas. Cura um pouco (não revive aliados)
+542	Alta
+544	Dicas
+545	Bater em árvores/rochas/animais escolhe o melhor machado/picareta/arma para você
+546	Segure uma tocha e o Cervo Oco não ousará se aproximar
+548	Início
+550	Ensopado quente
+551	Ensopado quente da panela. Sacia por muito tempo e cura bastante
+552	Barra rápida
+553	Pilha enorme de Ruby
+554	Martelo de guerra enorme · Dano em área esmagador, quebra rochas de minério
+557	Fome
+558	Fome 25% mais lenta · Comida e cura 20% mais fortes
+559	Caçar
+560	Cace %d animais
+561	Cace %d animais · Sobreviva %d noites com esta classe
+562	Caçador
+563	Arco de caçador
+564	Kit de caçador
+565	Arco do caçador
+566	Arco do caçador + 4 carnes assadas
+567	Faca de caça
+568	Caça dá +1 carne/pele/osso/fibra extra
+569	Caça dá +2 carne/pele/osso/fibra extra
+570	Rápido, vá salvá-lo!
+571	IGNARAX, o Dragão Derretido
+572	RUMO À SELVA
+573	Gelo
+574	Espinhos de gelo!
+575	Tigre de gelo
+576	Ignarax, o Dragão Derretido
+577	Em estoque
+578	Em andamento...
+579	À luz do fogo
+580	Vulcão infernal
+581	Info
+582	Polvo tinta-sombria
+584	Inventário
+585	Ferro
+586	Armadura de ferro
+587	Machado de ferro
+588	Pulmões de ferro
+589	Minério de ferro
+590	Espada de ferro
+591	Armadura de ferro com ombreiras. Resistente, aumenta muito a vida máx.
+592	Machado de ferro. O mais rápido para cortar madeira
+593	Minério de ferro de rochas de minério. Usado em armas e itens de alto nível
+594	Item aqui
+595	Itens
+596	Jade
+597	Carne assada suculenta. Mata bastante a fome
+598	Katana
+599	Mantenha o fogo aceso
+600	Alga
+601	Barra de dicas de teclas na parte de baixo da tela
+602	Abater
+603	Abates
+604	Abates %d/%d
+606	Tesouro do rei
+607	Empurra animais para trás
+609	Covil
+610	Lanterna
+611	Lanterna. Ilumina a área e espanta o Cervo Oco
+612	Carneiro de lava
+613	Golpe de lava!
+614	Sair do grupo
+615	Esquerda
+618	Lenda
+619	Lenda da selva
+620	Lenda da selva (150 noites)
+621	Baú lendário
+622	Lendas dos Quatro Elementos
+623	Nível
+624	Leviatã
+625	Luz
+626	A luz espanta o Cervo Oco
+627	Faca de caça leve · Golpes muito rápidos
+629	Acendendo a fogueira...
+630	Calcário
+632	Carregando
+633	Carregando acampamento
+634	Carregando acampamento... %d%%
+635	Carregando ranking...
+636	Carregando modelos
+637	Carregando missões...
+638	Carregando a área do acampamento...
+639	Lobby
+640	Travar
+641	Bloqueado
+642	Bloqueado — consiga pelo Season Pass/códigos
+643	Braços de tronco
+644	Muro de troncos
+645	Entre todo dia para ganhar cada vez mais Ruby — o dia 7 dá uma grande recompensa!
+646	Login
+647	Dia de login %d/%d
+648	Longo
+649	Arco de longo alcance para caçar de uma distância segura
+650	Procure a fumaça vermelha
+651	Senhor dos Quatro Elementos
+652	Baixa
+653	Lenhador
+657	Nv.%d ⭐MÁX
+658	QUEDA DE METEORO
+659	Maça
+660	Caldeirão mágico
+661	Fazer ensopado (2 carnes + 2 frutas)
+662	Faz ensopado
+663	Mapa das Quatro Terras
+664	Luz enorme
+665	Mestre caçador (250 abates)
+666	Materiais
+667	Máx.
+668	Vida máx. +15 · Fome 10% mais lenta
+669	Vida máx. +25 · Regenera 0.3 PV/s
+670	Nível máximo
+671	Máx. x
+672	Lebre do campo
+673	Médico
+674	Médico
+675	Remédio
+676	Média
+677	Kit médico
+679	Meteoro
+680	Migração
+681	Minerar núcleo do meteoro
+682	Minerar rocha e minério x1.4 · Fôlego +20%
+683	Minerado de rochas. Usado em ferramentas e muros
+684	Perdeu um dia, volta para o dia 1 · Pegue aqui ou no caldeirão de recompensa diária do lobby (uma vez por dia)
+685	Névoa
+686	Tamanho dos botões no celular
+688	Estrela da manhã
+689	Mosassauro
+690	Musgo
+691	Mãe das marés
+692	Tartaruga de rocha
+694	Você se mexeu (fique parado enquanto faz o curativo)
+695	Lama
+696	Cogumelos
+697	Música
+698	Precisa estar no acampamento
+699	Precisa ser colocado no chão
+700	NOITE %d
+702	Precisa de 2 carnes e 2 frutas
+703	Precisa de 5 frutas e 1 madeira
+704	Nunca desista
+705	Nunca erra
+706	Novo estoque em %dh %dm
+707	Próximo ▶
+708	Noite
+709	Coruja noturna
+710	Noite de
+711	Noite de %s · Amanhece em %s
+712	Noites
+713	Nenhuma construção na bolsa ainda — crie uma na bancada primeiro
+714	Sem combustível (madeira / carvão / fragmentos de brasa)
+715	Nenhum material no saco para moer (madeira, pedra, minério, pele, osso...)
+716	Nenhum outro jogador neste servidor
+717	Sem carne crua
+718	Sem carne crua no saco (vá caçar primeiro)
+719	Nenhuma receita corresponde à busca
+720	Não há renascimento após morrer — protejam uns aos outros
+721	Nenhuma recompensa ainda — ganhe mais XP!
+722	Nenhum aliado vivo... aguardando o resultado
+723	Sem madeira/carvão no saco
+724	Sem madeira/carvão/carne crua no saco para jogar no fogo
+726	Nenhum
+727	Itens insuficientes para trocar
+728	Materiais insuficientes
+729	Materiais insuficientes para melhorar a bancada
+730	Materiais insuficientes para melhorar a fogueira
+731	♦️ insuficientes (
+732	Fora de estoque hoje — espere o novo estoque ou sorteie de novo
+734	Agora é o dia
+735	Carvalho
+736	Polvo
+737	Chances
+738	Desligado
+740	Machado velho
+741	Saco velho
+742	Botões de toque na tela
+743	Só o líder da plataforma (o primeiro a subir) escolhe o tamanho da equipe
+744	Abrir baú
+745	Abrir menu de criação
+746	Abrir baú sagrado
+747	Abrir baú de suprimentos
+749	Esgotado
+750	Sobrepõe outra construção
+751	Possuído
+752	Pacote
+753	Plataforma
+754	Página %d / %d
+755	Palmeira
+762	Pagar:
+763	Pele
+764	Mascote
+766	Celulares/aparelhos lentos: recomendado "Baixa"
+767	Picareta
+768	Colher frutas
+769	Picareta
+770	Picareta. Minera rocha e minério rápido
+772	Floresta de pinheiros
+774	Pioneiro
+775	Colocar
+776	Coloque para descansar e pular 1 dia (+1 dia sobrevivido · colocada à noite, conta de manhã) · Máx. 2 camas por servidor por partida
+777	Coloque para pular 1 dia (+1 dia)
+778	Jogar!
+779	Jogador
+780	Jogadores
+783	Posição
+784	Prem
+785	Preço ♦️%d — em estoque hoje
+786	Floresta primitiva da terra
+787	Perfil
+790	Filhote
+791	Comprado
+792	Guardar
+793	Pôr no saco
+796	Qualidade
+797	Missões
+798	Missões e recompensas
+799	Pés ligeiros
+800	Coelho
+801	Baú raro
+802	Itens raros
+803	Carne crua
+804	Carne crua. Comestível, mas tira vida — asse na fogueira primeiro
+805	Pronto
+806	Pronto para criar! (vá ao acampamento, aperte C)
+807	Pronto!
+808	Foice do ceifador
+809	Foice do ceifador · Maior alcance, varre grupos de inimigos
+810	Recuperação
+811	Vermelho
+812	Regenera 0.5 PV/s o tempo todo
+813	Voltar
+814	Relíquia
+817	Conserta muros próximos
+819	Requer o passe Save Run
+820	Resgate %d espíritos elementais
+821	Recurso
+822	Volte para a fogueira
+823	Voltando ao acampamento...
+824	Reviver
+825	Reviver (usa uma bandagem)
+826	Reviva aliados caídos
+827	Reviver agora
+828	Reviva aliados caídos %d vezes
+829	Revivido
+830	Revivido!
+831	Reanimações
+832	Revivendo aliado com
+833	Recompensa
+835	Ombro direito
+836	Anel de fogo!
+837	Orca da correnteza
+839	Rocha
+840	Deslizamento!
+842	Girar
+845	Baú de Ruby
+846	Bolsinha de Ruby
+847	Ruby compra classes, pulos de nível, novos sorteios de estoque e kits iniciais — você também ganha grátis jogando/no caldeirão diário!
+849	Correr
+850	Corre 12% mais rápido
+851	Corre 20% mais rápido · Fôlego x2 · Caça dá +1 item extra
+852	Corre 5% mais rápido · Fôlego +15%
+853	Partida salva · Noite %d
+854	Partidas
+855	SELO QUEBRADO
+856	O ESPÍRITO VOLTOU
+857	ESPÍRITO LIBERTADO
+858	SUPRIMENTOS AÉREOS
+859	Saco
+860	Saco para 10 itens — segure e clique nos itens para coletar
+861	Saco para 20 itens
+862	Saco para 30 itens
+863	Zona segura ampliada
+864	Sal
+865	Santuário
+866	Areia
+867	Arenito
+868	Salvar partida
+869	Aumentar/diminuir todas as janelas
+870	Batedor
+871	Tremor de tela
+874	Foice
+875	Altar selado
+876	Buscar
+877	Buscar jogador...
+878	Temporada
+879	Temporada
+880	Herói da temporada
+882	Season Pass nível %d%s
+883	Veja se o jogo está fluido
+884	Selecionado
+885	Enviou %d Ruby para %s!
+886	Servidor
+887	Partindo
+888	Configurações
+889	Sombra da selva
+890	Tremor
+891	Forma
+893	Katana afiada · Cortes muito rápidos e fortes
+894	Escudo
+895	Atira nos animais sozinha
+896	Loja
+898	Mostrar FPS
+899	Altar
+900	Altar concluído:
+903	Habilidades
+904	Pular
+905	Pular ♦️
+906	Pulou %d dias · Dia %d
+907	Céu
+908	Azul-céu
+909	Terras Altas Celestes
+910	Ardósia
+911	Espaço
+912	Calma, tente de novo daqui a pouco
+913	Deixa os animais por perto mais lentos
+914	Bolsinha pequena de Ruby
+915	Fumaça
+916	Neve
+917	Touro da neve
+918	Farol solar
+919	Farol solar. Emite uma luz enorme
+920	Esgotado
+922	Resolvido
+923	Algo está vindo...
+924	Algo observa da escuridão
+925	Algo deu errado, tente de novo
+926	Som
+927	Brilhos
+928	Faíscas
+929	Lança
+930	Assistir
+931	Armadilha de espinhos
+932	Armadilha de espinhos. Fere animais que pisam nela
+933	Clava com cravos
+934	Estrela da manhã com cravos · Acerta tudo em volta do alvo
+935	Espírito
+936	Filhote Espiritual
+937	Filhotes Espirituais resgatados %d/4 — resgate todos para o final verdadeiro
+939	Manchas
+940	Correr
+941	Correndo
+943	Fere animais que pisam nela
+944	Cajado
+946	Fôlego x1.6 · Fome 10% mais lenta
+947	Machado inicial. Corta madeira devagar
+948	Kits iniciais só podem ser comprados no lobby
+949	Ferramentas iniciais
+950	Morrendo de fome!
+951	Suba numa plataforma de início à sua direita
+952	Suba na plataforma para começar
+953	Panela de ensopado
+954	Panela. Faz ensopado (carne + frutas) e torta de frutas (frutas + madeira)
+955	Ainda faltam materiais
+956	Estoque
+957	Pedra
+958	Machado de pedra
+959	Crocodilo de pedra
+960	Muro de pedra
+961	Machado de pedra. Corta madeira duas vezes mais rápido
+962	Muro de pedra. Muito resistente
+963	Loja
+964	Arco da tempestade
+965	Estrutura
+966	Estruturas
+969	Sub
+970	Farol solar
+971	Suprimentos
+972	Suprimento
+973	Baú de suprimentos
+974	Caixa de suprimentos
+975	Suporte
+976	Instinto de sobrevivência
+977	Sobreviva %d noites
+978	Sobreviva %d noites com amigos
+979	Sobreviva 99 noites
+980	Sobreviver 99 noites = conquistado! Mas dá para continuar jogando sem fim para subir no ranking
+981	Sobreviver 99 noites = conquistado! Continue jogando para subir no ranking
+982	Sobreviva 99 noites na selva de Terra, Água, Gelo e Fogo
+983	Sobreviva noites
+984	Sobreviva até a noite 10
+985	Sobreviva até a noite 25
+986	Sobreviva até a noite 5
+987	Sobreviva até a noite 50
+988	Sobreviveu %d noites · Seu recorde é %d noites
+989	Sobreviveu %d/%d noites
+990	Sobreviveu à noite
+991	Sobreviveu até a noite
+992	Sobrevivente
+993	Acampamento dos sobreviventes
+994	Trocar
+995	Espada
+996	O FOGO APAGOU
+997	OS QUATRO ESPÍRITOS SE REÚNEM
+998	A GRANDE MIGRAÇÃO
+999	O CERVO OCO
+1000	TYRANNOMOSA, Terror das Profundezas
+1001	Retirar
+1002	Voltando ao lobby...
+1003	Toque na tela = atacar · A bolsa fica no canto superior esquerdo
+1004	Equipe
+1005	Equipe cheia! Partindo
+1006	A equipe está na noite %d · Suba numa plataforma para entrar
+1007	Equipe de %d · Parte em %ds
+1008	Aliado caído? Use uma bandagem em 30 segundos — se ninguém ficar de pé, a equipe toda perde
+1009	Teleportando
+1010	Tenda = Classes · Caldeirão verde = Recompensa diária
+1011	Núcleo Terra
+1012	Martelo Terra
+1013	Coração Terra
+1014	Filhote Terra
+1015	Totem Terra
+1016	Terragon
+1019	O santuário de %s foi selado
+1020	O santuário de %s está aberto
+1021	Os guardiões do altar de %s despertaram
+1022	O selo do altar de %s enfraqueceu · Segure E
+1023	A balista atira sozinha. Coloque-as em volta da fogueira
+1024	Cajado de fogo do Elementalista. Ataques lançam bolas de fogo explosivas · Também corta árvores/rochas
+1025	A noite final
+1026	O Cervo Oco
+1027	A Montanha que Anda
+1028	A selva desperta
+1029	O chefe está vindo
+1030	O chefe ainda está vivo — o amanhecer foi adiado!
+1031	A fogueira queima inimigos que entram na zona segura
+1032	A fogueira gasta combustível 25% mais devagar
+1033	A fogueira se apagou... a floresta engoliu tudo
+1034	A fogueira já está no nível máximo
+1035	A fogueira está acesa de novo
+1036	A fogueira está cheia
+1037	A fogueira é vida
+1038	A fogueira é vida — se apagar, o Cervo Oco entra no acampamento
+1039	A bancada de criação já está no nível máximo
+1040	O pilar de cristal de
+1041	O fogo está apagado, não dá para assar
+1042	A névoa está densa demais — melhore a fogueira (Nv.%d → %d) para explorar mais longe
+1043	O chão está tremendo...
+1044	Os guardiões te viram!
+1045	Os guardiões do altar estão chegando nele!
+1046	A equipe
+1047	O vulcão entra em erupção... as feras de fogo se espalham
+1048	O mercador chegou ao acampamento
+1049	O mercador foi embora
+1050	As ondas rugem... as feras da água saem do mar
+1051	A floresta inteira desperta... as feras da terra estão vindo
+1052	A equipe toda caiu na noite %d
+1053	O vento uiva... os caçadores do céu mergulham
+1055	Esta classe não está no estoque hoje — espere o novo estoque ou sorteie de novo
+1056	Só este servidor (sistema de salvamento ainda não conectado)
+1057	Javali-espinho
+1058	Construtor econômico
+1059	Jogue materiais no criador e construa muros, armadilhas e balistas
+1060	Jogue materiais no moedor (um de cada vez)
+1061	Jogue madeira no fogo
+1062	Jogue madeira/carvão na fogueira — se apagar, a zona segura some!
+1063	Vastidão das marés
+1064	Tridente das marés
+1065	Onda gigante!
+1066	Filhote de raposa-maré
+1067	Coração da maré
+1068	Pérola da maré
+1069	Filhote maré
+1070	Totem da maré
+1071	Tridente da maré
+1072	Nível
+1073	O tempo para voltar à partida anterior acabou
+1074	Título
+1075	Cor do título
+1076	Rumo à Terra dos Quatro Elementos
+1077	Hoje!
+1078	Plano de hoje:\n1. Escolha uma classe\n2. Suba numa plataforma de início\n3. Conquiste a noite final!
+1079	Amanhã
+1080	Perto demais da fogueira
+1081	Longe demais
+1082	Longe demais do seu aliado
+1083	Ferramenta
+1084	Topo
+1085	Recarga:
+1086	Tocha
+1087	Tocha para iluminar. Espanta o Cervo Oco
+1089	Jabuti
+1090	Trocar
+1092	Viajante
+1093	Viajando...
+1094	Baú do tesouro
+1095	Troféu
+1097	Machado fiel
+1101	Digite o código aqui...
+1102	Tyrannomosa, Terror das Profundezas
+1103	Tamanho da interface
+1104	Desequipar
+1105	Desbloquear esta classe
+1106	Desbloqueado
+1107	Classe desbloqueada
+1108	Desbloqueia no nível
+1109	Desbloqueia mais itens de criação
+1110	Desbloqueia a trilha premium do Season Pass toda temporada · Mais Ruby + títulos/cores especiais
+1111	Liberado!
+1112	Correntes de ar na zona de gelo te levam às ilhas flutuantes
+1113	Melhore a bancada para o nível %d primeiro
+1114	Melhore a fogueira para dissipar a névoa e ampliar a zona segura
+1115	Melhoria:
+1116	Usar
+1117	Usar ticket de reviver (%d)
+1118	Use bandagens para reviver aliados — se ninguém ficar de pé, a equipe toda perde
+1119	Usando
+1128	Vegetação
+1129	Selva verdejante
+1130	Muro muito resistente
+1131	Ver classes
+1132	Violeta
+1133	ACAMPAMENTO WILDHEART
+1135	Esperando o líder da plataforma / amigos
+1136	Esperando o líder escolher o tamanho da equipe...
+1137	Esperando a partida anterior terminar...
+1138	Chegue mais perto da fogueira primeiro, depois jogue
+1139	Muro
+1140	Muros e construções x1.5 mais resistentes
+1141	Mercador ambulante
+1142	Martelo de guerra
+1145	Guerreiro
+1146	Kit de guerreiro
+1147	Água
+1148	Aura da água: Fome 15% mais lenta
+1149	Coração de fera da água
+1150	Pilar da água
+1151	Água vence Fogo · Fogo vence Gelo · Gelo vence Terra · Terra vence Água
+1152	Essência da água · Quebre cristais azuis no Lago Redemoinho / baús / meteoros / santuários / chefe da água · Usada no Tridente, Pilar da água e melhorias de bancada e fogueira
+1153	Pilar da água. Deixa os animais por perto mais lentos
+1154	Tridente da água. Deixa os animais mais lentos
+1155	Tromba d'água!
+1156	Golpe de onda!
+1157	Armas
+1158	Semana
+1159	Semanal
+1160	Missão semanal:
+1161	Bem-vindo à selva
+1162	Baleia
+1163	Ao ser atingido / impactos de chefe
+1164	Lago Redemoinho
+1165	Pinheiros Sussurrantes
+1166	A equipe toda caiu — fim de jogo em %ds
+1167	Largo
+1168	Acampamento Wildheart
+1169	Vento
+1170	Arco do vento. Flechas atravessam vários inimigos
+1171	Lobo
+1172	Madeira
+1173	Armadura de madeira
+1174	Muro de madeira
+1175	Armadura de madeira. Equipa logo após criar, aumenta a vida máx.
+1176	Madeira das árvores. Serve para quase tudo e pode ir para a fogueira
+1177	Muro de madeira. Bloqueia bandos de animais
+1178	Lã
+1180	Mundo pronto
+1181	VOCÊ PERECEU
+1182	Você já comprou este kit (recebe ao partir)
+1183	Você já tem
+1184	Você já tem a classe %s — recebeu %d Ruby no lugar
+1185	Você conquistou 99 noites na selva!
+1186	Você conquistou 99 noites — o final verdadeiro
+1187	Você morreu na noite %d — assista seus aliados sobreviverem ou volte ao lobby
+1188	Você morreu... sem renascer nesta partida
+1189	Você morreu... sem renascer nesta partida · %d aliados ainda vivos
+1190	Você ainda não tem partida salva
+1191	Você não tem
+1192	Você ainda não completou esta conquista
+1193	Você saiu no meio da partida — dá para voltar à mesma (mesma noite, fogueira, construções e itens do saco)
+1194	Precisa estar no acampamento (perto da fogueira/bancada) para criar
+1195	Precisa estar perto do mercador
+1196	Você precisa de uma bandagem ou kit de primeiros socorros
+1197	Você precisa de um machado para cortar madeira
+1198	Você precisa de um machado/picareta para quebrar isto
+1199	Você foi revivido
+1200	Você é o líder da plataforma · Espere os amigos ou o tempo acabar
+1201	Você já trocou isto %d vezes — espere a próxima visita do mercador
+1202	Sua partida anterior terminou
+1203	Sua partida anterior terminou — comece uma nova na plataforma de início
+1204	Sua partida anterior terminou — começando uma nova
+1205	Sua partida é salva a cada amanhecer e ao sair · Continue da noite salva na plataforma de início
+1206	Zona
+1207	[ Sempre ] · Esta semana
+1210	alguns minutos
+1211	após a noite final
+1213	de manhã
+1217	por jogo (servidor inteiro)
+1218	por jogador
+1219	a equipe
+1220	~ SOBREVIVA 99 NOITES ~
+1221	—  A equipe parte quando enche ou quando o tempo acaba  —
+1222	— Chefe elemental —
+1223	… (fique parado)
+1224	↩ Voltar à sua partida?
+1225	↩ Você voltou à partida — os itens do saco e ferramentas estão todos aqui
+1226	⌛ Este código expirou
+1227	⌛ Acabou o tempo! Os pilares rúnicos voltaram a dormir — veja a ordem de novo
+1228	⏱ Velocidade %.1f golpes/s
+1229	⏳ Desperte todos os pilares rúnicos: %d segundos
+1230	⏳ Verificando...
+1231	⏳ Gerando mundo %d%%
+1232	⏳ Reinicia em
+1233	⏳ A temporada acaba em
+1234	⏳ O santuário de %s despertou! Desperte os pilares rúnicos em ordem em %d segundos
+1235	⏳ Este código ainda não está ativo
+1236	⏳ Tempo restante
+1237	◀ Voltar
+1239	☀️ Missões diárias
+1240	☠ Você morreu
+1244	♦️ Ruby insuficiente
+1245	♦️ Ruby insuficiente para sortear o estoque
+1246	♦️ Ruby insuficiente para pular nível
+1247	♨ Pode ser assado na fogueira
+1248	♾ Infinito ·
+1249	♾ O jogo não acabou! Continue jogando sem fim — sobreviva o máximo possível para subir no ranking
+1250	⚒ Criar
+1251	⚒ Criar x1
+1252	⚒ Melhorar
+1253	⚒ Melhorar bancada de criação
+1254	⚔ Dano
+1255	⚔ Entrar na equipe em andamento
+1256	⚔ Abater
+1257	⚔ Passe pelo portal para começar o jogo
+1258	⚔ Armas/Ferramentas
+1259	⚙ Configurações
+1260	⚠ Fora do acampamento: volte para criar (contagem inclui o depósito do acampamento)
+1261	⛏ Minerar rocha/minério x
+1262	✅ Concluído
+1263	✔ Resgatado
+1264	✔ Resgatado — volte em
+1265	✔ Código já usado (um uso por jogador)
+1266	✔ Continuar · Noite
+1267	✔ Feito %d/%d
+1268	✔ Equipado
+1269	✔ Tem um melhor
+1270	✔ Possuído
+1271	✔ Voltar
+1272	✕ Não, obrigado
+1273	✖ Parou o curativo —
+1274	✨ Pode reviver aliados caídos
+1275	✨ Ganhou
+1276	✨ Resgate 4 espíritos elementais
+1277	✨ Pilar rúnico %d/%d despertado
+1279	❌ Código não encontrado — confira a grafia
+1280	❌ Ordem errada! O selo te repeliu — veja as luzes piscando de novo
+1281	❤ Vida cheia — guarde seu
+1282	❤ Cura +
+1283	➶ Atravessa
+1284	⟳ Girar (R)
+1286	⭐ %s nível %d!
+1287	⭐ A classe %s chegou ao nível %d! Nova habilidade desbloqueada
+1288	⭐ Classe nível 3
+1289	⭐ Nível máximo alcançado
+1290	🌍 Construindo o mundo dos quatro elementos
+1291	🌕 Sobreviva até a noite 25
+1292	🌕 Sobreviva até a noite 50
+1293	🌙 Sobreviver
+1294	🌙 Sobreviva até a noite 10
+1295	🌙 Sobreviva até a noite 5
+1296	🌟 Resgatado
+1297	🌫 A névoa está densa demais — melhore a fogueira para explorar mais longe
+1298	🍖 Assando carne x
+1299	🍖 Comer
+1300	🍖 Comida +
+1301	🍖 A carne está pronta! Ponha no saco ou aperte R para comer
+1302	🎁 7 dias seguidos! Grande recompensa resgatada — nova sequência começa amanhã
+1303	🎁 Pegar tudo
+1304	🎁 Pegar tudo (
+1305	🎁 Pegar recompensa
+1306	🎁 Pegar recompensa do dia %d  (%d Ruby)
+1307	🎁 Códigos
+1308	🎁 Presentear um amigo
+1309	🎁 Presentear
+1310	🎁 Presenteando
+1311	🎁 Resgate códigos por recompensas
+1312	🎉 Código resgatado! Você ganhou
+1314	🎒 Capacidade
+1315	🎒 Segure o saco primeiro (selecione na barra), depois pegue os itens
+1316	🎒 Sem saco
+1317	🎒 Tenha 3 classes
+1318	🎒 Tenha 6 classes
+1319	🎒 Recebido
+1320	🎒 Saco
+1321	🎒 Saco  %d/%d
+1322	🎒 Saco cheio (%d/%d) — esvazie na bancada de criação do acampamento
+1323	🎟\nGrátis
+1324	🎟 Season Pass nível %d! Pegue as recompensas no menu "Missões"
+1325	🎨 Cor:
+1326	🎨 Carregando modelos e texturas
+1327	🎨 Nova cor de título:
+1328	🎨 Cor do título
+1329	🎫 Itens do Game Pass:
+1330	🎫 Game Pass recebido:
+1331	🎲 Estoque da loja de classes sorteado de novo
+1332	🎲 Sortear estoque  ♦️
+1333	🏅 Insígnias de conquista
+1334	🏅 Conquista desbloqueada:
+1335	🏅 Insígnia obtida:
+1336	🏆 Colete todas as classes
+1337	🏆 Maiores sobreviventes de todos os tempos
+1338	🏗 Construções
+1339	🏗 Colocar %s (restam %d)  ·  Clique = colocar  ·  R = girar  ·  B/Esc = cancelar
+1340	🏗 Colocar %s (restam %d)  ·  Clique = colocar  ·  R = girar  ·  Q = mudar tipo  ·  B = cancelar
+1341	🏗 Colocar %s (restam %d) — mire no centro da tela e toque ✔
+1342	🏠 Voltar ao lobby
+1343	🏷 Novo título:
+1344	🏷 Título
+1345	🐺 Cace 1000 animais
+1346	🐾 Cace 250 animais
+1347	🐾 Cace 50 animais
+1348	🐾 Trocar
+1349	🐾 Troca feita! (restam %d trocas deste item)
+1350	🐾 Mercador ambulante
+1351	👁 Memorize a ordem em que os pilares rúnicos piscam e desperte-os nessa ordem!
+1352	👁 Assistindo:
+1353	👁 Espere os pilares rúnicos terminarem de mostrar a ordem
+1354	👑\nPremium
+1355	👑 Conquiste a noite final
+1356	👑 Premium
+1357	👑 Premium (em breve)
+1358	👑 Premium ✔
+1360	👥 Escolha o tamanho da equipe
+1361	👥 Plataforma
+1362	👥 Esperando o líder escolher o tamanho da equipe
+1363	👹 Derrote 10 chefes
+1364	💔 Perda de vida
+1365	💡 Luz
+1366	💡 A luz espanta o Cervo Oco
+1367	💥 Ataque em área
+1368	📅 Login de 7 dias
+1369	📅 Entre 7 dias seguidos
+1370	📅 Maiores sobreviventes da semana
+1371	📅 Missões semanais
+1372	📏 Raio
+1373	📏 Alcance
+1374	📖 Como jogar
+1375	📖 Como sobreviver
+1376	📜 Complete 30 missões
+1377	📜 Novas missões chegaram! Abra o menu "Missões" no lobby
+1378	📜 Missão concluída! %s %s — volte ao lobby para pegar a recompensa
+1379	📜 Missões
+1380	📦 No acampamento: usa primeiro os itens do saco, depois o depósito do acampamento
+1381	📦 Guardou %d itens no depósito do acampamento
+1382	🔄 Padrão
+1383	🔍 Buscar
+1384	🔒 Precisa de bancada Nv.
+1385	🔒 A trilha premium precisa do Season Pass (Loja → Game Pass)
+1386	🔒 Este lugar está selado pelo resto da partida
+1387	🔥 Sequência de %d dias   ·   Recorde %d dias
+1388	🔥 Adicionar 1,000 de combustível
+1389	🔥 Adicionar 10,000 de combustível
+1390	🔥 Queima
+1391	🔥 Acampamento   ⛩ Altar dos filhotes   💀 Covil do chefe   🏛 Santuário antigo   ☄📦 Eventos   ▲ Você   ● Aliados   (os locais aparecem ao serem descobertos)
+1392	🔥 Combustível +
+1393	🔥 Combustível adicionado:
+1394	🔥 Última partida: a equipe chegou à noite %d — tente de novo!
+1395	🔥 Acendendo a fogueira do acampamento
+1396	🔥 Sobreviva 100 noites no total
+1397	🔥 Sobreviva 20 noites no total
+1398	🔥 O fogo está morrendo! Resta cerca de %s — jogue madeira/carvão, rápido
+1399	🔥 Melhorar fogueira
+1400	🔨 Crie 250 itens
+1401	🔨 Crie 50 itens
+1402	🔨 Crie na bancada Nv.
+1403	🔨 Criado:
+1404	🔨 Bancada de criação Nv.%d
+1405	🔨 Bancada de criação Nv.1
+1406	🗺 Descoberto: %s%s
+1407	🗺 Descoberto: Santuário antigo de
+1408	🚪 Faça 100 expedições
+1409	🚪 Faça 20 expedições
+1410	🛒 Comprou
+1411	🛒 Loja
+1412	🛡 Armadura
+1413	🛡 Criar + equipar
+1414	🛡 %s equipado! Vida máx. +%d
+1415	🛡 PV
+1416	🛡 Vida máx. +
+1417	🛡 Vestindo
+1418	🤝 Trocar
+1419	🧊 Deixa inimigos lentos
+1420	🩹 Remédio
+1421	🩹 Reviva aliados 10 vezes
+1422	🩹 Reviva aliados 50 vezes
+1423	🪓 Cortar madeira x
+1424	🪵 Colete 1,000 materiais
+1425	Auto
+1426	Auto 🌐
+1427	Idioma
+1429	%d jogadores
+1430	Popular
+1431	Confirmar
+1432	Entrar no altar
+1433	Voltar para fora
+1434	Moedor
+1435	Noite de %s
+1436	Santuário de %s
+1437	Baú do santuário de %s
+1438	Altar de %s
+1440	Precisa de bancada Nv.%d
+1441	Reinicia em %s
+1442	Missão concluída! %s - volte ao lobby para pegar a recompensa
+1443	Acampamento
+1444	Ligado
+1445	Abrir
+1446	[Clique] Atacar/Cortar   [Shift] Correr   [Ctrl] Travar câmera   [C] Criar   [B] Construir   [E] Pegar (segurando o saco)   [F] Retirar   [M] Mapa   [1-9] Escolher item

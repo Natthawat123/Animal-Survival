@@ -13,6 +13,12 @@ local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("R
 local UIKit = require(script.Parent.UIKit)
 local WoodKit = require(script.Parent.WoodKit)
 local MenuArt = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("MenuArt"))
+local Localizer = require(script.Parent:WaitForChild("Localizer"))
+-- รูปปุ่มเมนูภาษาไทย (ต้นฉบับ assets/ui/menu_th) ใช้เมื่อผู้เล่นเลือกภาษาไทย · ภาษาอื่นใช้รูปอังกฤษ
+local function artModule()
+	local th = Localizer.Code() == "th" and ReplicatedStorage.Shared:FindFirstChild("MenuArt_th")
+	return th and require(th) or MenuArt
+end
 
 local LobbyUI = {}
 
@@ -112,8 +118,9 @@ end
 -- ปุ่มเมนูแบบภาพวาด (เหรียญไม้ + ป้ายไม้ + ธง) จาก Shared/MenuArt — โหลดรูปไม่ได้คืน nil (ใช้ปุ่มแบบเดิมแทน)
 local ART_W = 270
 local function artButton(parent, order, art, onClick)
-	local ok, img = pcall(MenuArt.Image, art)
-	local size = MenuArt.Size[art]
+	local mod = artModule()
+	local ok, img = pcall(mod.Image, art)
+	local size = mod.Size[art]
 	if not ok or not img or not size then
 		return nil
 	end
@@ -124,6 +131,16 @@ local function artButton(parent, order, art, onClick)
 	b.ImageContent = Content.fromObject(img)
 	b.Size = UDim2.fromOffset(ART_W, math.floor(ART_W * size.Y / size.X))
 	b.LayoutOrder = order
+	-- เปลี่ยนภาษา -> เปลี่ยนรูปป้าย (ไทย/อังกฤษ)
+	Localizer.OnChanged(function()
+		local m = artModule()
+		local ok2, img2 = pcall(m.Image, art)
+		local s2 = m.Size[art]
+		if ok2 and img2 and s2 and b.Parent then
+			b.ImageContent = Content.fromObject(img2)
+			b.Size = UDim2.fromOffset(ART_W, math.floor(ART_W * s2.Y / s2.X))
+		end
+	end)
 	b.Parent = parent
 	local sc = Instance.new("UIScale")
 	sc.Parent = b

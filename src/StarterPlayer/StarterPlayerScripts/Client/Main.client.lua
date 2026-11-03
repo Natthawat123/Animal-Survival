@@ -69,6 +69,8 @@ task.spawn(function()
 	keys.Value = "LeftControl,RightControl"
 end)
 
+-- ภาษา: เริ่มก่อนหน้าจออื่น ข้อความแปลตั้งแต่เฟรมแรก (Localizer)
+safe("Localizer", require(Client:WaitForChild("Localizer")).Init)
 safe("Cinematics", Cinematics.Init, state)
 safe("HUD", HUD.Init, state)
 safe("Atmosphere", AtmosphereController.Init, state)

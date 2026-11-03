@@ -1,0 +1,4632 @@
+{
+"      Buy Ruby": [
+"StoreUI.lua"
+],
+"  (%d/%d%s)": [
+"Menus.lua"
+],
+"  (down!)": [
+"DeathClient.lua"
+],
+"  (in the hotbar at the bottom, tap to place)": [
+"CampService.lua"
+],
+"  ·  Complete! 🎉": [
+"QuestUI.lua"
+],
+"  ·  Lv.": [
+"HUD.lua"
+],
+" %d/%d": [
+"ClassShop.lua"
+],
+" %dm": [
+"HUD.lua"
+],
+" (Premium)": [
+"SeasonService.lua"
+],
+" (lasts the whole run)": [
+"SanctumService.lua"
+],
+" (same or better)": [
+"CampService.lua"
+],
+" Bonus!": [
+"StoreUI.lua"
+],
+" Class ": [
+"Quests.lua"
+],
+" Element Meteor": [
+"EventService.lua"
+],
+" Element: ": [
+"ItemTooltip.lua"
+],
+" Ruby": [
+"Cinematics.lua",
+"QuestUI.lua",
+"StoreUI.lua"
+],
+" Sanctum Chest": [
+"SanctumService.lua"
+],
+" Sanctum · Awaken the rune pillars in the order of the lights": [
+"WorldEventsClient.lua"
+],
+" Sanctum · Unsealed": [
+"WorldEventsClient.lua"
+],
+" Sealed Cage": [
+"SpiritService.lua"
+],
+" Shrine": [
+"Cinematics.lua"
+],
+" Title ": [
+"Quests.lua"
+],
+" Unlocked class ": [
+"SeasonService.lua"
+],
+" back to the campfire": [
+"Cinematics.lua"
+],
+" failed:": [
+"Main.server.lua"
+],
+" for reviving downed teammates": [
+"SurvivalService.lua"
+],
+" from the Season Pass!": [
+"SeasonService.lua"
+],
+" in your bag (craft it at the bench first)": [
+"BuildingService.lua"
+],
+" is free": [
+"Cinematics.lua"
+],
+" is now living at camp": [
+"Cinematics.lua"
+],
+" is trapped in a sealed cage...": [
+"Cinematics.lua"
+],
+" on the \"Badges\" page in the lobby": [
+"QuestService.lua"
+],
+" or a bigger one": [
+"CampService.lua"
+],
+" sent you a gift!": [
+"Cinematics.lua"
+],
+" shines over the biome": [
+"Cinematics.lua"
+],
+" whole server": [
+"Menus.lua"
+],
+" · Can revive downed teammates": [
+"Menus.lua"
+],
+" · Choose team size": [
+"PadUI.lua"
+],
+" · Chop ": [
+"Menus.lua"
+],
+" · Element ": [
+"Menus.lua"
+],
+" · Friends +10%": [
+"DataService.lua"
+],
+" · Light scares off the Hollow Stag": [
+"Menus.lua"
+],
+" · Mine ": [
+"Menus.lua"
+],
+" · Press E on it to ride": [
+"Cinematics.lua"
+],
+" · VIP x2": [
+"DataService.lua"
+],
+" — claim ♦️ ": [
+"QuestService.lua"
+],
+" — maxed out": [
+"CampService.lua",
+"InventoryService.lua",
+"TraderService.lua"
+],
+" — skipped 1 day! Now day %d": [
+"SpiritService.lua"
+],
+" — tap a slot below to put it in": [
+"Backpack.lua"
+],
+" — thanks for your support!": [
+"MonetizationService.lua"
+],
+" — you'll get it when you depart": [
+"LobbyService.lua"
+],
+"\"Good pelts get you what you need, friend... be quick, I'm leaving before sundown\"": [
+"Menus.lua"
+],
+"%.1fk": [
+"HUD.lua"
+],
+"%d / %d": [
+"ClassShop.lua",
+"HUD.lua",
+"MobBars.lua",
+"QuestUI.lua"
+],
+"%d animals are still attacking the camp — kill them all!": [
+"DirectorService.lua"
+],
+"%d days": [
+"LobbyService.lua"
+],
+"%d guardians left": [
+"EventService.lua"
+],
+"%d m from the campfire": [
+"HUD.lua"
+],
+"%d players on the pad": [
+"PadUI.lua"
+],
+"%d%%": [
+"HUD.lua"
+],
+"%d,%d,%d": [
+"Menus.lua"
+],
+"%d/%d": [
+"InventoryService.lua",
+"LobbyService.lua",
+"LobbyUI.lua"
+],
+"%d/%d players": [
+"PadUI.lua"
+],
+"%d/%d players   •   ⏳ %ds": [
+"PadUI.lua"
+],
+"%d/%d trades left": [
+"Menus.lua"
+],
+"%d:%02d": [
+"HUD.lua",
+"RejoinUI.lua"
+],
+"%dd %dh": [
+"Quests.lua"
+],
+"%dh %dm": [
+"Quests.lua"
+],
+"%dm": [
+"Quests.lua"
+],
+"%s  %d%%": [
+"ClassShop.lua"
+],
+"%s  Lv.%d → %s": [
+"Menus.lua"
+],
+"%s %d days": [
+"LobbyService.lua"
+],
+"%s %d/%d": [
+"Cinematics.lua",
+"InventoryService.lua",
+"Menus.lua"
+],
+"%s %s\n%d m": [
+"WorldEventsClient.lua"
+],
+"%s %s  %d/%d": [
+"PinTracker.lua"
+],
+"%s %s: %s": [
+"TeamPing.lua"
+],
+"%s freed %s": [
+"SpiritService.lua"
+],
+"%s has died": [
+"SurvivalService.lua"
+],
+"%s has returned to its lair": [
+"SpiritService.lua"
+],
+"%s is down! Go help, quick": [
+"SurvivalService.lua"
+],
+"%s mined the %s meteor core!": [
+"EventService.lua"
+],
+"%s opened the supply chest": [
+"EventService.lua"
+],
+"%s rejoined the run": [
+"RejoinService.lua"
+],
+"%s returned to camp (%d/4)": [
+"Cinematics.lua"
+],
+"%s revived %s just in time": [
+"SurvivalService.lua"
+],
+"%s skipped 1 day · Day %d": [
+"DirectorService.lua"
+],
+"%s x%d": [
+"InventoryService.lua"
+],
+"%s x%d · Click = place · R = rotate": [
+"InventoryService.lua"
+],
+"%s x%d · Click = revive downed teammate / heal yourself": [
+"InventoryService.lua"
+],
+"%s · %s %dm": [
+"TeamPing.lua"
+],
+"%s%s+": [
+"MapUI.lua"
+],
+"%s+": [
+"QuestService.lua"
+],
+"%s: max %d %s": [
+"InventoryService.lua"
+],
+") — step on the pad again": [
+"LobbyService.lua"
+],
+"+%d %s %s": [
+"HUD.lua"
+],
+"+1 Day": [
+"Cinematics.lua"
+],
+"+1 Day (counted %s)": [
+"DirectorService.lua"
+],
+"- Free Ruby every day -": [
+"LobbyService.lua"
+],
+"1 (Solo)": [
+"PadUI.lua"
+],
+"2 of each element essence": [
+"Shop.lua"
+],
+"3 Bandages + 1 First Aid Kit": [
+"Shop.lua"
+],
+"35% fewer materials · Buildings x2 tougher": [
+"Classes.lua"
+],
+"4 Spirit Pups are trapped in the shrines. Rescue them all for the true ending": [
+"Cinematics.lua"
+],
+"40 Wood, 20 Stone, 2 Wood Walls": [
+"Shop.lua"
+],
+"8 Coal, Torch, Lantern": [
+"Shop.lua"
+],
+"8CEB96": [
+"Menus.lua"
+],
+"99 NIGHTS CONQUERED": [
+"Cinematics.lua"
+],
+"99 nights... and beyond": [
+"Tutorial.lua"
+],
+"<font color=\"#%s\">%s %d/%d</font>": [
+"Menus.lua"
+],
+"<font color=\"#FFCD32\">%s</font>  ·  %s  ·  %s": [
+"ClassShop.lua"
+],
+"<font color=\"#FFE066\" size=\"40\">Camp News</font>\n\nSurvive milestone nights (every 5-25 nights)\n= Earn Ruby ♦️\n\nRescue a Spirit Pup = ♦️15\n<font color=\"#8CFF8C\">Free Ruby at the green cauldron every day!</font>": [
+"LobbyService.lua"
+],
+"A %s element meteor fell · Go mine its crystal core": [
+"WorldEventsClient.lua"
+],
+"A friend": [
+"Cinematics.lua"
+],
+"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/": [
+"AnimalSkins.lua"
+],
+"ALL HAVE PERISHED": [
+"Cinematics.lua"
+],
+"ANCIENT SANCTUM": [
+"WorldEventsClient.lua"
+],
+"ANIMAL SURVIVAL": [
+"Config.lua"
+],
+"Achievement: ": [
+"QuestService.lua"
+],
+"Add %d fuel to the campfire": [
+"Quests.lua"
+],
+"Add wood, quick": [
+"Cinematics.lua"
+],
+"Air": [
+"Animals.lua",
+"Biomes.lua",
+"Cinematics.lua",
+"HUD.lua",
+"Items.lua",
+"MapUI.lua",
+"Nights.lua",
+"WorldEventsClient.lua"
+],
+"All": [
+"Items.lua",
+"LobbyService.lua",
+"Nights.lua",
+"QuestUI.lua"
+],
+"All 4 Spirit Pups are back together": [
+"Cinematics.lua"
+],
+"All Elements": [
+"DirectorService.lua"
+],
+"All Time · [ This Week ]": [
+"LobbyService.lua"
+],
+"All servers · Updates every minute": [
+"LobbyService.lua"
+],
+"All weapon damage +15%": [
+"Classes.lua"
+],
+"All-Rounder": [
+"Classes.lua"
+],
+"Alpha Hunter": [
+"Classes.lua"
+],
+"Already claimed today — come back in ": [
+"QuestService.lua"
+],
+"Already claimed today's reward — come back in %dh %dm": [
+"DataService.lua"
+],
+"Already wearing ": [
+"CampService.lua"
+],
+"Ambient Sounds": [
+"SettingsUI.lua"
+],
+"Amethyst": [
+"Quests.lua"
+],
+"An animal herd is passing near camp": [
+"WorldEventsClient.lua"
+],
+"Ancient Chest": [
+"LootService.lua"
+],
+"Ancient Rune Pillar": [
+"SanctumService.lua"
+],
+"Ancient Sanctum: ": [
+"SanctumService.lua"
+],
+"Animal": [
+"Cinematics.lua"
+],
+"Animal Migration": [
+"WorldEventsClient.lua"
+],
+"Animal bone. Used for spears and the Giant Sack": [
+"Items.lua"
+],
+"Animal pelt. Used for sacks/beds and trading with the wandering trader": [
+"Items.lua"
+],
+"Animal wave %d has arrived": [
+"DirectorService.lua"
+],
+"Animals": [
+"Cinematics.lua",
+"HUD.lua",
+"Tutorial.lua"
+],
+"Antlers": [
+"Animals.lua"
+],
+"Armor": [
+"Items.lua",
+"Menus.lua"
+],
+"Arrow": [
+"Items.lua"
+],
+"Art": [
+"Cinematics.lua"
+],
+"Asphalt": [
+"Biomes.lua"
+],
+"Assets": [
+"Cinematics.lua",
+"ClassShop.lua",
+"LobbyService.lua",
+"Tutorial.lua"
+],
+"At night, the packs attack!": [
+"Tutorial.lua"
+],
+"Attachment": [
+"LobbyService.lua",
+"TeamPing.lua",
+"WorldEventsClient.lua"
+],
+"Audio": [
+"SettingsUI.lua"
+],
+"Auto": [
+"SettingsUI.lua"
+],
+"Auto Tool Switch": [
+"SettingsUI.lua"
+],
+"Auto 🌐": [
+"SettingsUI.lua"
+],
+"Awaken Rune Pillar": [
+"SanctumService.lua"
+],
+"Awakened Element Kit": [
+"Shop.lua"
+],
+"Axe": [
+"Items.lua"
+],
+"BEAST VANQUISHED": [
+"Cinematics.lua"
+],
+"BLOOD MOON": [
+"Cinematics.lua"
+],
+"BONFIRE LV.": [
+"Cinematics.lua"
+],
+"Back to the lobby": [
+"DirectorService.lua"
+],
+"Backdrop": [
+"Cinematics.lua"
+],
+"Backpack": [
+"Backpack.lua"
+],
+"Badges": [
+"LobbyUI.lua"
+],
+"Bag  ·  Drag items into the slots below (you can swap slots)": [
+"Backpack.lua"
+],
+"Bake Berry Pie (5 berries + 1 wood)": [
+"BuildingService.lua"
+],
+"Balanced iron sword · Fast, solid damage": [
+"Items.lua"
+],
+"Ballista": [
+"Items.lua",
+"Recipes.lua",
+"Tutorial.lua"
+],
+"Ballista. Shoots animals automatically": [
+"Items.lua"
+],
+"Bandage": [
+"Items.lua",
+"MedAnim.lua",
+"Recipes.lua"
+],
+"Bandage up to heal, and revive downed teammates": [
+"Items.lua"
+],
+"Bandages, medicine and reviving teammates heal x1.5": [
+"Classes.lua"
+],
+"Basalt": [
+"Animals.lua",
+"Biomes.lua"
+],
+"Base Defense": [
+"Classes.lua"
+],
+"Battle Axe": [
+"Items.lua"
+],
+"Battlefield Doctor": [
+"Classes.lua"
+],
+"Beam": [
+"Cinematics.lua",
+"Menus.lua"
+],
+"Beast Heart (any element)": [
+"Items.lua"
+],
+"Beast Hunter": [
+"Quests.lua"
+],
+"Beast Lair": [
+"MapUI.lua"
+],
+"Beast Slayer": [
+"Config.lua"
+],
+"Bed": [
+"Items.lua",
+"Menus.lua",
+"Recipes.lua"
+],
+"Bed (+1 Day)": [
+"Items.lua"
+],
+"Bench": [
+"Menus.lua"
+],
+"Berries": [
+"HUD.lua",
+"Items.lua"
+],
+"Berry Bush": [
+"ResourceService.lua"
+],
+"Berry Bush %d/%d": [
+"ResourceService.lua"
+],
+"Berry Juice": [
+"Items.lua"
+],
+"Berry Patch": [
+"BuildingService.lua",
+"Items.lua"
+],
+"Berry Pie": [
+"Items.lua"
+],
+"Berry pie from the Stew Pot. Very filling, hunger drops half as fast for 2 minutes": [
+"Items.lua"
+],
+"Best": [
+"LobbyService.lua"
+],
+"Best Value": [
+"Config.lua"
+],
+"Big": [
+"Animals.lua"
+],
+"Big Basket": [
+"Classes.lua"
+],
+"Big Raid Night · ": [
+"DirectorService.lua"
+],
+"Big raid in %d nights": [
+"DirectorService.lua"
+],
+"Bigger fire, wider safe zone, less fog": [
+"Menus.lua"
+],
+"Biped": [
+"Animals.lua"
+],
+"Bird": [
+"Animals.lua"
+],
+"Blizzard": [
+"Animals.lua"
+],
+"Blizzard!": [
+"BossAbilities.lua"
+],
+"Blocks animal packs": [
+"Menus.lua"
+],
+"Blood Moon": [
+"Quests.lua"
+],
+"Body": [
+"LobbyService.lua"
+],
+"Bone": [
+"Animals.lua",
+"HUD.lua",
+"Items.lua"
+],
+"Bone Spear": [
+"Items.lua"
+],
+"Bone Spear + Iron Axe": [
+"Shop.lua"
+],
+"Bone spear. Long reach, high damage": [
+"Items.lua"
+],
+"Boss": [
+"Animals.lua",
+"Quests.lua"
+],
+"Boss lairs are at the heart of each element zone — get ready before you go in": [
+"Cinematics.lua"
+],
+"Boss still alive · Dawn in %s": [
+"HUD.lua"
+],
+"Bosses attack on nights 25 · 50 · 75 · 99 — dodge the warning circles on the ground!": [
+"Tutorial.lua"
+],
+"Boulder": [
+"Biomes.lua"
+],
+"Boundary": [
+"LobbyService.lua"
+],
+"Bow": [
+"Items.lua",
+"Recipes.lua"
+],
+"Bring ": [
+"Cinematics.lua"
+],
+"Brute": [
+"Animals.lua"
+],
+"Buff: ": [
+"Cinematics.lua"
+],
+"Builder": [
+"Classes.lua",
+"Quests.lua",
+"Shop.lua",
+"Tutorial.lua"
+],
+"Buildings": [
+"Items.lua",
+"Menus.lua"
+],
+"Buildings cost 20% fewer materials": [
+"Classes.lua"
+],
+"Buildings slowly repair themselves": [
+"SpiritService.lua"
+],
+"Burns nearby animals": [
+"Menus.lua"
+],
+"Bush": [
+"Biomes.lua",
+"LobbyService.lua"
+],
+"Bushy": [
+"Animals.lua"
+],
+"Buy  ♦️": [
+"ClassShop.lua"
+],
+"Buy the class first": [
+"ClassShop.lua"
+],
+"Camera": [
+"Backpack.lua",
+"Cinematics.lua",
+"ClassShop.lua",
+"Tutorial.lua"
+],
+"Camp Advisor": [
+"LobbyService.lua"
+],
+"Camp Storage": [
+"HUD.lua"
+],
+"Camp storage x": [
+"Menus.lua"
+],
+"Camper": [
+"Quests.lua"
+],
+"Campfire": [
+"LobbyService.lua",
+"Menus.lua"
+],
+"Campfire Lv.": [
+"CampService.lua"
+],
+"Campfire Lv.%d  ·  Bench Lv.%d": [
+"HUD.lua"
+],
+"Campfire Lv.1": [
+"HUD.lua"
+],
+"Can only be placed inside the camp (upgrade the campfire to expand it)": [
+"BuildingService.lua"
+],
+"Can't be killed — run!": [
+"MobBars.lua"
+],
+"Can't be killed... drive it off with light!": [
+"CombatClient.lua"
+],
+"Can't place on water/lava": [
+"BuildingService.lua"
+],
+"Can't use a bed to skip a day right now": [
+"BuildingService.lua"
+],
+"Cancel": [
+"MobileControls.lua"
+],
+"Capacity %d items · Click items on the ground to collect": [
+"ToolFactory.lua"
+],
+"Carpenter Kit": [
+"Shop.lua"
+],
+"Category: ": [
+"ItemTooltip.lua"
+],
+"Chance to be in stock per day": [
+"ClassShop.lua"
+],
+"Characters": [
+"LobbyService.lua"
+],
+"Charger": [
+"Animals.lua"
+],
+"Cheer": [
+"Cinematics.lua"
+],
+"Choose": [
+"PadUI.lua"
+],
+"Choose the team size first, then the countdown starts": [
+"PadUI.lua"
+],
+"Chop wood x1.6": [
+"Classes.lua"
+],
+"Chop wood x2.2 · Mine rock/ore x1.6": [
+"Classes.lua"
+],
+"Chop wood, break rocks, hunt animals, hold your sack to collect items": [
+"Tutorial.lua"
+],
+"Cinematic": [
+"LobbyService.lua"
+],
+"Cinematics": [
+"Cinematics.lua"
+],
+"Claim Daily Reward": [
+"LobbyService.lua"
+],
+"Claim ♦️ ": [
+"LobbyUI.lua"
+],
+"Claim!": [
+"QuestUI.lua"
+],
+"Class": [
+"ClassShop.lua",
+"HUD.lua",
+"LobbyService.lua",
+"Menus.lua"
+],
+"Class ": [
+"QuestUI.lua"
+],
+"Class Shop": [
+"LobbyService.lua"
+],
+"Class Shop · Walk in to talk": [
+"LobbyService.lua"
+],
+"Classes": [
+"Cinematics.lua",
+"ClassShop.lua",
+"LobbyService.lua",
+"LobbyUI.lua",
+"Menus.lua"
+],
+"Cleared": [
+"HUD.lua",
+"MapUI.lua"
+],
+"Cleared the %s Sanctum · Got %s": [
+"SanctumService.lua"
+],
+"Clip": [
+"Animals.lua"
+],
+"Close": [
+"ClassShop.lua",
+"SettingsUI.lua"
+],
+"Coal": [
+"Animals.lua",
+"HUD.lua",
+"Items.lua"
+],
+"Coal. Premium fuel that keeps the campfire burning long": [
+"Items.lua"
+],
+"Codes": [
+"QuestUI.lua"
+],
+"Codes used: %d": [
+"QuestUI.lua"
+],
+"Color": [
+"QuestUI.lua"
+],
+"Combat": [
+"Classes.lua"
+],
+"Come here": [
+"TeamPing.lua"
+],
+"Coming soon": [
+"StoreUI.lua"
+],
+"Conquer 99 Nights": [
+"Config.lua",
+"DirectorService.lua"
+],
+"Continue only works in the published game — starting a new run": [
+"LobbyService.lua"
+],
+"Continue · Night ": [
+"PadUI.lua"
+],
+"Continuing the saved run from Night ": [
+"PadUI.lua"
+],
+"Control Hints": [
+"SettingsUI.lua"
+],
+"Cook Meat": [
+"CampService.lua"
+],
+"Cook Pot": [
+"Items.lua"
+],
+"Cooked Meat": [
+"Items.lua"
+],
+"Coral": [
+"Biomes.lua"
+],
+"Coralshell Crab": [
+"Animals.lua"
+],
+"Couldn't load the saved run — starting a new run": [
+"LobbyService.lua"
+],
+"Couldn't reach the server, try again": [
+"QuestUI.lua"
+],
+"Couldn't rejoin your previous run, try again": [
+"RejoinService.lua"
+],
+"Couldn't rejoin your previous run: ": [
+"RejoinService.lua"
+],
+"Couldn't send you to the team server (": [
+"LobbyService.lua"
+],
+"Counselor": [
+"LobbyService.lua"
+],
+"Count": [
+"Backpack.lua",
+"LobbyService.lua",
+"PadUI.lua"
+],
+"Countdown": [
+"LobbyService.lua",
+"PadUI.lua"
+],
+"Counted in the morning": [
+"Cinematics.lua"
+],
+"Crab": [
+"Animals.lua"
+],
+"Crack": [
+"Cinematics.lua"
+],
+"Craft": [
+"Menus.lua",
+"Quests.lua"
+],
+"Craft %d items": [
+"Quests.lua"
+],
+"Craft & Build a Base": [
+"Tutorial.lua"
+],
+"Crafter": [
+"Tutorial.lua"
+],
+"Crafting Bench": [
+"CampService.lua"
+],
+"Crafting Bench Lv.": [
+"CampService.lua"
+],
+"Crafting Bench Lv.%d · New recipes": [
+"CampService.lua"
+],
+"Crafts": [
+"Quests.lua"
+],
+"Crate": [
+"LobbyService.lua"
+],
+"Crest": [
+"Animals.lua"
+],
+"Cries are coming from the middle of the plaza...": [
+"Cinematics.lua"
+],
+"Crimson": [
+"Quests.lua"
+],
+"Crossbow": [
+"Items.lua",
+"Recipes.lua"
+],
+"Crown of Storms": [
+"Nights.lua"
+],
+"Crystal Stag": [
+"Animals.lua"
+],
+"Crystals": [
+"Animals.lua"
+],
+"DAY %d": [
+"HUD.lua"
+],
+"DAY 1": [
+"Cinematics.lua",
+"HUD.lua"
+],
+"Dagger": [
+"Recipes.lua"
+],
+"Daily": [
+"QuestUI.lua"
+],
+"Daily Reward": [
+"DataService.lua"
+],
+"Daily Reward ♦️": [
+"LobbyService.lua"
+],
+"Daily quest: ": [
+"QuestService.lua"
+],
+"Damage %d · Range %d": [
+"Menus.lua"
+],
+"Damage +25% · Hunting drops +1 extra meat/pelt/bone/fiber": [
+"Classes.lua"
+],
+"Damage +40% · Run 5% faster": [
+"Classes.lua"
+],
+"Danger": [
+"HUD.lua"
+],
+"Dark": [
+"SettingsUI.lua",
+"StoreUI.lua"
+],
+"Data is still loading, try again": [
+"QuestService.lua"
+],
+"DataStore unavailable (enable API Services first)": [
+"DataService.lua"
+],
+"Dawn": [
+"Cinematics.lua"
+],
+"Dawn Deer": [
+"Animals.lua"
+],
+"Day": [
+"Cinematics.lua",
+"HUD.lua"
+],
+"Day ": [
+"QuestUI.lua"
+],
+"Day · Dusk in %s": [
+"HUD.lua"
+],
+"Dead": [
+"DeathClient.lua",
+"HUD.lua",
+"LobbyService.lua",
+"MobileControls.lua",
+"TeamPing.lua"
+],
+"Deadline": [
+"WorldEventsClient.lua"
+],
+"Debris": [
+"Cinematics.lua"
+],
+"Decal": [
+"Cinematics.lua",
+"Menus.lua"
+],
+"Decor": [
+"LobbyService.lua"
+],
+"Defeat": [
+"LobbyService.lua"
+],
+"Defeat %d element bosses": [
+"Quests.lua"
+],
+"Defeat them all to unseal the cage and save ": [
+"Cinematics.lua"
+],
+"Defeated ": [
+"Cinematics.lua"
+],
+"Defeated %s · Respawns in %d min": [
+"SpiritService.lua"
+],
+"Depart": [
+"Cinematics.lua",
+"LobbyService.lua"
+],
+"Departing": [
+"LobbyService.lua"
+],
+"Departing in %d": [
+"LobbyService.lua"
+],
+"Diamonds": [
+"Cinematics.lua",
+"ClassShop.lua",
+"HUD.lua",
+"LobbyService.lua",
+"LobbyUI.lua",
+"Menus.lua",
+"QuestUI.lua",
+"StoreUI.lua"
+],
+"Died": [
+"Cinematics.lua"
+],
+"Dismount [X]": [
+"MountClient.lua"
+],
+"Display": [
+"SettingsUI.lua"
+],
+"Double-bladed battle axe · Hits hard and fells trees fastest": [
+"Items.lua"
+],
+"Down — wait for a teammate to help": [
+"HUD.lua"
+],
+"Down! Waiting for help": [
+"HUD.lua"
+],
+"Downed": [
+"Cinematics.lua",
+"DeathClient.lua",
+"HUD.lua",
+"MobileControls.lua",
+"TeamPing.lua"
+],
+"Dragon": [
+"Animals.lua"
+],
+"Drop": [
+"Menus.lua"
+],
+"Dusk": [
+"Cinematics.lua",
+"HUD.lua"
+],
+"Dusk · Animals coming in %s": [
+"HUD.lua"
+],
+"Earth": [
+"Animals.lua",
+"Biomes.lua",
+"Cinematics.lua",
+"HUD.lua",
+"Items.lua",
+"MapUI.lua",
+"Nights.lua",
+"WorldEventsClient.lua"
+],
+"Earth Aura: Max HP +15%": [
+"SanctumService.lua"
+],
+"Earth Bear Cub": [
+"Animals.lua"
+],
+"Earth Beast Heart": [
+"Items.lua"
+],
+"Earth Crocodile": [
+"Animals.lua"
+],
+"Earth Pillar": [
+"Items.lua"
+],
+"Earth Rift!": [
+"BossAbilities.lua"
+],
+"Earth Smash!": [
+"BossAbilities.lua"
+],
+"Earth Turtle": [
+"Animals.lua"
+],
+"Earth essence · Break green crystals in the Earth forest / chests / meteors / sanctums / Earth boss · Used for the Terra Hammer, Earth Pillar, bench and campfire upgrades": [
+"Items.lua"
+],
+"Earth hammer. Smashes in a wide area": [
+"Items.lua"
+],
+"Earth pillar. Repairs nearby walls": [
+"Items.lua"
+],
+"Eat": [
+"Menus.lua"
+],
+"Eat Berries": [
+"ResourceService.lua"
+],
+"Effects": [
+"SettingsUI.lua"
+],
+"Element Bosses": [
+"Tutorial.lua"
+],
+"Element Essence (any element)": [
+"Items.lua"
+],
+"Element Master": [
+"Classes.lua"
+],
+"Element Meteor": [
+"EventService.lua"
+],
+"Element packs attack the campfire every night — hold out until morning": [
+"Tutorial.lua"
+],
+"Element weakness!": [
+"CombatClient.lua"
+],
+"Elemental": [
+"Shop.lua"
+],
+"Elemental Magic": [
+"Classes.lua"
+],
+"Elemental Power": [
+"Classes.lua",
+"Items.lua"
+],
+"Elemental Touch": [
+"Classes.lua"
+],
+"Elemental weapons (incl. Fire Staff) 20% stronger · Frail: Max HP -10": [
+"Classes.lua"
+],
+"Elemental weapons 40% stronger · Stamina +15%": [
+"Classes.lua"
+],
+"Elemental weapons 65% stronger · Max HP +10": [
+"Classes.lua"
+],
+"Elementalist": [
+"Classes.lua",
+"Tutorial.lua"
+],
+"Ember": [
+"Quests.lua"
+],
+"Ember Caldera": [
+"Biomes.lua"
+],
+"Ember Fox Pup": [
+"Animals.lua"
+],
+"Ember Greatsword": [
+"Items.lua"
+],
+"Ember Heart": [
+"Items.lua"
+],
+"Ember Pup": [
+"Animals.lua"
+],
+"Ember Red": [
+"Quests.lua"
+],
+"Ember Shard": [
+"Items.lua"
+],
+"Ember Staff": [
+"Items.lua"
+],
+"Ember Totem": [
+"Items.lua"
+],
+"Ember Wolf": [
+"Animals.lua"
+],
+"Emberclaw Scorpion": [
+"Animals.lua"
+],
+"Embers": [
+"Biomes.lua"
+],
+"Ended": [
+"LobbyService.lua"
+],
+"Ending": [
+"Cinematics.lua"
+],
+"Endless mode night ": [
+"DirectorService.lua"
+],
+"Endless mode · Packs get stronger every night": [
+"DirectorService.lua"
+],
+"Enemy": [
+"TeamPing.lua"
+],
+"Enemy!": [
+"TeamPing.lua"
+],
+"Engraved gold warrior armor. Raises Max HP the most": [
+"Items.lua"
+],
+"Enter Sanctum": [
+"SanctumService.lua"
+],
+"Enter a code and press \"Redeem\" · Each code works once per player": [
+"QuestUI.lua"
+],
+"Entering camp...": [
+"Cinematics.lua"
+],
+"Equip": [
+"ClassShop.lua"
+],
+"Equipped": [
+"ClassShop.lua"
+],
+"Error": [
+"LobbyService.lua",
+"Menus.lua"
+],
+"Essence": [
+"Items.lua"
+],
+"Every 10 nights a Blood Moon rises and every element's pack attacks at once": [
+"Cinematics.lua"
+],
+"Every element attacks at once": [
+"Cinematics.lua"
+],
+"Every element is enraged...": [
+"Cinematics.lua"
+],
+"Everyone runs 10% faster": [
+"SpiritService.lua"
+],
+"Exploration": [
+"Classes.lua"
+],
+"FROSTMAW, the Glacier Yeti": [
+"Animals.lua"
+],
+"Farm Plot": [
+"Items.lua"
+],
+"Fern": [
+"Biomes.lua"
+],
+"Fiber": [
+"Animals.lua",
+"HUD.lua",
+"Items.lua"
+],
+"Fiber from hunting (hare, crocodile, crab, octopus, snow bull, fire ram) / chests / supply crates · Used for bandages, bows and sacks": [
+"Items.lua"
+],
+"Field Medic": [
+"Classes.lua"
+],
+"Fill": [
+"Backpack.lua",
+"Cinematics.lua"
+],
+"Find new codes on the game page and in the game's group · Try the code WELCOME!": [
+"QuestUI.lua"
+],
+"Fins": [
+"Animals.lua"
+],
+"Fire": [
+"Animals.lua",
+"Biomes.lua",
+"Cinematics.lua",
+"ClassShop.lua",
+"HUD.lua",
+"Items.lua",
+"LobbyService.lua",
+"MapUI.lua",
+"Menus.lua",
+"Nights.lua",
+"Shop.lua",
+"WorldEventsClient.lua"
+],
+"Fire Aura: Damage +15%": [
+"SanctumService.lua"
+],
+"Fire Beast Heart": [
+"Items.lua"
+],
+"Fire Breath!": [
+"BossAbilities.lua"
+],
+"Fire Meteor!": [
+"BossAbilities.lua"
+],
+"Fire Pillar": [
+"Items.lua"
+],
+"Fire Ram": [
+"Animals.lua"
+],
+"Fire Staff": [
+"Items.lua"
+],
+"Fire essence · Break orange crystals in the volcano / chests / meteors / sanctums / Fire boss · Used for the Ember Greatsword, Fire Pillar, Beacon · Strong fuel": [
+"Items.lua"
+],
+"Fire is out! Not safe": [
+"HUD.lua"
+],
+"Fire pillar. Burns nearby animals": [
+"Items.lua"
+],
+"Fire sword. Burns enemies and gives light": [
+"Items.lua"
+],
+"Fire's out!": [
+"HUD.lua"
+],
+"Fireflies": [
+"Biomes.lua"
+],
+"Firekeeper": [
+"Quests.lua"
+],
+"First Aid Kit": [
+"Items.lua",
+"Shop.lua"
+],
+"First Blood Moon": [
+"Nights.lua"
+],
+"First Night in the Woods": [
+"Nights.lua"
+],
+"Fissure": [
+"Animals.lua"
+],
+"Flamekeeper": [
+"Quests.lua"
+],
+"Flamekeeper Kit": [
+"Shop.lua"
+],
+"Flash": [
+"Cinematics.lua"
+],
+"Floppy": [
+"Animals.lua"
+],
+"Flowers": [
+"Biomes.lua"
+],
+"Flying": [
+"Cinematics.lua"
+],
+"Folder": [
+"LobbyService.lua",
+"WorldEventsClient.lua"
+],
+"Food": [
+"HUD.lua",
+"Items.lua",
+"Menus.lua"
+],
+"Food Expert": [
+"Classes.lua"
+],
+"Footprint": [
+"Menus.lua"
+],
+"Forager": [
+"Classes.lua",
+"Quests.lua"
+],
+"Forest Feller": [
+"Classes.lua"
+],
+"Fortress": [
+"Classes.lua"
+],
+"Four-Element Sword": [
+"Items.lua"
+],
+"Four-Element Sword. The ultimate weapon in the game": [
+"Items.lua"
+],
+"Fourfold Blade": [
+"Items.lua"
+],
+"Frame": [
+"Backpack.lua",
+"Cinematics.lua",
+"ClassShop.lua",
+"HUD.lua",
+"LobbyService.lua",
+"LobbyUI.lua",
+"MapUI.lua",
+"MedAnim.lua",
+"Menus.lua"
+],
+"Free": [
+"Cinematics.lua",
+"QuestUI.lua"
+],
+"Fresh berries. Eat to ease hunger · Make berry juice/herbal medicine (Bench Lv.1) · Plant patches · Pies and stew at the Stew Pot": [
+"Items.lua"
+],
+"Fresh-squeezed berry juice. Eases hunger and fully refills stamina": [
+"Items.lua"
+],
+"Frills": [
+"Animals.lua"
+],
+"Frost": [
+"Quests.lua"
+],
+"Frost Aura: Stamina drains 15% slower": [
+"SanctumService.lua"
+],
+"Frost Beast Heart": [
+"Items.lua"
+],
+"Frost Feather": [
+"Items.lua"
+],
+"Frost Heart": [
+"Items.lua"
+],
+"Frost Pillar": [
+"Items.lua"
+],
+"Frost Wolf Pup": [
+"Animals.lua"
+],
+"Frost essence · Break white crystals in Skyreach Highlands / chests / meteors / sanctums / Frost boss · Used for the Storm Bow, Frost Pillar, bench and campfire upgrades": [
+"Items.lua"
+],
+"Frost pillar. Pushes animals away": [
+"Items.lua"
+],
+"Frostfang Bear": [
+"Animals.lua"
+],
+"Frostmaw, the Glacier Yeti": [
+"Animals.lua"
+],
+"Fuel": [
+"Quests.lua"
+],
+"Full Harvest": [
+"Classes.lua"
+],
+"Fully heals HP, and revives downed teammates": [
+"Items.lua"
+],
+"GAME PASS": [
+"Cinematics.lua"
+],
+"GOLGRAN, the Living Mountain": [
+"Animals.lua"
+],
+"Gale Longbow": [
+"Items.lua"
+],
+"Gale Pup": [
+"Animals.lua"
+],
+"Gale Totem": [
+"Items.lua"
+],
+"Gameplay": [
+"SettingsUI.lua"
+],
+"Gather %d stone": [
+"Quests.lua"
+],
+"Gather %d wood": [
+"Quests.lua"
+],
+"Gather during the day": [
+"Tutorial.lua"
+],
+"Gathered": [
+"Quests.lua"
+],
+"Gathering": [
+"Classes.lua"
+],
+"Generating world %d%%": [
+"HUD.lua"
+],
+"Generating world...": [
+"HUD.lua"
+],
+"Generating world... %d%%": [
+"Cinematics.lua"
+],
+"Get: ": [
+"Menus.lua"
+],
+"Ghost": [
+"Menus.lua"
+],
+"Giant Sack": [
+"Items.lua"
+],
+"Gift": [
+"Cinematics.lua"
+],
+"Gift from ": [
+"DataService.lua",
+"MonetizationService.lua"
+],
+"Glacier": [
+"Biomes.lua"
+],
+"Glacier Smash!": [
+"BossAbilities.lua"
+],
+"Go on %d expeditions": [
+"Quests.lua"
+],
+"Gold": [
+"Quests.lua"
+],
+"Gold Armor": [
+"Items.lua"
+],
+"Golgran, the Living Mountain": [
+"Animals.lua"
+],
+"Good Sack": [
+"Items.lua"
+],
+"Got 1 Revive Ticket — use it next time you're down": [
+"MonetizationService.lua"
+],
+"Got hit": [
+"SurvivalService.lua"
+],
+"Graphics": [
+"SettingsUI.lua"
+],
+"Graphics Quality": [
+"SettingsUI.lua"
+],
+"Grass": [
+"Biomes.lua"
+],
+"Green": [
+"LobbyUI.lua",
+"Menus.lua",
+"PadUI.lua",
+"QuestUI.lua",
+"StoreUI.lua"
+],
+"Ground": [
+"Biomes.lua"
+],
+"Ground Smash!": [
+"BossAbilities.lua"
+],
+"Grounded": [
+"Cinematics.lua"
+],
+"Grows berries": [
+"Menus.lua"
+],
+"Grows berries you can keep picking": [
+"Items.lua"
+],
+"Guard": [
+"Cinematics.lua"
+],
+"Guardian": [
+"Cinematics.lua"
+],
+"Guardian of Four Elements": [
+"Config.lua"
+],
+"HP %d · %s": [
+"Menus.lua"
+],
+"Hammer": [
+"Items.lua"
+],
+"Hardwood": [
+"Classes.lua"
+],
+"Hawk Eye": [
+"Classes.lua"
+],
+"Hazard": [
+"LobbyService.lua"
+],
+"Head": [
+"LobbyService.lua",
+"MedAnim.lua"
+],
+"Heal ": [
+"Menus.lua"
+],
+"Healer's Hands": [
+"Classes.lua"
+],
+"Healing x2 · Max HP +15": [
+"Classes.lua"
+],
+"Heart": [
+"Biomes.lua"
+],
+"Heart of the Earth boss (Golgran) · Used for the Terra Hammer and the Four-Element Sword": [
+"Items.lua"
+],
+"Heart of the Fire boss (Ignarax) · Used for the Ember Greatsword and the Four-Element Sword": [
+"Items.lua"
+],
+"Heart of the Frost boss (Frostmaw) · Used for the Storm Bow and the Four-Element Sword": [
+"Items.lua"
+],
+"Heart of the Water boss (Tyrannomosa) · Used for the Tide Trident and the Four-Element Sword": [
+"Items.lua"
+],
+"Hearty Stew": [
+"Items.lua"
+],
+"Heavy crossbow · Slow to reload, powerful long-range bolts": [
+"Items.lua"
+],
+"Heavy wooden club with iron spikes · Cracks rocks too": [
+"Items.lua"
+],
+"Herb Salve": [
+"Items.lua"
+],
+"Herbal Medicine": [
+"Items.lua"
+],
+"Herbal medicine from berries. Heals a little (cannot revive teammates)": [
+"Items.lua"
+],
+"High": [
+"SettingsUI.lua"
+],
+"Highlight": [
+"Cinematics.lua",
+"Menus.lua"
+],
+"Hints": [
+"SettingsUI.lua"
+],
+"Hitting trees/rocks/animals picks the best axe/pickaxe/weapon for you": [
+"SettingsUI.lua"
+],
+"Hold a torch and the Hollow Stag won't dare come near": [
+"Cinematics.lua"
+],
+"Holder": [
+"MedAnim.lua"
+],
+"Home": [
+"Cinematics.lua"
+],
+"Host": [
+"LobbyService.lua",
+"PadUI.lua"
+],
+"Hot Stew": [
+"Items.lua"
+],
+"Hot stew from the Stew Pot. Keeps you full for long and heals a lot": [
+"Items.lua"
+],
+"Hotbar": [
+"Backpack.lua",
+"ItemTooltip.lua"
+],
+"Huge Ruby Pile": [
+"Config.lua"
+],
+"Huge war hammer · Crushing area damage, smashes ore rocks": [
+"Items.lua"
+],
+"Humanoid": [
+"Backpack.lua",
+"Cinematics.lua",
+"DeathClient.lua",
+"HUD.lua",
+"MobileControls.lua"
+],
+"Hump": [
+"Animals.lua"
+],
+"Hunger": [
+"HUD.lua"
+],
+"Hunger 25% slower · Food and healing 20% stronger": [
+"Classes.lua"
+],
+"Hunt": [
+"Classes.lua"
+],
+"Hunt %d animals": [
+"Quests.lua"
+],
+"Hunt %d animals · Survive %d nights with this class": [
+"ClassShop.lua"
+],
+"Hunter": [
+"Animals.lua",
+"Cinematics.lua",
+"Classes.lua",
+"Quests.lua",
+"Shop.lua",
+"Tutorial.lua"
+],
+"Hunter Bow": [
+"Items.lua"
+],
+"Hunter Kit": [
+"Shop.lua"
+],
+"Hunter's Bow": [
+"Items.lua"
+],
+"Hunter's Bow + 4 Cooked Meat": [
+"Shop.lua"
+],
+"Hunting Knife": [
+"Items.lua"
+],
+"Hunting drops +1 extra meat/pelt/bone/fiber": [
+"Classes.lua"
+],
+"Hunting drops +2 extra meat/pelt/bone/fiber": [
+"Classes.lua"
+],
+"Hurry, go save it!": [
+"Cinematics.lua"
+],
+"IGNARAX, the Molten Dragon": [
+"Animals.lua"
+],
+"INTO THE WILDS": [
+"Cinematics.lua"
+],
+"Ice": [
+"Cinematics.lua",
+"Quests.lua"
+],
+"Ice Spikes!": [
+"BossAbilities.lua"
+],
+"Ice Tiger": [
+"Animals.lua"
+],
+"Ignarax, the Molten Dragon": [
+"Animals.lua"
+],
+"In Stock": [
+"ClassShop.lua"
+],
+"In progress...": [
+"QuestUI.lua"
+],
+"In the firelight": [
+"HUD.lua"
+],
+"Inferno Volcano": [
+"Biomes.lua"
+],
+"Info": [
+"HUD.lua",
+"LobbyService.lua",
+"TeamPing.lua"
+],
+"Inkshade Octopus": [
+"Animals.lua"
+],
+"Instance": [
+"TeamPing.lua"
+],
+"Inventory": [
+"Backpack.lua"
+],
+"Iron": [
+"HUD.lua"
+],
+"Iron Armor": [
+"Items.lua"
+],
+"Iron Axe": [
+"Items.lua"
+],
+"Iron Lungs": [
+"Classes.lua"
+],
+"Iron Ore": [
+"Items.lua"
+],
+"Iron Sword": [
+"Items.lua"
+],
+"Iron armor with shoulder plates. Sturdy, raises Max HP a lot": [
+"Items.lua"
+],
+"Iron axe. The fastest axe for chopping wood": [
+"Items.lua"
+],
+"Iron ore from ore rocks. Used for weapons and high-level items": [
+"Items.lua"
+],
+"Item here": [
+"TeamPing.lua"
+],
+"Items": [
+"ClassShop.lua",
+"MedAnim.lua"
+],
+"Jade": [
+"Quests.lua"
+],
+"Juicy cooked meat. Eases a lot of hunger": [
+"Items.lua"
+],
+"Katana": [
+"Items.lua",
+"Recipes.lua"
+],
+"Keep the fire burning": [
+"Cinematics.lua"
+],
+"Kelp": [
+"Biomes.lua"
+],
+"Key hint bar at the bottom of the screen": [
+"SettingsUI.lua"
+],
+"Kill": [
+"Quests.lua"
+],
+"Kills": [
+"Classes.lua",
+"Quests.lua"
+],
+"Kills %d/%d": [
+"ClassShop.lua"
+],
+"Kind": [
+"Cinematics.lua",
+"MobileControls.lua"
+],
+"King's Treasure": [
+"Config.lua"
+],
+"Knocks animals back": [
+"Menus.lua"
+],
+"Label": [
+"Menus.lua"
+],
+"Lair": [
+"HUD.lua",
+"MapUI.lua"
+],
+"Language": [
+"SettingsUI.lua"
+],
+"Lantern": [
+"Items.lua",
+"Recipes.lua"
+],
+"Lantern. Lights the area and scares off the Hollow Stag": [
+"Items.lua"
+],
+"Lava Fire Ram": [
+"Animals.lua"
+],
+"Lava Smash!": [
+"BossAbilities.lua"
+],
+"Leave Group": [
+"PadUI.lua"
+],
+"Left": [
+"LobbyService.lua"
+],
+"Left Shoulder": [
+"MedAnim.lua"
+],
+"LeftControl,RightControl": [
+"Main.client.lua"
+],
+"Legend": [
+"Quests.lua"
+],
+"Legend of the Wilds": [
+"Quests.lua"
+],
+"Legend of the Wilds (150 Nights)": [
+"Config.lua"
+],
+"Legendary Chest": [
+"LootService.lua"
+],
+"Legends of the Four Elements": [
+"Config.lua"
+],
+"Level ": [
+"ClassShop.lua"
+],
+"Leviathan": [
+"Animals.lua",
+"Biomes.lua",
+"Nights.lua"
+],
+"Light": [
+"Menus.lua"
+],
+"Light scares off the Hollow Stag": [
+"Menus.lua"
+],
+"Light, fast hunting knife · Very quick strikes": [
+"Items.lua"
+],
+"Lighting": [
+"Cinematics.lua"
+],
+"Lighting the campfire...": [
+"Cinematics.lua"
+],
+"Limestone": [
+"Biomes.lua"
+],
+"Line": [
+"Cinematics.lua"
+],
+"Loading": [
+"HUD.lua"
+],
+"Loading camp": [
+"Cinematics.lua"
+],
+"Loading camp... %d%%": [
+"Cinematics.lua"
+],
+"Loading leaderboard...": [
+"LobbyService.lua"
+],
+"Loading models": [
+"Cinematics.lua"
+],
+"Loading quests...": [
+"QuestUI.lua"
+],
+"Loading the area around camp...": [
+"Cinematics.lua"
+],
+"Lobby": [
+"Cinematics.lua",
+"ClassShop.lua",
+"HUD.lua",
+"LobbyService.lua",
+"PadUI.lua",
+"WorldEventsClient.lua"
+],
+"Localizer": [
+"LobbyUI.lua"
+],
+"Lock": [
+"MobileControls.lua"
+],
+"Locked": [
+"ClassShop.lua",
+"MobileControls.lua"
+],
+"Locked — get it from the Season Pass/codes": [
+"QuestUI.lua"
+],
+"Log Arms": [
+"Classes.lua"
+],
+"Log Wall": [
+"Items.lua"
+],
+"Log in every day for more and more Ruby — day 7 gives a big reward!": [
+"QuestUI.lua"
+],
+"Login": [
+"QuestUI.lua"
+],
+"Login day %d/%d": [
+"QuestService.lua"
+],
+"Long": [
+"Animals.lua"
+],
+"Long-range bow for hunting from a safe distance": [
+"Items.lua"
+],
+"Look for the red smoke": [
+"WorldEventsClient.lua"
+],
+"Lord of Four Elements": [
+"Quests.lua"
+],
+"Low": [
+"SettingsUI.lua"
+],
+"Lumberjack": [
+"Cinematics.lua",
+"Classes.lua",
+"Quests.lua",
+"Tutorial.lua"
+],
+"Lv%d: %s": [
+"ClassShop.lua"
+],
+"Lv.": [
+"ClassShop.lua"
+],
+"Lv.%d · %d%%": [
+"ClassShop.lua"
+],
+"Lv.%d ⭐MAX": [
+"ClassShop.lua"
+],
+"METEOR STRIKE": [
+"WorldEventsClient.lua"
+],
+"Mace": [
+"Recipes.lua"
+],
+"Magic Cauldron": [
+"LobbyService.lua"
+],
+"Make Stew (2 meat + 2 berries)": [
+"BuildingService.lua"
+],
+"Makes stew": [
+"Menus.lua"
+],
+"Map of the Four Lands": [
+"MapUI.lua"
+],
+"Massive light": [
+"Menus.lua"
+],
+"Master Hunter (250 kills)": [
+"Config.lua"
+],
+"Materials": [
+"Items.lua"
+],
+"Max": [
+"Menus.lua"
+],
+"Max HP +15 · Hunger 10% slower": [
+"Classes.lua"
+],
+"Max HP +25 · Regen 0.3 HP/sec": [
+"Classes.lua"
+],
+"Max Level": [
+"CampService.lua"
+],
+"Max x": [
+"Menus.lua"
+],
+"Meadow Hare": [
+"Animals.lua"
+],
+"Medic": [
+"Cinematics.lua",
+"Classes.lua",
+"Quests.lua",
+"Shop.lua",
+"Tutorial.lua"
+],
+"Medical": [
+"Items.lua",
+"Menus.lua"
+],
+"Medicine": [
+"Items.lua",
+"Menus.lua"
+],
+"Medium": [
+"SettingsUI.lua"
+],
+"Medkit": [
+"Items.lua",
+"Recipes.lua"
+],
+"Menus": [
+"Menus.lua"
+],
+"Meteor": [
+"WorldEventsClient.lua"
+],
+"Migration": [
+"WorldEventsClient.lua"
+],
+"Mine Meteor Core": [
+"EventService.lua"
+],
+"Mine rock and ore x1.4 · Stamina +20%": [
+"Classes.lua"
+],
+"Mined from rocks. Used for tools and walls": [
+"Items.lua"
+],
+"Miss a single day and it restarts from day 1 · Claim here or at the daily reward cauldron in the lobby (once per day)": [
+"QuestUI.lua"
+],
+"Mist": [
+"Biomes.lua"
+],
+"Mobile Button Size": [
+"SettingsUI.lua"
+],
+"Model": [
+"Cinematics.lua",
+"ClassShop.lua",
+"LobbyService.lua",
+"Menus.lua",
+"Tutorial.lua"
+],
+"Morning Star": [
+"Items.lua"
+],
+"Mosasaur": [
+"Animals.lua"
+],
+"Moss": [
+"Animals.lua"
+],
+"Mother of the Tides": [
+"Nights.lua"
+],
+"Mountain Rock Turtle": [
+"Animals.lua"
+],
+"Mouse": [
+"ItemTooltip.lua"
+],
+"Moved (you must stand still while bandaging)": [
+"SurvivalService.lua"
+],
+"Mud": [
+"Biomes.lua"
+],
+"Mushrooms": [
+"Biomes.lua"
+],
+"Music": [
+"SettingsUI.lua"
+],
+"Must be in the camp": [
+"CampService.lua"
+],
+"Must be placed on the ground": [
+"BuildingService.lua"
+],
+"NIGHT %d": [
+"HUD.lua"
+],
+"Neck": [
+"MedAnim.lua"
+],
+"Needs 2 meat and 2 berries": [
+"BuildingService.lua"
+],
+"Needs 5 berries and 1 wood": [
+"BuildingService.lua"
+],
+"Never Give Up": [
+"Classes.lua"
+],
+"Never Miss": [
+"Classes.lua"
+],
+"New stock in %dh %dm": [
+"ClassShop.lua"
+],
+"Next ▶": [
+"Tutorial.lua"
+],
+"Night": [
+"Cinematics.lua",
+"HUD.lua",
+"Menus.lua",
+"Quests.lua"
+],
+"Night Owl": [
+"Quests.lua"
+],
+"Night of ": [
+"Cinematics.lua",
+"DirectorService.lua"
+],
+"Night of %s · Dawn in %s": [
+"HUD.lua"
+],
+"Nights": [
+"Classes.lua"
+],
+"No buildings in your bag yet — craft one at the crafting bench first": [
+"Menus.lua"
+],
+"No fuel (wood / coal / ember shards)": [
+"CampService.lua"
+],
+"No materials in your sack to grind (wood, stone, ore, pelt, bone ...)": [
+"CampService.lua"
+],
+"No other players in this server": [
+"StoreUI.lua"
+],
+"No raw meat": [
+"CampService.lua"
+],
+"No raw meat in your sack (go hunting first)": [
+"CampService.lua"
+],
+"No recipes match your search": [
+"Menus.lua"
+],
+"No respawning in a run after you die — watch each other's backs": [
+"Cinematics.lua"
+],
+"No rewards to claim yet — earn a bit more XP!": [
+"SeasonService.lua"
+],
+"No teammates left alive... waiting for the run result": [
+"DeathClient.lua"
+],
+"No wood/coal in your sack": [
+"CampService.lua"
+],
+"No wood/coal/raw meat in your sack to throw into the fire": [
+"CampService.lua"
+],
+"Node": [
+"LobbyService.lua"
+],
+"None": [
+"Animals.lua",
+"QuestUI.lua"
+],
+"Not enough items to trade": [
+"TraderService.lua"
+],
+"Not enough materials": [
+"CampService.lua"
+],
+"Not enough materials to upgrade the bench": [
+"CampService.lua"
+],
+"Not enough materials to upgrade the campfire": [
+"CampService.lua"
+],
+"Not enough ♦️ (": [
+"ClassShop.lua"
+],
+"Not in stock today — wait for restock or reroll": [
+"ClassShop.lua"
+],
+"Notify": [
+"TeamPing.lua"
+],
+"Now day ": [
+"Cinematics.lua"
+],
+"Oak": [
+"Biomes.lua",
+"LobbyService.lua"
+],
+"Octopus": [
+"Animals.lua"
+],
+"Odds": [
+"ClassShop.lua"
+],
+"Off": [
+"LobbyUI.lua",
+"Menus.lua",
+"QuestUI.lua"
+],
+"Offset": [
+"Menus.lua"
+],
+"Old Axe": [
+"Items.lua"
+],
+"Old Sack": [
+"Items.lua"
+],
+"On-screen touch buttons": [
+"SettingsUI.lua"
+],
+"Only the pad leader (first one on) can choose the team size": [
+"LobbyService.lua"
+],
+"Open Chest": [
+"LootService.lua"
+],
+"Open Crafting Menu": [
+"CampService.lua"
+],
+"Open Sacred Chest": [
+"SanctumService.lua"
+],
+"Open Supply Chest": [
+"EventService.lua"
+],
+"Origin": [
+"LobbyService.lua"
+],
+"Out of Stock": [
+"ClassShop.lua"
+],
+"Overlaps another building": [
+"BuildingService.lua"
+],
+"Owned": [
+"ClassShop.lua"
+],
+"Pack": [
+"Cinematics.lua"
+],
+"Pad": [
+"LobbyService.lua",
+"PadUI.lua"
+],
+"Page %d / %d": [
+"Tutorial.lua"
+],
+"Palm": [
+"Biomes.lua",
+"LobbyService.lua"
+],
+"Parch": [
+"Menus.lua",
+"PadUI.lua",
+"StoreUI.lua"
+],
+"Parent": [
+"WorldEventsClient.lua"
+],
+"Part": [
+"Cinematics.lua",
+"ClassShop.lua",
+"LobbyService.lua",
+"Menus.lua",
+"WorldEventsClient.lua"
+],
+"Parts": [
+"Animals.lua",
+"Cinematics.lua",
+"LobbyService.lua"
+],
+"Passive": [
+"Animals.lua"
+],
+"Pavement": [
+"Biomes.lua"
+],
+"Pay:": [
+"Menus.lua"
+],
+"Pelt": [
+"Animals.lua",
+"HUD.lua",
+"Items.lua"
+],
+"Pet": [
+"Cinematics.lua"
+],
+"Phase": [
+"Cinematics.lua",
+"HUD.lua",
+"LobbyService.lua",
+"WorldEventsClient.lua"
+],
+"Phones/slow devices: \"Low\" recommended": [
+"SettingsUI.lua"
+],
+"Pick": [
+"Items.lua"
+],
+"Pick Berries": [
+"BuildingService.lua"
+],
+"Pickaxe": [
+"Items.lua",
+"Recipes.lua"
+],
+"Pickaxe. Mines rock and ore fast": [
+"Items.lua"
+],
+"Picked": [
+"LobbyService.lua",
+"PadUI.lua"
+],
+"Pine Forest": [
+"Biomes.lua"
+],
+"Ping": [
+"TeamPing.lua"
+],
+"Pioneer": [
+"Quests.lua"
+],
+"Place": [
+"Menus.lua",
+"MobileControls.lua"
+],
+"Place it to rest and skip 1 day (counts +1 day survived · placed at night, it counts in the morning) · Max 2 beds per server per run": [
+"Items.lua"
+],
+"Place to skip 1 day (+1 day)": [
+"Menus.lua"
+],
+"Play!": [
+"Tutorial.lua"
+],
+"Player ": [
+"LobbyService.lua"
+],
+"Players": [
+"Backpack.lua",
+"Cinematics.lua",
+"ClassShop.lua",
+"DeathClient.lua",
+"HUD.lua",
+"ItemTooltip.lua",
+"LobbyService.lua",
+"LobbyUI.lua",
+"MapUI.lua",
+"MedAnim.lua",
+"Menus.lua",
+"MobileControls.lua",
+"PadUI.lua",
+"QuestUI.lua",
+"RejoinUI.lua",
+"SettingsUI.lua",
+"StoreUI.lua",
+"TeamPing.lua",
+"Tutorial.lua",
+"WorldEventsClient.lua"
+],
+"Pointy": [
+"Animals.lua"
+],
+"Pollen": [
+"Biomes.lua"
+],
+"Position": [
+"ItemTooltip.lua"
+],
+"Prem": [
+"QuestUI.lua"
+],
+"Price ♦️%d — in stock today": [
+"ClassShop.lua"
+],
+"Primeval Earth Forest": [
+"Biomes.lua"
+],
+"Profile": [
+"LobbyService.lua",
+"QuestUI.lua"
+],
+"Props": [
+"Cinematics.lua",
+"Tutorial.lua"
+],
+"Puff": [
+"Animals.lua"
+],
+"Pup": [
+"Cinematics.lua"
+],
+"Purchased": [
+"Cinematics.lua"
+],
+"Put away ": [
+"SurvivalService.lua"
+],
+"Put in Sack": [
+"DropService.lua",
+"ResourceService.lua"
+],
+"Quadruped": [
+"Animals.lua"
+],
+"Quake": [
+"Animals.lua"
+],
+"Quality": [
+"SettingsUI.lua"
+],
+"Quests": [
+"LobbyUI.lua",
+"QuestUI.lua",
+"Quests.lua"
+],
+"Quests & Rewards": [
+"QuestUI.lua"
+],
+"Quick Feet": [
+"Classes.lua"
+],
+"Rabbit": [
+"Animals.lua"
+],
+"Rare Chest": [
+"LootService.lua"
+],
+"Rare Items": [
+"Items.lua"
+],
+"Raw Meat": [
+"Items.lua"
+],
+"Raw meat. Edible but costs HP — cook it at the campfire first": [
+"Items.lua"
+],
+"Ready": [
+"HUD.lua",
+"LobbyService.lua",
+"MapUI.lua"
+],
+"Ready to craft! (go to camp, press C)": [
+"PinTracker.lua"
+],
+"Ready!": [
+"Cinematics.lua"
+],
+"Reaper Scythe": [
+"Items.lua"
+],
+"Reaper scythe · Widest reach, sweeps groups of enemies": [
+"Items.lua"
+],
+"Recovery": [
+"Classes.lua"
+],
+"Red": [
+"LobbyUI.lua",
+"Menus.lua",
+"PadUI.lua",
+"QuestUI.lua",
+"SettingsUI.lua",
+"StoreUI.lua"
+],
+"Regen 0.5 HP/sec at all times": [
+"Classes.lua"
+],
+"Rejoin": [
+"RejoinUI.lua"
+],
+"Relic": [
+"Items.lua"
+],
+"Remotes": [
+"DeathClient.lua",
+"LobbyUI.lua",
+"MobileControls.lua",
+"PadUI.lua",
+"RejoinUI.lua",
+"TeamPing.lua",
+"WorldEventsClient.lua"
+],
+"Remotes.Init must be called from the server": [
+"Remotes.lua"
+],
+"Repairs nearby walls": [
+"Menus.lua"
+],
+"Reptile": [
+"Animals.lua"
+],
+"Requires the Save Run pass": [
+"LobbyService.lua"
+],
+"Rescue %d element spirits": [
+"Quests.lua"
+],
+"Resource": [
+"Items.lua"
+],
+"Return to the campfire": [
+"Cinematics.lua"
+],
+"Returning to camp...": [
+"Cinematics.lua"
+],
+"Revive": [
+"MedAnim.lua",
+"Quests.lua"
+],
+"Revive (uses a bandage)": [
+"SurvivalService.lua"
+],
+"Revive Downed Teammates": [
+"Tutorial.lua"
+],
+"Revive Now  ": [
+"HUD.lua"
+],
+"Revive downed teammates %d times": [
+"Quests.lua"
+],
+"Revived": [
+"Cinematics.lua"
+],
+"Revived!": [
+"MonetizationService.lua"
+],
+"Revives": [
+"Quests.lua"
+],
+"Reviving teammate with ": [
+"MedAnim.lua"
+],
+"Reward": [
+"Cinematics.lua",
+"HUD.lua",
+"LobbyService.lua",
+"MapUI.lua",
+"WorldEventsClient.lua"
+],
+"Ribs": [
+"Animals.lua"
+],
+"Right Shoulder": [
+"CombatClient.lua",
+"MedAnim.lua"
+],
+"Ring of Fire!": [
+"BossAbilities.lua"
+],
+"Riptide Orca": [
+"Animals.lua"
+],
+"Rise": [
+"Cinematics.lua"
+],
+"Rock": [
+"Biomes.lua"
+],
+"Rockslide!": [
+"BossAbilities.lua"
+],
+"Root": [
+"MedAnim.lua"
+],
+"Rotate": [
+"MobileControls.lua"
+],
+"Round": [
+"Animals.lua"
+],
+"Ruby": [
+"Cinematics.lua",
+"HUD.lua",
+"LobbyUI.lua",
+"QuestUI.lua",
+"StoreUI.lua"
+],
+"Ruby Chest": [
+"Config.lua"
+],
+"Ruby Pouch": [
+"Config.lua"
+],
+"Ruby buys classes, class level skips, stock rerolls and starter kits — you also get it free from playing/the daily reward cauldron!": [
+"StoreUI.lua"
+],
+"Ruff": [
+"Animals.lua"
+],
+"Run": [
+"Cinematics.lua",
+"LobbyService.lua",
+"Quests.lua"
+],
+"Run 12% faster": [
+"Classes.lua"
+],
+"Run 20% faster · Stamina x2 · Hunting drops +1 extra item": [
+"Classes.lua"
+],
+"Run 5% faster · Stamina +15%": [
+"Classes.lua"
+],
+"Run saved · Night %d": [
+"RejoinService.lua"
+],
+"Runs": [
+"Quests.lua"
+],
+"SEAL BROKEN": [
+"WorldEventsClient.lua"
+],
+"SPIRIT RETURNED": [
+"Cinematics.lua"
+],
+"SPIRIT UNSEALED": [
+"Cinematics.lua"
+],
+"SUPPLY DROP": [
+"WorldEventsClient.lua"
+],
+"Sack": [
+"MobileControls.lua"
+],
+"Sack that holds 10 items — hold it and click items to collect": [
+"Items.lua"
+],
+"Sack that holds 20 items": [
+"Items.lua"
+],
+"Sack that holds 30 items": [
+"Items.lua"
+],
+"Safe zone expanded": [
+"Cinematics.lua"
+],
+"Salt": [
+"Biomes.lua"
+],
+"Sanctum": [
+"WorldEventsClient.lua"
+],
+"Sand": [
+"Biomes.lua"
+],
+"Sandstone": [
+"Biomes.lua"
+],
+"Save Run": [
+"Config.lua"
+],
+"Scale all windows up/down": [
+"SettingsUI.lua"
+],
+"Scout": [
+"Classes.lua",
+"LobbyService.lua",
+"Quests.lua",
+"Tutorial.lua"
+],
+"Screen Shake": [
+"SettingsUI.lua"
+],
+"Script": [
+"Tutorial.lua"
+],
+"Scroll": [
+"LobbyUI.lua"
+],
+"Scythe": [
+"Recipes.lua"
+],
+"Sealed Shrine": [
+"MapUI.lua"
+],
+"Search": [
+"Menus.lua"
+],
+"Search player...": [
+"StoreUI.lua"
+],
+"Season": [
+"QuestUI.lua"
+],
+"Season ": [
+"QuestUI.lua"
+],
+"Season Hero": [
+"Quests.lua"
+],
+"Season Pass": [
+"Config.lua"
+],
+"Season Pass tier %d%s": [
+"SeasonService.lua"
+],
+"See how smooth the game runs": [
+"SettingsUI.lua"
+],
+"Selected ": [
+"Backpack.lua"
+],
+"Sent %d Ruby to %s!": [
+"MonetizationService.lua"
+],
+"Server": [
+"Menus.lua"
+],
+"Setting Out": [
+"Cinematics.lua"
+],
+"Settings": [
+"LobbyUI.lua"
+],
+"Shadow of the Wilds": [
+"Classes.lua"
+],
+"Shake": [
+"Cinematics.lua",
+"SettingsUI.lua"
+],
+"Shape": [
+"WorldEventsClient.lua"
+],
+"Shared": [
+"Cinematics.lua",
+"ClassShop.lua",
+"DeathClient.lua",
+"HUD.lua",
+"ItemTooltip.lua",
+"LobbyUI.lua",
+"MapUI.lua",
+"MedAnim.lua",
+"Menus.lua",
+"MobileControls.lua",
+"PadUI.lua",
+"QuestUI.lua",
+"RejoinUI.lua",
+"SettingsUI.lua",
+"StoreUI.lua",
+"TeamPing.lua",
+"Tutorial.lua",
+"WorldEventsClient.lua"
+],
+"Sharp katana · Very fast, high-damage slashes": [
+"Items.lua"
+],
+"Shield": [
+"HUD.lua",
+"LobbyUI.lua"
+],
+"Shoots animals automatically": [
+"Menus.lua"
+],
+"Shop": [
+"LobbyUI.lua",
+"Menus.lua"
+],
+"Short": [
+"Animals.lua"
+],
+"Show FPS": [
+"SettingsUI.lua"
+],
+"Shrine": [
+"MapUI.lua"
+],
+"Shrine cleared: ": [
+"Cinematics.lua"
+],
+"Size": [
+"LobbyService.lua",
+"PadUI.lua"
+],
+"Skeleton": [
+"Animals.lua"
+],
+"Skills": [
+"ClassShop.lua"
+],
+"Skip": [
+"Tutorial.lua"
+],
+"Skip ♦️": [
+"ClassShop.lua"
+],
+"Skipped %d days · Day %d": [
+"DirectorService.lua"
+],
+"Sky": [
+"Quests.lua"
+],
+"Sky Blue": [
+"Quests.lua"
+],
+"Skyreach Highlands": [
+"Biomes.lua"
+],
+"Slate": [
+"Animals.lua",
+"Biomes.lua"
+],
+"Slot": [
+"Backpack.lua"
+],
+"Slow down, try again in a moment": [
+"QuestService.lua"
+],
+"Slows animals in range": [
+"Menus.lua"
+],
+"Small Ruby Pouch": [
+"Config.lua"
+],
+"Smoke": [
+"Menus.lua"
+],
+"Snow": [
+"Biomes.lua"
+],
+"Snow Bull": [
+"Animals.lua"
+],
+"Solar Beacon": [
+"Items.lua"
+],
+"Solar beacon. Gives off massive light": [
+"Items.lua"
+],
+"Sold out": [
+"Menus.lua"
+],
+"Solfang": [
+"Animals.lua",
+"Biomes.lua",
+"Nights.lua"
+],
+"Solved": [
+"WorldEventsClient.lua"
+],
+"Something is coming...": [
+"Cinematics.lua"
+],
+"Something is watching from the darkness": [
+"DirectorService.lua"
+],
+"Something went wrong, try again": [
+"QuestService.lua"
+],
+"Sound": [
+"Cinematics.lua",
+"ClassShop.lua",
+"Menus.lua",
+"Tutorial.lua",
+"WorldEventsClient.lua"
+],
+"Sparkles": [
+"Menus.lua"
+],
+"Sparks": [
+"Animals.lua"
+],
+"Spear": [
+"Items.lua",
+"Recipes.lua"
+],
+"Spectate": [
+"DeathClient.lua"
+],
+"Spike Trap": [
+"Items.lua"
+],
+"Spike trap. Stabs animals that step on it": [
+"Items.lua"
+],
+"Spiked Club": [
+"Items.lua"
+],
+"Spiked morning star · Hits everything around the target": [
+"Items.lua"
+],
+"Spirit": [
+"Animals.lua",
+"Cinematics.lua",
+"HUD.lua",
+"MapUI.lua",
+"Quests.lua"
+],
+"Spirit Pup": [
+"Cinematics.lua"
+],
+"Spirit Pups rescued %d/4 — rescue them all for the true ending": [
+"Cinematics.lua"
+],
+"Spitter": [
+"Animals.lua"
+],
+"Spots": [
+"Animals.lua"
+],
+"Sprint": [
+"MobileControls.lua"
+],
+"Sprinting": [
+"MobileControls.lua"
+],
+"Sprout": [
+"Animals.lua"
+],
+"Stabs animals that step on it": [
+"Menus.lua"
+],
+"Staff": [
+"Items.lua"
+],
+"Stalker": [
+"Animals.lua"
+],
+"Stamina x1.6 · Hunger 10% slower": [
+"Classes.lua"
+],
+"Starter axe. Chops wood slowly": [
+"Items.lua"
+],
+"Starter kits can only be bought in the lobby": [
+"LobbyService.lua"
+],
+"Starting Tools": [
+"ClassShop.lua"
+],
+"Starving!": [
+"HUD.lua"
+],
+"Step on a start pad on your right": [
+"HUD.lua"
+],
+"Step on the pad to start": [
+"LobbyService.lua"
+],
+"Stew Pot": [
+"BuildingService.lua",
+"Items.lua"
+],
+"Stew pot. Makes stew (meat + berries) and berry pie (berries + wood)": [
+"Items.lua"
+],
+"Still missing materials": [
+"PinTracker.lua"
+],
+"Stock": [
+"HUD.lua"
+],
+"Stone": [
+"Animals.lua",
+"HUD.lua",
+"Items.lua",
+"Quests.lua"
+],
+"Stone Axe": [
+"Items.lua"
+],
+"Stone Crocodile": [
+"Animals.lua"
+],
+"Stone Wall": [
+"Items.lua"
+],
+"Stone axe. Chops wood twice as fast": [
+"Items.lua"
+],
+"Stone wall. Very sturdy": [
+"Items.lua"
+],
+"Store": [
+"Menus.lua"
+],
+"Storm Bow": [
+"Items.lua"
+],
+"Structure": [
+"Items.lua",
+"Menus.lua"
+],
+"Structures": [
+"Menus.lua"
+],
+"Stub": [
+"Animals.lua"
+],
+"Style": [
+"PadUI.lua"
+],
+"Sub": [
+"LobbyService.lua"
+],
+"Sun Beacon": [
+"Items.lua"
+],
+"Supplies": [
+"Classes.lua"
+],
+"Supply": [
+"WorldEventsClient.lua"
+],
+"Supply Chest": [
+"EventService.lua",
+"WorldEventsClient.lua"
+],
+"Supply Crate": [
+"LootService.lua"
+],
+"Support": [
+"Classes.lua"
+],
+"Survival Instinct": [
+"Classes.lua"
+],
+"Survive %d nights": [
+"Quests.lua"
+],
+"Survive %d nights with friends": [
+"Quests.lua"
+],
+"Survive 99 nights": [
+"Cinematics.lua"
+],
+"Survive 99 nights = conquered! But you can keep playing endlessly to climb the leaderboard": [
+"Cinematics.lua"
+],
+"Survive 99 nights = conquered! Keep playing to climb the leaderboard": [
+"Tutorial.lua"
+],
+"Survive 99 nights in the wilds of Earth, Water, Frost and Fire": [
+"Tutorial.lua"
+],
+"Survive nights": [
+"Classes.lua"
+],
+"Survive to Night 10": [
+"Config.lua"
+],
+"Survive to Night 25": [
+"Config.lua"
+],
+"Survive to Night 5": [
+"Config.lua"
+],
+"Survive to Night 50": [
+"Config.lua"
+],
+"Survived %d nights · Your best is %d nights": [
+"Cinematics.lua"
+],
+"Survived %d/%d nights": [
+"ClassShop.lua"
+],
+"Survived night ": [
+"DirectorService.lua"
+],
+"Survived to night ": [
+"DirectorService.lua"
+],
+"Survivor": [
+"Cinematics.lua",
+"ClassShop.lua",
+"Classes.lua",
+"LobbyService.lua",
+"Menus.lua",
+"Tutorial.lua"
+],
+"Survivor Camp": [
+"Biomes.lua"
+],
+"Switch": [
+"MobileControls.lua",
+"PadUI.lua"
+],
+"Sword": [
+"Items.lua"
+],
+"THE FIRE IS OUT": [
+"Cinematics.lua"
+],
+"THE FOUR SPIRITS REUNITE": [
+"Cinematics.lua"
+],
+"THE GREAT MIGRATION": [
+"WorldEventsClient.lua"
+],
+"THE HOLLOW STAG": [
+"Animals.lua"
+],
+"TYRANNOMOSA, Terror of the Deep": [
+"Animals.lua"
+],
+"Take Out": [
+"MobileControls.lua"
+],
+"Taking you back to the lobby...": [
+"Cinematics.lua"
+],
+"Tap screen = hit · Bag is in the top-left corner": [
+"HUD.lua"
+],
+"Team": [
+"HUD.lua"
+],
+"Team is full! Departing": [
+"PadUI.lua"
+],
+"Team is on night %d · Step on a pad to join": [
+"HUD.lua"
+],
+"Team of %d · Departing in %ds": [
+"HUD.lua"
+],
+"Teammate down? Use a bandage within 30 seconds — if nobody is left standing, the whole team loses": [
+"Cinematics.lua"
+],
+"Teleporting": [
+"Cinematics.lua",
+"LobbyService.lua"
+],
+"Tent = Classes · Green cauldron = Daily reward": [
+"HUD.lua"
+],
+"Terra Core": [
+"Items.lua"
+],
+"Terra Hammer": [
+"Items.lua"
+],
+"Terra Heart": [
+"Items.lua"
+],
+"Terra Pup": [
+"Animals.lua"
+],
+"Terra Totem": [
+"Items.lua"
+],
+"Terragon": [
+"Animals.lua",
+"Biomes.lua",
+"Nights.lua",
+"Tutorial.lua"
+],
+"Text": [
+"Menus.lua",
+"StoreUI.lua"
+],
+"Texture": [
+"Cinematics.lua"
+],
+"The %s Sanctum is now sealed": [
+"SanctumService.lua"
+],
+"The %s Sanctum is open": [
+"WorldEventsClient.lua"
+],
+"The %s Shrine guardians have awakened": [
+"SpiritService.lua"
+],
+"The %s Shrine seal has weakened · Hold E": [
+"SpiritService.lua"
+],
+"The Ballista fires on its own. Place them around the campfire": [
+"Cinematics.lua"
+],
+"The Elementalist's fire staff. Hits launch exploding fireballs at enemies · Can also chop trees/rocks": [
+"Items.lua"
+],
+"The Final Night": [
+"Nights.lua"
+],
+"The Hollow Stag": [
+"Animals.lua"
+],
+"The Walking Mountain": [
+"Nights.lua"
+],
+"The Wilds Awaken": [
+"Tutorial.lua"
+],
+"The boss is coming": [
+"Cinematics.lua"
+],
+"The boss is still alive — dawn is held back!": [
+"DirectorService.lua"
+],
+"The campfire burns enemies that enter the safe zone": [
+"SpiritService.lua"
+],
+"The campfire burns fuel 25% slower": [
+"SpiritService.lua"
+],
+"The campfire died out... the forest swallowed everything": [
+"Cinematics.lua"
+],
+"The campfire is already max level": [
+"CampService.lua"
+],
+"The campfire is burning again": [
+"CampService.lua"
+],
+"The campfire is full": [
+"CampService.lua"
+],
+"The campfire is life": [
+"Tutorial.lua"
+],
+"The campfire is life — when it goes out, the Hollow Stag enters the camp": [
+"Cinematics.lua"
+],
+"The crafting bench is already max level": [
+"CampService.lua"
+],
+"The crystal pillar of ": [
+"Cinematics.lua"
+],
+"The fire is out, can't cook": [
+"CampService.lua"
+],
+"The fog is too thick to pass — upgrade the campfire (Lv.%d → %d) to explore further": [
+"FogWall.lua"
+],
+"The ground is shaking...": [
+"Cinematics.lua"
+],
+"The guardians have spotted you!": [
+"Cinematics.lua"
+],
+"The shrine guardians are closing in on it!": [
+"Cinematics.lua"
+],
+"The team": [
+"DirectorService.lua"
+],
+"The volcano erupts... the fire beasts spread": [
+"Cinematics.lua"
+],
+"The wandering trader has arrived at camp": [
+"TraderService.lua"
+],
+"The wandering trader has left": [
+"TraderService.lua"
+],
+"The waves roar... the beasts of Water rise from the sea": [
+"Cinematics.lua"
+],
+"The whole forest awakens... the beasts of Earth are coming": [
+"Cinematics.lua"
+],
+"The whole team fell on night %d": [
+"Cinematics.lua"
+],
+"The wind howls... the hunters of the sky swoop down": [
+"Cinematics.lua"
+],
+"Thin": [
+"Animals.lua"
+],
+"This class isn't in stock today — wait for restock or reroll": [
+"DataService.lua"
+],
+"This server only (save system not connected yet)": [
+"LobbyService.lua"
+],
+"Thornboar": [
+"Animals.lua"
+],
+"Thrifty Builder": [
+"Classes.lua"
+],
+"Throw materials into the crafter, then build walls, traps and ballistas": [
+"Tutorial.lua"
+],
+"Throw materials into the grinder (one at a time)": [
+"CampService.lua"
+],
+"Throw wood into the fire": [
+"CampService.lua"
+],
+"Throw wood/coal into the campfire — if it goes out, the safe zone is gone!": [
+"Tutorial.lua"
+],
+"Tidal Expanse": [
+"Biomes.lua"
+],
+"Tidal Trident": [
+"Items.lua"
+],
+"Tidal Wave!": [
+"BossAbilities.lua"
+],
+"Tide Fox Pup": [
+"Animals.lua"
+],
+"Tide Heart": [
+"Items.lua"
+],
+"Tide Pearl": [
+"Items.lua"
+],
+"Tide Pup": [
+"Animals.lua"
+],
+"Tide Totem": [
+"Items.lua"
+],
+"Tide Trident": [
+"Items.lua"
+],
+"Tier ": [
+"QuestUI.lua"
+],
+"Time to rejoin your previous run has expired": [
+"RejoinService.lua"
+],
+"Title": [
+"LobbyService.lua",
+"QuestUI.lua"
+],
+"Title Color": [
+"QuestUI.lua"
+],
+"To the Land of Four Elements": [
+"Cinematics.lua"
+],
+"Today!": [
+"QuestUI.lua"
+],
+"Today's plan:\n1. Pick a class\n2. Step on a start pad\n3. Conquer the final night!": [
+"LobbyService.lua"
+],
+"Tomorrow": [
+"QuestUI.lua"
+],
+"Too close to the campfire": [
+"BuildingService.lua"
+],
+"Too far away": [
+"BuildingService.lua"
+],
+"Too far from your teammate": [
+"SurvivalService.lua"
+],
+"Tool": [
+"Backpack.lua",
+"Items.lua",
+"Menus.lua",
+"MobileControls.lua"
+],
+"Top": [
+"ItemTooltip.lua"
+],
+"Top-up: ": [
+"Cinematics.lua",
+"MonetizationService.lua"
+],
+"Torch": [
+"Items.lua",
+"Recipes.lua"
+],
+"Torch for light. Scares off the Hollow Stag": [
+"Items.lua"
+],
+"Torso": [
+"MedAnim.lua"
+],
+"Tortoise": [
+"Animals.lua"
+],
+"Trade": [
+"Menus.lua"
+],
+"Trail": [
+"Menus.lua",
+"WorldEventsClient.lua"
+],
+"Traveler": [
+"Classes.lua"
+],
+"Traveling...": [
+"Cinematics.lua"
+],
+"Treasure Chest": [
+"LootService.lua"
+],
+"Trophy": [
+"LobbyUI.lua"
+],
+"True": [
+"Cinematics.lua"
+],
+"Trusty Axe": [
+"Classes.lua"
+],
+"Tufted": [
+"Animals.lua"
+],
+"Turn": [
+"Cinematics.lua"
+],
+"Tusks": [
+"Animals.lua"
+],
+"Type code here...": [
+"QuestUI.lua"
+],
+"Tyrannomosa, Terror of the Deep": [
+"Animals.lua"
+],
+"UI Size": [
+"SettingsUI.lua"
+],
+"Unequip": [
+"ClassShop.lua"
+],
+"Unlock This Class": [
+"ClassShop.lua"
+],
+"Unlocked": [
+"Cinematics.lua"
+],
+"Unlocked class ": [
+"DataService.lua"
+],
+"Unlocks at level ": [
+"ClassShop.lua"
+],
+"Unlocks more craftable items": [
+"Menus.lua"
+],
+"Unlocks the Season Pass premium track every season · More Ruby + special titles/title colors": [
+"Config.lua"
+],
+"Unsealed!": [
+"Cinematics.lua"
+],
+"Updrafts in the Frost zone lift you up to the floating islands": [
+"Cinematics.lua"
+],
+"Upgrade the bench to level %d first": [
+"CampService.lua"
+],
+"Upgrade the campfire to clear the fog and expand the safe zone": [
+"Cinematics.lua"
+],
+"Upgrade: ": [
+"CampService.lua"
+],
+"Use": [
+"Menus.lua"
+],
+"Use Revive Ticket (%d)": [
+"HUD.lua"
+],
+"Use bandages to revive teammates — if nobody is left standing, the whole team loses": [
+"Tutorial.lua"
+],
+"Using ": [
+"MedAnim.lua"
+],
+"VFXPack/Anime/Blood-Punch-01": [
+"CombatClient.lua"
+],
+"VFXPack/Anime/Charge-01": [
+"CombatClient.lua"
+],
+"VFXPack/Anime/Crack-01": [
+"CombatClient.lua"
+],
+"VFXPack/Anime/Fire-02": [
+"CombatClient.lua"
+],
+"VFXPack/Anime/Portal-Enter-01": [
+"Cinematics.lua"
+],
+"VFXPack/Anime/Shield-Break-01": [
+"CombatClient.lua"
+],
+"VFXPack/Anime/Shiny-01": [
+"CombatClient.lua"
+],
+"VFXPack/vfx pack/f": [
+"CombatClient.lua"
+],
+"Vegetation": [
+"LobbyService.lua"
+],
+"Verdant Wilds": [
+"Biomes.lua"
+],
+"Very tough wall": [
+"Menus.lua"
+],
+"View Classes": [
+"LobbyService.lua"
+],
+"Violet": [
+"Quests.lua"
+],
+"WILDHEART CAMP": [
+"HUD.lua",
+"LobbyService.lua"
+],
+"Waist": [
+"MedAnim.lua"
+],
+"Waiting for the pad leader / friends": [
+"PadUI.lua"
+],
+"Waiting for the pad leader to choose the team size...": [
+"PadUI.lua"
+],
+"Waiting for the previous run to end...": [
+"LobbyService.lua"
+],
+"Walk closer to the campfire first, then throw": [
+"CampService.lua"
+],
+"Wall": [
+"LobbyService.lua"
+],
+"Walls and buildings are x1.5 tougher": [
+"Classes.lua"
+],
+"Wandering Trader": [
+"TraderService.lua"
+],
+"War Hammer": [
+"Items.lua"
+],
+"Warn": [
+"HUD.lua",
+"LobbyService.lua"
+],
+"Warp": [
+"Cinematics.lua"
+],
+"Warrior": [
+"Shop.lua"
+],
+"Warrior Kit": [
+"Shop.lua"
+],
+"Water": [
+"Animals.lua",
+"Biomes.lua",
+"Cinematics.lua",
+"HUD.lua",
+"Items.lua",
+"MapUI.lua",
+"Nights.lua",
+"WorldEventsClient.lua"
+],
+"Water Aura: Hunger 15% slower": [
+"SanctumService.lua"
+],
+"Water Beast Heart": [
+"Items.lua"
+],
+"Water Pillar": [
+"Items.lua"
+],
+"Water beats Fire · Fire beats Frost · Frost beats Earth · Earth beats Water": [
+"Cinematics.lua"
+],
+"Water essence · Break blue crystals in Whirlpool Lake / chests / meteors / sanctums / Water boss · Used for the Trident, Water Pillar, bench and campfire upgrades": [
+"Items.lua"
+],
+"Water pillar. Slows animals in range": [
+"Items.lua"
+],
+"Water trident. Slows animals down": [
+"Items.lua"
+],
+"Waterspout!": [
+"BossAbilities.lua"
+],
+"Wave Slam!": [
+"BossAbilities.lua"
+],
+"Weapons": [
+"ClassShop.lua"
+],
+"Week": [
+"LobbyService.lua"
+],
+"Weekly": [
+"QuestUI.lua",
+"Quests.lua"
+],
+"Weekly quest: ": [
+"QuestService.lua"
+],
+"Welcome to the Wilds": [
+"Config.lua"
+],
+"Whale": [
+"Animals.lua"
+],
+"When hit / boss impacts": [
+"SettingsUI.lua"
+],
+"Whirlpool Lake": [
+"Biomes.lua"
+],
+"Whispering Pines": [
+"Biomes.lua"
+],
+"Whole team is down — game over in %ds": [
+"HUD.lua"
+],
+"Wide": [
+"Cinematics.lua"
+],
+"Wildheart Camp": [
+"Biomes.lua"
+],
+"Wind": [
+"Biomes.lua"
+],
+"Wind bow. Arrows pierce through several enemies": [
+"Items.lua"
+],
+"Wolf": [
+"QuestUI.lua"
+],
+"Wood": [
+"HUD.lua",
+"Items.lua",
+"QuestUI.lua",
+"Quests.lua",
+"StoreUI.lua"
+],
+"Wood Armor": [
+"Items.lua"
+],
+"Wood Wall": [
+"Items.lua"
+],
+"Wood armor. Equips right after crafting, raises Max HP": [
+"Items.lua"
+],
+"Wood from trees. Used for almost everything and can be thrown into the campfire": [
+"Items.lua"
+],
+"Wood wall. Blocks animal packs": [
+"Items.lua"
+],
+"Wool": [
+"Animals.lua"
+],
+"Workspace": [
+"Cinematics.lua",
+"ClassShop.lua",
+"DeathClient.lua",
+"HUD.lua",
+"ItemTooltip.lua",
+"LobbyService.lua",
+"MedAnim.lua",
+"Menus.lua",
+"MobileControls.lua",
+"PadUI.lua",
+"QuestUI.lua",
+"TeamPing.lua",
+"WorldEventsClient.lua"
+],
+"World ready": [
+"Cinematics.lua"
+],
+"YOU PERISHED": [
+"Cinematics.lua"
+],
+"You already bought this kit (you'll get it when you depart)": [
+"LobbyService.lua"
+],
+"You already have ": [
+"CampService.lua",
+"TraderService.lua"
+],
+"You already have the %s class — got %d Ruby instead": [
+"SeasonService.lua"
+],
+"You conquered 99 Nights in the Wilds!": [
+"Cinematics.lua"
+],
+"You conquered 99 nights — the true ending": [
+"Cinematics.lua"
+],
+"You died on night %d — watch your teammates survive, or go back to the lobby": [
+"DeathClient.lua"
+],
+"You died... no respawning this run": [
+"Cinematics.lua"
+],
+"You died... no respawning this run · %d teammates still alive": [
+"Cinematics.lua"
+],
+"You don't have a saved run yet": [
+"LobbyService.lua"
+],
+"You have no ": [
+"BuildingService.lua"
+],
+"You haven't completed this achievement yet": [
+"QuestService.lua"
+],
+"You left mid-run — you can go back to the same run (same night, campfire, buildings and sack items)": [
+"RejoinUI.lua"
+],
+"You must be in the camp (near the campfire/crafting bench) to craft": [
+"CampService.lua"
+],
+"You must be near the trader": [
+"TraderService.lua"
+],
+"You need a bandage or a first aid kit": [
+"SurvivalService.lua"
+],
+"You need an axe to chop wood": [
+"ResourceService.lua"
+],
+"You need an axe/pickaxe to break this": [
+"ResourceService.lua"
+],
+"You were revived": [
+"Cinematics.lua"
+],
+"You're the pad leader · Wait for friends or for time to run out": [
+"PadUI.lua"
+],
+"You've traded this %d times already — wait for the trader's next visit": [
+"TraderService.lua"
+],
+"Your previous run has ended": [
+"RejoinService.lua"
+],
+"Your previous run has ended — start a new one at the start pad": [
+"RejoinService.lua"
+],
+"Your previous run has ended — starting a new run instead": [
+"RejoinService.lua"
+],
+"Your run is saved every dawn and when you leave · Continue from the saved night at the start pad": [
+"Config.lua"
+],
+"Zone": [
+"Menus.lua"
+],
+"[ All Time ] · This Week": [
+"LobbyService.lua"
+],
+"^%s*(.-)%s*$": [
+"Menus.lua"
+],
+"^HintSlot%d$": [
+"SanctumService.lua"
+],
+"a few minutes": [
+"HUD.lua"
+],
+"after the final night": [
+"DirectorService.lua"
+],
+"couldn't hand the saved run to the team server": [
+"LobbyService.lua"
+],
+"in the morning": [
+"DirectorService.lua"
+],
+"memory budget (image)": [
+"AnimalSkins.lua"
+],
+"memory budget (mesh)": [
+"AnimalSkins.lua"
+],
+"outer portal not found": [
+"SpiritService.lua"
+],
+"per game (whole server)": [
+"InventoryService.lua"
+],
+"per player": [
+"InventoryService.lua"
+],
+"the team": [
+"DataService.lua"
+],
+"~ SURVIVE 99 NIGHTS ~": [
+"LobbyService.lua"
+],
+"—  The team departs when full, or when time runs out  —": [
+"PadUI.lua"
+],
+"— Element Boss —": [
+"Cinematics.lua"
+],
+"… (stand still)": [
+"MedAnim.lua"
+],
+"↩ Rejoin your run?": [
+"RejoinUI.lua"
+],
+"↩ Rejoined your run — your sack items and tools are all still here": [
+"RejoinService.lua"
+],
+"⌛ This code has expired": [
+"QuestService.lua"
+],
+"⌛ Time's up! The rune pillars went back to sleep — watch the order again": [
+"SanctumService.lua"
+],
+"⏱ Speed %.1f hits/sec": [
+"ItemTooltip.lua"
+],
+"⏳ Awaken all the rune pillars: %d seconds": [
+"WorldEventsClient.lua"
+],
+"⏳ Checking...": [
+"QuestUI.lua"
+],
+"⏳ Generating world %d%%": [
+"LobbyService.lua"
+],
+"⏳ Resets in ": [
+"QuestUI.lua"
+],
+"⏳ Season ends in ": [
+"QuestUI.lua"
+],
+"⏳ The %s Sanctum has awakened! Awaken the rune pillars in order within %d seconds": [
+"SanctumService.lua"
+],
+"⏳ This code isn't active yet": [
+"QuestService.lua"
+],
+"⏳ Time left ": [
+"RejoinUI.lua"
+],
+"◀ Back": [
+"Tutorial.lua"
+],
+"● %s %dm": [
+"HUD.lua"
+],
+"☀️ Daily Quests": [
+"QuestUI.lua"
+],
+"☠ You Died": [
+"DeathClient.lua"
+],
+"♦️ +%d Ruby  (%s)": [
+"DataService.lua"
+],
+"♦️ +100 Ruby": [
+"Cinematics.lua"
+],
+"♦️ +300 Ruby": [
+"Cinematics.lua"
+],
+"♦️ Not enough Ruby": [
+"DataService.lua",
+"LobbyService.lua"
+],
+"♦️ Not enough Ruby to reroll the stock": [
+"DataService.lua"
+],
+"♦️ Not enough Ruby to skip a level": [
+"DataService.lua"
+],
+"♨ Can be cooked at the campfire ": [
+"ItemTooltip.lua"
+],
+"♾ Endless · ": [
+"DirectorService.lua"
+],
+"♾ The game isn't over! Keep playing endlessly — survive as long as you can to climb the leaderboard": [
+"Cinematics.lua"
+],
+"⚒ Craft": [
+"Menus.lua"
+],
+"⚒ Craft x1": [
+"Menus.lua"
+],
+"⚒ Upgrade": [
+"Menus.lua"
+],
+"⚒ Upgrade Crafting Bench": [
+"Menus.lua"
+],
+"⚔ Damage ": [
+"ItemTooltip.lua"
+],
+"⚔ Join the team in progress": [
+"LobbyService.lua"
+],
+"⚔ Kill": [
+"ClassShop.lua"
+],
+"⚔ Walk through the portal to start the game": [
+"LobbyService.lua"
+],
+"⚔ Weapons/Tools": [
+"Menus.lua"
+],
+"⚙ Settings": [
+"SettingsUI.lua"
+],
+"⚠ Outside camp: go back to camp to craft (counts include camp storage)": [
+"Menus.lua"
+],
+"⛏ Mine rock/ore x": [
+"ItemTooltip.lua"
+],
+"✅ Completed": [
+"LobbyUI.lua"
+],
+"✔ Claimed": [
+"LobbyUI.lua",
+"QuestUI.lua"
+],
+"✔ Claimed — come back in ": [
+"QuestUI.lua"
+],
+"✔ Code already used (one use per player)": [
+"QuestService.lua"
+],
+"✔ Continue · Night ": [
+"PadUI.lua"
+],
+"✔ Done %d/%d": [
+"Menus.lua"
+],
+"✔ Equipped": [
+"ClassShop.lua"
+],
+"✔ Have a better one": [
+"Menus.lua"
+],
+"✔ Owned": [
+"Menus.lua"
+],
+"✔ Rejoin": [
+"RejoinUI.lua"
+],
+"✕ No thanks": [
+"RejoinUI.lua"
+],
+"✖ Stopped bandaging — ": [
+"SurvivalService.lua"
+],
+"✨ Can revive downed teammates": [
+"ItemTooltip.lua"
+],
+"✨ Gained ": [
+"SanctumService.lua"
+],
+"✨ Rescue 4 element spirits": [
+"Quests.lua"
+],
+"✨ Rune pillar %d/%d awakened": [
+"SanctumService.lua"
+],
+"✨ Season Pass": [
+"QuestUI.lua"
+],
+"❌ Code not found — check the spelling": [
+"QuestService.lua"
+],
+"❌ Wrong order! The seal pushed back — watch the flashing lights again": [
+"SanctumService.lua"
+],
+"❤ HP is full — save your ": [
+"SurvivalService.lua"
+],
+"❤ Heal +": [
+"ItemTooltip.lua"
+],
+"➶ Pierces ": [
+"ItemTooltip.lua"
+],
+"⟳ Rotate (R)": [
+"Menus.lua"
+],
+"⭐ %d / %d XP": [
+"QuestUI.lua"
+],
+"⭐ %s level %d!": [
+"DataService.lua"
+],
+"⭐ Class %s reached level %d! New skill unlocked": [
+"DataService.lua"
+],
+"⭐ Class level 3": [
+"Quests.lua"
+],
+"⭐ Max level reached": [
+"ClassShop.lua"
+],
+"🌍 Building the four-element world": [
+"Cinematics.lua"
+],
+"🌕 Survive to Night 25": [
+"Quests.lua"
+],
+"🌕 Survive to Night 50": [
+"Quests.lua"
+],
+"🌙 Survive": [
+"ClassShop.lua"
+],
+"🌙 Survive to Night 10": [
+"Quests.lua"
+],
+"🌙 Survive to Night 5": [
+"Quests.lua"
+],
+"🌟 Rescued ": [
+"SpiritService.lua"
+],
+"🌫 The fog is too thick — upgrade the campfire to explore further": [
+"CampService.lua"
+],
+"🍖 Cooking meat x": [
+"CampService.lua"
+],
+"🍖 Eat": [
+"HUD.lua"
+],
+"🍖 Food +": [
+"ItemTooltip.lua"
+],
+"🍖 Meat is cooked! Put it in your sack or press R to eat": [
+"CampService.lua"
+],
+"🎁 7 days in a row! Big reward claimed — a new streak starts tomorrow": [
+"QuestService.lua"
+],
+"🎁 Claim All": [
+"QuestUI.lua"
+],
+"🎁 Claim All (": [
+"QuestUI.lua"
+],
+"🎁 Claim Reward": [
+"QuestUI.lua"
+],
+"🎁 Claim day %d reward  (%d Ruby)": [
+"QuestUI.lua"
+],
+"🎁 Codes": [
+"QuestUI.lua"
+],
+"🎁 Gift a friend": [
+"StoreUI.lua"
+],
+"🎁 Gift to": [
+"StoreUI.lua"
+],
+"🎁 Gifting to ": [
+"StoreUI.lua"
+],
+"🎁 Redeem Codes for Rewards": [
+"QuestUI.lua"
+],
+"🎉 Code redeemed! You got ": [
+"QuestService.lua"
+],
+"🎒 %d/%d": [
+"HUD.lua"
+],
+"🎒 Capacity ": [
+"ItemTooltip.lua"
+],
+"🎒 Hold your sack first (select it in the hotbar), then pick up items": [
+"DropService.lua"
+],
+"🎒 No sack": [
+"HUD.lua"
+],
+"🎒 Own 3 classes": [
+"Quests.lua"
+],
+"🎒 Own 6 classes": [
+"Quests.lua"
+],
+"🎒 Received ": [
+"LobbyService.lua"
+],
+"🎒 Sack": [
+"Menus.lua"
+],
+"🎒 Sack  %d/%d": [
+"Menus.lua"
+],
+"🎒 Sack is full (%d/%d) — unload it at the crafting bench in camp": [
+"DropService.lua"
+],
+"🎟\nFree": [
+"QuestUI.lua"
+],
+"🎟 Season Pass tier %d! Claim rewards in the \"Quests\" menu": [
+"SeasonService.lua"
+],
+"🎨 Color: ": [
+"Quests.lua"
+],
+"🎨 Loading models and textures": [
+"Cinematics.lua"
+],
+"🎨 New title color: ": [
+"SeasonService.lua"
+],
+"🎨 Title Color": [
+"QuestUI.lua"
+],
+"🎫 Game Pass items: ": [
+"MonetizationService.lua"
+],
+"🎫 Game Pass received: ": [
+"MonetizationService.lua"
+],
+"🎲 Class shop stock rerolled": [
+"DataService.lua"
+],
+"🎲 Reroll Stock  ♦️": [
+"ClassShop.lua"
+],
+"🏅 Achievement Badges": [
+"LobbyUI.lua"
+],
+"🏅 Achievement unlocked: ": [
+"QuestService.lua"
+],
+"🏅 Badge earned: ": [
+"DataService.lua"
+],
+"🏆 Collect every class": [
+"Quests.lua"
+],
+"🏆 Longest Survivors of All Time": [
+"LobbyService.lua"
+],
+"🏗 Buildings": [
+"Menus.lua"
+],
+"🏗 Place %s (%d left)  ·  Click = place  ·  R = rotate  ·  B/Esc = cancel": [
+"Menus.lua"
+],
+"🏗 Place %s (%d left)  ·  Click = place  ·  R = rotate  ·  Q = change type  ·  B = cancel": [
+"Menus.lua"
+],
+"🏗 Place %s (%d left) — aim at the center of the screen and tap ✔": [
+"Menus.lua"
+],
+"🏠 Back to Lobby": [
+"DeathClient.lua"
+],
+"🏷 New title: ": [
+"SeasonService.lua"
+],
+"🏷 Title": [
+"QuestUI.lua"
+],
+"🐺 Hunt 1000 animals": [
+"Quests.lua"
+],
+"🐾 Hunt 250 animals": [
+"Quests.lua"
+],
+"🐾 Hunt 50 animals": [
+"Quests.lua"
+],
+"🐾 Redeem": [
+"QuestUI.lua"
+],
+"🐾 Trade complete! (%d more trades left for this item)": [
+"TraderService.lua"
+],
+"🐾 Wandering Trader": [
+"Menus.lua",
+"TraderService.lua"
+],
+"👁 Memorize the order the rune pillars flash, then awaken them in that order!": [
+"SanctumService.lua"
+],
+"👁 Spectating: ": [
+"DeathClient.lua"
+],
+"👁 Wait for the rune pillars to finish flashing the order first": [
+"SanctumService.lua"
+],
+"👑\nPremium": [
+"QuestUI.lua"
+],
+"👑 Conquer the Final Night": [
+"Quests.lua"
+],
+"👑 Premium  ": [
+"QuestUI.lua"
+],
+"👑 Premium (coming soon)": [
+"QuestUI.lua"
+],
+"👑 Premium ✔": [
+"QuestUI.lua"
+],
+"👑 VIP": [
+"LobbyService.lua"
+],
+"👥 Choose Team Size": [
+"PadUI.lua"
+],
+"👥 Pad ": [
+"PadUI.lua"
+],
+"👥 Waiting for the pad leader to choose the team size": [
+"LobbyService.lua"
+],
+"👹 Defeat 10 bosses": [
+"Quests.lua"
+],
+"💔 HP loss ": [
+"ItemTooltip.lua"
+],
+"💡 Light ": [
+"ItemTooltip.lua"
+],
+"💡 Light scares off the Hollow Stag": [
+"ItemTooltip.lua"
+],
+"💥 Area attack ": [
+"ItemTooltip.lua"
+],
+"📅 7-Day Login": [
+"QuestUI.lua"
+],
+"📅 Log in 7 days in a row": [
+"Quests.lua"
+],
+"📅 Longest Survivors This Week": [
+"LobbyService.lua"
+],
+"📅 Weekly Quests": [
+"QuestUI.lua"
+],
+"📏 Radius ": [
+"ItemTooltip.lua"
+],
+"📏 Range ": [
+"ItemTooltip.lua"
+],
+"📖 How to Play": [
+"SettingsUI.lua"
+],
+"📖 How to Survive": [
+"Tutorial.lua"
+],
+"📜 Complete 30 quests": [
+"Quests.lua"
+],
+"📜 New quests are here! Open the \"Quests\" menu in the lobby": [
+"QuestService.lua"
+],
+"📜 Quest complete! %s %s — go back to the lobby to claim your reward": [
+"QuestService.lua"
+],
+"📜 Quests": [
+"QuestUI.lua"
+],
+"📦 In camp: uses items in your sack first, then takes from camp storage": [
+"Menus.lua"
+],
+"📦 Stored %d items in the camp storage": [
+"CampService.lua"
+],
+"🔄 Defaults": [
+"SettingsUI.lua"
+],
+"🔍 Search": [
+"Menus.lua"
+],
+"🔒 Needs bench Lv.": [
+"Menus.lua"
+],
+"🔒 The premium track needs the Season Pass (Shop → Game Pass)": [
+"SeasonService.lua"
+],
+"🔒 This place is sealed for the rest of this run": [
+"PortalService.lua"
+],
+"🔥 %d-day streak   ·   Best %d days": [
+"QuestUI.lua"
+],
+"🔥 Add 1,000 fuel": [
+"Quests.lua"
+],
+"🔥 Add 10,000 fuel": [
+"Quests.lua"
+],
+"🔥 Burn ": [
+"ItemTooltip.lua"
+],
+"🔥 Camp   ⛩ Spirit Pup Shrine   💀 Boss Lair   🏛 Ancient Sanctum   ☄📦 Events   ▲ You   ● Teammates   (places appear when discovered)": [
+"MapUI.lua"
+],
+"🔥 Fuel +": [
+"ItemTooltip.lua"
+],
+"🔥 Fuel added: ": [
+"CampService.lua"
+],
+"🔥 Last run: the team reached night %d — try again!": [
+"LobbyService.lua"
+],
+"🔥 Lighting the camp fire": [
+"Cinematics.lua"
+],
+"🔥 Survive 100 nights total": [
+"Quests.lua"
+],
+"🔥 Survive 20 nights total": [
+"Quests.lua"
+],
+"🔥 The fire is dying! About %s left — throw wood/coal in, quick": [
+"HUD.lua"
+],
+"🔥 Upgrade Campfire": [
+"Menus.lua"
+],
+"🔨 Craft 250 items": [
+"Quests.lua"
+],
+"🔨 Craft 50 items": [
+"Quests.lua"
+],
+"🔨 Craft at bench Lv.": [
+"ItemTooltip.lua"
+],
+"🔨 Crafted: ": [
+"CampService.lua"
+],
+"🔨 Crafting Bench Lv.%d": [
+"Menus.lua"
+],
+"🔨 Crafting Bench Lv.1": [
+"Menus.lua"
+],
+"🗺 Discovered: %s%s": [
+"MapUI.lua"
+],
+"🗺 Discovered: Ancient Sanctum of ": [
+"WorldEventsClient.lua"
+],
+"🚪 Go on 100 expeditions": [
+"Quests.lua"
+],
+"🚪 Go on 20 expeditions": [
+"Quests.lua"
+],
+"🛒 Bought ": [
+"LobbyService.lua"
+],
+"🛒 Shop": [
+"StoreUI.lua"
+],
+"🛡 Armor": [
+"Menus.lua"
+],
+"🛡 Craft + Equip": [
+"Menus.lua"
+],
+"🛡 Equipped %s! Max HP +%d": [
+"CampService.lua"
+],
+"🛡 HP ": [
+"ItemTooltip.lua"
+],
+"🛡 Max HP +": [
+"ItemTooltip.lua"
+],
+"🛡 Wearing": [
+"Menus.lua"
+],
+"🤝 Trade": [
+"Menus.lua"
+],
+"🧊 Slows enemies": [
+"ItemTooltip.lua"
+],
+"🩹 Medicine": [
+"Menus.lua"
+],
+"🩹 Revive teammates 10 times": [
+"Quests.lua"
+],
+"🩹 Revive teammates 50 times": [
+"Quests.lua"
+],
+"🪓 Chop wood x": [
+"ItemTooltip.lua"
+],
+"🪵 Gather 1,000 materials": [
+"Quests.lua"
+]
+}

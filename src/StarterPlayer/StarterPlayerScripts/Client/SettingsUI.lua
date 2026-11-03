@@ -216,6 +216,36 @@ function SettingsUI.Init(gui, handlers)
 	local pct = function(v)
 		return math.floor(v * 100 + 0.5) .. "%"
 	end
+	-- ภาษา: ปุ่มชื่อภาษาเป็นภาษานั้นเอง (ไม่แปล) · Auto = ตามภาษาบัญชี Roblox
+	section(0, "🌐", "Language")
+	do
+		local Lang = require(game:GetService("ReplicatedStorage").Shared.Lang)
+		local grid = UIKit.Frame(ui.List, { Size = UDim2.new(1, 0, 0, 160), BackgroundTransparency = 1, LayoutOrder = 0.5 })
+		local gl = Instance.new("UIGridLayout")
+		gl.CellSize = UDim2.new(1 / 4, -8, 0, 46)
+		gl.CellPadding = UDim2.fromOffset(8, 8)
+		gl.SortOrder = Enum.SortOrder.LayoutOrder
+		gl.Parent = grid
+		local opts = { { "Auto", "Auto 🌐" } }
+		for _, l in ipairs(Lang.List) do
+			table.insert(opts, { l[1], l[2] })
+		end
+		local buttons = {}
+		for i, o in ipairs(opts) do
+			local b = WoodKit.Button(grid, "Dark", { Text = o[2], TextSize = 19, LayoutOrder = i }, function()
+				ClientSettings.Set("Language", o[1])
+				controls.Language()
+			end)
+			b.AutoLocalize = false
+			b:SetAttribute("NoTranslate", true)
+			buttons[o[1]] = b
+		end
+		controls.Language = function()
+			for id, b in pairs(buttons) do
+				WoodKit.Style(b, ClientSettings.Get("Language") == id and "Red" or "Dark")
+			end
+		end
+	end
 	section(1, "🔊", "Audio")
 	local hasMusic = false
 	for _, def in pairs(Audio.Music) do

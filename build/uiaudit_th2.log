@@ -1,0 +1,438 @@
+ERR: orError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+torOutput] [AS] rebuilt mesh collisions: 1209
+torOutput] [AS] ???????????????????...
+torOutput] [AS] seed=726269418 map=2048
+torOutput] [AS] client ready
+orOutput] [AS] terrain 4.4s
+torOutput] [AS] world ready 5.2s props=479
+torOutput] [AS] READY
+orOutput] [AS] UI calib TextBounds.Y=20.0 screen=true ratio=1.00
+orOutput] [AS] UI Phone640x360 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=1
+orOutput] [AS] UI    OVERLAP LobbyUI/LobbyUI/Frame'!' x [Thumbstick] (13420)
+shot ui_Phone640x360_lobby
+torOutput] [AS] UI Phone640x360 lobby+store oob=0 clip=0 cut=0 small=0 touch=1 overlap=0
+torOutput] [AS] UI    TOUCH Store/StoreWindow/Body/TextButton' ???? Ruby' (23)
+shot ui_Phone640x360_lobby_store
+torOutput] [AS] UI Phone640x360 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_Phone640x360_lobby_quests
+torOutput] [AS] I18N MISS To chat click here or press "/" key
+torOutput] [AS] I18N MISS Confirm
+torOutput] [AS] I18N MISS Leave channel <XX>?
+torOutput] [AS] I18N MISS [Click] Hit/Chop   [Shift] Sprint   [Ctrl] Lock camera   [C] Craft   [B] Build   [E] Pick up (hold sack)   [F] Take out   [M] Map   [1-9] Select item
+torOutput] [AS] I18N MISS Label
+torOutput] [AS] I18N MISS Combat
+torOutput] [AS] I18N MISS Lv.1
+torOutput] [AS] I18N MISS Lv.2
+torOutput] [AS] I18N MISS Lv.3
+torOutput] [AS] I18N MISS DEV
+torOutput] [AS] I18N MISS ?? DEV TOOLS   [F8]  ú Drag here to move
+torOutput] [AS] I18N MISS ?? God mode (on/off)
+torOutput] [AS] I18N MISS ? Refill HP + hunger
+torOutput] [AS] I18N MISS ?? Fly (on/off)
+torOutput] [AS] I18N MISS ?? Noclip
+torOutput] [AS] I18N MISS ?? Speed x1
+torOutput] [AS] I18N MISS ?? Speed x2
+torOutput] [AS] I18N MISS ?? Speed x4
+torOutput] [AS] I18N MISS ?? Respawn
+torOutput] [AS] I18N MISS ?? Enter map (from lobby)
+torOutput] [AS] I18N MISS ?? Back to lobby
+torOutput] [AS] I18N MISS ?? Hide/show HUD
+torOutput] [AS] I18N MISS ? Game status
+torOutput] [AS] I18N MISS ?? All Materials x100
+torOutput] [AS] I18N MISS ?? All Food x20
+torOutput] [AS] I18N MISS ?? All Element Essence x20
+torOutput] [AS] I18N MISS ?? All Medicine x10
+torOutput] [AS] I18N MISS ?? All Rare Items x3
+torOutput] [AS] I18N MISS ?? All Tools x1
+torOutput] [AS] I18N MISS ?? All Buildings x10
+torOutput] [AS] I18N MISS ?? Clear bag
+torOutput] [AS] I18N MISS ?? Remove all bosses/animals
+torOutput] [AS] I18N MISS Time
+torOutput] [AS] I18N MISS ? Skip phase
+torOutput] [AS] I18N MISS ?? Go to night now
+torOutput] [AS] I18N MISS ? Pause/resume time
+torOutput] [AS] I18N MISS Set night 1
+torOutput] [AS] I18N MISS Set night 5
+torOutput] [AS] I18N MISS Set night 10
+torOutput] [AS] I18N MISS Set night 24
+torOutput] [AS] I18N MISS Set night 25 ??Earth
+torOutput] [AS] I18N MISS Set night 49
+torOutput] [AS] I18N MISS Set night 50 ??Water
+torOutput] [AS] I18N MISS Set night 74
+torOutput] [AS] I18N MISS Set night 75 ??Frost
+torOutput] [AS] I18N MISS Set night 98
+torOutput] [AS] I18N MISS Set night 99 ??Fire
+torOutput] [AS] I18N MISS Camp
+torOutput] [AS] I18N MISS ?? Fuel filled
+torOutput] [AS] I18N MISS ?? Campfire put out
+torOutput] [AS] I18N MISS ?? Campfire +1 level
+torOutput] [AS] I18N MISS ?? Campfire -1 level
+torOutput] [AS] I18N MISS ?? Pass through fog wall on/off
+torOutput] [AS] I18N MISS ?? Crafting bench +1
+torOutput] [AS] I18N MISS ?? Crafting bench -1
+torOutput] [AS] I18N MISS Teleport
+torOutput] [AS] I18N MISS ?? Camp
+torOutput] [AS] I18N MISS ? Forward 120
+torOutput] [AS] I18N MISS ?? Biome Earth
+torOutput] [AS] I18N MISS ? Shrine Earth
+torOutput] [AS] I18N MISS ?? Boss Lair Earth
+torOutput] [AS] I18N MISS ?? Ruins Earth
+torOutput] [AS] I18N MISS ?? Sanctum Earth
+torOutput] [AS] I18N MISS ?? Biome Water
+torOutput] [AS] I18N MISS ? Shrine Water
+torOutput] [AS] I18N MISS ?? Boss Lair Water
+torOutput] [AS] I18N MISS ?? Ruins Water
+torOutput] [AS] I18N MISS ?? Sanctum Water
+torOutput] [AS] I18N MISS ?? Biome Frost
+torOutput] [AS] I18N MISS ? Shrine Frost
+torOutput] [AS] I18N MISS ?? Boss Lair Frost
+torOutput] [AS] I18N MISS ?? Ruins Frost
+torOutput] [AS] I18N MISS ?? Sanctum Frost
+torOutput] [AS] I18N MISS ?? Biome Fire
+torOutput] [AS] I18N MISS ? Shrine Fire
+torOutput] [AS] I18N MISS ?? Boss Lair Fire
+torOutput] [AS] I18N MISS ?? Ruins Fire
+torOutput] [AS] I18N MISS ?? Sanctum Fire
+torOutput] [AS] I18N MISS ? +1000 Ruby
+torOutput] [AS] I18N MISS Username or UserId
+torOutput] [AS] I18N MISS Ruby amount
+torOutput] [AS] I18N MISS ?? Send Ruby to this player
+torOutput] [AS] I18N MISS ?? Send to everyone in the server
+torOutput] [AS] I18N MISS ?? Unlocked all classes
+torOutput] [AS] I18N MISS ? Current class to level 3
+torOutput] [AS] I18N MISS ?? Reset daily reward + stock
+torOutput] [AS] I18N MISS ? Reset profile
+torOutput] [AS] I18N MISS ??  1 (Solo)
+torOutput] [AS] I18N MISS ??  2 players
+torOutput] [AS] I18N MISS ??  3 players
+torOutput] [AS] I18N MISS ??  4 players
+torOutput] [AS] I18N MISS ??  5 players
+torOutput] [AS] I18N MISS ??  6 players
+torOutput] [AS] I18N MISS ??  7 players
+torOutput] [AS] I18N MISS ??  8 players
+torOutput] [AS] I18N MISS ??  Language
+torOutput] [AS] I18N MISS Auto ??
+torOutput] [AS] I18N MISS English
+torOutput] [AS] I18N MISS Espa¤ol
+torOutput] [AS] I18N MISS Portuguˆs
+torOutput] [AS] I18N MISS Bahasa Indonesia
+torOutput] [AS] I18N MISS Ti?ng Vi?t
+torOutput] [AS] I18N MISS Filipino
+torOutput] [AS] I18N MISS ? Season Pass
+torOutput] [AS] I18N MISS [ All Time ] ú This Week  -  This server only (save system not connected yet)
+torOutput] [AS] I18N MISS ?? VIP
+torOutput] [AS] I18N MISS Chat '/?' or '/help' for a list of chat commands.
+torOutput] [AS] I18N MISS System
+torOutput] [AS] I18N MISS Earth Sanctum Chest
+torOutput] [AS] I18N MISS Earth Sanctum
+torOutput] [AS] I18N MISS Go Back Outside
+torOutput] [AS] I18N MISS Abg ?????
+torOutput] [AS] I18N MISS  Phone640x360 640x360 (Phone) x1.00
+torOutput] [AS] I18N MISS All Time ú [ This Week ]  -  This server only (save system not connected yet)
+torOutput] [AS] I18N MISS 60 Ruby
+torOutput] [AS] I18N MISS 150 Ruby
+torOutput] [AS] I18N MISS 320 Ruby
+torOutput] [AS] I18N MISS Popular
+torOutput] [AS] I18N MISS 700 Ruby
+torOutput] [AS] I18N MISS 1500 Ruby
+torOutput] [AS] I18N MISS 5 Ruby
+torOutput] [AS] I18N MISS ? 60 XP
+torOutput] [AS] I18N MISS 6 Ruby
+torOutput] [AS] I18N MISS 47 Ruby
+torOutput] [AS] I18N MISS ? 250 XP
+torOutput] [AS] I18N MISS 33 Ruby
+torOutput] [AS] I18N MISS 46 Ruby
+torOutput] [AS] I18N MISS ? Resets in 10h 2m
+torOutput] [AS] I18N MISS ? Resets in 5d 10h
+torOutput] [AS] UI Phone640x360 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_Phone640x360_lobby_badges
+orOutput] [AS] UI Phone640x360 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_Phone640x360_lobby_settings
+torOutput] [AS] UI Phone640x360 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_Phone640x360_lobby_tutorial
+torOutput] [AS] UI Phone640x360 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_Phone640x360_lobby_padpicker
+torOutput] [AS] UI Phone640x360 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_Phone640x360_lobby_classes
+torOutput] [AS] I18N MISS On
+torOutput] [AS] I18N MISS Lv.1 ú 0%
+torOutput] [AS] UI iPhoneSE lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=1
+torOutput] [AS] UI    OVERLAP LobbyUI/LobbyUI/Frame'!' x [Thumbstick] (13677)
+shot ui_iPhoneSE_lobby
+torOutput] [AS] UI iPhoneSE lobby+store oob=0 clip=0 cut=0 small=0 touch=1 overlap=0
+torOutput] [AS] UI    TOUCH Store/StoreWindow/Body/TextButton' ???? Ruby' (23)
+torOutput] [AS] UI iPhoneSE lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPhoneSE lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPhoneSE lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+orOutput] [AS] UI iPhoneSE lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPhoneSE lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPhoneSE lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI Galaxy740x360 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=1
+torOutput] [AS] UI    OVERLAP LobbyUI/LobbyUI/Frame'!' x [Thumbstick] (13420)
+shot ui_Galaxy740x360_lobby
+torOutput] [AS] UI Galaxy740x360 lobby+store oob=0 clip=0 cut=0 small=0 touch=1 overlap=0
+torOutput] [AS] UI    TOUCH Store/StoreWindow/Body/TextButton' ???? Ruby' (23)
+torOutput] [AS] UI Galaxy740x360 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI Galaxy740x360 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI Galaxy740x360 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI Galaxy740x360 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI Galaxy740x360 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI Galaxy740x360 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPhone14 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=1
+torOutput] [AS] UI    OVERLAP LobbyUI/LobbyUI/Frame'!' x [Thumbstick] (13577)
+orOutput] [AS] I18N MISS  iPhoneSE 667x375 (Phone) x1.00
+orOutput] [AS] I18N MISS ? Resets in 10h 1m
+orOutput] [AS] I18N MISS  Galaxy740x360 740x360 (Phone) x1.00
+orOutput] [AS] I18N MISS  iPhone14 750x369 (Phone) x1.00
+shot ui_iPhone14_lobby
+torOutput] [AS] UI iPhone14 lobby+store oob=0 clip=0 cut=0 small=0 touch=1 overlap=0
+torOutput] [AS] UI    TOUCH Store/StoreWindow/Body/TextButton' ???? Ruby' (23)
+shot ui_iPhone14_lobby_store
+torOutput] [AS] UI iPhone14 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_iPhone14_lobby_quests
+torOutput] [AS] UI iPhone14 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_iPhone14_lobby_badges
+torOutput] [AS] UI iPhone14 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_iPhone14_lobby_settings
+torOutput] [AS] UI iPhone14 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_iPhone14_lobby_tutorial
+torOutput] [AS] UI iPhone14 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_iPhone14_lobby_padpicker
+orOutput] [AS] UI iPhone14 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_iPhone14_lobby_classes
+orOutput] [AS] UI iPhoneProMax lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=1
+orOutput] [AS] UI    OVERLAP LobbyUI/LobbyUI/Frame'!' x [Thumbstick] (14170)
+shot ui_iPhoneProMax_lobby
+torOutput] [AS] UI iPhoneProMax lobby+store oob=0 clip=0 cut=0 small=0 touch=1 overlap=0
+torOutput] [AS] UI    TOUCH Store/StoreWindow/Body/TextButton' ???? Ruby' (26)
+torOutput] [AS] UI iPhoneProMax lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPhoneProMax lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+orOutput] [AS] UI iPhoneProMax lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPhoneProMax lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPhoneProMax lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPhoneProMax lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] I18N MISS  iPhoneProMax 838x409 (Phone) x1.00
+torOutput] [AS] I18N MISS ? Resets in 10h 0m
+torOutput] [AS] UI Android885x412 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=1
+torOutput] [AS] UI    OVERLAP LobbyUI/LobbyUI/Frame'!' x [Thumbstick] (14208)
+shot ui_Android885x412_lobby
+torOutput] [AS] UI Android885x412 lobby+store oob=0 clip=0 cut=0 small=0 touch=1 overlap=0
+torOutput] [AS] UI    TOUCH Store/StoreWindow/Body/TextButton' ???? Ruby' (26)
+torOutput] [AS] UI Android885x412 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI Android885x412 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI Android885x412 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI Android885x412 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI Android885x412 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI Android885x412 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI Fold882x690 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=1
+torOutput] [AS] UI    OVERLAP LobbyUI/LobbyUI/Frame'!' x [Thumbstick] (26713)
+shot ui_Fold882x690_lobby
+torOutput] [AS] UI Fold882x690 lobby+store oob=0 clip=0 cut=0 small=0 touch=1 overlap=0
+torOutput] [AS] UI    TOUCH Store/StoreWindow/Body/TextButton' ???? Ruby' (33)
+torOutput] [AS] UI Fold882x690 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI Fold882x690 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI Fold882x690 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI Fold882x690 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI Fold882x690 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+orOutput] [AS] UI Fold882x690 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPadMini lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=1
+torOutput] [AS] UI    OVERLAP LobbyUI/LobbyUI/Frame'!' x [Thumbstick] (36418)
+shot ui_iPadMini_lobby
+torOutput] [AS] I18N MISS  Android885x412 885x412 (Phone) x1.00
+torOutput] [AS] I18N MISS  Fold882x690 882x690 (Tablet) x1.00
+torOutput] [AS] I18N MISS  iPadMini 1133x724 (Tablet) x1.00
+torOutput] [AS] UI iPadMini lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_iPadMini_lobby_store
+torOutput] [AS] UI iPadMini lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_iPadMini_lobby_quests
+torOutput] [AS] UI iPadMini lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_iPadMini_lobby_badges
+torOutput] [AS] UI iPadMini lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_iPadMini_lobby_settings
+torOutput] [AS] UI iPadMini lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_iPadMini_lobby_tutorial
+torOutput] [AS] UI iPadMini lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_iPadMini_lobby_padpicker
+torOutput] [AS] UI iPadMini lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_iPadMini_lobby_classes
+torOutput] [AS] UI AndroidTab1280x800 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=1
+torOutput] [AS] UI    OVERLAP LobbyUI/LobbyUI/Frame'!' x [Thumbstick] (37505)
+shot ui_AndroidTab1280x800_lobby
+torOutput] [AS] UI AndroidTab1280x800 lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI AndroidTab1280x800 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI AndroidTab1280x800 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+orOutput] [AS] UI AndroidTab1280x800 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI AndroidTab1280x800 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI AndroidTab1280x800 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI AndroidTab1280x800 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPad lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=1
+torOutput] [AS] UI    OVERLAP LobbyUI/LobbyUI/Frame'!' x [Thumbstick] (37505)
+shot ui_iPad_lobby
+torOutput] [AS] I18N MISS  AndroidTab1280x800 1280x800 (Tablet) x0.94
+torOutput] [AS] I18N MISS  AndroidTab1280x800 1280x800 (Tablet) x1.00
+torOutput] [AS] I18N MISS ? Resets in 9h 59m
+torOutput] [AS] I18N MISS ? Resets in 5d 9h
+torOutput] [AS] I18N MISS  iPad 1180x800 (Tablet) x0.94
+torOutput] [AS] UI iPad lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPad lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPad lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPad lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+orOutput] [AS] UI iPad lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPad lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPad lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPadPro13 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=1
+torOutput] [AS] UI    OVERLAP LobbyUI/LobbyUI/Frame'!' x [Thumbstick] (16188)
+shot ui_iPadPro13_lobby
+orOutput] [AS] UI iPadPro13 lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPadPro13 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPadPro13 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPadPro13 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPadPro13 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPadPro13 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPadPro13 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] I18N MISS  iPad 1180x800 (Tablet) x1.00
+torOutput] [AS] I18N MISS  iPadPro13 1366x1004 (Tablet) x0.75
+torOutput] [AS] I18N MISS  iPadPro13 1366x1004 (Tablet) x1.00
+torOutput] [AS] I18N MISS NightmareX
+torOutput] [AS] UI inRun=true
+torOutput] [AS] UI Phone640x360 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=1
+torOutput] [AS] UI    OVERLAP HUD/Frame'??????' x HUD/Frame'+3 Wood ??' (371)
+shot ui_Phone640x360_run
+torOutput] [AS] UI Phone640x360 run+craft oob=0 clip=0 cut=0 small=8 touch=0 overlap=0
+torOutput] [AS] UI    SMALL Menus/Frame'?? ?????'/Frame'??? 0/10'/Frame'??? 0/10'/TextLabel'??? 0/10' (8)
+torOutput] [AS] UI    SMALL Menus/Frame'?? ?????'/Frame'??? 0/10'/Frame'??? 0/30'/TextLabel'??? 0/30' (8)
+torOutput] [AS] UI    SMALL Menus/Frame'? ?????'/Frame'??? 0/12'/Frame'??? 0/12'/TextLabel'??? 0/12' (8)
+torOutput] [AS] UI    SMALL Menus/Frame'? ?????'/Frame'??? 0/12'/Frame'??? 0/20'/TextLabel'??? 0/20' (8)
+torOutput] [AS] UI    SMALL Menus/Frame'??????'/Frame'??? 0/3'/Frame'??? 0/3'/TextLabel'??? 0/3' (8)
+torOutput] [AS] UI    SMALL Menus/Frame'??????'/Frame'??? 0/3'/Frame'??? 0/5'/TextLabel'??? 0/5' (8)
+torOutput] [AS] UI    SMALL Menus/Frame'??????'/Frame'??????'/Frame'??????'/TextLabel'??????' (8)
+torOutput] [AS] UI    SMALL Menus/Frame'??????'/Frame'??????'/Frame'??????'/TextLabel'??????' (8)
+torOutput] [AS] I18N MISS Quest complete! Go on 1 expeditions - go back to the lobby to claim your reward
+torOutput] [AS] I18N MISS Grinder
+torOutput] [AS] I18N MISS Open
+torOutput] [AS] I18N MISS Enter Shrine
+torOutput] [AS] I18N MISS Frost Shrine
+torOutput] [AS] I18N MISS Fire Shrine
+torOutput] [AS] I18N MISS Water Shrine
+torOutput] [AS] I18N MISS Earth Shrine
+torOutput] [AS] I18N MISS +3 Wood ??
+torOutput] [AS] I18N MISS ?? Needs bench Lv.2
+torOutput] [AS] I18N MISS ?? Needs bench Lv.3
+torOutput] [AS] I18N MISS ?? Needs bench Lv.4
+torOutput] [AS] I18N MISS ?? Needs bench Lv.5
+shot ui_Phone640x360_run_craft
+torOutput] [AS] UI Phone640x360 run+trader oob=0 clip=0 cut=0 small=9 touch=0 overlap=0
+torOutput] [AS] UI    SMALL Menus/Frame'???: ???'/Frame'??????'/Frame'??????'/TextLabel'??????' (8)
+torOutput] [AS] UI    SMALL Menus/Frame'???: ???'/Frame'??????'/Frame'??????'/TextLabel'??????' (8)
+torOutput] [AS] UI    SMALL Menus/Frame'???: ???'/Frame'??????'/Frame'??????'/TextLabel'??????' (8)
+torOutput] [AS] UI    SMALL Menus/Frame'???: ???'/Frame'??????'/Frame'??????'/TextLabel'??????' (8)
+torOutput] [AS] UI    SMALL Menus/Frame'???: ???'/Frame'??????'/Frame'??????'/TextLabel'??????' (8)
+torOutput] [AS] UI    SMALL Menus/Frame'???: ???'/Frame'??????'/Frame'??????'/TextLabel'??????' (8)
+torOutput] [AS] UI    SMALL Menus/Frame'???: ???'/Frame'??????'/Frame'??????'/TextLabel'??????' (8)
+torOutput] [AS] UI    SMALL Menus/Frame'???: ???'/Frame'??????'/Frame'??????'/TextLabel'??????' (8)
+torOutput] [AS] UI    SMALL Menus/Frame'???: ???'/Frame'??????'/Frame'??????'/TextLabel'??????' (8)
+shot ui_Phone640x360_run_trader
+torOutput] [AS] UI Phone640x360 run+map oob=0 clip=2 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI    CLIP MapUI/Frame'??????'/Frame'??'/TextLabel'??' (0)
+torOutput] [AS] UI    CLIP MapUI/Frame'??????'/Frame'??'/TextLabel'' (0)
+shot ui_Phone640x360_run_map
+torOutput] [AS] UI Phone640x360 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_Phone640x360_run_inventory
+torOutput] [AS] UI iPhoneSE run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_iPhoneSE_run
+torOutput] [AS] UI iPhoneSE run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPhoneSE run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPhoneSE run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPhoneSE run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI Galaxy740x360 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_Galaxy740x360_run
+torOutput] [AS] UI Galaxy740x360 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI Galaxy740x360 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+orOutput] [AS] UI Galaxy740x360 run+map oob=0 clip=2 cut=0 small=0 touch=0 overlap=0
+orOutput] [AS] UI    CLIP MapUI/Frame'??????'/Frame'??'/TextLabel'??' (0)
+orOutput] [AS] UI    CLIP MapUI/Frame'??????'/Frame'??'/TextLabel'' (0)
+torOutput] [AS] UI Galaxy740x360 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPhone14 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_iPhone14_run
+torOutput] [AS] UI iPhone14 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_iPhone14_run_craft
+torOutput] [AS] UI iPhone14 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_iPhone14_run_trader
+torOutput] [AS] UI iPhone14 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_iPhone14_run_map
+torOutput] [AS] UI iPhone14 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_iPhone14_run_inventory
+torOutput] [AS] UI iPhoneProMax run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_iPhoneProMax_run
+orOutput] [AS] UI iPhoneProMax run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPhoneProMax run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPhoneProMax run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPhoneProMax run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI Android885x412 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_Android885x412_run
+torOutput] [AS] UI Android885x412 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI Android885x412 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI Android885x412 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI Android885x412 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI Fold882x690 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_Fold882x690_run
+torOutput] [AS] UI Fold882x690 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI Fold882x690 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI Fold882x690 run+map oob=0 clip=0 cut=0 small=1 touch=0 overlap=0
+torOutput] [AS] UI    SMALL MapUI/Frame'??????'/TextLabel'?? ?????' (9)
+torOutput] [AS] UI Fold882x690 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPadMini run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_iPadMini_run
+torOutput] [AS] UI iPadMini run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_iPadMini_run_craft
+torOutput] [AS] UI iPadMini run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_iPadMini_run_trader
+torOutput] [AS] I18N MISS Night of Earth
+torOutput] [AS] UI iPadMini run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_iPadMini_run_map
+torOutput] [AS] UI iPadMini run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_iPadMini_run_inventory
+torOutput] [AS] UI AndroidTab1280x800 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_AndroidTab1280x800_run
+torOutput] [AS] UI AndroidTab1280x800 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI AndroidTab1280x800 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI AndroidTab1280x800 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI AndroidTab1280x800 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPad run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_iPad_run
+torOutput] [AS] UI iPad run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPad run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPad run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPad run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPadPro13 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+shot ui_iPadPro13_run
+torOutput] [AS] UI iPadPro13 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPadPro13 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPadPro13 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI iPadPro13 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0
+torOutput] [AS] UI TOTAL oob=0 clip=4 cut=0 small=18 touch=7 overlap=12
+torOutput] [AS] UI ISSUE x11 worst=37505 OVERLAP LobbyUI/LobbyUI/Frame'!' x [Thumbstick] @ Android885x412,AndroidTab1280x800,Fold882x690,Galaxy740x360,Phone640x360,iPad,iPadMini,iPadPro13,iPhone14,iPhoneProMax,iPhoneSE
+torOutput] [AS] UI ISSUE x7 worst=33 TOUCH Store/StoreWindow/Body/TextButton' ???? Ruby' @ Android885x412,Fold882x690,Galaxy740x360,Phone640x360,iPhone14,iPhoneProMax,iPhoneSE
+torOutput] [AS] UI ISSUE x2 worst=0 CLIP MapUI/Frame'??????'/Frame'??'/TextLabel'??' @ Galaxy740x360,Phone640x360
+torOutput] [AS] UI ISSUE x2 worst=0 CLIP MapUI/Frame'??????'/Frame'??'/TextLabel'' @ Galaxy740x360,Phone640x360
+torOutput] [AS] UI ISSUE x1 worst=8 SMALL Menus/Frame'?? ?????'/Frame'??? 0/10'/Frame'??? 0/10'/TextLabel'??? 0/10' @ Phone640x360
+torOutput] [AS] UI ISSUE x1 worst=8 SMALL Menus/Frame'??????'/Frame'??? 0/3'/Frame'??? 0/3'/TextLabel'??? 0/3' @ Phone640x360
+torOutput] [AS] UI ISSUE x1 worst=8 SMALL Menus/Frame'???: ???'/Frame'??????'/Frame'??????'/TextLabel'??????' @ Phone640x360
+torOutput] [AS] UI ISSUE x1 worst=371 OVERLAP HUD/Frame'??????' x HUD/Frame'+3 Wood ??' @ Phone640x360
+torOutput] [AS] UI ISSUE x1 worst=8 SMALL Menus/Frame'? ?????'/Frame'??? 0/12'/Frame'??? 0/12'/TextLabel'??? 0/12' @ Phone640x360
+torOutput] [AS] UI ISSUE x1 worst=8 SMALL Menus/Frame'???: ???'/Frame'??????'/Frame'??????'/TextLabel'??????' @ Phone640x360
+torOutput] [AS] UI ISSUE x1 worst=8 SMALL Menus/Frame'???: ???'/Frame'??????'/Frame'??????'/TextLabel'??????' @ Phone640x360
+torOutput] [AS] UI ISSUE x1 worst=8 SMALL Menus/Frame'?? ?????'/Frame'??? 0/10'/Frame'??? 0/30'/TextLabel'??? 0/30' @ Phone640x360
+torOutput] [AS] UI ISSUE x1 worst=8 SMALL Menus/Frame'???: ???'/Frame'??????'/Frame'??????'/TextLabel'??????' @ Phone640x360
+torOutput] [AS] UI ISSUE x1 worst=8 SMALL Menus/Frame'? ?????'/Frame'??? 0/12'/Frame'??? 0/20'/TextLabel'??? 0/20' @ Phone640x360
+torOutput] [AS] UI ISSUE x1 worst=9 SMALL MapUI/Frame'??????'/TextLabel'?? ?????' @ Fold882x690
+torOutput] [AS] UI ISSUE x1 worst=8 SMALL Menus/Frame'??????'/Frame'??????'/Frame'??????'/TextLabel'??????' @ Phone640x360
+torOutput] [AS] UI ISSUE x1 worst=8 SMALL Menus/Frame'???: ???'/Frame'??????'/Frame'??????'/TextLabel'??????' @ Phone640x360
+torOutput] [AS] UI ISSUE x1 worst=8 SMALL Menus/Frame'???: ???'/Frame'??????'/Frame'??????'/TextLabel'??????' @ Phone640x360
+torOutput] [AS] UI ISSUE x1 worst=8 SMALL Menus/Frame'??????'/Frame'??????'/Frame'??????'/TextLabel'??????' @ Phone640x360
+torOutput] [AS] UI ISSUE x1 worst=8 SMALL Menus/Frame'??????'/Frame'??? 0/3'/Frame'??? 0/5'/TextLabel'??? 0/5' @ Phone640x360
+torOutput] [AS] UI ISSUE x1 worst=8 SMALL Menus/Frame'???: ???'/Frame'??????'/Frame'??????'/TextLabel'??????' @ Phone640x360
+torOutput] [AS] UI ISSUE x1 worst=8 SMALL Menus/Frame'???: ???'/Frame'??????'/Frame'??????'/TextLabel'??????' @ Phone640x360
+torOutput] [AS] UI ISSUE x1 worst=8 SMALL Menus/Frame'???: ???'/Frame'??????'/Frame'??????'/TextLabel'??????' @ Phone640x360
+torOutput] [TEST] DONE uiaudit
+finished in 704s  done=True

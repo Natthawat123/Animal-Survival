@@ -26,6 +26,7 @@ ClientSettings.Defaults = {
 	TouchSize = 1, -- ขนาดปุ่มมือถือ 0.8 - 1.4
 	AutoTool = true, -- ตีต้นไม้/หิน/สัตว์ -> หยิบเครื่องมือที่เหมาะที่สุดขึ้นมือเอง
 	PinRecipe = "", -- สูตรที่ปักหมุดไว้ (แถบติดตามวัตถุดิบ)
+	Language = "Auto", -- ภาษา (Localizer): "Auto" = ตามภาษาบัญชี Roblox · หรือรหัส en/th/es/pt/id/vi/fil/ja/ko/zh
 }
 
 local values = table.clone(ClientSettings.Defaults)

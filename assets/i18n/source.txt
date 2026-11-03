@@ -1,0 +1,1447 @@
+0	      Buy Ruby
+1	  (%d/%d%s)
+2	  (down!)
+3	  (in the hotbar at the bottom, tap to place)
+4	  ·  Complete! 🎉
+5	  ·  Lv.
+6	 %d/%d
+7	 %dm
+8	 (Premium)
+9	 (lasts the whole run)
+10	 (same or better)
+11	 Bonus!
+12	 Class 
+13	 Element Meteor
+14	 Element: 
+15	 Ruby
+16	 Sanctum Chest
+17	 Sanctum · Awaken the rune pillars in the order of the lights
+18	 Sanctum · Unsealed
+19	 Sealed Cage
+20	 Shrine
+21	 Title 
+22	 Unlocked class 
+23	 back to the campfire
+24	 failed:
+25	 for reviving downed teammates
+26	 from the Season Pass!
+27	 in your bag (craft it at the bench first)
+28	 is free
+29	 is now living at camp
+30	 is trapped in a sealed cage...
+31	 on the "Badges" page in the lobby
+32	 or a bigger one
+33	 sent you a gift!
+34	 shines over the biome
+35	 whole server
+36	 · Can revive downed teammates
+37	 · Choose team size
+38	 · Chop 
+39	 · Element 
+40	 · Friends +10%
+41	 · Light scares off the Hollow Stag
+42	 · Mine 
+43	 · Press E on it to ride
+44	 · VIP x2
+45	 — claim ♦️ 
+46	 — maxed out
+47	 — skipped 1 day! Now day %d
+48	 — tap a slot below to put it in
+49	 — thanks for your support!
+50	 — you'll get it when you depart
+51	"Good pelts get you what you need, friend... be quick, I'm leaving before sundown"
+52	%.1fk
+53	%d / %d
+54	%d animals are still attacking the camp — kill them all!
+55	%d days
+56	%d guardians left
+57	%d m from the campfire
+58	%d players on the pad
+59	%d%%
+60	%d,%d,%d
+61	%d/%d
+62	%d/%d players
+63	%d/%d players   •   ⏳ %ds
+64	%d/%d trades left
+65	%d:%02d
+66	%dd %dh
+67	%dh %dm
+68	%dm
+69	%s  %d%%
+70	%s  Lv.%d → %s
+71	%s %d days
+72	%s %d/%d
+73	%s %s\n%d m
+74	%s %s  %d/%d
+75	%s %s: %s
+76	%s freed %s
+77	%s has died
+78	%s has returned to its lair
+79	%s is down! Go help, quick
+80	%s mined the %s meteor core!
+81	%s opened the supply chest
+82	%s rejoined the run
+83	%s returned to camp (%d/4)
+84	%s revived %s just in time
+85	%s skipped 1 day · Day %d
+86	%s x%d
+87	%s x%d · Click = place · R = rotate
+88	%s x%d · Click = revive downed teammate / heal yourself
+89	%s · %s %dm
+90	%s%s+
+91	%s+
+92	%s: max %d %s
+93	) — step on the pad again
+94	+%d %s %s
+95	+1 Day
+96	+1 Day (counted %s)
+97	- Free Ruby every day -
+98	1 (Solo)
+99	2 of each element essence
+100	3 Bandages + 1 First Aid Kit
+101	35% fewer materials · Buildings x2 tougher
+102	4 Spirit Pups are trapped in the shrines. Rescue them all for the true ending
+103	40 Wood, 20 Stone, 2 Wood Walls
+104	8 Coal, Torch, Lantern
+105	8CEB96
+106	99 NIGHTS CONQUERED
+107	99 nights... and beyond
+108	<font color="#%s">%s %d/%d</font>
+109	<font color="#FFCD32">%s</font>  ·  %s  ·  %s
+110	<font color="#FFE066" size="40">Camp News</font>\n\nSurvive milestone nights (every 5-25 nights)\n= Earn Ruby ♦️\n\nRescue a Spirit Pup = ♦️15\n<font color="#8CFF8C">Free Ruby at the green cauldron every day!</font>
+111	A %s element meteor fell · Go mine its crystal core
+112	A friend
+113	ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/
+114	ALL HAVE PERISHED
+115	ANCIENT SANCTUM
+116	ANIMAL SURVIVAL
+117	Achievement: 
+118	Add %d fuel to the campfire
+119	Add wood, quick
+120	Air
+121	All
+122	All 4 Spirit Pups are back together
+123	All Elements
+124	All Time · [ This Week ]
+125	All servers · Updates every minute
+126	All weapon damage +15%
+127	All-Rounder
+128	Alpha Hunter
+129	Already claimed today — come back in 
+130	Already claimed today's reward — come back in %dh %dm
+131	Already wearing 
+132	Ambient Sounds
+133	Amethyst
+134	An animal herd is passing near camp
+135	Ancient Chest
+136	Ancient Rune Pillar
+137	Ancient Sanctum: 
+138	Animal
+139	Animal Migration
+140	Animal bone. Used for spears and the Giant Sack
+141	Animal pelt. Used for sacks/beds and trading with the wandering trader
+142	Animal wave %d has arrived
+143	Animals
+144	Antlers
+145	Armor
+146	Arrow
+147	Art
+148	Asphalt
+149	Assets
+150	At night, the packs attack!
+151	Attachment
+152	Audio
+153	Auto Tool Switch
+154	Awaken Rune Pillar
+155	Awakened Element Kit
+156	Axe
+157	BEAST VANQUISHED
+158	BLOOD MOON
+159	BONFIRE LV.
+160	Back to the lobby
+161	Backdrop
+162	Backpack
+163	Badges
+164	Bag  ·  Drag items into the slots below (you can swap slots)
+165	Bake Berry Pie (5 berries + 1 wood)
+166	Balanced iron sword · Fast, solid damage
+167	Ballista
+168	Ballista. Shoots animals automatically
+169	Bandage
+170	Bandage up to heal, and revive downed teammates
+171	Bandages, medicine and reviving teammates heal x1.5
+172	Basalt
+173	Base Defense
+174	Battle Axe
+175	Battlefield Doctor
+176	Beam
+177	Beast Heart (any element)
+178	Beast Hunter
+179	Beast Lair
+180	Beast Slayer
+181	Bed
+182	Bed (+1 Day)
+183	Bench
+184	Berries
+185	Berry Bush
+186	Berry Bush %d/%d
+187	Berry Juice
+188	Berry Patch
+189	Berry Pie
+190	Berry pie from the Stew Pot. Very filling, hunger drops half as fast for 2 minutes
+191	Best
+192	Best Value
+193	Big
+194	Big Basket
+195	Big Raid Night · 
+196	Big raid in %d nights
+197	Bigger fire, wider safe zone, less fog
+198	Biped
+199	Bird
+200	Blizzard
+201	Blizzard!
+202	Blocks animal packs
+203	Blood Moon
+204	Body
+205	Bone
+206	Bone Spear
+207	Bone Spear + Iron Axe
+208	Bone spear. Long reach, high damage
+209	Boss
+210	Boss lairs are at the heart of each element zone — get ready before you go in
+211	Boss still alive · Dawn in %s
+212	Bosses attack on nights 25 · 50 · 75 · 99 — dodge the warning circles on the ground!
+213	Boulder
+214	Boundary
+215	Bow
+216	Bring 
+217	Brute
+218	Buff: 
+219	Builder
+220	Buildings
+221	Buildings cost 20% fewer materials
+222	Buildings slowly repair themselves
+223	Burns nearby animals
+224	Bush
+225	Bushy
+226	Buy  ♦️
+227	Buy the class first
+228	Camera
+229	Camp Advisor
+230	Camp Storage
+231	Camp storage x
+232	Camper
+233	Campfire
+234	Campfire Lv.
+235	Campfire Lv.%d  ·  Bench Lv.%d
+236	Campfire Lv.1
+237	Can only be placed inside the camp (upgrade the campfire to expand it)
+238	Can't be killed — run!
+239	Can't be killed... drive it off with light!
+240	Can't place on water/lava
+241	Can't use a bed to skip a day right now
+242	Cancel
+243	Capacity %d items · Click items on the ground to collect
+244	Carpenter Kit
+245	Category: 
+246	Chance to be in stock per day
+247	Characters
+248	Charger
+249	Cheer
+250	Choose
+251	Choose the team size first, then the countdown starts
+252	Chop wood x1.6
+253	Chop wood x2.2 · Mine rock/ore x1.6
+254	Chop wood, break rocks, hunt animals, hold your sack to collect items
+255	Cinematic
+256	Cinematics
+257	Claim Daily Reward
+258	Claim ♦️ 
+259	Claim!
+260	Class
+261	Class 
+262	Class Shop
+263	Class Shop · Walk in to talk
+264	Classes
+265	Cleared
+266	Cleared the %s Sanctum · Got %s
+267	Clip
+268	Close
+269	Coal
+270	Coal. Premium fuel that keeps the campfire burning long
+271	Codes
+272	Codes used: %d
+273	Color
+274	Combat
+275	Come here
+276	Coming soon
+277	Conquer 99 Nights
+278	Continue only works in the published game — starting a new run
+279	Continue · Night 
+280	Continuing the saved run from Night 
+281	Control Hints
+282	Cook Meat
+283	Cook Pot
+284	Cooked Meat
+285	Coral
+286	Coralshell Crab
+287	Couldn't load the saved run — starting a new run
+288	Couldn't reach the server, try again
+289	Couldn't rejoin your previous run, try again
+290	Couldn't rejoin your previous run: 
+291	Couldn't send you to the team server (
+292	Counselor
+293	Count
+294	Countdown
+295	Counted in the morning
+296	Crab
+297	Crack
+298	Craft
+299	Craft %d items
+300	Craft & Build a Base
+301	Crafter
+302	Crafting Bench
+303	Crafting Bench Lv.
+304	Crafting Bench Lv.%d · New recipes
+305	Crafts
+306	Crate
+307	Crest
+308	Cries are coming from the middle of the plaza...
+309	Crimson
+310	Crossbow
+311	Crown of Storms
+312	Crystal Stag
+313	Crystals
+314	DAY %d
+315	DAY 1
+316	Dagger
+317	Daily
+318	Daily Reward
+319	Daily Reward ♦️
+320	Daily quest: 
+321	Damage %d · Range %d
+322	Damage +25% · Hunting drops +1 extra meat/pelt/bone/fiber
+323	Damage +40% · Run 5% faster
+324	Danger
+325	Dark
+326	Data is still loading, try again
+327	DataStore unavailable (enable API Services first)
+328	Dawn
+329	Dawn Deer
+330	Day
+331	Day 
+332	Day · Dusk in %s
+333	Dead
+334	Deadline
+335	Debris
+336	Decal
+337	Decor
+338	Defeat
+339	Defeat %d element bosses
+340	Defeat them all to unseal the cage and save 
+341	Defeated 
+342	Defeated %s · Respawns in %d min
+343	Depart
+344	Departing
+345	Departing in %d
+346	Diamonds
+347	Died
+348	Dismount [X]
+349	Display
+350	Double-bladed battle axe · Hits hard and fells trees fastest
+351	Down — wait for a teammate to help
+352	Down! Waiting for help
+353	Downed
+354	Dragon
+355	Drop
+356	Dusk
+357	Dusk · Animals coming in %s
+358	Earth
+359	Earth Aura: Max HP +15%
+360	Earth Bear Cub
+361	Earth Beast Heart
+362	Earth Crocodile
+363	Earth Pillar
+364	Earth Rift!
+365	Earth Smash!
+366	Earth Turtle
+367	Earth essence · Break green crystals in the Earth forest / chests / meteors / sanctums / Earth boss · Used for the Terra Hammer, Earth Pillar, bench and campfire upgrades
+368	Earth hammer. Smashes in a wide area
+369	Earth pillar. Repairs nearby walls
+370	Eat
+371	Eat Berries
+372	Effects
+373	Element Bosses
+374	Element Essence (any element)
+375	Element Master
+376	Element Meteor
+377	Element packs attack the campfire every night — hold out until morning
+378	Element weakness!
+379	Elemental
+380	Elemental Magic
+381	Elemental Power
+382	Elemental Touch
+383	Elemental weapons (incl. Fire Staff) 20% stronger · Frail: Max HP -10
+384	Elemental weapons 40% stronger · Stamina +15%
+385	Elemental weapons 65% stronger · Max HP +10
+386	Elementalist
+387	Ember
+388	Ember Caldera
+389	Ember Fox Pup
+390	Ember Greatsword
+391	Ember Heart
+392	Ember Pup
+393	Ember Red
+394	Ember Shard
+395	Ember Staff
+396	Ember Totem
+397	Ember Wolf
+398	Emberclaw Scorpion
+399	Embers
+400	Ended
+401	Ending
+402	Endless mode night 
+403	Endless mode · Packs get stronger every night
+404	Enemy
+405	Enemy!
+406	Engraved gold warrior armor. Raises Max HP the most
+407	Enter Sanctum
+408	Enter a code and press "Redeem" · Each code works once per player
+409	Entering camp...
+410	Equip
+411	Equipped
+412	Error
+413	Essence
+414	Every 10 nights a Blood Moon rises and every element's pack attacks at once
+415	Every element attacks at once
+416	Every element is enraged...
+417	Everyone runs 10% faster
+418	Exploration
+419	FROSTMAW, the Glacier Yeti
+420	Farm Plot
+421	Fern
+422	Fiber
+423	Fiber from hunting (hare, crocodile, crab, octopus, snow bull, fire ram) / chests / supply crates · Used for bandages, bows and sacks
+424	Field Medic
+425	Fill
+426	Find new codes on the game page and in the game's group · Try the code WELCOME!
+427	Fins
+428	Fire
+429	Fire Aura: Damage +15%
+430	Fire Beast Heart
+431	Fire Breath!
+432	Fire Meteor!
+433	Fire Pillar
+434	Fire Ram
+435	Fire Staff
+436	Fire essence · Break orange crystals in the volcano / chests / meteors / sanctums / Fire boss · Used for the Ember Greatsword, Fire Pillar, Beacon · Strong fuel
+437	Fire is out! Not safe
+438	Fire pillar. Burns nearby animals
+439	Fire sword. Burns enemies and gives light
+440	Fire's out!
+441	Fireflies
+442	Firekeeper
+443	First Aid Kit
+444	First Blood Moon
+445	First Night in the Woods
+446	Fissure
+447	Flamekeeper
+448	Flamekeeper Kit
+449	Flash
+450	Floppy
+451	Flowers
+452	Flying
+453	Folder
+454	Food
+455	Food Expert
+456	Footprint
+457	Forager
+458	Forest Feller
+459	Fortress
+460	Four-Element Sword
+461	Four-Element Sword. The ultimate weapon in the game
+462	Fourfold Blade
+463	Frame
+464	Free
+465	Fresh berries. Eat to ease hunger · Make berry juice/herbal medicine (Bench Lv.1) · Plant patches · Pies and stew at the Stew Pot
+466	Fresh-squeezed berry juice. Eases hunger and fully refills stamina
+467	Frills
+468	Frost
+469	Frost Aura: Stamina drains 15% slower
+470	Frost Beast Heart
+471	Frost Feather
+472	Frost Heart
+473	Frost Pillar
+474	Frost Wolf Pup
+475	Frost essence · Break white crystals in Skyreach Highlands / chests / meteors / sanctums / Frost boss · Used for the Storm Bow, Frost Pillar, bench and campfire upgrades
+476	Frost pillar. Pushes animals away
+477	Frostfang Bear
+478	Frostmaw, the Glacier Yeti
+479	Fuel
+480	Full Harvest
+481	Fully heals HP, and revives downed teammates
+482	GAME PASS
+483	GOLGRAN, the Living Mountain
+484	Gale Longbow
+485	Gale Pup
+486	Gale Totem
+487	Gameplay
+488	Gather %d stone
+489	Gather %d wood
+490	Gather during the day
+491	Gathered
+492	Gathering
+493	Generating world %d%%
+494	Generating world...
+495	Generating world... %d%%
+496	Get: 
+497	Ghost
+498	Giant Sack
+499	Gift
+500	Gift from 
+501	Glacier
+502	Glacier Smash!
+503	Go on %d expeditions
+504	Gold
+505	Gold Armor
+506	Golgran, the Living Mountain
+507	Good Sack
+508	Got 1 Revive Ticket — use it next time you're down
+509	Got hit
+510	Graphics
+511	Graphics Quality
+512	Grass
+513	Green
+514	Ground
+515	Ground Smash!
+516	Grounded
+517	Grows berries
+518	Grows berries you can keep picking
+519	Guard
+520	Guardian
+521	Guardian of Four Elements
+522	HP %d · %s
+523	Hammer
+524	Hardwood
+525	Hawk Eye
+526	Hazard
+527	Head
+528	Heal 
+529	Healer's Hands
+530	Healing x2 · Max HP +15
+531	Heart
+532	Heart of the Earth boss (Golgran) · Used for the Terra Hammer and the Four-Element Sword
+533	Heart of the Fire boss (Ignarax) · Used for the Ember Greatsword and the Four-Element Sword
+534	Heart of the Frost boss (Frostmaw) · Used for the Storm Bow and the Four-Element Sword
+535	Heart of the Water boss (Tyrannomosa) · Used for the Tide Trident and the Four-Element Sword
+536	Hearty Stew
+537	Heavy crossbow · Slow to reload, powerful long-range bolts
+538	Heavy wooden club with iron spikes · Cracks rocks too
+539	Herb Salve
+540	Herbal Medicine
+541	Herbal medicine from berries. Heals a little (cannot revive teammates)
+542	High
+543	Highlight
+544	Hints
+545	Hitting trees/rocks/animals picks the best axe/pickaxe/weapon for you
+546	Hold a torch and the Hollow Stag won't dare come near
+547	Holder
+548	Home
+549	Host
+550	Hot Stew
+551	Hot stew from the Stew Pot. Keeps you full for long and heals a lot
+552	Hotbar
+553	Huge Ruby Pile
+554	Huge war hammer · Crushing area damage, smashes ore rocks
+555	Humanoid
+556	Hump
+557	Hunger
+558	Hunger 25% slower · Food and healing 20% stronger
+559	Hunt
+560	Hunt %d animals
+561	Hunt %d animals · Survive %d nights with this class
+562	Hunter
+563	Hunter Bow
+564	Hunter Kit
+565	Hunter's Bow
+566	Hunter's Bow + 4 Cooked Meat
+567	Hunting Knife
+568	Hunting drops +1 extra meat/pelt/bone/fiber
+569	Hunting drops +2 extra meat/pelt/bone/fiber
+570	Hurry, go save it!
+571	IGNARAX, the Molten Dragon
+572	INTO THE WILDS
+573	Ice
+574	Ice Spikes!
+575	Ice Tiger
+576	Ignarax, the Molten Dragon
+577	In Stock
+578	In progress...
+579	In the firelight
+580	Inferno Volcano
+581	Info
+582	Inkshade Octopus
+583	Instance
+584	Inventory
+585	Iron
+586	Iron Armor
+587	Iron Axe
+588	Iron Lungs
+589	Iron Ore
+590	Iron Sword
+591	Iron armor with shoulder plates. Sturdy, raises Max HP a lot
+592	Iron axe. The fastest axe for chopping wood
+593	Iron ore from ore rocks. Used for weapons and high-level items
+594	Item here
+595	Items
+596	Jade
+597	Juicy cooked meat. Eases a lot of hunger
+598	Katana
+599	Keep the fire burning
+600	Kelp
+601	Key hint bar at the bottom of the screen
+602	Kill
+603	Kills
+604	Kills %d/%d
+605	Kind
+606	King's Treasure
+607	Knocks animals back
+608	Label
+609	Lair
+610	Lantern
+611	Lantern. Lights the area and scares off the Hollow Stag
+612	Lava Fire Ram
+613	Lava Smash!
+614	Leave Group
+615	Left
+616	Left Shoulder
+617	LeftControl,RightControl
+618	Legend
+619	Legend of the Wilds
+620	Legend of the Wilds (150 Nights)
+621	Legendary Chest
+622	Legends of the Four Elements
+623	Level 
+624	Leviathan
+625	Light
+626	Light scares off the Hollow Stag
+627	Light, fast hunting knife · Very quick strikes
+628	Lighting
+629	Lighting the campfire...
+630	Limestone
+631	Line
+632	Loading
+633	Loading camp
+634	Loading camp... %d%%
+635	Loading leaderboard...
+636	Loading models
+637	Loading quests...
+638	Loading the area around camp...
+639	Lobby
+640	Lock
+641	Locked
+642	Locked — get it from the Season Pass/codes
+643	Log Arms
+644	Log Wall
+645	Log in every day for more and more Ruby — day 7 gives a big reward!
+646	Login
+647	Login day %d/%d
+648	Long
+649	Long-range bow for hunting from a safe distance
+650	Look for the red smoke
+651	Lord of Four Elements
+652	Low
+653	Lumberjack
+654	Lv%d: %s
+655	Lv.
+656	Lv.%d · %d%%
+657	Lv.%d ⭐MAX
+658	METEOR STRIKE
+659	Mace
+660	Magic Cauldron
+661	Make Stew (2 meat + 2 berries)
+662	Makes stew
+663	Map of the Four Lands
+664	Massive light
+665	Master Hunter (250 kills)
+666	Materials
+667	Max
+668	Max HP +15 · Hunger 10% slower
+669	Max HP +25 · Regen 0.3 HP/sec
+670	Max Level
+671	Max x
+672	Meadow Hare
+673	Medic
+674	Medical
+675	Medicine
+676	Medium
+677	Medkit
+678	Menus
+679	Meteor
+680	Migration
+681	Mine Meteor Core
+682	Mine rock and ore x1.4 · Stamina +20%
+683	Mined from rocks. Used for tools and walls
+684	Miss a single day and it restarts from day 1 · Claim here or at the daily reward cauldron in the lobby (once per day)
+685	Mist
+686	Mobile Button Size
+687	Model
+688	Morning Star
+689	Mosasaur
+690	Moss
+691	Mother of the Tides
+692	Mountain Rock Turtle
+693	Mouse
+694	Moved (you must stand still while bandaging)
+695	Mud
+696	Mushrooms
+697	Music
+698	Must be in the camp
+699	Must be placed on the ground
+700	NIGHT %d
+701	Neck
+702	Needs 2 meat and 2 berries
+703	Needs 5 berries and 1 wood
+704	Never Give Up
+705	Never Miss
+706	New stock in %dh %dm
+707	Next ▶
+708	Night
+709	Night Owl
+710	Night of 
+711	Night of %s · Dawn in %s
+712	Nights
+713	No buildings in your bag yet — craft one at the crafting bench first
+714	No fuel (wood / coal / ember shards)
+715	No materials in your sack to grind (wood, stone, ore, pelt, bone ...)
+716	No other players in this server
+717	No raw meat
+718	No raw meat in your sack (go hunting first)
+719	No recipes match your search
+720	No respawning in a run after you die — watch each other's backs
+721	No rewards to claim yet — earn a bit more XP!
+722	No teammates left alive... waiting for the run result
+723	No wood/coal in your sack
+724	No wood/coal/raw meat in your sack to throw into the fire
+725	Node
+726	None
+727	Not enough items to trade
+728	Not enough materials
+729	Not enough materials to upgrade the bench
+730	Not enough materials to upgrade the campfire
+731	Not enough ♦️ (
+732	Not in stock today — wait for restock or reroll
+733	Notify
+734	Now day 
+735	Oak
+736	Octopus
+737	Odds
+738	Off
+739	Offset
+740	Old Axe
+741	Old Sack
+742	On-screen touch buttons
+743	Only the pad leader (first one on) can choose the team size
+744	Open Chest
+745	Open Crafting Menu
+746	Open Sacred Chest
+747	Open Supply Chest
+748	Origin
+749	Out of Stock
+750	Overlaps another building
+751	Owned
+752	Pack
+753	Pad
+754	Page %d / %d
+755	Palm
+756	Parch
+757	Parent
+758	Part
+759	Parts
+760	Passive
+761	Pavement
+762	Pay:
+763	Pelt
+764	Pet
+765	Phase
+766	Phones/slow devices: "Low" recommended
+767	Pick
+768	Pick Berries
+769	Pickaxe
+770	Pickaxe. Mines rock and ore fast
+771	Picked
+772	Pine Forest
+773	Ping
+774	Pioneer
+775	Place
+776	Place it to rest and skip 1 day (counts +1 day survived · placed at night, it counts in the morning) · Max 2 beds per server per run
+777	Place to skip 1 day (+1 day)
+778	Play!
+779	Player 
+780	Players
+781	Pointy
+782	Pollen
+783	Position
+784	Prem
+785	Price ♦️%d — in stock today
+786	Primeval Earth Forest
+787	Profile
+788	Props
+789	Puff
+790	Pup
+791	Purchased
+792	Put away 
+793	Put in Sack
+794	Quadruped
+795	Quake
+796	Quality
+797	Quests
+798	Quests & Rewards
+799	Quick Feet
+800	Rabbit
+801	Rare Chest
+802	Rare Items
+803	Raw Meat
+804	Raw meat. Edible but costs HP — cook it at the campfire first
+805	Ready
+806	Ready to craft! (go to camp, press C)
+807	Ready!
+808	Reaper Scythe
+809	Reaper scythe · Widest reach, sweeps groups of enemies
+810	Recovery
+811	Red
+812	Regen 0.5 HP/sec at all times
+813	Rejoin
+814	Relic
+815	Remotes
+816	Remotes.Init must be called from the server
+817	Repairs nearby walls
+818	Reptile
+819	Requires the Save Run pass
+820	Rescue %d element spirits
+821	Resource
+822	Return to the campfire
+823	Returning to camp...
+824	Revive
+825	Revive (uses a bandage)
+826	Revive Downed Teammates
+827	Revive Now  
+828	Revive downed teammates %d times
+829	Revived
+830	Revived!
+831	Revives
+832	Reviving teammate with 
+833	Reward
+834	Ribs
+835	Right Shoulder
+836	Ring of Fire!
+837	Riptide Orca
+838	Rise
+839	Rock
+840	Rockslide!
+841	Root
+842	Rotate
+843	Round
+844	Ruby
+845	Ruby Chest
+846	Ruby Pouch
+847	Ruby buys classes, class level skips, stock rerolls and starter kits — you also get it free from playing/the daily reward cauldron!
+848	Ruff
+849	Run
+850	Run 12% faster
+851	Run 20% faster · Stamina x2 · Hunting drops +1 extra item
+852	Run 5% faster · Stamina +15%
+853	Run saved · Night %d
+854	Runs
+855	SEAL BROKEN
+856	SPIRIT RETURNED
+857	SPIRIT UNSEALED
+858	SUPPLY DROP
+859	Sack
+860	Sack that holds 10 items — hold it and click items to collect
+861	Sack that holds 20 items
+862	Sack that holds 30 items
+863	Safe zone expanded
+864	Salt
+865	Sanctum
+866	Sand
+867	Sandstone
+868	Save Run
+869	Scale all windows up/down
+870	Scout
+871	Screen Shake
+872	Script
+873	Scroll
+874	Scythe
+875	Sealed Shrine
+876	Search
+877	Search player...
+878	Season
+879	Season 
+880	Season Hero
+881	Season Pass
+882	Season Pass tier %d%s
+883	See how smooth the game runs
+884	Selected 
+885	Sent %d Ruby to %s!
+886	Server
+887	Setting Out
+888	Settings
+889	Shadow of the Wilds
+890	Shake
+891	Shape
+892	Shared
+893	Sharp katana · Very fast, high-damage slashes
+894	Shield
+895	Shoots animals automatically
+896	Shop
+897	Short
+898	Show FPS
+899	Shrine
+900	Shrine cleared: 
+901	Size
+902	Skeleton
+903	Skills
+904	Skip
+905	Skip ♦️
+906	Skipped %d days · Day %d
+907	Sky
+908	Sky Blue
+909	Skyreach Highlands
+910	Slate
+911	Slot
+912	Slow down, try again in a moment
+913	Slows animals in range
+914	Small Ruby Pouch
+915	Smoke
+916	Snow
+917	Snow Bull
+918	Solar Beacon
+919	Solar beacon. Gives off massive light
+920	Sold out
+921	Solfang
+922	Solved
+923	Something is coming...
+924	Something is watching from the darkness
+925	Something went wrong, try again
+926	Sound
+927	Sparkles
+928	Sparks
+929	Spear
+930	Spectate
+931	Spike Trap
+932	Spike trap. Stabs animals that step on it
+933	Spiked Club
+934	Spiked morning star · Hits everything around the target
+935	Spirit
+936	Spirit Pup
+937	Spirit Pups rescued %d/4 — rescue them all for the true ending
+938	Spitter
+939	Spots
+940	Sprint
+941	Sprinting
+942	Sprout
+943	Stabs animals that step on it
+944	Staff
+945	Stalker
+946	Stamina x1.6 · Hunger 10% slower
+947	Starter axe. Chops wood slowly
+948	Starter kits can only be bought in the lobby
+949	Starting Tools
+950	Starving!
+951	Step on a start pad on your right
+952	Step on the pad to start
+953	Stew Pot
+954	Stew pot. Makes stew (meat + berries) and berry pie (berries + wood)
+955	Still missing materials
+956	Stock
+957	Stone
+958	Stone Axe
+959	Stone Crocodile
+960	Stone Wall
+961	Stone axe. Chops wood twice as fast
+962	Stone wall. Very sturdy
+963	Store
+964	Storm Bow
+965	Structure
+966	Structures
+967	Stub
+968	Style
+969	Sub
+970	Sun Beacon
+971	Supplies
+972	Supply
+973	Supply Chest
+974	Supply Crate
+975	Support
+976	Survival Instinct
+977	Survive %d nights
+978	Survive %d nights with friends
+979	Survive 99 nights
+980	Survive 99 nights = conquered! But you can keep playing endlessly to climb the leaderboard
+981	Survive 99 nights = conquered! Keep playing to climb the leaderboard
+982	Survive 99 nights in the wilds of Earth, Water, Frost and Fire
+983	Survive nights
+984	Survive to Night 10
+985	Survive to Night 25
+986	Survive to Night 5
+987	Survive to Night 50
+988	Survived %d nights · Your best is %d nights
+989	Survived %d/%d nights
+990	Survived night 
+991	Survived to night 
+992	Survivor
+993	Survivor Camp
+994	Switch
+995	Sword
+996	THE FIRE IS OUT
+997	THE FOUR SPIRITS REUNITE
+998	THE GREAT MIGRATION
+999	THE HOLLOW STAG
+1000	TYRANNOMOSA, Terror of the Deep
+1001	Take Out
+1002	Taking you back to the lobby...
+1003	Tap screen = hit · Bag is in the top-left corner
+1004	Team
+1005	Team is full! Departing
+1006	Team is on night %d · Step on a pad to join
+1007	Team of %d · Departing in %ds
+1008	Teammate down? Use a bandage within 30 seconds — if nobody is left standing, the whole team loses
+1009	Teleporting
+1010	Tent = Classes · Green cauldron = Daily reward
+1011	Terra Core
+1012	Terra Hammer
+1013	Terra Heart
+1014	Terra Pup
+1015	Terra Totem
+1016	Terragon
+1017	Text
+1018	Texture
+1019	The %s Sanctum is now sealed
+1020	The %s Sanctum is open
+1021	The %s Shrine guardians have awakened
+1022	The %s Shrine seal has weakened · Hold E
+1023	The Ballista fires on its own. Place them around the campfire
+1024	The Elementalist's fire staff. Hits launch exploding fireballs at enemies · Can also chop trees/rocks
+1025	The Final Night
+1026	The Hollow Stag
+1027	The Walking Mountain
+1028	The Wilds Awaken
+1029	The boss is coming
+1030	The boss is still alive — dawn is held back!
+1031	The campfire burns enemies that enter the safe zone
+1032	The campfire burns fuel 25% slower
+1033	The campfire died out... the forest swallowed everything
+1034	The campfire is already max level
+1035	The campfire is burning again
+1036	The campfire is full
+1037	The campfire is life
+1038	The campfire is life — when it goes out, the Hollow Stag enters the camp
+1039	The crafting bench is already max level
+1040	The crystal pillar of 
+1041	The fire is out, can't cook
+1042	The fog is too thick to pass — upgrade the campfire (Lv.%d → %d) to explore further
+1043	The ground is shaking...
+1044	The guardians have spotted you!
+1045	The shrine guardians are closing in on it!
+1046	The team
+1047	The volcano erupts... the fire beasts spread
+1048	The wandering trader has arrived at camp
+1049	The wandering trader has left
+1050	The waves roar... the beasts of Water rise from the sea
+1051	The whole forest awakens... the beasts of Earth are coming
+1052	The whole team fell on night %d
+1053	The wind howls... the hunters of the sky swoop down
+1054	Thin
+1055	This class isn't in stock today — wait for restock or reroll
+1056	This server only (save system not connected yet)
+1057	Thornboar
+1058	Thrifty Builder
+1059	Throw materials into the crafter, then build walls, traps and ballistas
+1060	Throw materials into the grinder (one at a time)
+1061	Throw wood into the fire
+1062	Throw wood/coal into the campfire — if it goes out, the safe zone is gone!
+1063	Tidal Expanse
+1064	Tidal Trident
+1065	Tidal Wave!
+1066	Tide Fox Pup
+1067	Tide Heart
+1068	Tide Pearl
+1069	Tide Pup
+1070	Tide Totem
+1071	Tide Trident
+1072	Tier 
+1073	Time to rejoin your previous run has expired
+1074	Title
+1075	Title Color
+1076	To the Land of Four Elements
+1077	Today!
+1078	Today's plan:\n1. Pick a class\n2. Step on a start pad\n3. Conquer the final night!
+1079	Tomorrow
+1080	Too close to the campfire
+1081	Too far away
+1082	Too far from your teammate
+1083	Tool
+1084	Top
+1085	Top-up: 
+1086	Torch
+1087	Torch for light. Scares off the Hollow Stag
+1088	Torso
+1089	Tortoise
+1090	Trade
+1091	Trail
+1092	Traveler
+1093	Traveling...
+1094	Treasure Chest
+1095	Trophy
+1096	True
+1097	Trusty Axe
+1098	Tufted
+1099	Turn
+1100	Tusks
+1101	Type code here...
+1102	Tyrannomosa, Terror of the Deep
+1103	UI Size
+1104	Unequip
+1105	Unlock This Class
+1106	Unlocked
+1107	Unlocked class 
+1108	Unlocks at level 
+1109	Unlocks more craftable items
+1110	Unlocks the Season Pass premium track every season · More Ruby + special titles/title colors
+1111	Unsealed!
+1112	Updrafts in the Frost zone lift you up to the floating islands
+1113	Upgrade the bench to level %d first
+1114	Upgrade the campfire to clear the fog and expand the safe zone
+1115	Upgrade: 
+1116	Use
+1117	Use Revive Ticket (%d)
+1118	Use bandages to revive teammates — if nobody is left standing, the whole team loses
+1119	Using 
+1120	VFXPack/Anime/Blood-Punch-01
+1121	VFXPack/Anime/Charge-01
+1122	VFXPack/Anime/Crack-01
+1123	VFXPack/Anime/Fire-02
+1124	VFXPack/Anime/Portal-Enter-01
+1125	VFXPack/Anime/Shield-Break-01
+1126	VFXPack/Anime/Shiny-01
+1127	VFXPack/vfx pack/f
+1128	Vegetation
+1129	Verdant Wilds
+1130	Very tough wall
+1131	View Classes
+1132	Violet
+1133	WILDHEART CAMP
+1134	Waist
+1135	Waiting for the pad leader / friends
+1136	Waiting for the pad leader to choose the team size...
+1137	Waiting for the previous run to end...
+1138	Walk closer to the campfire first, then throw
+1139	Wall
+1140	Walls and buildings are x1.5 tougher
+1141	Wandering Trader
+1142	War Hammer
+1143	Warn
+1144	Warp
+1145	Warrior
+1146	Warrior Kit
+1147	Water
+1148	Water Aura: Hunger 15% slower
+1149	Water Beast Heart
+1150	Water Pillar
+1151	Water beats Fire · Fire beats Frost · Frost beats Earth · Earth beats Water
+1152	Water essence · Break blue crystals in Whirlpool Lake / chests / meteors / sanctums / Water boss · Used for the Trident, Water Pillar, bench and campfire upgrades
+1153	Water pillar. Slows animals in range
+1154	Water trident. Slows animals down
+1155	Waterspout!
+1156	Wave Slam!
+1157	Weapons
+1158	Week
+1159	Weekly
+1160	Weekly quest: 
+1161	Welcome to the Wilds
+1162	Whale
+1163	When hit / boss impacts
+1164	Whirlpool Lake
+1165	Whispering Pines
+1166	Whole team is down — game over in %ds
+1167	Wide
+1168	Wildheart Camp
+1169	Wind
+1170	Wind bow. Arrows pierce through several enemies
+1171	Wolf
+1172	Wood
+1173	Wood Armor
+1174	Wood Wall
+1175	Wood armor. Equips right after crafting, raises Max HP
+1176	Wood from trees. Used for almost everything and can be thrown into the campfire
+1177	Wood wall. Blocks animal packs
+1178	Wool
+1179	Workspace
+1180	World ready
+1181	YOU PERISHED
+1182	You already bought this kit (you'll get it when you depart)
+1183	You already have 
+1184	You already have the %s class — got %d Ruby instead
+1185	You conquered 99 Nights in the Wilds!
+1186	You conquered 99 nights — the true ending
+1187	You died on night %d — watch your teammates survive, or go back to the lobby
+1188	You died... no respawning this run
+1189	You died... no respawning this run · %d teammates still alive
+1190	You don't have a saved run yet
+1191	You have no 
+1192	You haven't completed this achievement yet
+1193	You left mid-run — you can go back to the same run (same night, campfire, buildings and sack items)
+1194	You must be in the camp (near the campfire/crafting bench) to craft
+1195	You must be near the trader
+1196	You need a bandage or a first aid kit
+1197	You need an axe to chop wood
+1198	You need an axe/pickaxe to break this
+1199	You were revived
+1200	You're the pad leader · Wait for friends or for time to run out
+1201	You've traded this %d times already — wait for the trader's next visit
+1202	Your previous run has ended
+1203	Your previous run has ended — start a new one at the start pad
+1204	Your previous run has ended — starting a new run instead
+1205	Your run is saved every dawn and when you leave · Continue from the saved night at the start pad
+1206	Zone
+1207	[ All Time ] · This Week
+1208	^%s*(.-)%s*$
+1209	^HintSlot%d$
+1210	a few minutes
+1211	after the final night
+1212	couldn't hand the saved run to the team server
+1213	in the morning
+1214	memory budget (image)
+1215	memory budget (mesh)
+1216	outer portal not found
+1217	per game (whole server)
+1218	per player
+1219	the team
+1220	~ SURVIVE 99 NIGHTS ~
+1221	—  The team departs when full, or when time runs out  —
+1222	— Element Boss —
+1223	… (stand still)
+1224	↩ Rejoin your run?
+1225	↩ Rejoined your run — your sack items and tools are all still here
+1226	⌛ This code has expired
+1227	⌛ Time's up! The rune pillars went back to sleep — watch the order again
+1228	⏱ Speed %.1f hits/sec
+1229	⏳ Awaken all the rune pillars: %d seconds
+1230	⏳ Checking...
+1231	⏳ Generating world %d%%
+1232	⏳ Resets in 
+1233	⏳ Season ends in 
+1234	⏳ The %s Sanctum has awakened! Awaken the rune pillars in order within %d seconds
+1235	⏳ This code isn't active yet
+1236	⏳ Time left 
+1237	◀ Back
+1238	● %s %dm
+1239	☀️ Daily Quests
+1240	☠ You Died
+1241	♦️ +%d Ruby  (%s)
+1242	♦️ +100 Ruby
+1243	♦️ +300 Ruby
+1244	♦️ Not enough Ruby
+1245	♦️ Not enough Ruby to reroll the stock
+1246	♦️ Not enough Ruby to skip a level
+1247	♨ Can be cooked at the campfire 
+1248	♾ Endless · 
+1249	♾ The game isn't over! Keep playing endlessly — survive as long as you can to climb the leaderboard
+1250	⚒ Craft
+1251	⚒ Craft x1
+1252	⚒ Upgrade
+1253	⚒ Upgrade Crafting Bench
+1254	⚔ Damage 
+1255	⚔ Join the team in progress
+1256	⚔ Kill
+1257	⚔ Walk through the portal to start the game
+1258	⚔ Weapons/Tools
+1259	⚙ Settings
+1260	⚠ Outside camp: go back to camp to craft (counts include camp storage)
+1261	⛏ Mine rock/ore x
+1262	✅ Completed
+1263	✔ Claimed
+1264	✔ Claimed — come back in 
+1265	✔ Code already used (one use per player)
+1266	✔ Continue · Night 
+1267	✔ Done %d/%d
+1268	✔ Equipped
+1269	✔ Have a better one
+1270	✔ Owned
+1271	✔ Rejoin
+1272	✕ No thanks
+1273	✖ Stopped bandaging — 
+1274	✨ Can revive downed teammates
+1275	✨ Gained 
+1276	✨ Rescue 4 element spirits
+1277	✨ Rune pillar %d/%d awakened
+1278	✨ Season Pass
+1279	❌ Code not found — check the spelling
+1280	❌ Wrong order! The seal pushed back — watch the flashing lights again
+1281	❤ HP is full — save your 
+1282	❤ Heal +
+1283	➶ Pierces 
+1284	⟳ Rotate (R)
+1285	⭐ %d / %d XP
+1286	⭐ %s level %d!
+1287	⭐ Class %s reached level %d! New skill unlocked
+1288	⭐ Class level 3
+1289	⭐ Max level reached
+1290	🌍 Building the four-element world
+1291	🌕 Survive to Night 25
+1292	🌕 Survive to Night 50
+1293	🌙 Survive
+1294	🌙 Survive to Night 10
+1295	🌙 Survive to Night 5
+1296	🌟 Rescued 
+1297	🌫 The fog is too thick — upgrade the campfire to explore further
+1298	🍖 Cooking meat x
+1299	🍖 Eat
+1300	🍖 Food +
+1301	🍖 Meat is cooked! Put it in your sack or press R to eat
+1302	🎁 7 days in a row! Big reward claimed — a new streak starts tomorrow
+1303	🎁 Claim All
+1304	🎁 Claim All (
+1305	🎁 Claim Reward
+1306	🎁 Claim day %d reward  (%d Ruby)
+1307	🎁 Codes
+1308	🎁 Gift a friend
+1309	🎁 Gift to
+1310	🎁 Gifting to 
+1311	🎁 Redeem Codes for Rewards
+1312	🎉 Code redeemed! You got 
+1313	🎒 %d/%d
+1314	🎒 Capacity 
+1315	🎒 Hold your sack first (select it in the hotbar), then pick up items
+1316	🎒 No sack
+1317	🎒 Own 3 classes
+1318	🎒 Own 6 classes
+1319	🎒 Received 
+1320	🎒 Sack
+1321	🎒 Sack  %d/%d
+1322	🎒 Sack is full (%d/%d) — unload it at the crafting bench in camp
+1323	🎟\nFree
+1324	🎟 Season Pass tier %d! Claim rewards in the "Quests" menu
+1325	🎨 Color: 
+1326	🎨 Loading models and textures
+1327	🎨 New title color: 
+1328	🎨 Title Color
+1329	🎫 Game Pass items: 
+1330	🎫 Game Pass received: 
+1331	🎲 Class shop stock rerolled
+1332	🎲 Reroll Stock  ♦️
+1333	🏅 Achievement Badges
+1334	🏅 Achievement unlocked: 
+1335	🏅 Badge earned: 
+1336	🏆 Collect every class
+1337	🏆 Longest Survivors of All Time
+1338	🏗 Buildings
+1339	🏗 Place %s (%d left)  ·  Click = place  ·  R = rotate  ·  B/Esc = cancel
+1340	🏗 Place %s (%d left)  ·  Click = place  ·  R = rotate  ·  Q = change type  ·  B = cancel
+1341	🏗 Place %s (%d left) — aim at the center of the screen and tap ✔
+1342	🏠 Back to Lobby
+1343	🏷 New title: 
+1344	🏷 Title
+1345	🐺 Hunt 1000 animals
+1346	🐾 Hunt 250 animals
+1347	🐾 Hunt 50 animals
+1348	🐾 Redeem
+1349	🐾 Trade complete! (%d more trades left for this item)
+1350	🐾 Wandering Trader
+1351	👁 Memorize the order the rune pillars flash, then awaken them in that order!
+1352	👁 Spectating: 
+1353	👁 Wait for the rune pillars to finish flashing the order first
+1354	👑\nPremium
+1355	👑 Conquer the Final Night
+1356	👑 Premium  
+1357	👑 Premium (coming soon)
+1358	👑 Premium ✔
+1359	👑 VIP
+1360	👥 Choose Team Size
+1361	👥 Pad 
+1362	👥 Waiting for the pad leader to choose the team size
+1363	👹 Defeat 10 bosses
+1364	💔 HP loss 
+1365	💡 Light 
+1366	💡 Light scares off the Hollow Stag
+1367	💥 Area attack 
+1368	📅 7-Day Login
+1369	📅 Log in 7 days in a row
+1370	📅 Longest Survivors This Week
+1371	📅 Weekly Quests
+1372	📏 Radius 
+1373	📏 Range 
+1374	📖 How to Play
+1375	📖 How to Survive
+1376	📜 Complete 30 quests
+1377	📜 New quests are here! Open the "Quests" menu in the lobby
+1378	📜 Quest complete! %s %s — go back to the lobby to claim your reward
+1379	📜 Quests
+1380	📦 In camp: uses items in your sack first, then takes from camp storage
+1381	📦 Stored %d items in the camp storage
+1382	🔄 Defaults
+1383	🔍 Search
+1384	🔒 Needs bench Lv.
+1385	🔒 The premium track needs the Season Pass (Shop → Game Pass)
+1386	🔒 This place is sealed for the rest of this run
+1387	🔥 %d-day streak   ·   Best %d days
+1388	🔥 Add 1,000 fuel
+1389	🔥 Add 10,000 fuel
+1390	🔥 Burn 
+1391	🔥 Camp   ⛩ Spirit Pup Shrine   💀 Boss Lair   🏛 Ancient Sanctum   ☄📦 Events   ▲ You   ● Teammates   (places appear when discovered)
+1392	🔥 Fuel +
+1393	🔥 Fuel added: 
+1394	🔥 Last run: the team reached night %d — try again!
+1395	🔥 Lighting the camp fire
+1396	🔥 Survive 100 nights total
+1397	🔥 Survive 20 nights total
+1398	🔥 The fire is dying! About %s left — throw wood/coal in, quick
+1399	🔥 Upgrade Campfire
+1400	🔨 Craft 250 items
+1401	🔨 Craft 50 items
+1402	🔨 Craft at bench Lv.
+1403	🔨 Crafted: 
+1404	🔨 Crafting Bench Lv.%d
+1405	🔨 Crafting Bench Lv.1
+1406	🗺 Discovered: %s%s
+1407	🗺 Discovered: Ancient Sanctum of 
+1408	🚪 Go on 100 expeditions
+1409	🚪 Go on 20 expeditions
+1410	🛒 Bought 
+1411	🛒 Shop
+1412	🛡 Armor
+1413	🛡 Craft + Equip
+1414	🛡 Equipped %s! Max HP +%d
+1415	🛡 HP 
+1416	🛡 Max HP +
+1417	🛡 Wearing
+1418	🤝 Trade
+1419	🧊 Slows enemies
+1420	🩹 Medicine
+1421	🩹 Revive teammates 10 times
+1422	🩹 Revive teammates 50 times
+1423	🪓 Chop wood x
+1424	🪵 Gather 1,000 materials
+1425	Auto
+1426	Auto 🌐
+1427	Language
+1428	Localizer
+1429	%d players
+1430	Popular
+1431	Confirm
+1432	Enter Shrine
+1433	Go Back Outside
+1434	Grinder
+1435	Night of %s
+1436	%s Sanctum
+1437	%s Sanctum Chest
+1438	%s Shrine
+1439	Lv.%d
+1440	Needs bench Lv.%d
+1441	Resets in %s
+1442	Quest complete! %s - go back to the lobby to claim your reward
+1443	Camp
+1444	On
+1445	Open
+1446	[Click] Hit/Chop   [Shift] Sprint   [Ctrl] Lock camera   [C] Craft   [B] Build   [E] Pick up (hold sack)   [F] Take out   [M] Map   [1-9] Select item

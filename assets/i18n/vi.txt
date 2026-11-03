@@ -1,0 +1,1279 @@
+0	      Mua Ruby
+2	  (gục!)
+3	  (ở thanh vật phẩm bên dưới, chạm để đặt)
+4	  ·  Hoàn thành! 🎉
+8	 (Premium)
+9	 (kéo dài cả lượt chơi)
+10	 (bằng hoặc tốt hơn)
+11	 Thưởng!
+12	 Lớp
+13	 Thiên thạch nguyên tố
+14	 Nguyên tố:
+16	 Rương thánh điện
+17	 Thánh điện · Đánh thức trụ rune theo thứ tự ánh sáng
+18	 Thánh điện · Đã giải phong ấn
+19	 Lồng phong ấn
+20	 Đền thờ
+21	 Danh hiệu
+22	 Đã mở khóa lớp
+23	 về lại đống lửa
+24	 thất bại:
+25	 để hồi sinh đồng đội bị gục
+26	 từ Season Pass!
+27	 trong túi của bạn (chế tạo ở bàn trước)
+28	 đã được tự do
+29	 giờ sống ở trại
+30	 bị nhốt trong lồng phong ấn...
+31	 ở trang "Huy hiệu" trong sảnh
+32	 hoặc loại lớn hơn
+33	 đã gửi quà cho bạn!
+34	 tỏa sáng khắp vùng
+35	 toàn máy chủ
+36	 · Có thể hồi sinh đồng đội bị gục
+37	 · Chọn số người
+38	 · Chặt
+39	 · Nguyên tố
+40	 · Bạn bè +10%
+41	 · Ánh sáng xua Hươu Rỗng
+42	 · Đào
+43	 · Nhấn E để cưỡi
+45	 — nhận ♦️
+46	 — đã tối đa
+47	 — đã bỏ qua 1 ngày! Giờ là ngày %d
+48	 — chạm ô bên dưới để đặt vào
+49	 — cảm ơn bạn đã ủng hộ!
+50	 — bạn sẽ nhận khi xuất phát
+51	"Da tốt đổi được thứ cậu cần đấy... nhanh lên, ta đi trước khi mặt trời lặn"
+54	Vẫn còn %d con thú đang tấn công trại — tiêu diệt hết!
+55	%d ngày
+56	Còn %d hộ vệ
+57	Cách đống lửa %d m
+58	%d người trên bệ
+62	%d/%d người
+63	%d/%d người   •   ⏳ %ds
+64	Còn %d/%d lần đổi
+66	%dng %dg
+67	%dg %dp
+68	%dp
+71	%s %d ngày
+76	%s đã giải cứu %s
+77	%s đã chết
+78	%s đã về hang
+79	%s bị gục! Mau đi cứu
+80	%s đã đào lõi thiên thạch %s!
+81	%s đã mở rương tiếp tế
+82	%s đã quay lại lượt chơi
+83	%s đã về trại (%d/4)
+84	%s đã cứu %s kịp lúc
+85	%s bỏ qua 1 ngày · Ngày %d
+87	%s x%d · Nhấp = đặt · R = xoay
+88	%s x%d · Nhấp = hồi sinh đồng đội bị gục / tự hồi máu
+92	%s: tối đa %d %s
+93	) — đứng lên bệ lần nữa
+95	+1 ngày
+96	+1 ngày (tính %s)
+97	- Ruby miễn phí mỗi ngày -
+98	1 (Một mình)
+99	Mỗi nguyên tố 2 tinh chất
+100	3 Băng gạc + 1 Bộ sơ cứu
+101	Ít hơn 35% nguyên liệu · Công trình bền x2
+102	4 Linh Thú Con bị nhốt trong đền. Giải cứu tất cả để có kết thúc thật
+103	40 Gỗ, 20 Đá, 2 Tường gỗ
+104	8 Than, Đuốc, Đèn lồng
+106	ĐÃ CHINH PHỤC 99 ĐÊM
+107	99 đêm... và hơn thế nữa
+110	<font color="#FFE066" size="40">Tin trại</font>\n\nSống sót qua đêm mốc (mỗi 5-25 đêm)\n= Nhận Ruby ♦️\n\nCứu một Linh Thú Con = ♦️15\n<font color="#8CFF8C">Ruby miễn phí ở vạc xanh mỗi ngày!</font>
+111	Thiên thạch %s đã rơi · Đi đào lõi pha lê
+112	Một người bạn
+114	TẤT CẢ ĐÃ NGÃ XUỐNG
+115	THÁNH ĐIỆN CỔ
+117	Thành tựu:
+118	Thêm %d nhiên liệu vào đống lửa
+119	Thêm gỗ, nhanh
+120	Gió
+121	Tất cả
+122	Cả 4 Linh Thú Con đã đoàn tụ
+123	Mọi nguyên tố
+124	Mọi thời đại · [ Tuần này ]
+125	Mọi máy chủ · Cập nhật mỗi phút
+126	Sát thương mọi vũ khí +15%
+127	Toàn năng
+128	Thợ săn đầu đàn
+129	Hôm nay đã nhận — quay lại sau
+130	Đã nhận thưởng hôm nay — quay lại sau %dg %dp
+131	Đang mặc
+132	Âm thanh môi trường
+133	Thạch anh tím
+134	Một đàn thú đi ngang gần trại
+135	Rương cổ
+136	Trụ rune cổ
+137	Thánh điện cổ:
+138	Động vật
+139	Thú di cư
+140	Xương thú. Dùng làm giáo và Bao khổng lồ
+141	Da thú. Dùng làm bao/giường và trao đổi với thương nhân lang thang
+142	Đợt thú thứ %d đã đến
+143	Động vật
+144	Gạc hươu
+145	Giáp
+146	Mũi tên
+152	Âm thanh
+153	Tự đổi công cụ
+154	Đánh thức trụ rune
+155	Bộ nguyên tố thức tỉnh
+156	Rìu
+157	ĐÃ HẠ QUÁI THÚ
+158	TRĂNG MÁU
+159	ĐỐNG LỬA CẤP
+160	Về sảnh
+162	Ba lô
+163	Huy hiệu
+164	Túi  ·  Kéo vật phẩm vào ô bên dưới (có thể đổi ô)
+165	Nướng bánh dâu (5 dâu + 1 gỗ)
+166	Kiếm sắt cân bằng · Nhanh, sát thương ổn
+167	Nỏ lớn
+168	Nỏ lớn. Tự động bắn thú
+169	Băng gạc
+170	Băng bó để hồi máu, và hồi sinh đồng đội bị gục
+171	Băng gạc, thuốc và hồi sinh đồng đội hồi x1.5
+172	Đá bazan
+173	Phòng thủ căn cứ
+174	Rìu chiến
+175	Bác sĩ chiến trường
+177	Tim quái thú (nguyên tố bất kỳ)
+178	Thợ săn quái thú
+179	Hang quái thú
+180	Kẻ diệt quái thú
+181	Giường
+182	Giường (+1 ngày)
+183	Bàn
+184	Dâu rừng
+185	Bụi dâu
+186	Bụi dâu %d/%d
+187	Nước dâu
+188	Luống dâu
+189	Bánh dâu
+190	Bánh dâu từ nồi hầm. Rất no, đói giảm chậm một nửa trong 2 phút
+191	Tốt nhất
+192	Đáng tiền nhất
+193	Lớn
+194	Giỏ lớn
+195	Đêm đột kích lớn ·
+196	Đột kích lớn sau %d đêm
+197	Lửa to hơn, vùng an toàn rộng hơn, ít sương hơn
+200	Bão tuyết
+201	Bão tuyết!
+202	Chặn bầy thú
+203	Trăng máu
+205	Xương
+206	Giáo xương
+207	Giáo xương + Rìu sắt
+208	Giáo xương. Tầm xa, sát thương cao
+209	Trùm
+210	Hang trùm nằm ở trung tâm mỗi vùng nguyên tố — chuẩn bị kỹ trước khi vào
+211	Trùm vẫn còn sống · Bình minh sau %s
+212	Trùm tấn công vào đêm 25 · 50 · 75 · 99 — né vòng cảnh báo dưới đất!
+213	Tảng đá
+215	Cung
+216	Mang
+218	Hiệu ứng:
+219	Thợ xây
+220	Công trình
+221	Công trình tốn ít hơn 20% nguyên liệu
+222	Công trình tự sửa chậm
+223	Đốt thú ở gần
+224	Bụi cây
+226	Mua  ♦️
+227	Mua lớp trước
+229	Cố vấn trại
+230	Kho trại
+231	Kho trại x
+232	Người cắm trại
+233	Đống lửa
+234	Đống lửa Cấp
+235	Đống lửa Cấp %d  ·  Bàn Cấp %d
+236	Đống lửa Cấp 1
+237	Chỉ đặt được trong trại (nâng cấp đống lửa để mở rộng)
+238	Không thể giết — chạy đi!
+239	Không thể giết... xua nó bằng ánh sáng!
+240	Không thể đặt trên nước/dung nham
+241	Hiện không thể dùng giường để bỏ qua ngày
+242	Hủy
+243	Sức chứa %d món · Nhấp vật phẩm trên đất để nhặt
+244	Bộ thợ mộc
+245	Danh mục:
+246	Tỉ lệ có hàng mỗi ngày
+248	Kẻ húc
+250	Chọn
+251	Chọn số người trước, rồi mới đếm ngược
+252	Chặt gỗ x1.6
+253	Chặt gỗ x2.2 · Đào đá/quặng x1.6
+254	Chặt gỗ, đập đá, săn thú, cầm bao để nhặt đồ
+257	Nhận thưởng hằng ngày
+258	Nhận ♦️
+259	Nhận!
+260	Lớp
+261	Lớp
+262	Cửa hàng lớp
+263	Cửa hàng lớp · Bước vào để nói chuyện
+264	Lớp nhân vật
+265	Đã xong
+266	Đã hoàn thành Thánh điện %s · Nhận %s
+268	Đóng
+269	Than
+270	Than. Nhiên liệu cao cấp giữ lửa cháy lâu
+271	Mã
+272	Mã đã dùng: %d
+273	Màu
+275	Lại đây
+276	Sắp ra mắt
+277	Chinh phục 99 đêm
+278	Tiếp tục chỉ hoạt động ở bản phát hành — bắt đầu lượt mới
+279	Tiếp tục · Đêm
+280	Tiếp tục lượt đã lưu từ đêm
+281	Gợi ý điều khiển
+282	Nướng thịt
+283	Nồi nấu
+284	Thịt nướng
+285	San hô
+286	Cua vỏ san hô
+287	Không tải được lượt đã lưu — bắt đầu lượt mới
+288	Không kết nối được máy chủ, thử lại
+289	Không thể quay lại lượt trước, thử lại
+290	Không thể quay lại lượt trước:
+291	Không thể đưa bạn đến máy chủ của đội (
+292	Cố vấn
+295	Tính vào buổi sáng
+296	Cua
+298	Chế tạo
+299	Chế tạo %d món
+300	Chế tạo & Xây căn cứ
+301	Máy chế tạo
+302	Bàn chế tạo
+303	Bàn chế tạo Cấp
+304	Bàn chế tạo Cấp %d · Công thức mới
+305	Đồ chế tạo
+306	Thùng gỗ
+307	Mào
+308	Có tiếng kêu từ giữa quảng trường...
+309	Đỏ thẫm
+310	Nỏ
+311	Vương miện bão tố
+312	Hươu pha lê
+313	Pha lê
+314	NGÀY %d
+315	NGÀY 1
+316	Dao găm
+317	Hằng ngày
+318	Thưởng hằng ngày
+319	Thưởng hằng ngày ♦️
+320	Nhiệm vụ ngày:
+321	Sát thương %d · Tầm %d
+322	Sát thương +25% · Săn thú được thêm +1 thịt/da/xương/sợi
+323	Sát thương +40% · Chạy nhanh hơn 5%
+324	Nguy hiểm
+326	Dữ liệu đang tải, thử lại
+327	DataStore không khả dụng (bật API Services trước)
+328	Bình minh
+329	Nai bình minh
+330	Ban ngày
+331	Ngày
+332	Ban ngày · Chạng vạng sau %s
+333	Đã chết
+338	Thua cuộc
+339	Hạ %d trùm nguyên tố
+340	Hạ hết để phá lồng và cứu
+341	Đã hạ
+342	Đã hạ %s · Xuất hiện lại sau %d phút
+343	Xuất phát
+344	Đang xuất phát
+345	Xuất phát sau %d
+346	Kim cương
+347	Đã chết
+348	Xuống [X]
+349	Hiển thị
+350	Rìu chiến hai lưỡi · Đánh mạnh, chặt cây nhanh nhất
+351	Bị gục — chờ đồng đội đến cứu
+352	Bị gục! Đang chờ cứu
+353	Bị gục
+354	Rồng
+355	Thả
+356	Chạng vạng
+357	Chạng vạng · Thú đến sau %s
+358	Đất
+359	Hào quang Đất: Máu tối đa +15%
+360	Gấu con Đất
+361	Tim quái thú Đất
+362	Cá sấu Đất
+363	Trụ Đất
+364	Nứt đất!
+365	Đập đất!
+366	Rùa Đất
+367	Tinh chất Đất · Đập pha lê xanh lá trong rừng Đất / rương / thiên thạch / thánh điện / trùm Đất · Dùng làm Búa Terra, Trụ Đất, nâng cấp bàn và đống lửa
+368	Búa đất. Đập diện rộng
+369	Trụ đất. Sửa tường xung quanh
+370	Ăn
+371	Ăn dâu
+372	Hiệu ứng
+373	Trùm nguyên tố
+374	Tinh chất nguyên tố (bất kỳ)
+375	Bậc thầy nguyên tố
+376	Thiên thạch nguyên tố
+377	Bầy thú nguyên tố tấn công đống lửa mỗi đêm — cầm cự tới sáng
+378	Khắc hệ!
+379	Nguyên tố
+380	Phép nguyên tố
+381	Sức mạnh nguyên tố
+382	Chạm nguyên tố
+383	Vũ khí nguyên tố (gồm Gậy lửa) mạnh hơn 20% · Yếu ớt: Máu tối đa -10
+384	Vũ khí nguyên tố mạnh hơn 40% · Thể lực +15%
+385	Vũ khí nguyên tố mạnh hơn 65% · Máu tối đa +10
+386	Pháp sư nguyên tố
+387	Than hồng
+388	Hõm núi lửa
+389	Cáo con Lửa
+390	Đại kiếm Lửa
+391	Tim Lửa
+392	Thú con Lửa
+393	Đỏ lửa
+394	Mảnh lửa
+395	Gậy Lửa
+396	Cột Lửa
+397	Sói Lửa
+398	Bọ cạp vuốt lửa
+399	Tàn lửa
+402	Chế độ vô tận đêm
+403	Chế độ vô tận · Bầy thú mạnh lên mỗi đêm
+404	Kẻ thù
+405	Kẻ thù!
+406	Giáp chiến binh vàng chạm khắc. Tăng máu tối đa nhiều nhất
+407	Vào thánh điện
+408	Nhập mã và nhấn "Đổi" · Mỗi mã dùng một lần mỗi người
+409	Đang vào trại...
+410	Trang bị
+411	Đã trang bị
+412	Lỗi
+413	Tinh chất
+414	Cứ 10 đêm Trăng máu mọc và bầy thú mọi nguyên tố cùng tấn công
+415	Mọi nguyên tố cùng tấn công
+416	Mọi nguyên tố đang nổi giận...
+417	Mọi người chạy nhanh hơn 10%
+418	Khám phá
+419	FROSTMAW, Người Tuyết Sông Băng
+420	Ô đất trồng
+421	Dương xỉ
+422	Sợi
+423	Sợi từ săn thú (thỏ, cá sấu, cua, bạch tuộc, bò tuyết, cừu lửa) / rương / thùng tiếp tế · Dùng làm băng gạc, cung và bao
+424	Y tá dã chiến
+426	Tìm mã mới ở trang game và nhóm của game · Thử mã WELCOME!
+428	Lửa
+429	Hào quang Lửa: Sát thương +15%
+430	Tim quái thú Lửa
+431	Phun lửa!
+432	Thiên thạch lửa!
+433	Trụ Lửa
+434	Cừu Lửa
+435	Gậy Lửa
+436	Tinh chất Lửa · Đập pha lê cam ở núi lửa / rương / thiên thạch / thánh điện / trùm Lửa · Dùng làm Đại kiếm Lửa, Trụ Lửa, Đèn hiệu · Nhiên liệu mạnh
+437	Lửa tắt rồi! Không an toàn
+438	Trụ lửa. Đốt thú xung quanh
+439	Kiếm lửa. Đốt kẻ thù và tỏa sáng
+440	Lửa tắt!
+441	Đom đóm
+442	Người giữ lửa
+443	Bộ sơ cứu
+444	Trăng máu đầu tiên
+445	Đêm đầu tiên trong rừng
+446	Khe nứt
+447	Người giữ ngọn lửa
+448	Bộ người giữ ngọn lửa
+451	Hoa
+452	Đang bay
+454	Thức ăn
+455	Chuyên gia ẩm thực
+457	Người hái lượm
+458	Tiều phu rừng
+459	Pháo đài
+460	Kiếm Tứ Nguyên Tố
+461	Kiếm Tứ Nguyên Tố. Vũ khí tối thượng của game
+462	Lưỡi Tứ Hợp
+464	Miễn phí
+465	Dâu tươi. Ăn để đỡ đói · Làm nước dâu/thuốc thảo dược (Bàn Cấp 1) · Trồng luống · Bánh và món hầm ở nồi hầm
+466	Nước dâu ép tươi. Đỡ đói và hồi đầy thể lực
+468	Băng giá
+469	Hào quang Băng: Thể lực giảm chậm hơn 15%
+470	Tim quái thú Băng
+471	Lông vũ băng
+472	Tim Băng
+473	Trụ Băng
+474	Sói con Băng
+475	Tinh chất Băng · Đập pha lê trắng ở Cao nguyên / rương / thiên thạch / thánh điện / trùm Băng · Dùng làm Cung Bão, Trụ Băng, nâng cấp bàn và đống lửa
+476	Trụ băng. Đẩy thú ra xa
+477	Gấu nanh băng
+478	Frostmaw, Người Tuyết Sông Băng
+479	Nhiên liệu
+480	Thu hoạch đầy
+481	Hồi đầy máu, và hồi sinh đồng đội bị gục
+483	GOLGRAN, Ngọn Núi Sống
+484	Trường cung Gió
+485	Thú con Gió
+486	Cột Gió
+487	Lối chơi
+488	Thu thập %d đá
+489	Thu thập %d gỗ
+490	Thu thập ban ngày
+491	Đã thu thập
+492	Thu thập
+493	Đang tạo thế giới %d%%
+494	Đang tạo thế giới...
+495	Đang tạo thế giới... %d%%
+496	Nhận:
+497	Bóng ma
+498	Bao khổng lồ
+499	Quà
+500	Quà từ
+501	Sông băng
+502	Đập sông băng!
+503	Đi thám hiểm %d lần
+504	Vàng
+505	Giáp vàng
+506	Golgran, Ngọn Núi Sống
+507	Bao tốt
+508	Nhận 1 Vé hồi sinh — dùng lần sau khi bị gục
+509	Bị đánh
+510	Đồ họa
+511	Chất lượng đồ họa
+512	Cỏ
+513	Xanh lá
+514	Mặt đất
+515	Đập đất!
+517	Trồng dâu
+518	Trồng dâu hái được mãi
+520	Hộ vệ
+521	Hộ vệ Tứ Nguyên Tố
+523	Búa
+524	Gỗ cứng
+525	Mắt diều hâu
+526	Hiểm họa
+528	Hồi
+529	Bàn tay chữa lành
+530	Hồi máu x2 · Máu tối đa +15
+531	Tim
+532	Tim trùm Đất (Golgran) · Dùng làm Búa Terra và Kiếm Tứ Nguyên Tố
+533	Tim trùm Lửa (Ignarax) · Dùng làm Đại kiếm Lửa và Kiếm Tứ Nguyên Tố
+534	Tim trùm Băng (Frostmaw) · Dùng làm Cung Bão và Kiếm Tứ Nguyên Tố
+535	Tim trùm Nước (Tyrannomosa) · Dùng làm Đinh ba Thủy triều và Kiếm Tứ Nguyên Tố
+536	Món hầm thịnh soạn
+537	Nỏ nặng · Nạp chậm, bắn xa cực mạnh
+538	Chùy gỗ nặng gắn gai sắt · Đập vỡ đá được
+539	Cao thảo dược
+540	Thuốc thảo dược
+541	Thuốc thảo dược từ dâu. Hồi ít (không hồi sinh đồng đội được)
+542	Cao
+544	Gợi ý
+545	Đánh cây/đá/thú sẽ tự chọn rìu/cuốc/vũ khí tốt nhất cho bạn
+546	Cầm đuốc thì Hươu Rỗng không dám lại gần
+548	Trang chính
+550	Món hầm nóng
+551	Món hầm nóng từ nồi hầm. No lâu và hồi nhiều máu
+552	Thanh vật phẩm
+553	Đống Ruby khổng lồ
+554	Búa chiến khổng lồ · Sát thương diện rộng, đập vỡ đá quặng
+557	Đói
+558	Đói chậm hơn 25% · Thức ăn và hồi máu mạnh hơn 20%
+559	Săn
+560	Săn %d con thú
+561	Săn %d con thú · Sống sót %d đêm với lớp này
+562	Thợ săn
+563	Cung thợ săn
+564	Bộ thợ săn
+565	Cung của thợ săn
+566	Cung của thợ săn + 4 Thịt nướng
+567	Dao săn
+568	Săn thú được thêm +1 thịt/da/xương/sợi
+569	Săn thú được thêm +2 thịt/da/xương/sợi
+570	Nhanh lên, đi cứu nó!
+571	IGNARAX, Rồng Dung Nham
+572	TIẾN VÀO HOANG DÃ
+573	Băng
+574	Gai băng!
+575	Hổ băng
+576	Ignarax, Rồng Dung Nham
+577	Còn hàng
+578	Đang tiến hành...
+579	Trong ánh lửa
+580	Núi lửa địa ngục
+581	Thông tin
+582	Bạch tuộc mực bóng
+584	Túi đồ
+585	Sắt
+586	Giáp sắt
+587	Rìu sắt
+588	Phổi thép
+589	Quặng sắt
+590	Kiếm sắt
+591	Giáp sắt có giáp vai. Chắc chắn, tăng nhiều máu tối đa
+592	Rìu sắt. Rìu chặt gỗ nhanh nhất
+593	Quặng sắt từ đá quặng. Dùng làm vũ khí và đồ cấp cao
+594	Vật phẩm ở đây
+595	Vật phẩm
+596	Ngọc bích
+597	Thịt nướng mọng nước. Đỡ đói nhiều
+598	Katana
+599	Giữ lửa luôn cháy
+600	Tảo bẹ
+601	Thanh gợi ý phím ở cuối màn hình
+602	Hạ gục
+603	Hạ gục
+604	Hạ gục %d/%d
+606	Kho báu nhà vua
+607	Đẩy lùi thú
+609	Hang
+610	Đèn lồng
+611	Đèn lồng. Chiếu sáng và xua Hươu Rỗng
+612	Cừu lửa dung nham
+613	Đập dung nham!
+614	Rời nhóm
+615	Trái
+618	Huyền thoại
+619	Huyền thoại hoang dã
+620	Huyền thoại hoang dã (150 đêm)
+621	Rương huyền thoại
+622	Huyền thoại Tứ Nguyên Tố
+623	Cấp
+624	Thủy quái Leviathan
+625	Ánh sáng
+626	Ánh sáng xua Hươu Rỗng
+627	Dao săn nhẹ · Đánh rất nhanh
+629	Đang nhóm lửa trại...
+630	Đá vôi
+632	Đang tải
+633	Đang tải trại
+634	Đang tải trại... %d%%
+635	Đang tải bảng xếp hạng...
+636	Đang tải mô hình
+637	Đang tải nhiệm vụ...
+638	Đang tải khu vực quanh trại...
+639	Sảnh
+640	Khóa
+641	Đã khóa
+642	Đã khóa — nhận từ Season Pass/mã
+643	Tay khúc gỗ
+644	Tường khúc gỗ
+645	Đăng nhập mỗi ngày nhận Ruby nhiều dần — ngày 7 được thưởng lớn!
+646	Đăng nhập
+647	Ngày đăng nhập %d/%d
+648	Dài
+649	Cung tầm xa để săn từ khoảng cách an toàn
+650	Tìm khói đỏ
+651	Chúa tể Tứ Nguyên Tố
+652	Thấp
+653	Tiều phu
+657	Cấp %d ⭐TỐI ĐA
+658	THIÊN THẠCH RƠI
+659	Chùy
+660	Vạc thần
+661	Nấu món hầm (2 thịt + 2 dâu)
+662	Nấu món hầm
+663	Bản đồ Bốn Vùng Đất
+664	Ánh sáng cực mạnh
+665	Thợ săn bậc thầy (250 lần hạ)
+666	Nguyên liệu
+667	Tối đa
+668	Máu tối đa +15 · Đói chậm hơn 10%
+669	Máu tối đa +25 · Hồi 0.3 HP/giây
+670	Cấp tối đa
+671	Tối đa x
+672	Thỏ đồng cỏ
+673	Y tá
+674	Y tế
+675	Thuốc
+676	Trung bình
+677	Hộp cứu thương
+679	Thiên thạch
+680	Di cư
+681	Đào lõi thiên thạch
+682	Đào đá và quặng x1.4 · Thể lực +20%
+683	Đào từ đá. Dùng làm công cụ và tường
+684	Lỡ một ngày là bắt đầu lại từ ngày 1 · Nhận ở đây hoặc ở vạc thưởng hằng ngày trong sảnh (mỗi ngày một lần)
+685	Sương mù
+686	Cỡ nút trên điện thoại
+688	Chùy sao mai
+689	Thương long
+690	Rêu
+691	Mẹ của Thủy triều
+692	Rùa đá núi
+694	Đã di chuyển (phải đứng yên khi băng bó)
+695	Bùn
+696	Nấm
+697	Nhạc
+698	Phải ở trong trại
+699	Phải đặt trên mặt đất
+700	ĐÊM %d
+702	Cần 2 thịt và 2 dâu
+703	Cần 5 dâu và 1 gỗ
+704	Không bỏ cuộc
+705	Không bao giờ trượt
+706	Hàng mới sau %dg %dp
+707	Tiếp ▶
+708	Ban đêm
+709	Cú đêm
+710	Đêm của
+711	Đêm của %s · Bình minh sau %s
+712	Đêm
+713	Chưa có công trình trong túi — chế tạo ở bàn chế tạo trước
+714	Không có nhiên liệu (gỗ / than / mảnh lửa)
+715	Không có nguyên liệu trong bao để nghiền (gỗ, đá, quặng, da, xương ...)
+716	Không có người chơi khác trong máy chủ này
+717	Không có thịt sống
+718	Không có thịt sống trong bao (đi săn trước)
+719	Không có công thức nào khớp
+720	Chết rồi sẽ không hồi sinh trong lượt — hãy bọc lót cho nhau
+721	Chưa có phần thưởng — kiếm thêm chút XP!
+722	Không còn đồng đội sống sót... đang chờ kết quả
+723	Không có gỗ/than trong bao
+724	Không có gỗ/than/thịt sống trong bao để ném vào lửa
+726	Không có
+727	Không đủ đồ để đổi
+728	Không đủ nguyên liệu
+729	Không đủ nguyên liệu nâng cấp bàn
+730	Không đủ nguyên liệu nâng cấp đống lửa
+731	Không đủ ♦️ (
+732	Hôm nay hết hàng — chờ hàng mới hoặc quay lại
+734	Giờ là ngày
+735	Sồi
+736	Bạch tuộc
+737	Tỉ lệ
+738	Tắt
+740	Rìu cũ
+741	Bao cũ
+742	Nút cảm ứng trên màn hình
+743	Chỉ trưởng bệ (người lên đầu tiên) được chọn số người
+744	Mở rương
+745	Mở menu chế tạo
+746	Mở rương thánh
+747	Mở rương tiếp tế
+749	Hết hàng
+750	Chồng lên công trình khác
+751	Đã sở hữu
+752	Gói
+753	Bệ
+754	Trang %d / %d
+755	Cọ
+762	Trả:
+763	Da thú
+764	Thú cưng
+766	Điện thoại/máy yếu: nên chọn "Thấp"
+767	Cuốc
+768	Hái dâu
+769	Cuốc chim
+770	Cuốc chim. Đào đá và quặng nhanh
+772	Rừng thông
+774	Người tiên phong
+775	Đặt
+776	Đặt để nghỉ và bỏ qua 1 ngày (+1 ngày sống sót · đặt ban đêm thì tính vào sáng) · Tối đa 2 giường mỗi máy chủ mỗi lượt
+777	Đặt để bỏ qua 1 ngày (+1 ngày)
+778	Chơi!
+779	Người chơi
+780	Người chơi
+783	Vị trí
+784	Prem
+785	Giá ♦️%d — hôm nay có hàng
+786	Rừng Đất nguyên sinh
+787	Hồ sơ
+790	Thú con
+791	Đã mua
+792	Cất
+793	Bỏ vào bao
+796	Chất lượng
+797	Nhiệm vụ
+798	Nhiệm vụ & Thưởng
+799	Chân nhanh
+800	Thỏ
+801	Rương hiếm
+802	Đồ hiếm
+803	Thịt sống
+804	Thịt sống. Ăn được nhưng mất máu — nướng ở đống lửa trước
+805	Sẵn sàng
+806	Có thể chế tạo! (về trại, nhấn C)
+807	Sẵn sàng!
+808	Lưỡi hái Tử thần
+809	Lưỡi hái Tử thần · Tầm xa nhất, quét cả nhóm kẻ thù
+810	Hồi phục
+811	Đỏ
+812	Hồi 0.5 HP/giây liên tục
+813	Quay lại
+814	Thánh tích
+817	Sửa tường xung quanh
+819	Cần thẻ Save Run
+820	Giải cứu %d linh hồn nguyên tố
+821	Tài nguyên
+822	Quay về đống lửa
+823	Đang về trại...
+824	Hồi sinh
+825	Hồi sinh (dùng băng gạc)
+826	Hồi sinh đồng đội bị gục
+827	Hồi sinh ngay
+828	Hồi sinh đồng đội bị gục %d lần
+829	Đã hồi sinh
+830	Đã được hồi sinh!
+831	Lần hồi sinh
+832	Đang hồi sinh đồng đội bằng
+833	Phần thưởng
+835	Vai phải
+836	Vòng lửa!
+837	Cá voi sát thủ dòng xiết
+839	Đá
+840	Đá lở!
+842	Xoay
+845	Rương Ruby
+846	Túi Ruby
+847	Ruby dùng mua lớp, nhảy cấp lớp, quay lại hàng và bộ khởi đầu — chơi game/vạc thưởng hằng ngày cũng nhận miễn phí!
+849	Chạy
+850	Chạy nhanh hơn 12%
+851	Chạy nhanh hơn 20% · Thể lực x2 · Săn thú được thêm 1 món
+852	Chạy nhanh hơn 5% · Thể lực +15%
+853	Đã lưu lượt · Đêm %d
+854	Lượt chơi
+855	PHONG ẤN ĐÃ VỠ
+856	LINH HỒN TRỞ VỀ
+857	ĐÃ GIẢI PHONG LINH HỒN
+858	TIẾP TẾ THẢ DÙ
+859	Bao
+860	Bao chứa 10 món — cầm bao rồi nhấp vật phẩm để nhặt
+861	Bao chứa 20 món
+862	Bao chứa 30 món
+863	Vùng an toàn mở rộng
+864	Muối
+865	Thánh điện
+866	Cát
+867	Sa thạch
+868	Lưu lượt chơi
+869	Phóng to/thu nhỏ mọi cửa sổ
+870	Trinh sát
+871	Rung màn hình
+874	Lưỡi hái
+875	Đền bị phong ấn
+876	Tìm
+877	Tìm người chơi...
+878	Mùa
+879	Mùa
+880	Anh hùng của mùa
+882	Season Pass bậc %d%s
+883	Xem game chạy mượt thế nào
+884	Đã chọn
+885	Đã gửi %d Ruby cho %s!
+886	Máy chủ
+887	Lên đường
+888	Cài đặt
+889	Bóng tối hoang dã
+890	Rung
+891	Hình dạng
+893	Katana sắc bén · Chém cực nhanh, sát thương cao
+894	Khiên
+895	Tự động bắn thú
+896	Cửa hàng
+898	Hiện FPS
+899	Đền thờ
+900	Đã xong đền:
+903	Kỹ năng
+904	Bỏ qua
+905	Bỏ qua ♦️
+906	Đã bỏ qua %d ngày · Ngày %d
+907	Bầu trời
+908	Xanh da trời
+909	Cao nguyên Chạm Trời
+910	Đá phiến
+911	Ô
+912	Từ từ thôi, thử lại sau chút nữa
+913	Làm chậm thú trong phạm vi
+914	Túi Ruby nhỏ
+915	Khói
+916	Tuyết
+917	Bò tuyết
+918	Đèn hiệu Mặt trời
+919	Đèn hiệu mặt trời. Tỏa ánh sáng cực mạnh
+920	Đã bán hết
+922	Đã giải
+923	Có thứ gì đó đang tới...
+924	Có thứ gì đó đang nhìn từ bóng tối
+925	Đã xảy ra lỗi, thử lại
+926	Âm thanh
+927	Lấp lánh
+928	Tia lửa
+929	Giáo
+930	Theo dõi
+931	Bẫy gai
+932	Bẫy gai. Đâm thú giẫm lên
+933	Chùy gai
+934	Chùy sao mai có gai · Đánh trúng mọi thứ quanh mục tiêu
+935	Linh hồn
+936	Linh Thú Con
+937	Đã cứu Linh Thú Con %d/4 — cứu hết để có kết thúc thật
+939	Đốm
+940	Chạy nước rút
+941	Đang chạy nước rút
+943	Đâm thú giẫm lên
+944	Gậy phép
+946	Thể lực x1.6 · Đói chậm hơn 10%
+947	Rìu khởi đầu. Chặt gỗ chậm
+948	Bộ khởi đầu chỉ mua được ở sảnh
+949	Công cụ khởi đầu
+950	Đói lả rồi!
+951	Bước lên bệ bắt đầu bên phải bạn
+952	Bước lên bệ để bắt đầu
+953	Nồi hầm
+954	Nồi hầm. Nấu món hầm (thịt + dâu) và bánh dâu (dâu + gỗ)
+955	Vẫn thiếu nguyên liệu
+956	Kho hàng
+957	Đá
+958	Rìu đá
+959	Cá sấu đá
+960	Tường đá
+961	Rìu đá. Chặt gỗ nhanh gấp đôi
+962	Tường đá. Rất chắc chắn
+963	Cửa hàng
+964	Cung Bão
+965	Công trình
+966	Công trình
+969	Phụ
+970	Đèn hiệu Mặt trời
+971	Đồ tiếp tế
+972	Tiếp tế
+973	Rương tiếp tế
+974	Thùng tiếp tế
+975	Hỗ trợ
+976	Bản năng sinh tồn
+977	Sống sót %d đêm
+978	Sống sót %d đêm cùng bạn bè
+979	Sống sót 99 đêm
+980	Sống sót 99 đêm = chinh phục! Nhưng bạn có thể chơi tiếp vô tận để leo bảng xếp hạng
+981	Sống sót 99 đêm = chinh phục! Chơi tiếp để leo bảng xếp hạng
+982	Sống sót 99 đêm trong vùng hoang dã Đất, Nước, Băng và Lửa
+983	Sống sót qua đêm
+984	Sống tới Đêm 10
+985	Sống tới Đêm 25
+986	Sống tới Đêm 5
+987	Sống tới Đêm 50
+988	Đã sống %d đêm · Kỷ lục của bạn %d đêm
+989	Đã sống %d/%d đêm
+990	Đã qua đêm
+991	Đã sống tới đêm
+992	Người sống sót
+993	Trại người sống sót
+994	Đổi
+995	Kiếm
+996	LỬA ĐÃ TẮT
+997	BỐN LINH HỒN ĐOÀN TỤ
+998	CUỘC DI CƯ VĨ ĐẠI
+999	HƯƠU RỖNG
+1000	TYRANNOMOSA, Nỗi Kinh Hoàng Biển Sâu
+1001	Lấy ra
+1002	Đang đưa bạn về sảnh...
+1003	Chạm màn hình = đánh · Túi ở góc trên bên trái
+1004	Đội
+1005	Đội đã đủ! Đang xuất phát
+1006	Đội đang ở đêm %d · Bước lên bệ để tham gia
+1007	Đội %d người · Xuất phát sau %ds
+1008	Đồng đội bị gục? Dùng băng gạc trong 30 giây — nếu không ai còn đứng, cả đội thua
+1009	Đang dịch chuyển
+1010	Lều = Lớp · Vạc xanh = Thưởng hằng ngày
+1011	Lõi Terra
+1012	Búa Terra
+1013	Tim Terra
+1014	Thú con Terra
+1015	Cột Terra
+1016	Terragon
+1019	Thánh điện %s đã bị phong ấn
+1020	Thánh điện %s đã mở
+1021	Hộ vệ đền %s đã thức tỉnh
+1022	Phong ấn đền %s đã yếu đi · Giữ E
+1023	Nỏ lớn tự bắn. Đặt quanh đống lửa
+1024	Gậy lửa của Pháp sư nguyên tố. Đòn đánh bắn cầu lửa nổ vào kẻ thù · Chặt cây/đá được
+1025	Đêm cuối cùng
+1026	Hươu Rỗng
+1027	Ngọn núi biết đi
+1028	Hoang dã thức tỉnh
+1029	Trùm đang đến
+1030	Trùm vẫn còn sống — bình minh bị chặn lại!
+1031	Đống lửa đốt kẻ thù đi vào vùng an toàn
+1032	Đống lửa đốt nhiên liệu chậm hơn 25%
+1033	Đống lửa tàn lụi... khu rừng nuốt chửng tất cả
+1034	Đống lửa đã cấp tối đa
+1035	Đống lửa cháy lại rồi
+1036	Đống lửa đã đầy
+1037	Đống lửa là sự sống
+1038	Đống lửa là sự sống — nếu tắt, Hươu Rỗng sẽ vào trại
+1039	Bàn chế tạo đã cấp tối đa
+1040	Trụ pha lê của
+1041	Lửa đã tắt, không nướng được
+1042	Sương quá dày — nâng cấp đống lửa (Cấp %d → %d) để khám phá xa hơn
+1043	Mặt đất đang rung chuyển...
+1044	Hộ vệ đã phát hiện bạn!
+1045	Hộ vệ đền đang tiến lại gần nó!
+1046	Cả đội
+1047	Núi lửa phun trào... quái thú lửa lan rộng
+1048	Thương nhân lang thang đã đến trại
+1049	Thương nhân lang thang đã rời đi
+1050	Sóng gầm... quái thú Nước trồi lên từ biển
+1051	Cả khu rừng thức tỉnh... quái thú Đất đang đến
+1052	Cả đội đã gục ở đêm %d
+1053	Gió hú... thợ săn bầu trời lao xuống
+1055	Hôm nay lớp này hết hàng — chờ hàng mới hoặc quay lại
+1056	Chỉ máy chủ này (chưa kết nối hệ thống lưu)
+1057	Lợn rừng gai
+1058	Thợ xây tiết kiệm
+1059	Ném nguyên liệu vào máy chế tạo, rồi xây tường, bẫy và nỏ lớn
+1060	Ném nguyên liệu vào máy nghiền (từng món)
+1061	Ném gỗ vào lửa
+1062	Ném gỗ/than vào đống lửa — nếu tắt, vùng an toàn sẽ mất!
+1063	Biển Thủy triều
+1064	Đinh ba Thủy triều
+1065	Sóng thần!
+1066	Cáo con Thủy triều
+1067	Tim Thủy triều
+1068	Ngọc trai Thủy triều
+1069	Thú con Thủy triều
+1070	Cột Thủy triều
+1071	Đinh ba Thủy triều
+1072	Bậc
+1073	Đã hết thời gian quay lại lượt trước
+1074	Danh hiệu
+1075	Màu danh hiệu
+1076	Đến Vùng Đất Tứ Nguyên Tố
+1077	Hôm nay!
+1078	Kế hoạch hôm nay:\n1. Chọn lớp\n2. Bước lên bệ bắt đầu\n3. Chinh phục đêm cuối cùng!
+1079	Ngày mai
+1080	Quá gần đống lửa
+1081	Quá xa
+1082	Quá xa đồng đội
+1083	Công cụ
+1084	Đầu
+1085	Nạp:
+1086	Đuốc
+1087	Đuốc soi sáng. Xua Hươu Rỗng
+1089	Rùa cạn
+1090	Trao đổi
+1092	Lữ khách
+1093	Đang di chuyển...
+1094	Rương kho báu
+1095	Cúp
+1097	Rìu tin cậy
+1101	Nhập mã ở đây...
+1102	Tyrannomosa, Nỗi Kinh Hoàng Biển Sâu
+1103	Cỡ giao diện
+1104	Tháo
+1105	Mở khóa lớp này
+1106	Đã mở khóa
+1107	Đã mở khóa lớp
+1108	Mở khóa ở cấp
+1109	Mở khóa thêm đồ chế tạo
+1110	Mở khóa nhánh premium của Season Pass mỗi mùa · Thêm Ruby + danh hiệu/màu danh hiệu đặc biệt
+1111	Đã giải phong ấn!
+1112	Luồng gió ở vùng Băng đưa bạn lên các đảo bay
+1113	Hãy nâng cấp bàn lên cấp %d trước
+1114	Nâng cấp đống lửa để xua sương và mở rộng vùng an toàn
+1115	Nâng cấp:
+1116	Dùng
+1117	Dùng Vé hồi sinh (%d)
+1118	Dùng băng gạc hồi sinh đồng đội — nếu không ai còn đứng, cả đội thua
+1119	Đang dùng
+1128	Thực vật
+1129	Hoang dã xanh tươi
+1130	Tường cực bền
+1131	Xem các lớp
+1132	Tím
+1133	TRẠI WILDHEART
+1135	Đang chờ trưởng bệ / bạn bè
+1136	Đang chờ trưởng bệ chọn số người...
+1137	Đang chờ lượt trước kết thúc...
+1138	Đến gần đống lửa trước rồi mới ném
+1139	Tường
+1140	Tường và công trình bền x1.5
+1141	Thương nhân lang thang
+1142	Búa chiến
+1145	Chiến binh
+1146	Bộ chiến binh
+1147	Nước
+1148	Hào quang Nước: Đói chậm hơn 15%
+1149	Tim quái thú Nước
+1150	Trụ Nước
+1151	Nước khắc Lửa · Lửa khắc Băng · Băng khắc Đất · Đất khắc Nước
+1152	Tinh chất Nước · Đập pha lê xanh dương ở Hồ Xoáy / rương / thiên thạch / thánh điện / trùm Nước · Dùng làm Đinh ba, Trụ Nước, nâng cấp bàn và đống lửa
+1153	Trụ nước. Làm chậm thú trong phạm vi
+1154	Đinh ba nước. Làm chậm thú
+1155	Vòi rồng nước!
+1156	Sóng đập!
+1157	Vũ khí
+1158	Tuần
+1159	Hằng tuần
+1160	Nhiệm vụ tuần:
+1161	Chào mừng đến vùng hoang dã
+1162	Cá voi
+1163	Khi bị đánh / trùm đập
+1164	Hồ Xoáy
+1165	Rừng Thông Thì Thầm
+1166	Cả đội đã gục — thua sau %ds
+1167	Rộng
+1168	Trại Wildheart
+1169	Gió
+1170	Cung gió. Mũi tên xuyên qua nhiều kẻ thù
+1171	Sói
+1172	Gỗ
+1173	Giáp gỗ
+1174	Tường gỗ
+1175	Giáp gỗ. Tự mặc ngay khi chế tạo, tăng máu tối đa
+1176	Gỗ từ cây. Dùng cho hầu hết mọi thứ và ném vào đống lửa được
+1177	Tường gỗ. Chặn bầy thú
+1178	Len
+1180	Thế giới đã sẵn sàng
+1181	BẠN ĐÃ NGÃ XUỐNG
+1182	Bạn đã mua bộ này (sẽ nhận khi xuất phát)
+1183	Bạn đã có
+1184	Bạn đã có lớp %s — nhận %d Ruby thay thế
+1185	Bạn đã chinh phục 99 đêm hoang dã!
+1186	Bạn đã chinh phục 99 đêm — kết thúc thật
+1187	Bạn đã chết ở đêm %d — xem đồng đội sống sót, hoặc về sảnh
+1188	Bạn đã chết... không hồi sinh trong lượt này
+1189	Bạn đã chết... không hồi sinh trong lượt này · Còn %d đồng đội sống
+1190	Bạn chưa có lượt đã lưu
+1191	Bạn không có
+1192	Bạn chưa hoàn thành thành tựu này
+1193	Bạn đã rời giữa lượt — có thể quay lại đúng lượt đó (cùng đêm, đống lửa, công trình và đồ trong bao)
+1194	Phải ở trong trại (gần đống lửa/bàn chế tạo) mới chế tạo được
+1195	Phải ở gần thương nhân
+1196	Cần băng gạc hoặc bộ sơ cứu
+1197	Cần rìu để chặt gỗ
+1198	Cần rìu/cuốc để đập vỡ
+1199	Bạn đã được hồi sinh
+1200	Bạn là trưởng bệ · Chờ bạn bè hoặc hết giờ
+1201	Bạn đã đổi món này %d lần — chờ thương nhân ghé lần sau
+1202	Lượt trước đã kết thúc
+1203	Lượt trước đã kết thúc — bắt đầu lượt mới ở bệ bắt đầu
+1204	Lượt trước đã kết thúc — đang bắt đầu lượt mới
+1205	Lượt chơi được lưu mỗi bình minh và khi thoát · Tiếp tục từ đêm đã lưu ở bệ bắt đầu
+1206	Vùng
+1207	[ Mọi thời đại ] · Tuần này
+1210	vài phút
+1211	sau đêm cuối cùng
+1213	vào buổi sáng
+1217	mỗi ván (toàn máy chủ)
+1218	mỗi người chơi
+1219	cả đội
+1220	~ SỐNG SÓT 99 ĐÊM ~
+1221	—  Đội xuất phát khi đủ người hoặc hết giờ  —
+1222	— Trùm nguyên tố —
+1223	… (đứng yên)
+1224	↩ Quay lại lượt chơi?
+1225	↩ Đã quay lại lượt chơi — đồ trong bao và công cụ vẫn còn đủ
+1226	⌛ Mã này đã hết hạn
+1227	⌛ Hết giờ! Trụ rune ngủ lại rồi — xem lại thứ tự
+1228	⏱ Tốc độ %.1f đòn/giây
+1229	⏳ Đánh thức hết trụ rune: %d giây
+1230	⏳ Đang kiểm tra...
+1231	⏳ Đang tạo thế giới %d%%
+1232	⏳ Làm mới sau
+1233	⏳ Mùa kết thúc sau
+1234	⏳ Thánh điện %s đã thức tỉnh! Đánh thức trụ rune theo thứ tự trong %d giây
+1235	⏳ Mã này chưa được kích hoạt
+1236	⏳ Thời gian còn
+1237	◀ Quay lại
+1239	☀️ Nhiệm vụ ngày
+1240	☠ Bạn đã chết
+1244	♦️ Không đủ Ruby
+1245	♦️ Không đủ Ruby để quay lại hàng
+1246	♦️ Không đủ Ruby để nhảy cấp
+1247	♨ Có thể nướng ở đống lửa
+1248	♾ Vô tận ·
+1249	♾ Game chưa kết thúc! Chơi tiếp vô tận — sống càng lâu càng tốt để leo bảng xếp hạng
+1250	⚒ Chế tạo
+1251	⚒ Chế tạo x1
+1252	⚒ Nâng cấp
+1253	⚒ Nâng cấp bàn chế tạo
+1254	⚔ Sát thương
+1255	⚔ Vào đội đang chơi
+1256	⚔ Hạ gục
+1257	⚔ Đi qua cổng để bắt đầu game
+1258	⚔ Vũ khí/Công cụ
+1259	⚙ Cài đặt
+1260	⚠ Ngoài trại: quay về trại để chế tạo (tính cả kho trại)
+1261	⛏ Đào đá/quặng x
+1262	✅ Đã hoàn thành
+1263	✔ Đã nhận
+1264	✔ Đã nhận — quay lại sau
+1265	✔ Mã đã được dùng (mỗi người một lần)
+1266	✔ Tiếp tục · Đêm
+1267	✔ Xong %d/%d
+1268	✔ Đã trang bị
+1269	✔ Có cái tốt hơn
+1270	✔ Đã sở hữu
+1271	✔ Quay lại
+1272	✕ Không, cảm ơn
+1273	✖ Ngừng băng bó —
+1274	✨ Có thể hồi sinh đồng đội bị gục
+1275	✨ Nhận được
+1276	✨ Giải cứu 4 linh hồn nguyên tố
+1277	✨ Đã đánh thức trụ rune %d/%d
+1279	❌ Không tìm thấy mã — kiểm tra chính tả
+1280	❌ Sai thứ tự! Phong ấn bật lại — xem lại ánh sáng nhấp nháy
+1281	❤ Máu đã đầy — để dành
+1282	❤ Hồi +
+1283	➶ Xuyên
+1284	⟳ Xoay (R)
+1286	⭐ %s cấp %d!
+1287	⭐ Lớp %s đạt cấp %d! Mở khóa kỹ năng mới
+1288	⭐ Lớp cấp 3
+1289	⭐ Đã đạt cấp tối đa
+1290	🌍 Đang dựng thế giới tứ nguyên tố
+1291	🌕 Sống tới Đêm 25
+1292	🌕 Sống tới Đêm 50
+1293	🌙 Sinh tồn
+1294	🌙 Sống tới Đêm 10
+1295	🌙 Sống tới Đêm 5
+1296	🌟 Đã cứu
+1297	🌫 Sương quá dày — nâng cấp đống lửa để khám phá xa hơn
+1298	🍖 Đang nướng thịt x
+1299	🍖 Ăn
+1300	🍖 No +
+1301	🍖 Thịt chín rồi! Bỏ vào bao hoặc nhấn R để ăn
+1302	🎁 7 ngày liên tiếp! Đã nhận thưởng lớn — chuỗi mới bắt đầu ngày mai
+1303	🎁 Nhận tất cả
+1304	🎁 Nhận tất cả (
+1305	🎁 Nhận thưởng
+1306	🎁 Nhận thưởng ngày %d  (%d Ruby)
+1307	🎁 Mã
+1308	🎁 Tặng bạn bè
+1309	🎁 Tặng cho
+1310	🎁 Đang tặng cho
+1311	🎁 Đổi mã nhận thưởng
+1312	🎉 Đổi mã thành công! Bạn nhận được
+1314	🎒 Sức chứa
+1315	🎒 Cầm bao trước (chọn trên thanh vật phẩm), rồi nhặt đồ
+1316	🎒 Không có bao
+1317	🎒 Sở hữu 3 lớp
+1318	🎒 Sở hữu 6 lớp
+1319	🎒 Đã nhận
+1320	🎒 Bao
+1321	🎒 Bao  %d/%d
+1322	🎒 Bao đầy (%d/%d) — dỡ đồ ở bàn chế tạo trong trại
+1323	🎟\nMiễn phí
+1324	🎟 Season Pass bậc %d! Nhận thưởng trong menu "Nhiệm vụ"
+1325	🎨 Màu:
+1326	🎨 Đang tải mô hình và họa tiết
+1327	🎨 Màu danh hiệu mới:
+1328	🎨 Màu danh hiệu
+1329	🎫 Vật phẩm Game Pass:
+1330	🎫 Đã nhận Game Pass:
+1331	🎲 Đã quay lại hàng cửa hàng lớp
+1332	🎲 Quay lại hàng  ♦️
+1333	🏅 Huy hiệu thành tựu
+1334	🏅 Mở khóa thành tựu:
+1335	🏅 Nhận huy hiệu:
+1336	🏆 Sưu tập mọi lớp
+1337	🏆 Người sống lâu nhất mọi thời đại
+1338	🏗 Công trình
+1339	🏗 Đặt %s (còn %d)  ·  Nhấp = đặt  ·  R = xoay  ·  B/Esc = hủy
+1340	🏗 Đặt %s (còn %d)  ·  Nhấp = đặt  ·  R = xoay  ·  Q = đổi loại  ·  B = hủy
+1341	🏗 Đặt %s (còn %d) — ngắm giữa màn hình rồi chạm ✔
+1342	🏠 Về sảnh
+1343	🏷 Danh hiệu mới:
+1344	🏷 Danh hiệu
+1345	🐺 Săn 1000 con thú
+1346	🐾 Săn 250 con thú
+1347	🐾 Săn 50 con thú
+1348	🐾 Đổi
+1349	🐾 Đổi thành công! (còn %d lần đổi món này)
+1350	🐾 Thương nhân lang thang
+1351	👁 Nhớ thứ tự trụ rune nhấp nháy, rồi đánh thức theo đúng thứ tự đó!
+1352	👁 Đang xem:
+1353	👁 Chờ trụ rune nhấp nháy xong thứ tự trước
+1354	👑\nPremium
+1355	👑 Chinh phục đêm cuối cùng
+1356	👑 Premium
+1357	👑 Premium (sắp ra mắt)
+1358	👑 Premium ✔
+1360	👥 Chọn số người
+1361	👥 Bệ
+1362	👥 Đang chờ trưởng bệ chọn số người
+1363	👹 Hạ 10 trùm
+1364	💔 Mất máu
+1365	💡 Ánh sáng
+1366	💡 Ánh sáng xua Hươu Rỗng
+1367	💥 Đánh diện rộng
+1368	📅 Đăng nhập 7 ngày
+1369	📅 Đăng nhập 7 ngày liên tiếp
+1370	📅 Người sống lâu nhất tuần này
+1371	📅 Nhiệm vụ tuần
+1372	📏 Bán kính
+1373	📏 Tầm
+1374	📖 Cách chơi
+1375	📖 Cách sinh tồn
+1376	📜 Hoàn thành 30 nhiệm vụ
+1377	📜 Có nhiệm vụ mới! Mở menu "Nhiệm vụ" trong sảnh
+1378	📜 Hoàn thành nhiệm vụ! %s %s — về sảnh để nhận thưởng
+1379	📜 Nhiệm vụ
+1380	📦 Trong trại: dùng đồ trong bao trước, rồi lấy từ kho trại
+1381	📦 Đã cất %d món vào kho trại
+1382	🔄 Mặc định
+1383	🔍 Tìm
+1384	🔒 Cần bàn Cấp
+1385	🔒 Nhánh premium cần Season Pass (Cửa hàng → Game Pass)
+1386	🔒 Nơi này bị phong ấn đến hết lượt
+1387	🔥 Chuỗi %d ngày   ·   Kỷ lục %d ngày
+1388	🔥 Thêm 1,000 nhiên liệu
+1389	🔥 Thêm 10,000 nhiên liệu
+1390	🔥 Đốt
+1391	🔥 Trại   ⛩ Đền Linh Thú Con   💀 Hang Trùm   🏛 Thánh điện cổ   ☄📦 Sự kiện   ▲ Bạn   ● Đồng đội   (địa điểm hiện khi được khám phá)
+1392	🔥 Nhiên liệu +
+1393	🔥 Đã thêm nhiên liệu:
+1394	🔥 Lượt trước: đội đạt đêm %d — thử lại nào!
+1395	🔥 Đang nhóm lửa trại
+1396	🔥 Sống sót tổng cộng 100 đêm
+1397	🔥 Sống sót tổng cộng 20 đêm
+1398	🔥 Lửa sắp tắt! Còn khoảng %s — ném gỗ/than vào, nhanh
+1399	🔥 Nâng cấp đống lửa
+1400	🔨 Chế tạo 250 món
+1401	🔨 Chế tạo 50 món
+1402	🔨 Chế tạo ở bàn Cấp
+1403	🔨 Đã chế tạo:
+1404	🔨 Bàn chế tạo Cấp %d
+1405	🔨 Bàn chế tạo Cấp 1
+1406	🗺 Khám phá: %s%s
+1407	🗺 Khám phá: Thánh điện cổ của
+1408	🚪 Đi thám hiểm 100 lần
+1409	🚪 Đi thám hiểm 20 lần
+1410	🛒 Đã mua
+1411	🛒 Cửa hàng
+1412	🛡 Giáp
+1413	🛡 Chế tạo + Mặc
+1414	🛡 Đã mặc %s! Máu tối đa +%d
+1415	🛡 HP
+1416	🛡 Máu tối đa +
+1417	🛡 Đang mặc
+1418	🤝 Trao đổi
+1419	🧊 Làm chậm kẻ thù
+1420	🩹 Thuốc
+1421	🩹 Hồi sinh đồng đội 10 lần
+1422	🩹 Hồi sinh đồng đội 50 lần
+1423	🪓 Chặt gỗ x
+1424	🪵 Thu thập 1,000 nguyên liệu
+1425	Tự động
+1426	Tự động 🌐
+1427	Ngôn ngữ
+1429	%d người
+1430	Phổ biến
+1431	Xác nhận
+1432	Vào đền
+1433	Ra ngoài
+1434	Máy nghiền
+1435	Đêm của %s
+1436	Thánh điện %s
+1437	Rương thánh điện %s
+1438	Đền %s
+1440	Cần bàn Cấp %d
+1441	Làm mới sau %s
+1442	Hoàn thành nhiệm vụ! %s - về sảnh để nhận thưởng
+1443	Trại
+1444	Bật
+1445	Mở
+1446	[Nhấp] Đánh/Chặt   [Shift] Chạy nhanh   [Ctrl] Khóa camera   [C] Chế tạo   [B] Xây   [E] Nhặt (cầm bao)   [F] Lấy ra   [M] Bản đồ   [1-9] Chọn đồ

@@ -1,0 +1,1279 @@
+0	      Bumili ng Ruby
+2	  (bagsak!)
+3	  (nasa hotbar sa ibaba, i-tap para ilagay)
+4	  ·  Tapos na! 🎉
+8	 (Premium)
+9	 (buong run ito)
+10	 (pareho o mas maganda)
+11	 Bonus!
+12	 Class
+13	 Elemental na Meteor
+14	 Elemento:
+16	 Baul ng Santuwaryo
+17	 Santuwaryo · Gisingin ang mga rune pillar ayon sa ayos ng ilaw
+18	 Santuwaryo · Nabuksan ang selyo
+19	 Selyadong Kulungan
+20	 Dambana
+21	 Titulo
+22	 Na-unlock na class
+23	 pabalik sa siga
+24	 nabigo:
+25	 para buhayin ang mga bumagsak na kakampi
+26	 mula sa Season Pass!
+27	 sa bag mo (gawin muna sa bench)
+28	 ay malaya na
+29	 ay nakatira na sa kampo
+30	 ay nakakulong sa selyadong kulungan...
+31	 sa pahinang "Badges" sa lobby
+32	 o mas malaki
+33	 ay nagpadala sa iyo ng regalo!
+34	 ay nagniningning sa buong biome
+35	 buong server
+36	 · Kayang buhayin ang bumagsak na kakampi
+37	 · Pumili ng laki ng team
+38	 · Pumutol
+39	 · Elemento
+40	 · Kaibigan +10%
+41	 · Tinataboy ng liwanag ang Hollow Stag
+42	 · Magmina
+43	 · Pindutin ang E para sakyan
+45	 — kunin ang ♦️
+46	 — max na
+47	 — nilaktawan ang 1 araw! Araw %d na ngayon
+48	 — i-tap ang slot sa ibaba para ilagay
+49	 — salamat sa suporta mo!
+50	 — makukuha mo pag-alis
+51	"Ang magagandang balat ay pamalit sa kailangan mo, kaibigan... bilisan mo, aalis ako bago lumubog ang araw"
+54	%d hayop pa ang umaatake sa kampo — talunin silang lahat!
+55	%d araw
+56	%d tagabantay na lang
+57	%d m mula sa siga
+58	%d player sa pad
+62	%d/%d player
+63	%d/%d player   •   ⏳ %ds
+64	%d/%d palitan na lang
+66	%dd %dh
+67	%dh %dm
+68	%dm
+71	%s %d araw
+76	Pinalaya ni %s si %s
+77	Namatay si %s
+78	Bumalik si %s sa lungga nito
+79	Bumagsak si %s! Tulungan mo, bilis
+80	Nimina ni %s ang core ng %s meteor!
+81	Binuksan ni %s ang supply chest
+82	Bumalik si %s sa run
+83	Bumalik si %s sa kampo (%d/4)
+84	Nabuhay ni %s si %s sa tamang oras
+85	Nilaktawan ni %s ang 1 araw · Araw %d
+87	%s x%d · Click = ilagay · R = ikutin
+88	%s x%d · Click = buhayin ang bumagsak na kakampi / pagalingin ang sarili
+92	%s: max %d %s
+93	) — tumapak ulit sa pad
+95	+1 Araw
+96	+1 Araw (bilang %s)
+97	- Libreng Ruby araw-araw -
+98	1 (Solo)
+99	2 essence ng bawat elemento
+100	3 Benda + 1 First Aid Kit
+101	35% mas kaunting materyales · Mga gusali x2 mas matibay
+102	4 Spirit Pup ang nakakulong sa mga dambana. Iligtas silang lahat para sa tunay na ending
+103	40 Kahoy, 20 Bato, 2 Pader na Kahoy
+104	8 Uling, Sulo, Parol
+106	99 GABI, NAPAGTAGUMPAYAN
+107	99 gabi... at higit pa
+110	<font color="#FFE066" size="40">Balita sa Kampo</font>\n\nMakaligtas sa mahahalagang gabi (bawat 5-25 gabi)\n= Kumita ng Ruby ♦️\n\nIligtas ang Spirit Pup = ♦️15\n<font color="#8CFF8C">Libreng Ruby sa berdeng kaldero araw-araw!</font>
+111	Bumagsak ang %s meteor · Minahin ang crystal core nito
+112	Isang kaibigan
+114	NASAWI ANG LAHAT
+115	SINAUNANG SANTUWARYO
+117	Achievement:
+118	Magdagdag ng %d fuel sa siga
+119	Magdagdag ng kahoy, bilis
+120	Hangin
+121	Lahat
+122	Magkakasama ulit ang 4 na Spirit Pup
+123	Lahat ng Elemento
+124	Lahat ng Panahon · [ Ngayong Linggo ]
+125	Lahat ng server · Nag-a-update bawat minuto
+126	Lahat ng damage ng armas +15%
+127	All-Rounder
+128	Alpha Hunter
+129	Nakuha mo na ngayon — bumalik sa loob ng
+130	Nakuha mo na ang reward ngayon — bumalik sa loob ng %dh %dm
+131	Suot mo na ang
+132	Tunog ng Paligid
+133	Amethyst
+134	May kawan ng hayop na dumadaan malapit sa kampo
+135	Sinaunang Baul
+136	Sinaunang Rune Pillar
+137	Sinaunang Santuwaryo:
+138	Hayop
+139	Paglipat ng mga Hayop
+140	Buto ng hayop. Para sa sibat at Higanteng Sako
+141	Balat ng hayop. Para sa sako/kama at pakikipagpalitan sa naglalakbay na mangangalakal
+142	Dumating na ang alon ng hayop %d
+143	Mga Hayop
+144	Sungay
+145	Baluti
+146	Palaso
+152	Audio
+153	Awtomatikong Palit ng Gamit
+154	Gisingin ang Rune Pillar
+155	Gising na Elemental Kit
+156	Palakol
+157	NATALO ANG HALIMAW
+158	BLOOD MOON
+159	SIGA LV.
+160	Bumalik sa lobby
+162	Backpack
+163	Badges
+164	Bag  ·  I-drag ang mga item sa mga slot sa ibaba (puwedeng pagpalitin)
+165	Maghurno ng Berry Pie (5 berry + 1 kahoy)
+166	Balanseng espadang bakal · Mabilis, solid na damage
+167	Ballista
+168	Ballista. Kusang binabaril ang mga hayop
+169	Benda
+170	Magbenda para gumaling, at buhayin ang bumagsak na kakampi
+171	Benda, gamot at pagbuhay sa kakampi ay gumagaling x1.5
+172	Basalt
+173	Depensa ng Base
+174	Battle Axe
+175	Doktor sa Digmaan
+177	Puso ng Halimaw (kahit anong elemento)
+178	Mangangaso ng Halimaw
+179	Lungga ng Halimaw
+180	Tagapatay ng Halimaw
+181	Kama
+182	Kama (+1 Araw)
+183	Bench
+184	Berry
+185	Berry Bush
+186	Berry Bush %d/%d
+187	Berry Juice
+188	Taniman ng Berry
+189	Berry Pie
+190	Berry pie mula sa Stew Pot. Busog na busog, kalahating bagal ang gutom sa loob ng 2 minuto
+191	Pinakamahusay
+192	Sulit na Sulit
+193	Malaki
+194	Malaking Basket
+195	Gabi ng Malaking Raid ·
+196	Malaking raid sa loob ng %d gabi
+197	Mas malaking apoy, mas malawak na safe zone, mas kaunting hamog
+200	Blizzard
+201	Blizzard!
+202	Hinaharangan ang kawan ng hayop
+203	Blood Moon
+205	Buto
+206	Sibat na Buto
+207	Sibat na Buto + Bakal na Palakol
+208	Sibat na buto. Malayo ang abot, mataas ang damage
+209	Boss
+210	Nasa gitna ng bawat elemental zone ang lungga ng boss — maghanda bago pumasok
+211	Buhay pa ang boss · Umaga sa loob ng %s
+212	Umaatake ang mga boss sa gabi 25 · 50 · 75 · 99 — iwasan ang mga babalang bilog sa lupa!
+213	Malaking Bato
+215	Pana
+216	Dalhin ang
+218	Buff:
+219	Builder
+220	Mga Gusali
+221	20% mas kaunting materyales ang gusali
+222	Dahan-dahang inaayos ng mga gusali ang sarili
+223	Sinusunog ang mga hayop sa malapit
+224	Palumpong
+226	Bilhin  ♦️
+227	Bilhin muna ang class
+229	Tagapayo ng Kampo
+230	Imbakan ng Kampo
+231	Imbakan ng kampo x
+232	Camper
+233	Siga
+234	Siga Lv.
+235	Siga Lv.%d  ·  Bench Lv.%d
+236	Siga Lv.1
+237	Sa loob lang ng kampo puwedeng ilagay (i-upgrade ang siga para lumawak)
+238	Hindi mapapatay — tumakbo!
+239	Hindi mapapatay... itaboy ito ng liwanag!
+240	Hindi puwedeng ilagay sa tubig/lava
+241	Hindi puwedeng gamitin ang kama para laktawan ang araw ngayon
+242	Kanselahin
+243	Kapasidad %d item · I-click ang mga item sa lupa para pulutin
+244	Carpenter Kit
+245	Kategorya:
+246	Tsansang may stock bawat araw
+248	Charger
+250	Pumili
+251	Piliin muna ang laki ng team, saka magsisimula ang countdown
+252	Pagputol ng kahoy x1.6
+253	Pagputol ng kahoy x2.2 · Pagmimina ng bato/ore x1.6
+254	Pumutol ng kahoy, bumasag ng bato, mangaso, hawakan ang sako para pumulot ng item
+257	Kunin ang Daily Reward
+258	Kunin ang ♦️
+259	Kunin!
+260	Class
+261	Class
+262	Class Shop
+263	Class Shop · Pumasok para makipag-usap
+264	Mga Class
+265	Tapos na
+266	Natapos ang %s Santuwaryo · Nakakuha ng %s
+268	Isara
+269	Uling
+270	Uling. Premium na gatong na nagpapatagal sa siga
+271	Mga Code
+272	Nagamit na code: %d
+273	Kulay
+275	Halika rito
+276	Malapit na
+277	Talunin ang 99 Gabi
+278	Gumagana lang ang Continue sa na-publish na laro — magsisimula ng bagong run
+279	Ituloy · Gabi
+280	Itinutuloy ang naka-save na run mula Gabi
+281	Mga Hint sa Kontrol
+282	Magluto ng Karne
+283	Lutuan
+284	Nilutong Karne
+285	Koral
+286	Alimango na Koral
+287	Hindi ma-load ang naka-save na run — magsisimula ng bago
+288	Hindi maabot ang server, subukan ulit
+289	Hindi makabalik sa dati mong run, subukan ulit
+290	Hindi makabalik sa dati mong run:
+291	Hindi ka maipadala sa server ng team (
+292	Tagapayo
+295	Bibilangin sa umaga
+296	Alimango
+298	Gumawa
+299	Gumawa ng %d item
+300	Gumawa at Magtayo ng Base
+301	Crafter
+302	Crafting Bench
+303	Crafting Bench Lv.
+304	Crafting Bench Lv.%d · Bagong recipe
+305	Mga Gawa
+306	Kahon
+307	Palong
+308	May mga sigaw mula sa gitna ng plaza...
+309	Crimson
+310	Crossbow
+311	Korona ng Bagyo
+312	Crystal na Usa
+313	Mga Crystal
+314	ARAW %d
+315	ARAW 1
+316	Daga
+317	Araw-araw
+318	Daily Reward
+319	Daily Reward ♦️
+320	Daily quest:
+321	Damage %d · Abot %d
+322	Damage +25% · Pangangaso +1 dagdag na karne/balat/buto/hibla
+323	Damage +40% · 5% mas mabilis tumakbo
+324	Panganib
+326	Naglo-load pa ang data, subukan ulit
+327	Hindi available ang DataStore (i-enable muna ang API Services)
+328	Bukang-liwayway
+329	Usa ng Bukang-liwayway
+330	Araw
+331	Araw
+332	Araw · Dapithapon sa loob ng %s
+333	Patay
+338	Talo
+339	Talunin ang %d elemental boss
+340	Talunin silang lahat para buksan ang kulungan at iligtas si
+341	Natalo
+342	Natalo si %s · Babalik sa loob ng %d min
+343	Umalis
+344	Paalis na
+345	Aalis sa loob ng %d
+346	Diamante
+347	Namatay
+348	Bumaba [X]
+349	Display
+350	Dalawang-talim na battle axe · Malakas tumama, pinakamabilis pumutol ng puno
+351	Bagsak — hintayin ang kakampi na tumulong
+352	Bagsak! Naghihintay ng tulong
+353	Bagsak
+354	Dragon
+355	Ibagsak
+356	Dapithapon
+357	Dapithapon · Darating ang mga hayop sa loob ng %s
+358	Lupa
+359	Earth Aura: Max HP +15%
+360	Earth Bear Cub
+361	Puso ng Halimaw ng Lupa
+362	Buwaya ng Lupa
+363	Earth Pillar
+364	Bitak ng Lupa!
+365	Hampas ng Lupa!
+366	Pagong ng Lupa
+367	Earth essence · Basagin ang berdeng crystal sa gubat ng Lupa / baul / meteor / santuwaryo / boss ng Lupa · Para sa Terra Hammer, Earth Pillar, upgrade ng bench at siga
+368	Martilyo ng lupa. Humahampas sa malawak na lugar
+369	Earth pillar. Inaayos ang mga pader sa paligid
+370	Kumain
+371	Kumain ng Berry
+372	Mga Effect
+373	Mga Elemental Boss
+374	Elemental Essence (kahit anong elemento)
+375	Master ng Elemento
+376	Elemental na Meteor
+377	Umaatake sa siga ang mga elemental na kawan tuwing gabi — tumagal hanggang umaga
+378	Kahinaan sa elemento!
+379	Elemental
+380	Elemental na Mahika
+381	Elemental na Lakas
+382	Elemental na Haplos
+383	Elemental na armas (kasama ang Fire Staff) 20% mas malakas · Mahina: Max HP -10
+384	Elemental na armas 40% mas malakas · Stamina +15%
+385	Elemental na armas 65% mas malakas · Max HP +10
+386	Elementalist
+387	Baga
+388	Ember Caldera
+389	Ember Fox Pup
+390	Ember Greatsword
+391	Puso ng Baga
+392	Ember Pup
+393	Pulang Baga
+394	Piraso ng Baga
+395	Ember Staff
+396	Ember Totem
+397	Lobong Baga
+398	Alakdang Kuko-Apoy
+399	Mga Baga
+402	Endless mode gabi
+403	Endless mode · Lumalakas ang mga kawan bawat gabi
+404	Kaaway
+405	Kaaway!
+406	Inukit na gintong baluti ng mandirigma. Pinakamalaking dagdag sa Max HP
+407	Pumasok sa Santuwaryo
+408	Maglagay ng code at pindutin ang "Redeem" · Isang beses lang bawat player ang bawat code
+409	Pumapasok sa kampo...
+410	Isuot
+411	Suot
+412	Error
+413	Essence
+414	Tuwing 10 gabi lumilitaw ang Blood Moon at sabay-sabay umaatake ang mga kawan ng lahat ng elemento
+415	Sabay-sabay umaatake ang lahat ng elemento
+416	Galit na galit ang lahat ng elemento...
+417	Lahat ay tumatakbo nang 10% mas mabilis
+418	Paggalugad
+419	FROSTMAW, ang Yeti ng Glacier
+420	Taniman
+421	Pako
+422	Hibla
+423	Hibla mula sa pangangaso (kuneho, buwaya, alimango, pugita, toro ng niyebe, tupang apoy) / baul / supply crate · Para sa benda, pana at sako
+424	Field Medic
+426	Maghanap ng bagong code sa page at group ng laro · Subukan ang code na WELCOME!
+428	Apoy
+429	Fire Aura: Damage +15%
+430	Puso ng Halimaw ng Apoy
+431	Hininga ng Apoy!
+432	Meteor ng Apoy!
+433	Fire Pillar
+434	Tupang Apoy
+435	Fire Staff
+436	Fire essence · Basagin ang orange na crystal sa bulkan / baul / meteor / santuwaryo / boss ng Apoy · Para sa Ember Greatsword, Fire Pillar, Beacon · Malakas na gatong
+437	Patay ang apoy! Hindi ligtas
+438	Fire pillar. Sinusunog ang mga hayop sa paligid
+439	Espadang apoy. Sinusunog ang kaaway at nagbibigay-liwanag
+440	Patay ang apoy!
+441	Alitaptap
+442	Bantay-Apoy
+443	First Aid Kit
+444	Unang Blood Moon
+445	Unang Gabi sa Gubat
+446	Bitak
+447	Bantay-Liyab
+448	Kit ng Bantay-Liyab
+451	Bulaklak
+452	Lumilipad
+454	Pagkain
+455	Eksperto sa Pagkain
+457	Mangangalap
+458	Mamumutol sa Gubat
+459	Kuta
+460	Espada ng Apat na Elemento
+461	Espada ng Apat na Elemento. Ang pinakamalakas na armas sa laro
+462	Apat-na-Talim
+464	Libre
+465	Sariwang berry. Kainin para sa gutom · Gumawa ng berry juice/herbal na gamot (Bench Lv.1) · Itanim · Pie at nilaga sa Stew Pot
+466	Bagong pigang berry juice. Pampawi ng gutom at puno ulit ang stamina
+468	Yelo
+469	Frost Aura: 15% mas mabagal maubos ang stamina
+470	Puso ng Halimaw ng Yelo
+471	Balahibong Yelo
+472	Puso ng Yelo
+473	Frost Pillar
+474	Frost Wolf Pup
+475	Frost essence · Basagin ang puting crystal sa Skyreach Highlands / baul / meteor / santuwaryo / boss ng Yelo · Para sa Storm Bow, Frost Pillar, upgrade ng bench at siga
+476	Frost pillar. Tinutulak palayo ang mga hayop
+477	Osong Pangil-Yelo
+478	Frostmaw, ang Yeti ng Glacier
+479	Gatong
+480	Buong Ani
+481	Buong gumagaling ang HP, at nabubuhay ang bumagsak na kakampi
+483	GOLGRAN, ang Buhay na Bundok
+484	Gale Longbow
+485	Gale Pup
+486	Gale Totem
+487	Gameplay
+488	Mangalap ng %d bato
+489	Mangalap ng %d kahoy
+490	Mangalap sa araw
+491	Nakalap
+492	Pangangalap
+493	Ginagawa ang mundo %d%%
+494	Ginagawa ang mundo...
+495	Ginagawa ang mundo... %d%%
+496	Makukuha:
+497	Multo
+498	Higanteng Sako
+499	Regalo
+500	Regalo mula kay
+501	Glacier
+502	Hampas ng Glacier!
+503	Mag-ekspedisyon nang %d beses
+504	Ginto
+505	Gintong Baluti
+506	Golgran, ang Buhay na Bundok
+507	Magandang Sako
+508	Nakakuha ng 1 Revive Ticket — gamitin sa susunod na bumagsak ka
+509	Natamaan
+510	Graphics
+511	Kalidad ng Graphics
+512	Damo
+513	Berde
+514	Lupa
+515	Hampas sa Lupa!
+517	Nagpapatubo ng berry
+518	Nagpapatubo ng berry na puwedeng pitasin nang paulit-ulit
+520	Tagabantay
+521	Tagabantay ng Apat na Elemento
+523	Martilyo
+524	Matigas na Kahoy
+525	Mata ng Lawin
+526	Panganib
+528	Gumaling
+529	Kamay ng Manggagamot
+530	Paggaling x2 · Max HP +15
+531	Puso
+532	Puso ng boss ng Lupa (Golgran) · Para sa Terra Hammer at Espada ng Apat na Elemento
+533	Puso ng boss ng Apoy (Ignarax) · Para sa Ember Greatsword at Espada ng Apat na Elemento
+534	Puso ng boss ng Yelo (Frostmaw) · Para sa Storm Bow at Espada ng Apat na Elemento
+535	Puso ng boss ng Tubig (Tyrannomosa) · Para sa Tide Trident at Espada ng Apat na Elemento
+536	Nakabubusog na Nilaga
+537	Mabigat na crossbow · Mabagal mag-reload, malakas na malayuang tira
+538	Mabigat na pamalong kahoy na may bakal na tinik · Nakababasag din ng bato
+539	Herbal na Pamahid
+540	Herbal na Gamot
+541	Herbal na gamot mula sa berry. Kaunting paggaling (hindi kayang buhayin ang kakampi)
+542	Mataas
+544	Mga Hint
+545	Ang pagtama sa puno/bato/hayop ay pumipili ng pinakamahusay na palakol/piko/armas para sa iyo
+546	Humawak ng sulo at hindi lalapit ang Hollow Stag
+548	Home
+550	Mainit na Nilaga
+551	Mainit na nilaga mula sa Stew Pot. Matagal kang busog at malaki ang paggaling
+552	Hotbar
+553	Napakalaking Tumpok ng Ruby
+554	Napakalaking war hammer · Malawak na dumudurog na damage, nababasag ang ore rock
+557	Gutom
+558	25% mas mabagal ang gutom · 20% mas malakas ang pagkain at paggaling
+559	Mangaso
+560	Mangaso ng %d hayop
+561	Mangaso ng %d hayop · Makaligtas ng %d gabi gamit ang class na ito
+562	Mangangaso
+563	Pana ng Mangangaso
+564	Hunter Kit
+565	Pana ng Mangangaso
+566	Pana ng Mangangaso + 4 Nilutong Karne
+567	Kutsilyo sa Pangangaso
+568	Pangangaso +1 dagdag na karne/balat/buto/hibla
+569	Pangangaso +2 dagdag na karne/balat/buto/hibla
+570	Bilisan, iligtas mo siya!
+571	IGNARAX, ang Tunaw na Dragon
+572	PATUNGO SA KAGUBATAN
+573	Yelo
+574	Tinik na Yelo!
+575	Tigreng Yelo
+576	Ignarax, ang Tunaw na Dragon
+577	May Stock
+578	Ginagawa...
+579	Sa liwanag ng apoy
+580	Impiyernong Bulkan
+581	Info
+582	Pugitang Tinta-Anino
+584	Inventory
+585	Bakal
+586	Bakal na Baluti
+587	Bakal na Palakol
+588	Bakal na Baga
+589	Iron Ore
+590	Bakal na Espada
+591	Bakal na baluti na may pambalikat. Matibay, malaking dagdag sa Max HP
+592	Bakal na palakol. Pinakamabilis pumutol ng kahoy
+593	Iron ore mula sa ore rock. Para sa armas at high-level na item
+594	Item dito
+595	Mga Item
+596	Jade
+597	Makatas na nilutong karne. Malaking pampawi ng gutom
+598	Katana
+599	Panatilihing buhay ang apoy
+600	Kelp
+601	Hint bar ng mga pindutan sa ibaba ng screen
+602	Patayin
+603	Kills
+604	Kills %d/%d
+606	Kayamanan ng Hari
+607	Tinutulak pabalik ang mga hayop
+609	Lungga
+610	Parol
+611	Parol. Nagbibigay-liwanag at tinataboy ang Hollow Stag
+612	Tupang Lava
+613	Hampas ng Lava!
+614	Umalis sa Grupo
+615	Kaliwa
+618	Alamat
+619	Alamat ng Kagubatan
+620	Alamat ng Kagubatan (150 Gabi)
+621	Maalamat na Baul
+622	Alamat ng Apat na Elemento
+623	Level
+624	Leviathan
+625	Liwanag
+626	Tinataboy ng liwanag ang Hollow Stag
+627	Magaan at mabilis na kutsilyo · Napakabilis na tira
+629	Sinisindihan ang siga...
+630	Limestone
+632	Naglo-load
+633	Naglo-load ng kampo
+634	Naglo-load ng kampo... %d%%
+635	Naglo-load ng leaderboard...
+636	Naglo-load ng mga model
+637	Naglo-load ng mga quest...
+638	Naglo-load ng paligid ng kampo...
+639	Lobby
+640	I-lock
+641	Naka-lock
+642	Naka-lock — makuha mula sa Season Pass/code
+643	Brasong Troso
+644	Pader na Troso
+645	Mag-log in araw-araw para dumami ang Ruby — malaking reward sa ika-7 araw!
+646	Login
+647	Araw ng login %d/%d
+648	Mahaba
+649	Malayuang pana para mangaso mula sa ligtas na distansya
+650	Hanapin ang pulang usok
+651	Panginoon ng Apat na Elemento
+652	Mababa
+653	Magtotroso
+657	Lv.%d ⭐MAX
+658	BAGSAK NG METEOR
+659	Mace
+660	Mahiwagang Kaldero
+661	Gumawa ng Nilaga (2 karne + 2 berry)
+662	Gumagawa ng nilaga
+663	Mapa ng Apat na Lupain
+664	Napakalakas na liwanag
+665	Master Hunter (250 kill)
+666	Materyales
+667	Max
+668	Max HP +15 · 10% mas mabagal ang gutom
+669	Max HP +25 · Regen 0.3 HP/seg
+670	Max Level
+671	Max x
+672	Kuneho sa Parang
+673	Medic
+674	Medikal
+675	Gamot
+676	Katamtaman
+677	Medkit
+679	Meteor
+680	Paglipat
+681	Minahin ang Meteor Core
+682	Pagmimina ng bato at ore x1.4 · Stamina +20%
+683	Minimina mula sa bato. Para sa gamit at pader
+684	Lumiban kahit isang araw at babalik sa araw 1 · Kunin dito o sa daily reward na kaldero sa lobby (isang beses kada araw)
+685	Hamog
+686	Laki ng Button sa Mobile
+688	Morning Star
+689	Mosasaur
+690	Lumot
+691	Ina ng mga Alon
+692	Pagong na Bato ng Bundok
+694	Gumalaw ka (dapat nakatayo lang habang nagbebenda)
+695	Putik
+696	Kabute
+697	Musika
+698	Dapat nasa kampo
+699	Dapat ilagay sa lupa
+700	GABI %d
+702	Kailangan ng 2 karne at 2 berry
+703	Kailangan ng 5 berry at 1 kahoy
+704	Huwag Sumuko
+705	Hindi Pumapalya
+706	Bagong stock sa loob ng %dh %dm
+707	Susunod ▶
+708	Gabi
+709	Kuwago ng Gabi
+710	Gabi ng
+711	Gabi ng %s · Umaga sa loob ng %s
+712	Mga Gabi
+713	Wala ka pang gusali sa bag — gumawa muna sa crafting bench
+714	Walang gatong (kahoy / uling / piraso ng baga)
+715	Walang materyales sa sako na igigiling (kahoy, bato, ore, balat, buto ...)
+716	Walang ibang player sa server na ito
+717	Walang hilaw na karne
+718	Walang hilaw na karne sa sako (mangaso muna)
+719	Walang recipe na tugma
+720	Walang respawn sa run pagkamatay — bantayan ang isa't isa
+721	Wala pang reward — kumita pa ng kaunting XP!
+722	Wala nang buhay na kakampi... hinihintay ang resulta
+723	Walang kahoy/uling sa sako
+724	Walang kahoy/uling/hilaw na karne sa sako na ihahagis sa apoy
+726	Wala
+727	Kulang ang item para makipagpalitan
+728	Kulang ang materyales
+729	Kulang ang materyales para i-upgrade ang bench
+730	Kulang ang materyales para i-upgrade ang siga
+731	Kulang ang ♦️ (
+732	Walang stock ngayon — hintayin ang restock o mag-reroll
+734	Araw na ngayon
+735	Oak
+736	Pugita
+737	Tsansa
+738	Off
+740	Lumang Palakol
+741	Lumang Sako
+742	Touch button sa screen
+743	Ang pad leader lang (unang tumapak) ang puwedeng pumili ng laki ng team
+744	Buksan ang Baul
+745	Buksan ang Crafting Menu
+746	Buksan ang Sagradong Baul
+747	Buksan ang Supply Chest
+749	Ubos na
+750	Nakapatong sa ibang gusali
+751	Pag-aari
+752	Pack
+753	Pad
+754	Pahina %d / %d
+755	Palma
+762	Bayad:
+763	Balat
+764	Alaga
+766	Phone/mabagal na device: "Mababa" ang inirerekomenda
+767	Piko
+768	Pumitas ng Berry
+769	Piko
+770	Piko. Mabilis magmina ng bato at ore
+772	Gubat ng Pino
+774	Pioneer
+775	Ilagay
+776	Ilagay para magpahinga at laktawan ang 1 araw (+1 araw na nakaligtas · kapag gabi inilagay, bibilangin sa umaga) · Max 2 kama bawat server bawat run
+777	Ilagay para laktawan ang 1 araw (+1 araw)
+778	Laro!
+779	Player
+780	Mga Player
+783	Posisyon
+784	Prem
+785	Presyo ♦️%d — may stock ngayon
+786	Sinaunang Gubat ng Lupa
+787	Profile
+790	Tuta
+791	Nabili na
+792	Itago
+793	Ilagay sa Sako
+796	Kalidad
+797	Mga Quest
+798	Mga Quest at Reward
+799	Mabilis na Paa
+800	Kuneho
+801	Bihirang Baul
+802	Bihirang Item
+803	Hilaw na Karne
+804	Hilaw na karne. Nakakain pero bawas HP — lutuin muna sa siga
+805	Handa
+806	Handa nang gawin! (pumunta sa kampo, pindutin ang C)
+807	Handa!
+808	Karit ng Kamatayan
+809	Karit ng Kamatayan · Pinakamalawak na abot, winawalis ang grupo ng kaaway
+810	Paggaling
+811	Pula
+812	Regen 0.5 HP/seg palagi
+813	Bumalik
+814	Relic
+817	Inaayos ang mga pader sa paligid
+819	Kailangan ng Save Run pass
+820	Iligtas ang %d elemental na espiritu
+821	Resource
+822	Bumalik sa siga
+823	Bumabalik sa kampo...
+824	Buhayin
+825	Buhayin (gagamit ng benda)
+826	Buhayin ang Bumagsak na Kakampi
+827	Buhayin Ngayon
+828	Buhayin ang bumagsak na kakampi nang %d beses
+829	Nabuhay
+830	Nabuhay ka!
+831	Mga Pagbuhay
+832	Binubuhay ang kakampi gamit ang
+833	Reward
+835	Kanang Balikat
+836	Singsing ng Apoy!
+837	Orca ng Agos
+839	Bato
+840	Pagguho ng Bato!
+842	Ikutin
+845	Baul ng Ruby
+846	Supot ng Ruby
+847	Pambili ng class, laktaw ng level, reroll ng stock at starter kit ang Ruby — libre mo rin itong makukuha sa paglalaro/daily reward na kaldero!
+849	Tumakbo
+850	12% mas mabilis tumakbo
+851	20% mas mabilis tumakbo · Stamina x2 · Pangangaso +1 dagdag na item
+852	5% mas mabilis tumakbo · Stamina +15%
+853	Na-save ang run · Gabi %d
+854	Mga Run
+855	NASIRA ANG SELYO
+856	BUMALIK ANG ESPIRITU
+857	NAPALAYA ANG ESPIRITU
+858	SUPPLY DROP
+859	Sako
+860	Sako na kasya ang 10 item — hawakan at i-click ang item para pulutin
+861	Sako na kasya ang 20 item
+862	Sako na kasya ang 30 item
+863	Lumawak ang safe zone
+864	Asin
+865	Santuwaryo
+866	Buhangin
+867	Sandstone
+868	I-save ang Run
+869	Palakihin/paliitin ang lahat ng window
+870	Scout
+871	Pagyanig ng Screen
+874	Karit
+875	Selyadong Dambana
+876	Hanapin
+877	Hanapin ang player...
+878	Season
+879	Season
+880	Bayani ng Season
+882	Season Pass tier %d%s
+883	Tingnan kung gaano kakinis ang takbo ng laro
+884	Napili
+885	Nagpadala ng %d Ruby kay %s!
+886	Server
+887	Paglalakbay
+888	Settings
+889	Anino ng Kagubatan
+890	Yanig
+891	Hugis
+893	Matalas na katana · Napakabilis at malakas na hiwa
+894	Kalasag
+895	Kusang binabaril ang mga hayop
+896	Shop
+898	Ipakita ang FPS
+899	Dambana
+900	Natapos ang dambana:
+903	Mga Skill
+904	Laktawan
+905	Laktawan ♦️
+906	Nilaktawan ang %d araw · Araw %d
+907	Langit
+908	Asul-Langit
+909	Skyreach Highlands
+910	Slate
+911	Slot
+912	Dahan-dahan, subukan ulit mamaya
+913	Pinababagal ang mga hayop sa paligid
+914	Maliit na Supot ng Ruby
+915	Usok
+916	Niyebe
+917	Toro ng Niyebe
+918	Solar Beacon
+919	Solar beacon. Napakalakas na liwanag
+920	Sold out
+922	Nalutas
+923	May paparating...
+924	May nakamasid mula sa dilim
+925	May nangyaring mali, subukan ulit
+926	Tunog
+927	Kislap
+928	Tilamsik
+929	Sibat
+930	Manood
+931	Bitag na Tinik
+932	Bitag na tinik. Tinutusok ang hayop na tumatapak dito
+933	Matinik na Pamalo
+934	Matinik na morning star · Tinatamaan lahat sa paligid ng target
+935	Espiritu
+936	Spirit Pup
+937	Nailigtas na Spirit Pup %d/4 — iligtas silang lahat para sa tunay na ending
+939	Batik
+940	Sprint
+941	Nagsi-sprint
+943	Tinutusok ang hayop na tumatapak dito
+944	Tungkod
+946	Stamina x1.6 · 10% mas mabagal ang gutom
+947	Panimulang palakol. Mabagal pumutol ng kahoy
+948	Sa lobby lang mabibili ang starter kit
+949	Panimulang Gamit
+950	Gutom na gutom!
+951	Tumapak sa start pad sa kanan mo
+952	Tumapak sa pad para magsimula
+953	Stew Pot
+954	Stew pot. Gumagawa ng nilaga (karne + berry) at berry pie (berry + kahoy)
+955	Kulang pa ang materyales
+956	Stock
+957	Bato
+958	Batong Palakol
+959	Batong Buwaya
+960	Batong Pader
+961	Batong palakol. Dalawang beses na mas mabilis pumutol
+962	Batong pader. Napakatibay
+963	Tindahan
+964	Storm Bow
+965	Istruktura
+966	Mga Istruktura
+969	Sub
+970	Sun Beacon
+971	Mga Supply
+972	Supply
+973	Supply Chest
+974	Supply Crate
+975	Support
+976	Survival Instinct
+977	Makaligtas ng %d gabi
+978	Makaligtas ng %d gabi kasama ang kaibigan
+979	Makaligtas ng 99 gabi
+980	Makaligtas ng 99 gabi = panalo! Pero puwedeng maglaro nang walang katapusan para umakyat sa leaderboard
+981	Makaligtas ng 99 gabi = panalo! Ituloy ang laro para umakyat sa leaderboard
+982	Makaligtas ng 99 gabi sa kagubatan ng Lupa, Tubig, Yelo at Apoy
+983	Makaligtas ng gabi
+984	Makaligtas hanggang Gabi 10
+985	Makaligtas hanggang Gabi 25
+986	Makaligtas hanggang Gabi 5
+987	Makaligtas hanggang Gabi 50
+988	Nakaligtas ng %d gabi · Pinakamahusay mo ay %d gabi
+989	Nakaligtas ng %d/%d gabi
+990	Nakaligtas sa gabi
+991	Nakaligtas hanggang gabi
+992	Survivor
+993	Kampo ng mga Survivor
+994	Palitan
+995	Espada
+996	PATAY NA ANG APOY
+997	MULING NAGKITA ANG APAT NA ESPIRITU
+998	ANG MALAKING PAGLIPAT
+999	ANG HOLLOW STAG
+1000	TYRANNOMOSA, Lagim ng Kailaliman
+1001	Ilabas
+1002	Ibinabalik ka sa lobby...
+1003	I-tap ang screen = tumama · Nasa kaliwang itaas ang bag
+1004	Team
+1005	Puno na ang team! Aalis na
+1006	Nasa gabi %d ang team · Tumapak sa pad para sumali
+1007	Team ng %d · Aalis sa loob ng %ds
+1008	Bumagsak ang kakampi? Gumamit ng benda sa loob ng 30 segundo — kung walang nakatayo, talo ang buong team
+1009	Nagte-teleport
+1010	Tolda = Mga Class · Berdeng kaldero = Daily reward
+1011	Terra Core
+1012	Terra Hammer
+1013	Terra Heart
+1014	Terra Pup
+1015	Terra Totem
+1016	Terragon
+1019	Selyado na ang %s Santuwaryo
+1020	Bukas na ang %s Santuwaryo
+1021	Nagising ang mga tagabantay ng %s Dambana
+1022	Humina ang selyo ng %s Dambana · Pindutin nang matagal ang E
+1023	Kusang bumabaril ang Ballista. Ilagay sa paligid ng siga
+1024	Fire staff ng Elementalist. Naglalabas ng sumasabog na bolang apoy sa kaaway · Kaya ring pumutol ng puno/bato
+1025	Ang Huling Gabi
+1026	Ang Hollow Stag
+1027	Ang Naglalakad na Bundok
+1028	Nagising ang Kagubatan
+1029	Paparating ang boss
+1030	Buhay pa ang boss — napipigil ang umaga!
+1031	Sinusunog ng siga ang mga kaaway na pumapasok sa safe zone
+1032	25% mas mabagal ubusin ng siga ang gatong
+1033	Namatay ang siga... nilamon ng gubat ang lahat
+1034	Max level na ang siga
+1035	Nagliliyab ulit ang siga
+1036	Puno na ang siga
+1037	Buhay ang siga
+1038	Buhay ang siga — kapag namatay, papasok ang Hollow Stag sa kampo
+1039	Max level na ang crafting bench
+1040	Ang crystal pillar ng
+1041	Patay ang apoy, hindi makapagluto
+1042	Masyadong makapal ang hamog — i-upgrade ang siga (Lv.%d → %d) para makalayo pa
+1043	Yumayanig ang lupa...
+1044	Nakita ka ng mga tagabantay!
+1045	Papalapit dito ang mga tagabantay ng dambana!
+1046	Ang team
+1047	Pumutok ang bulkan... kumakalat ang mga halimaw ng apoy
+1048	Dumating sa kampo ang naglalakbay na mangangalakal
+1049	Umalis na ang naglalakbay na mangangalakal
+1050	Umaatungal ang alon... umaahon sa dagat ang mga halimaw ng Tubig
+1051	Nagising ang buong gubat... paparating ang mga halimaw ng Lupa
+1052	Bumagsak ang buong team sa gabi %d
+1053	Umaalulong ang hangin... sumisisid ang mga mangangaso ng langit
+1055	Walang stock ng class na ito ngayon — hintayin ang restock o mag-reroll
+1056	Server na ito lang (hindi pa konektado ang save system)
+1057	Matinik na Baboy-ramo
+1058	Matipid na Builder
+1059	Ihagis ang materyales sa crafter, saka magtayo ng pader, bitag at ballista
+1060	Ihagis ang materyales sa gilingan (isa-isa)
+1061	Ihagis ang kahoy sa apoy
+1062	Ihagis ang kahoy/uling sa siga — kapag namatay ito, mawawala ang safe zone!
+1063	Tidal Expanse
+1064	Tidal Trident
+1065	Malaking Alon!
+1066	Tide Fox Pup
+1067	Tide Heart
+1068	Tide Pearl
+1069	Tide Pup
+1070	Tide Totem
+1071	Tide Trident
+1072	Tier
+1073	Tapos na ang oras para bumalik sa dati mong run
+1074	Titulo
+1075	Kulay ng Titulo
+1076	Patungo sa Lupain ng Apat na Elemento
+1077	Ngayon!
+1078	Plano ngayon:\n1. Pumili ng class\n2. Tumapak sa start pad\n3. Talunin ang huling gabi!
+1079	Bukas
+1080	Masyadong malapit sa siga
+1081	Masyadong malayo
+1082	Masyadong malayo sa kakampi mo
+1083	Gamit
+1084	Top
+1085	Top-up:
+1086	Sulo
+1087	Sulo para sa liwanag. Tinataboy ang Hollow Stag
+1089	Pagong
+1090	Palitan
+1092	Manlalakbay
+1093	Naglalakbay...
+1094	Baul ng Kayamanan
+1095	Tropeo
+1097	Maaasahang Palakol
+1101	I-type ang code dito...
+1102	Tyrannomosa, Lagim ng Kailaliman
+1103	Laki ng UI
+1104	Hubarin
+1105	I-unlock ang Class na Ito
+1106	Naka-unlock
+1107	Na-unlock na class
+1108	Mag-a-unlock sa level
+1109	Nag-a-unlock ng mas maraming craftable na item
+1110	Bubuksan ang premium track ng Season Pass bawat season · Mas maraming Ruby + espesyal na titulo/kulay
+1111	Nabuksan ang selyo!
+1112	Ang paitaas na hangin sa zone ng Yelo ay mag-aangat sa iyo sa mga lumulutang na isla
+1113	I-upgrade muna ang bench sa level %d
+1114	I-upgrade ang siga para mawala ang hamog at lumawak ang safe zone
+1115	Upgrade:
+1116	Gamitin
+1117	Gamitin ang Revive Ticket (%d)
+1118	Gumamit ng benda para buhayin ang kakampi — kung walang nakatayo, talo ang buong team
+1119	Ginagamit ang
+1128	Halaman
+1129	Luntiang Kagubatan
+1130	Napakatibay na pader
+1131	Tingnan ang mga Class
+1132	Lila
+1133	WILDHEART CAMP
+1135	Naghihintay sa pad leader / mga kaibigan
+1136	Naghihintay sa pad leader na pumili ng laki ng team...
+1137	Naghihintay na matapos ang nakaraang run...
+1138	Lumapit muna sa siga, saka ihagis
+1139	Pader
+1140	Mga pader at gusali x1.5 mas matibay
+1141	Naglalakbay na Mangangalakal
+1142	War Hammer
+1145	Mandirigma
+1146	Warrior Kit
+1147	Tubig
+1148	Water Aura: 15% mas mabagal ang gutom
+1149	Puso ng Halimaw ng Tubig
+1150	Water Pillar
+1151	Tubig talo ang Apoy · Apoy talo ang Yelo · Yelo talo ang Lupa · Lupa talo ang Tubig
+1152	Water essence · Basagin ang asul na crystal sa Whirlpool Lake / baul / meteor / santuwaryo / boss ng Tubig · Para sa Trident, Water Pillar, upgrade ng bench at siga
+1153	Water pillar. Pinababagal ang mga hayop sa paligid
+1154	Water trident. Pinababagal ang mga hayop
+1155	Buhawi sa Tubig!
+1156	Hampas ng Alon!
+1157	Mga Armas
+1158	Linggo
+1159	Lingguhan
+1160	Weekly quest:
+1161	Maligayang pagdating sa Kagubatan
+1162	Balyena
+1163	Kapag natamaan / tama ng boss
+1164	Whirlpool Lake
+1165	Bumubulong na Pino
+1166	Bagsak ang buong team — game over sa loob ng %ds
+1167	Malapad
+1168	Wildheart Camp
+1169	Hangin
+1170	Pana ng hangin. Tumatagos ang palaso sa ilang kaaway
+1171	Lobo
+1172	Kahoy
+1173	Kahoy na Baluti
+1174	Kahoy na Pader
+1175	Kahoy na baluti. Suot agad pagkagawa, dagdag Max HP
+1176	Kahoy mula sa puno. Gamit sa halos lahat at puwedeng ihagis sa siga
+1177	Kahoy na pader. Hinaharangan ang kawan ng hayop
+1178	Lana
+1180	Handa na ang mundo
+1181	NASAWI KA
+1182	Nabili mo na ang kit na ito (makukuha mo pag-alis)
+1183	Mayroon ka nang
+1184	Mayroon ka nang %s class — %d Ruby ang natanggap mo sa halip
+1185	Natalo mo ang 99 Gabi sa Kagubatan!
+1186	Natalo mo ang 99 gabi — ang tunay na ending
+1187	Namatay ka sa gabi %d — panoorin ang mga kakampi mo, o bumalik sa lobby
+1188	Namatay ka... walang respawn sa run na ito
+1189	Namatay ka... walang respawn sa run na ito · %d kakampi pa ang buhay
+1190	Wala ka pang naka-save na run
+1191	Wala kang
+1192	Hindi mo pa natatapos ang achievement na ito
+1193	Umalis ka sa gitna ng run — puwede kang bumalik sa parehong run (parehong gabi, siga, gusali at laman ng sako)
+1194	Dapat nasa kampo ka (malapit sa siga/crafting bench) para gumawa
+1195	Dapat malapit ka sa mangangalakal
+1196	Kailangan mo ng benda o first aid kit
+1197	Kailangan mo ng palakol para pumutol ng kahoy
+1198	Kailangan mo ng palakol/piko para basagin ito
+1199	Binuhay ka
+1200	Ikaw ang pad leader · Hintayin ang mga kaibigan o maubos ang oras
+1201	Naipagpalit mo na ito nang %d beses — hintayin ang susunod na dating ng mangangalakal
+1202	Tapos na ang dati mong run
+1203	Tapos na ang dati mong run — magsimula ng bago sa start pad
+1204	Tapos na ang dati mong run — magsisimula ng bago
+1205	Sine-save ang run tuwing umaga at pag-alis mo · Ituloy mula sa naka-save na gabi sa start pad
+1206	Zone
+1207	[ Lahat ng Panahon ] · Ngayong Linggo
+1210	ilang minuto
+1211	pagkatapos ng huling gabi
+1213	sa umaga
+1217	bawat laro (buong server)
+1218	bawat player
+1219	ang team
+1220	~ MAKALIGTAS NG 99 GABI ~
+1221	—  Aalis ang team kapag puno na, o kapag ubos na ang oras  —
+1222	— Elemental Boss —
+1223	… (huwag gumalaw)
+1224	↩ Bumalik sa run mo?
+1225	↩ Nakabalik ka sa run — nandito pa lahat ng laman ng sako at gamit mo
+1226	⌛ Expired na ang code na ito
+1227	⌛ Ubos na ang oras! Natulog ulit ang mga rune pillar — panoorin ulit ang ayos
+1228	⏱ Bilis %.1f tama/seg
+1229	⏳ Gisingin lahat ng rune pillar: %d segundo
+1230	⏳ Sinusuri...
+1231	⏳ Ginagawa ang mundo %d%%
+1232	⏳ Magre-reset sa loob ng
+1233	⏳ Matatapos ang season sa loob ng
+1234	⏳ Nagising ang %s Santuwaryo! Gisingin ang mga rune pillar nang sunod-sunod sa loob ng %d segundo
+1235	⏳ Hindi pa aktibo ang code na ito
+1236	⏳ Natitirang oras
+1237	◀ Bumalik
+1239	☀️ Daily Quests
+1240	☠ Namatay Ka
+1244	♦️ Kulang ang Ruby
+1245	♦️ Kulang ang Ruby para mag-reroll ng stock
+1246	♦️ Kulang ang Ruby para laktawan ang level
+1247	♨ Puwedeng lutuin sa siga
+1248	♾ Endless ·
+1249	♾ Hindi pa tapos ang laro! Maglaro nang walang katapusan — tumagal hangga't kaya para umakyat sa leaderboard
+1250	⚒ Gumawa
+1251	⚒ Gumawa x1
+1252	⚒ I-upgrade
+1253	⚒ I-upgrade ang Crafting Bench
+1254	⚔ Damage
+1255	⚔ Sumali sa team na naglalaro
+1256	⚔ Patayin
+1257	⚔ Dumaan sa portal para simulan ang laro
+1258	⚔ Armas/Gamit
+1259	⚙ Settings
+1260	⚠ Labas ng kampo: bumalik sa kampo para gumawa (kasama ang imbakan ng kampo sa bilang)
+1261	⛏ Pagmimina ng bato/ore x
+1262	✅ Tapos na
+1263	✔ Nakuha na
+1264	✔ Nakuha na — bumalik sa loob ng
+1265	✔ Nagamit na ang code (isang beses bawat player)
+1266	✔ Ituloy · Gabi
+1267	✔ Tapos %d/%d
+1268	✔ Suot
+1269	✔ May mas maganda ka
+1270	✔ Pag-aari
+1271	✔ Bumalik
+1272	✕ Huwag na
+1273	✖ Tumigil sa pagbebenda —
+1274	✨ Kayang buhayin ang bumagsak na kakampi
+1275	✨ Nakakuha ng
+1276	✨ Iligtas ang 4 na elemental na espiritu
+1277	✨ Gising na ang rune pillar %d/%d
+1279	❌ Hindi nahanap ang code — suriin ang spelling
+1280	❌ Maling ayos! Tumalbog ang selyo — panoorin ulit ang kumikislap na ilaw
+1281	❤ Puno ang HP — itabi muna ang
+1282	❤ Gumaling +
+1283	➶ Tumatagos
+1284	⟳ Ikutin (R)
+1286	⭐ %s level %d!
+1287	⭐ Ang class na %s ay umabot sa level %d! May bagong skill
+1288	⭐ Class level 3
+1289	⭐ Naabot ang max level
+1290	🌍 Ginagawa ang mundo ng apat na elemento
+1291	🌕 Makaligtas hanggang Gabi 25
+1292	🌕 Makaligtas hanggang Gabi 50
+1293	🌙 Makaligtas
+1294	🌙 Makaligtas hanggang Gabi 10
+1295	🌙 Makaligtas hanggang Gabi 5
+1296	🌟 Nailigtas
+1297	🌫 Masyadong makapal ang hamog — i-upgrade ang siga para makalayo pa
+1298	🍖 Nagluluto ng karne x
+1299	🍖 Kumain
+1300	🍖 Busog +
+1301	🍖 Luto na ang karne! Ilagay sa sako o pindutin ang R para kumain
+1302	🎁 7 araw na sunod-sunod! Nakuha ang malaking reward — bagong streak simula bukas
+1303	🎁 Kunin Lahat
+1304	🎁 Kunin Lahat (
+1305	🎁 Kunin ang Reward
+1306	🎁 Kunin ang reward ng araw %d  (%d Ruby)
+1307	🎁 Mga Code
+1308	🎁 Regaluhan ang kaibigan
+1309	🎁 Iregalo kay
+1310	🎁 Nireregaluhan si
+1311	🎁 I-redeem ang Code para sa Reward
+1312	🎉 Na-redeem ang code! Nakuha mo ang
+1314	🎒 Kapasidad
+1315	🎒 Hawakan muna ang sako (piliin sa hotbar), saka pumulot ng item
+1316	🎒 Walang sako
+1317	🎒 Magkaroon ng 3 class
+1318	🎒 Magkaroon ng 6 na class
+1319	🎒 Natanggap
+1320	🎒 Sako
+1321	🎒 Sako  %d/%d
+1322	🎒 Puno ang sako (%d/%d) — ibaba sa crafting bench sa kampo
+1323	🎟\nLibre
+1324	🎟 Season Pass tier %d! Kunin ang reward sa menu na "Quests"
+1325	🎨 Kulay:
+1326	🎨 Naglo-load ng mga model at texture
+1327	🎨 Bagong kulay ng titulo:
+1328	🎨 Kulay ng Titulo
+1329	🎫 Mga item ng Game Pass:
+1330	🎫 Natanggap ang Game Pass:
+1331	🎲 Na-reroll ang stock ng class shop
+1332	🎲 I-reroll ang Stock  ♦️
+1333	🏅 Achievement Badges
+1334	🏅 Na-unlock ang achievement:
+1335	🏅 Nakuha ang badge:
+1336	🏆 Kolektahin lahat ng class
+1337	🏆 Pinakamatagal na Survivor sa Lahat ng Panahon
+1338	🏗 Mga Gusali
+1339	🏗 Ilagay ang %s (%d natitira)  ·  Click = ilagay  ·  R = ikutin  ·  B/Esc = kanselahin
+1340	🏗 Ilagay ang %s (%d natitira)  ·  Click = ilagay  ·  R = ikutin  ·  Q = palitan ang uri  ·  B = kanselahin
+1341	🏗 Ilagay ang %s (%d natitira) — itutok sa gitna ng screen at i-tap ang ✔
+1342	🏠 Bumalik sa Lobby
+1343	🏷 Bagong titulo:
+1344	🏷 Titulo
+1345	🐺 Mangaso ng 1000 hayop
+1346	🐾 Mangaso ng 250 hayop
+1347	🐾 Mangaso ng 50 hayop
+1348	🐾 I-redeem
+1349	🐾 Tapos ang palitan! (%d palitan pa para sa item na ito)
+1350	🐾 Naglalakbay na Mangangalakal
+1351	👁 Tandaan ang ayos ng pagkislap ng mga rune pillar, saka gisingin sila sa ganoong ayos!
+1352	👁 Pinapanood:
+1353	👁 Hintaying matapos ang pagkislap ng mga rune pillar
+1354	👑\nPremium
+1355	👑 Talunin ang Huling Gabi
+1356	👑 Premium
+1357	👑 Premium (malapit na)
+1358	👑 Premium ✔
+1360	👥 Pumili ng Laki ng Team
+1361	👥 Pad
+1362	👥 Naghihintay sa pad leader na pumili ng laki ng team
+1363	👹 Talunin ang 10 boss
+1364	💔 Bawas HP
+1365	💡 Liwanag
+1366	💡 Tinataboy ng liwanag ang Hollow Stag
+1367	💥 Area attack
+1368	📅 7-Araw na Login
+1369	📅 Mag-log in nang 7 araw na sunod-sunod
+1370	📅 Pinakamatagal na Survivor Ngayong Linggo
+1371	📅 Weekly Quests
+1372	📏 Radius
+1373	📏 Abot
+1374	📖 Paano Maglaro
+1375	📖 Paano Makaligtas
+1376	📜 Tapusin ang 30 quest
+1377	📜 May bagong quest! Buksan ang menu na "Quests" sa lobby
+1378	📜 Tapos ang quest! %s %s — bumalik sa lobby para kunin ang reward
+1379	📜 Mga Quest
+1380	📦 Sa kampo: gagamitin muna ang laman ng sako, saka kukuha sa imbakan ng kampo
+1381	📦 Naitabi ang %d item sa imbakan ng kampo
+1382	🔄 Default
+1383	🔍 Hanapin
+1384	🔒 Kailangan ng bench Lv.
+1385	🔒 Kailangan ng Season Pass para sa premium track (Shop → Game Pass)
+1386	🔒 Selyado ang lugar na ito hanggang matapos ang run
+1387	🔥 %d-araw na streak   ·   Pinakamahusay %d araw
+1388	🔥 Magdagdag ng 1,000 fuel
+1389	🔥 Magdagdag ng 10,000 fuel
+1390	🔥 Sunog
+1391	🔥 Kampo   ⛩ Dambana ng Spirit Pup   💀 Lungga ng Boss   🏛 Sinaunang Santuwaryo   ☄📦 Mga Event   ▲ Ikaw   ● Mga Kakampi   (lalabas ang lugar kapag natuklasan)
+1392	🔥 Gatong +
+1393	🔥 Nadagdag na gatong:
+1394	🔥 Huling run: umabot ang team sa gabi %d — subukan ulit!
+1395	🔥 Sinisindihan ang siga ng kampo
+1396	🔥 Makaligtas ng kabuuang 100 gabi
+1397	🔥 Makaligtas ng kabuuang 20 gabi
+1398	🔥 Namamatay na ang apoy! Mga %s na lang — maghagis ng kahoy/uling, bilis
+1399	🔥 I-upgrade ang Siga
+1400	🔨 Gumawa ng 250 item
+1401	🔨 Gumawa ng 50 item
+1402	🔨 Gumawa sa bench Lv.
+1403	🔨 Nagawa:
+1404	🔨 Crafting Bench Lv.%d
+1405	🔨 Crafting Bench Lv.1
+1406	🗺 Natuklasan: %s%s
+1407	🗺 Natuklasan: Sinaunang Santuwaryo ng
+1408	🚪 Mag-ekspedisyon nang 100 beses
+1409	🚪 Mag-ekspedisyon nang 20 beses
+1410	🛒 Nabili
+1411	🛒 Shop
+1412	🛡 Baluti
+1413	🛡 Gumawa + Isuot
+1414	🛡 Isinuot ang %s! Max HP +%d
+1415	🛡 HP
+1416	🛡 Max HP +
+1417	🛡 Suot
+1418	🤝 Palitan
+1419	🧊 Pinababagal ang kaaway
+1420	🩹 Gamot
+1421	🩹 Buhayin ang kakampi nang 10 beses
+1422	🩹 Buhayin ang kakampi nang 50 beses
+1423	🪓 Pagputol ng kahoy x
+1424	🪵 Mangalap ng 1,000 materyales
+1425	Auto
+1426	Auto 🌐
+1427	Wika
+1429	%d player
+1430	Sikat
+1431	Kumpirmahin
+1432	Pumasok sa Dambana
+1433	Bumalik sa Labas
+1434	Gilingan
+1435	Gabi ng %s
+1436	Santuwaryo ng %s
+1437	Baul ng Santuwaryo ng %s
+1438	Dambana ng %s
+1440	Kailangan ng bench Lv.%d
+1441	Magre-reset sa loob ng %s
+1442	Tapos ang quest! %s - bumalik sa lobby para kunin ang reward
+1443	Kampo
+1444	On
+1445	Buksan
+1446	[Click] Tumama/Pumutol   [Shift] Sprint   [Ctrl] I-lock ang camera   [C] Gumawa   [B] Magtayo   [E] Pumulot (hawak ang sako)   [F] Ilabas   [M] Mapa   [1-9] Pumili ng item

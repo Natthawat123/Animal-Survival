@@ -53,6 +53,7 @@ REALMPROBE = any(a.startswith("--realmprobe") for a in sys.argv)  # เดิน
 BOSSPROBE = "--bossprobe" in sys.argv  # ถ่ายภาพฉากเปิดตัวบอสทั้ง 4 (tests/ASBossProbe.*.lua)
 CLASSPROBE = "--classprobe" in sys.argv  # ถ่ายภาพร้านคลาสทีละคลาส (tests/ASClassProbe.client.lua)
 PROPPROBE = "--propprobe" in sys.argv  # วัดขนาดพุ่ม/เห็ด/ต้นไม้ในแมพจริง + ถ่ายภาพ (tests/ASPropProbe.server.lua)
+FORCELANG = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--lang=")), None)  # บังคับภาษา (เทสคำแปล) เช่น --uiaudit=touch --lang=th
 UIAUDIT = next((a for a in sys.argv if a.startswith("--uiaudit")), None)  # จำลองจอหลายขนาด ตรวจ UI ล้น/ทับ/ตัวเล็ก (tests/ASUIAudit.*.lua) · =touch มือถือ/แท็บเล็ต
 UIPROBE = "--uiprobe" in sys.argv  # ถ่ายภาพหน้าต่าง ภารกิจ/ป้าย/ร้านค้า/ตั้งค่า (tests/ASUIProbe.client.lua)
 SITEPROBE = "--siteprobe" in sys.argv  # ถ่ายภาพศาลเจ้า/ฐานบอส/วิหาร ทุกธาตุ (tests/ASSiteProbe.*.lua)
@@ -236,6 +237,8 @@ def main():
         rs += value_item("BoolValue", "ASLobbyTest", "true")
         if UIAUDIT == "--uiaudit=touch":
             rs += value_item("BoolValue", "ASSimTouch", "true")
+    if FORCELANG:
+        rs += value_item("StringValue", "ASForceLang", FORCELANG)
     if UIPROBE:
         rs += value_item("BoolValue", "ASUIProbe", "true")
         rs += value_item("BoolValue", "ASAutoTest", "true")

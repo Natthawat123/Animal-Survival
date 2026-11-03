@@ -1,0 +1,1279 @@
+0	      Beli Ruby
+2	  (tumbang!)
+3	  (di hotbar bawah, ketuk untuk menaruh)
+4	  ·  Selesai! 🎉
+8	 (Premium)
+9	 (berlaku sepanjang run)
+10	 (sama atau lebih baik)
+11	 Bonus!
+12	 Kelas
+13	 Meteor Elemen
+14	 Elemen:
+16	 Peti Kuil Kuno
+17	 Kuil Kuno · Bangunkan pilar rune sesuai urutan cahaya
+18	 Kuil Kuno · Segel terbuka
+19	 Kandang Bersegel
+20	 Altar
+21	 Gelar
+22	 Kelas terbuka
+23	 kembali ke api unggun
+24	 gagal:
+25	 untuk menghidupkan rekan yang tumbang
+26	 dari Season Pass!
+27	 di tasmu (buat dulu di meja)
+28	 sudah bebas
+29	 sekarang tinggal di kemah
+30	 terkurung di kandang bersegel...
+31	 di halaman "Lencana" di lobi
+32	 atau yang lebih besar
+33	 mengirimimu hadiah!
+34	 bersinar di atas bioma
+35	 seluruh server
+36	 · Bisa menghidupkan rekan yang tumbang
+37	 · Pilih jumlah tim
+38	 · Tebang
+39	 · Elemen
+40	 · Teman +10%
+41	 · Cahaya mengusir Rusa Hampa
+42	 · Tambang
+43	 · Tekan E untuk menungganginya
+45	 — klaim ♦️
+46	 — sudah maksimal
+47	 — melewati 1 hari! Sekarang hari %d
+48	 — ketuk slot di bawah untuk memasang
+49	 — terima kasih atas dukunganmu!
+50	 — kamu dapat saat berangkat
+51	"Kulit bagus bisa ditukar dengan yang kamu butuhkan, kawan... cepatlah, aku pergi sebelum matahari terbenam"
+54	%d hewan masih menyerang kemah — kalahkan semuanya!
+55	%d hari
+56	%d penjaga tersisa
+57	%d m dari api unggun
+58	%d pemain di platform
+62	%d/%d pemain
+63	%d/%d pemain   •   ⏳ %ds
+64	%d/%d tukar tersisa
+66	%dh %dj
+67	%dj %dm
+68	%dm
+71	%s %d hari
+76	%s membebaskan %s
+77	%s telah mati
+78	%s kembali ke sarangnya
+79	%s tumbang! Cepat bantu
+80	%s menambang inti meteor %s!
+81	%s membuka peti persediaan
+82	%s kembali ke run
+83	%s kembali ke kemah (%d/4)
+84	%s menghidupkan %s tepat waktu
+85	%s melewati 1 hari · Hari %d
+87	%s x%d · Klik = taruh · R = putar
+88	%s x%d · Klik = hidupkan rekan yang tumbang / sembuhkan diri
+92	%s: maks %d %s
+93	) — naik ke platform lagi
+95	+1 hari
+96	+1 hari (dihitung %s)
+97	- Ruby gratis setiap hari -
+98	1 (Solo)
+99	2 esensi tiap elemen
+100	3 Perban + 1 Kotak P3K
+101	Bahan 35% lebih sedikit · Bangunan x2 lebih kuat
+102	4 Anak Roh terkurung di altar. Selamatkan semuanya untuk akhir sejati
+103	40 Kayu, 20 Batu, 2 Dinding Kayu
+104	8 Arang, Obor, Lentera
+106	99 MALAM DITAKLUKKAN
+107	99 malam... dan seterusnya
+110	<font color="#FFE066" size="40">Kabar Kemah</font>\n\nBertahan di malam penting (tiap 5-25 malam)\n= Dapat Ruby ♦️\n\nSelamatkan Anak Roh = ♦️15\n<font color="#8CFF8C">Ruby gratis di kuali hijau setiap hari!</font>
+111	Meteor elemen %s jatuh · Tambang inti kristalnya
+112	Seorang teman
+114	SEMUA TELAH GUGUR
+115	KUIL KUNO
+117	Pencapaian:
+118	Tambah %d bahan bakar ke api unggun
+119	Tambah kayu, cepat
+120	Udara
+121	Semua
+122	Keempat Anak Roh bersatu kembali
+123	Semua Elemen
+124	Sepanjang Masa · [ Minggu Ini ]
+125	Semua server · Diperbarui tiap menit
+126	Damage semua senjata +15%
+127	Serba Bisa
+128	Pemburu Alfa
+129	Sudah diklaim hari ini — kembali dalam
+130	Hadiah hari ini sudah diklaim — kembali dalam %dj %dm
+131	Sudah memakai
+132	Suara Sekitar
+133	Ametis
+134	Kawanan hewan lewat dekat kemah
+135	Peti Kuno
+136	Pilar Rune Kuno
+137	Kuil Kuno:
+138	Hewan
+139	Migrasi Hewan
+140	Tulang hewan. Untuk tombak dan Karung Raksasa
+141	Kulit hewan. Untuk karung/kasur dan berdagang dengan pedagang keliling
+142	Gelombang hewan %d telah tiba
+143	Hewan
+144	Tanduk
+145	Zirah
+146	Panah
+152	Audio
+153	Ganti Alat Otomatis
+154	Bangunkan Pilar Rune
+155	Kit Elemen Bangkit
+156	Kapak
+157	MONSTER DIKALAHKAN
+158	BULAN DARAH
+159	API UNGGUN LV.
+160	Kembali ke lobi
+162	Ransel
+163	Lencana
+164	Tas  ·  Seret barang ke slot di bawah (slot bisa ditukar)
+165	Panggang Pai Beri (5 beri + 1 kayu)
+166	Pedang besi seimbang · Cepat, damage mantap
+167	Balista
+168	Balista. Menembak hewan otomatis
+169	Perban
+170	Balut luka untuk pulih, dan hidupkan rekan yang tumbang
+171	Perban, obat, dan menghidupkan rekan pulih x1.5
+172	Basal
+173	Pertahanan Markas
+174	Kapak Perang
+175	Dokter Medan Perang
+177	Jantung Monster (elemen apa saja)
+178	Pemburu Monster
+179	Sarang Monster
+180	Pembantai Monster
+181	Kasur
+182	Kasur (+1 hari)
+183	Meja
+184	Beri
+185	Semak Beri
+186	Semak Beri %d/%d
+187	Jus Beri
+188	Kebun Beri
+189	Pai Beri
+190	Pai beri dari Panci Rebus. Sangat mengenyangkan, lapar turun setengah lebih lambat selama 2 menit
+191	Terbaik
+192	Paling Hemat
+193	Besar
+194	Keranjang Besar
+195	Malam Serbuan Besar ·
+196	Serbuan besar dalam %d malam
+197	Api lebih besar, zona aman lebih luas, kabut berkurang
+200	Badai Salju
+201	Badai Salju!
+202	Menghalangi kawanan hewan
+203	Bulan Darah
+205	Tulang
+206	Tombak Tulang
+207	Tombak Tulang + Kapak Besi
+208	Tombak tulang. Jangkauan jauh, damage tinggi
+209	Bos
+210	Sarang bos ada di jantung tiap zona elemen — bersiaplah sebelum masuk
+211	Bos masih hidup · Fajar dalam %s
+212	Bos menyerang di malam 25 · 50 · 75 · 99 — hindari lingkaran peringatan di tanah!
+213	Bongkahan Batu
+215	Busur
+216	Bawa
+218	Buff:
+219	Pembangun
+220	Bangunan
+221	Bangunan butuh 20% bahan lebih sedikit
+222	Bangunan memperbaiki diri perlahan
+223	Membakar hewan di dekatnya
+224	Semak
+226	Beli  ♦️
+227	Beli kelasnya dulu
+229	Penasihat Kemah
+230	Gudang Kemah
+231	Gudang kemah x
+232	Pekemah
+233	Api Unggun
+234	Api Unggun Lv.
+235	Api Unggun Lv.%d  ·  Meja Lv.%d
+236	Api Unggun Lv.1
+237	Hanya bisa ditaruh di dalam kemah (tingkatkan api unggun untuk memperluas)
+238	Tidak bisa dibunuh — lari!
+239	Tidak bisa dibunuh... usir dengan cahaya!
+240	Tidak bisa ditaruh di air/lava
+241	Kasur tidak bisa dipakai untuk melewati hari sekarang
+242	Batal
+243	Kapasitas %d barang · Klik barang di tanah untuk memungut
+244	Kit Tukang Kayu
+245	Kategori:
+246	Peluang ada di stok per hari
+248	Penyeruduk
+250	Pilih
+251	Pilih jumlah tim dulu, lalu hitung mundur dimulai
+252	Tebang kayu x1.6
+253	Tebang kayu x2.2 · Tambang batu/bijih x1.6
+254	Tebang kayu, pecahkan batu, buru hewan, pegang karung untuk memungut barang
+257	Klaim Hadiah Harian
+258	Klaim ♦️
+259	Klaim!
+260	Kelas
+261	Kelas
+262	Toko Kelas
+263	Toko Kelas · Masuk untuk bicara
+264	Kelas
+265	Selesai
+266	Kuil %s selesai · Dapat %s
+268	Tutup
+269	Arang
+270	Arang. Bahan bakar premium, api unggun menyala lama
+271	Kode
+272	Kode terpakai: %d
+273	Warna
+275	Ke sini
+276	Segera hadir
+277	Taklukkan 99 Malam
+278	Lanjutkan hanya bisa di game yang sudah dirilis — memulai run baru
+279	Lanjutkan · Malam
+280	Melanjutkan run tersimpan dari Malam
+281	Petunjuk Kontrol
+282	Masak Daging
+283	Panci Masak
+284	Daging Matang
+285	Karang
+286	Kepiting Cangkang Karang
+287	Gagal memuat run tersimpan — memulai run baru
+288	Tidak bisa terhubung ke server, coba lagi
+289	Tidak bisa kembali ke run sebelumnya, coba lagi
+290	Tidak bisa kembali ke run sebelumnya:
+291	Tidak bisa mengirimmu ke server tim (
+292	Konselor
+295	Dihitung pagi hari
+296	Kepiting
+298	Buat
+299	Buat %d barang
+300	Buat & Bangun Markas
+301	Pembuat
+302	Meja Kerajinan
+303	Meja Kerajinan Lv.
+304	Meja Kerajinan Lv.%d · Resep baru
+305	Kerajinan
+306	Peti Kayu
+307	Jambul
+308	Ada teriakan dari tengah alun-alun...
+309	Merah Tua
+310	Busur Silang
+311	Mahkota Badai
+312	Rusa Kristal
+313	Kristal
+314	HARI %d
+315	HARI 1
+316	Belati
+317	Harian
+318	Hadiah Harian
+319	Hadiah Harian ♦️
+320	Misi harian:
+321	Damage %d · Jangkauan %d
+322	Damage +25% · Berburu dapat +1 daging/kulit/tulang/serat
+323	Damage +40% · Lari 5% lebih cepat
+324	Bahaya
+326	Data masih dimuat, coba lagi
+327	DataStore tidak tersedia (aktifkan API Services dulu)
+328	Fajar
+329	Rusa Fajar
+330	Siang
+331	Hari
+332	Siang · Senja dalam %s
+333	Mati
+338	Kalah
+339	Kalahkan %d bos elemen
+340	Kalahkan semuanya untuk membuka kandang dan menyelamatkan
+341	Mengalahkan
+342	%s dikalahkan · Muncul lagi dalam %d mnt
+343	Berangkat
+344	Berangkat
+345	Berangkat dalam %d
+346	Berlian
+347	Mati
+348	Turun [X]
+349	Tampilan
+350	Kapak perang bermata dua · Pukulan keras, menebang tercepat
+351	Tumbang — tunggu rekan menolong
+352	Tumbang! Menunggu bantuan
+353	Tumbang
+354	Naga
+355	Jatuhkan
+356	Senja
+357	Senja · Hewan datang dalam %s
+358	Tanah
+359	Aura Tanah: HP Maks +15%
+360	Anak Beruang Tanah
+361	Jantung Monster Tanah
+362	Buaya Tanah
+363	Pilar Tanah
+364	Retakan Tanah!
+365	Hantaman Tanah!
+366	Kura-kura Tanah
+367	Esensi tanah · Pecahkan kristal hijau di hutan Tanah / peti / meteor / kuil / bos Tanah · Untuk Palu Terra, Pilar Tanah, upgrade meja dan api unggun
+368	Palu tanah. Menghantam area luas
+369	Pilar tanah. Memperbaiki dinding di sekitar
+370	Makan
+371	Makan Beri
+372	Efek
+373	Bos Elemen
+374	Esensi Elemen (elemen apa saja)
+375	Master Elemen
+376	Meteor Elemen
+377	Kawanan elemen menyerang api unggun tiap malam — bertahan sampai pagi
+378	Kelemahan elemen!
+379	Elemen
+380	Sihir Elemen
+381	Kekuatan Elemen
+382	Sentuhan Elemen
+383	Senjata elemen (termasuk Tongkat Api) 20% lebih kuat · Rapuh: HP Maks -10
+384	Senjata elemen 40% lebih kuat · Stamina +15%
+385	Senjata elemen 65% lebih kuat · HP Maks +10
+386	Elementalis
+387	Bara
+388	Kaldera Bara
+389	Anak Rubah Bara
+390	Pedang Besar Bara
+391	Jantung Bara
+392	Anak Bara
+393	Merah Bara
+394	Pecahan Bara
+395	Tongkat Bara
+396	Totem Bara
+397	Serigala Bara
+398	Kalajengking Cakar Api
+399	Bara Api
+402	Mode tanpa batas malam
+403	Mode tanpa batas · Kawanan makin kuat tiap malam
+404	Musuh
+405	Musuh!
+406	Zirah prajurit emas berukir. Menambah HP Maks paling banyak
+407	Masuk Kuil
+408	Masukkan kode lalu tekan "Tukar" · Tiap kode berlaku sekali per pemain
+409	Memasuki kemah...
+410	Pakai
+411	Dipakai
+412	Galat
+413	Esensi
+414	Tiap 10 malam Bulan Darah terbit dan kawanan semua elemen menyerang bersamaan
+415	Semua elemen menyerang bersamaan
+416	Semua elemen mengamuk...
+417	Semua orang lari 10% lebih cepat
+418	Eksplorasi
+419	FROSTMAW, Yeti Gletser
+420	Petak Kebun
+421	Pakis
+422	Serat
+423	Serat dari berburu (kelinci, buaya, kepiting, gurita, banteng salju, domba api) / peti / kotak persediaan · Untuk perban, busur, dan karung
+424	Medis Lapangan
+426	Cari kode baru di halaman game dan grup game · Coba kode WELCOME!
+428	Api
+429	Aura Api: Damage +15%
+430	Jantung Monster Api
+431	Semburan Api!
+432	Meteor Api!
+433	Pilar Api
+434	Domba Api
+435	Tongkat Api
+436	Esensi api · Pecahkan kristal oranye di gunung berapi / peti / meteor / kuil / bos Api · Untuk Pedang Besar Bara, Pilar Api, Mercusuar · Bahan bakar kuat
+437	Api padam! Tidak aman
+438	Pilar api. Membakar hewan di sekitar
+439	Pedang api. Membakar musuh dan memberi cahaya
+440	Api padam!
+441	Kunang-kunang
+442	Penjaga Api
+443	Kotak P3K
+444	Bulan Darah Pertama
+445	Malam Pertama di Hutan
+446	Celah
+447	Penjaga Nyala
+448	Kit Penjaga Nyala
+451	Bunga
+452	Terbang
+454	Makanan
+455	Ahli Makanan
+457	Pengumpul
+458	Penebang Hutan
+459	Benteng
+460	Pedang Empat Elemen
+461	Pedang Empat Elemen. Senjata pamungkas di game
+462	Bilah Empat Lapis
+464	Gratis
+465	Beri segar. Makan untuk mengurangi lapar · Buat jus beri/obat herbal (Meja Lv.1) · Tanam di kebun · Pai dan sup di Panci Rebus
+466	Jus beri segar. Mengurangi lapar dan mengisi penuh stamina
+468	Es
+469	Aura Es: Stamina berkurang 15% lebih lambat
+470	Jantung Monster Es
+471	Bulu Es
+472	Jantung Es
+473	Pilar Es
+474	Anak Serigala Es
+475	Esensi es · Pecahkan kristal putih di Dataran Tinggi / peti / meteor / kuil / bos Es · Untuk Busur Badai, Pilar Es, upgrade meja dan api unggun
+476	Pilar es. Mendorong hewan menjauh
+477	Beruang Taring Es
+478	Frostmaw, Yeti Gletser
+479	Bahan Bakar
+480	Panen Penuh
+481	Memulihkan HP penuh, dan menghidupkan rekan yang tumbang
+483	GOLGRAN, Gunung Hidup
+484	Busur Panjang Angin
+485	Anak Angin
+486	Totem Angin
+487	Gameplay
+488	Kumpulkan %d batu
+489	Kumpulkan %d kayu
+490	Kumpulkan di siang hari
+491	Terkumpul
+492	Mengumpulkan
+493	Membuat dunia %d%%
+494	Membuat dunia...
+495	Membuat dunia... %d%%
+496	Dapat:
+497	Hantu
+498	Karung Raksasa
+499	Hadiah
+500	Hadiah dari
+501	Gletser
+502	Hantaman Gletser!
+503	Berangkat ekspedisi %d kali
+504	Emas
+505	Zirah Emas
+506	Golgran, Gunung Hidup
+507	Karung Bagus
+508	Dapat 1 Tiket Bangkit — pakai saat kamu tumbang lagi
+509	Terkena
+510	Grafis
+511	Kualitas Grafis
+512	Rumput
+513	Hijau
+514	Tanah
+515	Hantaman Tanah!
+517	Menumbuhkan beri
+518	Menumbuhkan beri yang bisa terus dipetik
+520	Penjaga
+521	Penjaga Empat Elemen
+523	Palu
+524	Kayu Keras
+525	Mata Elang
+526	Rintangan
+528	Pulih
+529	Tangan Penyembuh
+530	Penyembuhan x2 · HP Maks +15
+531	Jantung
+532	Jantung bos Tanah (Golgran) · Untuk Palu Terra dan Pedang Empat Elemen
+533	Jantung bos Api (Ignarax) · Untuk Pedang Besar Bara dan Pedang Empat Elemen
+534	Jantung bos Es (Frostmaw) · Untuk Busur Badai dan Pedang Empat Elemen
+535	Jantung bos Air (Tyrannomosa) · Untuk Trisula Pasang dan Pedang Empat Elemen
+536	Sup Kenyang
+537	Busur silang berat · Isi ulang lambat, anak panah jarak jauh yang kuat
+538	Gada kayu berat berduri besi · Bisa memecah batu juga
+539	Salep Herbal
+540	Obat Herbal
+541	Obat herbal dari beri. Memulihkan sedikit (tidak bisa menghidupkan rekan)
+542	Tinggi
+544	Petunjuk
+545	Memukul pohon/batu/hewan otomatis memilih kapak/beliung/senjata terbaik
+546	Pegang obor dan Rusa Hampa tidak berani mendekat
+548	Beranda
+550	Sup Panas
+551	Sup panas dari Panci Rebus. Kenyang lama dan memulihkan banyak
+552	Hotbar
+553	Tumpukan Ruby Raksasa
+554	Palu perang raksasa · Damage area menghancurkan, memecah batu bijih
+557	Lapar
+558	Lapar 25% lebih lambat · Makanan dan penyembuhan 20% lebih kuat
+559	Berburu
+560	Buru %d hewan
+561	Buru %d hewan · Bertahan %d malam dengan kelas ini
+562	Pemburu
+563	Busur Pemburu
+564	Kit Pemburu
+565	Busur Sang Pemburu
+566	Busur Sang Pemburu + 4 Daging Matang
+567	Pisau Berburu
+568	Berburu dapat +1 daging/kulit/tulang/serat
+569	Berburu dapat +2 daging/kulit/tulang/serat
+570	Cepat, selamatkan dia!
+571	IGNARAX, Naga Lahar
+572	MENUJU ALAM LIAR
+573	Es
+574	Duri Es!
+575	Harimau Es
+576	Ignarax, Naga Lahar
+577	Ada Stok
+578	Sedang berjalan...
+579	Dalam cahaya api
+580	Gunung Api Neraka
+581	Info
+582	Gurita Tinta Bayang
+584	Inventaris
+585	Besi
+586	Zirah Besi
+587	Kapak Besi
+588	Paru-paru Besi
+589	Bijih Besi
+590	Pedang Besi
+591	Zirah besi berbantalan bahu. Kokoh, banyak menambah HP Maks
+592	Kapak besi. Kapak tercepat untuk menebang
+593	Bijih besi dari batu bijih. Untuk senjata dan barang tingkat tinggi
+594	Barang di sini
+595	Barang
+596	Giok
+597	Daging matang yang juicy. Banyak mengurangi lapar
+598	Katana
+599	Jaga api tetap menyala
+600	Rumput Laut
+601	Bilah petunjuk tombol di bawah layar
+602	Bunuh
+603	Kill
+604	Kill %d/%d
+606	Harta Raja
+607	Membuat hewan terpental
+609	Sarang
+610	Lentera
+611	Lentera. Menerangi area dan mengusir Rusa Hampa
+612	Domba Api Lahar
+613	Hantaman Lahar!
+614	Keluar Grup
+615	Kiri
+618	Legenda
+619	Legenda Alam Liar
+620	Legenda Alam Liar (150 Malam)
+621	Peti Legendaris
+622	Legenda Empat Elemen
+623	Level
+624	Leviatan
+625	Cahaya
+626	Cahaya mengusir Rusa Hampa
+627	Pisau berburu ringan · Serangan sangat cepat
+629	Menyalakan api unggun...
+630	Batu Kapur
+632	Memuat
+633	Memuat kemah
+634	Memuat kemah... %d%%
+635	Memuat papan peringkat...
+636	Memuat model
+637	Memuat misi...
+638	Memuat area sekitar kemah...
+639	Lobi
+640	Kunci
+641	Terkunci
+642	Terkunci — dapatkan dari Season Pass/kode
+643	Lengan Kayu Gelondong
+644	Dinding Kayu Gelondong
+645	Login tiap hari untuk Ruby yang makin banyak — hari ke-7 dapat hadiah besar!
+646	Login
+647	Hari login %d/%d
+648	Panjang
+649	Busur jarak jauh untuk berburu dari jarak aman
+650	Cari asap merah
+651	Penguasa Empat Elemen
+652	Rendah
+653	Penebang Kayu
+657	Lv.%d ⭐MAKS
+658	HUJAN METEOR
+659	Gada
+660	Kuali Ajaib
+661	Buat Sup (2 daging + 2 beri)
+662	Membuat sup
+663	Peta Empat Negeri
+664	Cahaya sangat terang
+665	Pemburu Ulung (250 kill)
+666	Bahan
+667	Maks
+668	HP Maks +15 · Lapar 10% lebih lambat
+669	HP Maks +25 · Pulih 0.3 HP/detik
+670	Level Maks
+671	Maks x
+672	Kelinci Padang
+673	Medis
+674	Medis
+675	Obat
+676	Sedang
+677	Kotak Medis
+679	Meteor
+680	Migrasi
+681	Tambang Inti Meteor
+682	Tambang batu dan bijih x1.4 · Stamina +20%
+683	Ditambang dari batu. Untuk alat dan dinding
+684	Bolos sehari, mulai lagi dari hari 1 · Klaim di sini atau di kuali hadiah harian di lobi (sekali sehari)
+685	Kabut
+686	Ukuran Tombol HP
+688	Bintang Pagi
+689	Mosasaurus
+690	Lumut
+691	Ibu Pasang Surut
+692	Kura-kura Batu Gunung
+694	Bergerak (harus diam saat membalut luka)
+695	Lumpur
+696	Jamur
+697	Musik
+698	Harus di dalam kemah
+699	Harus ditaruh di tanah
+700	MALAM %d
+702	Butuh 2 daging dan 2 beri
+703	Butuh 5 beri dan 1 kayu
+704	Pantang Menyerah
+705	Tak Pernah Meleset
+706	Stok baru dalam %dj %dm
+707	Berikutnya ▶
+708	Malam
+709	Burung Hantu Malam
+710	Malam
+711	Malam %s · Fajar dalam %s
+712	Malam
+713	Belum ada bangunan di tas — buat dulu di meja kerajinan
+714	Tidak ada bahan bakar (kayu / arang / pecahan bara)
+715	Tidak ada bahan di karung untuk digiling (kayu, batu, bijih, kulit, tulang ...)
+716	Tidak ada pemain lain di server ini
+717	Tidak ada daging mentah
+718	Tidak ada daging mentah di karung (berburu dulu)
+719	Tidak ada resep yang cocok
+720	Tidak ada respawn setelah mati — saling jaga punggung
+721	Belum ada hadiah — kumpulkan sedikit XP lagi!
+722	Tidak ada rekan yang tersisa... menunggu hasil run
+723	Tidak ada kayu/arang di karung
+724	Tidak ada kayu/arang/daging mentah di karung untuk dilempar ke api
+726	Tidak ada
+727	Barang tidak cukup untuk ditukar
+728	Bahan tidak cukup
+729	Bahan tidak cukup untuk upgrade meja
+730	Bahan tidak cukup untuk upgrade api unggun
+731	♦️ tidak cukup (
+732	Tidak ada di stok hari ini — tunggu restok atau acak ulang
+734	Sekarang hari
+735	Ek
+736	Gurita
+737	Peluang
+738	Mati
+740	Kapak Tua
+741	Karung Tua
+742	Tombol sentuh di layar
+743	Hanya pemimpin platform (yang naik pertama) yang bisa memilih jumlah tim
+744	Buka Peti
+745	Buka Menu Kerajinan
+746	Buka Peti Suci
+747	Buka Peti Persediaan
+749	Stok Habis
+750	Menimpa bangunan lain
+751	Dimiliki
+752	Paket
+753	Platform
+754	Halaman %d / %d
+755	Palem
+762	Bayar:
+763	Kulit
+764	Peliharaan
+766	HP/perangkat lambat: disarankan "Rendah"
+767	Beliung
+768	Petik Beri
+769	Beliung
+770	Beliung. Menambang batu dan bijih dengan cepat
+772	Hutan Pinus
+774	Perintis
+775	Taruh
+776	Taruh untuk istirahat dan lewati 1 hari (+1 hari bertahan · ditaruh malam hari, dihitung pagi) · Maks 2 kasur per server per run
+777	Taruh untuk melewati 1 hari (+1 hari)
+778	Main!
+779	Pemain
+780	Pemain
+783	Posisi
+784	Prem
+785	Harga ♦️%d — ada di stok hari ini
+786	Hutan Tanah Purba
+787	Profil
+790	Anak
+791	Dibeli
+792	Simpan
+793	Masukkan ke Karung
+796	Kualitas
+797	Misi
+798	Misi & Hadiah
+799	Kaki Cepat
+800	Kelinci
+801	Peti Langka
+802	Barang Langka
+803	Daging Mentah
+804	Daging mentah. Bisa dimakan tapi mengurangi HP — masak dulu di api unggun
+805	Siap
+806	Siap dibuat! (pergi ke kemah, tekan C)
+807	Siap!
+808	Sabit Malaikat Maut
+809	Sabit malaikat maut · Jangkauan terluas, menyapu sekelompok musuh
+810	Pemulihan
+811	Merah
+812	Pulih 0.5 HP/detik terus-menerus
+813	Kembali
+814	Relik
+817	Memperbaiki dinding di sekitar
+819	Butuh pass Save Run
+820	Selamatkan %d roh elemen
+821	Sumber Daya
+822	Kembali ke api unggun
+823	Kembali ke kemah...
+824	Hidupkan
+825	Hidupkan (pakai perban)
+826	Hidupkan Rekan yang Tumbang
+827	Bangkit Sekarang
+828	Hidupkan rekan yang tumbang %d kali
+829	Bangkit
+830	Bangkit kembali!
+831	Menghidupkan
+832	Menghidupkan rekan dengan
+833	Hadiah
+835	Bahu Kanan
+836	Cincin Api!
+837	Orca Arus Deras
+839	Batu
+840	Longsor Batu!
+842	Putar
+845	Peti Ruby
+846	Kantong Ruby
+847	Ruby untuk beli kelas, lompat level kelas, acak ulang stok, dan kit awal — kamu juga dapat gratis dari bermain/kuali hadiah harian!
+849	Lari
+850	Lari 12% lebih cepat
+851	Lari 20% lebih cepat · Stamina x2 · Berburu dapat +1 barang
+852	Lari 5% lebih cepat · Stamina +15%
+853	Run tersimpan · Malam %d
+854	Run
+855	SEGEL HANCUR
+856	ROH KEMBALI
+857	SEGEL ROH TERBUKA
+858	KIRIMAN PERSEDIAAN
+859	Karung
+860	Karung muat 10 barang — pegang lalu klik barang untuk memungut
+861	Karung muat 20 barang
+862	Karung muat 30 barang
+863	Zona aman meluas
+864	Garam
+865	Kuil Kuno
+866	Pasir
+867	Batu Pasir
+868	Simpan Run
+869	Perbesar/perkecil semua jendela
+870	Pengintai
+871	Getar Layar
+874	Sabit
+875	Altar Bersegel
+876	Cari
+877	Cari pemain...
+878	Musim
+879	Musim
+880	Pahlawan Musim
+882	Season Pass tingkat %d%s
+883	Lihat seberapa mulus game berjalan
+884	Terpilih
+885	Mengirim %d Ruby ke %s!
+886	Server
+887	Berangkat
+888	Pengaturan
+889	Bayangan Alam Liar
+890	Getar
+891	Bentuk
+893	Katana tajam · Tebasan sangat cepat, damage tinggi
+894	Perisai
+895	Menembak hewan otomatis
+896	Toko
+898	Tampilkan FPS
+899	Altar
+900	Altar selesai:
+903	Skill
+904	Lewati
+905	Lewati ♦️
+906	Melewati %d hari · Hari %d
+907	Langit
+908	Biru Langit
+909	Dataran Tinggi Langit
+910	Batu Sabak
+911	Slot
+912	Pelan-pelan, coba lagi sebentar lagi
+913	Memperlambat hewan dalam jangkauan
+914	Kantong Ruby Kecil
+915	Asap
+916	Salju
+917	Banteng Salju
+918	Mercusuar Surya
+919	Mercusuar surya. Memancarkan cahaya sangat terang
+920	Terjual habis
+922	Terpecahkan
+923	Ada yang datang...
+924	Ada yang mengawasi dari kegelapan
+925	Terjadi kesalahan, coba lagi
+926	Suara
+927	Kilauan
+928	Percikan
+929	Tombak
+930	Tonton
+931	Jebakan Duri
+932	Jebakan duri. Menusuk hewan yang menginjaknya
+933	Gada Berduri
+934	Bintang pagi berduri · Mengenai semua di sekitar target
+935	Roh
+936	Anak Roh
+937	Anak Roh diselamatkan %d/4 — selamatkan semua untuk akhir sejati
+939	Bintik
+940	Lari Kencang
+941	Berlari kencang
+943	Menusuk hewan yang menginjaknya
+944	Tongkat
+946	Stamina x1.6 · Lapar 10% lebih lambat
+947	Kapak awal. Menebang pelan
+948	Kit awal hanya bisa dibeli di lobi
+949	Alat Awal
+950	Kelaparan!
+951	Naik ke platform mulai di sebelah kananmu
+952	Naik ke platform untuk mulai
+953	Panci Rebus
+954	Panci rebus. Membuat sup (daging + beri) dan pai beri (beri + kayu)
+955	Bahan masih kurang
+956	Stok
+957	Batu
+958	Kapak Batu
+959	Buaya Batu
+960	Dinding Batu
+961	Kapak batu. Menebang dua kali lebih cepat
+962	Dinding batu. Sangat kokoh
+963	Toko
+964	Busur Badai
+965	Struktur
+966	Struktur
+969	Sub
+970	Mercusuar Matahari
+971	Persediaan
+972	Persediaan
+973	Peti Persediaan
+974	Kotak Persediaan
+975	Pendukung
+976	Naluri Bertahan
+977	Bertahan %d malam
+978	Bertahan %d malam bersama teman
+979	Bertahan 99 malam
+980	Bertahan 99 malam = takluk! Tapi kamu bisa terus main tanpa batas untuk naik peringkat
+981	Bertahan 99 malam = takluk! Terus main untuk naik peringkat
+982	Bertahan 99 malam di alam liar Tanah, Air, Es, dan Api
+983	Bertahan malam
+984	Bertahan sampai Malam 10
+985	Bertahan sampai Malam 25
+986	Bertahan sampai Malam 5
+987	Bertahan sampai Malam 50
+988	Bertahan %d malam · Rekor terbaikmu %d malam
+989	Bertahan %d/%d malam
+990	Lolos malam
+991	Bertahan sampai malam
+992	Penyintas
+993	Kemah Penyintas
+994	Ganti
+995	Pedang
+996	API TELAH PADAM
+997	EMPAT ROH BERSATU
+998	MIGRASI BESAR
+999	RUSA HAMPA
+1000	TYRANNOMOSA, Teror Laut Dalam
+1001	Ambil
+1002	Mengantarmu kembali ke lobi...
+1003	Ketuk layar = pukul · Tas ada di kiri atas
+1004	Tim
+1005	Tim penuh! Berangkat
+1006	Tim di malam %d · Naik ke platform untuk bergabung
+1007	Tim %d orang · Berangkat dalam %ds
+1008	Rekan tumbang? Pakai perban dalam 30 detik — jika tak ada yang berdiri, seluruh tim kalah
+1009	Teleportasi
+1010	Tenda = Kelas · Kuali hijau = Hadiah harian
+1011	Inti Terra
+1012	Palu Terra
+1013	Jantung Terra
+1014	Anak Terra
+1015	Totem Terra
+1016	Terragon
+1019	Kuil %s kini tersegel
+1020	Kuil %s terbuka
+1021	Penjaga altar %s telah bangkit
+1022	Segel altar %s melemah · Tahan E
+1023	Balista menembak sendiri. Taruh di sekitar api unggun
+1024	Tongkat api Elementalis. Serangan melontarkan bola api meledak ke musuh · Bisa menebang pohon/batu juga
+1025	Malam Terakhir
+1026	Rusa Hampa
+1027	Gunung Berjalan
+1028	Alam Liar Bangkit
+1029	Bos datang
+1030	Bos masih hidup — fajar tertahan!
+1031	Api unggun membakar musuh yang masuk zona aman
+1032	Api unggun menghabiskan bahan bakar 25% lebih lambat
+1033	Api unggun padam... hutan menelan segalanya
+1034	Api unggun sudah level maks
+1035	Api unggun menyala lagi
+1036	Api unggun sudah penuh
+1037	Api unggun adalah hidup
+1038	Api unggun adalah hidup — jika padam, Rusa Hampa masuk ke kemah
+1039	Meja kerajinan sudah level maks
+1040	Pilar kristal
+1041	Api padam, tidak bisa memasak
+1042	Kabut terlalu tebal — tingkatkan api unggun (Lv.%d → %d) untuk menjelajah lebih jauh
+1043	Tanah bergetar...
+1044	Para penjaga melihatmu!
+1045	Para penjaga altar mendekatinya!
+1046	Tim
+1047	Gunung api meletus... monster api menyebar
+1048	Pedagang keliling tiba di kemah
+1049	Pedagang keliling telah pergi
+1050	Ombak mengaum... monster Air bangkit dari laut
+1051	Seluruh hutan bangkit... monster Tanah datang
+1052	Seluruh tim tumbang di malam %d
+1053	Angin melolong... pemburu langit menukik turun
+1055	Kelas ini tidak ada di stok hari ini — tunggu restok atau acak ulang
+1056	Hanya server ini (sistem simpan belum tersambung)
+1057	Babi Hutan Duri
+1058	Pembangun Hemat
+1059	Lempar bahan ke mesin pembuat, lalu bangun dinding, jebakan, dan balista
+1060	Lempar bahan ke penggiling (satu per satu)
+1061	Lempar kayu ke api
+1062	Lempar kayu/arang ke api unggun — kalau padam, zona aman hilang!
+1063	Hamparan Pasang
+1064	Trisula Pasang
+1065	Gelombang Pasang!
+1066	Anak Rubah Pasang
+1067	Jantung Pasang
+1068	Mutiara Pasang
+1069	Anak Pasang
+1070	Totem Pasang
+1071	Trisula Pasang Surut
+1072	Tingkat
+1073	Waktu untuk kembali ke run sebelumnya habis
+1074	Gelar
+1075	Warna Gelar
+1076	Menuju Negeri Empat Elemen
+1077	Hari ini!
+1078	Rencana hari ini:\n1. Pilih kelas\n2. Naik ke platform mulai\n3. Taklukkan malam terakhir!
+1079	Besok
+1080	Terlalu dekat dengan api unggun
+1081	Terlalu jauh
+1082	Terlalu jauh dari rekanmu
+1083	Alat
+1084	Atas
+1085	Isi ulang:
+1086	Obor
+1087	Obor penerang. Mengusir Rusa Hampa
+1089	Kura-kura Darat
+1090	Tukar
+1092	Pengelana
+1093	Dalam perjalanan...
+1094	Peti Harta
+1095	Trofi
+1097	Kapak Andalan
+1101	Ketik kode di sini...
+1102	Tyrannomosa, Teror Laut Dalam
+1103	Ukuran UI
+1104	Lepas
+1105	Buka Kelas Ini
+1106	Terbuka
+1107	Kelas terbuka
+1108	Terbuka di level
+1109	Membuka lebih banyak barang kerajinan
+1110	Membuka jalur premium Season Pass tiap musim · Lebih banyak Ruby + gelar/warna gelar spesial
+1111	Segel terbuka!
+1112	Arus udara di zona Es mengangkatmu ke pulau melayang
+1113	Upgrade meja ke level %d dulu
+1114	Tingkatkan api unggun untuk mengusir kabut dan memperluas zona aman
+1115	Upgrade:
+1116	Pakai
+1117	Pakai Tiket Bangkit (%d)
+1118	Pakai perban untuk menghidupkan rekan — jika tak ada yang berdiri, seluruh tim kalah
+1119	Memakai
+1128	Vegetasi
+1129	Alam Liar Hijau
+1130	Dinding sangat kokoh
+1131	Lihat Kelas
+1132	Ungu
+1133	KEMAH WILDHEART
+1135	Menunggu pemimpin platform / teman
+1136	Menunggu pemimpin platform memilih jumlah tim...
+1137	Menunggu run sebelumnya selesai...
+1138	Mendekatlah ke api unggun dulu, lalu lempar
+1139	Dinding
+1140	Dinding dan bangunan x1.5 lebih kuat
+1141	Pedagang Keliling
+1142	Palu Perang
+1145	Prajurit
+1146	Kit Prajurit
+1147	Air
+1148	Aura Air: Lapar 15% lebih lambat
+1149	Jantung Monster Air
+1150	Pilar Air
+1151	Air kalahkan Api · Api kalahkan Es · Es kalahkan Tanah · Tanah kalahkan Air
+1152	Esensi air · Pecahkan kristal biru di Danau Pusaran / peti / meteor / kuil / bos Air · Untuk Trisula, Pilar Air, upgrade meja dan api unggun
+1153	Pilar air. Memperlambat hewan dalam jangkauan
+1154	Trisula air. Memperlambat hewan
+1155	Puting Beliung Air!
+1156	Hantaman Ombak!
+1157	Senjata
+1158	Minggu
+1159	Mingguan
+1160	Misi mingguan:
+1161	Selamat datang di Alam Liar
+1162	Paus
+1163	Saat terkena / hantaman bos
+1164	Danau Pusaran
+1165	Pinus Berbisik
+1166	Seluruh tim tumbang — game over dalam %ds
+1167	Lebar
+1168	Kemah Wildheart
+1169	Angin
+1170	Busur angin. Panah menembus beberapa musuh
+1171	Serigala
+1172	Kayu
+1173	Zirah Kayu
+1174	Dinding Kayu
+1175	Zirah kayu. Langsung terpakai setelah dibuat, menambah HP Maks
+1176	Kayu dari pohon. Dipakai untuk hampir semua hal dan bisa dilempar ke api unggun
+1177	Dinding kayu. Menghalangi kawanan hewan
+1178	Wol
+1180	Dunia siap
+1181	KAMU GUGUR
+1182	Kamu sudah membeli kit ini (dapat saat berangkat)
+1183	Kamu sudah punya
+1184	Kamu sudah punya kelas %s — dapat %d Ruby sebagai gantinya
+1185	Kamu menaklukkan 99 Malam di Alam Liar!
+1186	Kamu menaklukkan 99 malam — akhir sejati
+1187	Kamu mati di malam %d — tonton rekanmu bertahan, atau kembali ke lobi
+1188	Kamu mati... tidak ada respawn di run ini
+1189	Kamu mati... tidak ada respawn di run ini · %d rekan masih hidup
+1190	Kamu belum punya run tersimpan
+1191	Kamu tidak punya
+1192	Kamu belum menyelesaikan pencapaian ini
+1193	Kamu keluar di tengah run — kamu bisa kembali ke run yang sama (malam, api unggun, bangunan, dan isi karung yang sama)
+1194	Harus di dalam kemah (dekat api unggun/meja kerajinan) untuk membuat
+1195	Harus dekat pedagang
+1196	Butuh perban atau kotak P3K
+1197	Butuh kapak untuk menebang
+1198	Butuh kapak/beliung untuk memecahkan ini
+1199	Kamu dihidupkan kembali
+1200	Kamu pemimpin platform · Tunggu teman atau sampai waktu habis
+1201	Kamu sudah menukar ini %d kali — tunggu kunjungan pedagang berikutnya
+1202	Run sebelumnya sudah berakhir
+1203	Run sebelumnya sudah berakhir — mulai yang baru di platform mulai
+1204	Run sebelumnya sudah berakhir — memulai run baru
+1205	Run disimpan tiap fajar dan saat keluar · Lanjutkan dari malam tersimpan di platform mulai
+1206	Zona
+1207	[ Sepanjang Masa ] · Minggu Ini
+1210	beberapa menit
+1211	setelah malam terakhir
+1213	pagi hari
+1217	per game (seluruh server)
+1218	per pemain
+1219	tim
+1220	~ BERTAHAN 99 MALAM ~
+1221	—  Tim berangkat saat penuh, atau saat waktu habis  —
+1222	— Bos Elemen —
+1223	… (diam di tempat)
+1224	↩ Kembali ke run-mu?
+1225	↩ Kembali ke run-mu — isi karung dan alatmu masih lengkap
+1226	⌛ Kode ini sudah kedaluwarsa
+1227	⌛ Waktu habis! Pilar rune tertidur lagi — lihat urutannya lagi
+1228	⏱ Kecepatan %.1f pukulan/detik
+1229	⏳ Bangunkan semua pilar rune: %d detik
+1230	⏳ Memeriksa...
+1231	⏳ Membuat dunia %d%%
+1232	⏳ Reset dalam
+1233	⏳ Musim berakhir dalam
+1234	⏳ Kuil %s telah bangun! Bangunkan pilar rune berurutan dalam %d detik
+1235	⏳ Kode ini belum aktif
+1236	⏳ Sisa waktu
+1237	◀ Kembali
+1239	☀️ Misi Harian
+1240	☠ Kamu Mati
+1244	♦️ Ruby tidak cukup
+1245	♦️ Ruby tidak cukup untuk acak ulang stok
+1246	♦️ Ruby tidak cukup untuk lompat level
+1247	♨ Bisa dimasak di api unggun
+1248	♾ Tanpa Batas ·
+1249	♾ Game belum selesai! Terus main tanpa batas — bertahan selama mungkin untuk naik peringkat
+1250	⚒ Buat
+1251	⚒ Buat x1
+1252	⚒ Upgrade
+1253	⚒ Upgrade Meja Kerajinan
+1254	⚔ Damage
+1255	⚔ Gabung tim yang sedang bermain
+1256	⚔ Bunuh
+1257	⚔ Masuki portal untuk memulai game
+1258	⚔ Senjata/Alat
+1259	⚙ Pengaturan
+1260	⚠ Di luar kemah: kembali ke kemah untuk membuat (hitungan termasuk gudang kemah)
+1261	⛏ Tambang batu/bijih x
+1262	✅ Selesai
+1263	✔ Diklaim
+1264	✔ Diklaim — kembali dalam
+1265	✔ Kode sudah dipakai (sekali per pemain)
+1266	✔ Lanjutkan · Malam
+1267	✔ Selesai %d/%d
+1268	✔ Dipakai
+1269	✔ Punya yang lebih baik
+1270	✔ Dimiliki
+1271	✔ Kembali
+1272	✕ Tidak, terima kasih
+1273	✖ Berhenti membalut —
+1274	✨ Bisa menghidupkan rekan yang tumbang
+1275	✨ Mendapat
+1276	✨ Selamatkan 4 roh elemen
+1277	✨ Pilar rune %d/%d bangun
+1279	❌ Kode tidak ditemukan — cek ejaannya
+1280	❌ Urutan salah! Segel menolak — lihat lagi cahaya yang berkedip
+1281	❤ HP penuh — simpan
+1282	❤ Pulih +
+1283	➶ Menembus
+1284	⟳ Putar (R)
+1286	⭐ %s level %d!
+1287	⭐ Kelas %s mencapai level %d! Skill baru terbuka
+1288	⭐ Kelas level 3
+1289	⭐ Level maks tercapai
+1290	🌍 Membangun dunia empat elemen
+1291	🌕 Bertahan sampai Malam 25
+1292	🌕 Bertahan sampai Malam 50
+1293	🌙 Bertahan
+1294	🌙 Bertahan sampai Malam 10
+1295	🌙 Bertahan sampai Malam 5
+1296	🌟 Menyelamatkan
+1297	🌫 Kabut terlalu tebal — tingkatkan api unggun untuk menjelajah lebih jauh
+1298	🍖 Memasak daging x
+1299	🍖 Makan
+1300	🍖 Kenyang +
+1301	🍖 Daging matang! Masukkan ke karung atau tekan R untuk makan
+1302	🎁 7 hari berturut-turut! Hadiah besar diklaim — rangkaian baru mulai besok
+1303	🎁 Klaim Semua
+1304	🎁 Klaim Semua (
+1305	🎁 Klaim Hadiah
+1306	🎁 Klaim hadiah hari %d  (%d Ruby)
+1307	🎁 Kode
+1308	🎁 Hadiahkan ke teman
+1309	🎁 Hadiahkan ke
+1310	🎁 Menghadiahkan ke
+1311	🎁 Tukar Kode dengan Hadiah
+1312	🎉 Kode berhasil ditukar! Kamu dapat
+1314	🎒 Kapasitas
+1315	🎒 Pegang karung dulu (pilih di hotbar), lalu pungut barang
+1316	🎒 Tidak ada karung
+1317	🎒 Punya 3 kelas
+1318	🎒 Punya 6 kelas
+1319	🎒 Diterima
+1320	🎒 Karung
+1321	🎒 Karung  %d/%d
+1322	🎒 Karung penuh (%d/%d) — kosongkan di meja kerajinan di kemah
+1323	🎟\nGratis
+1324	🎟 Season Pass tingkat %d! Klaim hadiah di menu "Misi"
+1325	🎨 Warna:
+1326	🎨 Memuat model dan tekstur
+1327	🎨 Warna gelar baru:
+1328	🎨 Warna Gelar
+1329	🎫 Barang Game Pass:
+1330	🎫 Game Pass diterima:
+1331	🎲 Stok toko kelas diacak ulang
+1332	🎲 Acak Ulang Stok  ♦️
+1333	🏅 Lencana Pencapaian
+1334	🏅 Pencapaian terbuka:
+1335	🏅 Lencana didapat:
+1336	🏆 Kumpulkan semua kelas
+1337	🏆 Penyintas Terlama Sepanjang Masa
+1338	🏗 Bangunan
+1339	🏗 Taruh %s (sisa %d)  ·  Klik = taruh  ·  R = putar  ·  B/Esc = batal
+1340	🏗 Taruh %s (sisa %d)  ·  Klik = taruh  ·  R = putar  ·  Q = ganti jenis  ·  B = batal
+1341	🏗 Taruh %s (sisa %d) — bidik tengah layar lalu ketuk ✔
+1342	🏠 Kembali ke Lobi
+1343	🏷 Gelar baru:
+1344	🏷 Gelar
+1345	🐺 Buru 1000 hewan
+1346	🐾 Buru 250 hewan
+1347	🐾 Buru 50 hewan
+1348	🐾 Tukar
+1349	🐾 Penukaran berhasil! (sisa %d kali untuk barang ini)
+1350	🐾 Pedagang Keliling
+1351	👁 Hafalkan urutan pilar rune berkedip, lalu bangunkan sesuai urutan itu!
+1352	👁 Menonton:
+1353	👁 Tunggu pilar rune selesai menunjukkan urutannya
+1354	👑\nPremium
+1355	👑 Taklukkan Malam Terakhir
+1356	👑 Premium
+1357	👑 Premium (segera hadir)
+1358	👑 Premium ✔
+1360	👥 Pilih Jumlah Tim
+1361	👥 Platform
+1362	👥 Menunggu pemimpin platform memilih jumlah tim
+1363	👹 Kalahkan 10 bos
+1364	💔 Kehilangan HP
+1365	💡 Cahaya
+1366	💡 Cahaya mengusir Rusa Hampa
+1367	💥 Serangan area
+1368	📅 Login 7 Hari
+1369	📅 Login 7 hari berturut-turut
+1370	📅 Penyintas Terlama Minggu Ini
+1371	📅 Misi Mingguan
+1372	📏 Radius
+1373	📏 Jangkauan
+1374	📖 Cara Bermain
+1375	📖 Cara Bertahan Hidup
+1376	📜 Selesaikan 30 misi
+1377	📜 Misi baru telah tiba! Buka menu "Misi" di lobi
+1378	📜 Misi selesai! %s %s — kembali ke lobi untuk klaim hadiah
+1379	📜 Misi
+1380	📦 Di kemah: pakai barang di karung dulu, lalu ambil dari gudang kemah
+1381	📦 Menyimpan %d barang ke gudang kemah
+1382	🔄 Bawaan
+1383	🔍 Cari
+1384	🔒 Butuh meja Lv.
+1385	🔒 Jalur premium butuh Season Pass (Toko → Game Pass)
+1386	🔒 Tempat ini tersegel sampai run ini berakhir
+1387	🔥 Rangkaian %d hari   ·   Terbaik %d hari
+1388	🔥 Tambah 1,000 bahan bakar
+1389	🔥 Tambah 10,000 bahan bakar
+1390	🔥 Membakar
+1391	🔥 Kemah   ⛩ Altar Anak Roh   💀 Sarang Bos   🏛 Kuil Kuno   ☄📦 Event   ▲ Kamu   ● Rekan   (tempat muncul saat ditemukan)
+1392	🔥 Bahan bakar +
+1393	🔥 Bahan bakar ditambah:
+1394	🔥 Run terakhir: tim mencapai malam %d — coba lagi!
+1395	🔥 Menyalakan api unggun kemah
+1396	🔥 Bertahan total 100 malam
+1397	🔥 Bertahan total 20 malam
+1398	🔥 Api hampir padam! Sisa sekitar %s — lempar kayu/arang, cepat
+1399	🔥 Upgrade Api Unggun
+1400	🔨 Buat 250 barang
+1401	🔨 Buat 50 barang
+1402	🔨 Buat di meja Lv.
+1403	🔨 Dibuat:
+1404	🔨 Meja Kerajinan Lv.%d
+1405	🔨 Meja Kerajinan Lv.1
+1406	🗺 Ditemukan: %s%s
+1407	🗺 Ditemukan: Kuil Kuno
+1408	🚪 Berangkat ekspedisi 100 kali
+1409	🚪 Berangkat ekspedisi 20 kali
+1410	🛒 Membeli
+1411	🛒 Toko
+1412	🛡 Zirah
+1413	🛡 Buat + Pakai
+1414	🛡 %s dipakai! HP Maks +%d
+1415	🛡 HP
+1416	🛡 HP Maks +
+1417	🛡 Dipakai
+1418	🤝 Tukar
+1419	🧊 Memperlambat musuh
+1420	🩹 Obat
+1421	🩹 Hidupkan rekan 10 kali
+1422	🩹 Hidupkan rekan 50 kali
+1423	🪓 Tebang kayu x
+1424	🪵 Kumpulkan 1,000 bahan
+1425	Otomatis
+1426	Otomatis 🌐
+1427	Bahasa
+1429	%d pemain
+1430	Populer
+1431	Konfirmasi
+1432	Masuk Altar
+1433	Kembali ke Luar
+1434	Penggiling
+1435	Malam %s
+1436	Kuil %s
+1437	Peti Kuil %s
+1438	Altar %s
+1440	Butuh meja Lv.%d
+1441	Reset dalam %s
+1442	Misi selesai! %s - kembali ke lobi untuk klaim hadiah
+1443	Kemah
+1444	Aktif
+1445	Buka
+1446	[Klik] Pukul/Tebang   [Shift] Lari   [Ctrl] Kunci kamera   [C] Buat   [B] Bangun   [E] Pungut (pegang karung)   [F] Ambil   [M] Peta   [1-9] Pilih barang
