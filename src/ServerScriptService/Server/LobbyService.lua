@@ -401,7 +401,8 @@ local function classesTent(self, parent, cf)
 	-- ใช้ตัวละคร Roblox จริง (เจ้าหน้าที่อุทยาน) แทนหุ่นบล็อก
 	local assets = ReplicatedStorage:FindFirstChild("Assets")
 	local chars = assets and assets:FindFirstChild("Characters")
-	local src = chars and chars:FindFirstChild("Scout")
+	-- คนขายคลาส: ลุงโพกผ้า (Arbang · Import จาก 3D Model/home/arbang.glb) · ยังไม่ได้ Import = เจ้าหน้าที่อุทยานเดิม
+	local src = chars and (chars:FindFirstChild("Arbang") or chars:FindFirstChild("Scout"))
 	if src then
 		local npc = src:Clone()
 		npc.Name = "CounselorModel"
@@ -433,6 +434,7 @@ local function classesTent(self, parent, cf)
 				end)
 			end
 		end
+		-- โมเดล Import 3D ชิ้นเดียว: หน้าเมชตรงกับ -Z ของจุดหมุนอยู่แล้ว (ภาพเทสแล้ว) -> วางตรงๆ หันออกหาคนเดินเข้ามา
 		npc:PivotTo(keeperCf)
 		npc.Parent = parent
 		for _, d in ipairs(keeper:GetDescendants()) do

@@ -34,7 +34,7 @@
 38	 · Tebang
 39	 · Elemen
 40	 · Teman +10%
-41	 · Cahaya mengusir Rusa Hampa
+41	 · Cahaya mengusir Rubah Bulan
 42	 · Tambang
 43	 · Tekan E untuk menungganginya
 45	 — klaim ♦️
@@ -472,7 +472,7 @@
 542	Tinggi
 544	Petunjuk
 545	Memukul pohon/batu/hewan otomatis memilih kapak/beliung/senjata terbaik
-546	Pegang obor dan Rusa Hampa tidak berani mendekat
+546	Pegang obor dan Rubah Bulan tidak berani mendekat
 548	Beranda
 550	Sup Panas
 551	Sup panas dari Panci Rebus. Kenyang lama dan memulihkan banyak
@@ -530,7 +530,7 @@
 607	Membuat hewan terpental
 609	Sarang
 610	Lentera
-611	Lentera. Menerangi area dan mengusir Rusa Hampa
+611	Lentera. Menerangi area dan mengusir Rubah Bulan
 612	Domba Api Lahar
 613	Hantaman Lahar!
 614	Keluar Grup
@@ -543,7 +543,7 @@
 623	Level
 624	Leviatan
 625	Cahaya
-626	Cahaya mengusir Rusa Hampa
+626	Cahaya mengusir Rubah Bulan
 627	Pisau berburu ringan · Serangan sangat cepat
 629	Menyalakan api unggun...
 630	Batu Kapur
@@ -671,7 +671,7 @@
 772	Hutan Pinus
 774	Perintis
 775	Taruh
-776	Taruh untuk istirahat dan lewati 1 hari (+1 hari bertahan · ditaruh malam hari, dihitung pagi) · Maks 2 kasur per server per run
+776	Taruh untuk istirahat dan lewati 1 hari (+1 hari bertahan · ditaruh malam hari, dihitung pagi) · Maks 1 kasur per server per run
 777	Taruh untuk melewati 1 hari (+1 hari)
 778	Main!
 779	Pemain
@@ -891,7 +891,7 @@
 1023	Balista menembak sendiri. Taruh di sekitar api unggun
 1024	Tongkat api Elementalis. Serangan melontarkan bola api meledak ke musuh · Bisa menebang pohon/batu juga
 1025	Malam Terakhir
-1026	Rusa Hampa
+1026	Rubah Bulan
 1027	Gunung Berjalan
 1028	Alam Liar Bangkit
 1029	Bos datang
@@ -903,7 +903,7 @@
 1035	Api unggun menyala lagi
 1036	Api unggun sudah penuh
 1037	Api unggun adalah hidup
-1038	Api unggun adalah hidup — jika padam, Rusa Hampa masuk ke kemah
+1038	Api unggun adalah hidup — jika padam, Rubah Bulan masuk ke kemah
 1039	Meja kerajinan sudah level maks
 1040	Pilar kristal
 1041	Api padam, tidak bisa memasak
@@ -951,7 +951,7 @@
 1084	Atas
 1085	Isi ulang:
 1086	Obor
-1087	Obor penerang. Mengusir Rusa Hampa
+1087	Obor penerang. Mengusir Rubah Bulan
 1089	Kura-kura Darat
 1090	Tukar
 1092	Pengelana
@@ -1198,7 +1198,7 @@
 1363	👹 Kalahkan 10 bos
 1364	💔 Kehilangan HP
 1365	💡 Cahaya
-1366	💡 Cahaya mengusir Rusa Hampa
+1366	💡 Cahaya mengusir Rubah Bulan
 1367	💥 Serangan area
 1368	📅 Login 7 Hari
 1369	📅 Login 7 hari berturut-turut
@@ -1277,3 +1277,80 @@
 1444	Aktif
 1445	Buka
 1446	[Klik] Pukul/Tebang   [Shift] Lari   [Ctrl] Kunci kamera   [C] Buat   [B] Bangun   [E] Pungut (pegang karung)   [F] Ambil   [M] Peta   [1-9] Pilih barang
+1451	Palu Tukang
+1452	Palu tukang. Pegang lalu klik bangunan untuk memindahkan atau membongkarnya (dapat kembali setengah bahan)
+1453	Pegang Palu Tukang dulu
+1454	%s dipindahkan
+1455	Bongkar = dapat kembali setengah bahan
+1456	%s dibongkar — setengah bahan jatuh ke tanah
+1463	🔨 Klik bangunan di kemah untuk memindahkan atau membongkar
+1464	🔨 Pindahkan %s  ·  Klik = taruh di sini  ·  R = putar  ·  Esc = batal
+1465	🔨 Pindahkan %s — bidik tengah layar lalu ketuk ✔
+1466	🔨 Ketuk bangunan di kemah untuk memindahkan atau membongkar
+1467	Pindahkan
+1468	Bongkar
+1470	%s melewati %d hari · Hari %d
+1473	Avatar Empat Elemen
+1474	Hisap Darah
+1475	Raja Darah
+1476	Senjata elemen 25% lebih kuat · Pulih 0.3 HP/detik
+1477	Senjata elemen 45% lebih kuat · HP Maks +20 · Lari 8% lebih cepat
+1478	Senjata elemen 70% lebih kuat · Semua damage +15% · Pulih 0.6 HP/detik
+1479	Bijak Empat Elemen
+1480	Dapatkan pass dulu
+1481	Harmoni
+1482	Pulih 12% dari damage · Damage +20% di malam hari
+1483	Pulih 18% dari damage · Damage +35% di malam hari · HP Maks +20
+1484	Pulih 8% dari damage yang kamu berikan
+1485	Curi Nyawa
+1487	Pemburu Malam
+1488	Sekarang hari %d
+1490	Khusus Pass
+1491	Pass segera hadir
+1492	Khusus pass — segera hadir
+1496	Berkah Sang Bijak
+1499	Buka dengan Pass
+1500	Buka dengan pass %s (R$ %d)
+1501	Membuka kelas Bijak Empat Elemen — khusus pass
+1502	Vampir
+1509	x%d hari
+1510	x%d hari (dihitung %s)
+1512	🌟 Menyelamatkan %s — melewati %d hari! Sekarang hari %d
+1513	🎫 Pass
+1514	🎫 Buka dengan Pass
+1518	Buka dengan %s (R$ %d)
+1519	Membuka jalur premium Season Pass tiap musim · Lebih banyak Ruby + gelar/warna gelar spesial · Kelas Bijak Empat Elemen
+1521	Tebang kayu x1.8 · Bangunan x1.5 lebih kuat · Pulih 0.4 HP/detik
+1522	Pelukan Hutan
+1523	Jantung Alam Liar
+1525	Kayu Hidup
+1526	HP Maks +30 · Pulih 0.8 HP/detik · Damage +15% · Berburu dapat +1 barang
+1527	Pulih 0.4 HP/detik · Penyembuhan +25%
+1528	Membuka jalur premium Season Pass tiap musim · Lebih banyak Ruby + gelar/warna gelar spesial · Kelas Druid Rimba
+1529	Druid Rimba
+1532	Tongkat Arkana
+1533	Serangan +30%
+1534	Gigitan Darah
+1535	Penuai Darah
+1536	Senjata elemen 65% lebih kuat · Skill: Badai Meteor — 6 meteor jatuh di titik bidikan · Cooldown 90 dtk
+1537	Tongkat khas Elementalis · Menembakkan peluru arkana yang meledak (kuat terhadap semua elemen)
+1538	Pulih 2% HP maks setiap membunuh monster
+1539	HP Maks +30 · Pulih 0.8 HP/detik · Skill: Suaka Alam — hutan kecil yang memulihkan tim dan memperlambat monster 12 dtk · Cooldown 100 dtk
+1541	Skill: panggil 5 kelelawar (200 HP) yang menyerang monster · Cooldown 120 dtk · Pakai lagi = kawanan baru menggantikan yang lama
+1542	Kawanan
+1543	Sabit khas Vampir · Jangkauan jauh, menyapu sekelompok musuh
+1544	Tongkat Hijau
+1545	Tongkat khas Druid · Menembakkan duri yang memperlambat monster · Tidak bisa menebang atau menambang
+1546	Semua damage +30%
+1547	Sihir Gelap
+1548	Meteor Gelap
+1549	Kekuatan Gelap
+1550	Penyihir Gelap
+1551	Pulih 3% HP setiap 2 detik
+1552	Lari 30% lebih cepat
+1553	Selubung Bayangan
+1554	Skill: meteor gelap jatuh dari langit, damage besar area luas dan meninggalkan zona api gelap 10 dtk (membakar 2% HP/detik) · Cooldown 120 dtk
+1555	Skill: setrum monster di sekitar 4 dtk (bos 2 dtk) dan meracuni — kehilangan 1% HP/detik selama 15 dtk · Cooldown 150 dtk
+1556	Skill: tak terlihat dan lari 50% lebih cepat 4 dtk (hilang saat memberi damage) · Cooldown 30 dtk
+1557	Belenggu Duri
+1558	Langkah Liar

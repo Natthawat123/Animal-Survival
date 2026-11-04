@@ -1,0 +1,139 @@
+ERR: torError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+orOutput] [AS] ???????????????????...
+orOutput] [AS] seed=924940757 map=2048
+rOutput] [AS] client ready
+orOutput] [AS] terrain 7.0s
+orOutput] [AS] world ready 8.3s props=469
+orOutput] [AS] READY
+orOutput] [AS] SKILLPROBE PASS vamp-lv2-no-skill 
+orOutput] [AS] SKILLPROBE PASS vamp-dmg30 
+orOutput] [AS] SKILLPROBE PASS vamp-lv3-swarm Swarm
+orOutput] [AS] SKILLPROBE PASS vamp-kill-heal 52.9
+orOutput] [AS] SKILLPROBE PASS swarm-use 
+orOutput] [AS] SKILLPROBE PASS bats-guard hp=92.0
+orOutput] [AS] SKILLPROBE PASS swarm-5 5
+orOutput] [AS] SKILLPROBE PASS swarm-cooldown 
+orOutput] [AS] SKILLPROBE PASS bats-damage 
+orOutput] [AS] SKILLPROBE PASS basic-dmg-BloodScythe 20/70
+orOutput] [AS] SKILLPROBE PASS basic-dmg-ArcaneStaff 2/70
+orOutput] [AS] SKILLPROBE PASS basic-dmg-VerdantStaff 44/70
+orOutput] [AS] SKILLPROBE PASS dark-name 
+orOutput] [AS] SKILLPROBE PASS dark-dmg30 
+orOutput] [AS] SKILLPROBE PASS dark-lv1-no-skill 
+orOutput] [AS] SKILLPROBE PASS bats-gone-on-class-change 0
+ERR: torError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+orOutput] [AS] SKILLPROBE PASS dark-lv2-veil ShadowVeil
+rOutput] [AS] SKILLPROBE PASS dark-lv3-two-skills ShadowVeil,DarkMeteor
+orOutput] [AS] SKILLPROBE PASS veil-target-before 
+orOutput] [AS] SKILLPROBE PASS veil-use 
+orOutput] [AS] SKILLPROBE PASS veil-invisible 
+orOutput] [AS] SKILLPROBE PASS veil-untargeted 
+orOutput] [AS] SKILLPROBE PASS veil-transparent 0.8500000238418579
+orOutput] [AS] SKILLPROBE PASS veil-breaks-on-damage 
+orOutput] [AS] SKILLPROBE PASS veil-visible-again 0
+orOutput] [AS] ???????????????????...
+rOutput] [AS] seed=342970419 map=2048
+orOutput] [AS] client ready
+rOutput] [AS] SKILLPROBE PASS veil-expires 
+orOutput] [AS] SKILLPROBE PASS meteor-use 
+orOutput] [AS] SKILLPROBE PASS meteor-impact dead
+orOutput] [AS] SKILLPROBE PASS meteor-burn-2pct 6000 (expect ~6000)
+rOutput] [AS] terrain 8.5s
+orOutput] [AS] SKILLPROBE PASS druid-regen 
+orOutput] [AS] world ready 10.1s props=288
+orOutput] [AS] READY
+orOutput] [AS] SKILLPROBE PASS druid-regen-3pct-2s +4.6 in 2s (max 115)
+orOutput] [AS] SKILLPROBE PASS druid-speed30 
+orOutput] [AS] SKILLPROBE PASS druid-lv2-no-skill 
+orOutput] [AS] SKILLPROBE PASS druid-lv3-thorn 
+orOutput] [AS] SKILLPROBE PASS thorn-use 
+orOutput] [AS] SKILLPROBE PASS thorn-stun-4 3.999464900000021
+orOutput] [AS] SKILLPROBE PASS thorn-boss-stun-2 1.9994649000000209
+orOutput] [AS] SKILLPROBE PASS thorn-poison-15 
+orOutput] [AS] SKILLPROBE PASS thorn-stunned-still 0.005634307861328125
+orOutput] [AS] SKILLPROBE PASS thorn-poison-ticks 68.6 -> 64.6
+orOutput] [AS] SKILLPROBE PASS thorn-cooldown 
+rOutput] [AS] SKILLPROBE PASS survivor-no-skill 
+rOutput] [AS] SKILLPROBE RESULT fails=0
+shot fx_scythe_swing_a
+orOutput] [AS] SWING Spear idle fwd=-0.03 up=1.00
+shot swing_Spear_idle_side
+shot fx_scythe_swing_b
+shot fx_scythe_hit_a
+shot swing_Spear_idle_front
+orOutput] [AS] SWING Spear A_wind fwd=0.81 up=0.10
+shot fx_scythe_hit_b
+shot fx_arcane_cast_a
+shot swing_Spear_A_wind
+rOutput] [AS] SWING Spear A_hit fwd=0.90 up=-0.27
+shot fx_arcane_cast_b
+shot fx_arcane_impact_a
+shot swing_Spear_A_hit
+orOutput] [AS] SWING Spear B_wind fwd=-0.79 up=0.26
+shot swing_Spear_B_wind
+shot fx_arcane_impact_b
+shot fx_verdant_impact_a
+shot fx_verdant_impact_b
+rOutput] [AS] SWING Spear B_hit fwd=-0.86 up=0.05
+shot swing_Spear_B_hit
+shot fx_veil_a
+shot fx_veil_b
+orOutput] [AS] SWING TidalTrident idle fwd=-0.03 up=1.00
+shot swing_TidalTrident_idle_side
+shot fx_swarm_1
+shot fx_swarm_2
+shot swing_TidalTrident_idle_front
+shot fx_meteor_1
+orOutput] [AS] SWING TidalTrident A_wind fwd=0.81 up=0.10
+shot swing_TidalTrident_A_wind
+shot fx_meteor_2
+shot fx_meteor_3
+orOutput] [AS] SWING TidalTrident A_hit fwd=0.90 up=-0.27
+shot swing_TidalTrident_A_hit
+shot fx_meteor_4
+shot fx_meteor_5
+orOutput] [AS] SWING TidalTrident B_wind fwd=-0.79 up=0.26
+shot swing_TidalTrident_B_wind
+orOutput] [AS] SWING TidalTrident B_hit fwd=-0.86 up=0.05
+shot swing_TidalTrident_B_hit
+shot fx_thorn_1
+orOutput] [AS] SWING TidalTrident C_wind fwd=-0.03 up=1.00
+shot swing_TidalTrident_C_wind
+shot fx_thorn_2
+eatorWarning] Warning: [AS] fx StalkerStare Unable to assign property SoundId. ContentId expected, got table
+shot fx_thorn_3
+orOutput] [AS] SWING TidalTrident C_hit fwd=0.26 up=-0.97
+shot swing_TidalTrident_C_hit
+reatorWarning] Warning: [AS] fx StalkerStare Unable to assign property SoundId. ContentId expected, got table
+orOutput] [TEST] DONE swingprobe
+reatorWarning] Warning: [AS] fx StalkerStare Unable to assign property SoundId. ContentId expected, got table
+torOutput] [AS] SKILLPROBE PASS slot1-ShadowVeil true
+torOutput] [AS] SKILLPROBE PASS slot2-DarkMeteor true
+shot fx_e2e_slots
+torOutput] [AS] SKILLPROBE INFO real-key-Z unavailable The current thread cannot call 'SendKeyEvent' (lacking capability RobloxScript)
+shot fx_e2e_meteor_1
+torOutput] [AS] SKILLPROBE PASS client-use-DarkMeteor 
+shot fx_e2e_meteor_2
+orOutput] [AS] SKILLPROBE PASS meteor-cooldown-ui 0.976773202419281
+orOutput] [AS] SKILLPROBE PASS meteor-cooldown-120 117.18347406387329
+orOutput] [AS] SKILLPROBE INFO real-click-slot1 unavailable The current thread cannot call 'SendMouseButtonEvent' (lacking capability RobloxScript)
+torOutput] [AS] SKILLPROBE PASS client-use-ShadowVeil 
+torOutput] [AS] SKILLPROBE PASS veil-invisible 
+shot fx_e2e_veil
+orOutput] [AS] SKILLPROBE PASS slot1-Swarm true
+orOutput] [AS] SKILLPROBE PASS vamp-slot2-hidden 
+orOutput] [AS] SKILLPROBE INFO real-key-Q unavailable
+torOutput] [AS] SKILLPROBE PASS client-use-Swarm 
+shot fx_e2e_swarm_1
+torOutput] [AS] SKILLPROBE PASS client-swarm-5-bats 5
+shot fx_e2e_swarm_2
+torOutput] [AS] SKILLPROBE PASS bats-visible-client 5
+torOutput] [AS] SKILLPROBE PASS slot1-ThornBind true
+shot fx_e2e_thorn_1
+torOutput] [AS] SKILLPROBE PASS client-use-ThornBind 
+shot fx_e2e_thorn_2
+orOutput] [AS] SKILLPROBE CLIENT fails=0
+orOutput] [AS] SKILLPROBE FXSHOW DONE
+orOutput] [AS] SKILLPROBE E2E fails=0
+orOutput] [AS] SKILLPROBE DONE
+finished in 197s  done=True

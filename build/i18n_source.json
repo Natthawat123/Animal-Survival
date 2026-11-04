@@ -32,6 +32,9 @@
 " (same or better)": [
 "CampService.lua"
 ],
+" <font color=\"#6EFF8C\" size=\"32\">x%d</font>": [
+"HUD.lua"
+],
 " Bonus!": [
 "StoreUI.lua"
 ],
@@ -124,7 +127,7 @@
 " · Friends +10%": [
 "DataService.lua"
 ],
-" · Light scares off the Hollow Stag": [
+" · Light scares off the Moonfang": [
 "Menus.lua"
 ],
 " · Mine ": [
@@ -143,9 +146,6 @@
 "CampService.lua",
 "InventoryService.lua",
 "TraderService.lua"
-],
-" — skipped 1 day! Now day %d": [
-"SpiritService.lua"
 ],
 " — tap a slot below to put it in": [
 "Backpack.lua"
@@ -222,6 +222,9 @@
 "%s  Lv.%d → %s": [
 "Menus.lua"
 ],
+"%s  ·  HP %d/%d": [
+"BuildHammer.lua"
+],
 "%s %d days": [
 "LobbyService.lua"
 ],
@@ -266,6 +269,9 @@
 "%s revived %s just in time": [
 "SurvivalService.lua"
 ],
+"%s skipped %d days · Day %d": [
+"DirectorService.lua"
+],
 "%s skipped 1 day · Day %d": [
 "DirectorService.lua"
 ],
@@ -284,6 +290,10 @@
 "%s%s+": [
 "MapUI.lua"
 ],
+"%s*%b()$": [
+"BuildHammer.lua",
+"BuildingService.lua"
+],
 "%s+": [
 "QuestService.lua"
 ],
@@ -295,9 +305,6 @@
 ],
 "+%d %s %s": [
 "HUD.lua"
-],
-"+1 Day": [
-"Cinematics.lua"
 ],
 "+1 Day (counted %s)": [
 "DirectorService.lua"
@@ -396,6 +403,9 @@
 "All Time · [ This Week ]": [
 "LobbyService.lua"
 ],
+"All damage +30%": [
+"Classes.lua"
+],
 "All servers · Updates every minute": [
 "LobbyService.lua"
 ],
@@ -458,6 +468,12 @@
 "Antlers": [
 "Animals.lua"
 ],
+"Arbang": [
+"LobbyService.lua"
+],
+"Arcane Staff": [
+"Items.lua"
+],
 "Armor": [
 "Items.lua",
 "Menus.lua"
@@ -485,6 +501,9 @@
 "TeamPing.lua",
 "WorldEventsClient.lua"
 ],
+"Attack +30%": [
+"Classes.lua"
+],
 "Audio": [
 "SettingsUI.lua"
 ],
@@ -505,6 +524,9 @@
 ],
 "Axe": [
 "Items.lua"
+],
+"Azure Royal Elephant": [
+"Animals.lua"
 ],
 "BEAST VANQUISHED": [
 "Cinematics.lua"
@@ -585,6 +607,7 @@
 "Config.lua"
 ],
 "Bed": [
+"HUD.lua",
 "Items.lua",
 "Menus.lua",
 "Recipes.lua"
@@ -654,8 +677,15 @@
 "Blocks animal packs": [
 "Menus.lua"
 ],
+"Blood Bite": [
+"Classes.lua"
+],
 "Blood Moon": [
+"Classes.lua",
 "Quests.lua"
+],
+"Blood Reaper": [
+"Items.lua"
 ],
 "Body": [
 "LobbyService.lua"
@@ -711,6 +741,12 @@
 "Quests.lua",
 "Shop.lua",
 "Tutorial.lua"
+],
+"Builder's Hammer": [
+"Items.lua"
+],
+"Builder's hammer. Hold it and click a building to move it or remove it (get half the materials back)": [
+"Items.lua"
 ],
 "Buildings": [
 "Items.lua",
@@ -1055,6 +1091,18 @@
 "SettingsUI.lua",
 "StoreUI.lua"
 ],
+"Dark Magic": [
+"Classes.lua"
+],
+"Dark Meteor": [
+"Classes.lua"
+],
+"Dark Power": [
+"Classes.lua"
+],
+"Dark Sorcerer": [
+"Classes.lua"
+],
 "Data is still loading, try again": [
 "QuestService.lua"
 ],
@@ -1228,9 +1276,6 @@
 "Element Essence (any element)": [
 "Items.lua"
 ],
-"Element Master": [
-"Classes.lua"
-],
 "Element Meteor": [
 "EventService.lua"
 ],
@@ -1243,28 +1288,15 @@
 "Elemental": [
 "Shop.lua"
 ],
-"Elemental Magic": [
-"Classes.lua"
-],
 "Elemental Power": [
-"Classes.lua",
 "Items.lua"
-],
-"Elemental Touch": [
-"Classes.lua"
-],
-"Elemental weapons (incl. Fire Staff) 20% stronger · Frail: Max HP -10": [
-"Classes.lua"
-],
-"Elemental weapons 40% stronger · Stamina +15%": [
-"Classes.lua"
-],
-"Elemental weapons 65% stronger · Max HP +10": [
-"Classes.lua"
 ],
 "Elementalist": [
 "Classes.lua",
 "Tutorial.lua"
+],
+"Elementalist's signature staff · Fires exploding arcane bolts (strong against every element)": [
+"Items.lua"
 ],
 "Ember": [
 "Quests.lua"
@@ -1502,6 +1534,9 @@
 "Forest Feller": [
 "Classes.lua"
 ],
+"Forest's Embrace": [
+"Classes.lua"
+],
 "Fortress": [
 "Classes.lua"
 ],
@@ -1622,6 +1657,9 @@
 "Generating world... %d%%": [
 "Cinematics.lua"
 ],
+"Get the pass first": [
+"ClassShop.lua"
+],
 "Get: ": [
 "Menus.lua"
 ],
@@ -1727,6 +1765,9 @@
 "Heal ": [
 "Menus.lua"
 ],
+"Heal 2% max HP after every monster kill": [
+"Classes.lua"
+],
 "Healer's Hands": [
 "Classes.lua"
 ],
@@ -1776,11 +1817,17 @@
 "Hints": [
 "SettingsUI.lua"
 ],
+"Hips": [
+"Animals.lua"
+],
 "Hitting trees/rocks/animals picks the best axe/pickaxe/weapon for you": [
 "SettingsUI.lua"
 ],
-"Hold a torch and the Hollow Stag won't dare come near": [
+"Hold a torch and the Moonfang won't dare come near": [
 "Cinematics.lua"
+],
+"Hold the Builder's Hammer first": [
+"BuildingService.lua"
 ],
 "Holder": [
 "MedAnim.lua"
@@ -1901,9 +1948,6 @@
 "LobbyService.lua",
 "TeamPing.lua"
 ],
-"Inkshade Octopus": [
-"Animals.lua"
-],
 "Instance": [
 "TeamPing.lua"
 ],
@@ -1997,7 +2041,7 @@
 "Items.lua",
 "Recipes.lua"
 ],
-"Lantern. Lights the area and scares off the Hollow Stag": [
+"Lantern. Lights the area and scares off the Moonfang": [
 "Items.lua"
 ],
 "Lava Fire Ram": [
@@ -2041,14 +2085,20 @@
 "Biomes.lua",
 "Nights.lua"
 ],
+"Lifesteal": [
+"Classes.lua"
+],
 "Light": [
 "Menus.lua"
 ],
-"Light scares off the Hollow Stag": [
+"Light scares off the Moonfang": [
 "Menus.lua"
 ],
 "Light, fast hunting knife · Very quick strikes": [
 "Items.lua"
+],
+"LightBlast/SUPER ANIME LIGHT GOLDEN BLAST/FireMegaExplosion": [
+"CombatClient.lua"
 ],
 "Lighting": [
 "Cinematics.lua"
@@ -2271,6 +2321,9 @@
 "Mouse": [
 "ItemTooltip.lua"
 ],
+"Moved %s": [
+"BuildingService.lua"
+],
 "Moved (you must stand still while bandaging)": [
 "SurvivalService.lua"
 ],
@@ -2372,7 +2425,6 @@
 "LobbyService.lua"
 ],
 "None": [
-"Animals.lua",
 "QuestUI.lua"
 ],
 "Not enough items to trade": [
@@ -2396,15 +2448,12 @@
 "Notify": [
 "TeamPing.lua"
 ],
-"Now day ": [
+"Now day %d": [
 "Cinematics.lua"
 ],
 "Oak": [
 "Biomes.lua",
 "LobbyService.lua"
-],
-"Octopus": [
-"Animals.lua"
 ],
 "Odds": [
 "ClassShop.lua"
@@ -2440,6 +2489,9 @@
 ],
 "Open Supply Chest": [
 "EventService.lua"
+],
+"Opened": [
+"MapUI.lua"
 ],
 "Origin": [
 "LobbyService.lua"
@@ -2487,6 +2539,15 @@
 "Cinematics.lua",
 "LobbyService.lua"
 ],
+"Pass Exclusive": [
+"Classes.lua"
+],
+"Pass coming soon": [
+"ClassShop.lua"
+],
+"Pass exclusive — coming soon": [
+"ClassShop.lua"
+],
 "Passive": [
 "Animals.lua"
 ],
@@ -2500,6 +2561,9 @@
 "Animals.lua",
 "HUD.lua",
 "Items.lua"
+],
+"Pending": [
+"HUD.lua"
 ],
 "Pet": [
 "Cinematics.lua"
@@ -2518,6 +2582,9 @@
 ],
 "Pick Berries": [
 "BuildingService.lua"
+],
+"Pick Up": [
+"DropService.lua"
 ],
 "Pickaxe": [
 "Items.lua",
@@ -2543,7 +2610,7 @@
 "Menus.lua",
 "MobileControls.lua"
 ],
-"Place it to rest and skip 1 day (counts +1 day survived · placed at night, it counts in the morning) · Max 2 beds per server per run": [
+"Place it to rest and skip 1 day (counts +1 day survived · placed at night, it counts in the morning) · Max 1 bed per server per run": [
 "Items.lua"
 ],
 "Place to skip 1 day (+1 day)": [
@@ -2685,6 +2752,9 @@
 "Regen 0.5 HP/sec at all times": [
 "Classes.lua"
 ],
+"Regen 3% HP every 2 seconds": [
+"Classes.lua"
+],
 "Rejoin": [
 "RejoinUI.lua"
 ],
@@ -2702,6 +2772,12 @@
 ],
 "Remotes.Init must be called from the server": [
 "Remotes.lua"
+],
+"Remove = get half the materials back": [
+"BuildHammer.lua"
+],
+"Removed %s — half the materials dropped on the ground": [
+"BuildingService.lua"
 ],
 "Repairs nearby walls": [
 "Menus.lua"
@@ -2759,9 +2835,6 @@
 "MapUI.lua",
 "WorldEventsClient.lua"
 ],
-"Ribs": [
-"Animals.lua"
-],
 "Right Shoulder": [
 "CombatClient.lua",
 "MedAnim.lua"
@@ -2789,6 +2862,12 @@
 ],
 "Round": [
 "Animals.lua"
+],
+"Royal Bed": [
+"Items.lua"
+],
+"Royal Bed (+1 Day)": [
+"Items.lua"
 ],
 "Ruby": [
 "Cinematics.lua",
@@ -2818,6 +2897,9 @@
 "Classes.lua"
 ],
 "Run 20% faster · Stamina x2 · Hunting drops +1 extra item": [
+"Classes.lua"
+],
+"Run 30% faster": [
 "Classes.lua"
 ],
 "Run 5% faster · Stamina +15%": [
@@ -2855,6 +2937,9 @@
 ],
 "Safe zone expanded": [
 "Cinematics.lua"
+],
+"Sage": [
+"Classes.lua"
 ],
 "Salt": [
 "Biomes.lua"
@@ -2934,6 +3019,9 @@
 "Settings": [
 "LobbyUI.lua"
 ],
+"Shadow Veil": [
+"Classes.lua"
+],
 "Shadow of the Wilds": [
 "Classes.lua"
 ],
@@ -2996,6 +3084,18 @@
 ],
 "Skeleton": [
 "Animals.lua"
+],
+"Skill: a dark meteor crashes from the sky, heavy damage in a wide area and leaves a dark fire zone for 10s (burns 2% HP/sec) · Cooldown 120s": [
+"Classes.lua"
+],
+"Skill: stun nearby monsters for 4s (bosses 2s) and poison them — lose 1% HP/sec for 15s · Cooldown 150s": [
+"Classes.lua"
+],
+"Skill: summon 5 bats (200 HP) that attack monsters · Cooldown 120s · Using it again replaces the old swarm": [
+"Classes.lua"
+],
+"Skill: turn invisible and run 50% faster for 4s (breaks when you deal damage) · Cooldown 30s": [
+"Classes.lua"
 ],
 "Skills": [
 "ClassShop.lua"
@@ -3109,7 +3209,8 @@
 "Quests.lua"
 ],
 "Spirit Pup": [
-"Cinematics.lua"
+"Cinematics.lua",
+"SpiritService.lua"
 ],
 "Spirit Pups rescued %d/4 — rescue them all for the true ending": [
 "Cinematics.lua"
@@ -3293,6 +3394,9 @@
 "Survivor Camp": [
 "Biomes.lua"
 ],
+"Swarm": [
+"Classes.lua"
+],
 "Switch": [
 "MobileControls.lua",
 "PadUI.lua"
@@ -3309,7 +3413,7 @@
 "THE GREAT MIGRATION": [
 "WorldEventsClient.lua"
 ],
-"THE HOLLOW STAG": [
+"THE MOONFANG": [
 "Animals.lua"
 ],
 "TYRANNOMOSA, Terror of the Deep": [
@@ -3389,13 +3493,13 @@
 "The Ballista fires on its own. Place them around the campfire": [
 "Cinematics.lua"
 ],
-"The Elementalist's fire staff. Hits launch exploding fireballs at enemies · Can also chop trees/rocks": [
+"The Elementalist's fire staff. Hits launch exploding fireballs at enemies · Can't chop trees or mine rocks": [
 "Items.lua"
 ],
 "The Final Night": [
 "Nights.lua"
 ],
-"The Hollow Stag": [
+"The Moonfang": [
 "Animals.lua"
 ],
 "The Walking Mountain": [
@@ -3431,7 +3535,7 @@
 "The campfire is life": [
 "Tutorial.lua"
 ],
-"The campfire is life — when it goes out, the Hollow Stag enters the camp": [
+"The campfire is life — when it goes out, the Moonfang enters the camp": [
 "Cinematics.lua"
 ],
 "The crafting bench is already max level": [
@@ -3488,6 +3592,9 @@
 "This server only (save system not connected yet)": [
 "LobbyService.lua"
 ],
+"Thorn Bind": [
+"Classes.lua"
+],
 "Thornboar": [
 "Animals.lua"
 ],
@@ -3533,6 +3640,9 @@
 "Tide Trident": [
 "Items.lua"
 ],
+"Tier": [
+"MapUI.lua"
+],
 "Tier ": [
 "QuestUI.lua"
 ],
@@ -3562,6 +3672,7 @@
 "BuildingService.lua"
 ],
 "Too far away": [
+"BuildHammer.lua",
 "BuildingService.lua"
 ],
 "Too far from your teammate": [
@@ -3584,7 +3695,7 @@
 "Items.lua",
 "Recipes.lua"
 ],
-"Torch for light. Scares off the Hollow Stag": [
+"Torch for light. Scares off the Moonfang": [
 "Items.lua"
 ],
 "Torso": [
@@ -3642,6 +3753,12 @@
 "Unlock This Class": [
 "ClassShop.lua"
 ],
+"Unlock with %s (R$ %d)": [
+"ClassShop.lua"
+],
+"Unlock with Pass": [
+"ClassShop.lua"
+],
 "Unlocked": [
 "Cinematics.lua"
 ],
@@ -3654,7 +3771,7 @@
 "Unlocks more craftable items": [
 "Menus.lua"
 ],
-"Unlocks the Season Pass premium track every season · More Ruby + special titles/title colors": [
+"Unlocks the Season Pass premium track every season · More Ruby + special titles/title colors · Wildwood Druid class": [
 "Config.lua"
 ],
 "Unsealed!": [
@@ -3708,8 +3825,17 @@
 "VFXPack/vfx pack/f": [
 "CombatClient.lua"
 ],
+"Vampire": [
+"Classes.lua"
+],
+"Vampire's signature scythe · Huge reach, sweeps groups of enemies": [
+"Items.lua"
+],
 "Vegetation": [
 "LobbyService.lua"
+],
+"Verdant Staff": [
+"Items.lua"
 ],
 "Verdant Wilds": [
 "Biomes.lua"
@@ -3838,8 +3964,17 @@
 "Wide": [
 "Cinematics.lua"
 ],
+"Wild Stride": [
+"Classes.lua"
+],
 "Wildheart Camp": [
 "Biomes.lua"
+],
+"Wildwood Druid": [
+"Classes.lua"
+],
+"Wildwood Druid's signature staff · Fires thorn bolts that slow monsters · Can chop and mine too": [
+"Items.lua"
 ],
 "Wind": [
 "Biomes.lua"
@@ -3901,6 +4036,7 @@
 ],
 "You already have ": [
 "CampService.lua",
+"DropService.lua",
 "TraderService.lua"
 ],
 "You already have the %s class — got %d Ruby instead": [
@@ -3981,8 +4117,23 @@
 "^HintSlot%d$": [
 "SanctumService.lua"
 ],
+"^Sanctum": [
+"PortalService.lua"
+],
+"a Sanctum": [
+"PortalService.lua"
+],
+"a Shrine": [
+"PortalService.lua"
+],
 "a few minutes": [
 "HUD.lua"
+],
+"added to the day": [
+"PortalService.lua"
+],
+"added to the next day": [
+"PortalService.lua"
 ],
 "after the final night": [
 "DirectorService.lua"
@@ -4011,6 +4162,15 @@
 "the team": [
 "DataService.lua"
 ],
+"x%d": [
+"HUD.lua"
+],
+"x%d days": [
+"Cinematics.lua"
+],
+"x%d days (counted %s)": [
+"DirectorService.lua"
+],
 "~ SURVIVE 99 NIGHTS ~": [
 "LobbyService.lua"
 ],
@@ -4037,6 +4197,9 @@
 ],
 "⏱ Speed %.1f hits/sec": [
 "ItemTooltip.lua"
+],
+"⏳ %s entered %s — +%d minutes %s": [
+"PortalService.lua"
 ],
 "⏳ Awaken all the rune pillars: %d seconds": [
 "WorldEventsClient.lua"
@@ -4117,14 +4280,23 @@
 "⚔ Damage ": [
 "ItemTooltip.lua"
 ],
+"⚔ Defeat all 3 waves of guardians first": [
+"SanctumService.lua"
+],
 "⚔ Join the team in progress": [
 "LobbyService.lua"
 ],
 "⚔ Kill": [
 "ClassShop.lua"
 ],
+"⚔ The %s Sanctum guardians awaken! Wave 1/%d — %d guardians": [
+"SanctumService.lua"
+],
 "⚔ Walk through the portal to start the game": [
 "LobbyService.lua"
+],
+"⚔ Wave %d/%d — %d guardians!": [
+"GuardianWaves.lua"
 ],
 "⚔ Weapons/Tools": [
 "Menus.lua"
@@ -4169,11 +4341,17 @@
 "✔ Rejoin": [
 "RejoinUI.lua"
 ],
+"✔ Wave %d/%d cleared! Next wave (%d guardians) in %d seconds": [
+"GuardianWaves.lua"
+],
 "✕ No thanks": [
 "RejoinUI.lua"
 ],
 "✖ Stopped bandaging — ": [
 "SurvivalService.lua"
+],
+"✨ All guardians defeated! Memorize the order the rune pillars flash, then awaken them in that order": [
+"SanctumService.lua"
 ],
 "✨ Can revive downed teammates": [
 "ItemTooltip.lua"
@@ -4241,7 +4419,7 @@
 "🌙 Survive to Night 5": [
 "Quests.lua"
 ],
-"🌟 Rescued ": [
+"🌟 Rescued %s — skipped %d days! Now day %d": [
 "SpiritService.lua"
 ],
 "🌫 The fog is too thick — upgrade the campfire to explore further": [
@@ -4345,6 +4523,12 @@
 ],
 "🎫 Game Pass received: ": [
 "MonetizationService.lua"
+],
+"🎫 Pass": [
+"ClassShop.lua"
+],
+"🎫 Unlock with Pass": [
+"ClassShop.lua"
 ],
 "🎲 Class shop stock rerolled": [
 "DataService.lua"
@@ -4452,7 +4636,7 @@
 "💡 Light ": [
 "ItemTooltip.lua"
 ],
-"💡 Light scares off the Hollow Stag": [
+"💡 Light scares off the Moonfang": [
 "ItemTooltip.lua"
 ],
 "💥 Area attack ": [
@@ -4527,7 +4711,7 @@
 "🔥 Burn ": [
 "ItemTooltip.lua"
 ],
-"🔥 Camp   ⛩ Spirit Pup Shrine   💀 Boss Lair   🏛 Ancient Sanctum   ☄📦 Events   ▲ You   ● Teammates   (places appear when discovered)": [
+"🔥 Camp   ⛩ Spirit Pup Shrine   💀 Boss Lair   🏛 Ancient Sanctum   ▣ Chest   ☄📦 Events   ▲ You   ● Teammates   (places show up once the campfire light reaches them or you visit)": [
 "MapUI.lua"
 ],
 "🔥 Fuel +": [
@@ -4554,6 +4738,9 @@
 "🔥 Upgrade Campfire": [
 "Menus.lua"
 ],
+"🔨 Click a building in camp to move or remove it": [
+"BuildHammer.lua"
+],
 "🔨 Craft 250 items": [
 "Quests.lua"
 ],
@@ -4571,6 +4758,15 @@
 ],
 "🔨 Crafting Bench Lv.1": [
 "Menus.lua"
+],
+"🔨 Move %s  ·  Click = place here  ·  R = rotate  ·  Esc = cancel": [
+"Menus.lua"
+],
+"🔨 Move %s — aim at the center of the screen and tap ✔": [
+"Menus.lua"
+],
+"🔨 Tap a building in camp to move or remove it": [
+"BuildHammer.lua"
 ],
 "🗺 Discovered: %s%s": [
 "MapUI.lua"
@@ -4628,5 +4824,11 @@
 ],
 "🪵 Gather 1,000 materials": [
 "Quests.lua"
+],
+"🫧 %ds": [
+"HUD.lua"
+],
+"🫧 Drowning!": [
+"HUD.lua"
 ]
 }

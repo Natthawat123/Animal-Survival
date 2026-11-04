@@ -63,7 +63,7 @@ function ItemTooltip.Info(id)
 			table.insert(stats, "➶ Pierces " .. num(t.Pierce) .. " enemies")
 		end
 		if t.Light then
-			table.insert(stats, "💡 Light scares off the Hollow Stag")
+			table.insert(stats, "💡 Light scares off the Moonfang")
 		end
 	end
 	local sack = Items.Sacks[id]

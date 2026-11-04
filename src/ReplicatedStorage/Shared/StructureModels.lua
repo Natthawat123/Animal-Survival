@@ -129,6 +129,8 @@ Builders.Bed = function(m)
 	P(m, V(4.6, 0.3, 4.4), CF(0, 2.1, -1.2), C(160, 60, 50), Enum.Material.Fabric)
 end
 
+Builders.Bed2 = Builders.Bed
+
 Builders.FarmPlot = function(m)
 	P(m, V(10, 1, 10), CF(0, 0.5, 0), C(90, 64, 44), Enum.Material.Ground)
 	for i = 0, 3 do
@@ -193,8 +195,8 @@ Builders.SunBeacon = function(m)
 end
 
 -- สิ่งก่อสร้างที่ใช้โมเดลจาก Creator Store (ด้านยาวสุด, stud)
-local STORE_STRUCT = { CookPot = 7, SpikeTrap = 8, FarmPlot = 10, EmberTotem = 9, Lantern = 9, Bed = 8, TerraTotem = 14, TideTotem = 7, Ballista = 8, SunBeacon = 40, LogWall = 11, StoneWall = 12, GaleTotem = 14 }
-local STORE_YAW = { Bed = 90, LogWall = 90 }
+local STORE_STRUCT = { CookPot = 7, SpikeTrap = 8, FarmPlot = 10, EmberTotem = 9, Lantern = 9, Bed = 8, Bed2 = 8, TerraTotem = 14, TideTotem = 7, Ballista = 8, SunBeacon = 40, LogWall = 11, StoneWall = 12, GaleTotem = 14 }
+local STORE_YAW = { LogWall = 90 } -- เตียง (Meshy): หัวเตียงอยู่ +Z ตรงกับเกมอยู่แล้ว
 
 function StructureModels.Build(kind)
 	if STORE_STRUCT[kind] and ItemModels.Has(kind) then

@@ -18,6 +18,7 @@ local Items = require(Shared.Items)
 local Classes = require(Shared.Classes)
 local Remotes = require(Shared.Remotes)
 local UIKit = require(script.Parent.UIKit)
+local SwingAnim = require(script.Parent.SwingAnim)
 
 local CombatClient = {}
 local player = Players.LocalPlayer
@@ -49,6 +50,7 @@ local SOUND = {
 	Refuel = ids(9114439997, 9114439868),
 	Break = ids(9113974103),
 	WoodHit = ids(9113225985),
+	Chest = ids(17208361335), -- เปิดกล่อง (เสียงรางวัล)
 }
 
 function CombatClient.Sound(name, at, volume, pitch)
@@ -285,7 +287,6 @@ end)
 
 ---------------------------------------------------------------- ตี / ยิง
 local lastSwing = 0
-local spearThrust
 local function aimDirection()
 	local mouse = UserInputService:GetMouseLocation()
 	local ray = camera:ViewportPointToRay(mouse.X, mouse.Y)
@@ -299,38 +300,6 @@ local function aimDirection()
 		return (target - head.Position).Unit
 	end
 	return ray.Direction
-end
-
--- แทงหอก: ดันไหล่ขวาไปข้างหน้าแล้วดึงกลับ (ปรับ C0 ของข้อไหล่ ทับบนท่าถือของ)
-local thrusting = false
-spearThrust = function(char)
-	local m = char and (char:FindFirstChild("RightShoulder", true) or char:FindFirstChild("Right Shoulder", true))
-	-- ตัวละครแบบใหม่ใช้ AnimationConstraint: ฐานของข้อต่อ = CFrame ของ Attachment0 (แบบเก่า Motor6D = C0)
-	local obj, prop = m, "C0"
-	if m and m:IsA("AnimationConstraint") then
-		obj, prop = m.Attachment0, "CFrame"
-	elseif not m or not m:IsA("Motor6D") then
-		obj = nil
-	end
-	if not obj or thrusting then
-		return
-	end
-	thrusting = true
-	local base = obj[prop]
-	local back = base * CFrame.new(0, 0.1, 0.5) * CFrame.Angles(math.rad(10), 0, 0)
-	local out = base * CFrame.new(0, -0.1, -1.6) * CFrame.Angles(math.rad(-8), 0, 0)
-	local t1 = TweenService:Create(obj, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { [prop] = back })
-	local t2 = TweenService:Create(obj, TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { [prop] = out })
-	local t3 = TweenService:Create(obj, TweenInfo.new(0.22, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), { [prop] = base })
-	t1:Play()
-	t1.Completed:Wait()
-	t2:Play()
-	t2.Completed:Wait()
-	task.wait(0.06)
-	t3:Play()
-	t3.Completed:Wait()
-	obj[prop] = base
-	thrusting = false
 end
 
 local function onActivate(tool, noAuto)
@@ -351,11 +320,8 @@ local function onActivate(tool, noAuto)
 	end
 	lastSwing = now
 	Remotes.Get("Attack"):FireServer(aimDirection())
-	if spec.Kind == "Spear" then
-		-- หอก/ตรีศูล: แทงไปข้างหน้า (ท่า Lunge ของ Roblox ยกขา ไม่เหมือนแทง)
-		task.spawn(spearThrust, player.Character)
-	elseif spec.Kind ~= "Bow" then
-		-- ท่าฟันของ Roblox (Animate อ่าน toolanim) · ธนูยิงอย่างเดียว ไม่ต้องเหวี่ยง
+	-- ท่าตีประจำอาวุธ (SwingAnim · เครื่องอื่นเล่นตาม HitFx "Swing") · ตัวละคร R6 = ท่าฟันของ Roblox
+	if not SwingAnim.Play(player, id) and spec.Kind ~= "Bow" then
 		local anim = Instance.new("StringValue")
 		anim.Name = "toolanim"
 		anim.Value = "Slash"
@@ -450,7 +416,7 @@ end
 
 -- ดาเมจต่อเนื่อง (หิว/ไฟไหม้/ลาวา) มาทีละนิดทุกเฟรม -> ห้ามจอแดง/สั่นทุกครั้ง (เคยกะพริบแดงทั้งที่เลือดแทบไม่ลด)
 --   สะสมไว้ ลดจริงครบ 8 ค่อยกะพริบเบาๆ ทีเดียว · ดาเมจโดนตีจริง (ก้อนเดียว >= 3) = จอแดงตามแรง
-local TICK_SOURCES = { Hunger = true, Burn = true, Lava = true }
+local TICK_SOURCES = { Hunger = true, Burn = true, Lava = true, Drown = true }
 local tickDamage, lastTickFlash = 0, 0
 Handlers.Hurt = function(d)
 	local amount = tonumber(d.Amount) or 0
@@ -622,6 +588,13 @@ local function dreadVignette(power)
 	TweenService:Create(dread, TweenInfo.new(1.6), { GroupTransparency = 1 }):Play()
 end
 
+-- คนอื่นตี: เล่นท่าตีของอาวุธนั้นบนตัวเขา (ตัวเองเล่นไปแล้วตอนกด)
+Handlers.Swing = function(d)
+	if d.Player ~= player then
+		SwingAnim.Play(d.Player, d.Id)
+	end
+end
+
 Handlers.StalkerStare = function(d)
 	dreadVignette(0.6)
 	CombatClient.Shake(0.2, 2)
@@ -630,12 +603,13 @@ Handlers.StalkerStare = function(d)
 	hb.Volume = 1
 	hb.PlaybackSpeed = 0.4
 	hb.Parent = Workspace.CurrentCamera
-	for i = 0, 3 do
+	local beats = math.floor((d.Time or 2.2) / 0.55) -- หัวใจเต้นตลอดช่วงที่โดนจ้อง (ครบเวลา = พุ่งตี)
+	for i = 0, beats do
 		task.delay(i * 0.55, function()
 			hb:Play()
 		end)
 	end
-	Debris:AddItem(hb, 3)
+	Debris:AddItem(hb, beats * 0.55 + 1)
 end
 Handlers.BossCast = function(d)
 	local model = d.Model
@@ -824,6 +798,9 @@ local VFX_NAMES = {
 -- ระเบิดของกระสุนที่มีเอฟเฟกต์เฉพาะ (คทาเพลิง: Store "ExplosionCharge") แทนลูกระเบิดพื้นฐาน
 local baseExplosion = Handlers.Explosion
 Handlers.Explosion = function(d)
+	if d.FxKind and CombatClient.ClassFX and CombatClient.ClassFX.Impact(d) then
+		return
+	end
 	if d.Fx then
 		vfx(d.Fx, d.Position, { Scale = d.FxScale or 0.3, Duration = 0.35, Burst = 1 })
 		CombatClient.Sound("Boom", d.Position, 0.6, 1.15)
@@ -865,6 +842,122 @@ end)
 wrap("Craft", function(d)
 	vfx(VFX_NAMES.Shiny, d.Position + Vector3.new(0, 4, 0), { Scale = 2, Duration = 0.25 })
 end)
+-- เปิดกล่อง (ทุกกล่องในเกม): สั่น -> เด้งขึ้น + ยืด -> แสงพุ่งขึ้นฟ้า + ประกาย + วงคลื่น · Tier 1-3 ยิ่งสูงยิ่งอลัง
+local ChestLid = require(game:GetService("ReplicatedStorage").Shared.ChestLid)
+-- ฝาหีบ: สั่นในที่ -> ดีดเปิดเกินนิด แล้วตีกลับมาค้างที่มุมเปิด (เซิร์ฟเวอร์ตั้งค่าเดียวกันตามมา)
+local function swingLid(model, lid, hinge, tier, color)
+	local closed = ChestLid.Closed(lid)
+	local base = model:GetPivot()
+	local t0 = os.clock()
+	while model.Parent and lid.Parent do
+		local t = os.clock() - t0
+		if t < 0.38 then
+			-- สั่นทั้งกล่อง + ฝากระพือ (มีอะไรดันอยู่ข้างใน)
+			local k = t / 0.38
+			model:PivotTo(base * CFrame.Angles(0, 0, math.sin(t * 55) * 0.05 * k))
+			lid.CFrame = ChestLid.CFrameAt(closed, hinge, math.max(0, math.sin(t * 42)) * 0.05 * k)
+		elseif t < 1.05 then
+			if t - 0.38 < 0.02 then
+				model:PivotTo(base)
+			end
+			-- easeOutBack: พุ่งเปิดเกินไปนิดแล้วตีกลับ
+			local k = math.clamp((t - 0.38) / 0.67, 0, 1)
+			local s = 1.9
+			local e = 1 + (s + 1) * (k - 1) ^ 3 + s * (k - 1) ^ 2
+			lid.CFrame = ChestLid.CFrameAt(closed, hinge, e)
+		else
+			break
+		end
+		RunService.RenderStepped:Wait()
+	end
+	if lid.Parent then
+		lid.CFrame = ChestLid.CFrameAt(closed, hinge, 1)
+	end
+	-- แสงจากข้างในหีบ ค่อยๆ จางลง
+	local body = model:FindFirstChild("Body", true)
+	if body and body:IsA("BasePart") then
+		local l = Instance.new("PointLight")
+		l.Color = color
+		l.Range = 12 + tier * 4
+		l.Brightness = 3
+		l.Parent = body
+		TweenService:Create(l, TweenInfo.new(3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Brightness = 0 }):Play()
+		Debris:AddItem(l, 3.2)
+	end
+end
+
+Handlers.ChestOpen = function(d)
+	local tier = math.clamp(d.Tier or 1, 1, 3)
+	local color = typeof(d.Color) == "Color3" and d.Color or Color3.fromRGB(255, 214, 110)
+	local model = typeof(d.Model) == "Instance" and d.Model:IsA("Model") and d.Model or nil
+	local pos = typeof(d.Position) == "Vector3" and d.Position or (model and model:GetPivot().Position)
+	if not pos then
+		return
+	end
+	local cam = Workspace.CurrentCamera
+	if cam and (cam.CFrame.Position - pos).Magnitude > 400 then
+		return
+	end
+	-- หีบฝาเปิดได้: ฝาดีดเปิดจริง · หีบรุ่นเก่า: ตัวกล่องสั่น -> เด้ง (ขยับเฉพาะบนเครื่องเรา ไม่กระทบเซิร์ฟเวอร์)
+	local lid, hinge = ChestLid.Find(model)
+	if lid then
+		task.spawn(swingLid, model, lid, hinge, tier, color)
+		local _, size = model:GetBoundingBox()
+		pos = model:GetPivot().Position + Vector3.new(0, size.Y * 0.45, 0) -- แสงพุ่งออกจากปากหีบ
+	elseif model then
+		task.spawn(function()
+			local base = model:GetPivot()
+			local ok, scale0 = pcall(model.GetScale, model)
+			scale0 = ok and scale0 or nil
+			local t0 = os.clock()
+			while model.Parent do
+				local t = os.clock() - t0
+				if t < 0.4 then
+					local k = t / 0.4
+					model:PivotTo(base * CFrame.Angles(0, 0, math.sin(t * 60) * 0.07 * k))
+				elseif t < 0.95 then
+					local k = (t - 0.4) / 0.55
+					local hop = math.sin(k * math.pi)
+					model:PivotTo(base * CFrame.new(0, hop * (1.2 + tier * 0.4), 0) * CFrame.Angles(0, hop * 0.4, 0))
+					if scale0 then
+						pcall(model.ScaleTo, model, scale0 * (1 + hop * 0.14))
+					end
+				else
+					break
+				end
+				RunService.RenderStepped:Wait()
+			end
+			if model.Parent then
+				if scale0 then
+					pcall(model.ScaleTo, model, scale0)
+				end
+				model:PivotTo(base)
+			end
+		end)
+	end
+	-- จังหวะกล่องเด้ง = แสงระเบิดออก
+	task.delay(0.45, function()
+		local top = pos + Vector3.new(0, 2.5, 0)
+		flashLight(top, color, 26 + tier * 10, 1.1)
+		burst(top, color, 30 + tier * 20, 22 + tier * 6, 0.9)
+		burst(top, Color3.fromRGB(255, 245, 210), 18 + tier * 8, 14, 0.5)
+		ring(pos, 9 + tier * 4, color, 0.7, 0.5)
+		vfx(VFX_NAMES.Shiny, top, { Scale = 2.2 + tier * 0.8, Duration = 0.3 })
+		if tier >= 3 then
+			vfx("LightBlast/SUPER ANIME LIGHT GOLDEN BLAST/FireMegaExplosion", pos, { Scale = 0.9, Duration = 0.25, Tint = color })
+			CombatClient.Shake(0.25, 0.4)
+		end
+		-- ลำแสงพุ่งขึ้นฟ้า
+		local h = 26 + tier * 14
+		local beam = fxPart({
+			Shape = Enum.PartType.Cylinder, Size = Vector3.new(h, 2.4 + tier * 0.6, 2.4 + tier * 0.6), Color = color, Transparency = 0.25,
+			CFrame = CFrame.new(pos + Vector3.new(0, h / 2, 0)) * CFrame.Angles(0, 0, math.pi / 2),
+		})
+		TweenService:Create(beam, TweenInfo.new(1.4, Enum.EasingStyle.Quad), { Size = Vector3.new(h, 0.2, 0.2), Transparency = 1 }):Play()
+		Debris:AddItem(beam, 1.5)
+		CombatClient.Sound("Chest", pos, 0.7, 0.95 + tier * 0.05)
+	end)
+end
 wrap("Refuel", function(d)
 	vfx(VFX_NAMES.Fire, d.Position + Vector3.new(0, 2, 0), { Scale = 3.5, Duration = 0.4 })
 end)
@@ -896,6 +989,7 @@ end
 
 ---------------------------------------------------------------- Init
 function CombatClient.Init(state, hud)
+	SwingAnim.Init(CombatClient.Shake)
 	if player.Character then
 		hookCharacter(player.Character)
 		for _, c in ipairs(player.Character:GetChildren()) do
@@ -932,11 +1026,11 @@ function CombatClient.Init(state, hud)
 		local hum = char and char:FindFirstChildOfClass("Humanoid")
 		if hum and hum.Health > 0 and not player:GetAttribute("Downed") then
 			local perks = Classes.PerksFor(player:GetAttribute("Class") or "Survivor", player:GetAttribute("ClassLevel") or 1)
-			local speedMult = (perks.SpeedMult or 1) * (state:GetAttribute("SpiritAir") and 1.1 or 1) * (player:GetAttribute("DevSpeed") or 1) * (player:GetAttribute("MountSpeed") or 1) * (player:GetAttribute("CineRun") or 1)
+			local speedMult = (perks.SpeedMult or 1) * (state:GetAttribute("SpiritAir") and 1.1 or 1) * (player:GetAttribute("DevSpeed") or 1) * (player:GetAttribute("MountSpeed") or 1) * (player:GetAttribute("CineRun") or 1) * (player:GetAttribute("SkillSpeed") or 1)
 			local staminaMult = (perks.StaminaMult or 1) / (player:GetAttribute("Aura_Air") and 0.85 or 1) -- ออร่าวิหารน้ำแข็ง
 			local moving = hum.MoveDirection.Magnitude > 0.1
 			if sprinting and moving and stamina > 0 then
-				stamina = math.max(0, stamina - 10 / staminaMult * dt) -- วิ่งได้ ~10 วิ ต่อหลอด (เดิม 20/วิ = 5 วิ)
+				stamina = math.max(0, stamina - 5 / staminaMult * dt) -- วิ่งได้ ~20 วิ ต่อหลอด (เดิม 10/วิ = 10 วิ)
 				hum.WalkSpeed = Config.SprintSpeed * speedMult
 				if stamina <= 0 then
 					sprinting = false

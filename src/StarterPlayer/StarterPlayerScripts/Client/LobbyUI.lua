@@ -295,7 +295,7 @@ function LobbyUI.Refresh()
 	local ready = 0
 	local claimed = (profile and profile.AchClaimed) or {}
 	for i, b in ipairs(BADGES) do
-		local need = Quests.NeedOf(b, #Classes.Order)
+		local need = Quests.NeedOf(b, Classes.CollectCount)
 		local v = statOf(b.Stat)
 		local done = v >= need
 		local got = claimed[b.Id] == true

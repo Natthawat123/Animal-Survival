@@ -96,6 +96,7 @@ EXTRA = [
     "%d players", "Popular", "Confirm", "Combat", "Enter Shrine", "Go Back Outside", "Grinder",
     "Night of %s", "%s Sanctum", "%s Sanctum Chest", "%s Shrine", "Lv.%d", "Needs bench Lv.%d",
     "Resets in %s", "Quest complete! %s - go back to the lobby to claim your reward", "Camp", "On", "Open",
+    "Move", "Remove",
     "[Click] Hit/Chop   [Shift] Sprint   [Ctrl] Lock camera   [C] Craft   [B] Build   [E] Pick up (hold sack)   [F] Take out   [M] Map   [1-9] Select item",
 ]
 

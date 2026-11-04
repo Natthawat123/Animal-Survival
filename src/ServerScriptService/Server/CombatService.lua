@@ -61,11 +61,25 @@ function CombatService:PlayerDamage(player, toolId, tool, target)
 	if tool.Element then
 		dmg *= surv:Perk(player, "ElementDamageMult", 1)
 	end
+	-- แวมไพร์: แรงขึ้นตอนกลางคืน
+	if self.ctx.State:GetAttribute("Phase") == "Night" then
+		dmg *= surv:Perk(player, "NightDamageMult", 1)
+	end
 	local crit = math.random() < 0.1
 	if crit then
 		dmg *= 1.6
 	end
-	return dmg * mult, crit, mult
+	local final = dmg * mult
+	-- พ่อมดมืด: ทำดาเมจ = หลุดล่องหน
+	if player:GetAttribute("Invisible") and self.ctx.Services.SkillService then
+		self.ctx.Services.SkillService:BreakVeil(player)
+	end
+	-- ดูดเลือด: ได้เลือดคืนตามสัดส่วนดาเมจที่ตี (ต่อเป้า 1 ตัว ไม่เกิน 25 ต่อครั้ง)
+	local steal = surv:Perk(player, "LifeSteal", 0)
+	if steal > 0 and target and not target.Dead then
+		surv:Heal(player, math.min(final * steal, 25))
+	end
+	return final, crit, mult
 end
 
 function CombatService:Melee(player, toolId, tool, root, aim)
@@ -81,12 +95,16 @@ function CombatService:Melee(player, toolId, tool, root, aim)
 	local origin = root.Position
 	local best, bestScore
 	local hits = {}
+	local threat = false -- มอนอยู่ตรงหน้าแต่ยังเอื้อมไม่ถึง: ห้ามไปตีต้นไม้/หินแทน (ฟันลม)
 	for _, a in ipairs(animals:InRadius(origin, tool.Range + 10, false)) do
 		if a.Kind ~= "Spirit" and not a.Dead then
 			local offset = a.Root.Position - origin
 			local reach = tool.Range + a.Radius
 			local flat = offset * Vector3.new(1, 0.4, 1)
 			local d = flat.Magnitude
+			if d <= reach + 6 and a.Info.Behaviour ~= "Passive" and (d < 0.1 or look:Dot(flat.Unit) > 0.15) then
+				threat = true
+			end
 			if d <= reach then
 				local dot = d > 0.1 and look:Dot(flat.Unit) or 1
 				if dot > 0.15 or d < a.Radius + 3 then
@@ -104,13 +122,19 @@ function CombatService:Melee(player, toolId, tool, root, aim)
 		for _, a in ipairs(targets) do
 			local dmg, crit, mult = self:PlayerDamage(player, toolId, tool, a)
 			self:DamageAnimal(a, dmg, player, { Burn = tool.Burn, Slow = tool.Slow, Crit = crit, Mult = mult, Knock = look })
+			if tool.Fx then
+				self.ctx.Remotes.Get("HitFx"):FireAllClients("ClassHit", { Fx = tool.Fx, Position = a.Root.Position, Dir = look, Crit = crit })
+			end
 		end
 		if tool.Aoe then
 			self.ctx.Remotes.Get("HitFx"):FireAllClients("Slam", { Position = best.Root.Position, Radius = tool.Aoe, Element = tool.Element })
 		end
 		return true
 	end
-	-- ไม่โดนสัตว์ -> ตัดไม้/ทุบหิน
+	-- ไม่โดนสัตว์ -> ตัดไม้/ทุบหิน (ยกเว้นมีมอนอยู่ตรงหน้า = ตั้งใจตีมอน)
+	if threat then
+		return false
+	end
 	local node = self.ctx.Services.ResourceService:FindNode(origin + look * 3.5, math.max(tool.Range * 0.75, 7))
 	if node then
 		return self.ctx.Services.ResourceService:Hit(player, node, tool)
@@ -154,34 +178,27 @@ function CombatService:Shoot(player, toolId, tool, aim, char)
 	self.ctx.Remotes.Get("HitFx"):FireAllClients("Arrow", { From = origin, To = hitPos, Element = tool.Element, Player = player })
 end
 
--- คทา: ยืนชิดต้นไม้/หิน (ไม่มีสัตว์ใกล้) = ฟาดตัด/ทุบ · ไม่งั้นปล่อยลูกไฟไปทางที่เล็ง
+-- สีเอฟเฟกต์อาวุธประจำคลาส (Items.Tools[].Fx) -> ClassFX ฝั่ง client
+local FX_COLOR = {
+	Arcane = Color3.fromRGB(170, 70, 255),
+	Verdant = Color3.fromRGB(110, 235, 90),
+	Blood = Color3.fromRGB(230, 30, 50),
+}
+
+-- คทา: ปล่อยลูกไฟไปทางที่เล็งเสมอ (ไม่ฟาดต้นไม้/หิน — เคยไปตีต้นไม้แทนมอนที่อยู่ไกลเกิน 17 studs)
 function CombatService:Staff(player, toolId, tool, aim, char, root)
 	if typeof(aim) ~= "Vector3" or aim.Magnitude < 0.5 then
 		aim = root.CFrame.LookVector
 	end
 	aim = aim.Unit
-	local flat = Vector3.new(aim.X, 0, aim.Z)
-	local look = flat.Magnitude > 0.2 and flat.Unit or root.CFrame.LookVector
-	local animals = self.ctx.Services.AnimalService
-	local near = false
-	for _, a in ipairs(animals:InRadius(root.Position, tool.Range + 8, false)) do
-		if a.Kind ~= "Spirit" and not a.Dead then
-			near = true
-			break
-		end
-	end
-	if not near and self.ctx.Services.ResourceService:FindNode(root.Position + look * 3.5, 7) then
-		self:Melee(player, toolId, tool, root, aim)
-		return
-	end
 	local head = char:FindFirstChild("Head")
 	local b = tool.Bolt
 	local from = (head and head.Position or root.Position) + aim * 3
 	self:Projectile({
 		From = from, Velocity = aim * b.Speed, Gravity = 0, Radius = 1.5, Blast = b.Blast, Size = b.Size,
 		Owner = "Player", Player = player, ToolId = toolId, Tool = tool, Fire = true, Burn = tool.Burn,
-		Color = Color3.fromRGB(255, 120, 40), VFX = "StaffBolt", FxScale = b.FxScale, Life = b.Range / b.Speed,
-		ImpactFx = "StaffExplosion", ImpactScale = b.ImpactScale,
+		Color = FX_COLOR[tool.Fx] or Color3.fromRGB(255, 120, 40), VFX = "StaffBolt", FxScale = b.FxScale, Life = b.Range / b.Speed,
+		ImpactFx = "StaffExplosion", ImpactScale = b.ImpactScale, Tint = FX_COLOR[tool.Fx], FxKind = tool.Fx,
 	})
 end
 
@@ -201,6 +218,19 @@ function CombatService:OnAttack(player, aim)
 		return
 	end
 	self.lastAttack[player] = now
+	-- ท่าตีให้คนอื่นเห็น (คนตีเล่นเองไปแล้วในเครื่องตัวเอง)
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p ~= player then
+			self.ctx.Remotes.Get("HitFx"):FireClient(p, "Swing", { Player = player, Id = toolId })
+		end
+	end
+	if tool.Fx then
+		local look = root.CFrame.LookVector
+		if typeof(aim) == "Vector3" and Vector3.new(aim.X, 0, aim.Z).Magnitude > 0.2 then
+			look = Vector3.new(aim.X, 0, aim.Z).Unit
+		end
+		self.ctx.Remotes.Get("HitFx"):FireAllClients("ClassSwing", { Fx = tool.Fx, Player = player, Position = root.Position, Dir = look, Kind = tool.Kind })
+	end
 	if tool.Kind == "Bow" then
 		if typeof(aim) ~= "Vector3" or aim.Magnitude < 0.5 then
 			return
@@ -266,6 +296,10 @@ function CombatService:Projectile(spec)
 		if spec.VFX then
 			p:SetAttribute("VFX", spec.VFX) -- อุกกาบาตไฟ: client ใส่ลูกไฟ/ควันตาม
 			p:SetAttribute("FxScale", spec.FxScale)
+			if spec.Tint then
+				p:SetAttribute("FxTint", spec.Tint) -- อาวุธประจำคลาส: ย้อมสีลูกพลัง
+				p:SetAttribute("FxKind", spec.FxKind)
+			end
 		end
 	end
 	p.Color = spec.Model == "Rock" and p.Color or (spec.Color or Color3.fromRGB(255, 120, 30))
@@ -371,7 +405,7 @@ function CombatService:StepProjectiles(dt)
 					end
 				end
 			end
-			self.ctx.Remotes.Get("HitFx"):FireAllClients("Explosion", { Position = newPos, Radius = blast, Color = pr.Part.Color, Fx = spec.ImpactFx, FxScale = spec.ImpactScale })
+			self.ctx.Remotes.Get("HitFx"):FireAllClients("Explosion", { Position = newPos, Radius = blast, Color = pr.Part.Color, Fx = spec.ImpactFx, FxScale = spec.ImpactScale, Tint = spec.Tint, FxKind = spec.FxKind })
 			if spec.OnImpact then
 				task.spawn(spec.OnImpact, newPos)
 			end

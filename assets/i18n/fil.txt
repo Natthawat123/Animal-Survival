@@ -34,7 +34,7 @@
 38	 · Pumutol
 39	 · Elemento
 40	 · Kaibigan +10%
-41	 · Tinataboy ng liwanag ang Hollow Stag
+41	 · Tinataboy ng liwanag ang Moonfang
 42	 · Magmina
 43	 · Pindutin ang E para sakyan
 45	 — kunin ang ♦️
@@ -472,7 +472,7 @@
 542	Mataas
 544	Mga Hint
 545	Ang pagtama sa puno/bato/hayop ay pumipili ng pinakamahusay na palakol/piko/armas para sa iyo
-546	Humawak ng sulo at hindi lalapit ang Hollow Stag
+546	Humawak ng sulo at hindi lalapit ang Moonfang
 548	Home
 550	Mainit na Nilaga
 551	Mainit na nilaga mula sa Stew Pot. Matagal kang busog at malaki ang paggaling
@@ -530,7 +530,7 @@
 607	Tinutulak pabalik ang mga hayop
 609	Lungga
 610	Parol
-611	Parol. Nagbibigay-liwanag at tinataboy ang Hollow Stag
+611	Parol. Nagbibigay-liwanag at tinataboy ang Moonfang
 612	Tupang Lava
 613	Hampas ng Lava!
 614	Umalis sa Grupo
@@ -543,7 +543,7 @@
 623	Level
 624	Leviathan
 625	Liwanag
-626	Tinataboy ng liwanag ang Hollow Stag
+626	Tinataboy ng liwanag ang Moonfang
 627	Magaan at mabilis na kutsilyo · Napakabilis na tira
 629	Sinisindihan ang siga...
 630	Limestone
@@ -671,7 +671,7 @@
 772	Gubat ng Pino
 774	Pioneer
 775	Ilagay
-776	Ilagay para magpahinga at laktawan ang 1 araw (+1 araw na nakaligtas · kapag gabi inilagay, bibilangin sa umaga) · Max 2 kama bawat server bawat run
+776	Ilagay para magpahinga at laktawan ang 1 araw (+1 araw na nakaligtas · kapag gabi inilagay, bibilangin sa umaga) · Max 1 kama bawat server bawat run
 777	Ilagay para laktawan ang 1 araw (+1 araw)
 778	Laro!
 779	Player
@@ -891,7 +891,7 @@
 1023	Kusang bumabaril ang Ballista. Ilagay sa paligid ng siga
 1024	Fire staff ng Elementalist. Naglalabas ng sumasabog na bolang apoy sa kaaway · Kaya ring pumutol ng puno/bato
 1025	Ang Huling Gabi
-1026	Ang Hollow Stag
+1026	Ang Moonfang
 1027	Ang Naglalakad na Bundok
 1028	Nagising ang Kagubatan
 1029	Paparating ang boss
@@ -903,7 +903,7 @@
 1035	Nagliliyab ulit ang siga
 1036	Puno na ang siga
 1037	Buhay ang siga
-1038	Buhay ang siga — kapag namatay, papasok ang Hollow Stag sa kampo
+1038	Buhay ang siga — kapag namatay, papasok ang Moonfang sa kampo
 1039	Max level na ang crafting bench
 1040	Ang crystal pillar ng
 1041	Patay ang apoy, hindi makapagluto
@@ -951,7 +951,7 @@
 1084	Top
 1085	Top-up:
 1086	Sulo
-1087	Sulo para sa liwanag. Tinataboy ang Hollow Stag
+1087	Sulo para sa liwanag. Tinataboy ang Moonfang
 1089	Pagong
 1090	Palitan
 1092	Manlalakbay
@@ -1198,7 +1198,7 @@
 1363	👹 Talunin ang 10 boss
 1364	💔 Bawas HP
 1365	💡 Liwanag
-1366	💡 Tinataboy ng liwanag ang Hollow Stag
+1366	💡 Tinataboy ng liwanag ang Moonfang
 1367	💥 Area attack
 1368	📅 7-Araw na Login
 1369	📅 Mag-log in nang 7 araw na sunod-sunod
@@ -1277,3 +1277,80 @@
 1444	On
 1445	Buksan
 1446	[Click] Tumama/Pumutol   [Shift] Sprint   [Ctrl] I-lock ang camera   [C] Gumawa   [B] Magtayo   [E] Pumulot (hawak ang sako)   [F] Ilabas   [M] Mapa   [1-9] Pumili ng item
+1451	Martilyo ng Builder
+1452	Martilyo ng builder. Hawakan at i-click ang gusali para ilipat o tanggalin (kalahati ng materyales ang babalik)
+1453	Hawakan muna ang Martilyo ng Builder
+1454	Nailipat ang %s
+1455	Tanggalin = kalahati ng materyales ang babalik
+1456	Tinanggal ang %s — nasa lupa ang kalahati ng materyales
+1463	🔨 I-click ang gusali sa kampo para ilipat o tanggalin
+1464	🔨 Ilipat ang %s  ·  Click = ilagay dito  ·  R = ikutin  ·  Esc = kanselahin
+1465	🔨 Ilipat ang %s — itutok sa gitna ng screen at i-tap ang ✔
+1466	🔨 I-tap ang gusali sa kampo para ilipat o tanggalin
+1467	Ilipat
+1468	Tanggalin
+1470	Nilaktawan ni %s ang %d araw · Araw %d
+1473	Avatar ng Apat
+1474	Sipsip ng Dugo
+1475	Panginoon ng Dugo
+1476	Elemental na armas 25% mas malakas · Regen 0.3 HP/seg
+1477	Elemental na armas 45% mas malakas · Max HP +20 · 8% mas mabilis tumakbo
+1478	Elemental na armas 70% mas malakas · Lahat ng damage +15% · Regen 0.6 HP/seg
+1479	Pantas ng Apat na Elemento
+1480	Kunin muna ang pass
+1481	Pagkakaisa
+1482	Gumaling ng 12% ng damage · Damage +20% sa gabi
+1483	Gumaling ng 18% ng damage · Damage +35% sa gabi · Max HP +20
+1484	Gumaling ng 8% ng damage na tinama mo
+1485	Lifesteal
+1487	Mangangaso sa Gabi
+1488	Araw %d na ngayon
+1490	Pass Exclusive
+1491	Malapit na ang pass
+1492	Pass exclusive — malapit na
+1496	Biyaya ng Pantas
+1499	I-unlock gamit ang Pass
+1500	I-unlock gamit ang %s pass (R$ %d)
+1501	Bubuksan ang class na Pantas ng Apat na Elemento — pass exclusive
+1502	Bampira
+1509	x%d araw
+1510	x%d araw (bibilangin %s)
+1512	🌟 Nailigtas si %s — nilaktawan ang %d araw! Araw %d na ngayon
+1513	🎫 Pass
+1514	🎫 I-unlock gamit ang Pass
+1518	I-unlock gamit ang %s (R$ %d)
+1519	Bubuksan ang premium track ng Season Pass bawat season · Mas maraming Ruby + espesyal na titulo/kulay · Class na Pantas ng Apat na Elemento
+1521	Pagputol ng kahoy x1.8 · Mga gusali x1.5 mas matibay · Regen 0.4 HP/seg
+1522	Yakap ng Gubat
+1523	Puso ng Kagubatan
+1525	Buhay na Kahoy
+1526	Max HP +30 · Regen 0.8 HP/seg · Damage +15% · Pangangaso +1 dagdag na item
+1527	Regen 0.4 HP/seg · Paggaling +25%
+1528	Bubuksan ang premium track ng Season Pass bawat season · Mas maraming Ruby + espesyal na titulo/kulay · Class na Druid ng Gubat
+1529	Druid ng Gubat
+1532	Arcane na Tungkod
+1533	Atake +30%
+1534	Kagat ng Dugo
+1535	Mang-aani ng Dugo
+1536	Elemental na armas 65% mas malakas · Skill: Bagyo ng Meteor — 6 meteor ang babagsak kung saan ka nakatutok · Cooldown 90 seg
+1537	Natatanging tungkod ng Elementalist · Nagpapaputok ng sumasabog na arcane bolt (malakas sa lahat ng elemento)
+1538	Gumaling ng 2% ng max HP sa bawat napatay na halimaw
+1539	Max HP +30 · Regen 0.8 HP/seg · Skill: Santuwaryo ng Kalikasan — gubat na nagpapagaling sa team at nagpapabagal sa halimaw nang 12 seg · Cooldown 100 seg
+1541	Skill: tumawag ng 5 paniki (200 HP) na umaatake sa halimaw · Cooldown 120 seg · Gamitin ulit = bagong kawan ang papalit
+1542	Kawan
+1543	Natatanging karit ng Bampira · Malayo ang abot, winawalis ang grupo ng kaaway
+1544	Luntiang Tungkod
+1545	Natatanging tungkod ng Druid · Nagpapaputok ng tinik na nagpapabagal sa halimaw · Hindi kayang pumutol o magmina
+1546	Lahat ng damage +30%
+1547	Madilim na Mahika
+1548	Madilim na Meteor
+1549	Madilim na Lakas
+1550	Madilim na Salamangkero
+1551	Regen 3% HP bawat 2 segundo
+1552	30% mas mabilis tumakbo
+1553	Belo ng Anino
+1554	Skill: babagsak ang madilim na meteor mula sa langit, malakas na damage sa malawak na lugar at mag-iiwan ng madilim na apoy nang 10 seg (sunog 2% HP/seg) · Cooldown 120 seg
+1555	Skill: i-stun ang mga halimaw sa paligid nang 4 seg (boss 2 seg) at lasunin — bawas 1% HP/seg nang 15 seg · Cooldown 150 seg
+1556	Skill: maging invisible at tumakbo nang 50% mas mabilis nang 4 seg (mawawala kapag nag-damage) · Cooldown 30 seg
+1557	Gapos ng Tinik
+1558	Hakbang ng Kagubatan

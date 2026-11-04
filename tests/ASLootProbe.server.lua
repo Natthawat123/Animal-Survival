@@ -142,6 +142,70 @@ rf.OnServerInvoke = function(player, what)
 		task.wait(2)
 		local r = char.HumanoidRootPart.Position
 		return string.format("drops=[%s] ruby %s->%s", dropsNear(r, 25), tostring(player:GetAttribute("ProbeDiamonds0")), tostring(player:GetAttribute("Diamonds")))
+	elseif what == "bush" then
+		-- พุ่มละ 6-7 ลูก · เก็บหมด -> รอ 4 วันถึงเต็มใหม่
+		local CollectionService = game:GetService("CollectionService")
+		local res = svc("ResourceService")
+		local hist, bush = {}, nil
+		for _, n in ipairs(CollectionService:GetTagged("ResourceNode")) do
+			if n:GetAttribute("Node") == "Bush" and n:IsDescendantOf(Workspace.World) then
+				local m = n:GetAttribute("MaxBerries") or -1
+				hist[m] = (hist[m] or 0) + 1
+				bush = bush or n
+			end
+		end
+		local hs = {}
+		for k, v in pairs(hist) do
+			table.insert(hs, k .. ":" .. v)
+		end
+		table.sort(hs)
+		if not bush then
+			return "no bush " .. table.concat(hs, " ")
+		end
+		char:PivotTo(CFrame.new(bush:GetPivot().Position + Vector3.new(0, 4, 6)))
+		local picked = 0
+		while res:PickBerry(player, bush, "Drop") do
+			picked += 1
+		end
+		local state = ReplicatedStorage:WaitForChild("GameState")
+		local n0 = state:GetAttribute("Night") or 1
+		local eat = bush:FindFirstChild("BushEat", true)
+		local log = { string.format("bushes[%s] picked=%d left=%s eatEnabled=%s", table.concat(hs, " "), picked, tostring(bush:GetAttribute("Berries")), tostring(eat and eat.Enabled)) }
+		for d = 1, 4 do
+			state:SetAttribute("Night", n0 + d)
+			task.wait(0.2)
+			table.insert(log, string.format("day+%d=%s", d, tostring(bush:GetAttribute("Berries"))))
+		end
+		state:SetAttribute("Night", n0)
+		return table.concat(log, " ")
+	elseif what == "airdrop" then
+		-- หีบร่อนมาแน่นอนทุก 10 วัน: จำลองวัน 9,10,11,20 ทีละวัน (เริ่มตอนกลางวันใหม่ เหลือเวลาพอ) ดูว่าวันไหนประกาศหีบ
+		local ev = svc("EventService")
+		local state = ReplicatedStorage:WaitForChild("GameState")
+		local carry = { Last = nil, Next = nil }
+		local out = {}
+		for _, day in ipairs({ 9, 10, 11, 20 }) do
+			local w0 = os.clock()
+			repeat
+				task.wait(0.5)
+				local left = (state:GetAttribute("PhaseEnd") or 0) - Workspace:GetServerTimeNow()
+			until (state:GetAttribute("Phase") == "Day" and left > 50) or os.clock() - w0 > 200
+			ev:CleanupAll()
+			state:SetAttribute("Event_Supply", nil)
+			state:SetAttribute("Night", day)
+			ev.lastNight, ev.nextSupply = carry.Last, carry.Next
+			ev.token += 1
+			ev:PlanDay(ev.token)
+			carry.Last, carry.Next = ev.lastNight, ev.nextSupply
+			local t0, came = os.clock(), false
+			while os.clock() - t0 < 34 and not came do
+				task.wait(0.5)
+				came = state:GetAttribute("Event_Supply") ~= nil
+			end
+			table.insert(out, string.format("day%d=%s(%.0fs,next=%s)", day, came and "DROP" or "none", os.clock() - t0, tostring(carry.Next)))
+			ev:CleanupAll()
+		end
+		return table.concat(out, " ")
 	elseif what == "auras" then
 		local surv = svc("SurvivalService")
 		for _, el in ipairs({ "Water", "Air", "Fire" }) do

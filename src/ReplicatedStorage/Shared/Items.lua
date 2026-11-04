@@ -50,6 +50,7 @@ Items.Data = {
 	StoneAxe = { Name = "Stone Axe", Thai = "Stone Axe", Category = "Tool" },
 	IronAxe = { Name = "Iron Axe", Thai = "Iron Axe", Category = "Tool" },
 	Pickaxe = { Name = "Pickaxe", Thai = "Pickaxe", Category = "Tool" },
+	BuildHammer = { Name = "Builder's Hammer", Thai = "Builder's Hammer", Category = "Tool" }, -- ย้าย/รื้อสิ่งก่อสร้าง
 	Spear = { Name = "Bone Spear", Thai = "Bone Spear", Category = "Tool" },
 	Torch = { Name = "Torch", Thai = "Torch", Category = "Tool" },
 	Bow = { Name = "Hunter Bow", Thai = "Hunter's Bow", Category = "Tool" },
@@ -69,6 +70,10 @@ Items.Data = {
 	Katana = { Name = "Katana", Thai = "Katana", Category = "Tool" },
 	WarHammer = { Name = "War Hammer", Thai = "War Hammer", Category = "Tool" },
 	Scythe = { Name = "Reaper Scythe", Thai = "Reaper Scythe", Category = "Tool" },
+	-- อาวุธประจำคลาส 5 ดาว (ได้ตอนเริ่มรอบ ไม่มีสูตรคราฟต์) · โมเดล Import 3D -> assets/rbxm/Weapons/<Id>
+	ArcaneStaff = { Name = "Arcane Staff", Thai = "Arcane Staff", Category = "Tool", Element = "All" },
+	BloodScythe = { Name = "Blood Reaper", Thai = "Blood Reaper", Category = "Tool" },
+	VerdantStaff = { Name = "Verdant Staff", Thai = "Verdant Staff", Category = "Tool", Element = "Earth" },
 
 	-- เกราะ (คราฟต์แล้วสวมทันที ไม่กินที่กระสอบ · ArmorHP = เลือดสูงสุดเพิ่ม · Tier สูงกว่าเปลี่ยนทับได้)
 	WoodArmor = { Name = "Wood Armor", Thai = "Wood Armor", Category = "Armor", ArmorHP = 30, Tier = 1, Color = Color3.fromRGB(150, 104, 62) },
@@ -82,6 +87,7 @@ Items.Data = {
 	Lantern = { Name = "Lantern", Thai = "Lantern", Category = "Structure" },
 	Ballista = { Name = "Ballista", Thai = "Ballista", Category = "Structure" },
 	Bed = { Name = "Bed", Thai = "Bed (+1 Day)", Category = "Structure" },
+	Bed2 = { Name = "Royal Bed", Thai = "Royal Bed (+1 Day)", Category = "Structure" }, -- เตียง 2 (โต๊ะเลเวล 4)
 	FarmPlot = { Name = "Farm Plot", Thai = "Berry Patch", Category = "Structure" },
 	CookPot = { Name = "Cook Pot", Thai = "Stew Pot", Category = "Structure" },
 	TerraTotem = { Name = "Terra Totem", Thai = "Earth Pillar", Category = "Structure", Element = "Earth" },
@@ -118,6 +124,8 @@ Items.Tools = {
 	StoneAxe = { Damage = 16, Chop = 2, Mine = 1, Range = 9, Cooldown = 0.55, Kind = "Axe" },
 	IronAxe = { Damage = 24, Chop = 3, Mine = 1.5, Range = 10, Cooldown = 0.5, Kind = "Axe" },
 	Pickaxe = { Damage = 14, Chop = 0.5, Mine = 3, Range = 9, Cooldown = 0.6, Kind = "Pick" },
+	-- ค้อนช่าง: ถือแล้วคลิกสิ่งก่อสร้าง = เมนูย้าย/รื้อ (BuildHammer.lua) · ตีสัตว์ได้นิดหน่อย
+	BuildHammer = { Damage = 6, Chop = 0, Mine = 0, Range = 8, Cooldown = 0.5, Kind = "Hammer", Builder = true },
 	Spear = { Damage = 28, Chop = 0.3, Mine = 0.2, Range = 13, Cooldown = 0.7, Kind = "Spear" },
 	Torch = { Damage = 8, Chop = 0, Mine = 0, Range = 8, Cooldown = 0.5, Kind = "Torch", Light = 28, Burn = 4 },
 	Bow = { Damage = 22, Chop = 0, Mine = 0, Range = 160, Cooldown = 0.9, Kind = "Bow", Projectile = "Arrow" },
@@ -127,7 +135,7 @@ Items.Tools = {
 	EmberBlade = { Damage = 52, Chop = 2.5, Mine = 1, Range = 12, Cooldown = 0.75, Kind = "Sword", Burn = 10, Light = 20, Element = "Fire" },
 	FourfoldBlade = { Damage = 90, Chop = 4, Mine = 4, Range = 14, Cooldown = 0.6, Kind = "Sword", Aoe = 10, Burn = 12, Slow = 0.6, Light = 30, Element = "All" },
 	-- คทา: ตีแล้วปล่อยลูกไฟพุ่งไปทางที่เล็ง (ระเบิดวงเล็ก + ติดไฟ) · ยืนชิดต้นไม้/หิน = ฟาดตัด/ทุบได้ (แทนขวาน)
-	EmberStaff = { Damage = 20, Chop = 1, Mine = 0.5, Range = 9, Cooldown = 0.7, Kind = "Staff", Bolt = { Speed = 150, Range = 140, Blast = 7, Size = 1.6, FxScale = 0.08, ImpactScale = 0.22 }, Burn = 4, Light = 16, Element = "Fire" },
+	EmberStaff = { Damage = 20, Chop = 0, Mine = 0, Range = 9, Cooldown = 0.7, Kind = "Staff", Bolt = { Speed = 150, Range = 140, Blast = 7, Size = 1.6, FxScale = 0.08, ImpactScale = 0.22 }, Burn = 4, Light = 16, Element = "Fire" },
 	Dagger = { Damage = 15, Chop = 0.3, Mine = 0.2, Range = 7, Cooldown = 0.32, Kind = "Sword" },
 	SpikedClub = { Damage = 22, Chop = 0.5, Mine = 0.8, Range = 9, Cooldown = 0.75, Kind = "Hammer" },
 	IronSword = { Damage = 32, Chop = 0.8, Mine = 0.3, Range = 11, Cooldown = 0.55, Kind = "Sword" },
@@ -137,6 +145,9 @@ Items.Tools = {
 	Katana = { Damage = 40, Chop = 1, Mine = 0.3, Range = 12, Cooldown = 0.45, Kind = "Sword" },
 	WarHammer = { Damage = 62, Chop = 1.5, Mine = 4.5, Range = 12, Cooldown = 1.1, Kind = "Hammer", Aoe = 11 },
 	Scythe = { Damage = 54, Chop = 2, Mine = 0.5, Range = 15, Cooldown = 0.8, Kind = "Sword", Aoe = 8 },
+	ArcaneStaff = { Fx = "Arcane", Damage = 30, Chop = 0, Mine = 0, Range = 9, Cooldown = 0.6, Kind = "Staff", Bolt = { Speed = 170, Range = 150, Blast = 9, Size = 1.8, FxScale = 0.08, ImpactScale = 0.26 }, Burn = 4, Light = 16, Element = "All" },
+	BloodScythe = { Fx = "Blood", Damage = 50, Chop = 1.5, Mine = 0.5, Range = 14, Cooldown = 0.72, Kind = "Sword", Aoe = 8 },
+	VerdantStaff = { Fx = "Verdant", Damage = 26, Chop = 0, Mine = 0, Range = 9, Cooldown = 0.6, Kind = "Staff", Bolt = { Speed = 150, Range = 140, Blast = 8, Size = 1.6, FxScale = 0.08, ImpactScale = 0.22 }, Slow = 0.5, Light = 12, Element = "Earth" },
 }
 
 -- ค่าของสิ่งก่อสร้าง
@@ -146,7 +157,8 @@ Items.Structures = {
 	SpikeTrap = { Health = 200, Size = Vector3.new(8, 2, 8), Damage = 18, Tick = 0.8 },
 	Lantern = { Health = 120, Size = Vector3.new(2, 9, 2), Light = 45 },
 	Ballista = { Health = 400, Size = Vector3.new(6, 7, 6), Damage = 30, Range = 120, Cooldown = 1.6 },
-	Bed = { Health = 150, Size = Vector3.new(5, 2.5, 8) },
+	Bed = { Health = 150, Size = Vector3.new(6.8, 5.2, 8) }, -- เตียงไม้ (3D Model/bad · Cozy Wooden Bed)
+	Bed2 = { Health = 250, Size = Vector3.new(7.6, 6, 8) }, -- เตียงม่านม่วง (3D Model/bad · Royal Violet Canopy)
 	FarmPlot = { Health = 150, Size = Vector3.new(10, 1.5, 10), GrowTime = 90, Yield = 4 },
 	CookPot = { Health = 200, Size = Vector3.new(5, 5, 5) },
 	TerraTotem = { Health = 600, Size = Vector3.new(4, 14, 4), Radius = 70, Element = "Earth" }, -- ซ่อมกำแพงรอบๆ
@@ -189,8 +201,9 @@ Items.Desc = {
 	StoneAxe = "Stone axe. Chops wood twice as fast",
 	IronAxe = "Iron axe. The fastest axe for chopping wood",
 	Pickaxe = "Pickaxe. Mines rock and ore fast",
+	BuildHammer = "Builder's hammer. Hold it and click a building to move it or remove it (get half the materials back)",
 	Spear = "Bone spear. Long reach, high damage",
-	Torch = "Torch for light. Scares off the Hollow Stag",
+	Torch = "Torch for light. Scares off the Moonfang",
 	Bow = "Long-range bow for hunting from a safe distance",
 	TerraHammer = "Earth hammer. Smashes in a wide area",
 	TidalTrident = "Water trident. Slows animals down",
@@ -206,16 +219,20 @@ Items.Desc = {
 	Katana = "Sharp katana · Very fast, high-damage slashes",
 	WarHammer = "Huge war hammer · Crushing area damage, smashes ore rocks",
 	Scythe = "Reaper scythe · Widest reach, sweeps groups of enemies",
-	EmberStaff = "The Elementalist's fire staff. Hits launch exploding fireballs at enemies · Can also chop trees/rocks",
+	ArcaneStaff = "Elementalist's signature staff · Fires exploding arcane bolts (strong against every element)",
+	BloodScythe = "Vampire's signature scythe · Huge reach, sweeps groups of enemies",
+	VerdantStaff = "Wildwood Druid's signature staff · Fires thorn bolts that slow monsters · Can't chop trees or mine rocks",
+	EmberStaff = "The Elementalist's fire staff. Hits launch exploding fireballs at enemies · Can't chop trees or mine rocks",
 	LogWall = "Wood wall. Blocks animal packs",
 	StoneWall = "Stone wall. Very sturdy",
 	SpikeTrap = "Spike trap. Stabs animals that step on it",
-	Lantern = "Lantern. Lights the area and scares off the Hollow Stag",
+	Lantern = "Lantern. Lights the area and scares off the Moonfang",
 	Ballista = "Ballista. Shoots animals automatically",
 	WoodArmor = "Wood armor. Equips right after crafting, raises Max HP",
 	IronArmor = "Iron armor with shoulder plates. Sturdy, raises Max HP a lot",
 	GoldArmor = "Engraved gold warrior armor. Raises Max HP the most",
-	Bed = "Place it to rest and skip 1 day (counts +1 day survived · placed at night, it counts in the morning) · Max 2 beds per server per run",
+	Bed = "Place it to rest and skip 1 day (counts +1 day survived · placed at night, it counts in the morning) · Max 1 bed per server per run",
+	Bed2 = "Place it to rest and skip 1 day (counts +1 day survived · placed at night, it counts in the morning) · Max 1 bed per server per run",
 	FarmPlot = "Grows berries you can keep picking",
 	CookPot = "Stew pot. Makes stew (meat + berries) and berry pie (berries + wood)",
 	TerraTotem = "Earth pillar. Repairs nearby walls",

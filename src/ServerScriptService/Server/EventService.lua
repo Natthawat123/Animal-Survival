@@ -3,7 +3,7 @@
 	  Meteor    "อุกกาบาตธาตุตก"  : ลูกไฟพุ่งลงจากฟ้า (client วาด) -> หลุมอุกกาบาต + แกนผลึก มีสัตว์ธาตุเฝ้า
 	                                 ขุดแกน = แก่นธาตุคนละ 2-3 + Ruby 2-5 ให้ทุกคนที่อยู่ใกล้ + ลุ้นหัวใจอสูรธาตุนั้น 22%
 	  Migration "ฝูงสัตว์อพยพ"      : ฝูงกวาง/กระต่ายเดินผ่านแถวแคมป์ (ล่าได้ ได้หนังเพิ่ม)
-	  Supply    "เสบียงตกจากฟ้า"    : หีบร่มชูชีพร่อนลง ควันสีแดงพวยพุ่ง -> เปิดได้อาหาร/ยา/วัตถุดิบ
+	  Supply    "เสบียงตกจากฟ้า"    : มาแน่นอนทุก 10 วัน (SUPPLY_EVERY · ไม่สุ่ม) หีบร่มชูชีพร่อนลง ควันแดง -> เปิดได้อาหาร/ยา/วัตถุดิบ
 	ทุกอย่างหายไปเองตอนพลบค่ำ / กลับล็อบบี้ / จบเกม · ไม่ทำงานในล็อบบี้ · client: WorldEventsClient (Remotes "WorldEvent")
 	GameState: Event_Meteor / Event_Migration / Event_Supply = ตำแหน่ง (หมุดบนแผนที่) · Event_MeteorElement
 ]]
@@ -14,6 +14,7 @@ local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Animals = require(ReplicatedStorage.Shared.Animals)
+local Config = require(ReplicatedStorage.Shared.Config)
 local Items = require(ReplicatedStorage.Shared.Items)
 local Nights = require(ReplicatedStorage.Shared.Nights)
 
@@ -26,7 +27,9 @@ local COLOR = {
 	Air = Color3.fromRGB(150, 210, 255), Fire = Color3.fromRGB(255, 110, 30),
 }
 local ESSENCE = { Earth = "TerraCore", Water = "TidePearl", Air = "GaleFeather", Fire = "EmberShard" }
-local WEIGHTS = { { "Meteor", 45 }, { "Migration", 30 }, { "Supply", 25 } }
+local WEIGHTS = { { "Meteor", 45 }, { "Migration", 30 } } -- เหตุการณ์สุ่มรายวัน (หีบร่อนไม่สุ่ม: มาตามรอบ SUPPLY_EVERY)
+local SUPPLY_EVERY = 10 -- หีบเสบียงร่อนจากฟ้า: มาแน่นอนทุกกี่วัน (วัน 10, 20, 30, ...)
+local SUPPLY_DELAY = { 15, 30 } -- วินาทีหลังเริ่มกลางวันถึงประกาศ (ร่อน 17 วิ -> เหลือเวลาไปเปิดก่อนพลบค่ำ)
 local METEOR_FALL = 13 -- วินาทีจากประกาศถึงตกกระทบ
 
 local V = Vector3.new
@@ -174,6 +177,27 @@ function EventService:PlanDay(token)
 	local now = Workspace:GetServerTimeNow()
 	local dayLeft = (s:GetAttribute("PhaseEnd") or now) - now
 	local rng = self.rng
+	-- หีบร่อนจากฟ้า: ครบทุก SUPPLY_EVERY วัน (วันข้ามด้วยเตียง/ลูกสัตว์ก็นับ -> ถึงหรือเลยรอบแล้วมาเลย)
+	if night < (self.lastNight or 0) then
+		self.nextSupply = nil -- เริ่มรอบใหม่
+	end
+	self.lastNight = night
+	self.nextSupply = self.nextSupply or SUPPLY_EVERY
+	local supplyAt
+	if night >= self.nextSupply then
+		self.nextSupply = night - night % SUPPLY_EVERY + SUPPLY_EVERY
+		supplyAt = rng:NextNumber(SUPPLY_DELAY[1], SUPPLY_DELAY[2])
+		task.delay(supplyAt, function()
+			if self:Valid(token) then
+				local ok, started = pcall(self.Supply, self, token)
+				if not ok then
+					warn("[AS] event Supply", started)
+				elseif not started then
+					self.nextSupply = math.min(self.nextSupply, night + 1) -- หาที่ลงไม่ได้ -> ลองใหม่พรุ่งนี้
+				end
+			end
+		end)
+	end
 	local delays = {}
 	if night <= 1 then
 		-- วันแรก: ให้ตั้งตัวก่อน (อย่างน้อย ~2.5 นาที) แล้วค่อยมีได้ 1 เหตุการณ์
@@ -191,6 +215,9 @@ function EventService:PlanDay(token)
 	end
 	local used = {}
 	for _, delay in ipairs(delays) do
+		if supplyAt and math.abs(delay - supplyAt) < 60 then
+			delay = supplyAt + 60
+		end
 		if delay + 50 < dayLeft then
 			local kind = self:PickKind(used)
 			used[kind] = true
@@ -227,10 +254,7 @@ end
 
 -- คืนค่า true ถ้าเริ่มได้ (ไม่ได้ = ลองเหตุการณ์อื่นแทน)
 function EventService:Run(kind, token)
-	local ok = self[kind](self, token)
-	if not ok and kind ~= "Supply" then
-		self.Supply(self, token)
-	end
+	self[kind](self, token)
 end
 
 ---------------------------------------------------------------- ☄ อุกกาบาตธาตุ
@@ -506,10 +530,10 @@ function EventService:Migration(token)
 				a.Offset = off * 0.6
 				a.OnDeath = function(dead)
 					-- สัตว์อพยพตัวอ้วน: ลุ้นหนัง/เนื้อเพิ่ม
-					if self.rng:NextNumber() < 0.5 then
+					if self.rng:NextNumber() < 0.5 * Config.AnimalDropMult then
 						ctx.Services.DropService:Spawn("Pelt", 1, dead.Root.Position)
 					end
-					if dead.Id == "Deer" and self.rng:NextNumber() < 0.5 then
+					if dead.Id == "Deer" and self.rng:NextNumber() < 0.5 * Config.AnimalDropMult then
 						ctx.Services.DropService:Spawn("RawMeat", 1, dead.Root.Position)
 					end
 				end
@@ -605,7 +629,7 @@ function EventService:Supply(token)
 	-- โมเดลกล่องแอร์ดรอปใหม่ (Import 3D): ใช้แทนกล่องไม้ปั้นเอง · ตัวกล่องเดิมซ่อนไว้เป็นจุดชน/จุดกด
 	do
 		local PropBuilder = require(game:GetService("ReplicatedStorage").Shared.PropBuilder)
-		local crate = PropBuilder.Imported("AirdropCrate", landCF * CF(0, -1.75, 0), 5.2, model, false)
+		local crate = PropBuilder.Imported("AirdropCrate", landCF * CF(0, -1.75, 0), 7.6, model, false)
 		if crate then
 			for _, d in ipairs(model:GetChildren()) do
 				if d:IsA("BasePart") and d ~= flare then
@@ -613,7 +637,7 @@ function EventService:Supply(token)
 				end
 			end
 			flare.Transparency = 0
-			flare.CFrame = landCF * CF(1.9, 2.6, 1.9)
+			flare.CFrame = landCF * CF(2.8, 3.8, 2.8)
 		end
 	end
 	local smoke = Instance.new("ParticleEmitter")
@@ -706,6 +730,7 @@ function EventService:Supply(token)
 			give(ESSENCE[ELEMENTS[rng:NextInteger(1, 4)]], 1)
 			ctx.Services.DataService:AddDiamonds(player, rng:NextInteger(2, 3), "Supply Chest")
 			ctx.Remotes.Get("HitFx"):FireClient(player, "Loot", { Items = got, Position = pos, Chest = true })
+			ctx.Services.LootService:ChestFx(model, pos, 2, Color3.fromRGB(255, 120, 90))
 			ctx.Broadcast(string.format("%s opened the supply chest", player.DisplayName), "Good")
 			ctx.State:SetAttribute("Event_Supply", nil)
 			task.delay(6, function()

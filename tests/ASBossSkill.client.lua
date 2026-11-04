@@ -154,8 +154,36 @@ player:GetAttributeChangedSignal("ProbeMusic"):Connect(function()
 	local boss = SS:FindFirstChild("Music_Boss")
 	print(string.format("[MUSIC] %s bossVol=%.2f playing: %s", player:GetAttribute("ProbeMusic"), boss and boss.Volume or -1, table.concat(list, " ")))
 end)
+-- --bossskill=MapPins: เปิดแผนที่ใหญ่แล้วนับหมุดที่โชว์ (ตามรัศมีแสงกองไฟ)
+player:GetAttributeChangedSignal("ProbeMap"):Connect(function()
+	local tag = player:GetAttribute("ProbeMap")
+	local MapUI = require(player.PlayerScripts:WaitForChild("Client"):WaitForChild("MapUI"))
+	-- ปิดจอ UI อื่น (ทัวร์ UI อัตโนมัติเปิดร้านค้าทับ) ให้เห็นแผนที่ชัด
+	for _, g in ipairs(player.PlayerGui:GetChildren()) do
+		if g:IsA("ScreenGui") and g.Name ~= "MapUI" then
+			g.Enabled = false
+		end
+	end
+	if not MapUI.Panel.Visible then
+		MapUI.Toggle()
+	end
+	task.wait(1.5)
+	local n = { ["▣"] = 0, ["⛩"] = 0, ["💀"] = 0, ["🏛"] = 0 }
+	for _, d in ipairs(MapUI.MapFrame:GetChildren()) do
+		if d:IsA("TextLabel") and d.Visible and n[d.Text] then
+			n[d.Text] += 1
+		end
+	end
+	print(string.format("[MAPPIN] client %s crates=%d shrines=%d lairs=%d sanctums=%d", tag, n["▣"], n["⛩"], n["💀"], n["🏛"]))
+	print("[SHOT] bs_map_" .. tag)
+end)
 RunService:BindToRenderStep("ASBossSkillCam", Enum.RenderPriority.Last.Value + 10, function()
 	local mode = player:GetAttribute("ProbeCam") or ""
+	if mode == "lookraw" then -- มุมกล้องสั่งได้ แต่แสง/บรรยากาศเหมือนเล่นจริง (เช็กความสว่างไบโอม)
+		cam.CameraType = Enum.CameraType.Scriptable
+		cam.CFrame = CFrame.lookAt(player:GetAttribute("ProbeFrom") or Vector3.zero, player:GetAttribute("ProbeAt") or Vector3.zAxis)
+		return
+	end
 	if mode ~= "" then
 		Lighting.ClockTime = 13
 		Lighting.FogEnd = 100000

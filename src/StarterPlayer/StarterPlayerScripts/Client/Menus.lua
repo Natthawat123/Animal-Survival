@@ -61,15 +61,15 @@ local function itemDesc(id)
 			s ..= " · Element " .. (UIKit.ElementThai[t.Element] or t.Element)
 		end
 		if t.Light then
-			s ..= " · Light scares off the Hollow Stag"
+			s ..= " · Light scares off the Moonfang"
 		end
 		return s
 	end
 	local st = Items.Structures[id]
 	if st then
 		local extra = {
-			LogWall = "Blocks animal packs", StoneWall = "Very tough wall", SpikeTrap = "Stabs animals that step on it", Lantern = "Light scares off the Hollow Stag",
-			Ballista = "Shoots animals automatically", Bed = "Place to skip 1 day (+1 day)", FarmPlot = "Grows berries", CookPot = "Makes stew",
+			LogWall = "Blocks animal packs", StoneWall = "Very tough wall", SpikeTrap = "Stabs animals that step on it", Lantern = "Light scares off the Moonfang",
+			Ballista = "Shoots animals automatically", Bed = "Place to skip 1 day (+1 day)", Bed2 = "Place to skip 1 day (+1 day)", FarmPlot = "Grows berries", CookPot = "Makes stew",
 			TerraTotem = "Repairs nearby walls", TideTotem = "Slows animals in range", GaleTotem = "Knocks animals back", EmberTotem = "Burns nearby animals",
 			SunBeacon = "Massive light",
 		}
@@ -631,10 +631,22 @@ local function tintGhost(color)
 	build.Highlight.OutlineColor = color
 end
 
-function Menus.StartBuild(kind)
+-- moving = สิ่งก่อสร้างที่ตั้งอยู่แล้ว (ค้อนช่างสั่งย้าย) · ไม่ต้องมีชุดในกระเป๋า
+function Menus.StartBuild(kind, moving)
 	Menus.StopBuild()
-	if (inventory[kind] or 0) <= 0 then
+	if not moving and (inventory[kind] or 0) <= 0 then
 		return
+	end
+	build.Move = moving
+	if moving then
+		-- ซ่อนของเดิมเฉพาะเครื่องนี้ระหว่างเลือกจุดใหม่ (เห็นแต่เงา)
+		for _, d in ipairs(moving:GetDescendants()) do
+			if d:IsA("BasePart") then
+				d.LocalTransparencyModifier = 0.75
+			end
+		end
+		local _, yaw = moving:GetPivot():ToOrientation()
+		build.Yaw = yaw
 	end
 	build.Kind = kind
 	build.Active = true
@@ -682,13 +694,41 @@ function Menus.StartBuild(kind)
 	end
 	fp.Parent = Workspace.CurrentCamera
 	build.Footprint = fp
-	Menus.BuildHint.Text = Menus.TouchMode and string.format("🏗 Place %s (%d left) — aim at the center of the screen and tap ✔", Items.DisplayName(kind), inventory[kind] or 0)
-		or string.format("🏗 Place %s (%d left)  ·  Click = place  ·  R = rotate  ·  B/Esc = cancel", Items.DisplayName(kind), inventory[kind] or 0)
+	if moving then
+		Menus.BuildHint.Text = Menus.TouchMode and string.format("🔨 Move %s — aim at the center of the screen and tap ✔", Items.DisplayName(kind))
+			or string.format("🔨 Move %s  ·  Click = place here  ·  R = rotate  ·  Esc = cancel", Items.DisplayName(kind))
+	else
+		Menus.BuildHint.Text = Menus.TouchMode and string.format("🏗 Place %s (%d left) — aim at the center of the screen and tap ✔", Items.DisplayName(kind), inventory[kind] or 0)
+			or string.format("🏗 Place %s (%d left)  ·  Click = place  ·  R = rotate  ·  B/Esc = cancel", Items.DisplayName(kind), inventory[kind] or 0)
+	end
 	Menus.BuildHint.Visible = true
+	if Menus.RotateButton then
+		Menus.RotateButton.Visible = not UIKit.IsTouch
+	end
+end
+
+function Menus.IsMoving()
+	return build.Active and build.Move ~= nil
+end
+
+-- เวลาที่เพิ่งออกจากโหมดวาง (คลิกที่ใช้วาง ไม่ให้ค้อนช่างเปิดเมนูซ้ำ)
+function Menus.BuildStoppedAt()
+	return build.StoppedAt or 0
 end
 
 function Menus.StopBuild()
+	if build.Active then
+		build.StoppedAt = os.clock()
+	end
 	build.Active = false
+	if build.Move then
+		for _, d in ipairs(build.Move:GetDescendants()) do
+			if d:IsA("BasePart") then
+				d.LocalTransparencyModifier = 0
+			end
+		end
+		build.Move = nil
+	end
 	for _, k in ipairs({ "Ghost", "Footprint", "Zone" }) do
 		if build[k] then
 			build[k]:Destroy()
@@ -735,6 +775,9 @@ end
 
 -- เลื่อนชนิดถัดไป
 function Menus.CycleBuild()
+	if build.Move then
+		return -- กำลังย้ายของชิ้นเดิม เปลี่ยนชนิดไม่ได้
+	end
 	local kinds = {}
 	for _, r in ipairs(Recipes.List) do
 		if Items.Data[r.Id].Category == "Structure" and (inventory[r.Id] or 0) > 0 then
@@ -768,7 +811,13 @@ function Menus.PlaceBuild()
 	end
 	local res = buildTarget()
 	if res and build.Valid then
-		Remotes.Get("PlaceStructure"):FireServer(build.Kind, CFrame.new(res.Position) * CFrame.Angles(0, build.Yaw, 0))
+		local cf = CFrame.new(res.Position) * CFrame.Angles(0, build.Yaw, 0)
+		if build.Move then
+			Remotes.Get("MoveStructure"):FireServer(build.Move, cf)
+			Menus.StopBuild()
+		else
+			Remotes.Get("PlaceStructure"):FireServer(build.Kind, cf)
+		end
 	end
 end
 
@@ -968,6 +1017,7 @@ function Menus.Init(state, hud)
 		Menus.RotateBuild()
 	end)
 	rot.Visible = not UIKit.IsTouch
+	Menus.RotateButton = rot -- ค้อนช่างใช้แถบคำแนะนำนี้ด้วย (ตอนนั้นซ่อนปุ่มหมุน)
 	UIKit.AutoScale(Menus.BuildHint, { maxW = 0.8 })
 	UIKit.Corner(Menus.BuildHint, 8)
 	state:GetAttributeChangedSignal("CampLevel"):Connect(function()
@@ -1096,15 +1146,20 @@ function Menus.Init(state, hud)
 			local ok = d <= Config.BuildRange and res.Material ~= Enum.Material.Water and res.Material ~= Enum.Material.CrackedLava and (res.Position - camp).Magnitude > NO_BUILD_R
 				and fromCamp.Magnitude <= campR -- นอกเขตแคมป์ = วางไม่ได้ (แดง)
 				-- เตียงข้ามวันไม่ได้ช่วงคืนสุดท้าย (ตรงกับ DirectorService:CanSkipDay)
-				and (build.Kind ~= "Bed" or (state:GetAttribute("Night") or 0) + 1 < Config.TotalNights)
-			-- ทับกับสิ่งก่อสร้างอื่น (เช็กเหมือนฝั่ง server)
+				and ((build.Kind ~= "Bed" and build.Kind ~= "Bed2") or build.Move or (state:GetAttribute("Night") or 0) + 1 < Config.TotalNights)
+			-- ทับกับสิ่งก่อสร้างอื่น (เช็กเหมือนฝั่ง server) · ของที่กำลังย้ายไม่นับทับตัวเอง
 			local spec = Items.Structures[build.Kind]
 			local folder = Workspace:FindFirstChild("Structures")
 			if ok and spec and folder then
 				local params = OverlapParams.new()
 				params.FilterType = Enum.RaycastFilterType.Include
 				params.FilterDescendantsInstances = { folder }
-				ok = #Workspace:GetPartBoundsInBox(cf * CFrame.new(0, spec.Size.Y / 2 + 0.5, 0), spec.Size * 0.85, params) == 0
+				for _, p in ipairs(Workspace:GetPartBoundsInBox(cf * CFrame.new(0, spec.Size.Y / 2 + 0.5, 0), spec.Size * 0.85, params)) do
+					if not (build.Move and p:IsDescendantOf(build.Move)) then
+						ok = false
+						break
+					end
+				end
 			end
 			build.Valid = ok
 			build.Ghost:PivotTo(cf)

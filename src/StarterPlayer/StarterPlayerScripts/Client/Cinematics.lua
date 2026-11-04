@@ -22,9 +22,9 @@ local C = UIKit.Colors
 local gui
 
 local TIPS = {
-	"The campfire is life — when it goes out, the Hollow Stag enters the camp",
+	"The campfire is life — when it goes out, the Moonfang enters the camp",
 	"Upgrade the campfire to clear the fog and expand the safe zone",
-	"Hold a torch and the Hollow Stag won't dare come near",
+	"Hold a torch and the Moonfang won't dare come near",
 	"Water beats Fire · Fire beats Frost · Frost beats Earth · Earth beats Water",
 	"4 Spirit Pups are trapped in the shrines. Rescue them all for the true ending",
 	"Every 10 nights a Blood Moon rises and every element's pack attacks at once",
@@ -1642,12 +1642,12 @@ function Cinematics.ShrineCleared(d)
 			sfx("Reward", 1.1)
 		end },
 		{ HA + 0.8, function()
-			-- กลางวัน/พลบค่ำ +1 ทันที · กลางคืนเก็บไว้นับตอนเช้า (DirectorService:SkipDay)
+			-- กลางวัน/พลบค่ำ บวกทันที · กลางคืนเก็บไว้นับตอนเช้า (DirectorService:SkipDay) · จำนวนวันตามธาตุ
 			local st = Cinematics.State
 			local phase = st and st:GetAttribute("Phase")
 			local now = phase == "Day" or phase == "Dusk"
-			local dayText = now and st:GetAttribute("Night") and ("Now day " .. st:GetAttribute("Night")) or "Counted in the morning"
-			titleCard("+1 Day", dayText .. " · " .. name .. " is now living at camp", C.Gold, 1.7)
+			local dayText = now and st:GetAttribute("Night") and string.format("Now day %d", st:GetAttribute("Night")) or "Counted in the morning"
+			titleCard(string.format("x%d days", d.Days or 1), dayText .. " · " .. name .. " is now living at camp", C.Gold, 1.7)
 		end },
 		{ HA + 2.6, function() caption("Buff: " .. (d.Buff or "") .. " · Press E on it to ride", C.Text, 1.5) end },
 	})

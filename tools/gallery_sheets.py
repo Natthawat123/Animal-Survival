@@ -81,7 +81,7 @@ def run():
             groups[m.group(1)].append(m.group(2))
     order = {
         "animal": ["Rabbit", "Deer", "MossWolf", "Thornboar", "StoneBear", "ReefCrab", "RiptideCroc", "GaleHawk", "SkyLynx", "StormRam", "EmberFox",
-                   "MagmaRhino", "LavaSalamander", "HollowStag", "TerraPup", "TidePup", "GalePup", "EmberPup", "Solfang", "Leviathan", "TempestRoc", "Terragon"],
+                   "MagmaRhino", "LavaSalamander", "Moonfang", "TerraPup", "TidePup", "GalePup", "EmberPup", "Solfang", "Leviathan", "TempestRoc", "Terragon"],
         "item": ["OldAxe", "StoneAxe", "IronAxe", "Pickaxe", "Spear", "Torch", "Bow", "TerraHammer", "TidalTrident", "GaleBow", "EmberBlade", "FourfoldBlade",
                  "LogWall", "StoneWall", "SpikeTrap", "Lantern", "Ballista", "Bed", "FarmPlot", "CookPot", "TerraTotem", "TideTotem", "GaleTotem", "EmberTotem", "SunBeacon"],
         "class": ["Survivor", "Forager", "Lumberjack", "Medic", "Hunter", "Builder", "Scout", "Firekeeper", "Elementalist", "Beastwarden"],

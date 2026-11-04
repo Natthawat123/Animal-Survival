@@ -1,7 +1,7 @@
 --[[
 	DropService — ของตกบนพื้นแบบ 99 Nights
 	ตัดไม้/ทุบหิน/ล่าสัตว์/เปิดหีบ -> ของเด้งออกมากองบนพื้น -> กด E (หรือคลิกตอนถือกระสอบ) เก็บใส่กระสอบ
-	DropService:Spawn(id, n, pos)  ·  ของกองเดียวกันใกล้ๆ รวมเป็นกองเดียว
+	DropService:Spawn(id, n, pos)  ·  ของตกเป็นชิ้นๆ ชิ้นละ 1 (ไม่รวมกอง) แบบ 99 Nights
 	· ฟิสิกส์คิดบนเซิร์ฟเวอร์ (กันตกทะลุพื้นที่เครื่องผู้เล่นยังโหลดไม่ถึง) แล้วตรึงลงพื้นด้วย raycast
 	· ของในแคมป์ไม่หาย · นอกแคมป์หายเองหลัง 15 นาที
 ]]
@@ -22,8 +22,8 @@ local ANG = CFrame.Angles
 local C = Color3.fromRGB
 
 local LIFETIME = 900
-local MAX_DROPS = 350
-local STACK_MAX = 10
+local MAX_DROPS = 600 -- (ของเป็นชิ้นละ 1 แล้ว -> เพดานสูงขึ้น)
+local STACK_MAX = 1 -- ของบนพื้น 1 โมเดล = 1 ชิ้น (ทิ้งจากกระสอบ/ย่างเนื้อ/ดรอป ไม่สแต็ก)
 local MERGE_RADIUS = 3.5
 local PICK_RANGE = 20
 local PROMPT_RANGE = 12 -- ตรงกับ FOCUS_RANGE ฝั่ง client
@@ -390,6 +390,8 @@ local function build(id, n)
 		end
 	end
 	m.PrimaryPart = root
+	-- ยา/อาวุธ/เกราะ/สิ่งก่อสร้าง (ไม่กินที่กระสอบ) = เก็บเข้าแถบเครื่องมือได้เลย ไม่ต้องถือกระสอบ (client เปิดปุ่ม E ให้ตลอด)
+	m:SetAttribute("Direct", not Items.Bulk(id))
 	-- ป้ายชื่อ (เห็นเมื่อเข้าใกล้)
 	local bb = Instance.new("BillboardGui")
 	bb.Name = "Label"
@@ -410,7 +412,7 @@ local function build(id, n)
 	bb.Parent = root
 	local pr = Instance.new("ProximityPrompt")
 	pr.Name = "Pickup"
-	pr.ActionText = "Put in Sack"
+	pr.ActionText = Items.Bulk(id) and "Put in Sack" or "Pick Up"
 	pr.KeyboardKeyCode = Enum.KeyCode.E
 	pr.HoldDuration = 0
 	pr.MaxActivationDistance = PROMPT_RANGE
@@ -643,9 +645,13 @@ function DropService:Pickup(player, m)
 	end
 	-- ต้องถือกระสอบในมือก่อนถึงจะเก็บได้ (แบบ 99 Nights)
 	local inv = self.ctx.Services.InventoryService
-	-- ยาเข้าช่องของตัวเองในแถบเครื่องมือเลย (ไม่ต้องถือกระสอบ ไม่กินที่กระสอบ)
-	local item = Items.Data[d.Id]
-	if item and item.Category == "Medical" then
+	-- ยา/อาวุธ/เกราะ/สิ่งก่อสร้าง เข้าแถบเครื่องมือเลย (ไม่ต้องถือกระสอบ ไม่กินที่กระสอบ — กระสอบเต็มก็เก็บได้)
+	if not Items.Bulk(d.Id) then
+		if Items.Data[d.Id].Category == "Tool" and inv:Count(player, d.Id) > 0 then
+			-- อาวุธมีได้ชิ้นเดียวต่อชนิด: ไม่เก็บซ้ำ (ไม่งั้นชิ้นที่เก็บหายไปเฉยๆ)
+			self.ctx.Notify(player, "You already have " .. Items.DisplayName(d.Id) .. "", "Info")
+			return
+		end
 		inv:Add(player, d.Id, d.Count)
 		self:Remove(m)
 		return

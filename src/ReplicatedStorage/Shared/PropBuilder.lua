@@ -376,7 +376,9 @@ Kinds.Bush = { Scale = { 0.7, 1.3 }, NoCollide = true, Build = function()
 end }
 Kinds.BerryBush = {
 	Node = { Node = "Bush", Yield = "Berries", HP = 1, Amount = 2, Bonus = "Fiber", Regrow = 150 },
-	Scale = { 0.9, 1.2 }, NoCollide = true,
+	Scale = { 1.0, 1.3 }, NoCollide = true,
+	-- ขึ้นเฉพาะพื้นราบต่ำ (ไม่ขึ้นบนภูเขา/สันเขา/เนินชัน)
+	MaxAlt = 64, MaxSlope = 3,
 	Build = function()
 		return bush("BerryBush", C(64, 124, 56), true)
 	end,
@@ -691,7 +693,7 @@ local STORE = {
 	Mushrooms = { Models = { "Mushrooms" }, Height = 2.6 },
 	GlowShroom = { Models = { "Mushrooms" }, Height = 4.5, Color = C(70, 170, 150), Material = Enum.Material.SmoothPlastic,
 		Light = { Color = C(90, 230, 190), Range = 10, Brightness = 0.6 } },
-	BerryBush = { Models = { "BerryBushLP" }, Height = 4.2 },
+	BerryBush = { Models = { "BerryBushLP" }, Height = 7 },
 	Flowers = { Models = { "FlowerBed" }, Height = 1.4 },
 	Coral = { Models = { "CoralSet" }, Split = "Models", Height = 5 },
 	Kelp = { Models = { "KelpLP" }, Height = 8 },
@@ -1055,6 +1057,18 @@ function PropBuilder.Scatter(layout, parent, opts)
 					local h3 = layout:HeightAt(px, pz + 5)
 					if math.abs(h2 - h) > 4 or math.abs(h3 - h) > 4 then
 						ok = false
+					end
+				end
+				-- ของที่ห้ามขึ้นบนภูเขา: จำกัดความสูง + เช็กความชันรอบกว้าง (สันเขา/ยอดเขา)
+				if ok and spec.MaxAlt and h > spec.MaxAlt then
+					ok = false
+				end
+				if ok and spec.MaxSlope then
+					for _, o in ipairs({ { 12, 0 }, { -12, 0 }, { 0, 12 }, { 0, -12 } }) do
+						if math.abs(layout:HeightAt(px + o[1], pz + o[2]) - h) > spec.MaxSlope then
+							ok = false
+							break
+						end
 					end
 				end
 				if ok then
@@ -1844,12 +1858,12 @@ function PropBuilder.BuildCamp(position, parent)
 			end)
 			return CFrame.lookAt(pos, pos + (base.Position - pos) * V(1, 0, 1)) -- -Z หันเข้ากองไฟ
 		end
-		local MODEL_YAW = math.pi -- โมเดล glTF หันหน้า +Z -> หมุนให้ด้านหน้าหัน -Z (เข้ากองไฟ)
 		local wbCf = onGround((base * CF(26, 0, -2)).Position)
 		local fgCf = onGround((base * CF(20, 0, -26)).Position)
 		-- โต๊ะคราฟต์: โมเดลนี้หันหน้า -Z อยู่แล้ว (หมุน 180° = หันหลังให้กองไฟ) -> ไม่หมุน
 		local wb = PropBuilder.Imported("CampWorkbench", wbCf, 15, bench, true)
-		local fg = wb and PropBuilder.Imported("CampForge", fgCf * ANG(0, MODEL_YAW, 0), 15, bench, true)
+		-- เครื่องย่อย (Meshy Miner's Forge): หันหน้า -Z อยู่แล้วเหมือนโต๊ะ -> ไม่หมุน (ด้านป้าย+กรวยใส่แร่หันเข้ากองไฟ)
+		local fg = wb and PropBuilder.Imported("CampForge", fgCf, 15, bench, true)
 		if wb and fg then
 			newDone = true
 			for _, d in ipairs(bench:GetChildren()) do
@@ -2805,6 +2819,7 @@ function PropBuilder.BuildRealm(frame, el, parent, label, action, kind)
 	local outGround = terrainY(outFront, 2)
 	outVeil:SetAttribute("Dest", entry)
 	outVeil:SetAttribute("DestLook", V(center.X, entry.Y, center.Z))
+	outVeil:SetAttribute("RealmKey", key) -- PortalService: เข้าครั้งแรกของรอบ = เวลา +2 นาที
 	backVeil:SetAttribute("Dest", V(outFront.X, outGround + 3, outFront.Z))
 	backVeil:SetAttribute("DestLook", V(outFront.X, outGround + 3, outFront.Z) + (outFront - frame.Position) * 3)
 	backVeil:SetAttribute("DestGround", true) -- PortalService วัดพื้นจริงตอนวาร์ป (กันจมดิน)
@@ -3388,7 +3403,7 @@ function PropBuilder.BuildRuins(sp, parent, rng)
 	local storeRuinsDone = storeRuins
 	local cr = REALM_CRYSTAL[el]
 	if cr then
-		local p = (base * CF(5, 0, 4)).Position
+		local p = (base * CF(6.5, 0, 4.5)).Position -- (ห่างหีบใหม่ที่ใหญ่ขึ้น กว้าง 6.6)
 		local c = PropBuilder.Place(cr, V(p.X, floorAt(p) - 0.4, p.Z), 0, 0.7, m)
 		if c then
 			CollectionService:RemoveTag(c, "ResourceNode")
@@ -3405,14 +3420,16 @@ function PropBuilder.BuildRuins(sp, parent, rng)
 	P("Part", { Size = V(0.6, 0.8, 0.2), CFrame = ccf * CF(0, 2.4, -1.5), Color = C(230, 190, 80), Material = Enum.Material.Neon }, chest)
 	chest.PrimaryPart = body
 	local assetsProps = ReplicatedStorage:FindFirstChild("Assets") and ReplicatedStorage.Assets:FindFirstChild("Props")
-	if assetsProps and assetsProps:FindFirstChild("ChestLP") then
-		-- หีบสมบัติจาก Creator Store (ชิ้นปั้นเดิมซ่อนไว้เป็นตัวชน/จุดอ้างอิง)
+	local chestLook = assetsProps and ((assetsProps:FindFirstChild("Chest2Open") and "Chest2Open") -- ฝาเปิดได้จริง
+		or (assetsProps:FindFirstChild("Chest2") and "Chest2") or (assetsProps:FindFirstChild("ChestLP") and "ChestLP"))
+	if chestLook then
+		-- หีบโบราณ = กล่องใหม่ (Import 3D: Props/Chest2) · ชิ้นปั้นเดิมซ่อนไว้เป็นตัวชน/จุดกด
 		for _, d in ipairs(chest:GetChildren()) do
 			if d:IsA("BasePart") then
 				d.Transparency = 1
 			end
 		end
-		PropBuilder.Imported("ChestLP", ccf, 4.6, chest)
+		PropBuilder.Imported(chestLook, ccf, chestLook == "ChestLP" and 4.6 or 6.6, chest, true)
 	elseif MeshProps.Has("Chest") then
 		for _, d in ipairs(chest:GetChildren()) do
 			if d:IsA("BasePart") then

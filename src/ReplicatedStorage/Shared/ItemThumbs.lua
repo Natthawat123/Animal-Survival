@@ -5,6 +5,7 @@
 
 local ItemThumbs = {
 	Bandage = 12857564167,
+	BuildHammer = 13106821277, -- รูปค้อน (เดียวกับ WarHammer)
 	BeastHeart = 108474997,
 	TerraHeart = 108474997,
 	TideHeart = 108474997,

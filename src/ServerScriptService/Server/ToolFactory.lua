@@ -59,6 +59,10 @@ local STORE_WEAPONS = {
 	WarHammer = { Length = 4.6, Head = Vector3.new(0, 1, 0) },
 	-- เคียว: ด้ามตั้ง ใบอยู่บนหันไปข้างหน้า · เลื่อนไปหน้า 1.8 ให้ด้ามอยู่ในมือพอดี (ตรวจด้วย --gripprobe)
 	Scythe = { Length = 5.6, Head = Vector3.new(0, 1, 0), GripTurn = CFrame.new(0, 0, 1.8) },
+	-- อาวุธประจำคลาส 5 ดาว (Import 3D จาก 3D Model/weapon: ตั้งตรง หัวอยู่บน +Y) · ยังไม่ Import = ด้ามไม้สำรอง
+	ArcaneStaff = { Length = 5.4, Head = Vector3.new(0, 1, 0), Aura = "Rainbow" },
+	BloodScythe = { Length = 5.6, Head = Vector3.new(0, 1, 0) }, -- ด้ามจากไฟล์ Import ตรงมือแล้ว (ไม่ต้องเลื่อนแบบเคียวเก่า)
+	VerdantStaff = { Length = 5.4, Head = Vector3.new(0, 1, 0), Aura = "Earth" },
 }
 
 -- ออร่าธาตุ: ประกายลอยรอบตัวอาวุธ + หมอกเรืองแสงบางๆ + แสงส่อง
@@ -349,6 +353,18 @@ Shapes.Pickaxe = function(tool)
 	local h = shaft(tool, 4.2, 0.42, C(110, 80, 52))
 	local head = part(tool, "Head", V(0.45, 0.5, 4), C(120, 120, 128), Enum.Material.Metal)
 	attach(h, head, CF(0, 1.8, 0) * ANG(0.15, 0, 0))
+end
+-- ค้อนช่าง: ด้ามไม้สั้น + หัวเหล็ก (ด้านตอก + เขี้ยวถอนตะปู)
+Shapes.BuildHammer = function(tool)
+	local h = shaft(tool, 2.4, 0.3, C(150, 104, 62))
+	local grip = part(tool, "Grip", V(0.36, 0.7, 0.36), C(120, 50, 40), Enum.Material.Fabric)
+	attach(h, grip, CF(0, -0.7, 0))
+	local head = part(tool, "Head", V(0.42, 0.42, 0.85), C(96, 100, 110), Enum.Material.Metal)
+	attach(h, head, CF(0, 1.25, -0.1))
+	local face = part(tool, "Face", V(0.38, 0.5, 0.5), C(180, 184, 192), Enum.Material.Metal, "Cylinder")
+	attach(h, face, CF(0, 1.25, -0.62) * ANG(0, math.pi / 2, 0))
+	local claw = part(tool, "Claw", V(0.32, 0.32, 0.7), C(96, 100, 110), Enum.Material.Metal, "Wedge")
+	attach(h, claw, CF(0, 1.3, 0.55) * ANG(-0.35, 0, 0))
 end
 Shapes.Spear = function(tool)
 	local h = shaft(tool, 7, 0.35, C(130, 96, 62))

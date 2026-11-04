@@ -34,7 +34,7 @@
 38	 · Cortar
 39	 · Elemento
 40	 · Amigos +10%
-41	 · A luz espanta o Cervo Oco
+41	 · A luz espanta a Raposa Lunar
 42	 · Minerar
 43	 · Aperte E nele para montar
 45	 — pegue ♦️
@@ -472,7 +472,7 @@
 542	Alta
 544	Dicas
 545	Bater em árvores/rochas/animais escolhe o melhor machado/picareta/arma para você
-546	Segure uma tocha e o Cervo Oco não ousará se aproximar
+546	Segure uma tocha e a Raposa Lunar não ousará se aproximar
 548	Início
 550	Ensopado quente
 551	Ensopado quente da panela. Sacia por muito tempo e cura bastante
@@ -530,7 +530,7 @@
 607	Empurra animais para trás
 609	Covil
 610	Lanterna
-611	Lanterna. Ilumina a área e espanta o Cervo Oco
+611	Lanterna. Ilumina a área e espanta a Raposa Lunar
 612	Carneiro de lava
 613	Golpe de lava!
 614	Sair do grupo
@@ -543,7 +543,7 @@
 623	Nível
 624	Leviatã
 625	Luz
-626	A luz espanta o Cervo Oco
+626	A luz espanta a Raposa Lunar
 627	Faca de caça leve · Golpes muito rápidos
 629	Acendendo a fogueira...
 630	Calcário
@@ -671,7 +671,7 @@
 772	Floresta de pinheiros
 774	Pioneiro
 775	Colocar
-776	Coloque para descansar e pular 1 dia (+1 dia sobrevivido · colocada à noite, conta de manhã) · Máx. 2 camas por servidor por partida
+776	Coloque para descansar e pular 1 dia (+1 dia sobrevivido · colocada à noite, conta de manhã) · Máx. 1 cama por servidor por partida
 777	Coloque para pular 1 dia (+1 dia)
 778	Jogar!
 779	Jogador
@@ -891,7 +891,7 @@
 1023	A balista atira sozinha. Coloque-as em volta da fogueira
 1024	Cajado de fogo do Elementalista. Ataques lançam bolas de fogo explosivas · Também corta árvores/rochas
 1025	A noite final
-1026	O Cervo Oco
+1026	A Raposa Lunar
 1027	A Montanha que Anda
 1028	A selva desperta
 1029	O chefe está vindo
@@ -903,7 +903,7 @@
 1035	A fogueira está acesa de novo
 1036	A fogueira está cheia
 1037	A fogueira é vida
-1038	A fogueira é vida — se apagar, o Cervo Oco entra no acampamento
+1038	A fogueira é vida — se apagar, a Raposa Lunar entra no acampamento
 1039	A bancada de criação já está no nível máximo
 1040	O pilar de cristal de
 1041	O fogo está apagado, não dá para assar
@@ -951,7 +951,7 @@
 1084	Topo
 1085	Recarga:
 1086	Tocha
-1087	Tocha para iluminar. Espanta o Cervo Oco
+1087	Tocha para iluminar. Espanta a Raposa Lunar
 1089	Jabuti
 1090	Trocar
 1092	Viajante
@@ -1198,7 +1198,7 @@
 1363	👹 Derrote 10 chefes
 1364	💔 Perda de vida
 1365	💡 Luz
-1366	💡 A luz espanta o Cervo Oco
+1366	💡 A luz espanta a Raposa Lunar
 1367	💥 Ataque em área
 1368	📅 Login de 7 dias
 1369	📅 Entre 7 dias seguidos
@@ -1277,3 +1277,80 @@
 1444	Ligado
 1445	Abrir
 1446	[Clique] Atacar/Cortar   [Shift] Correr   [Ctrl] Travar câmera   [C] Criar   [B] Construir   [E] Pegar (segurando o saco)   [F] Retirar   [M] Mapa   [1-9] Escolher item
+1451	Martelo de construtor
+1452	Martelo de construtor. Segure e clique numa construção para movê-la ou removê-la (recupera metade dos materiais)
+1453	Segure o martelo de construtor primeiro
+1454	%s movido
+1455	Remover = recupera metade dos materiais
+1456	%s removido — metade dos materiais caiu no chão
+1463	🔨 Clique numa construção do acampamento para mover ou remover
+1464	🔨 Mover %s  ·  Clique = colocar aqui  ·  R = girar  ·  Esc = cancelar
+1465	🔨 Mover %s — mire no centro da tela e toque ✔
+1466	🔨 Toque numa construção do acampamento para mover ou remover
+1467	Mover
+1468	Remover
+1470	%s pulou %d dias · Dia %d
+1473	Avatar dos Quatro
+1474	Dreno de sangue
+1475	Senhor do sangue
+1476	Armas elementais 25% mais fortes · Regenera 0.3 PV/s
+1477	Armas elementais 45% mais fortes · Vida máx. +20 · Corre 8% mais rápido
+1478	Armas elementais 70% mais fortes · Todo dano +15% · Regenera 0.6 PV/s
+1479	Sábio dos Quatro Elementos
+1480	Pegue o passe primeiro
+1481	Harmonia
+1482	Cura 12% do dano causado · Dano +20% à noite
+1483	Cura 18% do dano causado · Dano +35% à noite · Vida máx. +20
+1484	Cura 8% do dano que você causa
+1485	Roubo de vida
+1487	Caçador noturno
+1488	Agora é o dia %d
+1490	Exclusivo do passe
+1491	Passe em breve
+1492	Exclusivo do passe — em breve
+1496	Bênção do sábio
+1499	Desbloquear com passe
+1500	Desbloqueie com o passe %s (R$ %d)
+1501	Desbloqueia a classe Sábio dos Quatro Elementos — exclusivo do passe
+1502	Vampiro
+1509	x%d dias
+1510	x%d dias (contados %s)
+1512	🌟 Resgatou %s — pulou %d dias! Agora é o dia %d
+1513	🎫 Passe
+1514	🎫 Desbloquear com passe
+1518	Desbloqueie com %s (R$ %d)
+1519	Desbloqueia a trilha premium do Season Pass toda temporada · Mais Ruby + títulos/cores especiais · Classe Sábio dos Quatro Elementos
+1521	Cortar madeira x1.8 · Construções x1.5 mais resistentes · Regenera 0.4 PV/s
+1522	Abraço da floresta
+1523	Coração da selva
+1525	Madeira viva
+1526	Vida máx. +30 · Regenera 0.8 PV/s · Dano +15% · Caça dá +1 item extra
+1527	Regenera 0.4 PV/s · Cura +25%
+1528	Desbloqueia a trilha premium do Season Pass toda temporada · Mais Ruby + títulos/cores especiais · Classe Druida da Floresta
+1529	Druida da Floresta
+1532	Cajado arcano
+1533	Ataque +30%
+1534	Mordida de sangue
+1535	Ceifador de sangue
+1536	Armas elementais 65% mais fortes · Habilidade: Tempestade de meteoros — 6 meteoros caem onde você mira · Recarga 90 s
+1537	Cajado exclusivo do Elementalista · Dispara projéteis arcanos explosivos (forte contra todo elemento)
+1538	Recupera 2% da vida máx. a cada monstro abatido
+1539	Vida máx. +30 · Regenera 0.8 PV/s · Habilidade: Santuário da natureza — um bosque que cura a equipe e deixa monstros lentos por 12 s · Recarga 100 s
+1541	Habilidade: invoca 5 morcegos (200 PV) que atacam monstros · Recarga 120 s · Usar de novo troca o enxame
+1542	Enxame
+1543	Foice exclusiva do Vampiro · Grande alcance, varre grupos de inimigos
+1544	Cajado verdejante
+1545	Cajado exclusivo do Druida · Dispara espinhos que deixam monstros lentos · Não corta nem minera
+1546	Todo dano +30%
+1547	Magia sombria
+1548	Meteoro sombrio
+1549	Poder sombrio
+1550	Feiticeiro sombrio
+1551	Regenera 3% de vida a cada 2 segundos
+1552	Corre 30% mais rápido
+1553	Véu das sombras
+1554	Habilidade: um meteoro sombrio cai do céu, dano forte em área e deixa uma zona de fogo sombrio por 10 s (queima 2% de vida/s) · Recarga 120 s
+1555	Habilidade: atordoa monstros próximos por 4 s (chefes 2 s) e os envenena — perdem 1% de vida/s por 15 s · Recarga 150 s
+1556	Habilidade: fique invisível e corra 50% mais rápido por 4 s (quebra ao causar dano) · Recarga 30 s
+1557	Amarra de espinhos
+1558	Passo selvagem

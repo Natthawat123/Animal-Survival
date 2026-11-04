@@ -316,7 +316,7 @@ local function runAnimalShot()
 	-- กลุ่มที่ 1: สัตว์ทั่วไป
 	local groups = {
 		{ "normal", { "Rabbit", "Deer", "MossWolf", "Thornboar", "StoneBear", "ReefCrab", "RiptideCroc" } },
-		{ "elemental", { "GaleHawk", "SkyLynx", "StormRam", "EmberFox", "MagmaRhino", "LavaSalamander", "HollowStag" } },
+		{ "elemental", { "GaleHawk", "SkyLynx", "StormRam", "EmberFox", "MagmaRhino", "LavaSalamander", "Moonfang" } },
 		{ "spirits", { "TerraPup", "TidePup", "GalePup", "EmberPup" } },
 		{ "bosses", { "Terragon", "Leviathan", "TempestRoc", "Solfang" } },
 		-- เช็กทิศหน้า: ทุกตัวหันไปทางขวาจอ (หัวต้องอยู่ขวา) — หัวอยู่ซ้าย = โมเดลกลับหัว/Skin.Yaw ผิด

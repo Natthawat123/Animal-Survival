@@ -526,7 +526,7 @@ end
 
 ---------------------------------------------------------------- สิ่งก่อสร้าง
 local PROFILE = {
-	LogWall = "Wood", Ballista = "Wood", SpikeTrap = "Spikes", Bed = "Bed", FarmPlot = "Soil",
+	LogWall = "Wood", Ballista = "Wood", SpikeTrap = "Spikes", Bed = "Bed", Bed2 = "Bed", FarmPlot = "Soil",
 	StoneWall = "Stone", CookPot = "Metal", Lantern = "Lamp", SunBeacon = "Beacon",
 	TerraTotem = "Totem", TideTotem = "Totem", GaleTotem = "Totem", EmberTotem = "Totem",
 }

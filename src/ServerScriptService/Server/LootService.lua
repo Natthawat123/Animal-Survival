@@ -5,6 +5,7 @@
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
+local ChestLid = require(game:GetService("ReplicatedStorage").Shared.ChestLid)
 local Workspace = game:GetService("Workspace")
 
 local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
@@ -65,6 +66,32 @@ function LootService:Init(ctx)
 	self.rayParams.FilterDescendantsInstances = { Workspace.Terrain }
 end
 
+-- เอฟเฟกต์เปิดกล่อง (ทุกคนที่อยู่ใกล้เห็น): กล่องสั่น -> เด้ง -> แสงพุ่ง + ประกาย · tier 1-3 = ยิ่งสูงยิ่งอลัง
+--   หีบที่มีฝาจริง (ChestLid): สั่น -> ฝาเด้งเปิด (เครื่องผู้เล่นเล่นแอนิเมชัน) แล้วเซิร์ฟเวอร์ตั้งฝาเปิดค้างไว้
+function LootService:ChestFx(model, pos, tier, color)
+	tier = math.clamp(tier or 1, 1, 3)
+	self.ctx.Remotes.Get("HitFx"):FireAllClients("ChestOpen", {
+		Model = model, Position = pos, Tier = tier, Color = color or TIER_LIGHT[tier],
+	})
+	local lid, hinge = ChestLid.Find(model)
+	if lid then
+		local closed = ChestLid.Closed(lid)
+		task.delay(1.2, function()
+			if lid.Parent and model:GetAttribute("Opened") ~= false then
+				lid.CFrame = ChestLid.CFrameAt(closed, hinge, 1)
+			end
+		end)
+	end
+end
+
+-- ปิดฝาคืน (เริ่มรอบใหม่)
+function LootService.CloseLid(model)
+	local lid = ChestLid.Find(model)
+	if lid and typeof(lid:GetAttribute("ClosedCF")) == "CFrame" then
+		lid.CFrame = lid:GetAttribute("ClosedCF")
+	end
+end
+
 function LootService:Open(chest, player)
 	if chest:GetAttribute("Opened") then
 		return
@@ -84,6 +111,7 @@ function LootService:Open(chest, player)
 		self.ctx.Services.DataService:AddDiamonds(player, rng:NextInteger(1, 3), "Treasure Chest")
 	end
 	self.ctx.Remotes.Get("HitFx"):FireClient(player, "Loot", { Items = got, Position = chest:GetPivot().Position, Chest = true })
+	self:ChestFx(chest, chest:GetPivot().Position, 2)
 	local lid = chest:FindFirstChild("Lid")
 	if lid then
 		TweenService:Create(lid, TweenInfo.new(0.6, Enum.EasingStyle.Back), { CFrame = lid.CFrame * CFrame.new(0, 0.6, 1.2) * CFrame.Angles(math.rad(-70), 0, 0) }):Play()
@@ -126,19 +154,30 @@ function LootService:OpenCrate(crate, player)
 		self.ctx.Services.DataService:AddDiamonds(player, rng:NextInteger(tier == 3 and 3 or 1, tier == 3 and 6 or 2), TIER_NAME[tier])
 	end
 	self.ctx.Remotes.Get("HitFx"):FireClient(player, "Loot", { Items = got, Position = pos, Chest = true })
-	-- กล่องเปิดแล้ว: จางหายไป (เริ่มรอบใหม่ค่อยกลับมา)
+	self:ChestFx(crate, pos, tier)
+	-- กล่องเปิดแล้ว: ปิดปุ่มทันที แล้วรอเอฟเฟกต์เปิดเล่นจบค่อยจางหายไป (เริ่มรอบใหม่ค่อยกลับมา)
 	for _, d in ipairs(crate:GetDescendants()) do
-		if d:IsA("BasePart") then
-			d:SetAttribute("BaseTransparency", d:GetAttribute("BaseTransparency") or d.Transparency)
-			if d:GetAttribute("BaseCollide") == nil then
-				d:SetAttribute("BaseCollide", d.CanCollide)
-			end
-			TweenService:Create(d, TweenInfo.new(0.8), { Transparency = 1 }):Play()
-			d.CanCollide = false
-		elseif d:IsA("ProximityPrompt") or d:IsA("Light") or d:IsA("ParticleEmitter") then
+		if d:IsA("ProximityPrompt") then
 			d.Enabled = false
 		end
 	end
+	task.delay(ChestLid.Find(crate) and 2.6 or 1.3, function()
+		if not crate:GetAttribute("Opened") then
+			return -- (รีเซ็ตรอบไปก่อนแล้ว)
+		end
+		for _, d in ipairs(crate:GetDescendants()) do
+			if d:IsA("BasePart") then
+				d:SetAttribute("BaseTransparency", d:GetAttribute("BaseTransparency") or d.Transparency)
+				if d:GetAttribute("BaseCollide") == nil then
+					d:SetAttribute("BaseCollide", d.CanCollide)
+				end
+				TweenService:Create(d, TweenInfo.new(0.8), { Transparency = 1 }):Play()
+				d.CanCollide = false
+			elseif d:IsA("Light") or d:IsA("ParticleEmitter") then
+				d.Enabled = false
+			end
+		end
+	end)
 end
 
 -- ของในกล่องระดับ tier (1-3) วางพื้นรอบ pos · คืน { [id] = จำนวน } (วิหารใช้ระดับ 3)
@@ -221,7 +260,9 @@ function LootService:SpawnCrates()
 					end
 				end
 			end
-			local crate = PropBuilder.Imported("Chest" .. tier, cf, ({ 3.4, 3.8, 4.4 })[tier], folder, true)
+			local width = ({ 5.4, 6.2, 7.2 })[tier]
+			local crate = PropBuilder.Imported("Chest" .. tier .. "Open", cf, width, folder, true) -- ฝาเปิดได้จริง
+				or PropBuilder.Imported("Chest" .. tier, cf, width, folder, true)
 			crate = crate or PropBuilder.StoreModel("Crate", cf, folder)
 			if not crate then
 				crate = Instance.new("Model")
@@ -242,14 +283,14 @@ function LootService:SpawnCrates()
 			-- แสงเรืองอ่อนๆ ตามสีระดับ ให้มองเห็นจากไกล (โดยเฉพาะกลางคืน)
 			local glow = Instance.new("PointLight")
 			glow.Color = TIER_LIGHT[tier]
-			glow.Range = 8 + tier * 3
+			glow.Range = 11 + tier * 4
 			glow.Brightness = 0.6 + tier * 0.3
 			glow.Parent = body
 			local prompt = Instance.new("ProximityPrompt")
 			prompt.ActionText = "Open"
 			prompt.ObjectText = TIER_NAME[tier]
 			prompt.HoldDuration = 0.4 + tier * 0.3
-			prompt.MaxActivationDistance = 10
+			prompt.MaxActivationDistance = 13
 			prompt.RequiresLineOfSight = false
 			prompt.Parent = body
 			prompt.Triggered:Connect(function(player)
@@ -262,11 +303,37 @@ function LootService:SpawnCrates()
 		end
 	end
 	self.crates = folder
+	self:PublishPins()
+end
+
+-- หมุดกล่องบนแผนที่: ReplicatedStorage.MapPins (Vector3Value "Crate" · Tier/Opened)
+--   กล่องจริงอยู่ไกล = StreamingEnabled ไม่ส่งมาให้ client -> ต้องส่งตำแหน่งแยกไว้ให้ MapUI
+function LootService:PublishPins()
+	local ReplicatedStorage = game:GetService("ReplicatedStorage")
+	local old = ReplicatedStorage:FindFirstChild("MapPins")
+	if old then
+		old:Destroy()
+	end
+	local pins = Instance.new("Folder")
+	pins.Name = "MapPins"
+	for _, crate in ipairs(self.crates and self.crates:GetChildren() or {}) do
+		local pin = Instance.new("Vector3Value")
+		pin.Name = "Crate"
+		pin.Value = crate:GetPivot().Position
+		pin:SetAttribute("Tier", crate:GetAttribute("Tier") or 1)
+		pin:SetAttribute("Opened", crate:GetAttribute("Opened") == true)
+		crate:GetAttributeChangedSignal("Opened"):Connect(function()
+			pin:SetAttribute("Opened", crate:GetAttribute("Opened") == true)
+		end)
+		pin.Parent = pins
+	end
+	pins.Parent = ReplicatedStorage
 end
 
 function LootService:Reset()
 	for _, crate in ipairs(self.crates and self.crates:GetChildren() or {}) do
 		crate:SetAttribute("Opened", false)
+		LootService.CloseLid(crate)
 		for _, d in ipairs(crate:GetDescendants()) do
 			if d:IsA("BasePart") then
 				d.Transparency = d:GetAttribute("BaseTransparency") or d.Transparency
@@ -281,6 +348,7 @@ function LootService:Reset()
 	end
 	for _, chest in ipairs(self.chests) do
 		chest:SetAttribute("Opened", false)
+		LootService.CloseLid(chest)
 		local lid = chest:FindFirstChild("Lid")
 		if lid and chest:GetAttribute("LidCF") then
 			lid.CFrame = chest:GetAttribute("LidCF")

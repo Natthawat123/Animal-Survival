@@ -34,7 +34,7 @@
 38	 · Talar
 39	 · Elemento
 40	 · Amigos +10%
-41	 · La luz ahuyenta al Ciervo Hueco
+41	 · La luz ahuyenta al Zorro Lunar
 42	 · Minar
 43	 · Pulsa E sobre él para montarlo
 45	 — reclama ♦️
@@ -472,7 +472,7 @@
 542	Alta
 544	Consejos
 545	Al golpear árboles/rocas/animales se elige el mejor hacha/pico/arma por ti
-546	Sujeta una antorcha y el Ciervo Hueco no se atreverá a acercarse
+546	Sujeta una antorcha y el Zorro Lunar no se atreverá a acercarse
 548	Inicio
 550	Estofado caliente
 551	Estofado caliente de la olla. Te sacia mucho tiempo y cura bastante
@@ -530,7 +530,7 @@
 607	Empuja a los animales
 609	Guarida
 610	Farol
-611	Farol. Ilumina la zona y ahuyenta al Ciervo Hueco
+611	Farol. Ilumina la zona y ahuyenta al Zorro Lunar
 612	Carnero de lava
 613	¡Golpe de lava!
 614	Salir del grupo
@@ -543,7 +543,7 @@
 623	Nivel
 624	Leviatán
 625	Luz
-626	La luz ahuyenta al Ciervo Hueco
+626	La luz ahuyenta al Zorro Lunar
 627	Cuchillo de caza ligero · Golpes muy rápidos
 629	Encendiendo la fogata...
 630	Caliza
@@ -671,7 +671,7 @@
 772	Bosque de pinos
 774	Pionero
 775	Colocar
-776	Colócala para descansar y saltar 1 día (+1 día sobrevivido · si la colocas de noche, cuenta por la mañana) · Máx. 2 camas por servidor por partida
+776	Colócala para descansar y saltar 1 día (+1 día sobrevivido · si la colocas de noche, cuenta por la mañana) · Máx. 1 cama por servidor por partida
 777	Colócala para saltar 1 día (+1 día)
 778	¡Jugar!
 779	Jugador
@@ -891,7 +891,7 @@
 1023	La balista dispara sola. Colócalas alrededor de la fogata
 1024	Bastón de fuego del Elementalista. Lanza bolas de fuego explosivas a los enemigos · También tala árboles/rocas
 1025	La noche final
-1026	El Ciervo Hueco
+1026	El Zorro Lunar
 1027	La Montaña Andante
 1028	Lo salvaje despierta
 1029	Viene el jefe
@@ -903,7 +903,7 @@
 1035	La fogata vuelve a arder
 1036	La fogata está llena
 1037	La fogata es vida
-1038	La fogata es vida — si se apaga, el Ciervo Hueco entra al campamento
+1038	La fogata es vida — si se apaga, el Zorro Lunar entra al campamento
 1039	La mesa de fabricación ya está al nivel máximo
 1040	El pilar de cristal de
 1041	El fuego está apagado, no puedes cocinar
@@ -951,7 +951,7 @@
 1084	Top
 1085	Recarga:
 1086	Antorcha
-1087	Antorcha para dar luz. Ahuyenta al Ciervo Hueco
+1087	Antorcha para dar luz. Ahuyenta al Zorro Lunar
 1089	Tortuga
 1090	Intercambiar
 1092	Viajero
@@ -1198,7 +1198,7 @@
 1363	👹 Derrota 10 jefes
 1364	💔 Pérdida de vida
 1365	💡 Luz
-1366	💡 La luz ahuyenta al Ciervo Hueco
+1366	💡 La luz ahuyenta al Zorro Lunar
 1367	💥 Ataque en área
 1368	📅 Conexión de 7 días
 1369	📅 Entra 7 días seguidos
@@ -1277,3 +1277,80 @@
 1444	Activado
 1445	Abrir
 1446	[Clic] Golpear/Talar   [Shift] Esprintar   [Ctrl] Fijar cámara   [C] Fabricar   [B] Construir   [E] Recoger (con saco)   [F] Sacar   [M] Mapa   [1-9] Elegir objeto
+1451	Martillo de constructor
+1452	Martillo de constructor. Sujétalo y haz clic en una construcción para moverla o quitarla (recuperas la mitad de los materiales)
+1453	Sujeta primero el martillo de constructor
+1454	%s movido
+1455	Quitar = recuperas la mitad de los materiales
+1456	%s quitado — la mitad de los materiales cayó al suelo
+1463	🔨 Haz clic en una construcción del campamento para moverla o quitarla
+1464	🔨 Mover %s  ·  Clic = colocar aquí  ·  R = girar  ·  Esc = cancelar
+1465	🔨 Mover %s — apunta al centro de la pantalla y toca ✔
+1466	🔨 Toca una construcción del campamento para moverla o quitarla
+1467	Mover
+1468	Quitar
+1470	%s saltó %d días · Día %d
+1473	Avatar de los Cuatro
+1474	Drenaje de sangre
+1475	Señor de la sangre
+1476	Armas elementales 25% más fuertes · Regenera 0.3 PV/s
+1477	Armas elementales 45% más fuertes · Vida máx. +20 · Corres 8% más rápido
+1478	Armas elementales 70% más fuertes · Todo el daño +15% · Regenera 0.6 PV/s
+1479	Sabio de los Cuatro Elementos
+1480	Consigue primero el pase
+1481	Armonía
+1482	Te curas el 12% del daño · Daño +20% de noche
+1483	Te curas el 18% del daño · Daño +35% de noche · Vida máx. +20
+1484	Te curas el 8% del daño que haces
+1485	Robo de vida
+1487	Acechador nocturno
+1488	Ahora es el día %d
+1490	Exclusivo del pase
+1491	Pase próximamente
+1492	Exclusivo del pase — próximamente
+1496	Bendición del sabio
+1499	Desbloquear con pase
+1500	Desbloquea con el pase %s (R$ %d)
+1501	Desbloquea la clase Sabio de los Cuatro Elementos — exclusivo del pase
+1502	Vampiro
+1509	x%d días
+1510	x%d días (se cuentan %s)
+1512	🌟 ¡Rescataste a %s — saltaste %d días! Ahora es el día %d
+1513	🎫 Pase
+1514	🎫 Desbloquear con pase
+1518	Desbloquea con %s (R$ %d)
+1519	Desbloquea la ruta premium del Season Pass cada temporada · Más Ruby + títulos/colores especiales · Clase Sabio de los Cuatro Elementos
+1521	Talar x1.8 · Construcciones x1.5 más resistentes · Regenera 0.4 PV/s
+1522	Abrazo del bosque
+1523	Corazón de lo salvaje
+1525	Madera viva
+1526	Vida máx. +30 · Regenera 0.8 PV/s · Daño +15% · La caza da +1 objeto extra
+1527	Regenera 0.4 PV/s · Curación +25%
+1528	Desbloquea la ruta premium del Season Pass cada temporada · Más Ruby + títulos/colores especiales · Clase Druida del Bosque
+1529	Druida del Bosque
+1532	Bastón arcano
+1533	Ataque +30%
+1534	Mordisco de sangre
+1535	Segador de sangre
+1536	Armas elementales 65% más fuertes · Habilidad: Tormenta de meteoritos — 6 meteoritos caen donde apuntas · Recarga 90 s
+1537	Bastón característico del Elementalista · Dispara proyectiles arcanos explosivos (fuerte contra todo elemento)
+1538	Recupera el 2% de vida máx. tras cada monstruo abatido
+1539	Vida máx. +30 · Regenera 0.8 PV/s · Habilidad: Santuario natural — una arboleda que cura al equipo y ralentiza monstruos 12 s · Recarga 100 s
+1541	Habilidad: invoca 5 murciélagos (200 PV) que atacan monstruos · Recarga 120 s · Usarla de nuevo reemplaza el enjambre
+1542	Enjambre
+1543	Guadaña característica del Vampiro · Gran alcance, barre grupos de enemigos
+1544	Bastón verde
+1545	Bastón característico del Druida · Dispara espinas que ralentizan monstruos · No tala ni mina
+1546	Todo el daño +30%
+1547	Magia oscura
+1548	Meteorito oscuro
+1549	Poder oscuro
+1550	Hechicero oscuro
+1551	Regenera 3% de vida cada 2 segundos
+1552	Corres 30% más rápido
+1553	Velo de sombras
+1554	Habilidad: un meteorito oscuro cae del cielo, daño fuerte en área y deja una zona de fuego oscuro 10 s (quema 2% de vida/s) · Recarga 120 s
+1555	Habilidad: aturde a los monstruos cercanos 4 s (jefes 2 s) y los envenena — pierden 1% de vida/s durante 15 s · Recarga 150 s
+1556	Habilidad: hazte invisible y corre 50% más rápido 4 s (se rompe al hacer daño) · Recarga 30 s
+1557	Atadura de espinas
+1558	Paso salvaje

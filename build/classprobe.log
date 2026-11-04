@@ -1,0 +1,41 @@
+ERR: torError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+torOutput] [AS] rebuilt mesh collisions: 1213
+orOutput] [AS] ???????????????????...
+orOutput] [AS] seed=1049907307 map=2048
+torOutput] [AS] client ready
+torOutput] [AS] terrain 5.0s
+orOutput] [AS] world ready 5.8s props=447
+orOutput] [AS] READY
+orOutput] [AS] CLASSPASS PASS order-has-new 
+orOutput] [AS] CLASSPASS PASS collect-count 9
+orOutput] [AS] CLASSPASS PASS sage-never-in-stock 
+orOutput] [AS] CLASSPASS FAIL sage-not-owned 
+orOutput] [AS] CLASSPASS PASS vampire-perk 
+torOutput] [AS] CLASSPASS PASS lifesteal-heals hp=52.6 dmg=32.0
+torOutput] [AS] CLASSPASS PASS night-damage day=1338 night=1674
+ERR: atorError] Error: user_AnimeRunPreview.lua.Script:128: invalid argument #1 to 'ipairs' (table expected, got nil)
+ERR: torOutput] Info: Stack Begin
+ERR: torOutput] Info: Script 'user_AnimeRunPreview.lua.Script', Line 128 - function adoptImported
+ERR: torOutput] Info: Script 'user_AnimeRunPreview.lua.Script', Line 151
+torOutput] [AS] CLASSPASS PASS pass-attr 
+torOutput] [AS] CLASSPASS PASS pass-grants-class 
+torOutput] [AS] CLASSPASS PASS isowned-with-pass 
+torOutput] [AS] CLASSPASS RESULT fails=1
+torOutput] [AS] CLASSPASS DONE
+torOutput] [AS] CLASSSHOT step require
+torOutput] [AS] CLASSSHOT step open
+torOutput] [AS] CLASSSHOT opened ok=true nil isOpen=true
+shot class_Survivor
+shot class_Forager
+shot class_Lumberjack
+shot class_Medic
+shot class_Hunter
+shot class_Builder
+shot class_Scout
+shot class_Elementalist
+shot class_Vampire
+shot class_Sage
+shot vendor_front
+shot vendor_back
+torOutput] [TEST] DONE probe
+finished in 514s  done=True

@@ -18,6 +18,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Items = require(Shared.Items)
 local Animals = require(Shared.Animals)
 local Config = require(Shared.Config)
+local Classes = require(Shared.Classes)
 local Remotes = require(Shared.Remotes)
 local UIKit = require(script.Parent.UIKit)
 local SoundController = require(script.Parent.SoundController)
@@ -103,6 +104,10 @@ function HUD.Init(state)
 	HUD.TeamRows = {}
 	HUD.TeamMarks = {}
 
+	-- หลอดลมหายใจ (โผล่ใต้เป้ากลางจอเฉพาะตอนดำน้ำ)
+	HUD.AirBar = UIKit.Bar(gui, { Size = UDim2.fromOffset(200, 16), Position = UDim2.new(0.5, -100, 0.5, 70), Color = Color3.fromRGB(90, 200, 255), Label = "" })
+	HUD.AirBar.Holder.Visible = false
+
 	---------------------------------------------------------------- กลางบน: คืน
 	local top = UIKit.Frame(gui, { Size = UDim2.fromOffset(440, 84), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 10), BackgroundTransparency = 1 })
 	-- กว้างจริง = เข็มทิศ 520 · มือถือบีบแคบลงไม่ให้ชนการ์ดซ้าย/ขวา
@@ -113,6 +118,9 @@ function HUD.Init(state)
 		Text = "DAY 1", TextColor3 = C.Gold,
 	})
 	HUD.NightLabel:FindFirstChildOfClass("UIStroke").Thickness = 4
+	HUD.NightLabel.RichText = true -- วันโบนัสต่อท้ายในบรรทัดเดียวกัน ("DAY 12 +3") ไม่ทับเลข
+	HUD.NightPop = Instance.new("UIScale")
+	HUD.NightPop.Parent = HUD.NightLabel
 	HUD.PhaseLabel = UIKit.Text(top, {
 		Size = UDim2.new(1, 0, 0, 20), Position = UDim2.fromOffset(0, 44), TextSize = 17, Font = UIKit.Fonts.Black, TextXAlignment = Enum.TextXAlignment.Center,
 		Text = "", TextColor3 = C.Text,
@@ -334,23 +342,127 @@ function HUD.Init(state)
 	end)
 	state:GetAttributeChangedSignal("Phase"):Connect(HUD.UpdateNightLabel)
 	state:GetAttributeChangedSignal("Night"):Connect(HUD.UpdateNightLabel)
+	-- วันโบนัสเพิ่ม: "xN" เด้งข้างเลขวัน แล้วพุ่งเข้าไปบวก · ได้ตอนกลางคืนก็บวกที่ตัวนับ xN ทันที
+	-- (เลขวันจริงขยับตอนเช้า หลังบ้านนับเอง) · ตอนเช้าที่ของค้างถูกนับ (BonusSource = "Pending") ไม่เด้งซ้ำ
+	local lastBonus = state:GetAttribute("BonusDays") or 0
+	state:GetAttributeChangedSignal("BonusDays"):Connect(function()
+		local now = state:GetAttribute("BonusDays") or 0
+		local add = now - lastBonus
+		lastBonus = now
+		if add > 0 and player:GetAttribute("InRun") and state:GetAttribute("BonusSource") ~= "Pending" then
+			HUD.HoldNight = state:GetAttribute("BonusFrom") or HUD.ShownNight -- ค้างเลขเดิมไว้จนเอฟเฟกต์บินถึง
+			HUD.HoldTotal = HUD.ShownTotal
+			HUD.BonusFly(add, state:GetAttribute("BonusSource"))
+		elseif add > 0 and player:GetAttribute("InRun") then
+			-- เช้า: วันที่ได้ตอนกลางคืนถูกนับเข้าเลขวันแล้ว -> เลขวันเด้ง (ไม่มีตัวเลขบินซ้ำ)
+			HUD.NightPop.Scale = 1.4
+			game:GetService("TweenService"):Create(HUD.NightPop, TweenInfo.new(0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+		end
+		HUD.UpdateNightLabel()
+	end)
+	local lastPending = state:GetAttribute("PendingDays") or 0
+	state:GetAttributeChangedSignal("PendingDays"):Connect(function()
+		local now = state:GetAttribute("PendingDays") or 0
+		if now > lastPending and player:GetAttribute("InRun") then
+			HUD.HoldTotal = HUD.ShownTotal
+			HUD.BonusFly(now - lastPending, state:GetAttribute("PendingSource"))
+		end
+		lastPending = now
+		HUD.UpdateNightLabel()
+	end)
 	HUD.UpdateNightLabel()
 end
 
+-- "xN" ตัวใหญ่ + ชื่อที่มา (เตียง/ลูกสัตว์) -> พุ่งเข้าเลขวัน แล้วปล่อยตัวเลขที่ค้างไว้ให้บวก
+function HUD.BonusFly(n, source)
+	local apply = true
+	local gui = HUD.Gui
+	-- โผล่ข้างขวาของ DAY XX (บนจอว่าง ไม่ทับป้ายแจ้งเตือนกลางจอ) แล้วพุ่งเข้าเลขวัน
+	local nl = HUD.NightLabel
+	local mid = nl.AbsolutePosition + nl.AbsoluteSize / 2 - gui.AbsolutePosition -- พิกัดในกรอบ HUD เอง (ไม่ต้องคิดแถบบนของ Roblox)
+	local right = mid.X + nl.TextBounds.X / 2
+	local holder = UIKit.Frame(gui, {
+		Size = UDim2.fromOffset(150, 84), AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.fromOffset(right + 40, mid.Y + 14),
+		BackgroundTransparency = 1, ZIndex = 50,
+	})
+	local scale = Instance.new("UIScale")
+	scale.Scale = 0.2
+	scale.Parent = holder
+	local big = UIKit.Text(holder, {
+		Size = UDim2.new(1, 0, 0, 60), Font = UIKit.Fonts.Title, TextSize = 60, TextXAlignment = Enum.TextXAlignment.Left,
+		Text = string.format("x%d", n), TextColor3 = apply and Color3.fromRGB(110, 255, 140) or C.Gold, ZIndex = 51,
+	})
+	big:SetAttribute("NoTranslate", true)
+	local sub = UIKit.Text(holder, {
+		Size = UDim2.new(1, 0, 0, 22), Position = UDim2.fromOffset(0, 60), Font = UIKit.Fonts.Black, TextSize = 20,
+		TextXAlignment = Enum.TextXAlignment.Left, Text = (source and source ~= "") and source or "Bed", TextColor3 = C.Text, ZIndex = 51,
+	})
+	local TweenService = game:GetService("TweenService")
+	pcall(SoundController.Play, "Reward")
+	TweenService:Create(scale, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+	task.delay(1.1, function()
+		-- พุ่งเข้าท้ายข้อความ DAY XX
+		local ti = TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+		TweenService:Create(holder, ti, { Position = UDim2.fromOffset(right - 30, mid.Y) }):Play()
+		TweenService:Create(big, ti, { TextTransparency = 0.6 }):Play()
+		TweenService:Create(scale, ti, { Scale = 0.3 }):Play()
+		TweenService:Create(sub, TweenInfo.new(0.3), { TextTransparency = 1 }):Play()
+		task.wait(0.45)
+		holder:Destroy()
+		if apply then
+			HUD.HoldNight = nil
+			HUD.HoldTotal = nil
+			HUD.UpdateNightLabel()
+			-- เลขวันเด้ง = บวกแล้ว
+			HUD.NightPop.Scale = 1.4
+			TweenService:Create(HUD.NightPop, TweenInfo.new(0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+		end
+	end)
+	-- กันค้าง: ถ้าเอฟเฟกต์พัง เลขวันต้องกลับมาตรง
+	task.delay(3, function()
+		if HUD.HoldNight or HUD.HoldTotal then
+			HUD.HoldNight = nil
+			HUD.HoldTotal = nil
+			HUD.UpdateNightLabel()
+		end
+	end)
+end
+
+local Loc -- Localizer (โหลดตอนใช้ครั้งแรก) · ข้อความ DAY แปลเองก่อนต่อวันโบนัส
 function HUD.UpdateNightLabel()
 	if not player:GetAttribute("InRun") then
 		return
 	end
+	if Loc == nil then
+		local ok, m = pcall(require, script.Parent.Localizer)
+		Loc = ok and m or false
+		if Loc then
+			Loc.OnChanged(HUD.UpdateNightLabel)
+		end
+	end
 	local s = HUD.State
-	local night = s:GetAttribute("Night") or 1
+	local night = HUD.HoldNight or s:GetAttribute("Night") or 1
+	HUD.ShownNight = night
 	local phase = s:GetAttribute("Phase") or "Day"
+	local base
 	if phase == "Night" then
-		HUD.NightLabel.Text = string.format("NIGHT %d", night)
+		base = string.format("NIGHT %d", night)
 		HUD.NightLabel.TextColor3 = s:GetAttribute("BloodMoon") and Color3.fromRGB(255, 80, 80) or Color3.fromRGB(170, 190, 255)
 	else
-		HUD.NightLabel.Text = string.format("DAY %d", night)
+		base = string.format("DAY %d", night)
 		HUD.NightLabel.TextColor3 = C.Gold
 	end
+	if Loc then
+		base = Loc.Translate(base)
+	end
+	-- วันโบนัสรวมของรอบนี้ = นับแล้ว + ที่รอเลขวันขยับตอนเช้า (ผู้เล่นเห็นตัวเดียว ไม่มีวงเล็บ)
+	-- ระหว่างตัวเลขกำลังบิน ค้างยอดเดิมไว้ก่อน
+	local total = HUD.HoldTotal or ((s:GetAttribute("BonusDays") or 0) + (s:GetAttribute("PendingDays") or 0))
+	HUD.ShownTotal = total
+	if total > 0 then
+		base ..= string.format(' <font color="#6EFF8C" size="32">x%d</font>', total)
+	end
+	HUD.NightLabel.Text = base
 end
 
 local lastPOI = 0
@@ -369,9 +481,21 @@ function HUD.Update()
 	local hunger = player:GetAttribute("Hunger") or 100
 	HUD.HungerBar.Set(hunger / Config.HungerMax, hunger < 25 and "Starving!" or string.format("%d%%", math.floor(hunger / Config.HungerMax * 100 + 0.5)))
 	HUD.StaminaBar.Set((HUD.Stamina or 100) / 100)
+	local air, airMax = player:GetAttribute("Air"), player:GetAttribute("AirMax") or Config.BreathMax
+	local diving = air ~= nil and air < airMax - 0.01 and player:GetAttribute("InRun") == true
+	HUD.AirBar.Holder.Visible = diving
+	if diving then
+		HUD.AirBar.Set(air / airMax, air <= 0 and "🫧 Drowning!" or string.format("🫧 %ds", math.ceil(air)))
+		local st = HUD.AirBar.Holder:FindFirstChildOfClass("UIStroke")
+		if st then
+			st.Color = air < 5 and Color3.fromRGB(255, 70, 70):Lerp(Color3.new(), 0.5 - 0.5 * math.sin(os.clock() * 10)) or UIKit.Colors.Outline
+		end
+	end
 	local cls = player:GetAttribute("Class")
 	local lv = player:GetAttribute("ClassLevel")
-	HUD.ClassLabel.Text = cls and (string.upper(cls) .. (lv and ("  ·  Lv." .. lv) or "")) or "SURVIVOR"
+	local cdef = cls and Classes.Data[cls]
+	local cname = cdef and cdef.Name or cls -- ชื่อที่แสดง (รหัส "Sage" = พงไพร)
+	HUD.ClassLabel.Text = cname and (string.upper(cname) .. (lv and ("  ·  Lv." .. lv) or "")) or "SURVIVOR"
 
 	-- เวลา
 	local now = Workspace:GetServerTimeNow()

@@ -140,6 +140,14 @@ function SurvivalService:Damage(player, amount, source, opts)
 		return
 	end
 	amount *= self:Perk(player, "DamageTakenMult", 1)
+	-- แวมไพร์: ค้างคาวที่ยังอยู่รับดาเมจแทน (SkillService:Absorb)
+	local skill = self.ctx.Services.SkillService
+	if skill then
+		amount = skill:Absorb(player, amount)
+		if amount <= 0 then
+			return
+		end
+	end
 	s.LastHit = os.clock()
 	s.LastSource = source
 	self.ctx.Remotes.Get("HitFx"):FireClient(player, "Hurt", { Amount = amount, Source = source })
@@ -155,6 +163,22 @@ function SurvivalService:Damage(player, amount, source, opts)
 	if opts and opts.Burn then
 		s.Burn = math.max(s.Burn or 0, opts.Burn)
 	end
+end
+
+-- หัวอยู่ใต้ผิวน้ำ (terrain water) จริงไหม
+function SurvivalService:HeadUnderwater(char)
+	local head = char:FindFirstChild("Head")
+	if not head then
+		return false
+	end
+	local p = head.Position
+	local layout = self.ctx.Layout
+	if p.Y > (layout and layout.WaterLevel or Config.WaterLevel) - 0.3 then
+		return false
+	end
+	local region = Region3.new(p - Vector3.new(0.5, 0.5, 0.5), p + Vector3.new(0.5, 0.5, 0.5)):ExpandToGrid(4)
+	local ok, mats, occ = pcall(Workspace.Terrain.ReadVoxels, Workspace.Terrain, region, 4)
+	return ok and mats[1] and mats[1][1] and mats[1][1][1] == Enum.Material.Water and occ[1][1][1] > 0.5 or false
 end
 
 function SurvivalService:Heal(player, amount)
@@ -843,6 +867,22 @@ function SurvivalService:Start(ctx)
 							self:Damage(player, s.Burn * dt, "Burn")
 							s.Burn = math.max(0, s.Burn - 2 * dt)
 						end
+						-- ดำน้ำ: หัวจมน้ำ = ลมหายใจลด · หมด = จมน้ำเสียเลือด · โผล่พ้นน้ำ = เติมคืน
+						local maxAir = Config.BreathMax * self:Perk(player, "BreathMult", 1)
+						local air = s.Air or maxAir
+						if self:HeadUnderwater(char) then
+							air = math.max(0, air - dt)
+							if air <= 0 then
+								self:Damage(player, Config.DrownDamagePerSec * dt, "Drown")
+							end
+						else
+							air = math.min(maxAir, air + Config.BreathRefillPerSec * dt)
+						end
+						if air ~= s.Air then
+							s.Air = air
+							player:SetAttribute("Air", air)
+							player:SetAttribute("AirMax", maxAir)
+						end
 						-- ฟื้นเลือดช้าๆ ตอนอิ่ม
 						if h > Config.HungerMax * 0.6 and os.clock() - (s.LastHit or 0) > 8 then
 							self:Heal(player, 0.6 * dt)
@@ -851,6 +891,11 @@ function SurvivalService:Start(ctx)
 						local regen = self:Perk(player, "Regen", 0)
 						if regen > 0 and h > 0 then
 							self:Heal(player, regen * dt)
+						end
+						-- ฟื้นเลือดเป็น % ของเลือดสูงสุด (พงไพร: 3% ทุก 2 วิ = 1.5%/วิ)
+						local regenPct = self:Perk(player, "RegenPct", 0)
+						if regenPct > 0 and h > 0 then
+							self:Heal(player, hum.MaxHealth * regenPct * dt)
 						end
 						-- กลับมานั่งข้างกองไฟ (ในเขตไฟที่ติดอยู่) = ฟื้นเลือดเร็ว ~3/วิ (เต็มหลอดใน ~30 วิ) · โดนตีอยู่ไม่ฟื้น
 						local camp = self.ctx.Services.CampService

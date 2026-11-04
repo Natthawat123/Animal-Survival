@@ -616,6 +616,331 @@ if ReplicatedStorage:FindFirstChild("ASBossOnly") and ReplicatedStorage.ASBossOn
 	print("[TEST] DONE probe")
 	return
 end
+-- --bossskill=Snow : ลานศาลเจ้าน้ำแข็งตอนกลางวัน (แสงจริง) + ของตกบนหิมะต้องมองเห็น
+if ReplicatedStorage:FindFirstChild("ASBossOnly") and ReplicatedStorage.ASBossOnly.Value == "Snow" then
+	local Spirit = require(Server:WaitForChild("SpiritService"))
+	local Drops = require(Server:WaitForChild("DropService"))
+	local Dir = require(Server:WaitForChild("DirectorService"))
+	player:SetAttribute("Class", "Survivor")
+	require(Server:WaitForChild("LobbyService")):Depart(player)
+	Dir:StartRun()
+	task.wait(6)
+	Dir.paused = true -- ค้างกลางวัน
+	local sh = Spirit.shrines.Air
+	local p = sh.Base + Vector3.new(0, 0, 30)
+	standAt(p + Vector3.new(0, 0, 14), p)
+	task.wait(5)
+	for k, id in ipairs({ "Stone", "Bone", "Wood", "Bandage", "Fiber", "RawMeat" }) do
+		Drops:Spawn(id, 1, p + Vector3.new((k - 3.5) * 3, 3, 0))
+	end
+	task.wait(3)
+	player:SetAttribute("ProbeFrom", p + Vector3.new(0, 9, 20))
+	player:SetAttribute("ProbeAt", p)
+	player:SetAttribute("ProbeCam", "lookraw")
+	task.wait(4)
+	shot("snow_day_drops")
+	task.wait(4)
+	player:SetAttribute("ProbeFrom", sh.Base + Vector3.new(0, 14, 70))
+	player:SetAttribute("ProbeAt", sh.Base + Vector3.new(0, 6, 0))
+	task.wait(4)
+	shot("snow_day_wide")
+	task.wait(4)
+	print("[SNOW] phase=" .. tostring(ReplicatedStorage.GameState:GetAttribute("Phase")) .. " biome lighting exposure=" .. tostring(game:GetService("Lighting").ExposureCompensation))
+	print("[TEST] DONE probe")
+	return
+end
+-- --bossskill=Ride : ขี่ลูกสัตว์ธาตุ 4 ตัว — ก้นผู้เล่นต้องแตะหลังสัตว์ (ไม่ลอย) · เท้าสัตว์แตะพื้น · ถ่ายภาพด้านข้าง
+--   + ไบโอมน้ำแข็ง: ของตกบนหิมะต้องมีขอบเข้ม (ถ่ายภาพ)
+if ReplicatedStorage:FindFirstChild("ASBossOnly") and ReplicatedStorage.ASBossOnly.Value == "Ride" then
+	local Spirit = require(Server:WaitForChild("SpiritService"))
+	local Mount = require(Server:WaitForChild("MountService"))
+	local Drops = require(Server:WaitForChild("DropService"))
+	player:SetAttribute("Class", "Survivor")
+	require(Server:WaitForChild("LobbyService")):Depart(player)
+	require(Server:WaitForChild("DirectorService")):StartRun()
+	task.wait(8)
+	local cp = camp:GetPivot().Position
+	for i, el in ipairs({ "Earth", "Water", "Air", "Fire" }) do
+		local sh = Spirit.shrines[el]
+		local pet = sh and Spirit:SpawnPet(sh)
+		if pet then
+			task.wait(1.5)
+			local spot = cp + Vector3.new(30 + i * 22, 0, 30)
+			spot = Vector3.new(spot.X, ground(spot.X, spot.Z), spot.Z)
+			pet.Model:PivotTo(CFrame.new(spot + Vector3.new(0, 4, 0)))
+			task.wait(1.5)
+			standAt(spot + Vector3.new(3, 0, 0), spot)
+			task.wait(0.8)
+			Mount:Mount(player, pet)
+			task.wait(2.5)
+			local char = player.Character
+			local pelvis = char:FindFirstChild("LowerTorso") or char:FindFirstChild("Torso")
+			local bcf, bsz = pet.Model:GetBoundingBox()
+			local feet = bcf.Y - bsz.Y / 2
+			local g = ground(pet.Root.Position.X, pet.Root.Position.Z)
+			local seatY = pelvis.Position.Y - pelvis.Size.Y / 2
+			print(string.format("[RIDE] %s riding=%s seat=%.2f above pet feet (pet h=%.2f, back frac=%.2f) petFeet-ground=%.2f", el, tostring(player:GetAttribute("Riding")),
+				seatY - feet, bsz.Y, (seatY - feet) / bsz.Y, feet - g))
+			local r = char.HumanoidRootPart
+			local ut = char:FindFirstChild("UpperTorso") or char:FindFirstChild("Torso")
+			local c = (bcf.Position - r.Position) * Vector3.new(1, 0, 1)
+			print(string.format("[RIDE] %s hrpLook=(%.2f,%.2f) torsoLook=(%.2f,%.2f) petLook=(%.2f,%.2f) seatOffFromPetCenter=%.2f",
+				el, r.CFrame.LookVector.X, r.CFrame.LookVector.Z, ut.CFrame.LookVector.X, ut.CFrame.LookVector.Z,
+				pet.Root.CFrame.LookVector.X, pet.Root.CFrame.LookVector.Z, c.Magnitude))
+			player:SetAttribute("ProbeAt", r.Position - Vector3.new(0, 1.5, 0))
+			player:SetAttribute("ProbeCam", "look")
+			for _, v in ipairs({ { "side", r.CFrame.RightVector * 14 + Vector3.new(0, 1, 0) }, { "top", Vector3.new(0, 16, 0.01) }, { "front", r.CFrame.LookVector * 14 + Vector3.new(0, 2, 0) } }) do
+				player:SetAttribute("ProbeFrom", r.Position + v[2])
+				task.wait(3)
+				shot("ride_" .. el .. "_" .. v[1])
+				task.wait(4)
+			end
+			player:SetAttribute("ProbeCam", "")
+			Mount:Dismount(player)
+			task.wait(1)
+		end
+	end
+	-- ของตกบนหิมะ (ไบโอมน้ำแข็ง) — ย้ายไป --bossskill=Snow แล้ว
+	local sp = nil
+	if sp then
+		local p = Vector3.new(sp.X + 60, 0, sp.Z + 60)
+		p = Vector3.new(p.X, ground(p.X, p.Z), p.Z)
+		standAt(p + Vector3.new(0, 0, 16), p)
+		task.wait(3)
+		for k, id in ipairs({ "Stone", "Bone", "Wood", "Bandage", "Fiber" }) do
+			Drops:Spawn(id, 1, p + Vector3.new((k - 3) * 3, 2, 0))
+		end
+		task.wait(3)
+		player:SetAttribute("ProbeFrom", p + Vector3.new(0, 7, 16))
+		player:SetAttribute("ProbeAt", p)
+		player:SetAttribute("ProbeCam", "lookraw")
+		task.wait(3)
+		shot("snow_drops")
+		task.wait(4)
+		player:SetAttribute("ProbeCam", "")
+	end
+	print("[TEST] DONE probe")
+	return
+end
+-- --bossskill=Monument : ช่วยศาลเจ้าสำเร็จ = อนุสาวรีย์ลูกสัตว์ธาตุผุดขึ้น (แทนเสาผลึก) ทั้ง 4 ไบโอม · บันไดหันเข้าหาแคมป์
+if ReplicatedStorage:FindFirstChild("ASBossOnly") and ReplicatedStorage.ASBossOnly.Value == "Monument" then
+	local Spirit = require(Server:WaitForChild("SpiritService"))
+	player:SetAttribute("Class", "Survivor")
+	require(Server:WaitForChild("LobbyService")):Depart(player)
+	require(Server:WaitForChild("DirectorService")):StartRun()
+	task.wait(8)
+	local campPos = camp:GetPivot().Position
+	for i, el in ipairs({ "Earth", "Water", "Air", "Fire" }) do
+		local sh = Spirit.shrines[el]
+		if sh then
+			local pos = Spirit:PillarPos(sh)
+			standAt(pos + Vector3.new(0, 0, 60), pos)
+			task.wait(2)
+			Spirit:RaisePillar(sh, i ~= 1) -- ตัวแรก = ผุดจากดินจริง
+			task.wait(i == 1 and 4 or 1.5)
+			local m = sh.Pillar
+			local mon = m and m:FindFirstChild("Monument" .. el)
+			local cf, size = (mon or m):GetBoundingBox()
+			local toCamp = ((campPos - pos) * Vector3.new(1, 0, 1)).Unit
+			print(string.format("[MONUMENT] %s %s size=%.1f,%.1f,%.1f bottom=%.1f ground=%.1f", el, mon and "PASS" or "FAIL",
+				size.X, size.Y, size.Z, cf.Y - size.Y / 2, pos.Y))
+			-- ถ่ายจากฝั่งแคมป์ (ควรเห็นบันได/หน้ารูปปั้น) และด้านข้าง
+			player:SetAttribute("ProbeAt", pos + Vector3.new(0, size.Y * 0.45, 0))
+			player:SetAttribute("ProbeCam", "look")
+			for _, v in ipairs({ { "campside", toCamp * 30 }, { "back", -toCamp * 40 } }) do -- ฝั่งแคมป์: ระหว่างอนุสาวรีย์กับซุ้มประตู (ไม่ให้ซุ้มบัง)
+				player:SetAttribute("ProbeFrom", pos + v[2] + Vector3.new(0, 10, 0))
+				task.wait(3)
+				shot("monument_" .. el .. "_" .. v[1])
+				task.wait(4)
+			end
+			player:SetAttribute("ProbeCam", "")
+		end
+	end
+	print("[TEST] DONE probe")
+	return
+end
+-- --bossskill=MapPins : แผนที่ใหญ่โชว์กล่อง/ศาลเจ้า/รังบอส/วิหาร ที่อยู่ในเขตแสงกองไฟ · อัปไฟ (แสงไกลขึ้น) = หมุดเพิ่ม
+if ReplicatedStorage:FindFirstChild("ASBossOnly") and ReplicatedStorage.ASBossOnly.Value == "MapPins" then
+	player:SetAttribute("Class", "Survivor")
+	require(Server:WaitForChild("LobbyService")):Depart(player)
+	require(Server:WaitForChild("DirectorService")):StartRun()
+	task.wait(10)
+	local st = ReplicatedStorage.GameState
+	local function expect(tag)
+		local reveal = st:GetAttribute("CampReveal")
+		local function inside(p) return p and math.sqrt(p.X * p.X + p.Z * p.Z) < reveal end
+		local n = { crates = 0, shrines = 0, lairs = 0, sanctums = 0 }
+		local pins = ReplicatedStorage:FindFirstChild("MapPins")
+		for _, pin in ipairs(pins and pins:GetChildren() or {}) do
+			if inside(pin.Value) then n.crates += 1 end
+		end
+		for _, el in ipairs({ "Earth", "Water", "Air", "Fire" }) do
+			if inside(st:GetAttribute("Shrine_" .. el)) then n.shrines += 1 end
+			if inside(st:GetAttribute("Lair_" .. el)) then n.lairs += 1 end
+			if inside(st:GetAttribute("Sanctum_" .. el)) then n.sanctums += 1 end
+		end
+		print(string.format("[MAPPIN] server %s reveal=%d totalCrates=%d expect crates=%d shrines=%d lairs=%d sanctums=%d", tag, reveal,
+			pins and #pins:GetChildren() or 0, n.crates, n.shrines, n.lairs, n.sanctums))
+	end
+	expect("lv1")
+	player:SetAttribute("ProbeMap", "lv1")
+	task.wait(4)
+	local Camp = require(Server:WaitForChild("CampService"))
+	Camp.level = 4 -- อัปกองไฟเป็น Lv.4 จริง (แสง/หมอกเปิดไกลขึ้น)
+	Camp:Publish()
+	task.wait(0.5)
+	expect("lv4")
+	player:SetAttribute("ProbeMap", "lv4")
+	task.wait(4)
+	print("[TEST] DONE probe")
+	return
+end
+-- --bossskill=Bonus : เข้าศาลเจ้า/วิหารครั้งแรกของรอบ = เวลา +2 นาที (กลางวันยืดทันที · กลางคืนเก็บไว้ให้วันถัดไป) · เข้าซ้ำไม่ได้เพิ่ม
+if ReplicatedStorage:FindFirstChild("ASBossOnly") and ReplicatedStorage.ASBossOnly.Value == "Bonus" then
+	local Portal = require(Server:WaitForChild("PortalService"))
+	local Dir = require(Server:WaitForChild("DirectorService"))
+	local CS = game:GetService("CollectionService")
+	player:SetAttribute("Class", "Survivor")
+	require(Server:WaitForChild("LobbyService")):Depart(player)
+	Dir:StartRun()
+	task.wait(8)
+	local st = ReplicatedStorage.GameState
+	local function check(name, ok, info)
+		print(string.format("[BONUS] %s %s %s", ok and "PASS" or "FAIL", name, info or ""))
+	end
+	local veils = {}
+	for _, v in ipairs(CS:GetTagged("RealmPortal")) do
+		if v:GetAttribute("RealmKey") then table.insert(veils, v) end
+	end
+	check("veils", #veils >= 3, "realm entrances=" .. #veils)
+	local function left() return st:GetAttribute("PhaseEnd") - workspace:GetServerTimeNow() end
+	local e0, l0 = left(), st:GetAttribute("PhaseLength")
+	Portal:GiveEnterBonus(player, veils[1])
+	task.wait(1)
+	local e1 = left()
+	check("day_plus_2min", st:GetAttribute("Phase") == "Day" and math.abs((e1 - e0) - 119) < 3 and st:GetAttribute("PhaseLength") == l0 + 120,
+		string.format("left %.0f -> %.0f s", e0, e1))
+	Portal:GiveEnterBonus(player, veils[1])
+	task.wait(1)
+	check("same_realm_once", math.abs(left() - (e1 - 1)) < 2, string.format("left=%.0f", left()))
+	Portal:GiveEnterBonus(player, veils[2])
+	task.wait(1)
+	check("other_realm_adds", left() > e1 + 110, string.format("left=%.0f", left()))
+	-- ข้ามไปกลางคืน
+	local t = os.clock()
+	while st:GetAttribute("Phase") ~= "Night" and os.clock() - t < 30 do
+		Dir.skip = true
+		task.wait(0.5)
+	end
+	local n0 = left()
+	Portal:GiveEnterBonus(player, veils[3])
+	task.wait(1)
+	check("night_not_longer", st:GetAttribute("Phase") == "Night" and left() <= n0 and Dir.pendingBonus == 120,
+		string.format("phase=%s pending=%s", tostring(st:GetAttribute("Phase")), tostring(Dir.pendingBonus)))
+	t = os.clock()
+	while st:GetAttribute("Phase") ~= "Day" and os.clock() - t < 40 do
+		Dir.skip = true
+		task.wait(0.5)
+	end
+	task.wait(1.5)
+	local Config = require(ReplicatedStorage.Shared.Config)
+	local normal = Config.DayLength - Config.DuskLength
+	check("next_day_longer", st:GetAttribute("Phase") == "Day" and st:GetAttribute("PhaseLength") == normal + 120 and Dir.pendingBonus == 0,
+		string.format("dayLen=%s normal=%d", tostring(st:GetAttribute("PhaseLength")), normal))
+	print("[TEST] DONE probe")
+	return
+end
+-- --bossskill=Waves : ศาลเจ้า/วิหาร = ผู้เฝ้า 3 เวฟ (3 -> 5 -> 7) พักเวฟละ 5 วิ · ครบแล้วค่อยปลดผนึก/ไขปริศนา
+if ReplicatedStorage:FindFirstChild("ASBossOnly") and ReplicatedStorage.ASBossOnly.Value == "Waves" then
+	local Spirit = require(Server:WaitForChild("SpiritService"))
+	local Sanct = require(Server:WaitForChild("SanctumService"))
+	local Combat = require(Server:WaitForChild("CombatService"))
+	player:SetAttribute("Class", "Survivor")
+	require(Server:WaitForChild("LobbyService")):Depart(player)
+	require(Server:WaitForChild("DirectorService")):StartRun()
+	task.wait(8)
+	local function check(name, ok, info)
+		print(string.format("[WAVES] %s %s %s", ok and "PASS" or "FAIL", name, info or ""))
+	end
+	local function alive(list)
+		local n = 0
+		for _, a in ipairs(list or {}) do
+			if not a.Dead and a.Model and a.Model.Parent then n += 1 end
+		end
+		return n
+	end
+	local function killAll(list)
+		for _, a in ipairs(list or {}) do
+			if not a.Dead and a.Model and a.Model.Parent then
+				Combat:DamageAnimal(a, 1e7, player)
+			end
+		end
+	end
+	-- รอให้เวฟถัดไปโผล่ (จับเวลาตั้งแต่ฆ่าหมด)
+	local function nextWave(st, wave, t0)
+		local t = os.clock()
+		while os.clock() - t < 15 and (st.Wave or 0) < wave do
+			task.wait(0.1)
+		end
+		return os.clock() - t0
+	end
+	local function run(tag, st, center, doneFn)
+		standAt(center + Vector3.new(0, 2, 26), center)
+		local t = os.clock()
+		while os.clock() - t < 20 and alive(st.Guardians) == 0 do
+			task.wait(0.2)
+		end
+		task.wait(1)
+		check(tag .. "_wave1", st.Wave == 1 and alive(st.Guardians) == 3, string.format("wave=%s alive=%d", tostring(st.Wave), alive(st.Guardians)))
+		task.wait(tag == "shrine" and 11 or 1) -- ฉากเปิดศาลเจ้า
+		check(tag .. "_locked_w1", not doneFn(), "")
+		for w = 2, 3 do
+			killAll(st.Guardians)
+			local t0 = os.clock()
+			local gap = nextWave(st, w, t0)
+			task.wait(0.5)
+			local want = ({ 3, 5, 7 })[w]
+			check(string.format("%s_wave%d", tag, w), st.Wave == w and alive(st.Guardians) == want and gap >= 4.5 and gap <= 7,
+				string.format("wave=%s alive=%d gap=%.1fs", tostring(st.Wave), alive(st.Guardians), gap))
+			check(string.format("%s_locked_w%d", tag, w), not doneFn(), "")
+		end
+		killAll(st.Guardians)
+		task.wait(2)
+		check(tag .. "_unlocked", doneFn(), "")
+		shot("waves_" .. tag)
+	end
+	-- ศาลเจ้า (ช่วยลูกสัตว์) ธาตุแรกที่มี
+	local sh
+	for _, el in ipairs({ "Earth", "Water", "Air", "Fire" }) do
+		if Spirit.shrines[el] and not Spirit.shrines[el].Freed then sh = Spirit.shrines[el] break end
+	end
+	if sh then
+		run("shrine", sh, sh.Base, function() return sh.Prompt and sh.Prompt.Enabled end)
+	else
+		check("shrine_found", false, "")
+	end
+	-- วิหาร
+	local site
+	for _, s in pairs(Sanct.sites or {}) do
+		site = s
+		break
+	end
+	if site then
+		run("sanctum", site, site.Center, function() return site.WavesDone == true end)
+		-- ครบเวฟแล้วปลุกเสารูนได้ (ไม่โดนบอกให้ปราบผู้พิทักษ์ก่อน)
+		task.wait(8)
+		local idx = site.Order and site.Order[1]
+		if idx then
+			Sanct:Activate(site, idx, player)
+			task.wait(0.3)
+			check("sanctum_puzzle_open", site.State == "Input" and site.Progress == 1, "state=" .. tostring(site.State))
+		end
+	else
+		check("sanctum_found", false, "")
+	end
+	print("[TEST] DONE probe")
+	return
+end
 -- --bossskill=Struct : หม้อตุ๋นตั้งตรง · หน้าไม้ยักษ์หันแนวนอน/ไม่จม · แปลงมีพุ่มเบอร์รี่ (ลูกโผล่ตอนโต) · เตียง = +1 วัน (2 ต่อเกม)
 if ReplicatedStorage:FindFirstChild("ASBossOnly") and ReplicatedStorage.ASBossOnly.Value == "Struct" then
 	local Inv = require(Server:WaitForChild("InventoryService"))

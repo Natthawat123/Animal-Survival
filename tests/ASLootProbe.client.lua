@@ -50,6 +50,11 @@ local function step(name)
 	return pos
 end
 
+step("airdrop")
+print("[AS] LOOT AIRDONE")
+step("bush")
+print("[AS] LOOT BUSHDONE")
+
 -- หีบร่อนจากฟ้า / อุกกาบาต: กดค้าง prompt จริงแบบผู้เล่น
 for _, ev in ipairs({ "meteor", "supply" }) do
 	local pos = step(ev)

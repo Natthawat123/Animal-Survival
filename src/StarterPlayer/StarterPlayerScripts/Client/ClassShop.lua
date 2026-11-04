@@ -14,6 +14,7 @@ local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Classes = require(Shared.Classes)
+local Config = require(Shared.Config)
 local Items = require(Shared.Items)
 local MeshProps = require(Shared.MeshProps)
 local Remotes = require(Shared.Remotes)
@@ -32,6 +33,18 @@ local stage = {}
 
 local GOLD_A, GOLD_B = C(255, 240, 140), C(244, 170, 36)
 local GREEN, RED, BLUE, GRAY = C(76, 200, 64), C(222, 64, 64), C(58, 160, 240), C(96, 96, 104)
+local GOLD = C(236, 170, 40) -- คลาสพาส
+
+-- Game Pass ของคลาสพาส (Classes.Data[id].Pass -> Config.GamePasses) หรือ nil
+local function passOf(id)
+	local key = Classes.Data[id] and Classes.Data[id].Pass
+	for _, p in ipairs(key and Config.GamePasses or {}) do
+		if p.Id == key then
+			return p
+		end
+	end
+	return nil
+end
 local LEVEL_COLOR = { C(90, 200, 90), C(70, 150, 245), C(180, 90, 245) }
 -- ป้ายสถิติขึ้นเลเวล (สั้น อ่านง่ายบนมือถือ)
 local STAT_LABEL = { Kills = "⚔ Kill", Nights = "🌙 Survive" }
@@ -634,7 +647,8 @@ function ClassShop.Refresh()
 	local h = cardHeight()
 	for id, cd in pairs(ui.Cards) do
 		local c = Classes.Data[id]
-		local owned = d.Owned and d.Owned[id]
+		local owned = Classes.IsOwned(id, d, player)
+		local pass = c.Pass and passOf(id)
 		cd.Card.Size = UDim2.new(1, -10, 0, h)
 		cd.Stroke.Color = (id == selected) and C(255, 214, 60) or C(0, 0, 0)
 		cd.Stroke.Thickness = (id == selected) and 3.5 or 2
@@ -643,12 +657,16 @@ function ClassShop.Refresh()
 			cd.Tag.Text, cd.Tag.TextColor3 = "✔ Equipped", C(255, 220, 60)
 		elseif owned then
 			cd.Tag.Text, cd.Tag.TextColor3 = "Owned", C(140, 240, 100)
+		elseif c.Pass then
+			cd.Tag.Text, cd.Tag.TextColor3 = "🎫 Pass", C(255, 200, 80)
 		else
 			cd.Tag.Text, cd.Tag.TextColor3 = "♦️ " .. c.Price, C(150, 225, 255)
 		end
 		if owned then
 			local _, _, frac = progressOf(id)
 			setButton(cd.Button, frac and string.format("Lv.%d · %d%%", levelOf(id), math.floor(frac * 100)) or ("Lv.%d ⭐MAX"):format(levelOf(id)), BLUE)
+		elseif c.Pass then
+			setButton(cd.Button, "Unlock with Pass", GOLD)
 		elseif st[id] then
 			setButton(cd.Button, "In Stock", GREEN)
 		else
@@ -657,7 +675,8 @@ function ClassShop.Refresh()
 	end
 	-- กลาง
 	local c = Classes.Data[selected]
-	local owned = d.Owned and d.Owned[selected]
+	local owned = Classes.IsOwned(selected, d, player)
+	local pass = c.Pass and passOf(selected)
 	local lv = levelOf(selected)
 	ui.Name.Text = c.Thai
 	ui.Sub.Text = string.format('<font color="#FFCD32">%s</font>  ·  %s  ·  %s', stars(c.Stars), c.Role, owned and ("Level " .. lv .. "/" .. Classes.MaxLevel) or "Locked")
@@ -670,8 +689,15 @@ function ClassShop.Refresh()
 	ui.Info.Visible = not showBars
 	if not owned then
 		ui.ProgTitle.Text = "Unlock This Class"
-		ui.Info.Text = st[selected] and string.format("Price ♦️%d — in stock today", c.Price) or "Not in stock today — wait for restock or reroll"
-		ui.Info.TextColor3 = st[selected] and C(140, 240, 100) or C(255, 130, 120)
+		if c.Pass then
+			-- คลาสพาส: ไม่มีขายด้วย Ruby · ซื้อ Game Pass แล้วใช้ได้ทันที
+			ui.Info.Text = (pass and (pass.PassId or 0) > 0) and string.format("Unlock with %s (R$ %d)", pass.Name, pass.Robux or 0)
+				or "Pass exclusive — coming soon"
+			ui.Info.TextColor3 = C(255, 200, 80)
+		else
+			ui.Info.Text = st[selected] and string.format("Price ♦️%d — in stock today", c.Price) or "Not in stock today — wait for restock or reroll"
+			ui.Info.TextColor3 = st[selected] and C(140, 240, 100) or C(255, 130, 120)
+		end
 	elseif req then
 		-- สรุปบรรทัดเดียว: "Lv2: ฆ่า 12/60 · รอด 2/4 คืน" + แถบแยกของแต่ละเงื่อนไข (ครบแล้ว = เขียว ✔)
 		local parts = {}
@@ -699,6 +725,12 @@ function ClassShop.Refresh()
 		end
 	elseif owned then
 		setButton(ui.Main, "Equip", GREEN)
+	elseif c.Pass then
+		if pass and (pass.PassId or 0) > 0 then
+			setButton(ui.Main, "🎫 Unlock with Pass", GOLD)
+		else
+			setButton(ui.Main, "Pass coming soon", GRAY, false)
+		end
 	elseif not st[selected] then
 		setButton(ui.Main, "Out of Stock", GRAY, false)
 	elseif gems() < c.Price then
@@ -723,7 +755,7 @@ function ClassShop.Refresh()
 		sk.Lock.Visible = not unlocked
 		local canSkip = owned and i == lv + 1
 		sk.Foot.Visible = not unlocked
-		sk.Foot.Text = owned and ("Unlocks at level " .. i) or "Buy the class first"
+		sk.Foot.Text = owned and ("Unlocks at level " .. i) or (c.Pass and "Get the pass first" or "Buy the class first")
 		sk.Skip.Visible = canSkip
 		if canSkip then
 			sk.Skip.Text = "Skip ♦️" .. Classes.SkipPrice(selected, i)
@@ -743,13 +775,18 @@ end
 function ClassShop.MainAction()
 	local d = data()
 	local current = player:GetAttribute("Class") or "Survivor"
-	local owned = d.Owned and d.Owned[selected]
+	local owned = Classes.IsOwned(selected, d, player)
 	if selected == current then
 		if selected ~= "Survivor" then
 			Remotes.Get("ChooseClass"):FireServer("Survivor") -- ถอด = กลับเป็นผู้รอดชีวิต
 		end
 	elseif owned then
 		Remotes.Get("ChooseClass"):FireServer(selected)
+	elseif Classes.Data[selected].Pass then
+		local pass = passOf(selected)
+		if pass and (pass.PassId or 0) > 0 then
+			game:GetService("MarketplaceService"):PromptGamePassPurchase(player, pass.PassId)
+		end
 	elseif stock()[selected] and gems() >= Classes.Data[selected].Price then
 		Remotes.Get("BuyClass"):FireServer(selected)
 	end
@@ -812,6 +849,11 @@ function ClassShop.Init(gui)
 	player:GetAttributeChangedSignal("Diamonds"):Connect(refreshIfOpen)
 	player:GetAttributeChangedSignal("Class"):Connect(refreshIfOpen)
 	player:GetAttributeChangedSignal("ClassLevel"):Connect(refreshIfOpen)
+	player.AttributeChanged:Connect(function(name)
+		if name:sub(1, 5) == "Pass_" then
+			refreshIfOpen() -- ซื้อพาสคลาสเสร็จ -> ขึ้น Owned ทันที
+		end
+	end)
 	player:GetAttributeChangedSignal("InRun"):Connect(function()
 		if player:GetAttribute("InRun") then
 			ClassShop.Close()

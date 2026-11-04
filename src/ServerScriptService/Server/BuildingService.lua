@@ -11,6 +11,7 @@ local TweenService = game:GetService("TweenService")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local Items = require(ReplicatedStorage.Shared.Items)
+local Recipes = require(ReplicatedStorage.Shared.Recipes)
 local StructureModels = require(ReplicatedStorage.Shared.StructureModels)
 
 local BuildingService = {}
@@ -72,6 +73,52 @@ function BuildingService:Damage(structure, amount)
 	end
 end
 
+-- ตรวจจุดวาง (ใช้ทั้งวางใหม่และย้ายด้วยค้อนช่าง) -> CFrame ที่ติดพื้นแล้ว หรือ nil (แจ้งผู้เล่นเอง)
+-- ignore = สิ่งก่อสร้างที่กำลังย้าย (ไม่นับว่าทับตัวเอง)
+function BuildingService:CheckSpot(player, kind, cf, ignore)
+	local spec = Items.Structures[kind]
+	local char = player.Character
+	local root = char and char:FindFirstChild("HumanoidRootPart")
+	if not root or (root.Position - cf.Position).Magnitude > Config.BuildRange then
+		self.ctx.Notify(player, "Too far away", "Error")
+		return nil
+	end
+	-- หาพื้น
+	local hit = Workspace:Raycast(cf.Position + Vector3.new(0, 20, 0), Vector3.new(0, -60, 0), self.rayParams)
+	if not hit then
+		self.ctx.Notify(player, "Must be placed on the ground", "Error")
+		return nil
+	end
+	if hit.Material == Enum.Material.Water or hit.Material == Enum.Material.CrackedLava then
+		self.ctx.Notify(player, "Can't place on water/lava", "Error")
+		return nil
+	end
+	local pos = hit.Position
+	if (pos - self.ctx.CampPosition).Magnitude < 9 then
+		self.ctx.Notify(player, "Too close to the campfire", "Error")
+		return nil
+	end
+	-- วางได้เฉพาะในเขตแคมป์ (รัศมีตามเลเวลกองไฟ — อัปเกรดกองไฟ = เขตกว้างขึ้น)
+	local campR = self.ctx.Services.CampService:CampRadius()
+	if ((pos - self.ctx.CampPosition) * Vector3.new(1, 0, 1)).Magnitude > campR then
+		self.ctx.Notify(player, "Can only be placed inside the camp (upgrade the campfire to expand it)", "Error")
+		return nil
+	end
+	local _, yaw = cf:ToOrientation()
+	local final = CFrame.new(pos) * CFrame.Angles(0, yaw, 0)
+	-- กันซ้อนทับ
+	local params = OverlapParams.new()
+	params.FilterType = Enum.RaycastFilterType.Include
+	params.FilterDescendantsInstances = { self.folder }
+	for _, p in ipairs(Workspace:GetPartBoundsInBox(final * CFrame.new(0, spec.Size.Y / 2 + 0.5, 0), spec.Size * 0.85, params)) do
+		if not (ignore and p:IsDescendantOf(ignore)) then
+			self.ctx.Notify(player, "Overlaps another building", "Error")
+			return nil
+		end
+	end
+	return final, pos
+end
+
 function BuildingService:Place(player, kind, cf)
 	local spec = Items.Structures[kind]
 	if not spec or typeof(cf) ~= "CFrame" then
@@ -82,47 +129,13 @@ function BuildingService:Place(player, kind, cf)
 		self.ctx.Notify(player, "You have no " .. Items.DisplayName(kind) .. " in your bag (craft it at the bench first)", "Error")
 		return false
 	end
-	local char = player.Character
-	local root = char and char:FindFirstChild("HumanoidRootPart")
-	if not root or (root.Position - cf.Position).Magnitude > Config.BuildRange then
-		self.ctx.Notify(player, "Too far away", "Error")
-		return false
-	end
-	-- หาพื้น
-	local hit = Workspace:Raycast(cf.Position + Vector3.new(0, 20, 0), Vector3.new(0, -60, 0), self.rayParams)
-	if not hit then
-		self.ctx.Notify(player, "Must be placed on the ground", "Error")
-		return false
-	end
-	if hit.Material == Enum.Material.Water or hit.Material == Enum.Material.CrackedLava then
-		self.ctx.Notify(player, "Can't place on water/lava", "Error")
-		return false
-	end
-	local pos = hit.Position
 	-- เตียง: วางแล้วข้ามไป 1 วัน (ทั้งเซิร์ฟได้ 2 ครั้งต่อเกม)
-	if kind == "Bed" and not self.ctx.Services.DirectorService:CanSkipDay() then
+	if (kind == "Bed" or kind == "Bed2") and not self.ctx.Services.DirectorService:CanSkipDay() then
 		self.ctx.Notify(player, "Can't use a bed to skip a day right now", "Error")
 		return false
 	end
-	if (pos - self.ctx.CampPosition).Magnitude < 9 then
-		self.ctx.Notify(player, "Too close to the campfire", "Error")
-		return false
-	end
-	-- วางได้เฉพาะในเขตแคมป์ (รัศมีตามเลเวลกองไฟ — อัปเกรดกองไฟ = เขตกว้างขึ้น)
-	local campR = self.ctx.Services.CampService:CampRadius()
-	if ((pos - self.ctx.CampPosition) * Vector3.new(1, 0, 1)).Magnitude > campR then
-		self.ctx.Notify(player, "Can only be placed inside the camp (upgrade the campfire to expand it)", "Error")
-		return false
-	end
-	local _, yaw = cf:ToOrientation()
-	local final = CFrame.new(pos) * CFrame.Angles(0, yaw, 0)
-	-- กันซ้อนทับ
-	local params = OverlapParams.new()
-	params.FilterType = Enum.RaycastFilterType.Include
-	params.FilterDescendantsInstances = { self.folder }
-	local overlap = Workspace:GetPartBoundsInBox(final * CFrame.new(0, spec.Size.Y / 2 + 0.5, 0), spec.Size * 0.85, params)
-	if #overlap > 0 then
-		self.ctx.Notify(player, "Overlaps another building", "Error")
+	local final, pos = self:CheckSpot(player, kind, cf)
+	if not final then
 		return false
 	end
 	inv:Remove(player, kind, 1)
@@ -130,12 +143,79 @@ function BuildingService:Place(player, kind, cf)
 	local hp = spec.Health * self.ctx.Services.SurvivalService:Perk(player, "WallHealthMult", 1)
 	local model = self:Spawn(kind, final, hp, hp, player.UserId)
 	self.ctx.Remotes.Get("HitFx"):FireAllClients("Build", { Position = pos, Kind = kind, Structure = model })
-	if kind == "Bed" then
-		local st = self.ctx.State
-		st:SetAttribute("BedsUsed", (st:GetAttribute("BedsUsed") or 0) + 1)
-		self.ctx.Services.DirectorService:SkipDay(player)
+	if kind == "Bed" or kind == "Bed2" then
+		-- เตียง 1 / เตียง 2 = +1 วัน (โควต้านับแยกชนิด)
+		local st, used = self.ctx.State, kind == "Bed" and "BedsUsed" or "Bed2Used"
+		st:SetAttribute(used, (st:GetAttribute(used) or 0) + 1)
+		self.ctx.Services.DirectorService:SkipDay(player, nil, "Bed")
 		self.ctx.Services.InventoryService:MarkDirty()
 	end
+	return true
+end
+
+---------------------------------------------------------------- ค้อนช่าง: ย้าย / รื้อ
+-- ชื่อไม่เอาวงเล็บท้าย ("Bed (+1 Day)" -> "Bed")
+local function shortName(kind)
+	return (Items.DisplayName(kind):gsub("%s*%b()$", ""))
+end
+
+-- ต้องถือค้อนช่างอยู่ + สิ่งก่อสร้างยังอยู่ในแคมป์นี้ + อยู่ในระยะ
+function BuildingService:HammerTarget(player, structure)
+	local char = player.Character
+	local tool = char and char:FindFirstChildOfClass("Tool")
+	local spec = tool and Items.Tools[tool:GetAttribute("ItemId")]
+	if not (spec and spec.Builder) then
+		self.ctx.Notify(player, "Hold the Builder's Hammer first", "Error")
+		return nil
+	end
+	if typeof(structure) ~= "Instance" or structure.Parent ~= self.folder or structure:GetAttribute("Broken") then
+		return nil
+	end
+	local kind = structure:GetAttribute("Kind")
+	if not Items.Structures[kind] then
+		return nil
+	end
+	local root = char:FindFirstChild("HumanoidRootPart")
+	if not root or (root.Position - structure:GetPivot().Position).Magnitude > Config.BuildRange then
+		self.ctx.Notify(player, "Too far away", "Error")
+		return nil
+	end
+	return kind
+end
+
+-- ย้าย: ของเดิมทั้งชิ้น (เลือดเท่าเดิม) ไปจุดใหม่ · เตียงย้ายแล้วไม่ข้ามวันซ้ำ
+function BuildingService:Move(player, structure, cf)
+	local kind = self:HammerTarget(player, structure)
+	if not kind or typeof(cf) ~= "CFrame" then
+		return false
+	end
+	local final, pos = self:CheckSpot(player, kind, cf, structure)
+	if not final then
+		return false
+	end
+	structure:PivotTo(final)
+	self.ctx.Remotes.Get("HitFx"):FireAllClients("Build", { Position = pos, Kind = kind, Structure = structure })
+	self.ctx.Notify(player, string.format("Moved %s", shortName(kind)), "Good")
+	return true
+end
+
+-- รื้อ: พังทิ้ง (เล่นท่าพังเหมือนโดนตีแตก) + คืนวัตถุดิบครึ่งหนึ่ง (ปัดลง) วางเป็นของบนพื้นตรงนั้น
+function BuildingService:Demolish(player, structure)
+	local kind = self:HammerTarget(player, structure)
+	if not kind then
+		return false
+	end
+	local pos = structure:GetPivot().Position + Vector3.new(0, 1.5, 0)
+	local recipe = Recipes.ById[kind]
+	local drops = self.ctx.Services.DropService
+	for id, n in pairs(recipe and recipe.Cost or {}) do
+		local back = math.floor(n / 2)
+		if back > 0 and Items.Data[id] then -- AnyEssence/AnyHeart ไม่คืน (ไม่รู้ว่าใช้ธาตุไหน)
+			drops:Spawn(id, back, pos)
+		end
+	end
+	self:Damage(structure, math.huge)
+	self.ctx.Notify(player, string.format("Removed %s — half the materials dropped on the ground", shortName(kind)), "Good")
 	return true
 end
 
@@ -168,10 +248,12 @@ function BuildingService:Serialize()
 end
 
 function BuildingService:Restore(list)
-	local beds = 0
+	local beds, beds2 = 0, 0
 	for _, r in ipairs(list or {}) do
 		if r[1] == "Bed" then
 			beds += 1
+		elseif r[1] == "Bed2" then
+			beds2 += 1
 		end
 		local kind = r[1]
 		if Items.Structures[kind] then
@@ -183,6 +265,7 @@ function BuildingService:Restore(list)
 	end
 	-- เตียงที่วางไว้ = ใช้โควต้าข้ามวันไปแล้ว (คืนรอบไม่ได้วันเพิ่มซ้ำ)
 	self.ctx.State:SetAttribute("BedsUsed", math.max(self.ctx.State:GetAttribute("BedsUsed") or 0, beds))
+	self.ctx.State:SetAttribute("Bed2Used", math.max(self.ctx.State:GetAttribute("Bed2Used") or 0, beds2))
 end
 
 -- แปลงเบอร์รี่: ลูกบนพุ่มโผล่เมื่อโตเต็มที่ (เก็บได้) · ยังไม่โต = เห็นแต่ใบ
@@ -366,6 +449,16 @@ function BuildingService:Start(ctx)
 		end
 		if type(kind) == "string" then
 			self:Place(player, kind, cf)
+		end
+	end)
+	ctx.Remotes.Get("MoveStructure").OnServerEvent:Connect(function(player, structure, cf)
+		if not ctx.Services.SurvivalService:IsIncapacitated(player) then
+			self:Move(player, structure, cf)
+		end
+	end)
+	ctx.Remotes.Get("Demolish").OnServerEvent:Connect(function(player, structure)
+		if not ctx.Services.SurvivalService:IsIncapacitated(player) then
+			self:Demolish(player, structure)
 		end
 	end)
 	task.spawn(function()

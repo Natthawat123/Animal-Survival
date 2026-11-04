@@ -39,7 +39,7 @@
 38	 · Chop 
 39	 · Element 
 40	 · Friends +10%
-41	 · Light scares off the Hollow Stag
+41	 · Light scares off the Moonfang
 42	 · Mine 
 43	 · Press E on it to ride
 44	 · VIP x2
@@ -544,7 +544,7 @@
 543	Highlight
 544	Hints
 545	Hitting trees/rocks/animals picks the best axe/pickaxe/weapon for you
-546	Hold a torch and the Hollow Stag won't dare come near
+546	Hold a torch and the Moonfang won't dare come near
 547	Holder
 548	Home
 549	Host
@@ -609,7 +609,7 @@
 608	Label
 609	Lair
 610	Lantern
-611	Lantern. Lights the area and scares off the Hollow Stag
+611	Lantern. Lights the area and scares off the Moonfang
 612	Lava Fire Ram
 613	Lava Smash!
 614	Leave Group
@@ -624,7 +624,7 @@
 623	Level 
 624	Leviathan
 625	Light
-626	Light scares off the Hollow Stag
+626	Light scares off the Moonfang
 627	Light, fast hunting knife · Very quick strikes
 628	Lighting
 629	Lighting the campfire...
@@ -774,7 +774,7 @@
 773	Ping
 774	Pioneer
 775	Place
-776	Place it to rest and skip 1 day (counts +1 day survived · placed at night, it counts in the morning) · Max 2 beds per server per run
+776	Place it to rest and skip 1 day (counts +1 day survived · placed at night, it counts in the morning) · Max 1 bed per server per run
 777	Place to skip 1 day (+1 day)
 778	Play!
 779	Player 
@@ -1024,7 +1024,7 @@
 1023	The Ballista fires on its own. Place them around the campfire
 1024	The Elementalist's fire staff. Hits launch exploding fireballs at enemies · Can also chop trees/rocks
 1025	The Final Night
-1026	The Hollow Stag
+1026	The Moonfang
 1027	The Walking Mountain
 1028	The Wilds Awaken
 1029	The boss is coming
@@ -1036,7 +1036,7 @@
 1035	The campfire is burning again
 1036	The campfire is full
 1037	The campfire is life
-1038	The campfire is life — when it goes out, the Hollow Stag enters the camp
+1038	The campfire is life — when it goes out, the Moonfang enters the camp
 1039	The crafting bench is already max level
 1040	The crystal pillar of 
 1041	The fire is out, can't cook
@@ -1085,7 +1085,7 @@
 1084	Top
 1085	Top-up: 
 1086	Torch
-1087	Torch for light. Scares off the Hollow Stag
+1087	Torch for light. Scares off the Moonfang
 1088	Torso
 1089	Tortoise
 1090	Trade
@@ -1364,7 +1364,7 @@
 1363	👹 Defeat 10 bosses
 1364	💔 HP loss 
 1365	💡 Light 
-1366	💡 Light scares off the Hollow Stag
+1366	💡 Light scares off the Moonfang
 1367	💥 Area attack 
 1368	📅 7-Day Login
 1369	📅 Log in 7 days in a row
@@ -1445,3 +1445,115 @@
 1444	On
 1445	Open
 1446	[Click] Hit/Chop   [Shift] Sprint   [Ctrl] Lock camera   [C] Craft   [B] Build   [E] Pick up (hold sack)   [F] Take out   [M] Map   [1-9] Select item
+1447	 <font color="#6EFF8C" size="32">+%d</font>
+1448	 <font color="#FFD25A" size="26">(+%d)</font>
+1449	%s  ·  HP %d/%d
+1450	+%d
+1451	Builder's Hammer
+1452	Builder's hammer. Hold it and click a building to move it or remove it (get half the materials back)
+1453	Hold the Builder's Hammer first
+1454	Moved %s
+1455	Remove = get half the materials back
+1456	Removed %s — half the materials dropped on the ground
+1457	The Elementalist's fire staff. Hits launch exploding fireballs at enemies · Can't chop trees or mine rocks
+1458	⚔ Defeat all 3 waves of guardians first
+1459	⚔ The %s Sanctum guardians awaken! Wave 1/%d — %d guardians
+1460	⚔ Wave %d/%d — %d guardians!
+1461	✔ Wave %d/%d cleared! Next wave (%d guardians) in %d seconds
+1462	✨ All guardians defeated! Memorize the order the rune pillars flash, then awaken them in that order
+1463	🔨 Click a building in camp to move or remove it
+1464	🔨 Move %s  ·  Click = place here  ·  R = rotate  ·  Esc = cancel
+1465	🔨 Move %s — aim at the center of the screen and tap ✔
+1466	🔨 Tap a building in camp to move or remove it
+1467	Move
+1468	Remove
+1469	 <font color="#6EFF8C" size="32">x%d</font>
+1470	%s skipped %d days · Day %d
+1471	%s*%b()$
+1472	Arbang
+1473	Avatar of Four
+1474	Blood Drain
+1475	Blood Lord
+1476	Elemental weapons 25% stronger · Regen 0.3 HP/sec
+1477	Elemental weapons 45% stronger · Max HP +20 · Run 8% faster
+1478	Elemental weapons 70% stronger · All damage +15% · Regen 0.6 HP/sec
+1479	Four-Element Sage
+1480	Get the pass first
+1481	Harmony
+1482	Heal 12% of damage dealt · Damage +20% at night
+1483	Heal 18% of damage dealt · Damage +35% at night · Max HP +20
+1484	Heal 8% of the damage you deal
+1485	Lifesteal
+1486	LightBlast/SUPER ANIME LIGHT GOLDEN BLAST/FireMegaExplosion
+1487	Night Stalker
+1488	Now day %d
+1489	Opened
+1490	Pass Exclusive
+1491	Pass coming soon
+1492	Pass exclusive — coming soon
+1493	Pending
+1494	Pick Up
+1495	Sage
+1496	Sage's Blessing
+1497	THE MOONFANG
+1498	Tier
+1499	Unlock with Pass
+1500	Unlock with the %s pass (R$ %d)
+1501	Unlocks the Four-Element Sage class — pass exclusive
+1502	Vampire
+1503	^Sanctum
+1504	a Sanctum
+1505	a Shrine
+1506	added to the day
+1507	added to the next day
+1508	x%d
+1509	x%d days
+1510	x%d days (counted %s)
+1511	⏳ %s entered %s — +%d minutes %s
+1512	🌟 Rescued %s — skipped %d days! Now day %d
+1513	🎫 Pass
+1514	🎫 Unlock with Pass
+1515	🔥 Camp   ⛩ Spirit Pup Shrine   💀 Boss Lair   🏛 Ancient Sanctum   ▣ Chest   ☄📦 Events   ▲ You   ● Teammates   (places show up once the campfire light reaches them or you visit)
+1516	🫧 %ds
+1517	🫧 Drowning!
+1518	Unlock with %s (R$ %d)
+1519	Unlocks the Season Pass premium track every season · More Ruby + special titles/title colors · Four-Element Sage class
+1520	Azure Royal Elephant
+1521	Chop wood x1.8 · Buildings x1.5 tougher · Regen 0.4 HP/sec
+1522	Forest's Embrace
+1523	Heart of the Wilds
+1524	Hips
+1525	Living Wood
+1526	Max HP +30 · Regen 0.8 HP/sec · Damage +15% · Hunting drops +1 extra item
+1527	Regen 0.4 HP/sec · Healing +25%
+1528	Unlocks the Season Pass premium track every season · More Ruby + special titles/title colors · Wildwood Druid class
+1529	Wildwood Druid
+1530	Royal Bed
+1531	Royal Bed (+1 Day)
+1532	Arcane Staff
+1533	Attack +30%
+1534	Blood Bite
+1535	Blood Reaper
+1536	Elemental weapons 65% stronger · Skill: Meteor Storm — 6 meteors crash where you aim · Cooldown 90s
+1537	Elementalist's signature staff · Fires exploding arcane bolts (strong against every element)
+1538	Heal 2% max HP after every monster kill
+1539	Max HP +30 · Regen 0.8 HP/sec · Skill: Nature's Sanctuary — a grove that heals the team and slows monsters for 12s · Cooldown 100s
+1540	Sanctuary
+1541	Skill: summon 5 bats (200 HP) that attack monsters · Cooldown 120s · Using it again replaces the old swarm
+1542	Swarm
+1543	Vampire's signature scythe · Huge reach, sweeps groups of enemies
+1544	Verdant Staff
+1545	Wildwood Druid's signature staff · Fires thorn bolts that slow monsters · Can't chop trees or mine rocks
+1546	All damage +30%
+1547	Dark Magic
+1548	Dark Meteor
+1549	Dark Power
+1550	Dark Sorcerer
+1551	Regen 3% HP every 2 seconds
+1552	Run 30% faster
+1553	Shadow Veil
+1554	Skill: a dark meteor crashes from the sky, heavy damage in a wide area and leaves a dark fire zone for 10s (burns 2% HP/sec) · Cooldown 120s
+1555	Skill: stun nearby monsters for 4s (bosses 2s) and poison them — lose 1% HP/sec for 15s · Cooldown 150s
+1556	Skill: turn invisible and run 50% faster for 4s (breaks when you deal damage) · Cooldown 30s
+1557	Thorn Bind
+1558	Wild Stride

@@ -326,7 +326,7 @@ function WorldEventsClient.Init(state, hud, mapUI, combat)
 	-- หมุดบนแผนที่
 	if mapUI then
 		mapUI.ExtraMarkers = mapUI.ExtraMarkers or {}
-		table.insert(mapUI.ExtraMarkers, function(marker, place, discovered)
+		table.insert(mapUI.ExtraMarkers, function(marker, place, discovered, seen)
 			for _, ev in ipairs(EVENTS) do
 				local pos = state:GetAttribute("Event_" .. ev.Kind)
 				local m = marker("ev_" .. ev.Kind, ev.Icon, ev.Color, 22)
@@ -341,8 +341,9 @@ function WorldEventsClient.Init(state, hud, mapUI, combat)
 			for _, el in ipairs(ELEMENTS) do
 				local pos = state:GetAttribute("Sanctum_" .. el)
 				local key = "Sanctum_" .. el
-				if pos and discovered[key] then
-					local m = marker(key, "🏛", C.Element[el], 20)
+				local m = marker(key, "🏛", C.Element[el], 20)
+				m.Visible = pos ~= nil and (discovered[key] or (seen ~= nil and seen(pos, key)))
+				if m.Visible then
 					m.Text = state:GetAttribute("Sanctum" .. el .. "Solved") and "✓" or "🏛"
 					place(m, pos)
 				end

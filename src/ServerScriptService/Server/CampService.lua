@@ -495,7 +495,7 @@ function CampService:BurnDrops()
 					local root = by and by.Character and by.Character:FindFirstChild("HumanoidRootPart")
 					local dir = root and (root.Position - fire) * Vector3.new(1, 0, 1)
 					dir = dir and dir.Magnitude > 0.5 and dir.Unit or Vector3.new(1, 0, 0)
-					drops:Spawn(COOK[d.Id], count, fire + dir * 5 + Vector3.new(0, 1, 0), { Spread = 0.5 })
+					drops:Spawn(COOK[d.Id], count, fire + dir * 5 + Vector3.new(0, 1, 0), { Spread = 1.5 })
 					self.ctx.Remotes.Get("HitFx"):FireAllClients("Refuel", { Position = fire })
 					if by and by.Parent then
 						self.ctx.Notify(by, "🍖 Meat is cooked! Put it in your sack or press R to eat", "Good")

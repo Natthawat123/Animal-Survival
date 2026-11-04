@@ -68,7 +68,7 @@ function QuestService:OnLoad(player, data)
 	self:Ensure(player, data)
 	local seen = {}
 	for _, a in ipairs(Quests.Achievements) do
-		if Quests.StatOf(data, a.Stat) >= Quests.NeedOf(a, #Classes.Order) then
+		if Quests.StatOf(data, a.Stat) >= Quests.NeedOf(a, Classes.CollectCount) then
 			seen[a.Id] = true
 		end
 	end
@@ -109,7 +109,7 @@ function QuestService:CheckAchievements(player, data)
 		return
 	end
 	for _, a in ipairs(Quests.Achievements) do
-		if not seen[a.Id] and Quests.StatOf(data, a.Stat) >= Quests.NeedOf(a, #Classes.Order) then
+		if not seen[a.Id] and Quests.StatOf(data, a.Stat) >= Quests.NeedOf(a, Classes.CollectCount) then
 			seen[a.Id] = true
 			if not data.AchClaimed[a.Id] then
 				self.ctx.Notify(player, "🏅 Achievement unlocked: " .. a.Text .. " — claim ♦️ " .. a.Ruby .. " on the \"Badges\" page in the lobby", "Reward")
@@ -240,7 +240,7 @@ function QuestService:ClaimAchievement(player, id)
 	if data.AchClaimed[a.Id] then
 		return
 	end
-	if Quests.StatOf(data, a.Stat) < Quests.NeedOf(a, #Classes.Order) then
+	if Quests.StatOf(data, a.Stat) < Quests.NeedOf(a, Classes.CollectCount) then
 		self.ctx.Notify(player, "You haven't completed this achievement yet", "Error")
 		return
 	end

@@ -12,10 +12,12 @@ local Biomes = require(Shared.Biomes)
 local UIKit = require(script.Parent.UIKit)
 
 local MapUI = {}
-MapUI.ExtraMarkers = {} -- ระบบอื่นเพิ่มหมุดได้: fn(marker, place, discovered) (WorldEventsClient)
+MapUI.ExtraMarkers = {} -- ระบบอื่นเพิ่มหมุดได้: fn(marker, place, discovered, seen) (WorldEventsClient)
 local player = Players.LocalPlayer
 local C = UIKit.Colors
 local N = 56
+
+local CRATE_COLOR = { Color3.fromRGB(230, 190, 130), Color3.fromRGB(110, 190, 255), Color3.fromRGB(255, 210, 60) } -- ระดับ 1-3
 
 local BIOME_MAP_COLOR = {
 	Heart = Color3.fromRGB(120, 170, 70),
@@ -38,7 +40,7 @@ function MapUI.Init(state, hud, atmosphere)
 	mapFrame.ClipsDescendants = true
 	local legend = UIKit.Text(panel, {
 		Size = UDim2.new(1, -20, 0, 40), Position = UDim2.new(0, 10, 1, -46), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 13, TextWrapped = true,
-		TextColor3 = C.TextDim, Text = "🔥 Camp   ⛩ Spirit Pup Shrine   💀 Boss Lair   🏛 Ancient Sanctum   ☄📦 Events   ▲ You   ● Teammates   (places appear when discovered)",
+		TextColor3 = C.TextDim, Text = "🔥 Camp   ⛩ Spirit Pup Shrine   💀 Boss Lair   🏛 Ancient Sanctum   ▣ Chest   ☄📦 Events   ▲ You   ● Teammates   (places show up once the campfire light reaches them or you visit)",
 	})
 	local legendText = legend.Text
 	local function layoutMap()
@@ -129,6 +131,19 @@ function MapUI.Init(state, hud, atmosphere)
 			return
 		end
 		local reveal = state:GetAttribute("CampReveal") or 900
+		-- เห็นบนแผนที่ = อยู่ในเขตที่แสงกองไฟเปิดถึง (หมอกเปิด) / เคยเดินไป / ค้นพบแล้ว
+		local size = state:GetAttribute("MapSize") or 6144
+		local function seen(pos, key)
+			if key and discovered[key] then
+				return true
+			end
+			if math.sqrt(pos.X * pos.X + pos.Z * pos.Z) < reveal then
+				return true
+			end
+			local ci = math.floor((pos.X / size + 0.5) * N)
+			local ck = math.floor((pos.Z / size + 0.5) * N)
+			return visited[ci * 1000 + ck] == true
+		end
 		for i = 0, N - 1 do
 			for k = 0, N - 1 do
 				local c = cells[i][k]
@@ -146,21 +161,44 @@ function MapUI.Init(state, hud, atmosphere)
 			place(marker("camp", "🔥", C.Fire, 20), camp)
 		end
 		for _, fn in ipairs(MapUI.ExtraMarkers) do
-			local ok, err = pcall(fn, marker, place, discovered)
+			local ok, err = pcall(fn, marker, place, discovered, seen)
 			if not ok then
 				warn("[AS] map marker", err)
 			end
 		end
 		for _, el in ipairs({ "Earth", "Water", "Air", "Fire" }) do
 			local shrine = state:GetAttribute("Shrine_" .. el)
-			if shrine and discovered["Shrine_" .. el] then
-				local done = state:GetAttribute("Spirit" .. el)
-				place(marker("Shrine_" .. el, done and "✓" or "⛩", C.Element[el], 18), shrine)
+			local sm = marker("Shrine_" .. el, "⛩", C.Element[el], 18)
+			sm.Visible = shrine ~= nil and seen(shrine, "Shrine_" .. el)
+			if sm.Visible then
+				sm.Text = state:GetAttribute("Spirit" .. el) and "✓" or "⛩"
+				place(sm, shrine)
 			end
 			local lair = state:GetAttribute("Lair_" .. el)
-			if lair and discovered["Lair_" .. el] then
-				local cleared = state:GetAttribute("Lair" .. el .. "Cleared")
-				place(marker("Lair_" .. el, cleared and "☠" or "💀", C.Element[el], 20), lair)
+			local lm = marker("Lair_" .. el, "💀", C.Element[el], 20)
+			lm.Visible = lair ~= nil and seen(lair, "Lair_" .. el)
+			if lm.Visible then
+				lm.Text = state:GetAttribute("Lair" .. el .. "Cleared") and "☠" or "💀"
+				place(lm, lair)
+			end
+		end
+		-- กล่องสมบัติ (เปิดแล้ว = จาง) · สีตามระดับ
+		local pins = ReplicatedStorage:FindFirstChild("MapPins")
+		local count = 0
+		for i, pin in ipairs(pins and pins:GetChildren() or {}) do
+			count = i
+			local color = CRATE_COLOR[pin:GetAttribute("Tier") or 1] or CRATE_COLOR[1]
+			local m = marker("crate_" .. i, "▣", color, 14)
+			m.Visible = seen(pin.Value)
+			if m.Visible then
+				m.TextColor3 = color
+				m.TextTransparency = pin:GetAttribute("Opened") and 0.75 or 0
+				place(m, pin.Value)
+			end
+		end
+		for key, m in pairs(markers) do
+			if key:sub(1, 6) == "crate_" and tonumber(key:sub(7)) > count then
+				m.Visible = false
 			end
 		end
 		for _, p in ipairs(Players:GetPlayers()) do

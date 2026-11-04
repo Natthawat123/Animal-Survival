@@ -467,9 +467,9 @@ function InventoryService:LimitCount(player, id)
 	else
 		n = self:Count(player, id)
 	end
-	if id == "Bed" then
+	if id == "Bed" or id == "Bed2" then
 		-- เตียง = โควต้าข้ามวัน: นับที่ใช้ไปแล้ว (เตียงพังก็ไม่คืน)
-		return n + (self.ctx.State:GetAttribute("BedsUsed") or 0)
+		return n + (self.ctx.State:GetAttribute(id == "Bed" and "BedsUsed" or "Bed2Used") or 0)
 	end
 	for _, m in ipairs(CollectionService:GetTagged("Structure")) do
 		if m:GetAttribute("Kind") == id and (lim.Scope == "Server" or m:GetAttribute("Owner") == player.UserId) then

@@ -25,6 +25,8 @@ local OUTFIT = {
 	Builder = { Shirt = C(242, 140, 40), Pants = C(58, 70, 110), Hat = "HardHat", HatColor = C(250, 210, 40), Extra = "Belt", Accent = C(90, 70, 40) },
 	Scout = { Shirt = C(182, 162, 112), Pants = C(92, 82, 60), Hat = "Ranger", HatColor = C(120, 86, 52), Extra = "Bag", Accent = C(70, 110, 70) },
 	Elementalist = { Shirt = C(86, 50, 140), Pants = C(70, 40, 116), Hat = "Wizard", HatColor = C(96, 56, 156), Extra = "Orbs", Accent = C(120, 230, 255) },
+	Vampire = { Shirt = C(120, 20, 30), Pants = C(30, 20, 26), Hat = "None", Extra = "Scarf", Accent = C(200, 30, 40) },
+	Sage = { Shirt = C(70, 130, 60), Pants = C(52, 90, 44), Hat = "Hood", HatColor = C(60, 120, 56), Extra = "Scarf", Accent = C(240, 236, 220) }, -- พงไพร (สำรองถ้ายังไม่มีโมเดล)
 }
 
 local function part(m, props)
@@ -151,7 +153,7 @@ local function storeCharacter(classId)
 		end
 	end
 	local face = m:FindFirstChild("HumanoidRootPart") or m:FindFirstChild("Head") or list[1]
-	local look = face and face.CFrame.LookVector or Vector3.new(0, 0, -1)
+	local look = face and face.CFrame.LookVector or Vector3.new(0, 0, -1) -- โมเดล Import 3D ชิ้นเดียว: หน้าเมชตรงกับ LookVector อยู่แล้ว (ภาพเวทีเทสแล้ว)
 	look = Vector3.new(look.X, 0, look.Z)
 	look = look.Magnitude > 0.01 and look.Unit or Vector3.new(0, 0, -1)
 	local base = Vector3.new((mn.X + mx.X) / 2, mn.Y, (mn.Z + mx.Z) / 2)

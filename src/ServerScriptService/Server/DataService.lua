@@ -377,6 +377,9 @@ function DataService:Start(ctx)
 		if not (data and c) or data.Owned[classId] then
 			return
 		end
+		if c.Pass then
+			return -- คลาสพาส: ปลดด้วย Game Pass เท่านั้น (MonetizationService)
+		end
 		self:EnsureStock(data)
 		if not Classes.Stock(data.StockDay, data.StockRoll, player.UserId)[classId] then
 			ctx.Notify(player, "This class isn't in stock today — wait for restock or reroll", "Error")

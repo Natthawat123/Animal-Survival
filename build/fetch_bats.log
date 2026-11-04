@@ -1,0 +1,11 @@
+Built: E:\GAME\roblox\Animal Survival\build\AnimalSurvival_FETCH.rbxlx (26074 KB)
+ERR: torError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+shot fetch_167116921
+shot fetch_14828371496
+shot fetch_16676915748
+rOutput] [AS] FETCH DONE
+finished in 39s  done=True
+167116921 Bat size [4.664, 1.75, 0.61] {'Sound': 4, 'Part': 3, 'SpecialMesh': 3, 'Motor6D': 2, 'Model': 1}
+14828371496 Bat size [4.474, 1.846, 2.481] {'Part': 5, 'Motor6D': 4, 'Sound': 4, 'SpecialMesh': 3, 'Actor': 1, 'Humanoid': 1}
+16676915748 Fetched size [6.375, 1.2, 2.563] {'Model': 1, 'Part': 1, 'SpecialMesh': 1, 'Weld': 1}
+sheet 3

@@ -324,7 +324,7 @@ if ReplicatedStorage:FindFirstChild("ASGallery") then
 	end
 	-- 1) สัตว์
 	local animals = { "Rabbit", "Deer", "MossWolf", "Thornboar", "StoneBear", "ReefCrab", "RiptideCroc", "GaleHawk", "SkyLynx", "StormRam",
-		"EmberFox", "MagmaRhino", "LavaSalamander", "HollowStag", "TerraPup", "TidePup", "GalePup", "EmberPup", "Solfang", "Leviathan", "TempestRoc", "Terragon" }
+		"EmberFox", "MagmaRhino", "LavaSalamander", "Moonfang", "TerraPup", "TidePup", "GalePup", "EmberPup", "Solfang", "Leviathan", "TempestRoc", "Terragon" }
 	for _, id in ipairs(animals) do
 		cmd:InvokeServer("galleryClear")
 		cmd:InvokeServer("spawn", id, stage + Vector3.new(0, 3, 0))

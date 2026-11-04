@@ -243,8 +243,18 @@ function SkelAnimator.Animate(rig, now, dt, speed, playerPos)
 	local bob = abs(sin(p * tau)) * h * (g.Bob or 0.035) * w
 	local breathe = sin(now * 2.1 + rig.Seed) * 0.012
 	local hop = cheer and abs(sin(now * 5)) * h * 0.22 or 0
+	-- ตัวไล่: จ้อง = หมอบต่ำ ก้มหัว · กัด (AttackAt) = พุ่งตัวไปข้างหน้า
+	local stare = state == "Stare" and 1 or 0
+	S.Crouch = (S.Crouch or 0) + (stare - (S.Crouch or 0)) * math.min(1, dt * 6)
+	local lunge = 0
+	local atk = model:GetAttribute("AttackAt")
+	if atk and model:GetAttribute("AttackKind") == "Bite" then
+		local t = workspace:GetServerTimeNow() - atk
+		lunge = (t >= 0 and t < 0.5) and sin(t / 0.5 * math.pi) or 0
+	end
+	hop -= S.Crouch * h * 0.1
 	if S.Body then
-		local cf = CFrame.fromAxisAngle(S.Body.X, -0.05 * w + breathe)
+		local cf = CFrame.fromAxisAngle(S.Body.X, -0.05 * w + breathe - lunge * 0.22 + S.Crouch * 0.06)
 		cf = CFrame.fromAxisAngle(S.Body.Y, sin(p * tau) * (g.Sway or 0.04) * w) * cf
 		S.Body.Inst.Transform = CFrame.new(S.Body.Up * (bob + hop)) * cf
 	end
@@ -274,13 +284,14 @@ function SkelAnimator.Animate(rig, now, dt, speed, playerPos)
 	if cheer then
 		neckPitch += 0.25 + sin(now * 10) * 0.08
 	end
+	neckPitch += lunge * 0.35 - S.Crouch * 0.3
 	S.NeckYaw += (neckYaw - S.NeckYaw) * math.min(1, dt * 5)
 	local nn = #S.Neck
 	for _, j in ipairs(S.Neck) do
 		pose(j, neckPitch / math.max(nn, 1), S.NeckYaw / math.max(nn, 1))
 	end
 	if S.Jaw then
-		pose(S.Jaw, (cheer and 0.25 or 0.03) * (1 + sin(now * 7)) * -1)
+		pose(S.Jaw, -((cheer and 0.25 or 0.03) * (1 + sin(now * 7)) + lunge * 0.5 + S.Crouch * 0.12))
 	end
 end
 

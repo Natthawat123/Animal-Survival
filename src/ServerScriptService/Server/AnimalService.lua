@@ -1,7 +1,7 @@
 --[[
 	AnimalService — เกิด/AI/ดาเมจ/ตาย ของสัตว์ทุกตัว
 	Kind: "Wild" (สัตว์ป่ากลางวัน) | "Raid" (ฝูงบุกกลางคืน) | "Boss" | "Guardian" (เฝ้าศาลเจ้า/รังบอส)
-	      | "Stalker" (กวางกลวง) | "Spirit" (ลูกสัตว์ธาตุ)
+	      | "Stalker" (จิ้งจอกจันทรา · ตัวไล่) | "Spirit" (ลูกสัตว์ธาตุ)
 ]]
 
 local Players = game:GetService("Players")
@@ -23,6 +23,8 @@ local BossAbilities = require(script.Parent.BossAbilities)
 local AnimalService = {}
 local active = {} -- [model] = data
 local list = {} -- array สำหรับวนลูป
+local CHARGE_WINDUP = 1.0 -- สายชน: ตั้งท่า + แถบเตือนบนพื้นก่อนพุ่ง (วินาที)
+local LEAP_WINDUP = 0.55 -- สายตะครุบ: ย่อตัวเล็ง + แถบเตือนก่อนกระโจน
 
 function AnimalService:Init(ctx)
 	self.ctx = ctx
@@ -133,7 +135,7 @@ function AnimalService:Spawn(id, position, opts)
 		HealthMult = healthMult, SpeedMult = speedMult,
 		-- ปรับความยากทั้งเกม (Config): มอนทั่วไป/บอส ตีเบาลง — ทุกท่า/สกิลบอสคูณ DamageMult ตัวนี้
 		DamageMult = (opts.DamageMult or 1) * partyScale.Damage * (model:GetAttribute("IsBoss") and Config.BossDamageScale or Config.MonsterDamageScale),
-		NextAttack = 0, NextThink = 0, NextAbility = os.clock() + 6, LastPos = position, StuckSince = nil,
+		NextAttack = 0, NextThink = 0, NextAbility = os.clock() + Config.BossFirstSkill, LastPos = position, StuckSince = nil,
 		Leash = opts.Leash or (kind == "Wild" and Config.WildLeash or nil), Night = opts.Night or 0,
 	}
 	if info.Aquatic then
@@ -299,20 +301,30 @@ function AnimalService:TakeDamage(a, amount, attacker, opts)
 	end
 end
 
+-- เตือนก่อนพุ่ง/ตะครุบ (ม่อนทั่วไป): client วาดแถบแนบพื้นจากตัวไปทิศ dir (BossFX "MobLine")
+function AnimalService:DashTelegraph(a, dir, length, width, time)
+	self.ctx.Remotes.Get("HitFx"):FireAllClients("BossTelegraph", {
+		Shape = "MobLine", Pos = a.Root.Position, Dir = dir, Length = length, Width = width, Time = time, Element = a.Info.Element,
+	})
+end
+
 function AnimalService:GiveDrops(a, player)
 	if not player then
 		return
 	end
 	local extra = self.ctx.Services.SurvivalService:Perk(player, "ExtraDrops", 0)
+	-- ลดของเฟ้อ: สัตว์/มอนทั่วไปดรอปแค่ Config.AnimalDropMult ของตาราง (ปัดเศษแบบสุ่ม) · บอสได้ครบ (หัวใจธาตุห้ามหาย)
+	local mult = a.Info.Behaviour == "Boss" and 1 or Config.AnimalDropMult
 	local got = {}
 	for _, d in ipairs(a.Info.Drops or {}) do
 		local n = 0
 		if d.Chance then
-			if self.rng:NextNumber() < d.Chance then
+			if self.rng:NextNumber() < d.Chance * (d.Exact and 1 or mult) then -- Exact = โอกาสตามที่ตั้งเป๊ะ (เนื้อ 50% ไม่คูณ AnimalDropMult)
 				n = 1
 			end
 		else
-			n = self.rng:NextInteger(d.Min or 1, d.Max or 1)
+			local raw = self.rng:NextInteger(d.Min or 1, d.Max or 1) * mult
+			n = math.floor(raw + self.rng:NextNumber())
 		end
 		if n > 0 and (d.Item == "Pelt" or d.Item == "RawMeat" or d.Item == "Bone" or d.Item == "Fiber") then
 			n += extra
@@ -386,6 +398,13 @@ function AnimalService:Kill(a, attacker)
 			pd.Kills = (pd.Kills or 0) + 1
 		end
 		ds:AddClassStat(receiver, "Kills", 1)
+		-- แวมไพร์ (Blood Bite): ฆ่ามอนได้เลือดคืนตามสัดส่วนเลือดสูงสุด
+		local surv = self.ctx.Services.SurvivalService
+		local pct = surv:Perk(receiver, "KillHealPct", 0)
+		local hum = pct > 0 and receiver.Character and receiver.Character:FindFirstChildOfClass("Humanoid")
+		if hum then
+			surv:Heal(receiver, hum.MaxHealth * pct)
+		end
 		if self.ctx.Services.QuestService then
 			self.ctx.Services.QuestService:Progress(receiver, "Kill", 1)
 		end
@@ -422,7 +441,7 @@ function AnimalService:PickTarget(a)
 	local best, bestD
 	for _, p in ipairs(Players:GetPlayers()) do
 		local r = charRoot(p)
-		if r and surv:IsAlive(p) then
+		if r and surv:IsAlive(p) and not p:GetAttribute("Invisible") then -- ล่องหน (สกิลพ่อมดมืด) = มอนมองไม่เห็น
 			local d = (r.Position - a.Root.Position).Magnitude
 			local ok = d <= aggro or (a.Provoked == p and os.clock() < (a.ProvokedUntil or 0) and d < aggro * 2.5)
 			if ok and a.Kind == "Wild" then
@@ -821,7 +840,7 @@ function AnimalService:ThinkBoss(a, now)
 		local abilities = info.Abilities or {}
 		if #abilities > 0 then
 			a.AbilityIndex = (a.AbilityIndex or 0) % #abilities + 1
-			a.NextAbility = now + self.rng:NextNumber(4.5, 6.5)
+			a.NextAbility = now + self.rng:NextNumber(Config.LairBossSkillCooldown.Min, Config.LairBossSkillCooldown.Max)
 			self:Stop(a)
 			BossAbilities.Run(self.ctx, a, abilities[a.AbilityIndex], target)
 		end
@@ -852,6 +871,16 @@ function AnimalService:ThinkHostile(a, now)
 
 	if a.Flying then
 		return self:ThinkFlyer(a, now, target, dist)
+	end
+
+	-- ตะครุบ: เล็งครบแล้วกระโจนไปทิศที่ล็อกไว้
+	if a.LeapAt then
+		if now < a.LeapAt then
+			return
+		end
+		a.LeapAt = nil
+		a.Root.AssemblyLinearVelocity = a.LeapDir * 42 + Vector3.new(0, 24, 0)
+		self:MarkAttack(a, "Leap")
 	end
 
 	-- สายชน: ตั้งท่า -> พุ่ง -> พัก
@@ -907,8 +936,8 @@ function AnimalService:ThinkHostile(a, now)
 	end
 
 	-- บอส: ท่าพิเศษ
-	if (b == "Boss") and target and now >= a.NextAbility and dist and dist < 110 then
-		a.NextAbility = now + self.rng:NextNumber(7, 10)
+	if (b == "Boss") and target and not a.Casting and now >= a.NextAbility and dist and dist < 110 then
+		a.NextAbility = now + self.rng:NextNumber(Config.BossSkillCooldown.Min, Config.BossSkillCooldown.Max)
 		local abilities = info.Abilities or {}
 		if #abilities > 0 then
 			local ab = abilities[self.rng:NextInteger(1, #abilities)]
@@ -939,7 +968,7 @@ function AnimalService:ThinkHostile(a, now)
 		elseif b == "Charger" and dist > 14 and dist < 30 and now >= a.NextAttack and now >= (a.NextCharge or 0) then
 			a.NextCharge = now + (info.ChargeCooldown or 7)
 			a.State = "Windup"
-			a.StateUntil = now + 0.8
+			a.StateUntil = now + CHARGE_WINDUP
 			a.ChargeHit = {}
 			local d = (r.Position - a.Root.Position) * Vector3.new(1, 0, 1)
 			a.ChargeDir = d.Magnitude > 0.1 and d.Unit or a.Root.CFrame.LookVector
@@ -948,14 +977,21 @@ function AnimalService:ThinkHostile(a, now)
 			self:Face(a, r.Position)
 			a.Model:SetAttribute("State", "Windup")
 			self:MarkAttack(a, "Roar")
+			-- แถบเตือนบนพื้น: ทางที่จะพุ่งผ่าน (ยาวตามความเร็วพุ่ง ไม่เกินระยะสั่งเดิน 50)
+			self:DashTelegraph(a, a.ChargeDir, math.min(50, (info.Speed or 16) * a.SpeedMult * 3), a.Radius * 2 + 4, CHARGE_WINDUP)
 			return
 		else
 			-- กระโดดตะครุบ
 			if info.Leap and dist < 28 and dist > 10 and now >= (a.NextLeap or 0) then
+				-- ย่อตัวเล็งก่อน LEAP_WINDUP วิ + แถบเตือน แล้วค่อยกระโจน (ทิศล็อกตอนเล็ง หลบได้)
 				a.NextLeap = now + 4
-				local d = (r.Position - a.Root.Position)
-				a.Root.AssemblyLinearVelocity = (d * Vector3.new(1, 0, 1)).Unit * 42 + Vector3.new(0, 24, 0)
-				self:MarkAttack(a, "Leap")
+				local d = (r.Position - a.Root.Position) * Vector3.new(1, 0, 1)
+				a.LeapDir = d.Magnitude > 0.1 and d.Unit or a.Root.CFrame.LookVector
+				a.LeapAt = now + LEAP_WINDUP
+				self:Stop(a)
+				self:Face(a, r.Position)
+				self:DashTelegraph(a, a.LeapDir, math.clamp(d.Magnitude + 4, 10, 26), a.Radius * 2 + 3, LEAP_WINDUP)
+				return
 			end
 			self:MoveTo(a, r.Position, 1)
 			a.State = "Chase"
@@ -992,7 +1028,9 @@ function AnimalService:ThinkHostile(a, now)
 	a.Model:SetAttribute("State", a.State)
 end
 
--- ปีศาจกวางกลวง
+-- ปีศาจจิ้งจอกจันทรา (ตัวไล่กลางคืน · ฆ่าไม่ตาย)
+--   เหยื่อถือคบเพลิง/ของมีแสง = เดินวนรอบ ๆ นอกรัศมีแสง ไม่กล้าเข้า
+--   ไม่ถือ = หยุดจ้อง Config.StalkerStare วิ แล้วพุ่งตี · ตีแล้วถอยออกไปจ้องใหม่ · ในแสงแคมป์/ตะเกียง = ปลอดภัย
 function AnimalService:ThinkStalker(a, now)
 	local safe = self.ctx.Services.CampService:SafeRadius()
 	local lights = self.ctx.Services.BuildingService:LightSources()
@@ -1008,72 +1046,88 @@ function AnimalService:ThinkStalker(a, now)
 		end
 		return false
 	end
-	-- หาเหยื่อ: คนที่ไม่อยู่ในแสง
+	-- เหยื่อ: คนที่ไม่อยู่ในแสงแคมป์/ตะเกียง (ติดตัวเดิมไว้ ไม่สลับไปมา)
 	local best, bestD
 	for _, p in ipairs(Players:GetPlayers()) do
 		local r = charRoot(p)
-		if r and surv:IsAlive(p) then
-			local d = (r.Position - a.Root.Position).Magnitude
-			if not lit(r.Position) and (not bestD or d < bestD) then
+		if r and surv:IsAlive(p) and not lit(r.Position) then
+			local d = (r.Position - a.Root.Position).Magnitude - (p == a.Prey and 40 or 0)
+			if not bestD or d < bestD then
 				best, bestD = p, d
 			end
 		end
 	end
-	-- คนถือคบเพลิง = กวางไม่กล้าเข้าใกล้
-	local function torchRepel(pos)
-		for _, p in ipairs(Players:GetPlayers()) do
-			local r = charRoot(p)
-			if r then
-				local _, tool = self.ctx.Services.CombatService.EquippedTool(p)
-				if tool and tool.Light and (r.Position - pos).Magnitude < tool.Light then
-					return r.Position
-				end
-			end
+	if best ~= a.Prey then
+		a.Prey, a.StareUntil = best, nil
+		if a.State ~= "Retreat" then
+			a.State = "Stalk"
 		end
-		return nil
 	end
-	local repel = torchRepel(a.Root.Position)
-	if repel then
-		local away = (a.Root.Position - repel) * Vector3.new(1, 0, 1)
-		self:MoveTo(a, a.Root.Position + away.Unit * 30, 0.8)
-		a.State = "Repelled"
-		a.Model:SetAttribute("State", "Repelled")
-		return
-	end
-	if best then
-		local r = charRoot(best)
-		if bestD < (a.Info.AttackRange or 9) + 3 then
-			self:Stop(a)
-			self:Face(a, r.Position)
-			self:AttackPlayer(a, best, now)
-			a.State = "Attack"
-		elseif bestD < 70 and a.State ~= "Hunt" and a.State ~= "Attack" then
-			-- จ้องนิ่ง แล้วค่อยวิ่งใส่
-			if not a.StareUntil then
-				a.StareUntil = now + 2.2
-				self:Stop(a)
-				self:Face(a, r.Position)
-				self:MarkAttack(a, "Stare")
-				self.ctx.Remotes.Get("HitFx"):FireClient(best, "StalkerStare", { Model = a.Model })
-			elseif now > a.StareUntil then
-				a.State = "Hunt"
-				a.StareUntil = nil
-			end
-		else
-			self:MoveTo(a, r.Position, a.State == "Hunt" and 1.35 or 0.75)
-			if a.State ~= "Hunt" then
-				a.State = "Stalk"
-			end
-		end
-	else
+	if not best then
 		-- ทุกคนอยู่ในแสง: เดินวนที่ขอบแสงไฟ จ้องเข้ามา
-		a.StareUntil = nil
 		local camp = self.ctx.CampPosition
 		a.OrbitAngle = (a.OrbitAngle or 0) + 0.02
 		local rr = math.max(safe, 30) + 26
-		local goal = camp + Vector3.new(math.cos(a.OrbitAngle) * rr, 0, math.sin(a.OrbitAngle) * rr)
-		self:MoveTo(a, goal, 0.45)
+		self:MoveTo(a, camp + Vector3.new(math.cos(a.OrbitAngle) * rr, 0, math.sin(a.OrbitAngle) * rr), 0.45)
 		a.State = "Lurk"
+		a.Model:SetAttribute("State", a.State)
+		return
+	end
+	local r = charRoot(best)
+	local d = (r.Position - a.Root.Position).Magnitude
+	local _, tool = self.ctx.Services.CombatService.EquippedTool(best)
+	local light = tool and tool.Light
+	if light then
+		-- ถือคบเพลิง: วนรอบตัวคนห่าง ๆ นอกรัศมีแสง (เข้าใกล้เกิน = ถอยออก)
+		a.StareUntil = nil
+		local ring = light + 8
+		local flat = (a.Root.Position - r.Position) * Vector3.new(1, 0, 1)
+		local ang = flat.Magnitude > 0.5 and math.atan2(flat.Z, flat.X) or (a.OrbitAngle or 0)
+		a.OrbitDir = a.OrbitDir or (self.rng:NextNumber() < 0.5 and -1 or 1)
+		ang += a.OrbitDir * (d < ring * 1.6 and 0.45 or 0.2)
+		a.OrbitAngle = ang
+		self:MoveTo(a, r.Position + Vector3.new(math.cos(ang) * ring, 0, math.sin(ang) * ring), d < ring - 3 and 1.1 or 0.6)
+		a.State = "Circle"
+	elseif a.State == "Retreat" then
+		-- เพิ่งตีไป: ถอยห่างออกก่อน แล้วค่อยจ้องใหม่
+		if now < (a.RetreatUntil or 0) then
+			local away = (a.Root.Position - r.Position) * Vector3.new(1, 0, 1)
+			away = away.Magnitude > 0.5 and away.Unit or Vector3.new(1, 0, 0)
+			self:MoveTo(a, a.Root.Position + away * 24, 1)
+		else
+			a.State = "Stalk"
+		end
+	elseif a.State == "Hunt" then
+		if d > 110 then
+			a.State = "Stalk"
+		elseif d < (a.Info.AttackRange or 7) + a.Radius + 2 then
+			self:Stop(a)
+			self:Face(a, r.Position)
+			if now >= a.NextAttack then
+				self:AttackPlayer(a, best, now)
+				a.State, a.RetreatUntil = "Retreat", now + 2.2
+			end
+		else
+			self:MoveTo(a, r.Position, 1.5)
+		end
+	elseif a.StareUntil then
+		-- จ้องนิ่ง (เหยื่อยังหยิบคบเพลิงขึ้นมาทันก่อนครบเวลา)
+		self:Stop(a)
+		self:Face(a, r.Position)
+		a.State = "Stare"
+		if now >= a.StareUntil then
+			a.StareUntil = nil
+			a.State = "Hunt"
+		end
+	elseif d < 55 then
+		a.StareUntil = now + Config.StalkerStare
+		a.State = "Stare"
+		self:Stop(a)
+		self:Face(a, r.Position)
+		self.ctx.Remotes.Get("HitFx"):FireClient(best, "StalkerStare", { Model = a.Model, Time = Config.StalkerStare })
+	else
+		self:MoveTo(a, r.Position, 0.8)
+		a.State = "Stalk"
 	end
 	a.Model:SetAttribute("State", a.State)
 end
@@ -1132,6 +1186,18 @@ function AnimalService:Think(a, now)
 		if a.Dead then
 			return
 		end
+	end
+	-- พิษ (สกิลพงไพร): เสียเลือดเป็นสัดส่วนของเลือดสูงสุด
+	if a.PoisonUntil and now < a.PoisonUntil then
+		self:TakeDamage(a, a.Hum.MaxHealth * (a.PoisonPct or 0.01) * Config.AnimalThinkRate, a.PoisonBy, { Silent = true, Source = "Poison" })
+		if a.Dead then
+			return
+		end
+	end
+	-- สตั้น (สกิลพงไพร): ยืนนิ่ง ไม่โจมตี
+	if a.StunUntil and now < a.StunUntil then
+		self:Stop(a)
+		return
 	end
 	-- ตกน้ำลึก/หลุดแมพ
 	if a.Root.Position.Y < -120 then

@@ -51,8 +51,52 @@ local function step(name, wait)
 end
 local ids = { "ReefCrab", "InkOctopus", "TideOrca" }
 local custom = ReplicatedStorage:FindFirstChild("ASMonIds")
+local dash = false -- "dash:Id,Id" = ปล่อย AI ให้พุ่ง/ตะครุบใส่ผู้เล่นจริง แล้วถ่ายแถบเตือนตอนตั้งท่า
 if custom and custom.Value ~= "" then
-	ids = string.split(custom.Value, ",")
+	local v = custom.Value
+	if v:sub(1, 5) == "dash:" then
+		dash = true
+		v = v:sub(6)
+	end
+	ids = string.split(v, ",")
+end
+if dash then
+	for _, id in ipairs(ids) do
+		local at = Vector3.new(cp.X + 60, 0, cp.Z + 40)
+		local a = AnimalService:Spawn(id, Vector3.new(at.X, layout:HeightAt(at.X, at.Z) + 2, at.Z), { Kind = "Wild", Yaw = 0 })
+		if not a then
+			print("[AS] MONPROBE missing " .. id)
+			continue
+		end
+		target.Value = a.Model
+		local pp = Vector3.new(at.X + 20, 0, at.Z)
+		player.Character:PivotTo(CFrame.new(pp.X, layout:HeightAt(pp.X, pp.Z) + 4, pp.Z))
+		local t0, seen = os.clock(), false
+		while os.clock() - t0 < 25 do
+			if a.State == "Windup" or a.LeapAt then
+				seen = true
+				break
+			end
+			-- คุมระยะผู้เล่น 18-22 stud ให้อยู่ในช่วงพุ่ง
+			local r = player.Character.HumanoidRootPart
+			local d = (r.Position - a.Root.Position) * Vector3.new(1, 0, 1)
+			if d.Magnitude < 15 or d.Magnitude > 26 then
+				local q = a.Root.Position + (d.Magnitude > 0.1 and d.Unit or Vector3.xAxis) * 20
+				player.Character:PivotTo(CFrame.new(q.X, layout:HeightAt(q.X, q.Z) + 4, q.Z))
+			end
+			task.wait(0.05)
+		end
+		print(string.format("[AS] MONPROBE dash %s telegraph=%s state=%s", id, tostring(seen), tostring(a.State)))
+		task.wait(0.25)
+		step(id .. "_tele1", 0.3)
+		step(id .. "_tele2", 3.5)
+		step(id .. "_after", 1.5)
+		AnimalService:Remove(a)
+		target.Value = nil
+		task.wait(1)
+	end
+	print("[AS] MONPROBE FINISHED")
+	return
 end
 for _, id in ipairs(ids) do
 	local at = Vector3.new(cp.X + 40, 0, cp.Z + 30)

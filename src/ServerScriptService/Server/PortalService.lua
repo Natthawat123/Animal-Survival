@@ -8,9 +8,29 @@ local CollectionService = game:GetService("CollectionService")
 
 local PortalService = {}
 
+PortalService.EnterBonus = 120 -- เข้าศาลเจ้า/วิหารแต่ละแห่งครั้งแรกของรอบ = เวลา +2 นาที
+
 function PortalService:Init(ctx)
 	self.ctx = ctx
 	self.busy = {}
+	self.bonusGiven = {} -- [RealmKey] = runId ที่ให้เวลาไปแล้ว
+end
+
+-- เข้าศาลเจ้า/วิหารครั้งแรกของรอบ: ทั้งทีมได้เวลาเพิ่ม (ไม่ใช่วันเพิ่ม)
+function PortalService:GiveEnterBonus(player, veil)
+	local key = veil:GetAttribute("RealmKey")
+	local dir = self.ctx.Services.DirectorService
+	if not key or not player:GetAttribute("InRun") or self.bonusGiven[key] == dir.runId then
+		return
+	end
+	local how = dir:AddTime(self.EnterBonus)
+	if not how then
+		return
+	end
+	self.bonusGiven[key] = dir.runId
+	local place = key:match("^Sanctum") and "a Sanctum" or "a Shrine"
+	self.ctx.Broadcast(string.format("⏳ %s entered %s — +%d minutes %s", player.DisplayName, place, self.EnterBonus // 60,
+		how == "now" and "added to the day" or "added to the next day"), "Good")
 end
 
 -- ความสูงกลางลำตัว (HumanoidRootPart) เหนือพื้นตอนยืน
@@ -100,6 +120,7 @@ local function hook(self, veil)
 		if typeof(dest) == "Vector3" then
 			local lt = veil:FindFirstChildWhichIsA("Light")
 			self:Teleport(player, dest, typeof(look) == "Vector3" and look or dest + Vector3.new(0, 0, -10), lt and lt.Color, veil:GetAttribute("DestGround"))
+			self:GiveEnterBonus(player, veil)
 		end
 	end)
 end

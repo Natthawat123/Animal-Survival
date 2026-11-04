@@ -146,10 +146,12 @@ Biomes.Data = {
 		Element = "Air",
 		Terrain = { Top = "Snow", Sub = "Slate", Cliff = "Slate", Shore = "Pavement", Peak = "Glacier" },
 		Atmosphere = {
-			Density = 0.24, Offset = 0.45, Haze = 0.7, Glare = 1.1,
-			Color = Color3.fromRGB(222, 232, 255), Decay = Color3.fromRGB(160, 180, 236),
+			Density = 0.24, Offset = 0.45, Haze = 0.45, Glare = 0.25,
+			Color = Color3.fromRGB(205, 218, 240), Decay = Color3.fromRGB(150, 170, 226),
 		},
-		Grade = { Tint = Color3.fromRGB(240, 246, 255), Saturation = 0.05, Contrast = 0.1, Brightness = 0.05 },
+		-- หิมะขาวสะท้อนแสงแรง: ลดแสง/แสงฟุ้ง ไม่ให้แสบตา + ของที่ตกพื้นยังมองเห็น
+		Grade = { Tint = Color3.fromRGB(228, 236, 250), Saturation = 0.12, Contrast = 0.2, Brightness = -0.06 },
+		Lighting = { Exposure = -0.45, LightBrightness = 1.8, BloomIntensity = 0.18, BloomThreshold = 2.6, SunRays = 0.02 },
 		Ambient = "Wind",
 		PropDensity = 1.4, -- ความถี่ของต้นไม้/ของ (ป่าทึบ)
 		Props = {

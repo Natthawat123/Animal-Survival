@@ -13,6 +13,9 @@ Remotes.Events = {
 	"Attack", -- (aimDirection: Vector3)
 	"Craft", -- (recipeId, count?) count 1-20 (server ตรวจ/จำกัดเอง)
 	"PlaceStructure", -- (kitId, cframe)
+	"MoveStructure", -- (structure, cframe) ค้อนช่าง: ย้ายสิ่งก่อสร้าง
+	"Demolish", -- (structure) ค้อนช่าง: รื้อ (คืนวัตถุดิบครึ่งหนึ่ง)
+	"UseSkill", -- (aimPos?) สกิลกดของคลาส (SkillService)
 	"UseItem", -- (itemId)  กิน/ใช้ยา
 	"ChooseClass", -- (classId)
 	"BuyClass", -- (classId)

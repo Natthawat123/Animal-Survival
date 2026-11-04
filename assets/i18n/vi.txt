@@ -34,7 +34,7 @@
 38	 · Chặt
 39	 · Nguyên tố
 40	 · Bạn bè +10%
-41	 · Ánh sáng xua Hươu Rỗng
+41	 · Ánh sáng xua Cáo Trăng
 42	 · Đào
 43	 · Nhấn E để cưỡi
 45	 — nhận ♦️
@@ -472,7 +472,7 @@
 542	Cao
 544	Gợi ý
 545	Đánh cây/đá/thú sẽ tự chọn rìu/cuốc/vũ khí tốt nhất cho bạn
-546	Cầm đuốc thì Hươu Rỗng không dám lại gần
+546	Cầm đuốc thì Cáo Trăng không dám lại gần
 548	Trang chính
 550	Món hầm nóng
 551	Món hầm nóng từ nồi hầm. No lâu và hồi nhiều máu
@@ -530,7 +530,7 @@
 607	Đẩy lùi thú
 609	Hang
 610	Đèn lồng
-611	Đèn lồng. Chiếu sáng và xua Hươu Rỗng
+611	Đèn lồng. Chiếu sáng và xua Cáo Trăng
 612	Cừu lửa dung nham
 613	Đập dung nham!
 614	Rời nhóm
@@ -543,7 +543,7 @@
 623	Cấp
 624	Thủy quái Leviathan
 625	Ánh sáng
-626	Ánh sáng xua Hươu Rỗng
+626	Ánh sáng xua Cáo Trăng
 627	Dao săn nhẹ · Đánh rất nhanh
 629	Đang nhóm lửa trại...
 630	Đá vôi
@@ -671,7 +671,7 @@
 772	Rừng thông
 774	Người tiên phong
 775	Đặt
-776	Đặt để nghỉ và bỏ qua 1 ngày (+1 ngày sống sót · đặt ban đêm thì tính vào sáng) · Tối đa 2 giường mỗi máy chủ mỗi lượt
+776	Đặt để nghỉ và bỏ qua 1 ngày (+1 ngày sống sót · đặt ban đêm thì tính vào sáng) · Tối đa 1 giường mỗi máy chủ mỗi lượt
 777	Đặt để bỏ qua 1 ngày (+1 ngày)
 778	Chơi!
 779	Người chơi
@@ -891,7 +891,7 @@
 1023	Nỏ lớn tự bắn. Đặt quanh đống lửa
 1024	Gậy lửa của Pháp sư nguyên tố. Đòn đánh bắn cầu lửa nổ vào kẻ thù · Chặt cây/đá được
 1025	Đêm cuối cùng
-1026	Hươu Rỗng
+1026	Cáo Trăng
 1027	Ngọn núi biết đi
 1028	Hoang dã thức tỉnh
 1029	Trùm đang đến
@@ -903,7 +903,7 @@
 1035	Đống lửa cháy lại rồi
 1036	Đống lửa đã đầy
 1037	Đống lửa là sự sống
-1038	Đống lửa là sự sống — nếu tắt, Hươu Rỗng sẽ vào trại
+1038	Đống lửa là sự sống — nếu tắt, Cáo Trăng sẽ vào trại
 1039	Bàn chế tạo đã cấp tối đa
 1040	Trụ pha lê của
 1041	Lửa đã tắt, không nướng được
@@ -951,7 +951,7 @@
 1084	Đầu
 1085	Nạp:
 1086	Đuốc
-1087	Đuốc soi sáng. Xua Hươu Rỗng
+1087	Đuốc soi sáng. Xua Cáo Trăng
 1089	Rùa cạn
 1090	Trao đổi
 1092	Lữ khách
@@ -1198,7 +1198,7 @@
 1363	👹 Hạ 10 trùm
 1364	💔 Mất máu
 1365	💡 Ánh sáng
-1366	💡 Ánh sáng xua Hươu Rỗng
+1366	💡 Ánh sáng xua Cáo Trăng
 1367	💥 Đánh diện rộng
 1368	📅 Đăng nhập 7 ngày
 1369	📅 Đăng nhập 7 ngày liên tiếp
@@ -1277,3 +1277,80 @@
 1444	Bật
 1445	Mở
 1446	[Nhấp] Đánh/Chặt   [Shift] Chạy nhanh   [Ctrl] Khóa camera   [C] Chế tạo   [B] Xây   [E] Nhặt (cầm bao)   [F] Lấy ra   [M] Bản đồ   [1-9] Chọn đồ
+1451	Búa thợ xây
+1452	Búa thợ xây. Cầm búa rồi nhấp vào công trình để di chuyển hoặc dỡ bỏ (nhận lại một nửa nguyên liệu)
+1453	Hãy cầm Búa thợ xây trước
+1454	Đã di chuyển %s
+1455	Dỡ bỏ = nhận lại một nửa nguyên liệu
+1456	Đã dỡ %s — một nửa nguyên liệu rơi xuống đất
+1463	🔨 Nhấp vào công trình trong trại để di chuyển hoặc dỡ bỏ
+1464	🔨 Di chuyển %s  ·  Nhấp = đặt ở đây  ·  R = xoay  ·  Esc = hủy
+1465	🔨 Di chuyển %s — ngắm giữa màn hình rồi chạm ✔
+1466	🔨 Chạm vào công trình trong trại để di chuyển hoặc dỡ bỏ
+1467	Di chuyển
+1468	Dỡ bỏ
+1470	%s bỏ qua %d ngày · Ngày %d
+1473	Hóa thân Tứ Nguyên Tố
+1474	Hút máu
+1475	Chúa tể Huyết
+1476	Vũ khí nguyên tố mạnh hơn 25% · Hồi 0.3 HP/giây
+1477	Vũ khí nguyên tố mạnh hơn 45% · Máu tối đa +20 · Chạy nhanh hơn 8%
+1478	Vũ khí nguyên tố mạnh hơn 70% · Mọi sát thương +15% · Hồi 0.6 HP/giây
+1479	Hiền giả Tứ Nguyên Tố
+1480	Hãy có thẻ trước
+1481	Hòa hợp
+1482	Hồi 12% sát thương gây ra · Sát thương +20% ban đêm
+1483	Hồi 18% sát thương gây ra · Sát thương +35% ban đêm · Máu tối đa +20
+1484	Hồi 8% sát thương bạn gây ra
+1485	Hút máu
+1487	Kẻ rình đêm
+1488	Giờ là ngày %d
+1490	Độc quyền thẻ
+1491	Thẻ sắp ra mắt
+1492	Độc quyền thẻ — sắp ra mắt
+1496	Phước lành Hiền giả
+1499	Mở khóa bằng thẻ
+1500	Mở khóa bằng thẻ %s (R$ %d)
+1501	Mở khóa lớp Hiền giả Tứ Nguyên Tố — độc quyền thẻ
+1502	Ma cà rồng
+1509	x%d ngày
+1510	x%d ngày (tính %s)
+1512	🌟 Đã cứu %s — bỏ qua %d ngày! Giờ là ngày %d
+1513	🎫 Thẻ
+1514	🎫 Mở khóa bằng thẻ
+1518	Mở khóa bằng %s (R$ %d)
+1519	Mở khóa nhánh premium của Season Pass mỗi mùa · Thêm Ruby + danh hiệu/màu danh hiệu đặc biệt · Lớp Hiền giả Tứ Nguyên Tố
+1521	Chặt gỗ x1.8 · Công trình bền x1.5 · Hồi 0.4 HP/giây
+1522	Vòng tay rừng xanh
+1523	Trái tim hoang dã
+1525	Gỗ sống
+1526	Máu tối đa +30 · Hồi 0.8 HP/giây · Sát thương +15% · Săn thú được thêm 1 món
+1527	Hồi 0.4 HP/giây · Hồi máu +25%
+1528	Mở khóa nhánh premium của Season Pass mỗi mùa · Thêm Ruby + danh hiệu/màu danh hiệu đặc biệt · Lớp Tu sĩ Rừng xanh
+1529	Tu sĩ Rừng xanh
+1532	Gậy Bí thuật
+1533	Sức tấn công +30%
+1534	Cắn máu
+1535	Lưỡi hái Máu
+1536	Vũ khí nguyên tố mạnh hơn 65% · Kỹ năng: Bão thiên thạch — 6 thiên thạch rơi vào chỗ bạn ngắm · Hồi chiêu 90 giây
+1537	Gậy đặc trưng của Pháp sư · Bắn đạn bí thuật phát nổ (mạnh với mọi nguyên tố)
+1538	Hồi 2% máu tối đa sau mỗi lần hạ quái
+1539	Máu tối đa +30 · Hồi 0.8 HP/giây · Kỹ năng: Thánh địa rừng — khu rừng hồi máu cho đội và làm chậm quái 12 giây · Hồi chiêu 100 giây
+1541	Kỹ năng: gọi 5 con dơi (200 HP) tấn công quái · Hồi chiêu 120 giây · Dùng lại = đàn mới thay đàn cũ
+1542	Bầy dơi
+1543	Lưỡi hái đặc trưng của Ma cà rồng · Tầm xa, quét cả nhóm kẻ thù
+1544	Gậy Xanh
+1545	Gậy đặc trưng của Tu sĩ · Bắn gai làm chậm quái · Không chặt gỗ hay đào được
+1546	Mọi sát thương +30%
+1547	Ma thuật hắc ám
+1548	Thiên thạch hắc ám
+1549	Sức mạnh hắc ám
+1550	Pháp sư hắc ám
+1551	Hồi 3% máu mỗi 2 giây
+1552	Chạy nhanh hơn 30%
+1553	Màn bóng tối
+1554	Kỹ năng: thiên thạch hắc ám rơi từ trời, sát thương lớn diện rộng và để lại vùng lửa đen 10 giây (đốt 2% máu/giây) · Hồi chiêu 120 giây
+1555	Kỹ năng: làm choáng quái xung quanh 4 giây (trùm 2 giây) và gây độc — mất 1% máu/giây trong 15 giây · Hồi chiêu 150 giây
+1556	Kỹ năng: tàng hình và chạy nhanh hơn 50% trong 4 giây (mất khi gây sát thương) · Hồi chiêu 30 giây
+1557	Trói gai
+1558	Bước hoang dã

@@ -110,6 +110,17 @@ end
 safe("AutoTool", AutoTool.Init, CombatClient.Swing)
 safe("TeamPing", TeamPing.Init, state, HUD, MapUI, SoundController)
 safe("Rejoin", RejoinUI.Init)
+safe("ClassFX", function()
+	local fx = require(Client:WaitForChild("ClassFX"))
+	CombatClient.ClassFX = fx
+	fx.Init(CombatClient)
+end) -- เอฟเฟกต์ตี/สกิลของคลาส 5 ดาว
+safe("ClassSkill", function()
+	local cs = require(Client:WaitForChild("ClassSkill"))
+	cs.Menus = Menus
+	cs.Init(CombatClient)
+end) -- ช่องสกิลกดของคลาส 5 ดาว (ปุ่ม Q)
+safe("BuildHammer", require(Client:WaitForChild("BuildHammer")).Init, Menus) -- ค้อนช่าง: ย้าย/รื้อสิ่งก่อสร้าง
 safe("MedAnim", require(Client:WaitForChild("MedAnim")).Init) -- ท่าพันแผล/ก้มช่วยเพื่อน + หลอดรอใช้ยา
 
 -- การตั้งค่า -> ระบบต่างๆ
@@ -250,10 +261,18 @@ do
 		return d:IsA("ProximityPrompt") and (d.Name == "Pickup" or d.Name == "Use")
 	end
 	-- ปุ่ม E เก็บ = เฉพาะตอนถือกระสอบในมือ (แบบ 99 Nights) · ปุ่มกิน/ใช้ = ได้ตลอด
+	-- ยกเว้นยา/อาวุธ/เกราะ (Direct) เก็บเข้าแถบเครื่องมือได้ตลอด ไม่ต้องถือกระสอบ
+	local function canPick(d)
+		if d.Name ~= "Pickup" or holdingSack then
+			return true
+		end
+		local m = d:FindFirstAncestorWhichIsA("Model")
+		return m ~= nil and m:GetAttribute("Direct") == true
+	end
 	local function setPrompts(m, on)
 		for _, d in ipairs(m and m:GetDescendants() or {}) do
 			if isDropPrompt(d) then
-				d.Enabled = on and (d.Name ~= "Pickup" or holdingSack)
+				d.Enabled = on and canPick(d)
 			end
 		end
 	end
@@ -277,7 +296,7 @@ do
 		if drops then
 			drops.DescendantAdded:Connect(function(d)
 				if isDropPrompt(d) then
-					d.Enabled = focus ~= nil and d:IsDescendantOf(focus) and (d.Name ~= "Pickup" or holdingSack)
+					d.Enabled = focus ~= nil and d:IsDescendantOf(focus) and canPick(d)
 				end
 			end)
 			for _, d in ipairs(drops:GetDescendants()) do
@@ -287,6 +306,71 @@ do
 			end
 		end
 	end)
+	-- ขอบเข้มรอบของที่ตกใกล้ตัว (มองเห็นบนหิมะขาว/พื้นสีเดียวกับของ) · ชิ้นที่โฟกัสอยู่ใช้กรอบขาวด้านล่างแทน
+	do
+		local OUTLINE_RANGE, OUTLINE_MAX = 70, 14
+		local pool = {}
+		local function newOutline()
+			local h = Instance.new("Highlight")
+			h.Name = "DropOutline"
+			h.FillTransparency = 1
+			h.OutlineColor = Color3.fromRGB(24, 30, 52)
+			h.OutlineTransparency = 0.15
+			h.DepthMode = Enum.HighlightDepthMode.Occluded
+			return h
+		end
+		-- ใส่กรอบในโมเดลของชิ้นนั้น (โดนเก็บ = กรอบโดนลบตาม -> สร้างใหม่)
+		local function attach(i, m)
+			local h = pool[i] or newOutline()
+			if not pcall(function()
+				h.Parent = m
+			end) then
+				h = newOutline()
+				h.Parent = m
+			end
+			h.Adornee = m
+			pool[i] = h
+		end
+		local function detach(i)
+			local h = pool[i]
+			if h then
+				pcall(function()
+					h.Adornee = nil
+					h.Parent = nil
+				end)
+			end
+		end
+		task.spawn(function()
+			while true do
+				task.wait(0.4)
+				local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+				local drops = Workspace:FindFirstChild("Drops")
+				local near = {}
+				if root and drops then
+					for _, m in ipairs(drops:GetChildren()) do
+						local p = m.PrimaryPart
+						if p and not m:FindFirstChild("PickupHighlight") then
+							local d = (p.Position - root.Position).Magnitude
+							if d < OUTLINE_RANGE then
+								table.insert(near, { m, d })
+							end
+						end
+					end
+					table.sort(near, function(a, b)
+						return a[2] < b[2]
+					end)
+				end
+				for i = 1, OUTLINE_MAX do
+					local m = near[i] and near[i][1]
+					if m then
+						attach(i, m)
+					else
+						detach(i)
+					end
+				end
+			end
+		end)
+	end
 	-- กรอบขาวรอบของบนพื้นที่ "โฟกัสอยู่" (แบบเกมเอาชีวิตรอดซอมบี้) — ขึ้นตลอด ไม่ต้องถือกระสอบ
 	-- เมาส์ชี้ของในระยะเก็บ > ไม่งั้นเลือกชิ้นใกล้สุดที่หันหน้ากล้องไปหา
 	do

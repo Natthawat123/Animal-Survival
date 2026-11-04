@@ -18,7 +18,12 @@ RunService.RenderStepped:Connect(function()
 		look = look.Magnitude > 0.1 and look.Unit or Vector3.new(0, 0, -1)
 		local right = look:Cross(Vector3.new(0, 1, 0))
 		local from = root.Position + look * d * 0.8 + right * d * 0.6 + Vector3.new(0, size.Y * 0.6 + 2, 0)
-		if shot.Value:match("_side%d*$") then
+		if shot.Value:match("_tele%d$") then
+			-- แถบเตือนพุ่ง: มองจากหลังสูงๆ ให้เห็นทั้งแถบ
+			from = root.Position - look * (d + 14) + Vector3.new(0, d + 16, 0)
+			cam.CFrame = CFrame.lookAt(from, root.Position + look * 14)
+			return
+		elseif shot.Value:match("_side%d*$") then
 			from = root.Position + right * d * 1.2 + Vector3.new(0, size.Y * 0.3, 0)
 		elseif shot.Value:match("_front$") then
 			from = root.Position + look * d * 1.2 + Vector3.new(0, size.Y * 0.3, 0)
@@ -28,6 +33,23 @@ RunService.RenderStepped:Connect(function()
 end)
 shot.Changed:Connect(function(v)
 	if v ~= "" then
+		if v:match("_tele1$") then
+			-- แถบเตือนอยู่แค่ ~1 วิ แต่ภาพจากปลั๊กอินช้ากว่านั้น -> โคลนค้างไว้ 5 วิให้ถ่ายทัน + นับชิ้น
+			local fx = workspace:FindFirstChild("BossFX")
+			local keep = Instance.new("Folder")
+			keep.Name = "TeleKeep"
+			local n = 0
+			for _, p in ipairs(fx and fx:GetChildren() or {}) do
+				if p:IsA("BasePart") then
+					n += 1
+					local c = p:Clone()
+					c.Parent = keep
+				end
+			end
+			keep.Parent = workspace
+			game:GetService("Debris"):AddItem(keep, 5)
+			print("[AS] MONPROBE teleparts " .. v .. " " .. n)
+		end
 		print("[SHOT] mon_" .. v)
 		-- วัดว่าขาขยับจริง: มุมข้อต่อขาหน้าซ้าย (องศา) ตัวอย่าง 6 จุดใน 0.6 วิ
 		local m = target.Value

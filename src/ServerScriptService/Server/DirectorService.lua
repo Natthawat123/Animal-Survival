@@ -30,6 +30,22 @@ function DirectorService:Init(ctx)
 	self.lastElement = nil
 	self.pendingSkips = 0 -- สิทธิ์ข้ามวันที่รอบวกตอนเช้า (ใช้ตอนกลางคืน / คืน 99)
 	self.carry = {} -- เหตุการณ์ของคืนที่ถูกข้าม รอลงคืนถัดไปที่เล่นจริง
+	self.bonus = 0 -- เวลากลางวันที่ได้เพิ่ม (เข้าศาลเจ้า/วิหาร) รอบวกในลูป Wait
+	self.pendingBonus = 0 -- ได้ตอนกลางคืน -> บวกให้กลางวันถัดไป
+end
+
+-- เวลาเพิ่ม (วินาที): กลางวัน/พลบค่ำ = ยืดออกไปทันที · กลางคืน = เก็บไว้บวกให้กลางวันถัดไป
+function DirectorService:AddTime(seconds)
+	if not self.running then
+		return false
+	end
+	local phase = self.ctx.State:GetAttribute("Phase")
+	if phase == "Day" or phase == "Dusk" then
+		self.bonus += seconds
+		return "now"
+	end
+	self.pendingBonus += seconds
+	return "nextDay"
 end
 
 function DirectorService:SetPhase(phase, length)
@@ -53,6 +69,13 @@ function DirectorService:Wait(seconds, runId)
 			self.skip = false
 			self.skipped = true
 			return true
+		end
+		if self.bonus > 0 then -- เข้าศาลเจ้า/วิหาร: ยืดเวลาช่วงนี้ (นาฬิกาบนจอขยับตาม)
+			local s = self.ctx.State
+			seconds += self.bonus
+			s:SetAttribute("PhaseEnd", (s:GetAttribute("PhaseEnd") or 0) + self.bonus)
+			s:SetAttribute("PhaseLength", (s:GetAttribute("PhaseLength") or 0) + self.bonus)
+			self.bonus = 0
 		end
 		if self.paused then -- DEV: หยุดเวลา (เลื่อนเวลาสิ้นสุดช่วงออกไปด้วย ให้นาฬิกาบนจอหยุด)
 			local s = self.ctx.State
@@ -129,12 +152,12 @@ function DirectorService:RunNight(night, runId)
 	end
 	s:SetAttribute("RaidTotal", total)
 
-	-- กวางกลวงออกล่า (เตือนทุกคนในรอบล่วงหน้า 5 วินาที: ขอบจอแดง + ป้าย + เสียง)
+	-- จิ้งจอกจันทราออกล่า (เตือนทุกคนในรอบล่วงหน้า 5 วินาที: ขอบจอแดง + ป้าย + เสียง)
 	local stalkerAt = Config.NightLength * 0.12
 	local warnAt = math.max(0.5, stalkerAt - 5)
 	task.delay(warnAt, function()
-		if runId ~= self.runId or s:GetAttribute("Phase") ~= "Night" or ctx.Services.AnimalService:CountKind("Stalker") > 0 or not AnimalModels.Has("HollowStag") then
-			return -- (ยังไม่มีโมเดลกวางกลวง = ไม่เตือนหลอก)
+		if runId ~= self.runId or s:GetAttribute("Phase") ~= "Night" or ctx.Services.AnimalService:CountKind("Stalker") > 0 or not AnimalModels.Has("Moonfang") then
+			return -- (ยังไม่มีโมเดลจิ้งจอก = ไม่เตือนหลอก)
 		end
 		for _, p in ipairs(Players:GetPlayers()) do
 			if p:GetAttribute("InRun") and not p:GetAttribute("Dead") then
@@ -149,7 +172,7 @@ function DirectorService:RunNight(night, runId)
 		local animals = ctx.Services.AnimalService
 		if animals:CountKind("Stalker") == 0 then
 			local pos = ctx.Layout:RaidSpawnPoint(self.rng, 260, 340)
-			if animals:Spawn("HollowStag", pos, { Kind = "Stalker" }) then
+			if animals:Spawn("Moonfang", pos, { Kind = "Stalker" }) then
 				ctx.Broadcast("Something is watching from the darkness", "Danger")
 			end
 		end
@@ -270,7 +293,7 @@ end
 function DirectorService:Dawn(night)
 	local ctx = self.ctx
 	local animals = ctx.Services.AnimalService
-	-- กวางกลวงหายไปกับแสงเช้า · ฝูงบุก/บอสที่ยังไม่ตาย "ไม่หาย" อยู่บุกแคมป์ต่อจนกว่าจะโดนฆ่า
+	-- จิ้งจอกจันทราหายไปกับแสงเช้า · ฝูงบุก/บอสที่ยังไม่ตาย "ไม่หาย" อยู่บุกแคมป์ต่อจนกว่าจะโดนฆ่า
 	-- (กันหนีออกจากแคมป์ตอนฝูงบุกแล้วรอเช้าให้หายเอง — ทิ้งแคมป์ = กองไฟ/กำแพงโดนพัง)
 	animals:ClearKind("Stalker", true)
 	if animals:CountKind("Boss") == 0 then
@@ -296,6 +319,8 @@ function DirectorService:Loop(runId)
 		-- กลางวัน
 		local dayLen = Config.DayLength + (night == 1 and Config.FirstDayBonus or 0)
 		self:SetPhase("Day", dayLen - Config.DuskLength)
+		self.bonus += self.pendingBonus -- ได้เวลาเพิ่มตอนกลางคืน -> กลางวันนี้ยาวขึ้น
+		self.pendingBonus = 0
 		ctx.FireRun("Cinematic", "DayStart", { Day = night })
 		ctx.Services.TraderService:OnDay(night)
 		if not self:Wait(dayLen - Config.DuskLength, runId) then
@@ -343,8 +368,31 @@ function DirectorService:PassNight()
 	self.ctx.State:SetAttribute("Night", self.night)
 end
 
+-- วันโบนัส (เตียง/ช่วยลูกสัตว์) ให้ HUD โชว์ "DAY 12 +3" + เอฟเฟกต์ "+1" บินเข้าเลขวัน
+-- ต้องตั้งก่อน Night เปลี่ยน (เครื่องลูกค้าค้างเลขเดิมไว้ระหว่างเล่นเอฟเฟกต์)
+function DirectorService:AddBonusDays(n, source)
+	local st = self.ctx.State
+	st:SetAttribute("BonusSource", source or "")
+	st:SetAttribute("BonusFrom", self.night)
+	st:SetAttribute("BonusDays", (st:GetAttribute("BonusDays") or 0) + n)
+end
+
 -- บวกสิทธิ์ที่เก็บไว้ (ตอนเช้า) · คืนสุดท้ายต้องเล่นจริง: ที่เหลือรอหลังจบคืน 99
 function DirectorService:ApplyPendingSkips()
+	local n, night = 0, self.night
+	for _ = 1, self.pendingSkips do
+		if night == Config.TotalNights then
+			break
+		end
+		n += 1
+		night += 1
+	end
+	if n > 0 then
+		-- HUD โชว์ยอดรวม (นับแล้ว + ค้าง) ไปตั้งแต่ตอนได้มาแล้ว: ย้ายจากค้างไปนับแล้ว (ลดค้างก่อน ยอดรวมไม่กระโดด)
+		-- BonusSource = "Pending" -> HUD ไม่เล่นเอฟเฟกต์ซ้ำ แค่เลขวันเด้ง
+		self.ctx.State:SetAttribute("PendingDays", self.pendingSkips - n)
+		self:AddBonusDays(n, "Pending")
+	end
 	local applied = 0
 	while self.pendingSkips > 0 and self.night ~= Config.TotalNights do
 		self.pendingSkips -= 1
@@ -352,6 +400,7 @@ function DirectorService:ApplyPendingSkips()
 		self:PassNight()
 		self.ctx.Services.TraderService:OnDay(self.night) -- ไม่ให้พลาดรอบพ่อค้า
 	end
+	self.ctx.State:SetAttribute("PendingDays", self.pendingSkips)
 	if applied > 0 then
 		self.ctx.Broadcast(string.format("Skipped %d days · Day %d", applied, self.night), "Good")
 	end
@@ -364,25 +413,55 @@ end
 
 -- +1 วันจริงทุกครั้ง: กลางวัน/พลบค่ำมีผลทันที · กลางคืน (และวันที่ 99) เก็บไว้บวกตอนเช้า
 -- fmt: ข้อความประกาศเอง (มี %d = วันที่) เช่น ช่วยลูกสัตว์ธาตุสำเร็จ · ไม่ใส่ = ข้อความเตียง
-function DirectorService:SkipDay(player, fmt)
+-- source: ชื่อที่ HUD โชว์ใต้ "+1" ("Bed" / "Spirit Pup")
+-- n = กี่วัน (เตียง 1 · ลูกสัตว์ธาตุ Config.SpiritBonusDays) · ถึงคืน 99 แล้วหยุด ที่เหลือเก็บไว้บวกหลังเล่นคืน 99
+-- fmt: string (มี %d = วันที่) หรือ function(วันที่ข้าม, วันที่) -> ข้อความ
+function DirectorService:SkipDay(player, fmt, source, n)
 	if not self:CanSkipDay() then
 		return false
 	end
+	n = math.max(1, math.floor(tonumber(n) or 1))
 	local phase = self.ctx.State:GetAttribute("Phase")
-	if (phase == "Day" or phase == "Dusk") and self.night ~= Config.TotalNights then
-		self:PassNight()
-		if phase == "Day" then
-			self.ctx.Services.TraderService:OnDay(self.night) -- ไม่ให้พลาดรอบพ่อค้า
+	local now = 0
+	if phase == "Day" or phase == "Dusk" then
+		local night = self.night
+		for _ = 1, n do
+			if night == Config.TotalNights then
+				break -- คืนสุดท้ายต้องเล่นจริง
+			end
+			now += 1
+			night += 1
 		end
-		if fmt then
+	end
+	if now > 0 then
+		self:AddBonusDays(now, source)
+		for _ = 1, now do
+			self:PassNight()
+			if phase == "Day" then
+				self.ctx.Services.TraderService:OnDay(self.night) -- ไม่ให้พลาดรอบพ่อค้า
+			end
+		end
+		if type(fmt) == "function" then
+			self.ctx.Broadcast(fmt(now, self.night), "Good")
+		elseif fmt then
 			self.ctx.Broadcast(string.format(fmt, self.night), "Good")
-		else
+		elseif now == 1 then
 			self.ctx.Broadcast(string.format("%s skipped 1 day · Day %d", player and player.DisplayName or "The team", self.night), "Good")
+		else
+			self.ctx.Broadcast(string.format("%s skipped %d days · Day %d", player and player.DisplayName or "The team", now, self.night), "Good")
 		end
-	else
-		self.pendingSkips += 1
+	end
+	local later = n - now
+	if later > 0 then
+		self.pendingSkips += later
+		self.ctx.State:SetAttribute("PendingSource", source or "")
+		self.ctx.State:SetAttribute("PendingDays", self.pendingSkips)
 		local when = self.night == Config.TotalNights and "after the final night" or "in the morning"
-		self.ctx.Broadcast(string.format("+1 Day (counted %s)", when), "Good")
+		if later == 1 then
+			self.ctx.Broadcast(string.format("+1 Day (counted %s)", when), "Good")
+		else
+			self.ctx.Broadcast(string.format("x%d days (counted %s)", later, when), "Good")
+		end
 	end
 	return true
 end
@@ -489,6 +568,7 @@ function DirectorService:StartRun(night, pendingSkips, carry)
 	self.night = math.max(1, math.floor(tonumber(night) or 1))
 	self.pendingSkips = math.max(0, math.floor(tonumber(pendingSkips) or 0))
 	self.carry = type(carry) == "table" and carry or {}
+	self.ctx.State:SetAttribute("PendingDays", self.pendingSkips)
 	local runId = self.runId
 	task.spawn(function()
 		self:Loop(runId)
@@ -503,9 +583,13 @@ function DirectorService:ResetRun()
 	self.lastElement = nil
 	self.pendingSkips = 0
 	self.carry = {}
+	self.bonus, self.pendingBonus = 0, 0
 	self.nightBoss = nil
 	ctx.State:SetAttribute("BossHoldEnd", 0)
 	ctx.State:SetAttribute("BedsUsed", 0)
+	ctx.State:SetAttribute("Bed2Used", 0)
+	ctx.State:SetAttribute("BonusDays", 0)
+	ctx.State:SetAttribute("PendingDays", 0)
 	ctx.State:SetAttribute("Ending", "")
 	ctx.State:SetAttribute("Conquered", false)
 	ctx.State:SetAttribute("BossId", "")

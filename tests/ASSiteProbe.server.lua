@@ -81,7 +81,7 @@ for _, kind in ipairs(KINDS) do
 			print(string.format("[SITE] %s_%s %s size=%.0f,%.0f,%.0f collide=%d | %s", kind, el, big[1].Name, sz.X, sz.Y, sz.Z, coll, table.concat(out, " ")))
 		end
 		-- ของเล่นอยู่บนอาคารไหม + มีทางขึ้นไหม
-		local play = m:FindFirstChild("Cage", true) or m:FindFirstChild("Obelisk1", true)
+		local play = m:FindFirstChild("Cage", true) or m:FindFirstChild("Obelisk1", true) or (kind == "Ruins" and m:FindFirstChild("Chest", true))
 		local playPos = play and play:GetPivot().Position
 		if playPos then
 			print(string.format("[PLAY] %s item=%s up=%.0f stairs=%s lift=%s", m.Name, play.Name, playPos.Y - c.Y, tostring(m:FindFirstChild("Stairs", true) ~= nil), tostring(m:FindFirstChild("LiftPad", true) ~= nil)))

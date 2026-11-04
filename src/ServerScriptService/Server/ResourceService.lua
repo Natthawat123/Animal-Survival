@@ -17,6 +17,7 @@ function ResourceService:Init(ctx)
 	self.ctx = ctx
 	self.overlap = OverlapParams.new()
 	self.overlap.FilterType = Enum.RaycastFilterType.Include
+	self.felled = {} -- [ต้นไม้ที่ล้ม] = วันที่ล้ม (State.Night)
 end
 
 -- หา node ใกล้จุดนั้นที่สุด
@@ -90,14 +91,35 @@ function ResourceService:Fell(node, from)
 			setVisible(node, false)
 		end
 	end)
+	if kind == "Tree" then
+		-- ต้นไม้: งอกใหม่ตามจำนวนวันในเกม (นับวันที่ข้ามด้วยเตียง/ศาลเจ้าด้วย) ไม่ใช่วินาที
+		self.felled[node] = self.ctx.State:GetAttribute("Night") or 1
+		return
+	end
 	local regrow = node:GetAttribute("Regrow") or 240
 	task.delay(regrow, function()
-		if node.Parent then
-			node:SetAttribute("HP", node:GetAttribute("MaxHP"))
-			node:SetAttribute("Depleted", false)
-			setVisible(node, true)
-		end
+		self:Regrow(node)
 	end)
+end
+
+function ResourceService:Regrow(node)
+	self.felled[node] = nil
+	if node.Parent then
+		node:SetAttribute("HP", node:GetAttribute("MaxHP"))
+		node:SetAttribute("Depleted", false)
+		setVisible(node, true)
+	end
+end
+
+-- วันเปลี่ยน: ต้นที่ล้มครบ Config.TreeRegrowDays คืน -> ทยอยงอกคืน (คืนละ TreeRegrowChance ต่อต้น ไม่ขึ้นพร้อมกันทั้งป่า)
+-- เริ่มรอบใหม่ (วันนับถอยกลับ) งอกคืนทั้งหมด
+function ResourceService:CheckTrees()
+	local night = self.ctx.State:GetAttribute("Night") or 1
+	for node, at in pairs(self.felled) do
+		if night < at or (night >= at + Config.TreeRegrowDays and math.random() < Config.TreeRegrowChance) then
+			self:Regrow(node)
+		end
+	end
 end
 
 -- ตี node: power = แรงของเครื่องมือ (Chop/Mine) · พุ่มเบอร์รี่ = ฟันไม่พัง ไม่ได้อะไร
@@ -169,10 +191,12 @@ function ResourceService:Hit(player, node, tool)
 end
 
 ---------------------------------------------------------------- พุ่มเบอร์รี่
--- พุ่มไม่มีวันพัง: ลูกเบอร์รี่บนพุ่ม (ลูกจริงในโมเดล) เก็บ/กินทีละลูก -> ลูกนั้นหายจากพุ่ม -> งอกคืนทีละลูกทุก BERRY_REGROW วิ
+-- พุ่มไม่มีวันพัง: พุ่มละ 6-7 ลูก (ลูกจริงในโมเดล) เก็บ/กินทีละลูก -> ลูกนั้นหายจากพุ่ม
+--   เก็บหมดพุ่มแล้ว -> รอ BERRY_COOLDOWN วัน (นับจาก State.Night) ถึงงอกคืนเต็มพุ่มทีเดียว
 --   [E] กินเบอร์รี่ที่พุ่ม · [F] เก็บใส่กระสอบ (เต็ม = หล่นข้างพุ่ม)
-local BERRY_REGROW = 20
-local bushes = {} -- [node] = { Berries = {part}, Count, Next, Pick, Eat }
+local BERRY_MIN, BERRY_MAX = 6, 7
+local BERRY_COOLDOWN = 4 -- วัน
+local bushes = {} -- [node] = { Berries = {part}, Max, Count, EmptyNight, Pick, Eat }
 
 -- ลูกเบอร์รี่ = ชิ้นเล็กในโมเดลพุ่ม (เล็กกว่า 30% ของใบพุ่ม) · โมเดลที่ไม่มีลูกแยก -> ปั้นลูกกลมวางรอบพุ่ม
 local function berryParts(node)
@@ -219,13 +243,15 @@ local function berryParts(node)
 end
 
 local function showBerries(st)
+	-- ลูกในโมเดลน้อยกว่าจำนวนเก็บได้ -> โชว์ตามสัดส่วน
+	local shown = math.ceil(st.Count * #st.Berries / st.Max)
 	for i, b in ipairs(st.Berries) do
 		if b:GetAttribute("OrigT") == nil then
 			b:SetAttribute("OrigT", b.Transparency)
 		end
-		b.Transparency = i <= st.Count and b:GetAttribute("OrigT") or 1
+		b.Transparency = i <= shown and b:GetAttribute("OrigT") or 1
 	end
-	local max = #st.Berries
+	local max = st.Max
 	st.Node:SetAttribute("Berries", st.Count)
 	local txt = string.format("Berry Bush %d/%d", st.Count, max)
 	st.Eat.ObjectText = txt
@@ -242,10 +268,10 @@ function ResourceService:PickBerry(player, node, how)
 	end
 	local inv = self.ctx.Services.InventoryService
 	local surv = self.ctx.Services.SurvivalService
-	if st.Count >= #st.Berries then
-		st.Next = os.clock() + BERRY_REGROW -- เริ่มนับงอกลูกใหม่ตอนพุ่มไม่เต็ม
-	end
 	st.Count -= 1
+	if st.Count <= 0 then
+		st.EmptyNight = self.ctx.State:GetAttribute("Night") or 1 -- เริ่มนับคูลดาวน์ตอนพุ่มหมด
+	end
 	showBerries(st)
 	local pos = node:GetPivot().Position
 	if how == "Eat" then
@@ -285,7 +311,7 @@ function ResourceService:SetupBush(node)
 		p.ActionText = action
 		p.KeyboardKeyCode = key
 		p.HoldDuration = 0.25
-		p.MaxActivationDistance = 11
+		p.MaxActivationDistance = 14 -- พุ่มใหญ่ขึ้น
 		p.RequiresLineOfSight = false
 		p.UIOffset = offset
 		p.Parent = part
@@ -298,12 +324,19 @@ function ResourceService:SetupBush(node)
 		return p
 	end
 	local berries = berryParts(node)
-	local st = { Node = node, Berries = berries, Count = #berries, Next = 0 }
+	local cf = node:GetPivot()
+	local max = Random.new(math.floor(cf.X * 7 + cf.Z * 13)):NextInteger(BERRY_MIN, BERRY_MAX)
+	-- ลูกในโมเดลเกิน -> ซ่อนลูกส่วนเกินถาวร
+	for i = #berries, max + 1, -1 do
+		berries[i].Transparency = 1
+		table.remove(berries, i)
+	end
+	local st = { Node = node, Berries = berries, Max = max, Count = max }
 	st.Eat = prompt("BushEat", "Eat Berries", Enum.KeyCode.E, Vector2.new(0, -40), "Eat")
 	st.Pick = prompt("BushPick", "Put in Sack", Enum.KeyCode.F, Vector2.new(0, 40), "Sack")
 	bushes[node] = st
 	node:SetAttribute("Depleted", false)
-	node:SetAttribute("MaxBerries", #berries)
+	node:SetAttribute("MaxBerries", max)
 	showBerries(st)
 	node.Destroying:Connect(function()
 		bushes[node] = nil
@@ -311,26 +344,24 @@ function ResourceService:SetupBush(node)
 end
 
 function ResourceService:Start(ctx)
+	self.ctx.State:GetAttributeChangedSignal("Night"):Connect(function()
+		self:CheckTrees()
+		-- พุ่มที่หมด: ครบ BERRY_COOLDOWN วัน -> งอกคืนเต็มพุ่ม · คืนนับย้อน (เริ่มรอบใหม่) = เต็มทันที
+		local night = self.ctx.State:GetAttribute("Night") or 1
+		for _, st in pairs(bushes) do
+			if st.EmptyNight and (night - st.EmptyNight >= BERRY_COOLDOWN or night < st.EmptyNight) then
+				st.EmptyNight = nil
+				st.Count = st.Max
+				showBerries(st)
+			end
+		end
+	end)
 	CollectionService:GetInstanceAddedSignal("ResourceNode"):Connect(function(node)
 		task.defer(self.SetupBush, self, node)
 	end)
 	for _, node in ipairs(CollectionService:GetTagged("ResourceNode")) do
 		self:SetupBush(node)
 	end
-	-- ลูกเบอร์รี่งอกคืนทีละลูกทุก BERRY_REGROW วิ (จนเต็มพุ่ม)
-	task.spawn(function()
-		while true do
-			task.wait(1)
-			local now = os.clock()
-			for _, st in pairs(bushes) do
-				if st.Count < #st.Berries and now >= st.Next then
-					st.Count += 1
-					st.Next = now + BERRY_REGROW
-					showBerries(st)
-				end
-			end
-		end
-	end)
 end
 
 return ResourceService

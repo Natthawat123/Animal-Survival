@@ -213,6 +213,7 @@ function RejoinService:SerializeRun()
 		Seed = self.ctx.Seed,
 		Night = S.DirectorService.night,
 		PendingSkips = S.DirectorService.pendingSkips,
+		BonusDays = self.ctx.State:GetAttribute("BonusDays") or 0,
 		Carry = S.DirectorService.carry,
 		Conquered = self.ctx.State:GetAttribute("Conquered") == true,
 		Camp = { S.CampService.level, S.CampService.bench, math.floor(S.CampService.fuel) },
@@ -401,6 +402,7 @@ function RejoinService:ApplyResume()
 		end
 	end
 	self.ctx.State:SetAttribute("Conquered", run.Conquered == true)
+	self.ctx.State:SetAttribute("BonusDays", tonumber(run.BonusDays) or 0)
 	S.DirectorService:StartRun(run.Night, run.PendingSkips, run.Carry)
 	for uid, snap in pairs(type(run.Players) == "table" and run.Players or {}) do
 		if type(snap) == "table" and type(snap.Bag) == "table" then

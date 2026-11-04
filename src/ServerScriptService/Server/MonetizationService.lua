@@ -12,6 +12,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
+local Classes = require(ReplicatedStorage.Shared.Classes)
 
 local MonetizationService = {}
 local owned = {} -- [player] = { [passKey] = true }
@@ -51,6 +52,37 @@ local function setOwned(player, key)
 	owned[player] = owned[player] or {}
 	owned[player][key] = true
 	player:SetAttribute("Pass_" .. key, true)
+	-- คลาสพาส (Classes.Data[id].Pass == key): ใส่ในคลาสที่มีของเซฟ -> ร้าน/เลือกคลาส/ภารกิจ ใช้ได้ตามปกติ
+	task.spawn(function()
+		local ds = MonetizationService.ctx and MonetizationService.ctx.Services.DataService
+		local data
+		for _ = 1, 60 do
+			data = ds and ds:Get(player)
+			if data or not player.Parent then
+				break
+			end
+			task.wait(0.5)
+		end
+		if not (data and data.Owned) then
+			return
+		end
+		local changed = false
+		for id, c in pairs(Classes.Data) do
+			if c.Pass == key and not data.Owned[id] then
+				data.Owned[id] = true
+				changed = true
+			end
+		end
+		if changed then
+			MonetizationService.ctx.Remotes.Get("Profile"):FireClient(player, data)
+			task.spawn(ds.Save, ds, player)
+		end
+	end)
+end
+
+-- ให้สิทธิ์พาส (DEV/เทส) — ปกติมาจาก LoadPasses / PromptGamePassPurchaseFinished
+function MonetizationService:GrantPass(player, key)
+	setOwned(player, key)
 end
 
 function MonetizationService:LoadPasses(player)

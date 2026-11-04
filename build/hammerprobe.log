@@ -1,0 +1,39 @@
+ERR: torError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+ERR: eatorWarning] Warning: debug.profileEnd() - No active profile annotation. At: Stack Begin
+ERR: tReconciler.ReactReconciler.RobloxReactProfiling', Line 65 - function profileend
+ERR: tReconciler.ReactReconciler.RobloxReactProfiling', Line 168 - function profileRootAfterYielding
+ERR: tReconciler.ReactReconciler.ReactFiberWorkLoop.new', Line 841
+ERR: tReconciler.ReactReconciler.SchedulerWithReactIntegration.new', Line 237
+ERR: duler.Scheduler.Scheduler', Line 377 - function unstable_runWithPriority
+ERR: tReconciler.ReactReconciler.SchedulerWithReactIntegration.new', Line 165 - function runWithPriority
+ERR: 
+orOutput] [AS] ???????????????????...
+rOutput] [AS] seed=883568875 map=2048
+orOutput] [AS] client ready
+orOutput] [AS] terrain 6.4s
+rOutput] [AS] world ready 7.2s props=411
+orOutput] [AS] READY
+orOutput] [AS] HAMMERPROBE PASS recipe 
+orOutput] [AS] HAMMERPROBE PASS toolbuild 
+orOutput] [AS] HAMMERPROBE PASS hammer-tool Builder's Hammer
+orOutput] [AS] HAMMERPROBE PASS no-hammer-move-blocked 
+shot hammer_hold
+orOutput] [AS] HAMMERPROBE PASS move-ok 
+orOutput] [AS] HAMMERPROBE PASS move-pos 0
+orOutput] [AS] HAMMERPROBE PASS move-keeps-hp 200
+orOutput] [AS] HAMMERPROBE PASS move-overlap-blocked 
+orOutput] [AS] HAMMERPROBE PASS move-onto-self-ok 
+orOutput] [AS] HAMMERPROBE PASS move-outside-blocked 
+orOutput] [AS] HAMMERPROBE PASS bed-move-ok 
+orOutput] [AS] HAMMERPROBE PASS bed-move-no-skip 1
+shot hammer_menu
+shot hammer_move_ghost
+orOutput] [AS] HAMMERPROBE PASS demolish-ok 
+shot hammer_demolish
+rOutput] [AS] HAMMERPROBE PASS demolish-gone 
+rOutput] [AS] HAMMERPROBE PASS demolish-refund 3
+rOutput] [AS] HAMMERPROBE PASS demolish-twice-safe 
+orOutput] [AS] HAMMERPROBE PASS unequipped-demolish-blocked 
+orOutput] [AS] HAMMERPROBE RESULT fails=0
+orOutput] [AS] HAMMERPROBE DONE
+finished in 55s  done=True

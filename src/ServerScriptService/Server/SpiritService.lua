@@ -17,8 +17,10 @@ local RunService = game:GetService("RunService")
 
 local Animals = require(ReplicatedStorage.Shared.Animals)
 local Classes = require(ReplicatedStorage.Shared.Classes)
+local Config = require(ReplicatedStorage.Shared.Config)
 local Nights = require(ReplicatedStorage.Shared.Nights)
 local PropBuilder = require(ReplicatedStorage.Shared.PropBuilder)
+local GuardianWaves = require(script.Parent.GuardianWaves)
 
 local SpiritService = {}
 
@@ -26,6 +28,9 @@ local LAIR_RESPAWN = 15 * 60 -- บอสในรังตายแล้วก
 local INTRO_TIME, INTRO_TURN = 12, 9 -- ฉากเปิดศาลเจ้า: ผู้เฝ้าถูกปล่อย / หันมาหาผู้เล่น (ตรงกับ Cinematics.ShrineIntro)
 local CLEAR_PILLAR, CLEAR_HOME = 3.6, 8.6 -- ฉากจบศาลเจ้า: เสาผุด / ลูกสัตว์ไปโผล่ที่แคมป์ (ตรงกับ Cinematics.ShrineCleared)
 local PET_SIZE = 1.9 -- ลูกสัตว์ที่ช่วยแล้วโตขึ้นที่แคมป์ (ตัวใหญ่พอให้ขี่)
+-- อนุสาวรีย์ลูกสัตว์ธาตุ (3D Model/anuzon -> Assets.Props.Monument<El>) ผุดแทนเสาผลึกตอนช่วยสำเร็จ · ไม่มีโมเดล = เสาผลึกเดิม
+local MONUMENT_WIDTH = 30 -- ความกว้างฐาน (stud) สูงราว 40
+local MONUMENT_YAW = 0 -- แก้ทิศหน้าโมเดล (Import 3D: บันได = -Z ของโมเดล -> lookAt หาแคมป์ตรง ๆ)
 local CRYSTAL = { Earth = "TerraCrystal", Water = "TideCrystal", Air = "GaleCrystal", Fire = "EmberCrystal" }
 local PILLAR_COLOR = {
 	Earth = Color3.fromRGB(120, 245, 90), Water = Color3.fromRGB(70, 210, 255),
@@ -130,7 +135,8 @@ function SpiritService:SpawnGuardians(sh)
 	local intro = not sh.IntroPlayed and sh.Entry ~= nil
 	sh.IntroPlayed = true
 	local frame = sh.Entry and CFrame.lookAt(sh.Base, Vector3.new(sh.Entry.X, sh.Base.Y, sh.Entry.Z)) -- -Z = ทางที่ผู้เล่นเดินมา
-	local count = 3
+	local count = GuardianWaves.Counts[1] -- เวฟ 1 (เวฟ 2-3 = SpawnWave)
+	sh.Wave, sh.NextWaveAt = 1, nil
 	for i = 1, count do
 		local id = pool[math.min(i, #pool)]
 		local pos, stand
@@ -193,6 +199,29 @@ function SpiritService:SpawnGuardians(sh)
 	task.delay(INTRO_TIME, function()
 		self.ctx.Broadcast(string.format("The %s Shrine guardians have awakened", sh.Element), "Warn")
 	end)
+end
+
+-- เวฟ 2-3: ผู้เฝ้าโผล่รอบกรง (ไม่มีฉากเปิด)
+function SpiritService:SpawnWave(sh, wave, count)
+	local pool = Animals.RaidPool[sh.Element]
+	local animals = self.ctx.Services.AnimalService
+	local rng = Random.new()
+	local list = {}
+	for i = 1, count do
+		local ang = i / count * math.pi * 2 + rng:NextNumber(-0.25, 0.25)
+		local r = rng:NextNumber(16, 24)
+		local pos = sh.Base + Vector3.new(math.cos(ang) * r, 2, math.sin(ang) * r)
+		local h = self.ctx.Layout:HeightAt(pos.X, pos.Z)
+		local a = animals:Spawn(pool[(i - 1) % #pool + 1], Vector3.new(pos.X, math.max(h, sh.Base.Y) + 1, pos.Z), {
+			Kind = "Guardian", Home = sh.Base, Leash = 70, HealthMult = 1.6, DamageMult = 1.2,
+			Yaw = math.atan2(sh.Base.X - pos.X, sh.Base.Z - pos.Z), -- หันออกหาทางที่ผู้เล่นอยู่
+		})
+		if a then
+			a.Model:SetAttribute("Guardian", true)
+			table.insert(list, a)
+		end
+	end
+	return list
 end
 
 -- ช่วยแล้ว = ประตูข้างนอกปิดจนจบรอบ (คนที่อยู่ข้างในยังออกทางประตูกลับได้) · เริ่มรอบใหม่สร้างศาลเจ้าใหม่ ประตูเปิดเอง
@@ -318,11 +347,17 @@ function SpiritService:SpawnPet(sh)
 end
 
 -- เสาผลึกธาตุยักษ์ผุดขึ้นที่ไบโอม (หลังประตูศาลเจ้า) = ศาลเจ้านี้ช่วยสำเร็จแล้ว · ลำแสงขึ้นฟ้าเห็นได้ทั้งแมพ
+local function hasMonument(el)
+	local assets = ReplicatedStorage:FindFirstChild("Assets")
+	local props = assets and assets:FindFirstChild("Props")
+	return props ~= nil and props:FindFirstChild("Monument" .. el) ~= nil
+end
+
 function SpiritService:PillarPos(sh)
 	local site = sh.SitePos
 	local away = (site - self.ctx.CampPosition) * Vector3.new(1, 0, 1)
 	away = away.Magnitude > 1 and away.Unit or Vector3.new(0, 0, 1)
-	local p = site + away * 34
+	local p = site + away * (hasMonument(sh.Element) and 46 or 34) -- อนุสาวรีย์ฐานกว้าง -> ถอยห่างซุ้มประตูอีกหน่อย
 	local rp = RaycastParams.new()
 	rp.FilterType = Enum.RaycastFilterType.Include
 	rp.FilterDescendantsInstances = { workspace.Terrain }
@@ -340,12 +375,20 @@ function SpiritService:RaisePillar(sh, instant)
 	local m = Instance.new("Model")
 	m.Name = "ClearPillar_" .. el
 	local rng = Random.new()
-	-- ผลึกธาตุยักษ์ตรงกลาง + ผลึกเล็กล้อมรอบ (โมเดลผลึก Creator Store ชุดเดียวกับในแมพ)
-	PropBuilder.DecoCrystal(CRYSTAL[el], pos - Vector3.new(0, 1, 0), rng:NextNumber(0, 6.28), 6.5, m)
-	for k = 0, 6 do
-		local ang = k / 7 * math.pi * 2 + rng:NextNumber(-0.2, 0.2)
-		local q = pos + Vector3.new(math.cos(ang) * 13, -0.5, math.sin(ang) * 13)
-		PropBuilder.DecoCrystal(CRYSTAL[el], q, rng:NextNumber(0, 6.28), rng:NextNumber(1.8, 2.8), m)
+	if hasMonument(el) then
+		-- อนุสาวรีย์ลูกสัตว์ธาตุ หันบันไดเข้าหาแคมป์ (ยืน/เดินขึ้นได้)
+		local look = (self.ctx.CampPosition - pos) * Vector3.new(1, 0, 1)
+		look = look.Magnitude > 1 and look.Unit or Vector3.new(0, 0, -1)
+		local cf = CFrame.lookAt(pos, pos + look) * CFrame.Angles(0, math.rad(MONUMENT_YAW), 0)
+		PropBuilder.Imported("Monument" .. el, cf - Vector3.new(0, 0.6, 0), MONUMENT_WIDTH, m, true)
+	else
+		-- ผลึกธาตุยักษ์ตรงกลาง + ผลึกเล็กล้อมรอบ (โมเดลผลึก Creator Store ชุดเดียวกับในแมพ)
+		PropBuilder.DecoCrystal(CRYSTAL[el], pos - Vector3.new(0, 1, 0), rng:NextNumber(0, 6.28), 6.5, m)
+		for k = 0, 6 do
+			local ang = k / 7 * math.pi * 2 + rng:NextNumber(-0.2, 0.2)
+			local q = pos + Vector3.new(math.cos(ang) * 13, -0.5, math.sin(ang) * 13)
+			PropBuilder.DecoCrystal(CRYSTAL[el], q, rng:NextNumber(0, 6.28), rng:NextNumber(1.8, 2.8), m)
+		end
 	end
 	local _, size = m:GetBoundingBox()
 	local core = Instance.new("Part")
@@ -456,9 +499,13 @@ function SpiritService:Rescue(a, player)
 		end
 	end
 	s:SetAttribute("SpiritCount", count)
-	-- +1 วัน เหมือนวางเตียง
-	local skipped = self.ctx.Services.DirectorService:SkipDay(player, "🌟 Rescued " .. a.Info.Thai .. " — skipped 1 day! Now day %d")
-	self.ctx.FireRun("Cinematic", "SpiritRescued", { Element = el, Name = a.Info.Thai, Buff = BUFF_TEXT[el], Count = count, Day = skipped })
+	-- ข้ามวันตามธาตุ (Config.SpiritBonusDays: ดิน 2 · น้ำ 3 · น้ำแข็ง 4 · ไฟ 5)
+	local days = Config.SpiritBonusDays[el] or 1
+	local name = a.Info.Thai
+	local skipped = self.ctx.Services.DirectorService:SkipDay(player, function(k, day)
+		return string.format("🌟 Rescued %s — skipped %d days! Now day %d", name, k, day)
+	end, "Spirit Pup", days)
+	self.ctx.FireRun("Cinematic", "SpiritRescued", { Element = el, Name = name, Buff = BUFF_TEXT[el], Count = count, Day = skipped, Days = days })
 	for _, p in ipairs(Players:GetPlayers()) do
 		self.ctx.Services.DataService:AddDiamonds(p, Classes.SpiritReward, "Rescued " .. a.Info.Thai)
 		if self.ctx.Services.QuestService then
@@ -609,13 +656,15 @@ function SpiritService:Tick()
 				self:SpawnGuardians(sh)
 			end
 			if sh.GuardiansSpawned and not sh.Prompt.Enabled then
-				local alive = 0
-				for _, g in ipairs(sh.Guardians) do
-					if not g.Dead and g.Model.Parent then
-						alive += 1
+				-- ผู้เฝ้า 3 เวฟ (3 -> 5 -> 7 ตัว พักเวฟละ 5 วิ) ครบแล้วค่อยปลดผนึกได้
+				local step = GuardianWaves.Step(sh, function(wave, count)
+					return self:SpawnWave(sh, wave, count)
+				end, function(text, kind)
+					for _, pl in ipairs(playersNear(sh.Base, 170)) do
+						self.ctx.Notify(pl, text, kind)
 					end
-				end
-				if alive == 0 then
+				end)
+				if step == "done" then
 					sh.Prompt.Enabled = true
 					self.ctx.Broadcast(string.format("The %s Shrine seal has weakened · Hold E", el), "Good")
 				end
@@ -628,6 +677,7 @@ function SpiritService:Tick()
 						animals:Remove(g)
 					end
 					sh.GuardiansSpawned = false
+					sh.Wave, sh.NextWaveAt = nil, nil -- กลับมาใหม่ = เริ่มเวฟ 1
 					sh.Away = 0
 				end
 			else

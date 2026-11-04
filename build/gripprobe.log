@@ -1,0 +1,30 @@
+ERR: torError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+orOutput] [AS] ???????????????????...
+orOutput] [AS] seed=956561991 map=2048
+orOutput] [AS] client ready
+orOutput] [AS] terrain 8.6s
+orOutput] [AS] world ready 10.2s props=400
+orOutput] [AS] READY
+orOutput] [AS] GRIP ArcaneStaff idle dist=0.17 along=0.35 up=1.00 len=5.4
+shot grip_ArcaneStaff_front
+shot grip_ArcaneStaff_right
+shot grip_ArcaneStaff_back
+shot grip_ArcaneStaff_left
+orOutput] [AS] GRIP ArcaneStaff swing dist=0.17 along=0.35 up=0.27 len=5.4
+shot grip_ArcaneStaff_swing
+orOutput] [AS] GRIP BloodScythe idle dist=0.17 along=0.18 up=1.00 len=5.6
+shot grip_BloodScythe_front
+shot grip_BloodScythe_right
+shot grip_BloodScythe_back
+shot grip_BloodScythe_left
+orOutput] [AS] GRIP BloodScythe swing dist=0.17 along=0.18 up=0.15 len=5.6
+shot grip_BloodScythe_swing
+orOutput] [AS] GRIP VerdantStaff idle dist=0.17 along=0.35 up=1.00 len=5.4
+shot grip_VerdantStaff_front
+shot grip_VerdantStaff_right
+shot grip_VerdantStaff_back
+shot grip_VerdantStaff_left
+torOutput] [AS] GRIP VerdantStaff swing dist=0.17 along=0.35 up=0.36 len=5.4
+shot grip_VerdantStaff_swing
+torOutput] [AS] GRIPPROBE DONE
+finished in 107s  done=True

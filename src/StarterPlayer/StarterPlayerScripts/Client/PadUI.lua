@@ -42,8 +42,7 @@ function PadUI.Init()
 	UIKit.RegisterWindow(picker, close) -- Esc / แตะนอกหน้าต่าง = ปิด (กด "เปลี่ยน" เพื่อเปิดใหม่)
 	local pickButtons = {}
 	for n = 1, 8 do
-		local icon = n == 1 and "👤" or "👥"
-		local b = WoodKit.Button(grid, "Parch", { Text = icon .. "  " .. (n == 1 and "1 (Solo)" or (n .. " players")), TextSize = 26, LayoutOrder = n }, function()
+		local b = WoodKit.Button(grid, "Parch", { Text = n == 1 and "1 (Solo)" or (n .. " players"), TextSize = 26, LayoutOrder = n }, function()
 			if current.Zone then
 				Remotes.Get("PadSize"):FireServer(current.Zone:GetAttribute("PadIndex"), n)
 				current.Picked[current.Zone] = true

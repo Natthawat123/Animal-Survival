@@ -314,6 +314,44 @@ local function lineTele(d)
 	Debris:AddItem(fill, d.Time + 0.1)
 end
 
+-- ม่อนเล็กพุ่งชน/ตะครุบ: แถบเตือนแนบพื้นตามเนิน (ท่อนละ ~4 stud) สีธาตุไล่จากตัวม่อนไปปลายทาง + หัวลูกศรปลายทาง
+local mobRay = RaycastParams.new()
+mobRay.FilterType = Enum.RaycastFilterType.Include
+mobRay.FilterDescendantsInstances = { Workspace.Terrain }
+local function mobLineTele(d)
+	local s = style(d.Element)
+	local dir = (d.Dir * V(1, 0, 1)).Unit
+	local n = math.max(2, math.ceil(d.Length / 4))
+	local seg = d.Length / n
+	local function onGround(dist, lift)
+		local c = d.Pos + dir * dist
+		local hit = Workspace:Raycast(c + V(0, 12, 0), V(0, -40, 0), mobRay)
+		local up = hit and hit.Normal or V(0, 1, 0)
+		local fwd = (dir - up * dir:Dot(up)).Unit
+		return CFrame.fromMatrix(V(c.X, (hit and hit.Position.Y or d.Pos.Y) + lift, c.Z), fwd:Cross(up), up)
+	end
+	local made = {}
+	for i = 1, n do
+		local cf = onGround(seg * (i - 0.5), 0.15)
+		table.insert(made, part({ Size = V(d.Width, 0.12, seg + 0.4), CFrame = cf, Color = C(255, 60, 45), Transparency = 0.6 }))
+		local fill = part({ Size = V(d.Width - 0.8, 0.16, seg + 0.4), CFrame = cf * CF(0, 0.02, 0), Color = s.Main, Transparency = 1 })
+		table.insert(made, fill)
+		task.delay(d.Time * (i - 1) / n, function()
+			tween(fill, d.Time / n, { Transparency = 0.35 }, Enum.EasingStyle.Linear)
+		end)
+	end
+	-- หัวลูกศร (สองขาเฉียง) ที่ปลาย
+	local tip = onGround(d.Length, 0.25)
+	local arm = d.Width * 0.9
+	for _, sgn in ipairs({ -1, 1 }) do
+		local cf = tip * ANG(0, sgn * math.rad(45), 0) * CF(0, 0, arm / 2)
+		table.insert(made, part({ Size = V(0.9, 0.14, arm), CFrame = cf, Color = C(255, 60, 45), Transparency = 0.3 }))
+	end
+	for _, p in ipairs(made) do
+		Debris:AddItem(p, d.Time + 0.15)
+	end
+end
+
 ---------------------------------------------------------------- เศษหินกระเด็น (โมเดลหินจริง)
 local function debris(pos, r, el, n)
 	if el == "Water" then
@@ -613,7 +651,7 @@ local function watchProjectiles()
 		end
 		if kind == "StaffBolt" then
 			-- ลูกไฟคทาเพลิง: Store "ExplosionCharge" ย่อเล็ก ลอยตามลูกจริง (ไม่ใส่ควันดำแบบอุกกาบาตบอส)
-			play("StaffExplosion", p.CFrame, { Scale = p:GetAttribute("FxScale") or 0.09, Duration = 6, Follow = p })
+			play("StaffExplosion", p.CFrame, { Scale = p:GetAttribute("FxScale") or 0.09, Duration = 6, Follow = p, Tint = p:GetAttribute("FxTint") })
 			return
 		end
 		if kind == "Meteor" then
@@ -721,7 +759,9 @@ end
 ---------------------------------------------------------------- ตัวรับจาก HitFx
 BossFX.Handlers = {
 	BossTelegraph = function(d)
-		if d.Shape == "Line" then
+		if d.Shape == "MobLine" then
+			mobLineTele(d)
+		elseif d.Shape == "Line" then
 			lineTele(d)
 		else
 			circleTele(d)

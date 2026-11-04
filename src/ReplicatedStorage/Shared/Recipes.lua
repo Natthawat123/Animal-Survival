@@ -11,6 +11,7 @@ Recipes.List = {
 	{ Id = "GoodSack", Bench = 1, Cost = { Pelt = 3, Fiber = 6 } },
 	{ Id = "GiantSack", Bench = 2, Cost = { Pelt = 6, Fiber = 12, Bone = 4 } },
 	{ Id = "Torch", Bench = 1, Cost = { Wood = 2, Fiber = 2 } },
+	{ Id = "BuildHammer", Bench = 1, Cost = { Wood = 4, Stone = 3 } },
 	{ Id = "Spear", Bench = 1, Cost = { Wood = 4, Bone = 2, Fiber = 2 } },
 	{ Id = "Bandage", Bench = 1, Cost = { Fiber = 4 }, Amount = 1 },
 	{ Id = "HerbSalve", Bench = 1, Cost = { Berries = 3, Fiber = 2 } },
@@ -39,6 +40,7 @@ Recipes.List = {
 	{ Id = "Crossbow", Bench = 3, Cost = { Wood = 12, Iron = 8, Fiber = 8 } },
 	{ Id = "Katana", Bench = 3, Cost = { Iron = 16, Pelt = 3, Bone = 4 } },
 	-- เลเวล 4 (ของธาตุ)
+	{ Id = "Bed2", Bench = 4, Cost = { Wood = 25, Pelt = 6, Iron = 6 } },
 	{ Id = "TerraHammer", Bench = 4, Cost = { TerraHeart = 1, TerraCore = 4 } },
 	{ Id = "TidalTrident", Bench = 4, Cost = { TideHeart = 1, TidePearl = 4 } },
 	{ Id = "GaleBow", Bench = 4, Cost = { FrostHeart = 1, GaleFeather = 4 } },

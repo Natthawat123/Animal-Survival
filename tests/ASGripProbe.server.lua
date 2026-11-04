@@ -13,7 +13,7 @@ local ctx = require(game:GetService("ServerScriptService").Server.RejoinService)
 player:SetAttribute("TestGod", true)
 ctx.Services.DevService:Teleport(player, ctx.CampPosition + Vector3.new(45, 0, 45))
 task.wait(1)
-for _, id in ipairs({ "Crossbow", "Scythe" }) do
+for _, id in ipairs({ "ArcaneStaff", "BloodScythe", "VerdantStaff" }) do
 	ctx.Services.InventoryService:Add(player, id, 1, true)
 end
 ReplicatedStorage:SetAttribute("GripGo", true)

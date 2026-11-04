@@ -1,0 +1,82 @@
+ERR: orError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+rOutput] [AS] ???????????????????...
+orOutput] [AS] seed=210326701 map=2048
+orOutput] [AS] client ready
+rOutput] [AS] terrain 5.3s
+orOutput] [AS] world ready 6.2s props=421
+orOutput] [AS] READY
+orOutput] [AS] SKIPPROBE count night=1 big=false min=0 max=0 cap=5
+orOutput] [AS] SKIPPROBE count night=2 big=false min=0 max=0 cap=5
+orOutput] [AS] SKIPPROBE count night=4 big=false min=0 max=0 cap=6
+orOutput] [AS] SKIPPROBE count night=5 big=true min=3 max=7 cap=7
+orOutput] [AS] SKIPPROBE count night=9 big=false min=0 max=0 cap=8
+orOutput] [AS] SKIPPROBE count night=10 big=true min=6 max=9 cap=9
+orOutput] [AS] SKIPPROBE count night=20 big=true min=11 max=13 cap=13
+orOutput] [AS] SKIPPROBE count night=24 big=false min=0 max=0 cap=14
+orOutput] [AS] SKIPPROBE count night=25 big=true min=12 max=15 cap=15
+orOutput] [AS] SKIPPROBE count night=30 big=true min=17 max=17 cap=17
+orOutput] [AS] SKIPPROBE count night=50 big=true min=25 max=25 cap=25
+orOutput] [AS] SKIPPROBE count night=75 big=true min=35 max=35 cap=35
+orOutput] [AS] SKIPPROBE count night=98 big=false min=0 max=0 cap=44
+orOutput] [AS] SKIPPROBE count night=99 big=true min=44 max=44 cap=44
+orOutput] [AS] SKIPPROBE count night=100 big=true min=45 max=45 cap=45
+orOutput] [AS] SKIPPROBE PASS plan-99-has-swarm 
+orOutput] [AS] SKIPPROBE PASS night99-swarm+boss 44
+orOutput] [AS] SKIPPROBE PASS carry-boss 
+orOutput] [AS] SKIPPROBE PASS carry-bloodmoon 
+orOutput] [AS] SKIPPROBE PASS day-skip-returns 
+orOutput] [AS] SKIPPROBE PASS day-skip-night 5
+orOutput] [AS] SKIPPROBE PASS bonus-bed 1
+shot skip_bed_fly
+orOutput] [AS] SKIPPROBE LABEL bed_fly = DAY 4
+shot skip_bed_after
+orOutput] [AS] SKIPPROBE LABEL bed_after = DAY 5 <font color="#6EFF8C" size="32">x1</font>
+rOutput] [AS] SKIPPROBE PASS bonus-pup 2
+shot skip_pup_fly
+orOutput] [AS] SKIPPROBE LABEL pup_fly = DAY 5 <font color="#6EFF8C" size="32">x1</font>
+shot skip_pup_after
+orOutput] [AS] SKIPPROBE LABEL pup_after = DAY 6 <font color="#6EFF8C" size="32">x2</font>
+orOutput] [AS] SKIPPROBE PASS spirit-days-config 
+orOutput] [AS] SKIPPROBE PASS multi-skip-night 11
+orOutput] [AS] SKIPPROBE PASS multi-skip-bonus 7
+orOutput] [AS] SKIPPROBE PASS multi-skip-msg ?? Rescued Ember Pup - skipped 5 days! Now day 11
+shot skip_fire_pup_fly
+rOutput] [AS] SKIPPROBE LABEL fire_pup_fly = DAY 6 <font color="#6EFF8C" size="32">x2</font>
+shot skip_fire_pup_after
+orOutput] [AS] SKIPPROBE LABEL fire_pup_after = DAY 11 <font color="#6EFF8C" size="32">x7</font>
+orOutput] [AS] SKIPPROBE PASS day-skip-best 10
+orOutput] [AS] SKIPPROBE PASS day-skip-ruby 20
+orOutput] [AS] SKIPPROBE PASS boss-skip-night 
+orOutput] [AS] SKIPPROBE PASS boss-skip-carry 
+orOutput] [AS] SKIPPROBE PASS boss-night-is-26 
+orOutput] [AS] SKIPPROBE PASS boss-carried-spawned Terragon
+orOutput] [AS] SKIPPROBE PASS raid-spawned 5
+orOutput] [AS] SKIPPROBE PASS night-skip-queued 1
+orOutput] [AS] SKIPPROBE PASS pending-attr 1
+shot skip_night_pending_fly
+orOutput] [AS] SKIPPROBE LABEL night_pending_fly = NIGHT 26 <font color="#6EFF8C" size="32">x8</font>
+shot skip_night_pending_after
+orOutput] [AS] SKIPPROBE LABEL night_pending_after = NIGHT 26 <font color="#6EFF8C" size="32">x9</font>
+orOutput] [AS] SKIPPROBE PASS boss-hold-started 
+orOutput] [AS] SKIPPROBE PASS boss-hold-keeps-night Night
+orOutput] [AS] SKIPPROBE PASS boss-ref 
+orOutput] [AS] SKIPPROBE PASS boss-dead-hold-ends 13.731168500031345
+orOutput] [AS] SKIPPROBE PASS dawn-after-boss 
+orOutput] [AS] SKIPPROBE PASS pending-applied 28
+orOutput] [AS] SKIPPROBE PASS pending-bonus 9
+shot skip_dawn_applied
+rOutput] [AS] SKIPPROBE LABEL dawn_applied = DAY 28 <font color="#6EFF8C" size="32">x9</font>
+orOutput] [AS] SKIPPROBE PASS carry-cleared 
+orOutput] [AS] SKIPPROBE PASS land-on-99 99
+orOutput] [AS] SKIPPROBE PASS 99-skip-still-ok 
+orOutput] [AS] SKIPPROBE PASS 99-skip-queued 1
+orOutput] [AS] SKIPPROBE PASS night-99-played 
+orOutput] [AS] SKIPPROBE PASS 99-swarm 15
+torOutput] [AS] SKIPPROBE PASS 99-boss Solfang
+torOutput] [AS] SKIPPROBE PASS 99-conquered 
+torOutput] [AS] SKIPPROBE PASS after-99-pending-applied 101
+torOutput] [AS] SKIPPROBE PASS multi-near-99 night=99 pending=3
+torOutput] [AS] SKIPPROBE PASS rejoin-saved 
+torOutput] [AS] SKIPPROBE RESULT fails=0
+torOutput] [AS] SKIPPROBE DONE
+finished in 106s  done=True

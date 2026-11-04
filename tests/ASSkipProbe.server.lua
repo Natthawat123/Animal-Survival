@@ -102,8 +102,37 @@ Dir.night = 4
 st:SetAttribute("Night", 4)
 local ruby0 = S.DataService:Get(player).Diamonds or 0
 local best0 = S.DataService:Get(player).BestNight or 0
-check("day-skip-returns", Dir:SkipDay(player) == true)
+local function shot(name, delay)
+	ReplicatedStorage:SetAttribute("SkipShot", name .. ":" .. delay .. ":" .. os.clock())
+end
+local bonus0 = st:GetAttribute("BonusDays") or 0
+check("day-skip-returns", Dir:SkipDay(player, nil, "Bed") == true)
+shot("bed_fly", 0.35)
 check("day-skip-night", Dir.night == 5 and st:GetAttribute("Night") == 5, Dir.night)
+check("bonus-bed", (st:GetAttribute("BonusDays") or 0) == bonus0 + 1 and st:GetAttribute("BonusSource") == "Bed", st:GetAttribute("BonusDays"))
+task.wait(2.6)
+shot("bed_after", 0)
+task.wait(1.5)
+Dir:SkipDay(player, "🌟 Rescued pup — skipped 1 day! Now day %d", "Spirit Pup")
+shot("pup_fly", 0.35)
+check("bonus-pup", (st:GetAttribute("BonusDays") or 0) == bonus0 + 2 and st:GetAttribute("BonusSource") == "Spirit Pup" and Dir.night == 6, st:GetAttribute("BonusDays"))
+task.wait(2.6)
+shot("pup_after", 0)
+task.wait(1.5)
+-- ลูกสัตว์ธาตุไฟ = ข้าม 5 วันในครั้งเดียว (Config.SpiritBonusDays)
+check("spirit-days-config", Config.SpiritBonusDays.Earth == 2 and Config.SpiritBonusDays.Water == 3 and Config.SpiritBonusDays.Air == 4 and Config.SpiritBonusDays.Fire == 5)
+local msg
+Dir:SkipDay(player, function(k, day)
+	msg = string.format("🌟 Rescued %s — skipped %d days! Now day %d", "Ember Pup", k, day)
+	return msg
+end, "Spirit Pup", Config.SpiritBonusDays.Fire)
+shot("fire_pup_fly", 0.35)
+check("multi-skip-night", Dir.night == 11 and st:GetAttribute("Night") == 11, Dir.night)
+check("multi-skip-bonus", (st:GetAttribute("BonusDays") or 0) == bonus0 + 7, st:GetAttribute("BonusDays"))
+check("multi-skip-msg", msg ~= nil and msg:find("skipped 5 days") ~= nil and msg:find("day 11") ~= nil, msg)
+task.wait(2.6)
+shot("fire_pup_after", 0)
+task.wait(1.5)
 check("day-skip-best", (S.DataService:Get(player).BestNight or 0) >= math.max(best0, 4), S.DataService:Get(player).BestNight)
 check("day-skip-ruby", (S.DataService:Get(player).Diamonds or 0) > ruby0, (S.DataService:Get(player).Diamonds or 0) - ruby0)
 
@@ -125,6 +154,12 @@ end, Config.NightLength * 0.3), S.AnimalService.raidCount)
 ---------------------------------------------------------------- ข้ามตอนกลางคืน: เลขไม่เปลี่ยนจนถึงเช้า
 Dir:SkipDay(player)
 check("night-skip-queued", Dir.pendingSkips == 1 and Dir.night == 26 and st:GetAttribute("Night") == 26, Dir.pendingSkips)
+check("pending-attr", st:GetAttribute("PendingDays") == 1, st:GetAttribute("PendingDays"))
+shot("night_pending_fly", 0.35)
+task.delay(2.6, function()
+	shot("night_pending_after", 0)
+end)
+local bonusBeforeDawn = st:GetAttribute("BonusDays") or 0
 
 ---------------------------------------------------------------- บอสไม่ตาย = ยังไม่เช้า · ฆ่าแล้วเช้าตามปกติ
 check("boss-hold-started", waitFor(function()
@@ -141,6 +176,9 @@ check("boss-dead-hold-ends", waitFor(function()
 end, 3), os.clock() - holdStart)
 check("dawn-after-boss", waitFor(phaseIs("Day"), Config.NightLength * 0.15 + 5))
 check("pending-applied", Dir.night == 28 and st:GetAttribute("Night") == 28 and Dir.pendingSkips == 0, Dir.night)
+check("pending-bonus", (st:GetAttribute("BonusDays") or 0) == bonusBeforeDawn + 1 and st:GetAttribute("PendingDays") == 0, st:GetAttribute("BonusDays"))
+shot("dawn_applied", 2.8)
+task.wait(3.5)
 check("carry-cleared", next(Dir.carry) == nil)
 
 ---------------------------------------------------------------- ใกล้คืน 99: ถึง 99 ได้ เลยไม่ได้ · สิทธิ์เหลือไปต่อหลังจบ
@@ -162,6 +200,15 @@ end, Config.NightLength * 0.3), st:GetAttribute("BossId"))
 goto_("Day")
 check("99-conquered", st:GetAttribute("Conquered") == true)
 check("after-99-pending-applied", Dir.night == 101 and Dir.pendingSkips == 0, Dir.night)
+
+---------------------------------------------------------------- ข้ามหลายวันใกล้คืน 99: ไปถึง 99 แล้วหยุด ที่เหลือเก็บไว้
+goto_("Day")
+Dir.night = 97
+st:SetAttribute("Night", 97)
+Dir.pendingSkips = 0
+Dir:SkipDay(player, nil, "Spirit Pup", 5)
+check("multi-near-99", Dir.night == 99 and Dir.pendingSkips == 3 and st:GetAttribute("PendingDays") == 3, string.format("night=%d pending=%d", Dir.night, Dir.pendingSkips))
+Dir.pendingSkips = 0
 
 ---------------------------------------------------------------- กลับเข้ารอบเดิม: สิทธิ์ที่เก็บไว้/บอสที่ย้ายไม่หาย
 local R = S.RejoinService

@@ -10,6 +10,7 @@ local Players = game:GetService("Players")
 
 local MountService = {}
 MountService.SpeedMult = 1.6
+local SINK = 0.25 -- ก้นจมขนหลังสัตว์นิดหน่อย (ไม่ลอยเหนือหลัง)
 
 function MountService:Init(ctx)
 	self.ctx = ctx
@@ -71,14 +72,28 @@ function MountService:Mount(player, a)
 		end
 	end
 	-- ยกผู้เล่นขึ้นหลังสัตว์ แล้วเชื่อมสัตว์ไว้ใต้ตัว (เท้าสัตว์แตะพื้นพอดี)
+	--   ก้น (ใต้ LowerTorso/Torso) ต้องแตะหลังสัตว์พอดี: ระยะจากกลางตัว (HRP) ลงไปถึงก้น = seat
+	--   (เดิมบวกความสูงหลังเพิ่มจากความสูงขาตอนยืน -> ลอยสูงกว่าหลังเท่าความยาวขา)
 	local half = hrp.Size.Y / 2
-	hum.HipHeight = ride.Hip + back
-	char:PivotTo(char:GetPivot() + Vector3.new(0, back, 0))
+	local legs = hum.RigType == Enum.HumanoidRigType.R6 and 2 or 0 -- R6: ขายาว 2 ไม่นับใน HipHeight
+	local pelvis = char:FindFirstChild("LowerTorso") or char:FindFirstChild("Torso")
+	local seat = pelvis and (hrp.Position.Y - (pelvis.Position.Y - pelvis.Size.Y / 2)) or half
+	local hrpAbove = back + seat - SINK -- กลางตัวผู้เล่นสูงจากพื้นเท่าไร
+	local oldAbove = ride.Hip + half + legs
+	hum.HipHeight = math.max(0, hrpAbove - half - legs)
+	-- ผู้เล่นหันทางเดียวกับหัวสัตว์ (root ของสัตว์หันหน้า -Z = ทิศหัว) แล้วย้ายไปอยู่เหนือกลางหลัง
+	local look = a.Root.CFrame.LookVector * Vector3.new(1, 0, 1)
+	look = look.Magnitude > 0.1 and look.Unit or Vector3.new(0, 0, -1)
+	local seat = Vector3.new(bcf.Position.X, hrp.Position.Y + hrpAbove - oldAbove, bcf.Position.Z)
+	local rel = hrp.CFrame:Inverse() * char:GetPivot()
+	char:PivotTo(CFrame.lookAt(seat, seat + look) * rel)
+	-- นั่งกลางหลัง: จุดกลางกล่องตัวสัตว์ (ไม่ใช่ root ที่มักอยู่ค่อนไปทางอก) อยู่ใต้ผู้เล่นพอดี · หันทางเดียวกับสัตว์
+	local off = a.Root.CFrame:PointToObjectSpace(bcf.Position)
 	local w = Instance.new("Weld")
 	w.Name = "MountWeld"
 	w.Part0 = hrp
 	w.Part1 = a.Root
-	w.C0 = CFrame.new(0, -(hum.HipHeight + half) + rootUp, 0)
+	w.C0 = CFrame.new(-off.X, -hrpAbove + rootUp, -off.Z)
 	w.Parent = a.Root
 	ride.Weld = w
 	pcall(function()

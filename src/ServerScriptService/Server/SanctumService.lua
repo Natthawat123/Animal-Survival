@@ -17,6 +17,7 @@ local Workspace = game:GetService("Workspace")
 local Animals = require(ReplicatedStorage.Shared.Animals)
 local PropBuilder = require(ReplicatedStorage.Shared.PropBuilder)
 local SiteSpec = require(ReplicatedStorage.Shared.SiteSpec)
+local GuardianWaves = require(script.Parent.GuardianWaves)
 
 local SanctumService = {}
 
@@ -361,7 +362,9 @@ function SanctumService:Build(el, sp, src, parent)
 		-- โมเดลกล่องตำนาน (Props/Chest3) แทนหีบเดิม: ซ่อนชิ้นเดิม (ตัวหีบยังเป็นจุดกด/ที่วางของ)
 		local PropBuilder = require(game:GetService("ReplicatedStorage").Shared.PropBuilder)
 		local base = body.CFrame * CFrame.new(0, -body.Size.Y / 2, 0)
-		local gold = PropBuilder.Imported("Chest3", CFrame.new(base.Position) * body.CFrame.Rotation, math.max(body.Size.X, body.Size.Z) * 1.25, chest, true)
+		local goldCF, goldW = CFrame.new(base.Position) * body.CFrame.Rotation, math.max(body.Size.X, body.Size.Z) * 1.6
+		local gold = PropBuilder.Imported("Chest3Open", goldCF, goldW, chest, true) -- ฝาเปิดได้จริง
+			or PropBuilder.Imported("Chest3", goldCF, goldW, chest, true)
 		if gold then
 			gold.Name = "Chest3Visual"
 			for _, d in ipairs(chest:GetDescendants()) do
@@ -491,32 +494,74 @@ function SanctumService:ShowSequence(site)
 	end)
 end
 
-function SanctumService:SpawnGuardians(site)
-	if site.GuardiansSpawned then
-		return
-	end
-	site.GuardiansSpawned = true
+-- ผู้พิทักษ์วิหาร 1 เวฟ (GuardianWaves: 3 -> 5 -> 7 ตัว) เกิดรอบลาน
+function SanctumService:SpawnGuardians(site, count)
+	local list = {}
 	local pool = Animals.RaidPool[site.Element]
 	if not pool then
-		return
+		return list
 	end
 	local animals = self.ctx.Services.AnimalService
 	local layout = self.ctx.Layout
-	for i = 1, 2 do
-		local ang = self.rng:NextNumber(0, math.pi * 2)
+	for i = 1, count do
+		local ang = i / count * math.pi * 2 + self.rng:NextNumber(-0.3, 0.3)
 		local p = site.Center + Vector3.new(math.cos(ang) * 34, 0, math.sin(ang) * 34)
 		local h = layout:HeightAt(p.X, p.Z)
 		local g = animals:Spawn(pool[self.rng:NextInteger(1, #pool)], Vector3.new(p.X, math.max(h, site.Center.Y) + 3, p.Z), {
 			Kind = "Guardian", Home = site.Center, Leash = 60, HealthMult = 1.4, DamageMult = 1.1, Yaw = ang + i,
 		})
 		if g then
+			g.Model:SetAttribute("Guardian", true)
 			g.OnHurt = function(attacker)
 				if typeof(attacker) == "Instance" and attacker:IsA("Player") then
 					site.Helpers[attacker] = true
 				end
 			end
+			table.insert(list, g)
 		end
 	end
+	return list
+end
+
+-- เข้าลานวิหาร = ผู้พิทักษ์ 3 เวฟ · ครบแล้วเสารูนถึงเริ่มกะพริบบอกลำดับ (ปริศนา)
+--   ทุกคนออกจากลานนาน 30 วิ = ผู้พิทักษ์ที่เหลือหายไป กลับมาเริ่มเวฟ 1 ใหม่
+function SanctumService:TickWaves(site)
+	local near = #self:NearbyPlayers(site, SHOW_RANGE) > 0
+	local function spawn(_, count)
+		return self:SpawnGuardians(site, count)
+	end
+	if not site.Wave then
+		if near then
+			GuardianWaves.Begin(site, spawn)
+			self:Tell(site, string.format("⚔ The %s Sanctum guardians awaken! Wave 1/%d — %d guardians", THAI[site.Element], #GuardianWaves.Counts, GuardianWaves.Counts[1]), "Warn", SHOW_RANGE + 20)
+		end
+		return
+	end
+	if not near then
+		site.Away = (site.Away or 0) + 0.5
+		if site.Away > 30 then
+			self:ClearGuardians(site)
+		end
+		return
+	end
+	site.Away = 0
+	local step = GuardianWaves.Step(site, spawn, function(text, kind)
+		self:Tell(site, text, kind, SHOW_RANGE + 20)
+	end)
+	if step == "done" then
+		site.WavesDone = true
+		site.Announced = true
+		site.NextShow = os.clock() + 1
+		self:Tell(site, "✨ All guardians defeated! Memorize the order the rune pillars flash, then awaken them in that order", "Good", SHOW_RANGE + 20)
+	end
+end
+
+function SanctumService:ClearGuardians(site)
+	for _, g in ipairs(site.Guardians or {}) do
+		self.ctx.Services.AnimalService:Remove(g)
+	end
+	site.Guardians = {}
+	site.Wave, site.NextWaveAt, site.Away = nil, nil, 0
 end
 
 function SanctumService:Activate(site, idx, player)
@@ -531,6 +576,10 @@ function SanctumService:Activate(site, idx, player)
 		return
 	end
 	site.Helpers[player] = true
+	if not site.WavesDone then
+		self.ctx.Notify(player, "⚔ Defeat all 3 waves of guardians first", "Info")
+		return
+	end
 	if site.State == "Showing" or site.State == "Failing" then
 		self.ctx.Notify(player, "👁 Wait for the rune pillars to finish flashing the order first", "Info")
 		return
@@ -541,7 +590,6 @@ function SanctumService:Activate(site, idx, player)
 		site.Deadline = os.clock() + TIME_LIMIT
 		self.ctx.State:SetAttribute("Sanctum" .. site.Element .. "Deadline", Workspace:GetServerTimeNow() + TIME_LIMIT)
 		self:Tell(site, string.format("⏳ The %s Sanctum has awakened! Awaken the rune pillars in order within %d seconds", THAI[site.Element], TIME_LIMIT), "Warn")
-		self:SpawnGuardians(site)
 	end
 	if site.Order[site.Progress + 1] == idx then
 		site.Progress += 1
@@ -734,6 +782,7 @@ function SanctumService:OpenChest(site, player)
 	end
 	task.spawn(self.SealAfterClear, self, site)
 	ctx.Remotes.Get("HitFx"):FireClient(player, "Loot", { Items = got, Position = pos, Chest = true })
+	ctx.Services.LootService:ChestFx(site.ChestBody and site.ChestBody.Parent, pos, 3)
 	if site.ChestBody then
 		sound(site.ChestBody, "rbxasset://sounds/volume_slider.ogg", 1, 1.6, 200)
 	end
@@ -778,6 +827,7 @@ function SanctumService:Restore(st)
 		if site then
 			site.State = "Solved"
 			site.Opened = true
+			site.WavesDone = true
 			self.ctx.State:SetAttribute("Sanctum" .. el .. "Solved", true)
 			for _, o in pairs(site.Obelisks) do
 				if o.Prompt then
@@ -811,7 +861,11 @@ function SanctumService:ResetSite(site)
 	end
 	site.Progress = 0
 	site.Opened = false
-	site.GuardiansSpawned = false
+	if site.ChestBody then
+		self.ctx.Services.LootService.CloseLid(site.ChestBody.Parent)
+	end
+	self:ClearGuardians(site)
+	site.WavesDone = false
 	site.NextShow = 0
 	site.ShowId = (site.ShowId or 0) + 1
 	local order = { 1, 2, 3 }
@@ -864,7 +918,9 @@ end
 function SanctumService:Tick()
 	local now = os.clock()
 	for _, site in pairs(self.sites) do
-		if site.State == "Input" and now > (site.Deadline or 0) then
+		if not site.WavesDone and site.State ~= "Solved" then
+			self:TickWaves(site)
+		elseif site.State == "Input" and now > (site.Deadline or 0) then
 			self:Fail(site, "⌛ Time's up! The rune pillars went back to sleep — watch the order again")
 		elseif (site.State == "Idle" or site.State == "Ready") and now >= site.NextShow then
 			if #self:NearbyPlayers(site, SHOW_RANGE) > 0 then

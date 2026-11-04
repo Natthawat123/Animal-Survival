@@ -32,4 +32,23 @@ for _, v in ipairs({ { Vector3.new(9, 5, 9), "campfire_close" }, { Vector3.new(-
 	cam.CFrame = CFrame.lookAt(c + v[1], c + Vector3.new(0, 2, 0))
 	shot(v[2])
 end
+-- โต๊ะคราฟต์ / เครื่องย่อย: มองจากฝั่งกองไฟ (ด้านหน้าต้องหันเข้าหากองไฟ) + มุมข้างเฉียง
+for _, n in ipairs({ "CampWorkbench", "CampForge" }) do
+	local m = bench:FindFirstChild(n)
+	if m then
+		local cf, size = m:GetBoundingBox()
+		local toFire = (c - cf.Position) * Vector3.new(1, 0, 1)
+		toFire = toFire.Magnitude > 0.1 and toFire.Unit or Vector3.zAxis
+		local side = toFire:Cross(Vector3.yAxis)
+		local d = math.max(size.X, size.Y, size.Z) * 1.3
+		cam.CFrame = CFrame.lookAt(cf.Position + toFire * d + Vector3.new(0, size.Y * 0.4, 0), cf.Position)
+		shot("bench_" .. n .. "_front")
+		cam.CFrame = CFrame.lookAt(cf.Position + (toFire + side) * d * 0.8 + Vector3.new(0, size.Y * 0.6, 0), cf.Position)
+		shot("bench_" .. n .. "_angle")
+		print(string.format("[AS] CAMPPROBE %s size=%.1f,%.1f,%.1f", n, size.X, size.Y, size.Z))
+	else
+		print("[AS] CAMPPROBE missing " .. n)
+	end
+end
+print("[AS] CAMPPROBE FINISHED")
 print("[TEST] DONE probe")
