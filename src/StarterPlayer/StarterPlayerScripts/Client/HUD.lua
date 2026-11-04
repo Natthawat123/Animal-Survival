@@ -362,12 +362,7 @@ function HUD.Init(state)
 	end)
 	local lastPending = state:GetAttribute("PendingDays") or 0
 	state:GetAttributeChangedSignal("PendingDays"):Connect(function()
-		local now = state:GetAttribute("PendingDays") or 0
-		if now > lastPending and player:GetAttribute("InRun") then
-			HUD.HoldTotal = HUD.ShownTotal
-			HUD.BonusFly(now - lastPending, state:GetAttribute("PendingSource"))
-		end
-		lastPending = now
+		lastPending = state:GetAttribute("PendingDays") or 0 -- (เตียงตอนกลางคืน: ข้ามตอนเช้า ไม่เกี่ยวกับตัวคูณ)
 		HUD.UpdateNightLabel()
 	end)
 	HUD.UpdateNightLabel()
@@ -457,10 +452,10 @@ function HUD.UpdateNightLabel()
 	end
 	-- วันโบนัสรวมของรอบนี้ = นับแล้ว + ที่รอเลขวันขยับตอนเช้า (ผู้เล่นเห็นตัวเดียว ไม่มีวงเล็บ)
 	-- ระหว่างตัวเลขกำลังบิน ค้างยอดเดิมไว้ก่อน
-	local total = HUD.HoldTotal or ((s:GetAttribute("BonusDays") or 0) + (s:GetAttribute("PendingDays") or 0))
+	local total = HUD.HoldTotal or (s:GetAttribute("BonusDays") or 0)
 	HUD.ShownTotal = total
 	if total > 0 then
-		base ..= string.format(' <font color="#6EFF8C" size="32">x%d</font>', total)
+		base ..= string.format(' <font color="#6EFF8C" size="32">(x%d)</font>', total) -- ตัวคูณวัน: ทุกเช้าเลขวันเดิน xN
 	end
 	HUD.NightLabel.Text = base
 end

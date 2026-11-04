@@ -258,6 +258,7 @@ def main():
         rs += value_item("BoolValue", "ASClassProbe", "true")
         rs += value_item("BoolValue", "ASAutoTest", "true")
         rs += value_item("BoolValue", "ASLobbyTest", "true")
+        rs += value_item("BoolValue", "ASSkipCollision", "true")
     if LOOTPROBE:
         rs += value_item("BoolValue", "ASLootProbe", "true")
         rs += value_item("BoolValue", "ASSkipCollision", "true")

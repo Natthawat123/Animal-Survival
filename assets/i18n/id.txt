@@ -1354,3 +1354,11 @@
 1556	Skill: tak terlihat dan lari 50% lebih cepat 4 dtk (hilang saat memberi damage) · Cooldown 30 dtk
 1557	Belenggu Duri
 1558	Langkah Liar
+1562	Tas  ·  Seret item ke slot di bawah · seret slot ke sini untuk menyimpan
+1574	x%d hari! · Hari %d
+1575	🌟 Menyelamatkan %s — hari dihitung x%d!
+1577	Pilih Jumlah Tim
+1581	Pad 
+1582	Pasang untuk istirahat: pengali hari +1 (tanpa bonus = x2) · tiap pagi hari maju sesuai pengali · Maks 1 kasur per server
+1586	Menunggu ketua pad memilih jumlah tim
+1589	🛏️ %s memakai kasur — hari dihitung x%d!

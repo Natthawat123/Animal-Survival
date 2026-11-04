@@ -1356,4 +1356,12 @@ return {
 	["Skill: turn invisible and run 50% faster for 4s (breaks when you deal damage) · Cooldown 30s"] = "스킬: 4초간 투명 + 이동 속도 50% 증가(피해를 주면 해제) · 쿨다운 30초",
 	["Thorn Bind"] = "가시 속박",
 	["Wild Stride"] = "야생의 걸음",
+	["Bag  ·  Drag items into the slots below · drag a slot here to store it"] = "가방  ·  아이템을 아래 슬롯으로 드래그 · 슬롯을 여기로 드래그하면 보관",
+	["x%d days! · Day %d"] = "x%d일! · %d일차",
+	["🌟 Rescued %s — days now count x%d!"] = "🌟 %s 구출 — 날짜가 x%d로 계산!",
+	["Choose Team Size"] = "팀 인원 선택",
+	["Pad "] = "패드 ",
+	["Place it to rest: day multiplier +1 (no bonus yet = x2) · every morning the day counter moves by the multiplier · Max 1 bed per server per run"] = "놓고 휴식: 날짜 배수 +1 (보너스 없음 = x2) · 매일 아침 배수만큼 날짜가 진행 · 서버당 침대 1개",
+	["Waiting for the pad leader to choose the team size"] = "패드 리더가 인원을 고르는 중",
+	["🛏️ %s used a bed — days now count x%d!"] = "🛏️ %s 침대 사용 — 날짜가 x%d로 계산!",
 }

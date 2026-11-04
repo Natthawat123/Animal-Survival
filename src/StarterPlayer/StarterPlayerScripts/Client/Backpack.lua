@@ -26,6 +26,10 @@ local ui = { Slots = {} }
 local shown = true
 local picked -- Tool ที่แตะเลือกไว้ (มือถือ: แตะของ -> แตะช่อง)
 local drag -- { Tool, From = slotIndex|nil, Ghost, Start, Moved }
+local stashed = {} -- [ItemId/StructureKind] = true : ของที่ลากออกจากแถบไปเก็บกระเป๋า (ไม่เติมกลับเข้าช่องเอง)
+local function keyOf(t)
+	return t:GetAttribute("StructureKind") or t:GetAttribute("ItemId") or t
+end
 
 -- สีแบบแถบเครื่องมือของ Roblox
 local BG = Color3.fromRGB(25, 27, 29)
@@ -136,6 +140,7 @@ end
 
 -- ใส่ Tool ลงช่อง i (ของเดิมในช่องสลับไปช่องเก่าของ Tool นี้)
 local function assign(t, i)
+	stashed[keyOf(t)] = nil
 	local from = slotOf(t)
 	local old = slots[i]
 	slots[i] = t
@@ -380,7 +385,7 @@ function Backpack.Build()
 	title.TextSize = 18
 	title.TextXAlignment = Enum.TextXAlignment.Left
 	title.TextColor3 = Color3.new(1, 1, 1)
-	title.Text = "Bag  ·  Drag items into the slots below (you can swap slots)"
+	title.Text = "Bag  ·  Drag items into the slots below · drag a slot here to store it"
 	title.Parent = inv
 	ui.InvTitle = title
 	local scroll = Instance.new("ScrollingFrame")
@@ -439,8 +444,15 @@ function Backpack.Build()
 			if i then
 				assign(d.Tool, i)
 			elseif d.From and ui.Inv.Visible then
-				-- ลากออกจากแถบไปที่กระเป๋า = เอาออกจากช่อง
+				-- ลากออกจากแถบไปที่กระเป๋า = เก็บเข้ากระเป๋า (ช่องว่าง · ไม่เติมกลับเอง จนกว่าจะลากใส่ช่องใหม่)
 				slots[d.From] = nil
+				stashed[keyOf(d.Tool)] = true
+				if equipped(d.Tool) then
+					local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+					if hum then
+						hum:UnequipTools()
+					end
+				end
 				Backpack.Refresh()
 			end
 		elseif d.From then
@@ -529,7 +541,7 @@ function Backpack.Refresh()
 		end
 	end
 	for _, t in ipairs(list) do
-		if not slotOf(t) then
+		if not slotOf(t) and not stashed[keyOf(t)] then
 			for i = 1, N do
 				if not slots[i] then
 					slots[i] = t
@@ -586,7 +598,7 @@ function Backpack.RefreshInventory(list)
 			c:Destroy()
 		end
 	end
-	ui.InvTitle.Text = picked and ("Selected " .. picked.Name .. " — tap a slot below to put it in") or "Bag  ·  Drag items into the slots below (you can swap slots)"
+	ui.InvTitle.Text = picked and ("Selected " .. picked.Name .. " — tap a slot below to put it in") or "Bag  ·  Drag items into the slots below · drag a slot here to store it"
 	table.sort(list, function(a, b)
 		return a.Name < b.Name
 	end)

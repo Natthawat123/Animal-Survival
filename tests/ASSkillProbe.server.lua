@@ -194,6 +194,18 @@ check("meteor-burn-2pct", burned >= 100000 * 0.02 * 2.5, string.format("%.0f (ex
 w4.Root.Anchored = false
 killAll()
 task.wait(0.5)
+-- ล็อกเป้า: เล็งไปทางตรงข้าม แต่ลูกต้องตกใส่มอนที่ใกล้ที่สุด
+player:SetAttribute("SkillReady_DarkMeteor", 0)
+local side = root.CFrame.RightVector * 45
+local w5m = wolf(side)
+task.wait(0.8)
+w5m.Root.Anchored = true
+local hpL = w5m.Hum.Health
+check("meteor-lock-use", K:Use(player, "DarkMeteor", root.Position - side) == true)
+task.wait(1.5)
+check("meteor-lock-hit", w5m.Dead or w5m.Hum.Health < hpL, w5m.Dead and "dead" or string.format("%.0f -> %.0f", hpL, w5m.Hum.Health))
+killAll()
+task.wait(0.5)
 
 ---------------------------------------------------------------- พงไพร
 setClass("Sage", 1)
@@ -233,6 +245,99 @@ killAll()
 S.AnimalService:Kill(boss, nil)
 setClass("Survivor", 1)
 check("survivor-no-skill", player:GetAttribute("Skills") == "")
+-- ป้ายบนหัว (ล็อบบี้): คลาส + เลเวล
+local tag = root:FindFirstChild("ASTag")
+local classL = tag and tag:FindFirstChild("Class")
+check("lobby-tag-class", classL ~= nil and classL.Text:find("Lv%.") ~= nil, classL and classL.Text)
+-- ค้างคาวฆ่ามอน = เจ้าของได้เลือด (5% + Blood Bite 2%)
+killAll()
+setClass("Vampire", 3)
+check("drain-swarm", K:Use(player, "Swarm") == true)
+task.wait(1.5)
+hum.Health = hum.MaxHealth * 0.5
+local h0 = hum.Health
+local weak = wolf(Vector3.new(8, 0, 0))
+weak.Hum.Health = 4
+local tEnd = os.clock() + 10
+repeat
+	task.wait(0.2)
+until weak.Dead or os.clock() > tEnd
+task.wait(0.3)
+check("bat-kill-heal", weak.Dead and hum.Health >= h0 + hum.MaxHealth * 0.05 - 0.5, string.format("%.1f -> %.1f", h0, hum.Health))
+hum.Health = hum.MaxHealth
+setClass("Survivor", 1)
+-- ตัวคูณวัน: ดิน x2 + น้ำ x3 = x5 · เช้านี้เลขวันเดิน 5 (ปกติ +1 แล้วเพิ่มอีก 4)
+local D = Dir
+local st = ctx.State
+st:SetAttribute("BonusDays", 0)
+D:AddDayMultiplier(2, "Test")
+D:AddDayMultiplier(3, "Test")
+check("mult-x5", D:DayMultiplier() == 5, D:DayMultiplier())
+local n0 = D.night
+D.pendingSkips += D:DayMultiplier() - 1
+D:ApplyPendingSkips()
+check("mult-dawn-extra4", D.night == n0 + 4, D.night - n0)
+-- เตียง: ยังไม่มีตัวคูณ = x2 · มีแล้ว = +1
+st:SetAttribute("BonusDays", 0)
+D:AddBedMultiplier(player)
+check("bed-first-x2", D:DayMultiplier() == 2, D:DayMultiplier())
+D:AddDayMultiplier(2, "Test")
+D:AddBedMultiplier(player)
+check("bed-plus1", D:DayMultiplier() == 5, D:DayMultiplier())
+-- ไม่หยุดที่ 99: คืน 97 · x5 -> เช้าเดินไปถึง 102 + พิชิต 99 คืน (ปิดฉากจบไว้ ไม่ให้บังภาพเทส)
+local realComplete, completed = D.Complete, 0
+D.Complete = function(self)
+	completed += 1
+	self.ctx.State:SetAttribute("Conquered", true)
+end
+local saveNight = D.night
+D.night = 98 -- (เช้าหลังคืน 97: Loop ตั้ง night+1 แล้ว)
+D.pendingSkips += D:DayMultiplier() - 1
+D:ApplyPendingSkips()
+check("mult-past-99", D.night == 102 and completed == 1, string.format("night %d · complete %d", D.night, completed))
+D.Complete = realComplete
+st:SetAttribute("Conquered", false)
+D.night = saveNight
+st:SetAttribute("Night", saveNight)
+st:SetAttribute("BonusDays", 0)
+-- จิ้งจอกจันทรา: ไล่ · ตีละ 15 · คูลดาวน์ 4 วิ (ระหว่างนั้นยังตามติด) · ไม่เข้าแคมป์
+hum:UnequipTools()
+player:SetAttribute("TestGod", nil)
+hum.Health = hum.MaxHealth
+local fox = S.AnimalService:Spawn("Moonfang", root.Position + Vector3.new(35, 0, 0), { Kind = "Stalker" })
+check("fox-spawn", fox ~= nil)
+if fox then
+	check("fox-stats", fox.Info.Damage == 15 and fox.Info.AttackCooldown == 4)
+	local hp0 = hum.Health
+	local t2 = os.clock() + 15
+	repeat
+		task.wait(0.1)
+	until hum.Health < hp0 - 1 or os.clock() > t2
+	local firstAt = os.clock()
+	local dmg1 = hp0 - hum.Health
+	check("fox-hit-15", math.abs(dmg1 - 15) < 1.5, string.format("%.1f", dmg1))
+	local hp1 = hum.Health
+	local maxGap = 0
+	repeat
+		task.wait(0.1)
+		maxGap = math.max(maxGap, (fox.Root.Position - root.Position).Magnitude)
+	until hum.Health < hp1 - 1 or os.clock() > firstAt + 8
+	local gap = os.clock() - firstAt
+	check("fox-cooldown-4", gap > 3.6 and gap < 5, string.format("%.2f", gap))
+	check("fox-stays-close", maxGap < 20, string.format("%.1f", maxGap))
+	player:SetAttribute("TestGod", true)
+	hum.Health = hum.MaxHealth
+	-- เข้าแคมป์: จิ้งจอกต้องอยู่นอกเขต
+	local safe = S.CampService:SafeRadius()
+	player.Character:PivotTo(CFrame.new(ctx.CampPosition + Vector3.new(0, 4, 0)))
+	task.wait(7)
+	local fd = S.AnimalService:CampDistance(fox.Root.Position)
+	check("fox-outside-camp", fd >= safe + 6, string.format("%.1f (safe %.1f)", fd, safe))
+	S.AnimalService:ClearKind("Stalker", true)
+	player.Character:PivotTo(CFrame.new(spot + Vector3.new(0, 3, 0)))
+	task.wait(1)
+end
+player:SetAttribute("TestGod", true)
 print(string.format("[AS] SKILLPROBE RESULT fails=%d", fails))
 -- ภาพเอฟเฟกต์ (client เล่นเองให้ตรงจังหวะถ่าย) · มอน 1 ตัวให้หนามพัน
 killAll()
@@ -253,6 +358,7 @@ ReplicatedStorage:SetAttribute("UiTest", "Elementalist")
 check("client-use-DarkMeteor", waitReady("DarkMeteor", 40))
 check("client-use-ShadowVeil", waitReady("ShadowVeil", 20))
 task.wait(6)
+killAll() -- ไม่มีมอนใกล้: ค้างคาวต้องเข้าแถวหลังเจ้าของ
 setClass("Vampire", 3)
 ReplicatedStorage:SetAttribute("UiTest", "Vampire")
 check("client-use-Swarm", waitReady("Swarm", 30))

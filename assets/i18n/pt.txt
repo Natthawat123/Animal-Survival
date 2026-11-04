@@ -1354,3 +1354,11 @@
 1556	Habilidade: fique invisível e corra 50% mais rápido por 4 s (quebra ao causar dano) · Recarga 30 s
 1557	Amarra de espinhos
 1558	Passo selvagem
+1562	Bolsa  ·  Arraste itens para os espaços · arraste um espaço aqui para guardar
+1574	x%d dias! · Dia %d
+1575	🌟 Resgatou %s — os dias contam x%d!
+1577	Escolha o tamanho da equipe
+1581	Plataforma 
+1582	Coloque para descansar: multiplicador de dias +1 (sem bônus = x2) · toda manhã o contador avança pelo multiplicador · Máx. 1 cama por servidor
+1586	Aguardando o líder escolher o tamanho da equipe
+1589	🛏️ %s usou uma cama — os dias contam x%d!

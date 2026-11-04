@@ -33,10 +33,21 @@ S.ChopA = { Impact = 0.5, Keys = { -- ฟันเฉียงจากเหน
 	{ 0.5, RS = { 35, 40, 0 }, RE = { 5 }, LS = { 30, 20, 0 }, LE = { 20 }, W = { -16, 22, 0 } },
 	{ 0.72, RS = { 22, 46, 0 }, RE = { 10 }, LS = { 25, 15, 0 }, W = { -18, 26, 0 } },
 } }
-S.ChopB = { Impact = 0.52, Keys = { -- ฟันแนวนอนเข้าลำต้น
-	{ 0.3, RS = { 95, -95, 0 }, RE = { 30 }, LS = { 60, 40, 0 }, LE = { 40 }, W = { 0, -40, 0 } },
-	{ 0.52, RS = { 88, 55, 0 }, RE = { 0 }, LS = { 50, 10, 0 }, LE = { 30 }, W = { -6, 35, 0 } },
-	{ 0.75, RS = { 80, 70, 0 }, RE = { 10 }, LS = { 45, 0, 0 }, W = { -6, 40, 0 } },
+S.ChopX = { Impact = 0.5, Keys = { -- ตวัดย้อนขึ้นจากสะโพกซ้ายไปเหนือไหล่ขวา (ไขว้กับ ChopA เป็นกากบาท)
+	{ 0.28, RS = { 30, 50, 0 }, RE = { 20 }, RW = { -90 }, LS = { 40, 20, 0 }, LE = { 30 }, W = { -14, 30, 0 }, Root = { -0.2, 0 } },
+	{ 0.5, RS = { 110, -35, 0 }, RE = { 0 }, RW = { -40 }, LS = { 60, 30, 0 }, LE = { 20 }, W = { 6, -25, 0 }, Root = { 0, 0 } },
+	{ 0.72, RS = { 150, -45, 0 }, RE = { 15 }, RW = { -40 }, LS = { 55, 25, 0 }, W = { 8, -28, 0 } },
+} }
+S.Rise = { Impact = 0.48, Shake = 0.15, Keys = { -- สองมือย่อต่ำเก็บอาวุธข้างเท้า แล้วงัดขึ้นฟ้าพร้อมเด้งตัว
+	{ 0.28, RS = { 10, -30, 0 }, RE = { 20 }, LS = { 20, -50, 0 }, LE = { 40 }, W = { -15, -30, 0 }, Root = { -0.5, 0 }, RH = { 35 }, LH = { 25 }, RK = { -45 }, LK = { -35 } },
+	{ 0.48, RS = { 105, 10, 0 }, RE = { 0 }, LS = { 100, -10, 0 }, LE = { 20 }, W = { 14, 10, 0 }, Root = { 0.5, 0 }, RH = { 0 }, LH = { 0 }, RK = { 0 }, LK = { 0 } },
+	{ 0.74, RS = { 150, 10, 0 }, RE = { 10 }, LS = { 145, -10, 0 }, W = { 16, 10, 0 }, Root = { 0.25, 0 } },
+} }
+S.Leap = { Impact = 0.6, Shake = 0.4, Len = 1.15, Keys = { -- ย่อตัว กระโดดสูงชูอาวุธสองมือ แล้วทุบลงพื้น
+	{ 0.2, RS = { 60, 0, 0 }, RE = { 20 }, LS = { 60, 0, 0 }, LE = { 20 }, W = { -10, 0, 0 }, Root = { -0.5, 0 }, RH = { 40 }, LH = { 40 }, RK = { -60 }, LK = { -60 } },
+	{ 0.42, RS = { 185, -10, 0 }, RE = { 30 }, RW = { -50 }, LS = { 185, 10, 0 }, LE = { 30 }, W = { 20, 0, 0 }, Root = { 2.0, 0 }, RH = { 30 }, LH = { 30 }, RK = { -50 }, LK = { -50 } },
+	{ 0.6, RS = { 20, 10, 0 }, RE = { 0 }, RW = { 0 }, LS = { 20, -10, 0 }, LE = { 0 }, W = { -40, 0, 0 }, Root = { -1.0, 0 }, RH = { 70 }, LH = { -15 }, RK = { -90 }, LK = { -30 } },
+	{ 0.85, RS = { 25, 10, 0 }, LS = { 25, -10, 0 }, W = { -34, 0, 0 }, Root = { -0.8, 0 }, RH = { 60 }, LH = { -10 }, RK = { -75 }, LK = { -25 } },
 } }
 S.Pick = { Impact = 0.52, Shake = 0.12, Keys = { -- สองมือชูเหนือหัว แล้วจามลงตรงๆ พร้อมย่อตัว
 	{ 0.32, RS = { 195, -10, 0 }, RE = { 60 }, LS = { 195, 10, 0 }, LE = { 60 }, W = { 14, 0, 0 }, Root = { 0.15, 0 } },
@@ -127,11 +138,6 @@ S.Sweep = { Impact = 0.55, Shake = 0.15, Keys = { -- สองมือกวา
 	{ 0.55, RS = { 95, 50, 0 }, RE = { 0 }, LS = { 90, 30, 0 }, LE = { 20 }, W = { -4, 60, 0 }, Root = { -0.3, 0 } },
 	{ 0.8, RS = { 95, 55, 0 }, LS = { 88, 35, 0 }, W = { -4, 64, 0 }, Root = { -0.2, 0 } },
 } }
-S.Whirl = { Impact = 0.5, Shake = 0.2, Len = 1.1, Keys = { -- กางแขนหมุนตัว 360 องศา
-	{ 0.2, RS = { 95, -80, 0 }, RE = { 0 }, LS = { 80, -40, 0 }, LE = { 20 }, W = { 0, -25, 0 }, Root = { -0.25, 0 } },
-	{ 0.45, Root = { -0.35, 180 } },
-	{ 0.72, RS = { 95, -70, 0 }, W = { 0, -15, 0 }, Root = { -0.25, 360 } },
-} }
 S.ReapA = { Impact = 0.55, Keys = { -- เคียว: ก้มตัวกวาดต่ำเป็นวงกว้าง
 	{ 0.3, RS = { 70, -55, 0 }, RE = { 30 }, LS = { 60, -35, 0 }, LE = { 40 }, W = { -10, -60, 0 }, Root = { -0.4, 0 } },
 	{ 0.55, RS = { 60, 45, 0 }, RE = { 10 }, LS = { 50, 30, 0 }, LE = { 30 }, W = { -20, 60, 0 }, Root = { -0.5, 0 } },
@@ -141,6 +147,11 @@ S.ReapB = { Impact = 0.55, Shake = 0.12, Keys = { -- เคียว: ชูข�
 	{ 0.3, RS = { 190, -10, 0 }, RE = { 30 }, LS = { 170, 10, 0 }, LE = { 30 }, W = { 12, 0, 0 } },
 	{ 0.55, RS = { 60, 0, 0 }, RE = { 80 }, LS = { 50, 0, 0 }, LE = { 80 }, W = { -22, 0, 0 }, Root = { -0.3, 0 } },
 	{ 0.8, RS = { 55, 0, 0 }, RE = { 90 }, LS = { 48, 0, 0 }, LE = { 85 }, W = { -18, 0, 0 } },
+} }
+S.ReapC = { Impact = 0.5, Shake = 0.12, Keys = { -- เคียว: ย่อต่ำทางขวา แล้วตวัดขึ้นเฉียงเป็นจันทร์เสี้ยวไปบนซ้าย พร้อมเด้งตัว
+	{ 0.28, RS = { 30, -40, 0 }, RE = { 20 }, LS = { 30, -20, 0 }, LE = { 40 }, W = { -20, -30, 0 }, Root = { -0.5, 0 }, RH = { 35 }, RK = { -45 }, LH = { 20 }, LK = { -30 } },
+	{ 0.5, RS = { 110, 30, 0 }, RE = { 0 }, LS = { 100, 15, 0 }, LE = { 20 }, W = { 12, 25, 0 }, Root = { 0.4, 0 }, RH = { 0 }, RK = { 0 }, LH = { 0 }, LK = { 0 } },
+	{ 0.75, RS = { 140, 35, 0 }, LS = { 130, 20, 0 }, W = { 14, 28, 0 }, Root = { 0.2, 0 } },
 } }
 -- หอก/ตรีศูล: หักข้อมือ (RW) ให้ปลายหอกชี้ไปตามแขน · ทิศหอก = ไหล่ + ศอก + ข้อมือ + 90 (90 = ชี้ตรงไปข้างหน้า)
 S.ThrustA = { Impact = 0.5, Keys = { -- ดึงหอกไว้ข้างเอว แล้วก้าวพุ่งแทงยาว ปลายหอกชี้ไปหน้าตลอด
@@ -197,22 +208,23 @@ S.Crossbow = { Len = 0.8, Keys = { -- หน้าไม้: ประทับ�
 
 -- อาวุธ -> ชุดคอมโบ
 local SETS = {
-	OldAxe = { "ChopA", "ChopB" }, StoneAxe = { "ChopA", "ChopB" }, IronAxe = { "ChopA", "ChopB" },
-	BattleAxe = { "Cleave", "ChopB", "Whirl" },
+	OldAxe = { "ChopA", "ChopX" }, StoneAxe = { "ChopA", "ChopX" }, IronAxe = { "ChopA", "ChopX" },
+	BattleAxe = { "Cleave", "Rise", "Leap" },
 	Pickaxe = { "Pick" }, BuildHammer = { "Tap" },
 	SpikedClub = { "ClubA", "ClubB" }, Mace = { "Mace" },
 	WarHammer = { "Slam", "Sweep" }, TerraHammer = { "Slam", "ClubA" },
 	IronSword = { "SwordA", "SwordB", "SwordC" },
 	Katana = { "KatanaA", "KatanaB", "KatanaC" },
 	Dagger = { "DaggerA", "DaggerB", "DaggerC" },
-	EmberBlade = { "Cleave", "Sweep" }, FourfoldBlade = { "Cleave", "Sweep", "Whirl" },
-	Scythe = { "ReapA", "ReapB", "Whirl" }, BloodScythe = { "ReapA", "ReapB", "Whirl" },
+	EmberBlade = { "Cleave", "Sweep" }, FourfoldBlade = { "Cleave", "Sweep", "Leap" },
+	Scythe = { "ReapA", "ReapB", "ReapC" }, BloodScythe = { "ReapA", "ReapB", "ReapC" },
 	Spear = { "ThrustA", "ThrustB" }, TidalTrident = { "ThrustA", "ThrustB", "ThrustC" },
 	Torch = { "TorchA", "TorchB" },
 	EmberStaff = { "CastFire" }, ArcaneStaff = { "CastArcane" }, VerdantStaff = { "CastVerdant" },
 	Bow = { "Bow" }, GaleBow = { "Bow" }, Crossbow = { "Crossbow" },
 }
-local BY_KIND = { Axe = { "ChopA", "ChopB" }, Pick = { "Pick" }, Hammer = { "ClubA", "ClubB" }, Sword = { "SwordA", "SwordB", "SwordC" },
+SwingAnim.Styles, SwingAnim.Sets = S, SETS -- เทสต์ถ่ายภาพทุกท่า (tests/ASSwingProbe)
+local BY_KIND = { Axe = { "ChopA", "ChopX" }, Pick = { "Pick" }, Hammer = { "ClubA", "ClubB" }, Sword = { "SwordA", "SwordB", "SwordC" },
 	Spear = { "ThrustA", "ThrustB" }, Torch = { "TorchA", "TorchB" }, Staff = { "CastFire" }, Bow = { "Bow" } }
 
 -- เติมข้อต่อที่คีย์ไม่ได้ใส่ (ค้างจากคีย์ก่อน · คีย์แรก = ท่าถือของปกติ) -> ทุกคีย์มีข้อต่อครบชุดที่ท่านี้ใช้

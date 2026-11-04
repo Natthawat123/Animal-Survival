@@ -1354,3 +1354,11 @@
 1556	Skill: maging invisible at tumakbo nang 50% mas mabilis nang 4 seg (mawawala kapag nag-damage) · Cooldown 30 seg
 1557	Gapos ng Tinik
 1558	Hakbang ng Kagubatan
+1562	Bag  ·  I-drag ang item sa mga slot sa ibaba · i-drag ang slot dito para itago
+1574	x%d araw! · Araw %d
+1575	🌟 Nailigtas si %s — x%d na ang bilang ng araw!
+1577	Piliin ang Laki ng Team
+1581	Pad 
+1582	Ilagay para magpahinga: day multiplier +1 (walang bonus = x2) · tuwing umaga uusad ang araw ayon sa multiplier · Max 1 kama bawat server
+1586	Hinihintay ang pad leader na pumili ng laki ng team
+1589	🛏️ Gumamit ng kama si %s — x%d na ang bilang ng araw!

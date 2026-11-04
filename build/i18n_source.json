@@ -32,7 +32,7 @@
 " (same or better)": [
 "CampService.lua"
 ],
-" <font color=\"#6EFF8C\" size=\"32\">x%d</font>": [
+" <font color=\"#6EFF8C\" size=\"32\">(x%d)</font>": [
 "HUD.lua"
 ],
 " Bonus!": [
@@ -238,6 +238,9 @@
 ],
 "%s %s  %d/%d": [
 "PinTracker.lua"
+],
+"%s %s · Lv.%d": [
+"LobbyService.lua"
 ],
 "%s %s: %s": [
 "TeamPing.lua"
@@ -471,6 +474,9 @@
 "Arbang": [
 "LobbyService.lua"
 ],
+"Arcane": [
+"Items.lua"
+],
 "Arcane Staff": [
 "Items.lua"
 ],
@@ -549,7 +555,7 @@
 "Badges": [
 "LobbyUI.lua"
 ],
-"Bag  ·  Drag items into the slots below (you can swap slots)": [
+"Bag  ·  Drag items into the slots below · drag a slot here to store it": [
 "Backpack.lua"
 ],
 "Bake Berry Pie (5 berries + 1 wood)": [
@@ -677,6 +683,9 @@
 "Blocks animal packs": [
 "Menus.lua"
 ],
+"Blood": [
+"Items.lua"
+],
 "Blood Bite": [
 "Classes.lua"
 ],
@@ -768,6 +777,9 @@
 "Bushy": [
 "Animals.lua"
 ],
+"Buy  ": [
+"StoreUI.lua"
+],
 "Buy  ♦️": [
 "ClassShop.lua"
 ],
@@ -845,6 +857,9 @@
 "Cinematics.lua"
 ],
 "Choose": [
+"PadUI.lua"
+],
+"Choose Team Size": [
 "PadUI.lua"
 ],
 "Choose the team size first, then the countdown starts": [
@@ -1630,6 +1645,9 @@
 "Gale Totem": [
 "Items.lua"
 ],
+"Game Pass · one-time purchase": [
+"StoreUI.lua"
+],
 "Gameplay": [
 "SettingsUI.lua"
 ],
@@ -2098,6 +2116,7 @@
 "Items.lua"
 ],
 "LightBlast/SUPER ANIME LIGHT GOLDEN BLAST/FireMegaExplosion": [
+"ClassFX.lua",
 "CombatClient.lua"
 ],
 "Lighting": [
@@ -2415,6 +2434,9 @@
 "No teammates left alive... waiting for the run result": [
 "DeathClient.lua"
 ],
+"No thanks": [
+"StoreUI.lua"
+],
 "No wood/coal in your sack": [
 "CampService.lua"
 ],
@@ -2503,13 +2525,20 @@
 "BuildingService.lua"
 ],
 "Owned": [
-"ClassShop.lua"
+"ClassShop.lua",
+"StoreUI.lua"
+],
+"Owned · Night ": [
+"StoreUI.lua"
 ],
 "Pack": [
 "Cinematics.lua"
 ],
 "Pad": [
 "LobbyService.lua",
+"PadUI.lua"
+],
+"Pad ": [
 "PadUI.lua"
 ],
 "Page %d / %d": [
@@ -2610,7 +2639,7 @@
 "Menus.lua",
 "MobileControls.lua"
 ],
-"Place it to rest and skip 1 day (counts +1 day survived · placed at night, it counts in the morning) · Max 1 bed per server per run": [
+"Place it to rest: day multiplier +1 (no bonus yet = x2) · every morning the day counter moves by the multiplier · Max 1 bed per server per run": [
 "Items.lua"
 ],
 "Place to skip 1 day (+1 day)": [
@@ -2836,7 +2865,6 @@
 "WorldEventsClient.lua"
 ],
 "Right Shoulder": [
-"CombatClient.lua",
 "MedAnim.lua"
 ],
 "Ring of Fire!": [
@@ -2905,6 +2933,9 @@
 "Run 5% faster · Stamina +15%": [
 "Classes.lua"
 ],
+"Run saved at Night %d · Press Continue on the start pad to keep going": [
+"MonetizationService.lua"
+],
 "Run saved · Night %d": [
 "RejoinService.lua"
 ],
@@ -2954,7 +2985,8 @@
 "Biomes.lua"
 ],
 "Save Run": [
-"Config.lua"
+"Config.lua",
+"StoreUI.lua"
 ],
 "Scale all windows up/down": [
 "SettingsUI.lua"
@@ -3105,9 +3137,6 @@
 ],
 "Skip ♦️": [
 "ClassShop.lua"
-],
-"Skipped %d days · Day %d": [
-"DirectorService.lua"
 ],
 "Sky": [
 "Quests.lua"
@@ -3562,6 +3591,9 @@
 "The team": [
 "DirectorService.lua"
 ],
+"The team fell on Night %d": [
+"StoreUI.lua"
+],
 "The volcano erupts... the fire beasts spread": [
 "Cinematics.lua"
 ],
@@ -3576,6 +3608,9 @@
 ],
 "The whole forest awakens... the beasts of Earth are coming": [
 "Cinematics.lua"
+],
+"The whole team fell": [
+"StoreUI.lua"
 ],
 "The whole team fell on night %d": [
 "Cinematics.lua"
@@ -3801,26 +3836,58 @@
 "Using ": [
 "MedAnim.lua"
 ],
+"VFXPack/Anime/Blood-01": [
+"ClassFX.lua"
+],
 "VFXPack/Anime/Blood-Punch-01": [
+"ClassFX.lua",
 "CombatClient.lua"
 ],
 "VFXPack/Anime/Charge-01": [
+"ClassFX.lua",
 "CombatClient.lua"
 ],
 "VFXPack/Anime/Crack-01": [
+"ClassFX.lua",
 "CombatClient.lua"
 ],
 "VFXPack/Anime/Fire-02": [
 "CombatClient.lua"
 ],
+"VFXPack/Anime/Portal-01": [
+"ClassFX.lua"
+],
 "VFXPack/Anime/Portal-Enter-01": [
-"Cinematics.lua"
+"Cinematics.lua",
+"ClassFX.lua"
 ],
 "VFXPack/Anime/Shield-Break-01": [
 "CombatClient.lua"
 ],
 "VFXPack/Anime/Shiny-01": [
+"ClassFX.lua",
 "CombatClient.lua"
+],
+"VFXPack/Anime/Slash-Impact-01": [
+"ClassFX.lua"
+],
+"VFXPack/Anime/Slashes-01": [
+"ClassFX.lua"
+],
+"VFXPack/Anime/Smoke-01": [
+"ClassFX.lua"
+],
+"VFXPack/Auras/RNG-Aura-02": [
+"ClassFX.lua"
+],
+"VFXPack/Big/Ball-01": [
+"ClassFX.lua"
+],
+"VFXPack/Big/Big-Crack-01": [
+"ClassFX.lua"
+],
+"VFXPack/Big/Explosion-01": [
+"ClassFX.lua"
 ],
 "VFXPack/vfx pack/f": [
 "CombatClient.lua"
@@ -3833,6 +3900,9 @@
 ],
 "Vegetation": [
 "LobbyService.lua"
+],
+"Verdant": [
+"Items.lua"
 ],
 "Verdant Staff": [
 "Items.lua"
@@ -3858,6 +3928,9 @@
 ],
 "Waiting for the pad leader / friends": [
 "PadUI.lua"
+],
+"Waiting for the pad leader to choose the team size": [
+"LobbyService.lua"
 ],
 "Waiting for the pad leader to choose the team size...": [
 "PadUI.lua"
@@ -3973,7 +4046,7 @@
 "Wildwood Druid": [
 "Classes.lua"
 ],
-"Wildwood Druid's signature staff · Fires thorn bolts that slow monsters · Can chop and mine too": [
+"Wildwood Druid's signature staff · Fires thorn bolts that slow monsters · Can't chop trees or mine rocks": [
 "Items.lua"
 ],
 "Wind": [
@@ -3981,6 +4054,9 @@
 ],
 "Wind bow. Arrows pierce through several enemies": [
 "Items.lua"
+],
+"With Save Run, your run is saved every dawn. Next time the whole team falls, continue from the last saved night instead of starting over at Night 1. Also available any time in the Shop.": [
+"StoreUI.lua"
 ],
 "Wolf": [
 "QuestUI.lua"
@@ -4105,6 +4181,9 @@
 "Your run is saved every dawn and when you leave · Continue from the saved night at the start pad": [
 "Config.lua"
 ],
+"Your run is saved every dawn and when you leave. If the whole team falls, continue from the last saved night with the Continue button on the start pad.": [
+"StoreUI.lua"
+],
 "Zone": [
 "Menus.lua"
 ],
@@ -4169,6 +4248,9 @@
 "Cinematics.lua"
 ],
 "x%d days (counted %s)": [
+"DirectorService.lua"
+],
+"x%d days! · Day %d": [
 "DirectorService.lua"
 ],
 "~ SURVIVE 99 NIGHTS ~": [
@@ -4419,7 +4501,7 @@
 "🌙 Survive to Night 5": [
 "Quests.lua"
 ],
-"🌟 Rescued %s — skipped %d days! Now day %d": [
+"🌟 Rescued %s — days now count x%d!": [
 "SpiritService.lua"
 ],
 "🌫 The fog is too thick — upgrade the campfire to explore further": [
@@ -4618,15 +4700,6 @@
 "👑 VIP": [
 "LobbyService.lua"
 ],
-"👥 Choose Team Size": [
-"PadUI.lua"
-],
-"👥 Pad ": [
-"PadUI.lua"
-],
-"👥 Waiting for the pad leader to choose the team size": [
-"LobbyService.lua"
-],
 "👹 Defeat 10 bosses": [
 "Quests.lua"
 ],
@@ -4779,6 +4852,9 @@
 ],
 "🚪 Go on 20 expeditions": [
 "Quests.lua"
+],
+"🛏️ %s used a bed — days now count x%d!": [
+"DirectorService.lua"
 ],
 "🛒 Bought ": [
 "LobbyService.lua"

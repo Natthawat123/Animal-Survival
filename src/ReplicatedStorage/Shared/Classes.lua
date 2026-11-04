@@ -112,7 +112,7 @@ Classes.Data = {
 	-- รหัสคลาสยังเป็น "Sage" (คนที่ได้คลาสพาสไปแล้วเซฟไว้ด้วยรหัสนี้) · โมเดล Assets.Characters.Sage
 	Sage = {
 		Name = "Wildwood Druid", Thai = "Wildwood Druid", Role = "Pass Exclusive", Stars = 5, Price = 0, Pass = "SeasonPass", Icon = "🌿",
-		StartItems = { OldAxe = 1, VerdantStaff = 1, Bandage = 2, Berries = 6 },
+		StartItems = { OldAxe = 1, VerdantStaff = 1 },
 		Skills = {
 			{ Name = "Forest's Embrace", Text = "Regen 3% HP every 2 seconds", Perks = { RegenPct = 0.015 } },
 			{ Name = "Wild Stride", Text = "Run 30% faster", Perks = { RegenPct = 0.015, SpeedMult = 1.3 } },

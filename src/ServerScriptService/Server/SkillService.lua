@@ -17,6 +17,7 @@ local Classes = require(ReplicatedStorage.Shared.Classes)
 local SkillService = {}
 
 local BAT_COUNT, BAT_HP, BAT_DAMAGE, BAT_RANGE = 5, 200, 14, 48
+local BAT_KILL_HEAL = 0.05 -- ค้างคาวฆ่ามอนได้ 1 ตัว = เจ้าของได้เลือดคืน 5% ของเลือดสูงสุด
 local hurtBatRef -- = hurtBat (ประกาศด้านล่าง)
 local swarms = {} -- [player] = { bats... }
 
@@ -78,6 +79,48 @@ local function batModel()
 	local m
 	if src then
 		m = src:Clone()
+		-- ข้อต่อปีกเดิมของโมเดลเก่า (C0/C1 ไม่ตรงท่ากาง) ดึงปีกพับเข้าตัวตอนบินจริง -> สร้างใหม่ให้ท่าพัก = ปีกกางเหมือนในโมเดล
+		-- บานพับอยู่ที่โคนปีก (ข้างลำตัว) หมุนรอบแกนตั้ง = กระพือ (ClassSkill ใส่ Transform)
+		local body = m:FindFirstChild("Torso")
+		if body then
+			for _, j in ipairs(m:GetDescendants()) do
+				if j:IsA("JointInstance") then
+					j:Destroy()
+				end
+			end
+			for _, w in ipairs(m:GetChildren()) do
+				if w:IsA("BasePart") and w ~= body and w.Name:find("Wing") then
+					local loc = body.CFrame:PointToObjectSpace(w.Position)
+					local side = loc.X >= 0 and 1 or -1
+					local hinge = body.CFrame * CFrame.new(side * body.Size.X * 0.4, loc.Y, loc.Z)
+					local j = Instance.new("Motor6D")
+					j.Name = (w.Name:find("Left") and "Left" or "Right") .. " Shoulder"
+					j.Part0, j.Part1 = body, w
+					j.C0 = body.CFrame:ToObjectSpace(hinge)
+					j.C1 = w.CFrame:ToObjectSpace(hinge)
+					j.Parent = body
+				end
+			end
+		end
+		-- ปีกเป็นแผ่นเมชหน้าเดียว (มองจากหลังแล้วหาย) -> ก๊อปกลับด้าน (Scale Z ติดลบ) เชื่อมติดปีกเดิม = เห็นทั้งสองด้าน
+		for _, w in ipairs(m:GetChildren()) do
+			local mesh = w:IsA("BasePart") and w.Name:find("Wing") and w:FindFirstChildOfClass("SpecialMesh")
+			if mesh then
+				local back = w:Clone()
+				for _, c in ipairs(back:GetChildren()) do
+					if not c:IsA("SpecialMesh") then
+						c:Destroy()
+					end
+				end
+				back.Name = w.Name .. "Back"
+				local bm = back:FindFirstChildOfClass("SpecialMesh")
+				bm.Scale = bm.Scale * Vector3.new(1, 1, -1)
+				back.Parent = m
+				local weld = Instance.new("WeldConstraint")
+				weld.Part0, weld.Part1 = w, back
+				weld.Parent = back
+			end
+		end
 	else
 		-- สำรอง: ตัวดำปีกแดงจากชิ้นพื้นฐาน (ถ้ายังไม่มีโมเดล Store)
 		m = Instance.new("Model")
@@ -89,7 +132,7 @@ local function batModel()
 	end
 	m.Name = "VampBat"
 	pcall(function()
-		m:ScaleTo(m:GetScale() * 1.6) -- ตัวใหญ่ขึ้น มองเห็นชัดตอนบินรอบตัว
+		m:ScaleTo(m:GetScale() * 1.4) -- ตัวใหญ่ขึ้น มองเห็นชัด
 	end)
 	local torso = m:FindFirstChild("Torso") or m:FindFirstChildWhichIsA("BasePart", true)
 	for _, d in ipairs(m:GetDescendants()) do
@@ -196,11 +239,13 @@ function SkillService:Swarm(player)
 		return false
 	end
 	local list = {}
+	local look = Vector3.new(root.CFrame.LookVector.X, 0, root.CFrame.LookVector.Z)
+	look = look.Magnitude > 0.01 and look.Unit or Vector3.new(0, 0, -1)
 	for i = 1, BAT_COUNT do
 		local m, torso, ap, ao, fill = batModel()
 		local a = i / BAT_COUNT * math.pi * 2
 		local start = root.Position + Vector3.new(math.cos(a) * 4, 5, math.sin(a) * 4)
-		m:PivotTo(CFrame.new(start))
+		m:PivotTo(CFrame.lookAt(start, start + look))
 		ap.Position = start
 		m:SetAttribute("Owner", player.UserId)
 		m.Parent = self.folder
@@ -214,7 +259,14 @@ function SkillService:Swarm(player)
 	return true
 end
 
--- ทุก 0.1 วิ: บินตามเจ้าของ · มีมอนใกล้ = พุ่งไปกัด
+-- จัดแถวหลังเจ้าของ: บน 3 ตัว ล่าง 2 ตัว (x = ซ้าย/ขวา, y = สูง)
+local FORMATION = {
+	Vector2.new(-6.6, 7.4), Vector2.new(0, 8), Vector2.new(6.6, 7.4),
+	Vector2.new(-3.3, 4.4), Vector2.new(3.3, 4.4),
+}
+local FORM_BACK = 3
+
+-- ทุก 0.1 วิ: บินตามเจ้าของเป็นแถว · มีมอนใกล้ = พุ่งไปกัด
 function SkillService:TickBats()
 	local animals = self.ctx.Services.AnimalService
 	local combat = self.ctx.Services.CombatService
@@ -247,8 +299,18 @@ function SkillService:TickBats()
 				if (pos - target.Root.Position).Magnitude < 8 then
 					if t >= b.NextBite then
 						b.NextBite = t + 0.9
+						local deadBefore = target.Dead
+						local tpos = target.Root.Position
 						combat:DamageAnimal(target, BAT_DAMAGE * self.ctx.Services.SurvivalService:Perk(player, "DamageMult", 1), player, { Source = "Summon" })
-						self.ctx.Remotes.Get("HitFx"):FireAllClients("BatBite", { Position = target.Root.Position, From = pos })
+						self.ctx.Remotes.Get("HitFx"):FireAllClients("BatBite", { Position = tpos, From = pos })
+						if target.Dead and not deadBefore then
+							local surv = self.ctx.Services.SurvivalService
+							local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+							if hum then
+								surv:Heal(player, hum.MaxHealth * BAT_KILL_HEAL)
+							end
+							self.ctx.Remotes.Get("HitFx"):FireAllClients("BatDrain", { Position = tpos, Player = player })
+						end
 					end
 					-- มอนกัดกลับ
 					if t >= b.NextHurt and target.Info.Behaviour ~= "Passive" then
@@ -256,16 +318,25 @@ function SkillService:TickBats()
 						hurtBat(self, b, (target.Info.Damage or 10) * 0.6)
 					end
 				end
+			end
+			local face
+			if goal then
+				local dir = (goal - pos) * Vector3.new(1, 0, 1)
+				face = dir.Magnitude > 0.5 and dir.Unit or nil
 			else
-				local ang = b.Slot + t * 1.2
-				goal = root.Position + Vector3.new(math.cos(ang) * 5, 4 + math.sin(t * 2 + i) * 0.6, math.sin(ang) * 5)
+				-- ไม่มีเป้า: เข้าแถวหลังเจ้าของ หันทางเดียวกับเจ้าของ
+				local look = Vector3.new(root.CFrame.LookVector.X, 0, root.CFrame.LookVector.Z)
+				look = look.Magnitude > 0.01 and look.Unit or Vector3.new(0, 0, -1)
+				local right = look:Cross(Vector3.yAxis)
+				local f = FORMATION[(i - 1) % #FORMATION + 1]
+				goal = root.Position - look * FORM_BACK + right * f.X + Vector3.new(0, f.Y + math.sin(t * 2.5 + i) * 0.35, 0)
+				face = look
 			end
 			if not b.Dead then
 				b.Align.Position = goal
-				local dir = (goal - pos) * Vector3.new(1, 0, 1)
-				if dir.Magnitude > 0.5 then
-					-- โมเดล Store ตั้งตรง (ห้อยหัว ปีกกางแกน X) -> เอนนอน หัว (+Y) ชี้ทางที่บิน ปีกกางราบ เห็นเต็มปีกจากกล้องด้านบน
-					b.Orient.CFrame = CFrame.lookAt(Vector3.zero, dir.Unit) * CFrame.Angles(-math.pi / 2, 0, 0)
+				if face then
+					-- โมเดล Store ตั้งตรง ปีกกางแกน X: บินตัวตั้ง เอนหน้าเล็กน้อย -> กล้องหลังตัวเห็นปีกกางเต็ม
+					b.Orient.CFrame = CFrame.lookAt(Vector3.zero, face) * CFrame.Angles(-0.3, 0, 0)
 				end
 			end
 		end
@@ -318,25 +389,37 @@ function SkillService:ShadowVeil(player)
 end
 
 ---------------------------------------------------------------- อุกกาบาตมืด (DarkMeteor)
-local DM_RADIUS, DM_ZONE, DM_ZONE_TIME = 16, 14, 10
+local DM_RADIUS, DM_ZONE, DM_ZONE_TIME = 24, 20, 10
+local DM_LOCK = 100 -- ล็อกเป้ามอนที่ใกล้ที่สุดในระยะนี้ (ไม่มี = ตกตรงที่เล็ง)
 function SkillService:DarkMeteor(player, aim)
 	local root = rootOf(player)
 	if not root then
 		return false
 	end
-	local center = root.Position + root.CFrame.LookVector * 30
-	if typeof(aim) == "Vector3" and (aim - root.Position).Magnitude < 120 then
-		center = aim
-	end
-	local hit = Workspace:Raycast(center + Vector3.new(0, 40, 0), Vector3.new(0, -120, 0), self.groundParams)
-	if hit then
-		center = hit.Position
-	end
 	local surv = self.ctx.Services.SurvivalService
 	local animals = self.ctx.Services.AnimalService
 	local combat = self.ctx.Services.CombatService
-	self.ctx.Remotes.Get("HitFx"):FireAllClients("SkillDarkMeteor", { Position = center, Radius = DM_RADIUS, Zone = DM_ZONE, Duration = DM_ZONE_TIME })
+	local function ground(p)
+		local hit = Workspace:Raycast(p + Vector3.new(0, 40, 0), Vector3.new(0, -120, 0), self.groundParams)
+		return hit and hit.Position or p
+	end
+	-- ล็อกเป้า: มอนที่ใกล้ที่สุด (ลูกอุกกาบาตตามตัวจนตก) · ไม่มีมอน = ตกตรงที่เล็ง/หน้าตัว
+	local target = animals:Nearest(root.Position, DM_LOCK, true)
+	local center
+	if target and target.Root then
+		center = target.Root.Position
+	else
+		center = root.Position + root.CFrame.LookVector * 30
+		if typeof(aim) == "Vector3" and (aim - root.Position).Magnitude < 120 then
+			center = aim
+		end
+	end
+	center = ground(center)
+	self.ctx.Remotes.Get("HitFx"):FireAllClients("SkillDarkMeteor", { Position = center, Radius = DM_RADIUS, Zone = DM_ZONE, Duration = DM_ZONE_TIME, Target = target and target.Model or nil })
 	task.delay(1.1, function() -- ตรงกับลูกตกฝั่ง client (ClassFX: fall 1.1 วิ)
+		if target and not target.Dead and target.Root and target.Root.Parent then
+			center = ground(target.Root.Position) -- เป้าขยับระหว่างตก: ตกตรงตัวเป้า
+		end
 		-- ตกกระแทก: ดาเมจแรงวงกว้าง
 		local dmg = 160 * surv:Perk(player, "DamageMult", 1)
 		for _, a in ipairs(animals:InRadius(center, DM_RADIUS, false)) do
@@ -357,7 +440,7 @@ function SkillService:DarkMeteor(player, aim)
 end
 
 ---------------------------------------------------------------- พันธนาการหนาม (ThornBind)
-local TB_RADIUS = 26
+local TB_RADIUS = 42 -- วงกว้าง (AOE)
 function SkillService:ThornBind(player)
 	local root = rootOf(player)
 	if not root then

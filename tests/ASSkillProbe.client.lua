@@ -75,18 +75,20 @@ local SHORT = {
 	{ "arcane_cast", "ClassSwing", function() return { Fx = "Arcane", Player = player, Position = root.Position, Dir = look, Kind = "Staff" } end },
 	{ "arcane_impact", "__Impact", function() return { FxKind = "Arcane", Position = ahead(14) + Vector3.new(0, 2, 0), Radius = 9, FxScale = 0.26 } end },
 	{ "verdant_impact", "__Impact", function() return { FxKind = "Verdant", Position = ahead(14) + Vector3.new(0, 2, 0), Radius = 8, FxScale = 0.22 } end },
+	{ "swarmloop", "SkillSwarm", function() return { Position = root.Position, Player = player } end, 1.0 },
 	{ "veil", "SkillVeil", function() return { Position = root.Position, Player = player } end },
 }
 for _, s in ipairs(SHORT) do
 	task.spawn(function()
-		for _ = 1, 8 do
+		local period = s[4] or 0.3
+		for _ = 1, math.floor(2.4 / period) do
 			local d = s[3]()
 			if s[2] == "__Impact" then
 				ClassFX.Impact(d)
 			else
 				ClassFX.Play(s[2], d)
 			end
-			task.wait(0.3)
+			task.wait(period)
 		end
 	end)
 	task.wait(0.3)
@@ -102,9 +104,14 @@ task.wait(0.5)
 local LONG = {
 	{ "swarm", "SkillSwarm", function() return { Position = root.Position, Player = player } end, { 0, 0.4 }, 3 },
 	{ "meteor", "SkillDarkMeteor", function() return { Position = ahead(22), Radius = 16, Zone = 14, Duration = 10 } end, { 0, 0.5, 0.9, 1.6, 3 }, 6 },
-	{ "thorn", "SkillThornBind", function() return { Position = root.Position, Radius = 26, Player = player } end, { 0, 0.4, 1.2 }, 4 },
+	{ "thorn", "SkillThornBind", function() return { Position = root.Position, Radius = 42, Player = player } end, { 0, 0.4, 1.2 }, 4 },
 }
 for _, s in ipairs(LONG) do
+	if s[1] == "swarm" then
+		-- ภาพช่วงพายุค้างคาว (~0.6 วิ): สั่งถ่ายก่อน แล้วค่อยเล่น (ตัวถ่ายช้า ~1.1 วิ)
+		print("[SHOT] fx_swarm_0")
+		task.wait(0.5)
+	end
 	ClassFX.Play(s[2], s[3]())
 	if s[2] == "SkillThornBind" then
 		local mob = nearestMob()
@@ -238,6 +245,11 @@ print("[SHOT] fx_e2e_swarm_1")
 task.wait(1.4)
 print("[SHOT] fx_e2e_swarm_2")
 task.wait(1.4)
+camFar = false
+task.wait(1.5)
+print("[SHOT] fx_e2e_formation")
+task.wait(1.4)
+camFar = true
 local sm = workspace:FindFirstChild("Summons")
 check("bats-visible-client", sm and #sm:GetChildren() == 5, sm and #sm:GetChildren())
 -- พงไพร: 1 ช่อง (เทพสตั้น)

@@ -502,9 +502,12 @@ function SpiritService:Rescue(a, player)
 	-- ข้ามวันตามธาตุ (Config.SpiritBonusDays: ดิน 2 · น้ำ 3 · น้ำแข็ง 4 · ไฟ 5)
 	local days = Config.SpiritBonusDays[el] or 1
 	local name = a.Info.Thai
-	local skipped = self.ctx.Services.DirectorService:SkipDay(player, function(k, day)
-		return string.format("🌟 Rescued %s — skipped %d days! Now day %d", name, k, day)
-	end, "Spirit Pup", days)
+	-- ตัวคูณวัน: ทุกเช้านับวันเพิ่มตามผลรวม (ช่วยดิน+น้ำ = x5)
+	local director = self.ctx.Services.DirectorService
+	local skipped = director:AddDayMultiplier(days, "Spirit Pup")
+	if skipped then
+		self.ctx.Broadcast(string.format("🌟 Rescued %s — days now count x%d!", name, director:DayMultiplier()), "Good")
+	end
 	self.ctx.FireRun("Cinematic", "SpiritRescued", { Element = el, Name = name, Buff = BUFF_TEXT[el], Count = count, Day = skipped, Days = days })
 	for _, p in ipairs(Players:GetPlayers()) do
 		self.ctx.Services.DataService:AddDiamonds(p, Classes.SpiritReward, "Rescued " .. a.Info.Thai)

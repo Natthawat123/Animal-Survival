@@ -2,7 +2,8 @@
 	StoreUI — ร้านค้าในล็อบบี้ (ปุ่ม ♦️ ร้านค้า / ปุ่ม + ข้าง Ruby) · ธีมกรอบไม้ (WoodKit)
 	  เติม Ruby : Developer Product (Robux -> Ruby) — Config.DiamondPacks (ภาพถุง/หีบจาก Shared/PanelArt)
 	  ID ที่ยังเป็น 0 = ยังไม่ได้สร้างใน Creator Hub -> ปุ่มเป็น "เร็วๆ นี้" (กดแล้วไม่พัง)
-	  (Game Pass ไม่ขายในหน้านี้แล้ว · พรีเมียม Season Pass ซื้อได้ที่หน้า ภารกิจ > Season Pass)
+	  Save Run (Game Pass): การ์ดยาวแถวล่าง + หน้าต่างเสนอซื้อหลังทีมตายหมด (StoreUI.ShowSaveRunOffer) · ไม่บังคับ
+	  (พรีเมียม Season Pass ซื้อได้ที่หน้า ภารกิจ > Season Pass)
 	  ซื้อเป็นของขวัญ: ปุ่ม "Gift a friend" -> เลือกคนในเซิร์ฟ (ค้นหาชื่อได้) -> แพ็กที่กดซื้อจะเข้าเพื่อนคนนั้น (MonetizationService)
 	  ราคาบนปุ่ม = ราคาจริงจาก Roblox (GetProductInfo) · ยังโหลดไม่เสร็จ = ราคาใน Config
 ]]
@@ -24,6 +25,27 @@ local RS = utf8.char(0xE002) -- ไอคอน Robux ในฟอนต์ข�
 local ui = {}
 local profile
 local prices = {} -- [productId] = ราคาจริงจาก Roblox
+local passPrice -- ราคาจริงของ Save Run (GetProductInfo GamePass)
+
+local function saveRunPass()
+	for _, p in ipairs(Config.GamePasses) do
+		if p.Id == "SaveRun" then
+			return p
+		end
+	end
+	return nil
+end
+
+local function saveRunPrice(pass)
+	return RS .. " " .. tostring(passPrice or pass.Robux or 0)
+end
+
+local function buySaveRun()
+	local pass = saveRunPass()
+	if pass and (pass.PassId or 0) > 0 and player:GetAttribute("Pass_SaveRun") ~= true then
+		MarketplaceService:PromptGamePassPurchase(player, pass.PassId)
+	end
+end
 
 local CARD_W, CARD_H, GAP = 236, 248, 24
 -- ภาพของแต่ละแพ็ก: { ชื่อภาพ, ความกว้าง, x, y } (แพ็กสุดท้าย = หีบใหญ่ + ถุงข้างหน้า)
@@ -94,6 +116,38 @@ local function packCard(i, pack)
 	end
 end
 
+-- การ์ด Save Run (แถวล่าง ข้างแพ็กสุดท้าย เหนือกระดาษคำอธิบาย)
+local function saveRunCard()
+	local pass = saveRunPass()
+	if not pass then
+		return
+	end
+	local w = 3 * CARD_W + 2 * GAP
+	local h = CARD_H - 84 - 12
+	local card = WoodKit.Board(ui.List, { Size = UDim2.fromOffset(w, h), Position = UDim2.fromOffset(CARD_W + GAP, CARD_H + 18) }, rgb(74, 46, 28))
+	local title = WoodKit.Parchment(card, { Size = UDim2.fromOffset(220, 38), Position = UDim2.fromOffset(14, 10), ZIndex = 2 })
+	WoodKit.Ink(title, { Size = UDim2.new(1, -12, 1, 0), Position = UDim2.fromOffset(6, 0), Text = "Save Run", TextSize = 22, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 3 })
+	UIKit.Text(card, {
+		Size = UDim2.new(1, -290, 0, 22), Position = UDim2.fromOffset(250, 18), Text = "Game Pass · one-time purchase", Font = UIKit.Fonts.Title, TextSize = 18,
+		TextColor3 = W.Gold, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 3,
+	})
+	UIKit.Text(card, {
+		Size = UDim2.new(1, -270, 1, -66), Position = UDim2.fromOffset(18, 56), TextWrapped = true, TextSize = 17, Font = UIKit.Fonts.Bold,
+		TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, ZIndex = 3,
+		Text = "Your run is saved every dawn and when you leave. If the whole team falls, continue from the last saved night with the Continue button on the start pad.",
+	})
+	local owned = player:GetAttribute("Pass_SaveRun") == true
+	local ready = (pass.PassId or 0) > 0
+	local saved = player:GetAttribute("SavedNight")
+	local txt = owned and (saved and ("Owned · Night " .. saved) or "Owned") or (ready and saveRunPrice(pass) or "Coming soon")
+	WoodKit.Button(card, (ready and not owned) and "Green" or "Dark", {
+		Size = UDim2.fromOffset(220, 46), AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -18, 0.5, 14), Text = txt, TextSize = 20, ZIndex = 10,
+	}, buySaveRun)
+	if ready and not owned then
+		WoodKit.Shine(card, 0.2)
+	end
+end
+
 function StoreUI.Refresh()
 	if not ui.Panel then
 		return
@@ -107,6 +161,7 @@ function StoreUI.Refresh()
 	for i, pack in ipairs(Config.DiamondPacks) do
 		packCard(i, pack)
 	end
+	saveRunCard()
 	local to = player:GetAttribute("GiftTo")
 	ui.GiftBtn.Text = to and ("🎁 Gifting to " .. to .. "  ✖") or "🎁 Gift a friend"
 	WoodKit.Style(ui.GiftBtn, to and "Red" or "Green")
@@ -122,9 +177,68 @@ local function loadPrices()
 			end
 		end
 	end
+	local pass = saveRunPass()
+	if pass and (pass.PassId or 0) > 0 and not passPrice then
+		local ok, info = pcall(MarketplaceService.GetProductInfo, MarketplaceService, pass.PassId, Enum.InfoType.GamePass)
+		if ok and info and info.PriceInRobux then
+			passPrice = info.PriceInRobux
+		end
+	end
 	if StoreUI.IsOpen() then
 		StoreUI.Refresh()
 	end
+end
+
+---------------------------------------------------------------- เสนอ Save Run หลังทีมตายหมด (ไม่บังคับ · ครั้งเดียวต่อการแพ้)
+local function buildOffer(gui)
+	local win = WoodKit.Window(gui, {
+		Name = "SaveRunOffer", Size = Vector2.new(620, 285), Title = "Save Run", TitleWidth = 260, Beasts = false, Lanterns = false,
+		OnClose = function()
+			ui.Offer.Visible = false
+		end,
+	})
+	ui.Offer = win.Frame
+	ui.Offer.Visible = false
+	ui.Offer.ZIndex = 60
+	UIKit.RegisterWindow(ui.Offer, function()
+		ui.Offer.Visible = false
+	end, { Dim = 0.55 })
+	local body = win.Body
+	ui.OfferHead = UIKit.Text(body, {
+		Size = UDim2.new(1, -80, 0, 36), Position = UDim2.fromOffset(40, 46), Text = "", Font = UIKit.Fonts.Title, TextSize = 26,
+		TextColor3 = W.Gold, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 4,
+	})
+	UIKit.Text(body, {
+		Size = UDim2.new(1, -80, 0, 96), Position = UDim2.fromOffset(40, 88), TextWrapped = true, TextSize = 19, Font = UIKit.Fonts.Bold,
+		TextXAlignment = Enum.TextXAlignment.Center, TextYAlignment = Enum.TextYAlignment.Top, ZIndex = 4,
+		Text = "With Save Run, your run is saved every dawn. Next time the whole team falls, continue from the last saved night instead of starting over at Night 1. Also available any time in the Shop.",
+	})
+	local row = UIKit.Frame(body, { Size = UDim2.new(1, -60, 0, 54), Position = UDim2.new(0, 30, 1, -84), BackgroundTransparency = 1, ZIndex = 4 })
+	local l = Instance.new("UIListLayout")
+	l.FillDirection = Enum.FillDirection.Horizontal
+	l.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	l.Padding = UDim.new(0, 18)
+	l.Parent = row
+	ui.OfferBuy = WoodKit.Button(row, "Green", { Size = UDim2.fromOffset(240, 52), Text = "", TextSize = 22, ZIndex = 5 }, buySaveRun)
+	WoodKit.Button(row, "Red", { Size = UDim2.fromOffset(180, 52), Text = "No thanks", TextSize = 20, ZIndex = 5 }, function()
+		ui.Offer.Visible = false
+	end)
+end
+
+function StoreUI.ShowSaveRunOffer(d)
+	local pass = saveRunPass()
+	if not (ui.Offer and pass and (pass.PassId or 0) > 0) or player:GetAttribute("Pass_SaveRun") == true or player:GetAttribute("InRun") then
+		return
+	end
+	local night = type(d) == "table" and tonumber(d.Night) or nil
+	ui.OfferHead.Text = night and string.format("The team fell on Night %d", night) or "The whole team fell"
+	ui.OfferBuy.Text = "Buy  " .. saveRunPrice(pass)
+	ui.Offer.Visible = true
+	UIKit.Pop(ui.Offer)
+end
+
+function StoreUI.OfferOpen()
+	return ui.Offer ~= nil and ui.Offer.Visible
 end
 
 -- หน้าต่างเลือกเพื่อน (คนในเซิร์ฟเดียวกัน · ค้นหาชื่อได้)
@@ -252,6 +366,23 @@ function StoreUI.Init(gui)
 		UIKit.Pop(ui.Gift)
 	end)
 	buildGiftPicker(gui)
+	buildOffer(gui)
+	-- ซื้อ Save Run แล้ว/มีเซฟใหม่ -> การ์ดขึ้น Owned · ปิดหน้าต่างเสนอ
+	for _, attr in ipairs({ "Pass_SaveRun", "SavedNight" }) do
+		player:GetAttributeChangedSignal(attr):Connect(function()
+			if player:GetAttribute("Pass_SaveRun") == true and ui.Offer then
+				ui.Offer.Visible = false
+			end
+			if StoreUI.IsOpen() then
+				StoreUI.Refresh()
+			end
+		end)
+	end
+	player:GetAttributeChangedSignal("InRun"):Connect(function()
+		if player:GetAttribute("InRun") and ui.Offer then
+			ui.Offer.Visible = false
+		end
+	end)
 	player:GetAttributeChangedSignal("GiftTo"):Connect(function()
 		if StoreUI.IsOpen() then
 			StoreUI.Refresh()

@@ -6,8 +6,14 @@
 
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
+local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 
 local BossAbilities = {}
+
+-- ตัวคูณเวลาร่าย (ง้าง/วงเตือน) ของบอสตัวนี้
+local function slow(a)
+	return a.Info.CastMult or Config.BossCastMult
+end
 
 local ELEMENT_COLOR = {
 	Earth = Color3.fromRGB(150, 240, 90),
@@ -122,7 +128,7 @@ local Abilities = {}
 -- ทุบพื้น (ทุกธาตุ): ยกแขน/ตัวขึ้น -> กระแทก -> คลื่นกระแทก + หนาม/เสารอบตัว
 Abilities.Quake = function(ctx, a)
 	local radius = 34 + a.Radius * 0.5
-	local windup = 1.5
+	local windup = 1.5 * slow(a)
 	cast(ctx, a, "Slam", windup, ({ Earth = "Earth Smash!", Air = "Glacier Smash!", Water = "Wave Slam!", Fire = "Lava Smash!" })[a.Info.Element] or "Ground Smash!")
 	local center = tele(ctx, a, a.Root.Position, radius, windup)
 	task.wait(windup)
@@ -142,7 +148,7 @@ end
 Abilities.Fissure = function(ctx, a, target)
 	local dir = aim(a, target, 0.7)
 	local from = ground(a.Root.Position + dir * (a.Radius * 0.6))
-	local length, width, windup = 130, 16, 1.2
+	local length, width, windup = 130, 16, 1.2 * slow(a)
 	cast(ctx, a, "Slam", windup, "Earth Rift!")
 	fx(ctx, "BossTelegraph", { Pos = from, Dir = dir, Length = length, Width = width, Time = windup, Element = a.Info.Element, Shape = "Line" })
 	task.wait(windup)
@@ -179,7 +185,7 @@ local function rain(ctx, a, count, radius, damage, color, fire, size)
 		if i <= #targets then
 			pos = base
 		end
-		local delay = 1.5 + i * 0.14
+		local delay = 1.5 * slow(a) + i * 0.14
 		local g = tele(ctx, a, pos, radius, delay)
 		local from = g + Vector3.new(rng:NextNumber(-40, 40), 170, rng:NextNumber(-40, 40))
 		local grav = 80
@@ -196,15 +202,15 @@ local function rain(ctx, a, count, radius, damage, color, fire, size)
 end
 
 Abilities.BoulderRain = function(ctx, a)
-	cast(ctx, a, "Summon", 1.6, "Rockslide!")
-	task.wait(0.4)
+	cast(ctx, a, "Summon", 1.6 * slow(a), "Rockslide!")
+	task.wait(0.4 * slow(a))
 	rain(ctx, a, 9, 11, a.Info.Damage * a.DamageMult * 0.75, Color3.fromRGB(112, 98, 82), false, 9)
 end
 
 Abilities.MeteorRoar = function(ctx, a)
-	cast(ctx, a, "Roar", 1.5, "Fire Meteor!")
-	ctx.FireRun("Cinematic", "Shake", { Power = 0.7, Time = 1.6 })
-	task.wait(0.4)
+	cast(ctx, a, "Roar", 1.5 * slow(a), "Fire Meteor!")
+	ctx.FireRun("Cinematic", "Shake", { Power = 0.7, Time = 1.6 * slow(a) })
+	task.wait(0.4 * slow(a))
 	rain(ctx, a, 11, 12, a.Info.Damage * a.DamageMult * 0.7, Color3.fromRGB(255, 120, 40), true, 7)
 end
 
@@ -212,7 +218,7 @@ end
 Abilities.TidalWave = function(ctx, a, target)
 	local dir = aim(a, target, 0.7)
 	local from = ground(a.Root.Position + dir * (a.Radius * 0.5))
-	local length, width, windup, travel = 140, 34, 1.3, 1.5
+	local length, width, windup, travel = 140, 34, 1.3 * slow(a), 1.5
 	cast(ctx, a, "Rear", windup, "Tidal Wave!")
 	fx(ctx, "BossTelegraph", { Pos = from, Dir = dir, Length = length, Width = width, Time = windup, Element = a.Info.Element, Shape = "Line" })
 	task.wait(windup)
@@ -239,15 +245,16 @@ end
 
 -- โมซาซอรัส: พวยน้ำพุ่งใต้เท้าผู้เล่น
 Abilities.WaterSpout = function(ctx, a)
-	cast(ctx, a, "Roar", 1.4, "Waterspout!")
+	local t = 1.5 * slow(a)
+	cast(ctx, a, "Roar", 1.4 * slow(a), "Waterspout!")
 	for _, r in ipairs(playersNear(a, 160)) do
 		local spots = { r.Position }
 		for k = 1, 2 do
 			table.insert(spots, r.Position + Vector3.new(math.cos(k * 2.4) * 18, 0, math.sin(k * 2.4) * 18))
 		end
 		for _, pos in ipairs(spots) do
-			local g = tele(ctx, a, pos, 10, 1.5)
-			task.delay(1.5, function()
+			local g = tele(ctx, a, pos, 10, t)
+			task.delay(t, function()
 				if a.Dead then
 					return
 				end
@@ -263,7 +270,7 @@ end
 
 -- เยติ: พายุหิมะหมุนรอบตัว ดูดเข้า แล้วระเบิดน้ำแข็ง
 Abilities.Blizzard = function(ctx, a)
-	local windup = 2.2
+	local windup = 2.2 * slow(a)
 	cast(ctx, a, "Roar", windup, "Blizzard!")
 	local center = ground(a.Root.Position)
 	fx(ctx, "BossBlizzard", { Pos = center, Radius = 55, Time = windup + 0.6, Element = a.Info.Element })
@@ -288,14 +295,14 @@ end
 
 -- เยติ: หนามน้ำแข็งผุดใต้เท้าผู้เล่น
 Abilities.IceSpikes = function(ctx, a)
-	cast(ctx, a, "Slam", 1.2, "Ice Spikes!")
+	cast(ctx, a, "Slam", 1.2 * slow(a), "Ice Spikes!")
 	for _, r in ipairs(playersNear(a, 160)) do
 		local spots = { r.Position }
 		for k = 1, 3 do
 			table.insert(spots, r.Position + Vector3.new(math.cos(k * 2.1) * 16, 0, math.sin(k * 2.1) * 16))
 		end
 		for i, pos in ipairs(spots) do
-			local delay = 1.2 + i * 0.12
+			local delay = 1.2 * slow(a) + i * 0.12
 			local g = tele(ctx, a, pos, 9, delay)
 			task.delay(delay, function()
 				if a.Dead then
@@ -315,7 +322,7 @@ end
 Abilities.FireBreath = function(ctx, a, target)
 	local dir = aim(a, target, 0.7)
 	local from = ground(a.Root.Position)
-	local length, width, windup, dur = 110, 22, 1.1, 1.8
+	local length, width, windup, dur = 110, 22, 1.1 * slow(a), 1.8
 	cast(ctx, a, "Breath", windup, "Fire Breath!")
 	fx(ctx, "BossTelegraph", { Pos = from, Dir = dir, Length = length, Width = width, Time = windup, Element = a.Info.Element, Shape = "Line" })
 	task.wait(windup)
@@ -336,10 +343,11 @@ end
 
 -- มังกร: วงแหวนเพลิง 2 ชั้น + เสาไฟ
 Abilities.FlameNova = function(ctx, a)
-	cast(ctx, a, "Nova", 1.4, "Ring of Fire!")
+	local w1, w2 = 1.4 * slow(a), 1.1 * slow(a)
+	cast(ctx, a, "Nova", w1, "Ring of Fire!")
 	local base = ground(a.Root.Position)
-	local center = tele(ctx, a, base, 24, 1.4)
-	task.wait(1.4)
+	local center = tele(ctx, a, base, 24, w1)
+	task.wait(w1)
 	if a.Dead then
 		return
 	end
@@ -348,8 +356,8 @@ Abilities.FlameNova = function(ctx, a)
 	hitPlayers(ctx, center, 24, a.Info.Damage * a.DamageMult, a.Id, function()
 		return { Burn = 8 }
 	end)
-	local g2 = tele(ctx, a, center, 48, 1.1)
-	task.wait(1.1)
+	local g2 = tele(ctx, a, center, 48, w2)
+	task.wait(w2)
 	if a.Dead then
 		return
 	end
@@ -366,12 +374,15 @@ function BossAbilities.Run(ctx, a, name, target)
 		return
 	end
 	a.Casting = true
+	-- คูลดาวน์นับหลังร่ายจบ (เดิมนับตั้งแต่เริ่มร่าย -> ท่ายาวจบปุ๊บร่ายต่อทันที ไม่มีจังหวะสวน)
+	local cd = math.max(0, (a.NextAbility or 0) - os.clock())
 	task.spawn(function()
 		local ok, err = pcall(fn, ctx, a, target)
 		if not ok then
 			warn("[AS] boss ability", name, err)
 		end
 		task.wait(0.6)
+		a.NextAbility = os.clock() + cd
 		a.Casting = false
 		a.CastFace = nil
 		if a.Model and a.Model.Parent then

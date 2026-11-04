@@ -612,7 +612,8 @@ function AnimalService:AttackPlayer(a, player, now)
 			local dir = ((r.Position - a.Root.Position) * Vector3.new(1, 0, 1))
 			dir = dir.Magnitude > 0.1 and dir.Unit or Vector3.new(0, 0, 1)
 			local kb = info.Knockback and (dir * info.Knockback + Vector3.new(0, info.Knockback * 0.4, 0)) or nil
-			self.ctx.Services.SurvivalService:Damage(player, (info.Damage or 5) * a.DamageMult, a.Id, { Burn = info.Burn, Knockback = kb })
+			local mult = a.Kind == "Stalker" and 1 or a.DamageMult -- จิ้งจอกจันทรา: ตีละ 15 เท่ากันทุกคืน
+			self.ctx.Services.SurvivalService:Damage(player, (info.Damage or 5) * mult, a.Id, { Burn = info.Burn, Knockback = kb })
 		end
 	end)
 end
@@ -1030,11 +1031,14 @@ end
 
 -- ปีศาจจิ้งจอกจันทรา (ตัวไล่กลางคืน · ฆ่าไม่ตาย)
 --   เหยื่อถือคบเพลิง/ของมีแสง = เดินวนรอบ ๆ นอกรัศมีแสง ไม่กล้าเข้า
---   ไม่ถือ = หยุดจ้อง Config.StalkerStare วิ แล้วพุ่งตี · ตีแล้วถอยออกไปจ้องใหม่ · ในแสงแคมป์/ตะเกียง = ปลอดภัย
+--   ไม่ถือ = วิ่งไล่ตลอด (ไม่มีจ้อง 3 วิ) · ถึงตัว = ตี (ตีละ 15) แล้วคูลดาวน์ 4 วิ ระหว่างนั้นยังวิ่งตามติดไม่หยุด
+--   ในแสงแคมป์/ตะเกียง = ปลอดภัย · ตัวจิ้งจอกห้ามเดินเข้าเขตแคมป์เด็ดขาด
 function AnimalService:ThinkStalker(a, now)
 	local safe = self.ctx.Services.CampService:SafeRadius()
 	local lights = self.ctx.Services.BuildingService:LightSources()
 	local surv = self.ctx.Services.SurvivalService
+	local camp = self.ctx.CampPosition
+	local keepOut = safe + 10
 	local function lit(pos)
 		if self:CampDistance(pos) < safe + 4 then
 			return true
@@ -1045,6 +1049,22 @@ function AnimalService:ThinkStalker(a, now)
 			end
 		end
 		return false
+	end
+	-- จุดหมายที่อยู่ในเขตแคมป์ -> ดันออกไปที่ขอบนอก
+	local function outside(pos)
+		local flat = (pos - camp) * Vector3.new(1, 0, 1)
+		if flat.Magnitude < keepOut then
+			flat = flat.Magnitude > 0.5 and flat.Unit or Vector3.new(1, 0, 0)
+			return Vector3.new(camp.X, pos.Y, camp.Z) + flat * keepOut
+		end
+		return pos
+	end
+	-- หลุดเข้ามาในเขตแคมป์ (ไล่ตามมาติดขอบ/เกิดใกล้) -> เดินออกก่อนทำอย่างอื่น
+	if self:CampDistance(a.Root.Position) < keepOut - 2 then
+		self:MoveTo(a, outside(a.Root.Position), 1.3)
+		a.State = "Leave"
+		a.Model:SetAttribute("State", a.State)
+		return
 	end
 	-- เหยื่อ: คนที่ไม่อยู่ในแสงแคมป์/ตะเกียง (ติดตัวเดิมไว้ ไม่สลับไปมา)
 	local best, bestD
@@ -1057,17 +1077,11 @@ function AnimalService:ThinkStalker(a, now)
 			end
 		end
 	end
-	if best ~= a.Prey then
-		a.Prey, a.StareUntil = best, nil
-		if a.State ~= "Retreat" then
-			a.State = "Stalk"
-		end
-	end
+	a.Prey = best
 	if not best then
 		-- ทุกคนอยู่ในแสง: เดินวนที่ขอบแสงไฟ จ้องเข้ามา
-		local camp = self.ctx.CampPosition
 		a.OrbitAngle = (a.OrbitAngle or 0) + 0.02
-		local rr = math.max(safe, 30) + 26
+		local rr = math.max(keepOut, 30) + 22
 		self:MoveTo(a, camp + Vector3.new(math.cos(a.OrbitAngle) * rr, 0, math.sin(a.OrbitAngle) * rr), 0.45)
 		a.State = "Lurk"
 		a.Model:SetAttribute("State", a.State)
@@ -1079,61 +1093,47 @@ function AnimalService:ThinkStalker(a, now)
 	local light = tool and tool.Light
 	if light then
 		-- ถือคบเพลิง: วนรอบตัวคนห่าง ๆ นอกรัศมีแสง (เข้าใกล้เกิน = ถอยออก)
-		a.StareUntil = nil
 		local ring = light + 8
 		local flat = (a.Root.Position - r.Position) * Vector3.new(1, 0, 1)
 		local ang = flat.Magnitude > 0.5 and math.atan2(flat.Z, flat.X) or (a.OrbitAngle or 0)
 		a.OrbitDir = a.OrbitDir or (self.rng:NextNumber() < 0.5 and -1 or 1)
 		ang += a.OrbitDir * (d < ring * 1.6 and 0.45 or 0.2)
 		a.OrbitAngle = ang
-		self:MoveTo(a, r.Position + Vector3.new(math.cos(ang) * ring, 0, math.sin(ang) * ring), d < ring - 3 and 1.1 or 0.6)
+		self:MoveTo(a, outside(r.Position + Vector3.new(math.cos(ang) * ring, 0, math.sin(ang) * ring)), d < ring - 3 and 1.1 or 0.6)
 		a.State = "Circle"
-	elseif a.State == "Retreat" then
-		-- เพิ่งตีไป: ถอยห่างออกก่อน แล้วค่อยจ้องใหม่
-		if now < (a.RetreatUntil or 0) then
-			local away = (a.Root.Position - r.Position) * Vector3.new(1, 0, 1)
-			away = away.Magnitude > 0.5 and away.Unit or Vector3.new(1, 0, 0)
-			self:MoveTo(a, a.Root.Position + away * 24, 1)
-		else
-			a.State = "Stalk"
-		end
-	elseif a.State == "Hunt" then
-		if d > 110 then
-			a.State = "Stalk"
-		elseif d < (a.Info.AttackRange or 7) + a.Radius + 2 then
+	else
+		-- ไล่: ถึงระยะ + คูลดาวน์ครบ = ตี · คูลดาวน์อยู่ = วิ่งตามติดตัวต่อ
+		a.State = "Hunt"
+		local reach = (a.Info.AttackRange or 7) + a.Radius + 2
+		if d < reach and now >= a.NextAttack then
 			self:Stop(a)
 			self:Face(a, r.Position)
-			if now >= a.NextAttack then
-				self:AttackPlayer(a, best, now)
-				a.State, a.RetreatUntil = "Retreat", now + 2.2
-			end
+			self:AttackPlayer(a, best, now)
 		else
-			self:MoveTo(a, r.Position, 1.5)
+			-- คูลดาวน์อยู่ก็วิ่งตามติดตัวตลอด (ไม่หยุดยืนจ้อง)
+			self:MoveTo(a, outside(r.Position), d > 60 and 1.3 or 1.1)
 		end
-	elseif a.StareUntil then
-		-- จ้องนิ่ง (เหยื่อยังหยิบคบเพลิงขึ้นมาทันก่อนครบเวลา)
-		self:Stop(a)
-		self:Face(a, r.Position)
-		a.State = "Stare"
-		if now >= a.StareUntil then
-			a.StareUntil = nil
-			a.State = "Hunt"
-		end
-	elseif d < 55 then
-		a.StareUntil = now + Config.StalkerStare
-		a.State = "Stare"
-		self:Stop(a)
-		self:Face(a, r.Position)
-		self.ctx.Remotes.Get("HitFx"):FireClient(best, "StalkerStare", { Model = a.Model, Time = Config.StalkerStare })
-	else
-		self:MoveTo(a, r.Position, 0.8)
-		a.State = "Stalk"
 	end
 	a.Model:SetAttribute("State", a.State)
 end
 
 -- ลูกสัตว์ที่ช่วยแล้ว: เดินเล่นในเขตแคมป์เอง (ไม่ตามใคร) · หลุดไปไกล (ลงจากหลังนอกแคมป์) = เดินกลับบ้าน
 function AnimalService:ThinkPet(a, now)
+	if a.Rider then
+		return
+	end
+	-- ลงจากหลังที่ไหน = รอตรงนั้น (เดินเล่นวงแคบรอบจุดเดิม ไม่กลับบ้านเอง)
+	if a.StayAt then
+		a.Home = a.StayAt
+		if ((a.Root.Position - a.StayAt) * Vector3.new(1, 0, 1)).Magnitude > 14 then
+			self:MoveTo(a, a.StayAt, 0.6)
+			a.State = "Return"
+		else
+			self:Wander(a, now, 6, 2)
+		end
+		a.Model:SetAttribute("State", a.State)
+		return
+	end
 	local camp = self.ctx.CampPosition
 	local radius = math.max(self.ctx.Services.CampService:CampRadius() - 12, 24)
 	local d = ((a.Root.Position - camp) * Vector3.new(1, 0, 1)).Magnitude

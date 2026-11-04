@@ -1355,4 +1355,12 @@ return {
 	["Skill: turn invisible and run 50% faster for 4s (breaks when you deal damage) · Cooldown 30s"] = "スキル: 4秒間透明になり走る速さ+50%(ダメージを与えると解除) · クールダウン30秒",
 	["Thorn Bind"] = "茨の束縛",
 	["Wild Stride"] = "野生の歩み",
+	["Bag  ·  Drag items into the slots below · drag a slot here to store it"] = "バッグ  ·  下のスロットにアイテムをドラッグ · スロットをここへドラッグでしまう",
+	["x%d days! · Day %d"] = "x%d日！ · %d日目",
+	["🌟 Rescued %s — days now count x%d!"] = "🌟 %sを救出 — 日数がx%dで進む！",
+	["Choose Team Size"] = "チーム人数を選ぶ",
+	["Pad "] = "パッド ",
+	["Place it to rest: day multiplier +1 (no bonus yet = x2) · every morning the day counter moves by the multiplier · Max 1 bed per server per run"] = "置いて休む：日数倍率+1（ボーナスなし＝x2）· 毎朝、倍率の分だけ日数が進む · 1サーバー1台まで",
+	["Waiting for the pad leader to choose the team size"] = "パッドリーダーの人数選択を待っています",
+	["🛏️ %s used a bed — days now count x%d!"] = "🛏️ %sがベッドを使用 — 日数がx%dで進む！",
 }

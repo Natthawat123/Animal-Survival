@@ -34,7 +34,7 @@ local MESH_FRONT = {
 
 -- อาวุธจาก Roblox Creator Store (assets/rbxm/Weapons/<ItemId>.rbxmx -> ReplicatedStorage.Assets.Weapons)
 -- Length = ความยาวในมือ (stud) · Head/Front = แกนของชิ้น Handle (วัดจากโมเดลจริง) ที่เป็นหัว/คม · ไม่มี = เดาจากรูปทรง
--- Aura = ออร่าธาตุรอบอาวุธ: "Earth" | "Water" | "Wind" | "Fire" | "Rainbow" (เปลวอนิเมะ + ประกาย + เส้นแสงตามรอยฟัน)
+-- Aura = ออร่าธาตุรอบอาวุธ: "Earth" | "Water" | "Wind" | "Fire" | "Rainbow" | "Shadow" (เปลวอนิเมะ + ประกาย + เส้นแสงตามรอยฟัน)
 local STORE_WEAPONS = {
 	OldAxe = { Length = 3.2, Front = Vector3.new(0, 0, -1) }, StoneAxe = { Length = 3.2 }, IronAxe = { Length = 3.6 }, Pickaxe = { Length = 3.4, Head = Vector3.new(0, 1, 0) },
 	Torch = { Length = 3, Fire = true }, Spear = { Length = 6 },
@@ -60,7 +60,7 @@ local STORE_WEAPONS = {
 	-- เคียว: ด้ามตั้ง ใบอยู่บนหันไปข้างหน้า · เลื่อนไปหน้า 1.8 ให้ด้ามอยู่ในมือพอดี (ตรวจด้วย --gripprobe)
 	Scythe = { Length = 5.6, Head = Vector3.new(0, 1, 0), GripTurn = CFrame.new(0, 0, 1.8) },
 	-- อาวุธประจำคลาส 5 ดาว (Import 3D จาก 3D Model/weapon: ตั้งตรง หัวอยู่บน +Y) · ยังไม่ Import = ด้ามไม้สำรอง
-	ArcaneStaff = { Length = 5.4, Head = Vector3.new(0, 1, 0), Aura = "Rainbow" },
+	ArcaneStaff = { Length = 5.4, Head = Vector3.new(0, 1, 0), Aura = "Shadow" },
 	BloodScythe = { Length = 5.6, Head = Vector3.new(0, 1, 0) }, -- ด้ามจากไฟล์ Import ตรงมือแล้ว (ไม่ต้องเลื่อนแบบเคียวเก่า)
 	VerdantStaff = { Length = 5.4, Head = Vector3.new(0, 1, 0), Aura = "Earth" },
 }
@@ -83,6 +83,8 @@ local AURAS = {
 	Wind = { Tex = FLAME_TEX, Color = seq2(Color3.fromRGB(225, 250, 255), Color3.fromRGB(140, 210, 255)), Light = Color3.fromRGB(220, 240, 255), Emission = 0.45 },
 	Fire = { Tex = FLAME_TEX, Color = seq2(Color3.fromRGB(255, 120, 40), Color3.fromRGB(255, 40, 20)), Light = Color3.fromRGB(255, 80, 40), Emission = 0.9 },
 	Rainbow = { Tex = FLAME_TEX, Color = RAINBOW, Light = Color3.fromRGB(230, 200, 255), Emission = 1 },
+	-- เงามืด (คทาพ่อมดมืด): เปลวม่วงเข้มไล่ไปดำ
+	Shadow = { Tex = FLAME_TEX, Color = ColorSequence.new({ ColorSequenceKeypoint.new(0, Color3.fromRGB(190, 90, 255)), ColorSequenceKeypoint.new(0.45, Color3.fromRGB(95, 20, 170)), ColorSequenceKeypoint.new(1, Color3.fromRGB(12, 0, 22)) }), Light = Color3.fromRGB(140, 50, 230), Emission = 0.35 },
 }
 local function addAura(handle, kind, tool)
 	local A = AURAS[kind] or AURAS.Fire

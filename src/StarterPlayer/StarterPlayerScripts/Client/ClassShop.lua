@@ -400,8 +400,10 @@ function ClassShop.MakeCard(id, order)
 	gradient(card, C(255, 255, 255), C(200, 200, 210), 90)
 	local accent = frame(card, { Size = UDim2.new(0, 6, 1, -16), Position = UDim2.new(0, 6, 0, 8), BackgroundColor3 = rare, BackgroundTransparency = 0 })
 	corner(accent, 3)
-	-- รูปวงกลม (CanvasGroup ตัดขอบให้กลมจริง)
-	local holder = Instance.new("CanvasGroup")
+	-- รูปวงกลม: Frame ธรรมดา + ViewportFrame มี UICorner ตัดขอบกลมเอง
+	-- (เดิมใช้ CanvasGroup -> ต้องวาดใหม่ทุกครั้งที่เปิดร้าน รูปว่าง/กระพริบเหมือนโหลดใหม่ และหายเมื่อหน่วยความจำ CanvasGroup เต็ม)
+	local holder = Instance.new("Frame")
+	holder.BorderSizePixel = 0
 	holder.BackgroundColor3 = C(236, 240, 252)
 	holder.Size = UDim2.fromScale(0.84, 0.84)
 	holder.Position = UDim2.new(0, 18, 0.08, 0)
@@ -417,7 +419,10 @@ function ClassShop.MakeCard(id, order)
 	vp.BackgroundTransparency = 1
 	vp.Size = UDim2.fromScale(1, 1)
 	vp.Parent = holder
-	task.spawn(ClassAvatars.Viewport, vp, id, true, 20)
+	task.spawn(function()
+		ClassAvatars.Viewport(vp, id, true, 20)
+		corner(vp, UDim.new(0.5, 0)) -- Viewport ล้างลูกทิ้งตอนใส่หุ่น -> ใส่มุมกลมหลังจากนั้น
+	end)
 	-- ตัวหนังสือ
 	text(card, { Position = UDim2.new(0.31, 0, 0.07, 0), Size = UDim2.new(0.66, 0, 0.32, 0), Text = c.Thai, TextXAlignment = Enum.TextXAlignment.Left }, 30)
 	text(card, { Position = UDim2.new(0.31, 0, 0.42, 0), Size = UDim2.new(0.3, 0, 0.22, 0), Text = stars(c.Stars), TextColor3 = C(255, 205, 50), TextXAlignment = Enum.TextXAlignment.Left }, 24)

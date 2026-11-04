@@ -129,7 +129,7 @@ function BuildingService:Place(player, kind, cf)
 		self.ctx.Notify(player, "You have no " .. Items.DisplayName(kind) .. " in your bag (craft it at the bench first)", "Error")
 		return false
 	end
-	-- เตียง: วางแล้วข้ามไป 1 วัน (ทั้งเซิร์ฟได้ 2 ครั้งต่อเกม)
+	-- เตียง: วางแล้วตัวคูณวัน +1 (ทั้งเซิร์ฟได้ 2 ครั้งต่อเกม)
 	if (kind == "Bed" or kind == "Bed2") and not self.ctx.Services.DirectorService:CanSkipDay() then
 		self.ctx.Notify(player, "Can't use a bed to skip a day right now", "Error")
 		return false
@@ -144,10 +144,10 @@ function BuildingService:Place(player, kind, cf)
 	local model = self:Spawn(kind, final, hp, hp, player.UserId)
 	self.ctx.Remotes.Get("HitFx"):FireAllClients("Build", { Position = pos, Kind = kind, Structure = model })
 	if kind == "Bed" or kind == "Bed2" then
-		-- เตียง 1 / เตียง 2 = +1 วัน (โควต้านับแยกชนิด)
+		-- เตียง 1 / เตียง 2 = ตัวคูณวัน +1 (โควต้านับแยกชนิด)
 		local st, used = self.ctx.State, kind == "Bed" and "BedsUsed" or "Bed2Used"
 		st:SetAttribute(used, (st:GetAttribute(used) or 0) + 1)
-		self.ctx.Services.DirectorService:SkipDay(player, nil, "Bed")
+		self.ctx.Services.DirectorService:AddBedMultiplier(player) -- เตียง = ตัวคูณวัน +1
 		self.ctx.Services.InventoryService:MarkDirty()
 	end
 	return true

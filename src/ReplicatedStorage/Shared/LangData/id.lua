@@ -1335,4 +1335,11 @@ return {
 	["Skill: turn invisible and run 50% faster for 4s (breaks when you deal damage) · Cooldown 30s"] = "Skill: tak terlihat dan lari 50% lebih cepat 4 dtk (hilang saat memberi damage) · Cooldown 30 dtk",
 	["Thorn Bind"] = "Belenggu Duri",
 	["Wild Stride"] = "Langkah Liar",
+	["Bag  ·  Drag items into the slots below · drag a slot here to store it"] = "Tas  ·  Seret item ke slot di bawah · seret slot ke sini untuk menyimpan",
+	["x%d days! · Day %d"] = "x%d hari! · Hari %d",
+	["🌟 Rescued %s — days now count x%d!"] = "🌟 Menyelamatkan %s — hari dihitung x%d!",
+	["Choose Team Size"] = "Pilih Jumlah Tim",
+	["Place it to rest: day multiplier +1 (no bonus yet = x2) · every morning the day counter moves by the multiplier · Max 1 bed per server per run"] = "Pasang untuk istirahat: pengali hari +1 (tanpa bonus = x2) · tiap pagi hari maju sesuai pengali · Maks 1 kasur per server",
+	["Waiting for the pad leader to choose the team size"] = "Menunggu ketua pad memilih jumlah tim",
+	["🛏️ %s used a bed — days now count x%d!"] = "🛏️ %s memakai kasur — hari dihitung x%d!",
 }

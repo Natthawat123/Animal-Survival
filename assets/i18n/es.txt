@@ -1354,3 +1354,11 @@
 1556	Habilidad: hazte invisible y corre 50% más rápido 4 s (se rompe al hacer daño) · Recarga 30 s
 1557	Atadura de espinas
 1558	Paso salvaje
+1562	Bolsa  ·  Arrastra objetos a las ranuras · arrastra una ranura aquí para guardarla
+1574	¡x%d días! · Día %d
+1575	🌟 ¡Rescataste a %s — los días cuentan x%d!
+1577	Elige el tamaño del equipo
+1581	Plataforma 
+1582	Colócala para descansar: multiplicador de días +1 (sin bonus = x2) · cada mañana el contador avanza según el multiplicador · Máx. 1 cama por servidor
+1586	Esperando a que el líder elija el tamaño del equipo
+1589	🛏️ %s usó una cama — ¡los días cuentan x%d!

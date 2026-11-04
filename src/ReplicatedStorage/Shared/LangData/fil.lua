@@ -1187,4 +1187,11 @@ return {
 	["Skill: turn invisible and run 50% faster for 4s (breaks when you deal damage) · Cooldown 30s"] = "Skill: maging invisible at tumakbo nang 50% mas mabilis nang 4 seg (mawawala kapag nag-damage) · Cooldown 30 seg",
 	["Thorn Bind"] = "Gapos ng Tinik",
 	["Wild Stride"] = "Hakbang ng Kagubatan",
+	["Bag  ·  Drag items into the slots below · drag a slot here to store it"] = "Bag  ·  I-drag ang item sa mga slot sa ibaba · i-drag ang slot dito para itago",
+	["x%d days! · Day %d"] = "x%d araw! · Araw %d",
+	["🌟 Rescued %s — days now count x%d!"] = "🌟 Nailigtas si %s — x%d na ang bilang ng araw!",
+	["Choose Team Size"] = "Piliin ang Laki ng Team",
+	["Place it to rest: day multiplier +1 (no bonus yet = x2) · every morning the day counter moves by the multiplier · Max 1 bed per server per run"] = "Ilagay para magpahinga: day multiplier +1 (walang bonus = x2) · tuwing umaga uusad ang araw ayon sa multiplier · Max 1 kama bawat server",
+	["Waiting for the pad leader to choose the team size"] = "Hinihintay ang pad leader na pumili ng laki ng team",
+	["🛏️ %s used a bed — days now count x%d!"] = "🛏️ Gumamit ng kama si %s — x%d na ang bilang ng araw!",
 }

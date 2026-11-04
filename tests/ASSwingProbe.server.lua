@@ -1,4 +1,4 @@
---[[ ASSwingProbe (server) — build_rbxlx.py --swingprobe · ให้หอก + ตรีศูล แล้ว client ถ่ายท่าถือ + ทุกท่าในคอมโบ (ค้างภาพกลางท่า) ]]
+--[[ ASSwingProbe (server) — build_rbxlx.py --swingprobe · ให้อาวุธตัวแทนทุกชุดท่า แล้ว client ถ่ายทุกคีย์เฟรมของทุกท่า ]]
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 if not ReplicatedStorage:FindFirstChild("ASSwingProbe") then
@@ -13,7 +13,8 @@ local ctx = require(game:GetService("ServerScriptService").Server.RejoinService)
 player:SetAttribute("TestGod", true)
 ctx.Services.DevService:Teleport(player, ctx.CampPosition + Vector3.new(45, 0, 45))
 task.wait(1)
-for _, id in ipairs({ "Spear", "TidalTrident" }) do
+for _, id in ipairs({ "OldAxe", "BattleAxe", "FourfoldBlade", "Pickaxe", "BuildHammer", "SpikedClub", "Mace", "WarHammer", "IronSword", "Katana", "Dagger", "Scythe", "Spear", "TidalTrident", "Torch", "EmberStaff", "ArcaneStaff", "VerdantStaff", "Bow", "Crossbow" }) do
 	ctx.Services.InventoryService:Add(player, id, 1, true)
 end
+-- ReplicatedStorage:SetAttribute("SwingOnly", "ChopX,Rise") -- เปิดบรรทัดนี้ = ถ่ายเฉพาะท่าที่ระบุ (ปิด = ถ่ายทุกท่า)
 ReplicatedStorage:SetAttribute("SwingGo", true)

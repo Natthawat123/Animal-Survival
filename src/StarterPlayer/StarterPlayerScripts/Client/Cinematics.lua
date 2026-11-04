@@ -1977,6 +1977,8 @@ function Cinematics.Handle(kind, d, menus, combat)
 		menus.OpenShop("Diamonds")
 	elseif kind == "OpenClasses" then
 		menus.OpenShop("Classes")
+	elseif kind == "SaveRunOffer" then
+		menus.SaveRunOffer(d)
 	elseif kind == "OpenTrader" then
 		menus.OpenTrader()
 	elseif kind == "Teleporting" then

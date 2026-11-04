@@ -1,0 +1,42 @@
+ERR: torError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+orOutput] [AS] ???????????????????...
+orOutput] [AS] seed=754932928 map=2048
+rOutput] [AS] client ready
+orOutput] [AS] CLASSPASS PASS order-has-new 
+orOutput] [AS] CLASSPASS PASS collect-count 9
+orOutput] [AS] CLASSPASS PASS sage-never-in-stock 
+orOutput] [AS] CLASSPASS FAIL sage-not-owned 
+orOutput] [AS] CLASSPASS PASS vampire-perk 
+orOutput] [AS] CLASSPASS PASS pass-attr 
+orOutput] [AS] CLASSPASS PASS pass-grants-class 
+orOutput] [AS] CLASSPASS PASS isowned-with-pass 
+orOutput] [AS] CLASSPASS RESULT fails=1
+orOutput] [AS] CLASSPASS DONE
+orOutput] [AS] CLASSSHOT step require
+orOutput] [AS] CLASSSHOT step open
+orOutput] [AS] CLASSSHOT opened ok=true nil isOpen=true
+orOutput] [AS] terrain 19.1s
+rOutput] [AS] world ready 22.0s props=365
+orOutput] [AS] READY
+shot class_Survivor
+shot class_Forager
+shot class_Lumberjack
+shot class_Medic
+shot class_Hunter
+shot class_Builder
+shot class_Scout
+shot class_Elementalist
+shot class_Vampire
+shot class_Sage
+shot class_reopen_fast
+shot class_reopen_fast2
+orOutput] [AS] CLASSSHOT storeOpen ok=true nil isOpen=true
+shot store_saverun
+orOutput] [AS] CLASSSHOT offer ok=true nil pass=nil
+torOutput] [AS] CLASSSHOT offerOpen=true
+shot saverun_offer
+shot store_saverun_buy
+shot vendor_front
+shot vendor_back
+torOutput] [TEST] DONE probe
+finished in 114s  done=True

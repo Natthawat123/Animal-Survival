@@ -1354,3 +1354,11 @@
 1556	Kỹ năng: tàng hình và chạy nhanh hơn 50% trong 4 giây (mất khi gây sát thương) · Hồi chiêu 30 giây
 1557	Trói gai
 1558	Bước hoang dã
+1562	Túi  ·  Kéo vật phẩm vào ô bên dưới · kéo ô vào đây để cất
+1574	x%d ngày! · Ngày %d
+1575	🌟 Đã cứu %s — ngày tính x%d!
+1577	Chọn số người
+1581	Bệ 
+1582	Đặt để nghỉ: hệ số ngày +1 (chưa có thưởng = x2) · mỗi sáng số ngày tăng theo hệ số · Tối đa 1 giường mỗi máy chủ
+1586	Đang chờ trưởng bệ chọn số người
+1589	🛏️ %s dùng giường — ngày tính x%d!

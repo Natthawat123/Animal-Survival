@@ -370,11 +370,11 @@ function LootService:HazardTick(dt)
 		if r and surv:IsAlive(p) then
 			local res = Workspace:Raycast(r.Position, Vector3.new(0, -7, 0), self.rayParams)
 			if res and res.Material == Enum.Material.CrackedLava then
-				surv:Damage(p, 14 * dt, "Lava", { Burn = 5 })
+				surv:Damage(p, 2 * dt, "Lava") -- ลาวา: 2 ดาเมจ/วิ
 			end
 			for _, v in ipairs(vents) do
 				if (v:GetPivot().Position - r.Position).Magnitude < 6 then
-					surv:Damage(p, 10 * dt, "Lava", { Burn = 4 })
+					surv:Damage(p, 2 * dt, "Lava")
 				end
 			end
 		end

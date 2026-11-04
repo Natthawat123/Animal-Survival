@@ -48,6 +48,22 @@ function MonetizationService:HasPass(player, key)
 	return owned[player] ~= nil and owned[player][key] == true
 end
 
+-- ทีมตายหมด กลับถึงล็อบบี้แล้ว: ยังไม่มี Save Run = เสนอขาย (ไม่บังคับ) · มีแล้ว = บอกว่าเล่นต่อจากคืนไหนได้
+function MonetizationService:OfferSaveRun(player, night)
+	local pass = passByKey.SaveRun
+	if not (pass and (pass.PassId or 0) > 0 and player.Parent) or player:GetAttribute("InRun") then
+		return
+	end
+	if self:HasPass(player, "SaveRun") then
+		local saved = player:GetAttribute("SavedNight")
+		if saved then
+			self.ctx.Notify(player, string.format("Run saved at Night %d · Press Continue on the start pad to keep going", saved), "Good")
+		end
+		return
+	end
+	self.ctx.Remotes.Get("Cinematic"):FireClient(player, "SaveRunOffer", { Night = night })
+end
+
 local function setOwned(player, key)
 	owned[player] = owned[player] or {}
 	owned[player][key] = true

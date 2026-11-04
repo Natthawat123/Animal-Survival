@@ -1356,4 +1356,12 @@ return {
 	["Skill: turn invisible and run 50% faster for 4s (breaks when you deal damage) · Cooldown 30s"] = "技能: 隐身并跑速 +50% 持续 4 秒(造成伤害时解除) · 冷却 30 秒",
 	["Thorn Bind"] = "荆棘束缚",
 	["Wild Stride"] = "荒野疾行",
+	["Bag  ·  Drag items into the slots below · drag a slot here to store it"] = "背包  ·  将物品拖到下方栏位 · 把栏位拖到这里即可收起",
+	["x%d days! · Day %d"] = "x%d 天！· 第 %d 天",
+	["🌟 Rescued %s — days now count x%d!"] = "🌟 已救出 %s — 天数按 x%d 计算！",
+	["Choose Team Size"] = "选择队伍人数",
+	["Pad "] = "平台 ",
+	["Place it to rest: day multiplier +1 (no bonus yet = x2) · every morning the day counter moves by the multiplier · Max 1 bed per server per run"] = "放置以休息：天数倍率 +1（无加成时 = x2）· 每天早上按倍率推进天数 · 每服务器限 1 张床",
+	["Waiting for the pad leader to choose the team size"] = "等待平台队长选择人数",
+	["🛏️ %s used a bed — days now count x%d!"] = "🛏️ %s 使用了床 — 天数按 x%d 计算！",
 }

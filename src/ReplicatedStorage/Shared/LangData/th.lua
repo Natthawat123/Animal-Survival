@@ -1358,4 +1358,12 @@ return {
 	["Skill: turn invisible and run 50% faster for 4s (breaks when you deal damage) · Cooldown 30s"] = "สกิล: ล่องหนและวิ่งเร็วขึ้น 50% นาน 4 วิ (หายเมื่อทำดาเมจ) · คูลดาวน์ 30 วิ",
 	["Thorn Bind"] = "พันธนาการหนาม",
 	["Wild Stride"] = "ฝีเท้าแห่งพงไพร",
+	["Bag  ·  Drag items into the slots below · drag a slot here to store it"] = "กระเป๋า  ·  ลากของลงช่องด้านล่าง · ลากช่องมาที่นี่เพื่อเก็บเข้ากระเป๋า",
+	["x%d days! · Day %d"] = "x%d วัน! · วันที่ %d",
+	["🌟 Rescued %s — days now count x%d!"] = "🌟 ช่วย %s แล้ว — วันนับ x%d!",
+	["Choose Team Size"] = "เลือกจำนวนผู้เล่น",
+	["Pad "] = "แท่น ",
+	["Place it to rest: day multiplier +1 (no bonus yet = x2) · every morning the day counter moves by the multiplier · Max 1 bed per server per run"] = "วางเพื่อพักผ่อน: ตัวคูณวัน +1 (ยังไม่มีโบนัส = x2) · ทุกเช้าเลขวันเดินตามตัวคูณ · 1 เตียงต่อเซิร์ฟต่อรอบ",
+	["Waiting for the pad leader to choose the team size"] = "รอหัวหน้าแท่นเลือกจำนวนผู้เล่น",
+	["🛏️ %s used a bed — days now count x%d!"] = "🛏️ %s ใช้เตียง — วันนับ x%d!",
 }

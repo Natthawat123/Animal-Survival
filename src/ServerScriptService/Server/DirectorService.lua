@@ -337,7 +337,7 @@ function DirectorService:Loop(runId)
 			return
 		end
 		self:Dawn(night)
-		if night == Config.TotalNights then
+		if night == Config.TotalNights and not s:GetAttribute("Conquered") then
 			self:Complete()
 		end
 		-- บอสที่ย้ายมาแต่คืนนี้มีบอสของตัวเองอยู่แล้ว -> เลื่อนไปคืนถัดไป · อย่างอื่นใช้ไปแล้ว
@@ -345,6 +345,11 @@ function DirectorService:Loop(runId)
 		self.carry = (carry.Boss and Nights.BossFor(night)) and { Boss = carry.Boss, BossNight = carry.BossNight } or {}
 		if self.night == night then -- (DEV setNight กลางคืน = ใช้เลขที่ตั้งไว้)
 			self.night = night + 1
+		end
+		-- ตัวคูณวัน (ช่วยลูกสัตว์ธาตุ): เช้านี้นับ xN วัน = ผ่านเพิ่มอีก N-1 วัน
+		local extra = self:DayMultiplier() - 1
+		if extra > 0 then
+			self.pendingSkips += extra
 		end
 		self:ApplyPendingSkips()
 	end
@@ -368,7 +373,7 @@ function DirectorService:PassNight()
 	self.ctx.State:SetAttribute("Night", self.night)
 end
 
--- วันโบนัส (เตียง/ช่วยลูกสัตว์) ให้ HUD โชว์ "DAY 12 +3" + เอฟเฟกต์ "+1" บินเข้าเลขวัน
+-- ตัวคูณวัน (ช่วยลูกสัตว์) ให้ HUD โชว์ "DAY 12 (x3)" + เอฟเฟกต์ "x3" บินเข้าเลขวัน
 -- ต้องตั้งก่อน Night เปลี่ยน (เครื่องลูกค้าค้างเลขเดิมไว้ระหว่างเล่นเอฟเฟกต์)
 function DirectorService:AddBonusDays(n, source)
 	local st = self.ctx.State
@@ -377,32 +382,49 @@ function DirectorService:AddBonusDays(n, source)
 	st:SetAttribute("BonusDays", (st:GetAttribute("BonusDays") or 0) + n)
 end
 
+-- ตัวคูณวัน = ผลรวมจากลูกสัตว์ธาตุที่ช่วยแล้ว (ดิน 2 · น้ำ 3 · น้ำแข็ง 4 · ไฟ 5) · ยังไม่มี = x1
+function DirectorService:DayMultiplier()
+	return math.max(1, math.floor(self.ctx.State:GetAttribute("BonusDays") or 0))
+end
+
+-- เพิ่มตัวคูณวัน (HUD โชว์ "DAY 12 (x5)" + เอฟเฟกต์ "xN" บินเข้าเลขวัน) · มีผลตั้งแต่เช้าถัดไป
+function DirectorService:AddDayMultiplier(n, source)
+	if not self:CanSkipDay() then
+		return false
+	end
+	self:AddBonusDays(math.max(1, math.floor(tonumber(n) or 1)), source)
+	return true
+end
+
+-- เตียง: +1 เข้าตัวคูณวัน (ยังไม่มีตัวคูณ = ปกติ x1 + เตียง 1 = x2) · มีผลตั้งแต่เช้าถัดไป
+function DirectorService:AddBedMultiplier(player)
+	if not self:CanSkipDay() then
+		return false
+	end
+	local cur = math.floor(self.ctx.State:GetAttribute("BonusDays") or 0)
+	local new = (cur > 0 and cur or 1) + 1
+	self:AddBonusDays(new - cur, "Bed")
+	self.ctx.Broadcast(string.format("🛏️ %s used a bed — days now count x%d!", player and player.DisplayName or "The team", new), "Good")
+	return true
+end
+
 -- บวกสิทธิ์ที่เก็บไว้ (ตอนเช้า) · คืนสุดท้ายต้องเล่นจริง: ที่เหลือรอหลังจบคืน 99
 function DirectorService:ApplyPendingSkips()
-	local n, night = 0, self.night
-	for _ = 1, self.pendingSkips do
-		if night == Config.TotalNights then
-			break
-		end
-		n += 1
-		night += 1
-	end
-	if n > 0 then
-		-- HUD โชว์ยอดรวม (นับแล้ว + ค้าง) ไปตั้งแต่ตอนได้มาแล้ว: ย้ายจากค้างไปนับแล้ว (ลดค้างก่อน ยอดรวมไม่กระโดด)
-		-- BonusSource = "Pending" -> HUD ไม่เล่นเอฟเฟกต์ซ้ำ แค่เลขวันเด้ง
-		self.ctx.State:SetAttribute("PendingDays", self.pendingSkips - n)
-		self:AddBonusDays(n, "Pending")
-	end
 	local applied = 0
-	while self.pendingSkips > 0 and self.night ~= Config.TotalNights do
+	-- ตัวคูณพาข้ามได้จริงทุกวัน (ไม่ต้องหยุดเล่นคืน 99) · ข้ามผ่านคืน 99 = พิชิต 99 คืนทันที แล้วเล่นต่อโหมดไม่รู้จบ
+	while self.pendingSkips > 0 do
 		self.pendingSkips -= 1
 		applied += 1
+		local passed = self.night
 		self:PassNight()
+		if passed == Config.TotalNights and not self.ctx.State:GetAttribute("Conquered") then
+			self:Complete()
+		end
 		self.ctx.Services.TraderService:OnDay(self.night) -- ไม่ให้พลาดรอบพ่อค้า
 	end
 	self.ctx.State:SetAttribute("PendingDays", self.pendingSkips)
 	if applied > 0 then
-		self.ctx.Broadcast(string.format("Skipped %d days · Day %d", applied, self.night), "Good")
+		self.ctx.Broadcast(string.format("x%d days! · Day %d", applied + 1, self.night), "Good")
 	end
 end
 
@@ -425,18 +447,15 @@ function DirectorService:SkipDay(player, fmt, source, n)
 	local now = 0
 	if phase == "Day" or phase == "Dusk" then
 		local night = self.night
-		for _ = 1, n do
-			if night == Config.TotalNights then
-				break -- คืนสุดท้ายต้องเล่นจริง
-			end
-			now += 1
-			night += 1
-		end
+		now = n
 	end
 	if now > 0 then
-		self:AddBonusDays(now, source)
 		for _ = 1, now do
+			local passed = self.night
 			self:PassNight()
+			if passed == Config.TotalNights and not self.ctx.State:GetAttribute("Conquered") then
+				self:Complete()
+			end
 			if phase == "Day" then
 				self.ctx.Services.TraderService:OnDay(self.night) -- ไม่ให้พลาดรอบพ่อค้า
 			end
@@ -511,9 +530,11 @@ function DirectorService:GameOver()
 	ctx.State:SetAttribute("BossId", "")
 	local survived = self.night - 1
 	local teamSize = 0
+	self.wiped = {}
 	for _, p in ipairs(Players:GetPlayers()) do
 		if p:GetAttribute("InRun") then
 			teamSize += 1
+			table.insert(self.wiped, p)
 		end
 	end
 	for _, p in ipairs(Players:GetPlayers()) do
@@ -550,7 +571,16 @@ function DirectorService:EndRun()
 		end)
 		return
 	end
+	-- กลับล็อบบี้ในเซิร์ฟเวอร์นี้ (Studio): เสนอ Save Run ให้คนที่เพิ่งตายหมดทีม
+	local wiped, night = self.wiped or {}, self.night
+	self.wiped = nil
 	self:ResetRun()
+	task.delay(4, function()
+		local shop = self.ctx.Services.MonetizationService
+		for _, p in ipairs(wiped) do
+			pcall(shop.OfferSaveRun, shop, p, night)
+		end
+	end)
 end
 
 function DirectorService:IsRunning()

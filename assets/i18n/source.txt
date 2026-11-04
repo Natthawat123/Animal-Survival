@@ -1557,3 +1557,34 @@
 1556	Skill: turn invisible and run 50% faster for 4s (breaks when you deal damage) · Cooldown 30s
 1557	Thorn Bind
 1558	Wild Stride
+1559	 <font color="#6EFF8C" size="32">(x%d)</font>
+1560	%s %s · Lv.%d
+1561	Arcane
+1562	Bag  ·  Drag items into the slots below · drag a slot here to store it
+1563	Blood
+1564	VFXPack/Anime/Blood-01
+1565	VFXPack/Anime/Portal-01
+1566	VFXPack/Anime/Slash-Impact-01
+1567	VFXPack/Anime/Slashes-01
+1568	VFXPack/Anime/Smoke-01
+1569	VFXPack/Auras/RNG-Aura-02
+1570	VFXPack/Big/Ball-01
+1571	VFXPack/Big/Big-Crack-01
+1572	VFXPack/Big/Explosion-01
+1573	Verdant
+1574	x%d days! · Day %d
+1575	🌟 Rescued %s — days now count x%d!
+1576	Buy  
+1577	Choose Team Size
+1578	Game Pass · one-time purchase
+1579	No thanks
+1580	Owned · Night 
+1581	Pad 
+1582	Place it to rest: day multiplier +1 (no bonus yet = x2) · every morning the day counter moves by the multiplier · Max 1 bed per server per run
+1583	Run saved at Night %d · Press Continue on the start pad to keep going
+1584	The team fell on Night %d
+1585	The whole team fell
+1586	Waiting for the pad leader to choose the team size
+1587	With Save Run, your run is saved every dawn. Next time the whole team falls, continue from the last saved night instead of starting over at Night 1. Also available any time in the Shop.
+1588	Your run is saved every dawn and when you leave. If the whole team falls, continue from the last saved night with the Continue button on the start pad.
+1589	🛏️ %s used a bed — days now count x%d!

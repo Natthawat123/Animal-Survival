@@ -145,9 +145,9 @@ Items.Tools = {
 	Katana = { Damage = 40, Chop = 1, Mine = 0.3, Range = 12, Cooldown = 0.45, Kind = "Sword" },
 	WarHammer = { Damage = 62, Chop = 1.5, Mine = 4.5, Range = 12, Cooldown = 1.1, Kind = "Hammer", Aoe = 11 },
 	Scythe = { Damage = 54, Chop = 2, Mine = 0.5, Range = 15, Cooldown = 0.8, Kind = "Sword", Aoe = 8 },
-	ArcaneStaff = { Fx = "Arcane", Damage = 30, Chop = 0, Mine = 0, Range = 9, Cooldown = 0.6, Kind = "Staff", Bolt = { Speed = 170, Range = 150, Blast = 9, Size = 1.8, FxScale = 0.08, ImpactScale = 0.26 }, Burn = 4, Light = 16, Element = "All" },
+	ArcaneStaff = { Fx = "Arcane", Damage = 30, Chop = 0, Mine = 0, Range = 9, Cooldown = 0.6, Kind = "Staff", Bolt = { Speed = 170, Range = 150, Blast = 9, Size = 1.8, FxScale = 0.05, ImpactScale = 0.15 }, Burn = 4, Light = 16, Element = "All" },
 	BloodScythe = { Fx = "Blood", Damage = 50, Chop = 1.5, Mine = 0.5, Range = 14, Cooldown = 0.72, Kind = "Sword", Aoe = 8 },
-	VerdantStaff = { Fx = "Verdant", Damage = 26, Chop = 0, Mine = 0, Range = 9, Cooldown = 0.6, Kind = "Staff", Bolt = { Speed = 150, Range = 140, Blast = 8, Size = 1.6, FxScale = 0.08, ImpactScale = 0.22 }, Slow = 0.5, Light = 12, Element = "Earth" },
+	VerdantStaff = { Fx = "Verdant", Damage = 26, Chop = 0, Mine = 0, Range = 9, Cooldown = 0.6, Kind = "Staff", Bolt = { Speed = 150, Range = 140, Blast = 8, Size = 1.6, FxScale = 0.05, ImpactScale = 0.13 }, Slow = 0.5, Light = 12, Element = "Earth" },
 }
 
 -- ค่าของสิ่งก่อสร้าง
@@ -231,8 +231,8 @@ Items.Desc = {
 	WoodArmor = "Wood armor. Equips right after crafting, raises Max HP",
 	IronArmor = "Iron armor with shoulder plates. Sturdy, raises Max HP a lot",
 	GoldArmor = "Engraved gold warrior armor. Raises Max HP the most",
-	Bed = "Place it to rest and skip 1 day (counts +1 day survived · placed at night, it counts in the morning) · Max 1 bed per server per run",
-	Bed2 = "Place it to rest and skip 1 day (counts +1 day survived · placed at night, it counts in the morning) · Max 1 bed per server per run",
+	Bed = "Place it to rest: day multiplier +1 (no bonus yet = x2) · every morning the day counter moves by the multiplier · Max 1 bed per server per run",
+	Bed2 = "Place it to rest: day multiplier +1 (no bonus yet = x2) · every morning the day counter moves by the multiplier · Max 1 bed per server per run",
 	FarmPlot = "Grows berries you can keep picking",
 	CookPot = "Stew pot. Makes stew (meat + berries) and berry pie (berries + wood)",
 	TerraTotem = "Earth pillar. Repairs nearby walls",

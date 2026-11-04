@@ -1334,4 +1334,12 @@ return {
 	["Skill: turn invisible and run 50% faster for 4s (breaks when you deal damage) · Cooldown 30s"] = "Habilidade: fique invisível e corra 50% mais rápido por 4 s (quebra ao causar dano) · Recarga 30 s",
 	["Thorn Bind"] = "Amarra de espinhos",
 	["Wild Stride"] = "Passo selvagem",
+	["Bag  ·  Drag items into the slots below · drag a slot here to store it"] = "Bolsa  ·  Arraste itens para os espaços · arraste um espaço aqui para guardar",
+	["x%d days! · Day %d"] = "x%d dias! · Dia %d",
+	["🌟 Rescued %s — days now count x%d!"] = "🌟 Resgatou %s — os dias contam x%d!",
+	["Choose Team Size"] = "Escolha o tamanho da equipe",
+	["Pad "] = "Plataforma ",
+	["Place it to rest: day multiplier +1 (no bonus yet = x2) · every morning the day counter moves by the multiplier · Max 1 bed per server per run"] = "Coloque para descansar: multiplicador de dias +1 (sem bônus = x2) · toda manhã o contador avança pelo multiplicador · Máx. 1 cama por servidor",
+	["Waiting for the pad leader to choose the team size"] = "Aguardando o líder escolher o tamanho da equipe",
+	["🛏️ %s used a bed — days now count x%d!"] = "🛏️ %s usou uma cama — os dias contam x%d!",
 }

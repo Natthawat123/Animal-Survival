@@ -3,7 +3,7 @@
 	  กด E ที่ตัวสัตว์ = ขึ้นขี่: เชื่อมตัวสัตว์ไว้ใต้ผู้เล่น (Weld) -> ผู้เล่นบังคับเดินเองทั้งคู่ (ตัวละครผู้เล่น = ลื่น ไม่หน่วงเน็ต)
 	    ยกผู้เล่นขึ้นนั่งบนหลัง (HipHeight) · client เล่นท่านั่ง + วิ่งเร็วขึ้น (attribute Riding / MountSpeed -> MountClient, CombatClient)
 	  ลง = ปุ่ม/คีย์ (remote Dismount) · ตาย/ล้ม/ออกเกม/ตัวสัตว์หาย = ลงเอง
-	  ลงนอกแคมป์ -> สัตว์เดินกลับแคมป์เอง (AnimalService:ThinkPet)
+	  ลงตรงไหน -> สัตว์รอตรงนั้น (AnimalService:ThinkPet)
 ]]
 
 local Players = game:GetService("Players")
@@ -154,6 +154,7 @@ function MountService:Dismount(player, gone)
 	end
 	a.Rider = nil
 	a.WanderAt = os.clock() + 2
+	a.StayAt = a.Root.Position -- รอตรงที่ลง (AnimalService:ThinkPet)
 end
 
 function MountService:Start(ctx)

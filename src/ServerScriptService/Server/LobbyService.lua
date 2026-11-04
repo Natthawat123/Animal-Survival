@@ -1303,8 +1303,9 @@ function LobbyService:RefreshTag(player)
 		end
 		line("Title", 0, 15).Visible = false
 		line("VIP", 1, 16)
-		line("Best", 2, 22)
-		bb.Size = UDim2.fromOffset(220, 66)
+		line("Class", 2, 17)
+		line("Best", 3, 22)
+		bb.Size = UDim2.fromOffset(240, 86)
 		bb.Parent = root
 	end
 	bb.StudsOffsetWorldSpace = Vector3.new(0, math.clamp(headUp, 0.5, 12) + 2.4, 0)
@@ -1313,6 +1314,14 @@ function LobbyService:RefreshTag(player)
 	local bestL = bb:FindFirstChild("Best")
 	bestL.Text = string.format("%s %d days", icon, best)
 	bestL.TextColor3 = color
+	-- คลาสที่ใช้ + เลเวลคลาส
+	local classL = bb:FindFirstChild("Class")
+	if classL then
+		local cid = player:GetAttribute("Class") or "Survivor"
+		local cd = Classes.Data[cid]
+		classL.Text = string.format("%s %s · Lv.%d", cd and cd.Icon or "🎒", cd and cd.Name or cid, player:GetAttribute("ClassLevel") or 1)
+		classL.TextColor3 = C(170, 230, 255)
+	end
 	local vip = bb:FindFirstChild("VIP")
 	vip.Visible = player:GetAttribute("Pass_VIP") == true
 	vip.Text = "👑 VIP"
@@ -1605,7 +1614,7 @@ function LobbyService:Tick(dt)
 		elseif not box.Picked and not running then
 			-- ยังไม่เลือกจำนวนคน: ยังไม่นับถอยหลัง (หัวหน้าแท่นเลือกก่อน แล้วค่อยเริ่มนับ)
 			box.Countdown = nil
-			box.Sub.Text = "👥 Waiting for the pad leader to choose the team size"
+			box.Sub.Text = "Waiting for the pad leader to choose the team size"
 			box.Pad.Color = PORTAL_VEIL
 			box.Ring.Color = PORTAL_IDLE
 			if box.Disc then
@@ -1746,6 +1755,11 @@ function LobbyService:Start(ctx)
 		player:GetAttributeChangedSignal("InRun"):Connect(function()
 			self:RefreshTag(player)
 		end)
+		for _, attr in ipairs({ "Class", "ClassLevel" }) do
+			player:GetAttributeChangedSignal(attr):Connect(function()
+				self:RefreshTag(player)
+			end)
+		end
 		if player.Character then
 			self:RefreshTag(player)
 		end
@@ -1758,6 +1772,9 @@ function LobbyService:Start(ctx)
 			task.delay(6, function()
 				if player.Parent and td.Result == "Defeat" then
 					ctx.Notify(player, string.format("🔥 Last run: the team reached night %d — try again!", tonumber(td.Night) or 0), "Info")
+					task.delay(2, function()
+						ctx.Services.MonetizationService:OfferSaveRun(player, tonumber(td.Night))
+					end)
 				end
 			end)
 		end

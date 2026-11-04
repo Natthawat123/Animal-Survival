@@ -1350,4 +1350,12 @@ return {
 	["Skill: turn invisible and run 50% faster for 4s (breaks when you deal damage) · Cooldown 30s"] = "Kỹ năng: tàng hình và chạy nhanh hơn 50% trong 4 giây (mất khi gây sát thương) · Hồi chiêu 30 giây",
 	["Thorn Bind"] = "Trói gai",
 	["Wild Stride"] = "Bước hoang dã",
+	["Bag  ·  Drag items into the slots below · drag a slot here to store it"] = "Túi  ·  Kéo vật phẩm vào ô bên dưới · kéo ô vào đây để cất",
+	["x%d days! · Day %d"] = "x%d ngày! · Ngày %d",
+	["🌟 Rescued %s — days now count x%d!"] = "🌟 Đã cứu %s — ngày tính x%d!",
+	["Choose Team Size"] = "Chọn số người",
+	["Pad "] = "Bệ ",
+	["Place it to rest: day multiplier +1 (no bonus yet = x2) · every morning the day counter moves by the multiplier · Max 1 bed per server per run"] = "Đặt để nghỉ: hệ số ngày +1 (chưa có thưởng = x2) · mỗi sáng số ngày tăng theo hệ số · Tối đa 1 giường mỗi máy chủ",
+	["Waiting for the pad leader to choose the team size"] = "Đang chờ trưởng bệ chọn số người",
+	["🛏️ %s used a bed — days now count x%d!"] = "🛏️ %s dùng giường — ngày tính x%d!",
 }

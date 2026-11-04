@@ -55,6 +55,7 @@ Config.MonsterDamageScale = 0.5 -- ดาเมจมอนทั่วไป (�
 Config.BossDamageScale = 0.75 -- ดาเมจบอส (ตีธรรมดา + สกิลทุกท่า)
 Config.BossSkillCooldown = { Min = 3, Max = 4.5 } -- บอสบุกแคมป์ร่ายสกิลทุกกี่วินาที (สุ่มในช่วงนี้ · เดิม 7-10)
 Config.LairBossSkillCooldown = { Min = 2, Max = 3 } -- บอสในรัง/ผู้พิทักษ์บอส ร่ายสกิลทุกกี่วินาที (เดิม 4.5-6.5)
+Config.BossCastMult = 2.6 -- ท่าร่ายบอสช้าลงกี่เท่า (คูณเวลาง้าง/วงเตือนทุกสกิล · บอสตั้งเองได้ด้วย Info.CastMult)
 Config.StalkerStare = 3 -- จิ้งจอกจันทรา (ตัวไล่): จ้องกี่วินาทีก่อนพุ่งตี (เหยื่อไม่ได้ถือคบเพลิง)
 Config.BossFirstSkill = 2 -- วินาทีหลังเกิดก่อนร่ายสกิลแรก (เดิม 6)
 Config.MaxWildAnimals = 70 -- สัตว์ป่ากลางวันทั้งแมพ

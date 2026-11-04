@@ -841,6 +841,10 @@ function Menus.OpenShop(tab)
 	StoreUI.Open(tab == "Shop" and "Diamonds" or tab)
 end
 
+function Menus.SaveRunOffer(d)
+	StoreUI.ShowSaveRunOffer(d)
+end
+
 function Menus.OpenClasses()
 	Menus.OpenShop("Classes")
 end

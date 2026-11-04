@@ -25,7 +25,7 @@ function PadUI.Init()
 	local function close()
 		current.PickerFrame.Visible = false
 	end
-	local win = WoodKit.Window(gui, { Name = "PadPicker", Size = Vector2.new(780, 330), Title = "👥 Choose Team Size", TitleWidth = 470, BannerHeight = 120, OnClose = close })
+	local win = WoodKit.Window(gui, { Name = "PadPicker", Size = Vector2.new(780, 330), Title = "Choose Team Size", TitleWidth = 470, BannerHeight = 120, OnClose = close })
 	local picker = win.Frame
 	current.PickerFrame = picker
 	picker.Position = UDim2.fromScale(0.5, 0.52)
@@ -152,7 +152,7 @@ function PadUI.Init()
 		local size, count, cd = zone:GetAttribute("Size") or 4, zone:GetAttribute("Count") or 0, zone:GetAttribute("Countdown") or -1
 		local host = zone:GetAttribute("Host") == player.UserId
 		local picked = zone:GetAttribute("Picked") == true
-		pickTitle.Text = "👥 Pad " .. (zone:GetAttribute("PadIndex") or "") .. " · Choose team size"
+		pickTitle.Text = "Pad " .. (zone:GetAttribute("PadIndex") or "") .. " · Choose team size"
 		if not picked then
 			-- ยังไม่เลือกจำนวน = ยังไม่นับเวลา
 			status.Text = string.format("%d players on the pad", count)
