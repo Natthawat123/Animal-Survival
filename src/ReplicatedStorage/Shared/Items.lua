@@ -126,40 +126,51 @@ Items.Tools = {
 	Pickaxe = { Damage = 14, Chop = 0.5, Mine = 3, Range = 9, Cooldown = 0.6, Kind = "Pick" },
 	-- ค้อนช่าง: ถือแล้วคลิกสิ่งก่อสร้าง = เมนูย้าย/รื้อ (BuildHammer.lua) · ตีสัตว์ได้นิดหน่อย
 	BuildHammer = { Damage = 6, Chop = 0, Mine = 0, Range = 8, Cooldown = 0.5, Kind = "Hammer", Builder = true },
-	Spear = { Damage = 28, Chop = 0.3, Mine = 0.2, Range = 13, Cooldown = 0.7, Kind = "Spear" },
+	Spear = { Damage = 30, Chop = 0.3, Mine = 0.2, Range = 13, Cooldown = 0.7, Kind = "Spear" },
 	Torch = { Damage = 8, Chop = 0, Mine = 0, Range = 8, Cooldown = 0.5, Kind = "Torch", Light = 28, Burn = 4 },
-	Bow = { Damage = 22, Chop = 0, Mine = 0, Range = 160, Cooldown = 0.9, Kind = "Bow", Projectile = "Arrow" },
-	TerraHammer = { Damage = 46, Chop = 2, Mine = 4, Range = 11, Cooldown = 1.0, Kind = "Hammer", Aoe = 12, Element = "Earth" },
-	TidalTrident = { Damage = 38, Chop = 0.5, Mine = 0.5, Range = 15, Cooldown = 0.6, Kind = "Spear", Slow = 0.5, Element = "Water" },
-	GaleBow = { Damage = 34, Chop = 0, Mine = 0, Range = 220, Cooldown = 0.55, Kind = "Bow", Projectile = "GaleArrow", Pierce = 3, Element = "Air" },
-	EmberBlade = { Damage = 52, Chop = 2.5, Mine = 1, Range = 12, Cooldown = 0.75, Kind = "Sword", Burn = 10, Light = 20, Element = "Fire" },
-	FourfoldBlade = { Damage = 90, Chop = 4, Mine = 4, Range = 14, Cooldown = 0.6, Kind = "Sword", Aoe = 10, Burn = 12, Slow = 0.6, Light = 30, Element = "All" },
+	Bow = { Damage = 28, Chop = 0, Mine = 0, Range = 160, Cooldown = 0.9, Kind = "Bow", Projectile = "Arrow" },
+	TerraHammer = { Damage = 52, Chop = 2, Mine = 4, Range = 11, Cooldown = 1.0, Kind = "Hammer", Aoe = 12, Element = "Earth" },
+	TidalTrident = { Damage = 42, Chop = 0.5, Mine = 0.5, Range = 15, Cooldown = 0.6, Kind = "Spear", Slow = 0.5, Element = "Water" },
+	GaleBow = { Damage = 38, Chop = 0, Mine = 0, Range = 220, Cooldown = 0.55, Kind = "Bow", Projectile = "GaleArrow", Pierce = 3, Element = "Air" },
+	EmberBlade = { Damage = 56, Chop = 2.5, Mine = 1, Range = 12, Cooldown = 0.75, Kind = "Sword", Burn = 10, Light = 20, Element = "Fire" },
+	FourfoldBlade = { Damage = 65, Chop = 4, Mine = 4, Range = 14, Cooldown = 0.6, Kind = "Sword", Aoe = 10, Burn = 12, Slow = 0.6, Light = 30, Element = "All" },
 	-- คทา: ตีแล้วปล่อยลูกไฟพุ่งไปทางที่เล็ง (ระเบิดวงเล็ก + ติดไฟ) · ยืนชิดต้นไม้/หิน = ฟาดตัด/ทุบได้ (แทนขวาน)
 	EmberStaff = { Damage = 20, Chop = 0, Mine = 0, Range = 9, Cooldown = 0.7, Kind = "Staff", Bolt = { Speed = 150, Range = 140, Blast = 7, Size = 1.6, FxScale = 0.08, ImpactScale = 0.22 }, Burn = 4, Light = 16, Element = "Fire" },
 	Dagger = { Damage = 15, Chop = 0.3, Mine = 0.2, Range = 7, Cooldown = 0.32, Kind = "Sword" },
-	SpikedClub = { Damage = 22, Chop = 0.5, Mine = 0.8, Range = 9, Cooldown = 0.75, Kind = "Hammer" },
-	IronSword = { Damage = 32, Chop = 0.8, Mine = 0.3, Range = 11, Cooldown = 0.55, Kind = "Sword" },
-	Mace = { Damage = 38, Chop = 0.5, Mine = 1.5, Range = 10, Cooldown = 0.85, Kind = "Hammer", Aoe = 6 },
-	BattleAxe = { Damage = 44, Chop = 3.5, Mine = 1, Range = 11, Cooldown = 0.8, Kind = "Axe" },
-	Crossbow = { Damage = 40, Chop = 0, Mine = 0, Range = 200, Cooldown = 1.1, Kind = "Bow", Projectile = "Arrow" },
-	Katana = { Damage = 40, Chop = 1, Mine = 0.3, Range = 12, Cooldown = 0.45, Kind = "Sword" },
-	WarHammer = { Damage = 62, Chop = 1.5, Mine = 4.5, Range = 12, Cooldown = 1.1, Kind = "Hammer", Aoe = 11 },
-	Scythe = { Damage = 54, Chop = 2, Mine = 0.5, Range = 15, Cooldown = 0.8, Kind = "Sword", Aoe = 8 },
-	ArcaneStaff = { Fx = "Arcane", Damage = 30, Chop = 0, Mine = 0, Range = 9, Cooldown = 0.6, Kind = "Staff", Bolt = { Speed = 170, Range = 150, Blast = 9, Size = 1.8, FxScale = 0.05, ImpactScale = 0.15 }, Burn = 4, Light = 16, Element = "All" },
-	BloodScythe = { Fx = "Blood", Damage = 50, Chop = 1.5, Mine = 0.5, Range = 14, Cooldown = 0.72, Kind = "Sword", Aoe = 8 },
-	VerdantStaff = { Fx = "Verdant", Damage = 26, Chop = 0, Mine = 0, Range = 9, Cooldown = 0.6, Kind = "Staff", Bolt = { Speed = 150, Range = 140, Blast = 8, Size = 1.6, FxScale = 0.05, ImpactScale = 0.13 }, Slow = 0.5, Light = 12, Element = "Earth" },
+	SpikedClub = { Damage = 26, Chop = 0.5, Mine = 0.8, Range = 9, Cooldown = 0.75, Kind = "Hammer" },
+	IronSword = { Damage = 34, Chop = 0.8, Mine = 0.3, Range = 11, Cooldown = 0.55, Kind = "Sword" },
+	Mace = { Damage = 40, Chop = 0.5, Mine = 1.5, Range = 10, Cooldown = 0.85, Kind = "Hammer", Aoe = 6 },
+	BattleAxe = { Damage = 48, Chop = 3.5, Mine = 1, Range = 11, Cooldown = 0.8, Kind = "Axe" },
+	Crossbow = { Damage = 44, Chop = 0, Mine = 0, Range = 200, Cooldown = 1.1, Kind = "Bow", Projectile = "Arrow" },
+	Katana = { Damage = 38, Chop = 1, Mine = 0.3, Range = 12, Cooldown = 0.45, Kind = "Sword" },
+	WarHammer = { Damage = 68, Chop = 1.5, Mine = 4.5, Range = 12, Cooldown = 1.1, Kind = "Hammer", Aoe = 11 },
+	Scythe = { Damage = 58, Chop = 2, Mine = 0.5, Range = 15, Cooldown = 0.8, Kind = "Sword", Aoe = 8 },
+	ArcaneStaff = { Fx = "Arcane", Damage = 34, Chop = 0, Mine = 0, Range = 9, Cooldown = 0.6, Kind = "Staff", Bolt = { Speed = 170, Range = 150, Blast = 9, Size = 1.8, FxScale = 0.03, ImpactScale = 0.08 }, Burn = 4, Light = 16, Element = "All" },
+	BloodScythe = { Fx = "Blood", Damage = 54, Chop = 1.5, Mine = 0.5, Range = 14, Cooldown = 0.72, Kind = "Sword", Aoe = 8 },
+	VerdantStaff = { Fx = "Verdant", Damage = 30, Chop = 0, Mine = 0, Range = 9, Cooldown = 0.6, Kind = "Staff", Bolt = { Speed = 150, Range = 140, Blast = 8, Size = 1.6, FxScale = 0.03, ImpactScale = 0.07 }, Slow = 0.5, Light = 12, Element = "Earth" },
 }
 
+-- อาวุธที่เก็บซ้ำได้หลายชิ้น: แต่ละชิ้นเป็น Tool แยกช่องในแถบ (ไม่รวมกอง) · เครื่องมือ/กระสอบ/อาวุธอาชีพ = ชนิดละ 1 เหมือนเดิม
+Items.MultiTools = {
+	Spear = true, Bow = true, Dagger = true, SpikedClub = true, IronSword = true, Mace = true, BattleAxe = true,
+	Crossbow = true, Katana = true, WarHammer = true, Scythe = true,
+	TerraHammer = true, TidalTrident = true, GaleBow = true, EmberBlade = true, FourfoldBlade = true,
+}
+function Items.IsMulti(id)
+	return Items.MultiTools[id] == true
+end
+
 -- ค่าของสิ่งก่อสร้าง
+-- Breakable = true: สัตว์/บอสตีพังได้ (เฉพาะกำแพงไม้ + กำแพงหิน) · ที่เหลือ (เตียง หน้าไม้ กับดัก เสาธาตุ ฯลฯ) ไม่มีวันพัง
 Items.Structures = {
-	LogWall = { Health = 300, Size = Vector3.new(12, 10, 2.5) },
-	StoneWall = { Health = 900, Size = Vector3.new(12, 12, 3.5) },
+	LogWall = { Health = 300, Breakable = true, Size = Vector3.new(12, 10, 2.5) },
+	StoneWall = { Health = 900, Breakable = true, Size = Vector3.new(12, 12, 3.5) },
 	SpikeTrap = { Health = 200, Size = Vector3.new(8, 2, 8), Damage = 18, Tick = 0.8 },
 	Lantern = { Health = 120, Size = Vector3.new(2, 9, 2), Light = 45 },
 	Ballista = { Health = 400, Size = Vector3.new(6, 7, 6), Damage = 30, Range = 120, Cooldown = 1.6 },
 	Bed = { Health = 150, Size = Vector3.new(6.8, 5.2, 8) }, -- เตียงไม้ (3D Model/bad · Cozy Wooden Bed)
 	Bed2 = { Health = 250, Size = Vector3.new(7.6, 6, 8) }, -- เตียงม่านม่วง (3D Model/bad · Royal Violet Canopy)
-	FarmPlot = { Health = 150, Size = Vector3.new(10, 1.5, 10), GrowTime = 90, Yield = 4 },
+	FarmPlot = { Health = 150, Size = Vector3.new(10, 1.5, 10), GrowTime = 180, Yield = 12 }, -- ปลูก 3 นาที ลูกออก 12 ลูก (ต้นละ 2)
 	CookPot = { Health = 200, Size = Vector3.new(5, 5, 5) },
 	TerraTotem = { Health = 600, Size = Vector3.new(4, 14, 4), Radius = 70, Element = "Earth" }, -- ซ่อมกำแพงรอบๆ
 	TideTotem = { Health = 600, Size = Vector3.new(4, 14, 4), Radius = 70, Element = "Water" }, -- สัตว์ในรัศมีเดินช้า
@@ -201,7 +212,7 @@ Items.Desc = {
 	StoneAxe = "Stone axe. Chops wood twice as fast",
 	IronAxe = "Iron axe. The fastest axe for chopping wood",
 	Pickaxe = "Pickaxe. Mines rock and ore fast",
-	BuildHammer = "Builder's hammer. Hold it and click a building to move it or remove it (get half the materials back)",
+	BuildHammer = "Builder's hammer. Hold it and click a building to move it or remove it (picks it up whole)",
 	Spear = "Bone spear. Long reach, high damage",
 	Torch = "Torch for light. Scares off the Moonfang",
 	Bow = "Long-range bow for hunting from a safe distance",

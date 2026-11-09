@@ -130,6 +130,7 @@ local function artButton(parent, order, art, onClick)
 	b.AutoButtonColor = false
 	b.ImageContent = Content.fromObject(img)
 	b.Size = UDim2.fromOffset(ART_W, math.floor(ART_W * size.Y / size.X))
+	b.ScaleType = Enum.ScaleType.Fit -- โหมด 2 คอลัมน์ (มือถือ) ช่องกริดไม่เท่าสัดส่วนภาพ -> ไม่ยืด
 	b.LayoutOrder = order
 	-- เปลี่ยนภาษา -> เปลี่ยนรูปป้าย (ไทย/อังกฤษ)
 	Localizer.OnChanged(function()
@@ -163,7 +164,7 @@ local function artButton(parent, order, art, onClick)
 		end
 	end)
 	-- จุดแจ้งเตือนบนขอบเหรียญ (มุมขวาบนของวงกลมด้านซ้าย)
-	local dot = UIKit.Frame(b, { Size = UDim2.fromOffset(24, 24), Position = UDim2.new(0.3, -4, 0, 0), BackgroundColor3 = UIKit.Colors.Red, BackgroundTransparency = 0, Visible = false, ZIndex = 8 })
+	local dot = UIKit.Frame(b, { Name = "NoticeDot", Size = UDim2.fromOffset(24, 24), Position = UDim2.new(0.3, -4, 0, 0), BackgroundColor3 = UIKit.Colors.Red, BackgroundTransparency = 0, Visible = false, ZIndex = 8 })
 	local dc = Instance.new("UICorner")
 	dc.CornerRadius = UDim.new(1, 0)
 	dc.Parent = dot
@@ -188,7 +189,8 @@ function LobbyUI.Build(gui, handlers)
 	side.AnchorPoint = Vector2.new(0, 0.5)
 	side.Position = UDim2.new(0, 22, 0.56, 0)
 	local useArt = MenuArt.Image("Classes") ~= nil
-	side.Size = useArt and UDim2.fromOffset(ART_W + 10, 600) or UDim2.fromOffset(90, 510)
+	local natural = useArt and Vector2.new(ART_W + 10, 600) or Vector2.new(90, 510)
+	side.Size = UDim2.fromOffset(natural.X, natural.Y)
 	side.Parent = root
 	UIKit.AutoScale(side, { maxW = 0.3, maxH = 0.74 })
 	local layout = Instance.new("UIListLayout")
@@ -196,6 +198,83 @@ function LobbyUI.Build(gui, handlers)
 	layout.SortOrder = Enum.SortOrder.LayoutOrder
 	layout.VerticalAlignment = Enum.VerticalAlignment.Center
 	layout.Parent = side
+	local grid2 = Instance.new("UIGridLayout") -- มือถือจอเตี้ย: 2 คอลัมน์
+	grid2.CellSize = UDim2.fromOffset(ART_W, 116)
+	grid2.CellPadding = UDim2.fromOffset(6, 4)
+	grid2.FillDirectionMaxCells = 2
+	grid2.SortOrder = Enum.SortOrder.LayoutOrder
+	-- จอสัมผัส: เมนูเริ่มใต้แถบ Roblox ด้านบน และจบเหนือจอยสติ๊กมุมซ้ายล่าง (เดิมกลางจอสูง 74% -> ทับจอยจนเดินไม่ได้)
+	--   สูงไม่พอให้อ่านออก (ย่อเกินครึ่ง) -> สลับเป็น 2 คอลัมน์ 3 แถว
+	local function layoutSide()
+		if not side.Parent then
+			return
+		end
+		if not UIKit.IsTouch then
+			grid2.Parent = nil
+			layout.Parent = side
+			side.AnchorPoint = Vector2.new(0, 0.5)
+			side.Position = UDim2.new(0, 22, 0.56, 0)
+			side.Size = UDim2.fromOffset(natural.X, natural.Y)
+			UIKit.AutoScale(side, { maxW = 0.3, maxH = 0.74 })
+			return
+		end
+		local vp = UIKit.Viewport()
+		local phone = UIKit.IsPhone()
+		local ins = game:GetService("GuiService").TopbarInset
+		local top = math.max(ins.Max.Y, 44) + 8
+		local thumb = phone and 180 or 292 -- พื้นที่จอยสติ๊ก (วัดจากขอบล่าง · ตรงกับ tests/ASUIAudit zones + เผื่อ)
+		local avail = math.max(110, vp.Y - thumb - top)
+		side.AnchorPoint = Vector2.new(0, 0)
+		side.Position = UDim2.fromOffset(phone and 10 or 18, top)
+		if not useArt or avail / natural.Y >= 0.5 then
+			grid2.Parent = nil
+			layout.Parent = side
+			layout.VerticalAlignment = Enum.VerticalAlignment.Top
+			side.Size = UDim2.fromOffset(natural.X, natural.Y)
+			UIKit.AutoScale(side, { maxW = 0.3, maxH = avail / vp.Y })
+		else
+			layout.Parent = nil
+			grid2.Parent = side
+			local w, h = ART_W * 2 + 6, 116 * 3 + 8
+			side.Size = UDim2.fromOffset(w, h)
+			UIKit.AutoScale(side, { maxW = 0.4, maxH = avail / vp.Y })
+		end
+		-- เมนูถูกย่อมาก -> จุดแจ้งเตือน (ตัวเลข) ขยายสวนกลับ ให้บนจอยังราว 16-18 px
+		local s = math.max(UIKit.GetScale(side), 0.2)
+		for _, d in ipairs(side:GetDescendants()) do
+			if d.Name == "NoticeDot" and d:IsA("Frame") then
+				local px = math.max(24, math.floor(18 / s))
+				d.Size = UDim2.fromOffset(px, px)
+				local t = d:FindFirstChildWhichIsA("TextLabel")
+				if t then
+					t.TextSize = math.max(15, math.floor(13 / s))
+					t.TextScaled = true -- ตัวเลขพอดีวงเสมอ
+					local fit = t:FindFirstChildOfClass("UITextSizeConstraint")
+					if fit then
+						fit.MinTextSize, fit.MaxTextSize = 4, 200
+					end
+				end
+			end
+		end
+	end
+	task.defer(layoutSide)
+	UIKit.OnResize(layoutSide)
+	-- จอสัมผัส: เปิดหน้าต่าง (ร้านค้า/ภารกิจ/ป้าย ฯลฯ) -> ซ่อนเมนูซ้าย จอเล็กจะได้ไม่บังเนื้อหาหน้าต่าง
+	local lastCheck = 0
+	game:GetService("RunService").Heartbeat:Connect(function()
+		local now = os.clock()
+		if now - lastCheck < 0.15 or not side.Parent then
+			return
+		end
+		lastCheck = now
+		local hide = UIKit.AnyWindowOpen() -- (คอมก็ซ่อน: จอ 900-1366 เมนูซ้ายเคยโผล่ข้างหน้าต่างทับเนื้อหา)
+		if side.Visible == hide then
+			side.Visible = not hide
+		end
+		if ui.Pill and ui.Pill.Visible == hide then
+			ui.Pill.Visible = not hide -- ปุ่มปิดหน้าต่างมุมขวาบนเคยทับตัวเลข Ruby
+		end
+	end)
 	-- ปุ่มภาพวาดก่อน ไม่ได้ค่อยใช้ปุ่มวงกลมแบบเดิม
 	local function menuButton(order, art, icon, name, color, handler)
 		local function onClick()
@@ -234,6 +313,7 @@ function LobbyUI.Build(gui, handlers)
 	-- (ธีมไม้เดียวกับหน้าต่างร้านค้า: ไม้เข้มขอบทอง + ปุ่ม + แดง)
 	local pill = WoodKit.Frame(root, { Size = UDim2.fromOffset(190, 46), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -24, 0, 20), BackgroundColor3 = Color3.fromRGB(42, 28, 18) })
 	UIKit.AutoScale(pill, { w = 230, maxW = 0.25 })
+	ui.Pill = pill
 	WoodKit.Corner(pill, "round")
 	WoodKit.Stroke(pill, WoodKit.Colors.GoldDark, 3, 0)
 	UIKit.Icon(pill, "Ruby", 60, { Position = UDim2.fromOffset(-30, -9), ZIndex = 3 })

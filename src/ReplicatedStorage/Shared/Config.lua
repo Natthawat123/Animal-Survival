@@ -52,10 +52,10 @@ Config.BuildRange = 60
 Config.AnimalsEnabled = true
 Config.LootMult = 0.7 -- ตัวคูณของดรอปทั้งเกม (วัตถุดิบ/แก่นธาตุ เท่านั้น — อาหาร/ยาไม่ลด)
 Config.MonsterDamageScale = 0.5 -- ดาเมจมอนทั่วไป (สัตว์ป่า/บุกแคมป์/ผู้พิทักษ์) ที่ตีผู้เล่น — ลดความยาก (เดิม 0.75)
-Config.BossDamageScale = 0.75 -- ดาเมจบอส (ตีธรรมดา + สกิลทุกท่า)
-Config.BossSkillCooldown = { Min = 3, Max = 4.5 } -- บอสบุกแคมป์ร่ายสกิลทุกกี่วินาที (สุ่มในช่วงนี้ · เดิม 7-10)
-Config.LairBossSkillCooldown = { Min = 2, Max = 3 } -- บอสในรัง/ผู้พิทักษ์บอส ร่ายสกิลทุกกี่วินาที (เดิม 4.5-6.5)
-Config.BossCastMult = 2.6 -- ท่าร่ายบอสช้าลงกี่เท่า (คูณเวลาง้าง/วงเตือนทุกสกิล · บอสตั้งเองได้ด้วย Info.CastMult)
+Config.BossDamageScale = 1 -- (ตอนนี้ดาเมจบอสตั้งเป็นตัวเลขจริงใน Animals: Damage/SkillDamage) ดาเมจบอส (ตีธรรมดา + สกิลทุกท่า)
+Config.BossSkillCooldown = 20 -- (เดิม 25) คูลดาวน์ของแต่ละสกิล (วินาที นับหลังร่ายจบ) · ท่าเดิมใช้ซ้ำได้เมื่อครบเวลานี้ (บอสทุกตัว ทั้งบุกแคมป์/ในรัง)
+Config.BossSkillGap = 5 -- เว้นระหว่างสกิล (วินาที หลังร่ายจบก่อนร่ายท่าถัดไป) · ไม่มีท่าไหนพร้อม -> รอจนพร้อม
+Config.BossCastMult = 1.82 -- (เดิม 2.6 · ร่ายเร็วขึ้น 30% = x0.7) ท่าร่ายบอสช้าลงกี่เท่า (คูณเวลาง้าง/วงเตือนทุกสกิล · บอสตั้งเองได้ด้วย Info.CastMult)
 Config.StalkerStare = 3 -- จิ้งจอกจันทรา (ตัวไล่): จ้องกี่วินาทีก่อนพุ่งตี (เหยื่อไม่ได้ถือคบเพลิง)
 Config.BossFirstSkill = 2 -- วินาทีหลังเกิดก่อนร่ายสกิลแรก (เดิม 6)
 Config.MaxWildAnimals = 70 -- สัตว์ป่ากลางวันทั้งแมพ
@@ -63,15 +63,18 @@ Config.WildSpawnRadius = { Min = 140, Max = 420 } -- เกิดรอบตั
 Config.WildDespawnRadius = 900
 -- กล่องทั่วแมพ: จำนวนทั้งหมด + จำนวนแต่ละระดับ (ธรรมดา / หายาก / ตำนาน) · วิหาร = ระดับ 3 เสมอ
 Config.CrateCount = 40
-Config.CrateTierWeight = { 24, 12, 4 }
+Config.CrateTierWeight = { 18, 14, 8 }
 -- สัตว์ป่ากลางวันมีถิ่นของตัวเอง (ไม่ใช่ฝูงบุกกลางคืน): ไม่ไล่ตามข้ามแมพจนถึงแคมป์
 -- ช่วยลูกสัตว์ธาตุสำเร็จ = ข้ามวันตามธาตุ (Air = ไบโอมน้ำแข็ง) · เตียง = 1 วัน
-Config.SpiritBonusDays = { Earth = 2, Water = 3, Air = 4, Fire = 5 }
+Config.SpiritBonusDays = { Earth = 1, Water = 2, Air = 3, Fire = 4 } -- ช่วยลูกสัตว์: บวกเข้าตัวคูณวัน (ไม้ +1 · น้ำ +2 · น้ำแข็ง +3 · ไฟ +4) · ยังไม่มีตัวคูณ = เริ่มจาก x1
+Config.FightDayBonus = 60 -- เริ่มสู้บอสในรัง / ผู้พิทักษ์วิหาร / ผู้เฝ้าศาลเจ้า ตอนกลางวัน = กลางวัน +1 นาที (แห่งละครั้งต่อวัน)
+Config.ShrineGuardianMult = 1.5 -- มอนในดันช่วยลูกสัตว์ (ผู้เฝ้าศาล ทุกเวฟ): เลือด + ดาเมจ x1.5
 Config.WildLeash = 70 -- รัศมีถิ่นจากจุดเกิด (stud) · ผู้เล่นออกนอกถิ่น +40 = เลิกไล่ แล้วเดินกลับถิ่น
 Config.WildChaseTime = 14 -- ไล่ไม่ถึงตัวนานเกินนี้ (วินาที) = เลิกไล่
 Config.WildGiveUpTime = 10 -- เลิกไล่แล้ว ไม่สนใจคนนั้นอีกกี่วินาที
 Config.RaidSpawnRadius = { Min = 220, Max = 320 } -- ฝูงบุกเกิดรอบกองไฟ
-Config.MaxRaidAnimals = 55
+Config.MaxRaidAnimals = 18 -- สัตว์บุกพร้อมกันสูงสุด (เดิม 55)
+Config.RaidBosses = false -- บอสบุกแคมป์คืน 25/50/75/99 (ปิด: บอสอยู่ในรังเท่านั้น)
 Config.AnimalThinkRate = 0.25 -- วินาทีต่อรอบคิดของ AI
 
 ---------------------------------------------------------------- นักพัฒนา
@@ -97,12 +100,20 @@ Config.DiamondPacks = {
 -- Game Pass (ซื้อครั้งเดียว) · PassId 0 = ยังไม่ได้สร้างใน Creator Hub
 Config.GamePasses = {
 	{ Id = "SeasonPass", PassId = 2063569631, Robux = 499, Icon = "🎟", Name = "Season Pass", Desc = "Unlocks the Season Pass premium track every season · More Ruby + special titles/title colors · Wildwood Druid class" },
-	{ Id = "SaveRun", PassId = 2064000575, Robux = 799, Icon = "💾", Name = "Save Run", Desc = "Your run is saved every dawn and when you leave · Continue from the saved night at the start pad" },
+	{ Id = "SaveRun", PassId = 2064000575, Robux = 799, Icon = "💾", Name = "Save Run", Desc = "Retired — owners got 1 free world (Worlds menu)" }, -- เลิกขาย: แทนด้วยสร้างโลกจ่ายต่อครั้ง (Config.WorldProductId)
 }
 -- คืนชีพทันที (Developer Product ซื้อซ้ำได้) · 0 = ยังไม่ได้สร้าง -> ไม่มีปุ่มซื้อ
 Config.ReviveProductId = 3726412294
+-- ชุบทั้งทีมจ่ายทีเดียว (ราคาเดียว 129 Robux ไม่ว่ากี่คน): Developer Product "Revive All" · 0 = ยังไม่ตั้ง -> ซื้อทีละคนแทน
+Config.ReviveAllProductId = 3728747675
+Config.ReviveAllRobux = 129 -- ราคาที่โชว์ระหว่างรอดึงราคาจริงจาก Roblox
+Config.WorldRobux = 199 -- ราคาที่โชว์ระหว่างรอดึงราคาจริง
+Config.WorldProductId = 3728749227 -- Developer Product "Create World" 199 Robux (จ่ายต่อ 1 โลก) · 0 = Studio สร้างฟรี / เกมจริงปิดปุ่มสร้าง
+Config.WorldMaxSlots = 5 -- เก็บโลกได้สูงสุดกี่โลกต่อคน
+Config.WorldNightGate = 20 -- เข้าห้องโลกได้ถึงคืน = คืนที่ตัวเองเคยรอดไกลสุด + เท่านี้ (ยังไม่เคยเล่น = คืน 20)
+Config.WorldMaxSize = 8 -- คนในห้องโลกสูงสุด (เซิร์ฟเวอร์ทีมต้องรับได้ >= เท่านี้: Creator Hub > Places > Server size)
 -- ล้มหมดทั้งทีม: รอให้กดคืนชีพก่อนแพ้กี่วินาที (มีสินค้าคืนชีพ/ตั๋วคืนชีพ) · ไม่มี = 2 วินาทีเหมือนเดิม
-Config.WipeGrace = 15
+Config.WipeGrace = 30
 -- ป้าย Roblox: Stat = ค่าในเซฟที่ใช้เช็ก, Need = ต้องถึงเท่าไร
 Config.Badges = {
 	{ Id = "Welcome", BadgeId = 0, Name = "Welcome to the Wilds", Stat = "Joined", Need = 1 },

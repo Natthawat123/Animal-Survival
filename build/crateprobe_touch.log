@@ -1,0 +1,213 @@
+﻿ERR: torError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+ERR: torError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+orOutput] [AS] เริ่มเทสต์อัตโนมัติ...
+orOutput] [AS] seed=981452643 map=2048
+orOutput] [AS] client ready
+orOutput] [AS] terrain 9.2s
+rOutput] [AS] world ready 10.4s props=395
+orOutput] [AS] READY
+orOutput] [AS] SKILLPROBE PASS vamp-lv2-no-skill 
+orOutput] [AS] SKILLPROBE PASS vamp-dmg30 
+orOutput] [AS] SKILLPROBE PASS vamp-lv3-swarm Swarm
+orOutput] [AS] SKILLPROBE PASS vamp-kill-heal 52.9
+orOutput] [AS] SKILLPROBE PASS swarm-use 
+rOutput] [AS] SKILLPROBE PASS bats-guard hp=92.0
+rOutput] [AS] SKILLPROBE PASS swarm-5 5
+rOutput] [AS] SKILLPROBE PASS swarm-cooldown 
+orOutput] [AS] SKILLPROBE PASS bats-damage 
+orOutput] [AS] SKILLPROBE PASS basic-dmg-BloodScythe 16/70
+orOutput] [AS] SKILLPROBE PASS basic-dmg-ArcaneStaff 7/70
+orOutput] [AS] SKILLPROBE PASS basic-dmg-VerdantStaff 40/70
+orOutput] [AS] SKILLPROBE PASS dark-name 
+orOutput] [AS] SKILLPROBE PASS dark-dmg30 
+orOutput] [AS] SKILLPROBE PASS dark-lv1-no-skill 
+orOutput] [AS] SKILLPROBE PASS bats-gone-on-class-change 0
+rOutput] [AS] SKILLPROBE PASS dark-lv2-veil ShadowVeil
+orOutput] [AS] SKILLPROBE PASS dark-lv3-two-skills ShadowVeil,DarkMeteor
+orOutput] [AS] SKILLPROBE PASS veil-target-before 
+orOutput] [AS] SKILLPROBE PASS veil-use 
+orOutput] [AS] SKILLPROBE PASS veil-invisible 
+orOutput] [AS] SKILLPROBE PASS veil-untargeted 
+orOutput] [AS] SKILLPROBE PASS veil-transparent 0.8500000238418579
+rOutput] [AS] SKILLPROBE PASS veil-breaks-on-damage 
+rOutput] [AS] SKILLPROBE PASS veil-visible-again 0
+rOutput] [AS] SKILLPROBE PASS veil-expires 
+orOutput] [AS] SKILLPROBE PASS meteor-use 
+orOutput] [AS] SKILLPROBE PASS meteor-impact dead
+orOutput] [AS] SKILLPROBE PASS meteor-burn-2pct 6000 (expect ~6000)
+orOutput] [AS] SKILLPROBE PASS meteor-lock-use 
+orOutput] [AS] SKILLPROBE PASS meteor-lock-hit dead
+rOutput] [AS] SKILLPROBE PASS druid-regen 
+orOutput] [AS] SKILLPROBE PASS druid-regen-3pct-2s +4.6 in 2s (max 115)
+orOutput] [AS] SKILLPROBE PASS druid-speed30 
+orOutput] [AS] SKILLPROBE PASS druid-lv2-no-skill 
+orOutput] [AS] SKILLPROBE PASS druid-lv3-thorn 
+orOutput] [AS] SKILLPROBE PASS thorn-use 
+orOutput] [AS] SKILLPROBE PASS thorn-stun-4 3.999475199962035
+orOutput] [AS] SKILLPROBE PASS thorn-boss-stun-2 1.9994751999620348
+orOutput] [AS] SKILLPROBE PASS thorn-poison-15 
+orOutput] [AS] SKILLPROBE PASS thorn-stunned-still 0
+orOutput] [AS] SKILLPROBE PASS thorn-poison-ticks 70.0 -> 67.2
+orOutput] [AS] SKILLPROBE PASS thorn-cooldown 
+rOutput] [AS] SKILLPROBE PASS survivor-no-skill 
+rOutput] [AS] SKILLPROBE PASS lobby-tag-class 🔥 Survivor · Lv.1
+orOutput] [AS] SKILLPROBE PASS drain-swarm 
+torOutput] [AS] SKILLPROBE PASS bat-kill-heal 57.5 -> 65.9
+torOutput] [AS] SKILLPROBE PASS mult-x5 5
+torOutput] [AS] SKILLPROBE PASS mult-dawn-extra4 4
+torOutput] [AS] SKILLPROBE PASS bed-first-x2 2
+torOutput] [AS] SKILLPROBE PASS bed-plus1 5
+torOutput] [AS] SKILLPROBE PASS mult-past-99 night 102 · complete 1
+torOutput] [AS] SKILLPROBE INFO stalkers-before 0
+torOutput] [AS] SKILLPROBE PASS fox-spawn 
+torOutput] [AS] SKILLPROBE PASS fox-stats 
+torOutput] [AS] SKILLPROBE PASS fox-hit-15 15.0
+torOutput] [AS] SKILLPROBE PASS fox-cooldown-4 4.58
+torOutput] [AS] SKILLPROBE PASS fox-stays-close 16.1
+torOutput] [AS] SKILLPROBE PASS fox-chase-sound Hunt
+torOutput] [AS] SKILLPROBE PASS fox-torch-vanish retreat=true hidden=true st=Hidden
+torOutput] [AS] SKILLPROBE PASS fox-hidden-in-sky y 800
+torOutput] [AS] SKILLPROBE PASS fox-warp-back back=true d=36.1 stalkers=1
+torOutput] [AS] SKILLPROBE PASS fox-camp-vanish hidden=true fd=165.2 (safe 42.0)
+orOutput] [AS] SKILLPROBE PASS fox-warp-after-camp back=true d=42.2
+torOutput] [AS] SKILLPROBE PASS fox-mount-faster walk 29.7 ride 49.9
+torOutput] [AS] SKILLPROBE PASS fox-no-double-chase fox1=Hunt fox2=Hidden
+torOutput] [AS] SKILLPROBE PASS bite-spawn 
+torOutput] [AS] SKILLPROBE PASS bite-stand-hit windup 0.53 dmg 10.0
+orOutput] [AS] SKILLPROBE PASS bite-dodge-back dmg 0.0
+orOutput] [AS] SKILLPROBE PASS burn-color-shadow 0.745098, 0.352941, 1
+orOutput] [AS] SKILLPROBE PASS burn-color-fire 1, 0.470588, 0.156863
+torOutput] [AS] SKILLPROBE PASS drops-no-overlap 6 logs · min gap 2.30
+torOutput] [AS] SKILLPROBE RESULT fails=0
+shot fx_scythe_swing_a
+shot fx_scythe_swing_b
+shot fx_scythe_hit_a
+shot fx_scythe_hit_b
+shot fx_arcane_cast_a
+shot fx_arcane_cast_b
+shot fx_arcane_impact_a
+shot fx_arcane_impact_b
+shot fx_verdant_impact_a
+shot fx_verdant_impact_b
+shot fx_swarmloop_a
+shot fx_swarmloop_b
+shot fx_veil_a
+shot fx_veil_b
+torOutput] [AS] SKILLPROBE PASS burn-on-mob MossWolf
+shot fx_burn_1
+shot fx_burn_2
+shot fx_burn_3
+shot fx_burnfire_1
+shot fx_burnfire_2
+shot fx_swarm_0
+shot fx_swarm_1
+shot fx_swarm_2
+shot fx_meteor_1
+shot fx_meteor_2
+shot fx_meteor_3
+shot fx_meteor_4
+shot fx_meteor_5
+shot fx_thorn_1
+shot fx_thorn_2
+shot fx_thorn_3
+torOutput] [AS] SKILLPROBE PASS slot1-ShadowVeil true
+torOutput] [AS] SKILLPROBE PASS slot2-DarkMeteor true
+shot fx_e2e_slots
+torOutput] [AS] SKILLPROBE INFO real-key-Z unavailable The current thread cannot call 'SendKeyEvent' (lacking capability RobloxScript)
+shot fx_e2e_meteor_1
+torOutput] [AS] SKILLPROBE PASS client-use-DarkMeteor 
+shot fx_e2e_meteor_2
+torOutput] [AS] SKILLPROBE PASS meteor-cooldown-ui 0.9766111373901367
+torOutput] [AS] SKILLPROBE PASS meteor-cooldown-120 117.14648699760437
+torOutput] [AS] SKILLPROBE INFO real-click-slot1 unavailable The current thread cannot call 'SendMouseButtonEvent' (lacking capability RobloxScript)
+torOutput] [AS] SKILLPROBE PASS client-use-ShadowVeil 
+orOutput] [AS] SKILLPROBE PASS veil-invisible 
+shot fx_e2e_veil
+torOutput] [AS] SKILLPROBE PASS slot1-Swarm true
+torOutput] [AS] SKILLPROBE PASS vamp-slot2-hidden 
+torOutput] [AS] SKILLPROBE INFO real-key-Q unavailable
+torOutput] [AS] SKILLPROBE PASS client-use-Swarm 
+shot fx_e2e_swarm_1
+torOutput] [AS] SKILLPROBE PASS client-swarm-5-bats 5
+shot fx_e2e_swarm_2
+shot fx_e2e_formation
+torOutput] [AS] SKILLPROBE PASS bats-visible-client 5
+torOutput] [AS] SKILLPROBE PASS slot1-ThornBind true
+shot fx_e2e_thorn_1
+torOutput] [AS] SKILLPROBE PASS client-use-ThornBind 
+shot fx_e2e_thorn_2
+torOutput] [AS] SKILLPROBE CLIENT fails=0
+torOutput] [AS] SKILLPROBE FXSHOW DONE
+torOutput] [AS] SKILLPROBE E2E fails=0
+torOutput] [AS] SKILLPROBE DONE
+ERR: torError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+torOutput] [AS] rebuilt mesh collisions: 1215
+torOutput] [AS] เริ่มเทสต์อัตโนมัติ...
+torOutput] [AS] seed=517266971 map=6144
+torOutput] [AS] client ready
+torOutput] [AS] terrain 16.4s
+torOutput] [AS] world ready 22.4s props=12240
+torOutput] [AS] READY
+torOutput] [AS] CRATE 01 tier=1 biome=Earth pos=(239,56,1070) size=(5.4,3.7,3.7) ground=55.9 sunk=0.0 clear=7/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 02 tier=2 biome=Earth pos=(-2071,36,793) size=(6.2,4.8,4.3) ground=36.2 sunk=0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 03 tier=2 biome=Earth pos=(-167,42,2212) size=(6.2,4.8,4.3) ground=41.6 sunk=-0.0 clear=7/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 04 tier=1 biome=Fire pos=(-879,37,199) size=(5.4,3.7,3.7) ground=36.7 sunk=-0.0 clear=7/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 05 tier=1 biome=Earth pos=(-258,55,1279) size=(5.4,3.7,3.7) ground=55.3 sunk=-0.0 clear=7/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 06 tier=3 biome=Air pos=(2401,32,-85) size=(7.2,4.9,4.6) ground=31.5 sunk=-0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 07 tier=2 biome=Air pos=(143,46,-1944) size=(6.2,4.8,4.3) ground=45.6 sunk=-0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 08 tier=3 biome=Fire pos=(-532,34,-1654) size=(7.2,4.9,4.6) ground=34.0 sunk=-0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 09 tier=1 biome=Air pos=(947,41,-312) size=(5.4,3.7,3.7) ground=41.4 sunk=0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 10 tier=1 biome=Fire pos=(-1690,34,-256) size=(5.4,3.7,3.7) ground=34.0 sunk=0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 11 tier=2 biome=Fire pos=(-273,34,-2171) size=(6.2,4.8,4.3) ground=34.4 sunk=0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 12 tier=1 biome=Fire pos=(-1886,34,-1025) size=(5.4,3.7,3.7) ground=34.4 sunk=0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 13 tier=1 biome=Earth pos=(447,29,1999) size=(5.4,3.7,3.7) ground=29.3 sunk=-0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 14 tier=3 biome=Air pos=(1248,48,-726) size=(7.2,4.9,4.6) ground=47.5 sunk=-0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 15 tier=1 biome=Air pos=(-38,51,-1373) size=(5.4,3.7,3.7) ground=50.9 sunk=0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 16 tier=2 biome=Air pos=(367,29,20) size=(6.2,4.8,4.3) ground=29.3 sunk=-0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 17 tier=1 biome=Fire pos=(-806,50,-2339) size=(5.4,3.7,3.7) ground=50.0 sunk=-0.0 clear=7/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 18 tier=2 biome=Fire pos=(-2273,34,-1207) size=(6.2,4.8,4.3) ground=34.0 sunk=0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 19 tier=2 biome=Air pos=(2218,46,-810) size=(6.2,4.8,4.3) ground=46.0 sunk=0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 20 tier=1 biome=Fire pos=(-2250,49,-808) size=(5.4,3.7,3.7) ground=48.9 sunk=-0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 21 tier=1 biome=Air pos=(1779,42,-673) size=(5.4,3.7,3.7) ground=41.8 sunk=-0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 22 tier=1 biome=Earth pos=(-1331,22,1379) size=(5.4,3.7,3.7) ground=22.4 sunk=-0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 23 tier=2 biome=Earth pos=(-1369,45,1905) size=(6.2,4.8,4.3) ground=45.5 sunk=-0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 24 tier=3 biome=Fire pos=(-2422,48,655) size=(7.2,4.9,4.6) ground=47.6 sunk=-0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 25 tier=2 biome=Air pos=(1519,46,-327) size=(6.2,4.8,4.3) ground=46.0 sunk=0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 26 tier=2 biome=Air pos=(734,53,-1969) size=(6.2,4.8,4.3) ground=52.8 sunk=0.0 clear=4/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 27 tier=3 biome=Air pos=(1198,45,-2215) size=(7.2,4.9,4.6) ground=45.5 sunk=0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 28 tier=1 biome=Air pos=(1680,48,-1149) size=(5.4,3.7,3.7) ground=48.4 sunk=-0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 29 tier=3 biome=Earth pos=(-564,68,419) size=(7.2,4.9,4.6) ground=67.9 sunk=0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 30 tier=1 biome=Earth pos=(260,46,1581) size=(5.4,3.7,3.7) ground=46.0 sunk=0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 31 tier=2 biome=Earth pos=(-2134,34,1396) size=(6.2,4.8,4.3) ground=34.1 sunk=0.0 clear=6/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 32 tier=2 biome=Air pos=(560,54,-1219) size=(6.2,4.8,4.3) ground=53.7 sunk=-0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 33 tier=3 biome=Fire pos=(-2289,34,151) size=(7.2,4.9,4.6) ground=34.0 sunk=-0.0 clear=7/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 34 tier=2 biome=Fire pos=(-935,50,-1407) size=(6.2,4.8,4.3) ground=50.0 sunk=0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 35 tier=1 biome=Earth pos=(-1034,36,673) size=(5.4,3.7,3.7) ground=36.5 sunk=0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 36 tier=1 biome=Earth pos=(-1780,60,1730) size=(5.4,3.7,3.7) ground=60.1 sunk=-0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 37 tier=2 biome=Earth pos=(-915,54,1912) size=(6.2,4.8,4.3) ground=54.2 sunk=-0.0 clear=7/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 38 tier=3 biome=Fire pos=(-1887,50,319) size=(7.2,4.9,4.6) ground=50.0 sunk=0.0 clear=7/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 39 tier=1 biome=Air pos=(1556,44,-1701) size=(5.4,3.7,3.7) ground=43.6 sunk=-0.0 clear=6/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 40 tier=1 biome=Air pos=(2022,45,-1424) size=(5.4,3.7,3.7) ground=44.8 sunk=0.0 clear=7/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE TOTAL n=40 pins=40 sunk=0 buried=0 covered=0 hidden=0 pinoff=0
+orOutput] [AS] CRATESHOT crate1_clear4_OK streamed=true
+shot crate1_clear4_OK
+orOutput] [AS] MAPCAL inset=(0,58) mapAbs=(665,51) objsAt(abs)=true objsAt(abs-inset)=false
+orOutput] [AS] MAPCAL inputToAbs(833,443)->(833,443) errToAbs=0.0
+orOutput] [AS] MAPCAL inputToAbs(833,385)->(833,385) errToAbs=58.0
+torOutput] [AS] MAPCAL pin tip err=0.0px
+shot mapcal_freeclick
+orOutput] [AS] WAYPOINT crate1_clear4_OK snapD=0.0
+shot crate1_clear4_OK_map
+shot crate1_clear4_OK_beam
+torOutput] [AS] CRATESHOT crate2_clear6_OK streamed=true
+shot crate2_clear6_OK
+torOutput] [AS] WAYPOINT crate2_clear6_OK snapD=0.0
+shot crate2_clear6_OK_map
+shot crate2_clear6_OK_beam
+torOutput] [AS] CRATESHOT crate3_clear8_OK streamed=true
+shot crate3_clear8_OK
+torOutput] [AS] WAYPOINT crate3_clear8_OK snapD=0.0
+shot crate3_clear8_OK_map
+shot crate3_clear8_OK_beam
+torOutput] [TEST] DONE crateprobe
+finished in 637s  done=True

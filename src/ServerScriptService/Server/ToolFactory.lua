@@ -172,6 +172,15 @@ end
 local ToolFactory = {}
 ToolFactory.StoreWeapons = STORE_WEAPONS
 
+-- สีไฟเผาของอาวุธ = สีออร่า (ColorSequence) · ไม่มีออร่า = สีตามธาตุ · ไม่มีธาตุ = ไฟส้มปกติ
+local ELEMENT_AURA = { Earth = "Earth", Water = "Water", Air = "Wind", Fire = "Fire", All = "Rainbow" }
+function ToolFactory.BurnColor(toolId, tool)
+	local cfg = STORE_WEAPONS[toolId]
+	local kind = (cfg and cfg.Aura) or (tool and ELEMENT_AURA[tool.Element]) or "Fire"
+	local A = AURAS[kind] or AURAS.Fire
+	return A.Color, A.Emission
+end
+
 -- โมเดลอาวุธจาก Store -> ชิ้นทั้งหมดเชื่อมกับ Handle (ชิ้นใหญ่สุด) + ย่อขยายให้ยาวตาม Length
 local function buildStore(itemId, tool)
 	local cfg = STORE_WEAPONS[itemId]

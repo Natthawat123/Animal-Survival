@@ -1336,7 +1336,7 @@
 1537	Gậy đặc trưng của Pháp sư · Bắn đạn bí thuật phát nổ (mạnh với mọi nguyên tố)
 1538	Hồi 2% máu tối đa sau mỗi lần hạ quái
 1539	Máu tối đa +30 · Hồi 0.8 HP/giây · Kỹ năng: Thánh địa rừng — khu rừng hồi máu cho đội và làm chậm quái 12 giây · Hồi chiêu 100 giây
-1541	Kỹ năng: gọi 5 con dơi (200 HP) tấn công quái · Hồi chiêu 120 giây · Dùng lại = đàn mới thay đàn cũ
+1541	Kỹ năng: gọi 5 con dơi (200 HP) tấn công quái · Hồi chiêu 120 giây · Dùng lại = đàn mới thay đàn cũ (trùm chỉ nhận một nửa sát thương)
 1542	Bầy dơi
 1543	Lưỡi hái đặc trưng của Ma cà rồng · Tầm xa, quét cả nhóm kẻ thù
 1544	Gậy Xanh
@@ -1349,8 +1349,8 @@
 1551	Hồi 3% máu mỗi 2 giây
 1552	Chạy nhanh hơn 30%
 1553	Màn bóng tối
-1554	Kỹ năng: thiên thạch hắc ám rơi từ trời, sát thương lớn diện rộng và để lại vùng lửa đen 10 giây (đốt 2% máu/giây) · Hồi chiêu 120 giây
-1555	Kỹ năng: làm choáng quái xung quanh 4 giây (trùm 2 giây) và gây độc — mất 1% máu/giây trong 15 giây · Hồi chiêu 150 giây
+1554	Kỹ năng: thiên thạch hắc ám rơi từ trời, sát thương lớn diện rộng và để lại vùng lửa đen 10 giây (đốt 2% máu/giây) · Hồi chiêu 120 giây (trùm: tổng tối đa 5%)
+1555	Kỹ năng: làm choáng quái xung quanh 4 giây (trùm 2 giây) và gây độc — mất 1% máu/giây trong 15 giây · Hồi chiêu 150 giây (trùm: tổng tối đa 4%)
 1556	Kỹ năng: tàng hình và chạy nhanh hơn 50% trong 4 giây (mất khi gây sát thương) · Hồi chiêu 30 giây
 1557	Trói gai
 1558	Bước hoang dã
@@ -1362,3 +1362,16 @@
 1582	Đặt để nghỉ: hệ số ngày +1 (chưa có thưởng = x2) · mỗi sáng số ngày tăng theo hệ số · Tối đa 1 giường mỗi máy chủ
 1586	Đang chờ trưởng bệ chọn số người
 1589	🛏️ %s dùng giường — ngày tính x%d!
+1590	📍 Bấm vào bản đồ để đặt điểm đánh dấu
+1591	📍 Đã đến điểm đánh dấu
+1592	📍 Điểm đánh dấu ở gần đây
+1593	Rất gần rồi! %dm
+1594	Điểm đánh dấu %dm
+1595	Đánh dấu
+1596	Bản đồ
+1597	Tấn công
+1598	Chặt
+1599	Đào
+1600	Nhặt
+1601	Luống dâu %d/%d
+1605	Trại %dm

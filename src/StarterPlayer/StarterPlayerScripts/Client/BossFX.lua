@@ -114,13 +114,18 @@ local function emitAt(pos, props, count, life)
 	return e
 end
 
+-- สั่นเฉพาะคนที่ยืนอยู่ในเขตที่บอสทุบ (วงรัศมี + ขอบ 3 studs) · นอกเขต = ไม่สั่น (เดิมสั่นไกลเกือบทั้งแมพ)
 local function shakeFor(pos, radius, power)
-	local cam = Workspace.CurrentCamera
-	local d = (cam.CFrame.Position - pos).Magnitude
-	local k = math.clamp(1 - d / (radius * 5 + 60), 0, 1)
-	if k > 0 and BossFX.Shake then
-		BossFX.Shake(power * k, 0.5 + 0.4 * k)
+	local char = game:GetService("Players").LocalPlayer.Character
+	local root = char and char:FindFirstChild("HumanoidRootPart")
+	if not root or not BossFX.ZoneShake then
+		return
 	end
+	local flat = (root.Position - pos) * Vector3.new(1, 0, 1)
+	if flat.Magnitude > radius + 3 or math.abs(root.Position.Y - pos.Y) > radius + 12 then
+		return
+	end
+	BossFX.ZoneShake(power * 0.5, 0.35)
 end
 
 local function play(name, cf, opts)
@@ -141,6 +146,13 @@ local function meshFx(name, cf, height, life)
 	for _, d in ipairs(c:GetDescendants()) do
 		if d.Name == "Storm" then
 			d:Destroy()
+		end
+	end
+	-- กันเมชยักษ์: ชิ้นที่ SpecialMesh สเกลเกิน 5000 (เช่น "Tornado part" ของพายุน้ำ = จานน้ำวน Scale 100000)
+	--   พอย่อ/ขยายโมเดลแล้วกว้างเป็นหลายพัน stud -> น้ำวนบังทั้งแมพ · ตัดทิ้ง เหลือกรวยหลัก (Car1)
+	for _, d in ipairs(c:GetDescendants()) do
+		if d:IsA("SpecialMesh") and d.Parent and d.Parent ~= c and math.max(math.abs(d.Scale.X), math.abs(d.Scale.Y), math.abs(d.Scale.Z)) > 5000 then
+			d.Parent:Destroy()
 		end
 	end
 	for _, d in ipairs(m:GetDescendants()) do
@@ -426,10 +438,11 @@ local function impactFx(d)
 	if d.Style == "Geyser" then
 		-- พวยน้ำ: กรวยพายุน้ำหมุนพุ่งจากพื้น + เสาน้ำกระเซ็น + ระเบิดน้ำที่ฐาน
 		local h = math.clamp(r * 5, 30, 70)
-		-- กรวยบานด้านบนกว้างมาก (เมชใหญ่กว่ากล่องชิ้นส่วน) -> ย่อความสูงลง ไม่งั้นปากกรวยครอบกล้องจนจอเป็นสีฟ้าทั้งจอ
-		local tor = meshFx("Tornado", at * CF(0, -h * 0.2, 0), h * 0.42, 2.4)
+		-- เกลียวน้ำ (MeshPart · ขนาดเท่ากล่องจริง) แทนกรวยพายุ WaterTornado เดิม:
+		--   เมชเก่าเป็น SpecialMesh ปากกรวยบานกว้างเกินกล่องชิ้นส่วนหลายเท่า -> กล้องอยู่สูง/ไกลก็อยู่ในปากกรวย จอเป็นสีฟ้าทั้งแมพ
+		local tor = meshFx("Twist", at * CF(0, -h * 0.1, 0), h * 0.8, 2.4)
 		if tor then
-			spinModel(tor, 9, 2.2, h * 0.2)
+			spinModel(tor, 9, 2.2, h * 0.1)
 			fadeModel(tor, 0.7, 1.4)
 		end
 		-- เสาน้ำพุ่งขึ้นตรง สูงราวยอดพายุ แล้วตกโปรยรอบๆ
@@ -792,8 +805,9 @@ function BossFX.IntroBurst(pos, radius, element)
 	impactFx({ Pos = pos, Radius = radius, Element = element, Style = element == "Water" and "Geyser" or nil })
 end
 
-function BossFX.Init(shake)
+function BossFX.Init(shake, zoneShake)
 	BossFX.Shake = shake
+	BossFX.ZoneShake = zoneShake
 end
 
 return BossFX

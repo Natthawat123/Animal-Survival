@@ -48,20 +48,8 @@ function MonetizationService:HasPass(player, key)
 	return owned[player] ~= nil and owned[player][key] == true
 end
 
--- ทีมตายหมด กลับถึงล็อบบี้แล้ว: ยังไม่มี Save Run = เสนอขาย (ไม่บังคับ) · มีแล้ว = บอกว่าเล่นต่อจากคืนไหนได้
-function MonetizationService:OfferSaveRun(player, night)
-	local pass = passByKey.SaveRun
-	if not (pass and (pass.PassId or 0) > 0 and player.Parent) or player:GetAttribute("InRun") then
-		return
-	end
-	if self:HasPass(player, "SaveRun") then
-		local saved = player:GetAttribute("SavedNight")
-		if saved then
-			self.ctx.Notify(player, string.format("Run saved at Night %d · Press Continue on the start pad to keep going", saved), "Good")
-		end
-		return
-	end
-	self.ctx.Remotes.Get("Cinematic"):FireClient(player, "SaveRunOffer", { Night = night })
+-- (เดิม: เสนอขาย/เลือกบันทึก Save Run หลังทีมตายหมด) -> เลิกใช้แล้ว: พาสนี้กลายเป็น World Pass (WorldService)
+function MonetizationService:OfferSaveRun()
 end
 
 local function setOwned(player, key)
@@ -137,9 +125,24 @@ end
 local function reviveReceipt(self, receipt, player, data)
 	local ds = self.ctx.Services.DataService
 	local surv = self.ctx.Services.SurvivalService
-	if surv:IsDowned(player) then
-		surv:Revive(player, 1)
-		self.ctx.Notify(player, "Revived!", "Good")
+	-- ชุบ: ตัวเองก่อน (ล้ม/ตายในรอบ) · โหมดชุบทั้งทีม = ตัวเองยืนอยู่แล้วก็ชุบเพื่อนที่ล้ม/ตายคนถัดไป
+	local target = surv:IsFallen(player) and player or nil
+	if not target and player:GetAttribute("ReviveAll") then
+		for _, p in ipairs(Players:GetPlayers()) do
+			if surv:IsFallen(p) then
+				target = p
+				break
+			end
+		end
+	end
+	if target then
+		surv:ReviveAny(target)
+		if target == player then
+			self.ctx.Notify(player, "Revived!", "Good")
+		else
+			self.ctx.Notify(target, player.DisplayName .. " revived you!", "Good")
+			self.ctx.Notify(player, "Revived " .. target.DisplayName, "Good")
+		end
 	else
 		data.ReviveTokens = (data.ReviveTokens or 0) + 1
 		player:SetAttribute("ReviveTokens", data.ReviveTokens)
@@ -182,10 +185,56 @@ local function giftReceipt(self, receipt, player, data, pack, gift)
 	return Enum.ProductPurchaseDecision.PurchaseGranted
 end
 
+-- สร้างโลก (จ่ายต่อ 1 โลก): ได้ "สิทธิ์สร้างโลก" 1 ครั้ง -> WorldService สร้างโลกให้ทันที (เมนู Worlds ส่งค่าที่ตั้งไว้รอ)
+local function worldReceipt(self, receipt, player, data)
+	local ds = self.ctx.Services.DataService
+	data.WorldCredits = (data.WorldCredits or 0) + 1
+	remember(data, receipt.PurchaseId)
+	if ds:StoreReady() and not ds:Save(player) then
+		data.WorldCredits -= 1
+		table.remove(data.Receipts, #data.Receipts)
+		return Enum.ProductPurchaseDecision.NotProcessedYet
+	end
+	player:SetAttribute("WorldCredits", data.WorldCredits)
+	task.spawn(self.ctx.Services.WorldService.OnCredit, self.ctx.Services.WorldService, player)
+	return Enum.ProductPurchaseDecision.PurchaseGranted
+end
+
+-- ชุบทั้งทีม (จ่ายทีเดียว): ชุบทุกคนที่ล้ม/ตายในรอบ · ไม่มีใครล้มแล้ว (ชุบกันเองทัน) = ได้ตั๋วคืนชีพตามจำนวนแทน
+local function reviveAllReceipt(self, receipt, player, data)
+	local ds = self.ctx.Services.DataService
+	local surv = self.ctx.Services.SurvivalService
+	local done = 0
+	for _, p in ipairs(Players:GetPlayers()) do
+		if surv:IsFallen(p) then
+			surv:ReviveAny(p)
+			done += 1
+			if p ~= player then
+				self.ctx.Notify(p, player.DisplayName .. " revived the whole team!", "Good")
+			end
+		end
+	end
+	if done == 0 then
+		-- ไม่มีใครล้มแล้ว (ชุบกันเองทันก่อนจ่ายเสร็จ) -> เก็บเป็นตั๋วคืนชีพ 1 ใบ
+		data.ReviveTokens = (data.ReviveTokens or 0) + 1
+		player:SetAttribute("ReviveTokens", data.ReviveTokens)
+		self.ctx.Notify(player, "Everyone is already up — got 1 Revive Ticket instead", "Reward")
+	else
+		self.ctx.Notify(player, string.format("Revived the whole team (%d)!", done), "Good")
+	end
+	remember(data, receipt.PurchaseId)
+	if ds:StoreReady() then
+		ds:Save(player)
+	end
+	return Enum.ProductPurchaseDecision.PurchaseGranted
+end
+
 local function processReceipt(self, receipt)
+	local reviveAllN = (Config.ReviveAllProductId or 0) > 0 and receipt.ProductId == Config.ReviveAllProductId
 	local isRevive = (Config.ReviveProductId or 0) > 0 and receipt.ProductId == Config.ReviveProductId
+	local isWorld = (Config.WorldProductId or 0) > 0 and receipt.ProductId == Config.WorldProductId
 	local pack = packByProduct[receipt.ProductId]
-	if not (pack or isRevive) then
+	if not (pack or isRevive or isWorld or reviveAllN) then
 		return Enum.ProductPurchaseDecision.NotProcessedYet
 	end
 	local player = Players:GetPlayerByUserId(receipt.PlayerId)
@@ -201,6 +250,12 @@ local function processReceipt(self, receipt)
 	end
 	if isRevive then
 		return reviveReceipt(self, receipt, player, data)
+	end
+	if isWorld then
+		return worldReceipt(self, receipt, player, data)
+	end
+	if reviveAllN then
+		return reviveAllReceipt(self, receipt, player, data)
 	end
 	local gift = giftTo[player]
 	if gift and os.clock() - gift.At < GIFT_WINDOW then
@@ -248,6 +303,10 @@ function MonetizationService:Start(ctx)
 			giftTo[player] = nil
 			player:SetAttribute("GiftTo", nil)
 		end
+	end)
+	-- ทีมล้มหมด: โหมด "ชุบทั้งทีม" (ซื้อคืนชีพแต่ละครั้ง = ชุบคนที่ล้ม/ตายคนถัดไป)
+	ctx.Remotes.Get("ReviveAllMode").OnServerEvent:Connect(function(player, on)
+		player:SetAttribute("ReviveAll", on == true or nil)
 	end)
 	-- ใช้ตั๋วคืนชีพตอนล้ม
 	ctx.Remotes.Get("UseReviveToken").OnServerEvent:Connect(function(player)

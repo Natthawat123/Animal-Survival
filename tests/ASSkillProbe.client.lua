@@ -9,6 +9,7 @@ if not ReplicatedStorage:FindFirstChild("ASSkillProbe") then
 	return
 end
 local player = Players.LocalPlayer
+local Items = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Items"))
 
 repeat
 	task.wait(0.5)
@@ -58,7 +59,7 @@ end
 local function nearestMob()
 	local best, bd
 	for _, m in ipairs(workspace:GetDescendants()) do
-		if m:IsA("Model") and m:GetAttribute("Health") and m ~= char then
+		if m:IsA("Model") and m:GetAttribute("Health") and m ~= char and not tostring(m.Name):find("Moonfang") then
 			local d = (m:GetPivot().Position - root.Position).Magnitude
 			if d < 40 and (not bd or d < bd) then
 				best, bd = m, d
@@ -73,8 +74,8 @@ local SHORT = {
 	{ "scythe_swing", "ClassSwing", function() return { Fx = "Blood", Player = player, Position = root.Position, Dir = look, Kind = "Sword" } end },
 	{ "scythe_hit", "ClassHit", function() return { Fx = "Blood", Position = root.Position + look * 6, Dir = look, Crit = true } end },
 	{ "arcane_cast", "ClassSwing", function() return { Fx = "Arcane", Player = player, Position = root.Position, Dir = look, Kind = "Staff" } end },
-	{ "arcane_impact", "__Impact", function() return { FxKind = "Arcane", Position = ahead(14) + Vector3.new(0, 2, 0), Radius = 9, FxScale = 0.26 } end },
-	{ "verdant_impact", "__Impact", function() return { FxKind = "Verdant", Position = ahead(14) + Vector3.new(0, 2, 0), Radius = 8, FxScale = 0.22 } end },
+	{ "arcane_impact", "__Impact", function() return { FxKind = "Arcane", Position = ahead(14) + Vector3.new(0, 2, 0), Radius = 9, FxScale = Items.Tools.ArcaneStaff.Bolt.ImpactScale } end },
+	{ "verdant_impact", "__Impact", function() return { FxKind = "Verdant", Position = ahead(14) + Vector3.new(0, 2, 0), Radius = 8, FxScale = Items.Tools.VerdantStaff.Bolt.ImpactScale } end },
 	{ "swarmloop", "SkillSwarm", function() return { Position = root.Position, Player = player } end, 1.0 },
 	{ "veil", "SkillVeil", function() return { Position = root.Position, Player = player } end },
 }
@@ -92,6 +93,12 @@ for _, s in ipairs(SHORT) do
 		end
 	end)
 	task.wait(0.3)
+	if false then
+		local fxf = workspace:FindFirstChild("ClassFX")
+		local box = fxf and fxf:FindFirstChild("BurnBox")
+		local em = box and box:FindFirstChildOfClass("ParticleEmitter")
+		print(string.format("[AS] SKILLPROBE %s burn-on-mob %s", (em and em.Enabled) and "PASS" or "FAIL", tostring(nearestMob())))
+	end
 	print("[SHOT] fx_" .. s[1] .. "_a")
 	task.wait(1.4)
 	print("[SHOT] fx_" .. s[1] .. "_b")
@@ -102,17 +109,27 @@ end
 camFar = true
 task.wait(0.5)
 local LONG = {
+	{ "burn", "Burning", function() return { Model = nearestMob(), Color = ColorSequence.new({ ColorSequenceKeypoint.new(0, Color3.fromRGB(190, 90, 255)), ColorSequenceKeypoint.new(0.45, Color3.fromRGB(95, 20, 170)), ColorSequenceKeypoint.new(1, Color3.fromRGB(12, 0, 22)) }), Time = 9 } end, { 0, 0.5, 1 }, 2 },
+	{ "burnfire", "Burning", function() return { Model = nearestMob(), Color = ColorSequence.new(Color3.fromRGB(255, 120, 40), Color3.fromRGB(255, 40, 20)), Time = 6 } end, { 0, 0.5 }, 2 },
 	{ "swarm", "SkillSwarm", function() return { Position = root.Position, Player = player } end, { 0, 0.4 }, 3 },
 	{ "meteor", "SkillDarkMeteor", function() return { Position = ahead(22), Radius = 16, Zone = 14, Duration = 10 } end, { 0, 0.5, 0.9, 1.6, 3 }, 6 },
 	{ "thorn", "SkillThornBind", function() return { Position = root.Position, Radius = 42, Player = player } end, { 0, 0.4, 1.2 }, 4 },
 }
 for _, s in ipairs(LONG) do
+	camFar = not s[1]:find("burn") -- ไฟเผา: กล้องใกล้
 	if s[1] == "swarm" then
 		-- ภาพช่วงพายุค้างคาว (~0.6 วิ): สั่งถ่ายก่อน แล้วค่อยเล่น (ตัวถ่ายช้า ~1.1 วิ)
 		print("[SHOT] fx_swarm_0")
 		task.wait(0.5)
 	end
 	ClassFX.Play(s[2], s[3]())
+	if s[1] == "burn" then
+		task.wait(0.3)
+		local fxf = workspace:FindFirstChild("ClassFX")
+		local box = fxf and fxf:FindFirstChild("BurnBox")
+		local em = box and box:FindFirstChildOfClass("ParticleEmitter")
+		print(string.format("[AS] SKILLPROBE %s burn-on-mob %s", (em and em.Enabled) and "PASS" or "FAIL", tostring(nearestMob())))
+	end
 	if s[2] == "SkillThornBind" then
 		local mob = nearestMob()
 		if mob then

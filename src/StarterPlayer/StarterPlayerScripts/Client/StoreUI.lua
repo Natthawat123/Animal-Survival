@@ -161,7 +161,7 @@ function StoreUI.Refresh()
 	for i, pack in ipairs(Config.DiamondPacks) do
 		packCard(i, pack)
 	end
-	saveRunCard()
+	-- (การ์ด Save Run เลิกขายในร้านแล้ว -> พาสนี้เป็น World Pass ซื้อจากเมนู Worlds)
 	local to = player:GetAttribute("GiftTo")
 	ui.GiftBtn.Text = to and ("🎁 Gifting to " .. to .. "  ✖") or "🎁 Gift a friend"
 	WoodKit.Style(ui.GiftBtn, to and "Red" or "Green")
@@ -345,6 +345,8 @@ function StoreUI.Init(gui)
 	local tab = WoodKit.Tab(body, "      Buy Ruby", 1, 190)
 	tab.Position = UDim2.fromOffset(32, 44)
 	WoodKit.SetTab(tab, true)
+	tab.Active = false -- ป้ายบอกหน้า (กดไม่ได้) — ไม่นับเป็นปุ่มเล็ก
+	tab.AutoButtonColor = false
 	UIKit.Icon(tab, "Ruby", 38, { Position = UDim2.fromOffset(22, 3), ZIndex = 2 })
 	-- รายการแพ็ก (วางเอง 4 ต่อแถว) + กระดาษคำอธิบายมุมขวาล่าง
 	local list = UIKit.Frame(body, { BackgroundTransparency = 1, Position = UDim2.fromOffset(32, 104), Size = UDim2.new(1, -64, 1, -124) })

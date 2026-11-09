@@ -206,6 +206,9 @@ rf.OnServerInvoke = function(player, what)
 			ev:CleanupAll()
 		end
 		return table.concat(out, " ")
+	elseif what == "pup" then
+		ReplicatedStorage:WaitForChild("GameState"):SetAttribute("SpiritEarth", true)
+		return "ok"
 	elseif what == "auras" then
 		local surv = svc("SurvivalService")
 		for _, el in ipairs({ "Water", "Air", "Fire" }) do

@@ -1,6 +1,7 @@
 --[[
 	ItemIcon — รูปไอเทมจากโมเดลจริง (Assets.Items / Assets.Weapons) ใน ViewportFrame
 	Make(parent, id, props) -> ViewportFrame (ไม่มีโมเดล = ไอคอนตัวหนังสือตามหมวด)
+	Prop(parent, name, props) -> ViewportFrame ของโมเดลใน Assets.Props (เช่น AirdropCrate = กล่องเสบียง)
 ]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -45,6 +46,50 @@ local function template(id)
 	end
 	cache[id] = m or false
 	return m
+end
+
+local propCache = {}
+function ItemIcon.Prop(parent, name, props)
+	local vp = Instance.new("ViewportFrame")
+	vp.BackgroundTransparency = 1
+	vp.Size = UDim2.fromOffset(40, 40)
+	for k, v in pairs(props or {}) do
+		vp[k] = v
+	end
+	local t = propCache[name]
+	if t == nil then
+		local assets = ReplicatedStorage:FindFirstChild("Assets")
+		local src = assets and assets:FindFirstChild("Props") and assets.Props:FindFirstChild(name)
+		if src then
+			t = Instance.new("Model")
+			local c = src:Clone()
+			for _, d in ipairs(c:GetDescendants()) do
+				if d:IsA("LuaSourceContainer") or d:IsA("Light") or d:IsA("ParticleEmitter") or d:IsA("Sound") or d:IsA("Trail") or d:IsA("Beam") then
+					d:Destroy()
+				elseif d:IsA("BasePart") then
+					d.Anchored = true
+				end
+			end
+			c.Parent = t
+		end
+		propCache[name] = t or false
+	end
+	if t then
+		local m = t:Clone()
+		m.Parent = vp
+		local cf, size = m:GetBoundingBox()
+		local r = math.max(size.Magnitude / 2, 0.1)
+		local cam = Instance.new("Camera")
+		cam.FieldOfView = 30
+		cam.CFrame = CFrame.lookAt(cf.Position + Vector3.new(0.75, 0.55, -1).Unit * (r / math.tan(math.rad(15)) * 1.02), cf.Position)
+		cam.Parent = vp
+		vp.CurrentCamera = cam
+		vp.Ambient = Color3.fromRGB(205, 200, 195)
+		vp.LightColor = Color3.fromRGB(255, 250, 240)
+		vp.LightDirection = Vector3.new(-0.5, -1, 0.4)
+	end
+	vp.Parent = parent
+	return vp
 end
 
 function ItemIcon.Make(parent, id, props)

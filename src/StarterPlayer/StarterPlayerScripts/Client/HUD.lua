@@ -11,6 +11,7 @@ local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
@@ -22,6 +23,7 @@ local Classes = require(Shared.Classes)
 local Remotes = require(Shared.Remotes)
 local UIKit = require(script.Parent.UIKit)
 local SoundController = require(script.Parent.SoundController)
+local ItemIcon = require(script.Parent.ItemIcon)
 
 local HUD = {}
 local player = Players.LocalPlayer
@@ -205,7 +207,9 @@ function HUD.Init(state)
 		end
 		UIKit.AutoScale(top, topOpts)
 		if HUD.Feed then
-			HUD.Feed.Position = UDim2.new(0.5, 0, 0, (HUD.Touch and 178 or 198) * UIKit.BigScale())
+			-- มือถือ: กรอบบนถูกย่อ -> แจ้งเตือนเริ่มใต้แถบเลือดบอสพอดี (เดิม 178 px ตายตัว = กลางจอเตี้ย ชนการ์ดกด E/ฟีดเก็บของ)
+			HUD.Feed.Position = UIKit.IsPhone() and UDim2.new(0.5, 0, 0, math.floor(16 + 196 * UIKit.GetScale(top)))
+				or UDim2.new(0.5, 0, 0, (HUD.Touch and 178 or 198) * UIKit.BigScale())
 		end
 	end
 	layoutTop()
@@ -215,7 +219,6 @@ function HUD.Init(state)
 	HUD.DiamondLabel = UIKit.Text(right, { Size = UDim2.fromOffset(100, 28), Position = UDim2.new(1, -144, 0, 80), Text = "0", Font = UIKit.Fonts.Title, TextSize = 22, TextXAlignment = Enum.TextXAlignment.Right, TextColor3 = Color3.fromRGB(255, 190, 190) })
 	UIKit.Icon(right, "Ruby", 32, { Position = UDim2.new(1, -42, 0, 76) })
 	-- คลังแคมป์ (ของที่ย่อยแล้ว ใช้ร่วมกันทั้งทีม): รูปไอเทม + จำนวน ใต้การ์ดกองไฟ
-	local ItemIcon = require(script.Parent.ItemIcon)
 	local stock = UIKit.Frame(right, { Name = "CampStock", Size = UDim2.new(1, 0, 0, 44), Position = UDim2.fromOffset(0, 124), BackgroundColor3 = Color3.fromRGB(16, 14, 26), BackgroundTransparency = 0.22 })
 	UIKit.Corner(stock, 10)
 	local ss = UIKit.Stroke(stock, C.Gold, 1, 0.2)
@@ -228,6 +231,23 @@ function HUD.Init(state)
 		ItemIcon.Make(stock, id, { Size = UDim2.fromOffset(30, 30), Position = UDim2.fromOffset(x, 7), ZIndex = 3 })
 		HUD.StockLabels[id] = UIKit.Text(stock, { Size = UDim2.fromOffset(30, 44), Position = UDim2.fromOffset(x + 31, 0), Text = "0", TextSize = 17, Font = UIKit.Fonts.Black, TextColor3 = C.Text })
 	end
+
+	-- ป้าย "ลูกสัตว์ในแคมป์ x/4" (ป้ายเรืองแสงสีฟ้าแบบเกมต้นแบบ) ใต้คลังแคมป์
+	local pups = UIKit.Frame(right, { Name = "PupCounter", Size = UDim2.fromOffset(160, 58), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, 0, 0, 174), BackgroundColor3 = Color3.fromRGB(20, 40, 120), BackgroundTransparency = 0.05 })
+	UIKit.Corner(pups, 10)
+	local pg = Instance.new("UIGradient")
+	pg.Color = ColorSequence.new(Color3.fromRGB(90, 170, 255), Color3.fromRGB(30, 60, 190))
+	pg.Rotation = 90
+	pg.Parent = pups
+	local pst = UIKit.Stroke(pups, Color3.fromRGB(130, 220, 255), 2, 0)
+	pst.Thickness = 2
+	HUD.PupCount = UIKit.Text(pups, { Size = UDim2.new(1, 0, 0, 34), Position = UDim2.fromOffset(0, 2), Text = "0/4", Font = UIKit.Fonts.Title, TextSize = 30, TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Center })
+	local pcs = Instance.new("UIStroke")
+	pcs.Color, pcs.Thickness, pcs.Parent = Color3.fromRGB(20, 60, 170), 2, HUD.PupCount
+	UIKit.Text(pups, { Size = UDim2.new(1, -8, 0, 19), Position = UDim2.fromOffset(4, 36), Text = "Spirit Pups in camp", Font = UIKit.Fonts.Black, TextSize = 15, TextColor3 = Color3.fromRGB(215, 240, 255), TextXAlignment = Enum.TextXAlignment.Center })
+	HUD.PupScale = Instance.new("UIScale")
+	HUD.PupScale.Parent = pups
+	HUD.PupLast = 0
 
 	---------------------------------------------------------------- ล่าง: ทรัพยากร
 	local strip = UIKit.Frame(gui, { Size = UDim2.new(0, 760, 0, 40), Position = UDim2.new(0.5, -380, 1, -172), BackgroundTransparency = 0.45 })
@@ -247,7 +267,7 @@ function HUD.Init(state)
 	for i, id in ipairs(STRIP) do
 		local slot = UIKit.Frame(strip, { Size = UDim2.fromOffset(44, 32), BackgroundColor3 = Color3.fromRGB(30, 28, 32), BackgroundTransparency = 0.3, LayoutOrder = i })
 		UIKit.Corner(slot, 6)
-		UIKit.Text(slot, { Size = UDim2.new(1, 0, 0, 18), Position = UDim2.fromOffset(0, 0), Text = ICON[id] or "?", TextSize = 15, TextXAlignment = Enum.TextXAlignment.Center })
+		ItemIcon.Make(slot, id, { Size = UDim2.fromOffset(24, 24), Position = UDim2.fromOffset(2, 4) })
 		local count = UIKit.Text(slot, { Size = UDim2.new(1, -4, 0, 14), Position = UDim2.fromOffset(0, 17), Text = "0", TextSize = 12, TextXAlignment = Enum.TextXAlignment.Right, TextColor3 = C.TextDim })
 		slot.Visible = false
 		HUD.Slots[id] = { Frame = slot, Count = count }
@@ -277,6 +297,7 @@ function HUD.Init(state)
 	fl.SortOrder = Enum.SortOrder.LayoutOrder
 	fl.Parent = feed
 	HUD.Feed = feed
+	layoutTop() -- วางตำแหน่งแจ้งเตือนตามจอทันที (ไม่ต้องรอจอเปลี่ยนขนาด)
 	-- มีป้ายใหญ่กลางจอ (Cinematics.Banner) = ซ่อนแถบข้อความชั่วคราว ไม่ให้ทับกัน
 	player:GetAttributeChangedSignal("BannerUp"):Connect(function()
 		feed.Visible = not player:GetAttribute("BannerUp")
@@ -303,6 +324,18 @@ function HUD.Init(state)
 	pl.HorizontalAlignment = Enum.HorizontalAlignment.Right
 	pl.Parent = pick
 	HUD.PickFeed = pick
+	-- มือถือจอเตี้ย: ฟีดเก็บของโชว์ 2 แถวล่างสุด + ต่ำลงชิดแถบไอเทม -> ไม่ชนแจ้งเตือนกลางจอ
+	local function layoutPick()
+		local phone = UIKit.IsPhone()
+		pick.ClipsDescendants = phone
+		pick.Size = UDim2.new(0, 220, 0, phone and 64 or 200)
+		if touch then
+			pick.Position = UDim2.new(0.5, 0, 1, phone and -78 or -110)
+		end
+		UIKit.AutoScale(pick)
+	end
+	layoutPick()
+	UIKit.OnResize(layoutPick)
 
 	-- ล้ม
 	HUD.DownedFrame = UIKit.Frame(gui, { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.fromRGB(80, 0, 0), BackgroundTransparency = 0.7, Visible = false, ZIndex = 20 })
@@ -324,12 +357,85 @@ function HUD.Init(state)
 	end)
 	UIKit.AutoScale(HUD.ReviveBtn)
 	HUD.RevivePrice = nil
+	if (Config.ReviveAllProductId or 0) > 0 then
+		task.spawn(function()
+			local ok, info = pcall(game:GetService("MarketplaceService").GetProductInfo, game:GetService("MarketplaceService"), Config.ReviveAllProductId, Enum.InfoType.Product)
+			HUD.ReviveAllPrice = ok and info and info.PriceInRobux or nil
+		end)
+	end
 	if (Config.ReviveProductId or 0) > 0 then
 		task.spawn(function()
 			local ok, info = pcall(game:GetService("MarketplaceService").GetProductInfo, game:GetService("MarketplaceService"), Config.ReviveProductId, Enum.InfoType.Product)
 			HUD.RevivePrice = ok and info and info.PriceInRobux or nil
 		end)
 	end
+
+	-- ทีมล้มหมด (ทุกโหมด): หน้าต่างชุบ 30 วิ · ชุบตัวเอง = 1 ครั้ง · ชุบทั้งทีม = ราคา × จำนวนคนที่ล้ม/ตาย
+	--   ซื้อแต่ละครั้งเซิร์ฟเวอร์ชุบคนถัดไป (MonetizationService reviveReceipt + attribute ReviveAll)
+	local MPS = game:GetService("MarketplaceService")
+	local function fallenCount()
+		local n = 0
+		for _, p in ipairs(Players:GetPlayers()) do
+			if p:GetAttribute("InRun") and (p:GetAttribute("Downed") or p:GetAttribute("Dead")) then
+				n += 1
+			end
+		end
+		return n
+	end
+	HUD.FallenCount = fallenCount
+	local wp = UIKit.Frame(gui, { Size = UDim2.fromOffset(560, 250), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0.2, 0), BackgroundColor3 = Color3.fromRGB(40, 12, 12),
+		BackgroundTransparency = 0.15, Visible = false, ZIndex = 40 })
+	UIKit.Corner(wp, 14)
+	UIKit.Stroke(wp, Color3.fromRGB(255, 120, 100), 3, 0)
+	UIKit.AutoScale(wp, { maxW = 0.9 })
+	HUD.WipePanel = wp
+	HUD.WipeText = UIKit.Text(wp, { Size = UDim2.new(1, -20, 0, 70), Position = UDim2.fromOffset(10, 10), Text = "", Font = UIKit.Fonts.Title, TextSize = 28, TextWrapped = true,
+		TextXAlignment = Enum.TextXAlignment.Center, TextColor3 = Color3.fromRGB(255, 210, 200), ZIndex = 41 })
+	HUD.WipeMe = UIKit.Button(wp, { Size = UDim2.fromOffset(250, 60), Position = UDim2.new(0.5, -260, 0, 100), Text = "", TextSize = 21,
+		BackgroundColor3 = Color3.fromRGB(46, 160, 80), TextColor3 = Color3.new(1, 1, 1), ZIndex = 42 }, function()
+		if (player:GetAttribute("ReviveTokens") or 0) > 0 and player:GetAttribute("Downed") then
+			Remotes.Get("UseReviveToken"):FireServer()
+		elseif (Config.ReviveProductId or 0) > 0 then
+			HUD.ReviveAllActive = false
+			Remotes.Get("ReviveAllMode"):FireServer(false)
+			MPS:PromptProductPurchase(player, Config.ReviveProductId)
+		end
+	end)
+	HUD.WipeAll = UIKit.Button(wp, { Size = UDim2.fromOffset(250, 60), Position = UDim2.new(0.5, 10, 0, 100), Text = "", TextSize = 21,
+		BackgroundColor3 = Color3.fromRGB(214, 150, 40), TextColor3 = Color3.new(1, 1, 1), ZIndex = 42 }, function()
+		local n = fallenCount()
+		if n > 0 and (Config.ReviveAllProductId or 0) > 0 then
+			-- จ่ายทีเดียว (ราคาเดียว) ชุบทุกคน
+			HUD.ReviveAllActive = false
+			MPS:PromptProductPurchase(player, Config.ReviveAllProductId)
+		elseif (Config.ReviveProductId or 0) > 0 and n > 0 then
+			-- ยังไม่ได้ตั้งสินค้า: ซื้อทีละคนจนครบ
+			HUD.ReviveAllActive = true
+			Remotes.Get("ReviveAllMode"):FireServer(true)
+			MPS:PromptProductPurchase(player, Config.ReviveProductId)
+		end
+	end)
+	-- ไม่ชุบ กลับล็อบบี้ (ทั้งทีมกดครบ = จบทันที)
+	HUD.WipeSkip = UIKit.Button(wp, { Size = UDim2.fromOffset(300, 48), Position = UDim2.new(0.5, -150, 0, 178), Text = "Back to Lobby", TextSize = 20,
+		BackgroundColor3 = Color3.fromRGB(150, 50, 50), TextColor3 = Color3.new(1, 1, 1), ZIndex = 42 }, function()
+		HUD.Skipped = true
+		Remotes.Get("WipeSkip"):FireServer()
+	end)
+	-- ชุบทั้งทีม: ซื้อสำเร็จแล้วยังมีคนล้มอยู่ -> เด้งซื้อครั้งถัดไปเอง จนครบทุกคน (ยกเลิก = หยุด)
+	MPS.PromptProductPurchaseFinished:Connect(function(_, productId, bought)
+		if productId ~= Config.ReviveProductId or not HUD.ReviveAllActive then
+			return
+		end
+		if bought then
+			task.wait(1.5) -- รอเซิร์ฟเวอร์ชุบคนที่เพิ่งจ่าย
+			if fallenCount() > 0 and HUD.ReviveAllActive then
+				MPS:PromptProductPurchase(player, Config.ReviveProductId)
+				return
+			end
+		end
+		HUD.ReviveAllActive = false
+		Remotes.Get("ReviveAllMode"):FireServer(false)
+	end)
 
 	-- อัปเดต HUD 30 ครั้ง/วินาที พอ (ไม่ต้องทุกเฟรม ลดภาระเครื่องอ่อน/มือถือ)
 	local hudAcc = 0
@@ -513,11 +619,16 @@ function HUD.Update()
 	elseif not HUD.HintSince then
 		HUD.HintSince = os.clock()
 	end
-	HUD.Hint.Visible = HUD.ShowHints ~= false and (inLobby or os.clock() - HUD.HintSince < 60)
+	-- คอมในแมพ: ใช้แผงปุ่มลัดมุมขวาล่าง (KeyHints) แทนบรรทัดนี้
+	HUD.Hint.Visible = HUD.ShowHints ~= false and (inLobby or (HUD.Touch and os.clock() - HUD.HintSince < 60))
+		and not (UIKit.IsPhone() and HUD.PickFeed and #HUD.PickFeed:GetChildren() > 1) -- มือถือ: มีป๊อปอัปเก็บของอยู่ = หลบให้
 	local big = UIKit.BigScale()
 	HUD.Hint.Position = UDim2.new(0.5, 0, 1, inLobby and -16 or -86 * big) -- ในแมพ: อยู่เหนือแถบไอเทมของ Roblox
-	HUD.Hint.Size = UDim2.new(UIKit.IsPhone() and 0.46 or 0.7, 0, 0, 20 * big) -- มือถือ: แคบลงไม่ทับเมนูซ้าย/ปุ่มขวา
-	HUD.Hint.TextSize = 15 * big
+	-- มือถือ: แคบพอให้อยู่ระหว่างจอยสติ๊ก (ซ้าย ~210) กับปุ่ม Lock/Sprint/กระโดด (ขวา ~220) · ตัดเป็น 2 บรรทัด
+	local phone = UIKit.IsPhone()
+	HUD.Hint.Size = phone and UDim2.new(0, math.max(170, UIKit.Viewport().X - 440), 0, 34 * big) or UDim2.new(0.7, 0, 0, 20 * big)
+	HUD.Hint.TextWrapped = phone
+	HUD.Hint.TextSize = (phone and 13 or 15) * big
 	if inLobby then
 		HUD.NightLabel.Text = "WILDHEART CAMP"
 		HUD.NightLabel.TextColor3 = C.Gold
@@ -589,31 +700,50 @@ function HUD.Update()
 			HUD.SafeLabel.TextColor3 = C.TextDim
 		end
 	end
+	local pupCount = 0
 	for el, orb in pairs(HUD.SpiritOrbs) do
 		local rescued = s:GetAttribute("Spirit" .. el)
+		pupCount += rescued and 1 or 0
 		orb.Frame.BackgroundColor3 = rescued and C.Element[el] or Color3.fromRGB(50, 50, 56)
 		orb.Icon.TextTransparency = rescued and 0 or 0.6
 	end
+	HUD.PupCount.Text = pupCount .. "/4"
+	if pupCount > HUD.PupLast then
+		-- ได้ลูกสัตว์เพิ่ม: ป้ายเด้ง
+		HUD.PupScale.Scale = 1.25
+		TweenService:Create(HUD.PupScale, TweenInfo.new(0.5, Enum.EasingStyle.Back), { Scale = 1 }):Play()
+	end
+	HUD.PupLast = pupCount
 	HUD.DiamondLabel.Text = tostring(player:GetAttribute("Diamonds") or 0)
 
 	-- บอส
-	local bossId = s:GetAttribute("BossId")
-	local bossNear = false
-	if bossId and bossId ~= "" and player:GetAttribute("InRun") then
+	-- หลอดเลือดบอส = บอสตัวที่ใกล้เราที่สุด (ระยะ 350) อ่านเลือดจากตัวบอสเอง
+	--   (เดิมใช้ค่า BossHP ตัวเดียวทั้งเซิร์ฟ -> บอสหลายตัว/บอสตื่นใหม่/บอสฟื้นเลือด เขียนทับกัน หลอดเลยกระโดดเต็ม-ลด)
+	local boss, bestD = nil, 350
+	if player:GetAttribute("InRun") then
 		local animals = Workspace:FindFirstChild("Animals")
 		local myPos = player.Character and player.Character:GetPivot().Position
-		for _, m in ipairs(animals and animals:GetChildren() or {}) do
-			if m:GetAttribute("IsBoss") and myPos and (m:GetPivot().Position - myPos).Magnitude < 350 then
-				bossNear = true
-				break
+		for _, m in ipairs(myPos and animals and animals:GetChildren() or {}) do
+			if m:GetAttribute("IsBoss") and not m:GetAttribute("Dead") and (m:GetAttribute("Health") or 0) > 0 and Animals.Data[m.Name] then
+				local d = (m:GetPivot().Position - myPos).Magnitude
+				if d < bestD then
+					boss, bestD = m, d
+				end
 			end
 		end
 	end
-	if bossNear and Animals.Data[bossId] then
+	if boss then
+		local frac = (boss:GetAttribute("Health") or 0) / math.max(boss:GetAttribute("MaxHealth") or 1, 1)
+		if boss ~= HUD.BossTarget or not HUD.BossFrame.Visible then
+			HUD.BossTarget = boss
+			HUD.BossBar.Snap(frac) -- เปลี่ยนตัว/เพิ่งโผล่ = ตั้งหลอดทันที ไม่ไล่จากค่าของตัวก่อน
+		else
+			HUD.BossBar.Set(frac)
+		end
 		HUD.BossFrame.Visible = true
-		HUD.BossName.Text = Animals.Data[bossId].Name
-		HUD.BossBar.Set((s:GetAttribute("BossHP") or 0) / math.max(s:GetAttribute("BossMaxHP") or 1, 1))
+		HUD.BossName.Text = Animals.Data[boss.Name].Name
 	else
+		HUD.BossTarget = nil
 		HUD.BossFrame.Visible = false
 	end
 
@@ -629,9 +759,35 @@ function HUD.Update()
 		HUD.DownedText.Text = text
 		local tokens = player:GetAttribute("ReviveTokens") or 0
 		local canBuy = (Config.ReviveProductId or 0) > 0
-		HUD.ReviveBtn.Visible = tokens > 0 or canBuy
+		HUD.ReviveBtn.Visible = (tokens > 0 or canBuy) and not wipeAt -- ทีมล้มหมด = ใช้หน้าต่างชุบด้านบนแทน
 		HUD.ReviveBtn.Text = tokens > 0 and string.format("Use Revive Ticket (%d)", tokens)
 			or ("Revive Now  " .. utf8.char(0xE002) .. " " .. tostring(HUD.RevivePrice or 79))
+	end
+	-- หน้าต่างชุบตอนทีมล้มหมด (เห็นทั้งคนล้มและคนที่ตายไปแล้วในรอบ)
+	local wipeAt2 = s:GetAttribute("WipeAt")
+	local showWipe = wipeAt2 ~= nil and player:GetAttribute("InRun") == true and (Config.ReviveProductId or 0) > 0
+	HUD.WipePanel.Visible = showWipe
+	if showWipe then
+		local left = math.max(0, math.ceil(wipeAt2 - Workspace:GetServerTimeNow()))
+		local n = HUD.FallenCount()
+		local price = HUD.RevivePrice or 79
+		local R = utf8.char(0xE002)
+		HUD.WipeText.Text = string.format("💀 The whole team is down — %ds to revive", left)
+		local fallen = player:GetAttribute("Downed") or player:GetAttribute("Dead")
+		local tokens = player:GetAttribute("ReviveTokens") or 0
+		HUD.WipeMe.Visible = fallen == true
+		HUD.WipeMe.Text = (tokens > 0 and player:GetAttribute("Downed")) and string.format("Revive Me (Ticket %d)", tokens) or ("Revive Me  " .. R .. " " .. price)
+		local allPrice = (Config.ReviveAllProductId or 0) > 0 and (HUD.ReviveAllPrice or Config.ReviveAllRobux or 129) or price * n
+		HUD.WipeAll.Text = string.format("Revive All (%d)  %s %d", n, R, allPrice)
+		local team = 0
+		for _, p in ipairs(Players:GetPlayers()) do
+			if p:GetAttribute("InRun") then
+				team += 1
+			end
+		end
+		HUD.WipeSkip.Text = HUD.Skipped and team > 1 and string.format("Waiting for team (%d/%d)", s:GetAttribute("WipeSkips") or 0, team) or "Back to Lobby"
+	elseif HUD.Skipped then
+		HUD.Skipped = nil
 	end
 
 	-- เข็มทิศ
@@ -979,7 +1135,7 @@ function HUD.Notify(text, kind)
 	end)
 end
 
-function HUD.Pickup(id, n)
+function HUD.Pickup(id, n, stored)
 	if not HUD.PickFeed then
 		return
 	end
@@ -991,12 +1147,16 @@ function HUD.Pickup(id, n)
 	UIKit.Tween(sc, 0.25, { Scale = 1 }, Enum.EasingStyle.Back)
 	local item = Items.Data[id]
 	UIKit.Text(f, {
-		Size = UDim2.new(1, -4, 1, 0), TextSize = 19, Font = UIKit.Fonts.Black, TextXAlignment = Enum.TextXAlignment.Right,
-		Text = string.format("+%d %s %s", n, item and item.Thai or id, ICON[id] or ""), TextColor3 = item and item.Color or C.Text,
+		Size = UDim2.new(1, -36, 1, 0), TextSize = 19, Font = UIKit.Fonts.Black, TextXAlignment = Enum.TextXAlignment.Right,
+		Text = string.format(stored and "%d %s → Camp" or "+%d %s", n, Items.DisplayName(id)), TextColor3 = item and item.Color or C.Text,
 	})
+	-- รูปไอเทมจริงทางขวา (แทนอีโมจิ)
+	ItemIcon.Make(f, id, { Size = UDim2.fromOffset(28, 28), AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -2, 0.5, 0) })
 	task.delay(2.5, function()
 		for _, d in ipairs(f:GetDescendants()) do
-			if d:IsA("TextLabel") then
+			if d:IsA("ViewportFrame") then
+				UIKit.Tween(d, 0.4, { ImageTransparency = 1 })
+			elseif d:IsA("TextLabel") then
 				UIKit.Tween(d, 0.4, { TextTransparency = 1 })
 			elseif d:IsA("UIStroke") then
 				UIKit.Tween(d, 0.4, { Transparency = 1 })

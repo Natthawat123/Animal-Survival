@@ -81,11 +81,13 @@ safe("Skins", SkinStreamer.Init)
 safe("Combat", CombatClient.Init, state, HUD)
 safe("Menus", Menus.Init, state, HUD)
 safe("Map", MapUI.Init, state, HUD, AtmosphereController)
+safe("NavArrows", require(Client:WaitForChild("NavArrows")).Init, state) -- ไอคอนกองไฟ/หมุด เกาะขอบจอ + ลูกศรชี้ทาง
 safe("FogWall", require(Client:WaitForChild("FogWall")).Init, state)
 safe("WorldEvents", require(Client:WaitForChild("WorldEventsClient")).Init, state, HUD, MapUI, CombatClient)
 safe("Dev", require(script.Parent:WaitForChild("DevPanel")).Init)
 safe("PadUI", require(Client:WaitForChild("PadUI")).Init)
 safe("Mount", require(Client:WaitForChild("MountClient")).Init) -- ขี่ลูกสัตว์ธาตุ: ท่านั่ง + ปุ่มลง
+safe("World", require(Client:WaitForChild("WorldUI")).Init) -- เมนู Worlds: สร้าง/เข้าห้องโลก (WorldService)
 safe("Death", DeathClient.Init)
 Cinematics.Death = DeathClient
 safe("Sound", SoundController.Init, state)
@@ -120,13 +122,15 @@ safe("ClassSkill", function()
 	cs.Menus = Menus
 	cs.Init(CombatClient)
 end) -- ช่องสกิลกดของคลาส 5 ดาว (ปุ่ม Q)
+safe("PromptUI", require(Client:WaitForChild("PromptUI")).Init) -- การ์ดปุ่มกด E/F/R แบบ 99 Nights (มือถือแตะการ์ดได้)
+safe("KeyHints", require(Client:WaitForChild("KeyHints")).Init, { Menus = Menus, HUD = HUD }) -- แผงปุ่มลัดมุมขวาล่าง (คอม)
 safe("BuildHammer", require(Client:WaitForChild("BuildHammer")).Init, Menus) -- ค้อนช่าง: ย้าย/รื้อสิ่งก่อสร้าง
 safe("MedAnim", require(Client:WaitForChild("MedAnim")).Init) -- ท่าพันแผล/ก้มช่วยเพื่อน + หลอดรอใช้ยา
 
 -- การตั้งค่า -> ระบบต่างๆ
 local function applySetting(key, value)
 	if key == "Shake" then
-		CombatClient.ShakeEnabled = value ~= false
+		CombatClient.ShakeEnabled = false -- ปิดจอสั่นถาวร
 	elseif key == "Hints" then
 		HUD.ShowHints = value ~= false
 	elseif key == "Graphics" or key == "Quality" then
@@ -156,8 +160,8 @@ do
 			SoundController.Play("Notify", (kind == "Danger" or kind == "Error") and 0.75 or 1)
 		end
 	end
-	HUD.Pickup = function(id, n)
-		pickup(id, n)
+	HUD.Pickup = function(id, n, stored)
+		pickup(id, n, stored)
 		SoundController.Play("Pickup", 0.9 + math.random() * 0.25)
 	end
 end
@@ -248,6 +252,7 @@ do
 end
 
 local holdingSack
+local berryHover -- ลูกเบอร์รี่บนต้นที่ชี้อยู่ (BerryPicker ด้านล่าง) -> คลิกกระสอบไม่ไปเก็บของบนพื้นแทน
 -- ถือกระสอบ: คลิกของบนพื้น/กองไฟ/เครื่องบด + E เก็บ + F ทิ้ง (แบบ 99 Nights · ไม่มีหน้ารายการของ)
 do
 	local Players = game:GetService("Players")
@@ -397,15 +402,24 @@ do
 				nextScan = now + 0.1
 				target = nil
 				local m = dropOf(mouse.Target)
+				-- ยืนที่กองไฟ: ไม่เลือกของรอบ ๆ ให้อัตโนมัติ (ปุ่ม E/R ต้องเป็นของกองไฟ โยนต่อได้เรื่อย ๆ) · ชี้เมาส์ที่ของตรง ๆ ยังเก็บได้
+				local camp = Workspace:FindFirstChild("World") and Workspace.World:FindFirstChild("Sites") and Workspace.World.Sites:FindFirstChild("Camp")
+				local core = camp and camp:FindFirstChild("Campfire") and camp.Campfire:FindFirstChild("FireCore")
+				local atFire = core ~= nil and ((core.Position - root.Position) * Vector3.new(1, 0, 1)).Magnitude < 13
+				if m and m:GetAttribute("Thrown") then
+					m = nil
+				end
 				if m and m.PrimaryPart and (m.PrimaryPart.Position - root.Position).Magnitude <= PICK_RANGE then
 					target = m
+				elseif atFire then
+					target = nil
 				else
 					local drops = Workspace:FindFirstChild("Drops")
 					local look = Workspace.CurrentCamera.CFrame.LookVector
 					look = Vector3.new(look.X, 0, look.Z).Unit
 					local best = math.huge
 					for _, d in ipairs(drops and drops:GetChildren() or {}) do
-						local p = d:IsA("Model") and d.PrimaryPart
+						local p = d:IsA("Model") and not d:GetAttribute("Thrown") and d.PrimaryPart
 						if p then
 							local off = p.Position - root.Position
 							local flat = Vector3.new(off.X, 0, off.Z)
@@ -492,6 +506,9 @@ do
 			setPrompts(focus, true)
 		end)
 		tool.Activated:Connect(function()
+			if berryHover then
+				return -- คลิกนี้ใช้เก็บลูกบนต้น (BerryPicker)
+			end
 			local target = mouse.Target
 			-- คลิกกองไฟ = โยนไม้/ถ่าน/เนื้อดิบจากกระสอบเข้าไป
 			local camp = Workspace:FindFirstChild("World") and Workspace.World:FindFirstChild("Sites") and Workspace.World.Sites:FindFirstChild("Camp")
@@ -530,6 +547,247 @@ do
 	if player.Character then
 		hookContainer(player.Character)
 	end
+end
+
+-- เก็บเบอร์รี่ที่ต้น (พุ่มในป่า + แปลงเบอร์รี่): ชี้ลูกบนต้น -> ลูกนั้นมีกรอบขาว + ป้ายเล็ก
+--   คลิก/แตะ/E = เก็บใส่กระสอบ · R = กินเลย · จอยเกม = เล็งกลางจอ ปุ่ม X เก็บ
+--   ไม่ใช้ปุ่ม ProximityPrompt แล้ว (ลูกบนต้นหายทีละลูกตามที่เก็บจริง)
+do
+	local CollectionService = game:GetService("CollectionService")
+	local UIS = game:GetService("UserInputService")
+	local RunService = game:GetService("RunService")
+	local Workspace = game:GetService("Workspace")
+	local player = Players.LocalPlayer
+	local RANGE = 15 -- ระยะเอื้อม (เซิร์ฟเวอร์ยอม 18)
+	local AIM_PX = 64 -- ห่างจากเมาส์ไม่เกินกี่พิกเซลถึงนับว่าชี้ลูกนั้น
+	local pickRemote = Remotes.Get("PickBerry")
+
+	local hl = Instance.new("Highlight")
+	hl.Name = "BerryHighlight"
+	hl.FillColor, hl.FillTransparency = Color3.new(1, 1, 1), 0.55
+	hl.OutlineColor, hl.OutlineTransparency = Color3.new(1, 1, 1), 0
+	hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+	hl.Enabled = false
+
+	-- ป้ายข้างลูก: ชื่อพุ่ม + จำนวนลูก · [E] ใส่กระสอบ · [R] กิน
+	local tip = Instance.new("BillboardGui")
+	tip.Name = "BerryTip"
+	tip.Size = UDim2.fromOffset(190, 74)
+	tip.StudsOffsetWorldSpace = Vector3.new(0, 1.6, 0)
+	tip.AlwaysOnTop = true
+	tip.LightInfluence = 0
+	tip.MaxDistance = 40
+	tip.Enabled = false
+	local list = Instance.new("UIListLayout")
+	list.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	list.Padding = UDim.new(0, 3)
+	list.Parent = tip
+	local function row(order)
+		local f = Instance.new("Frame")
+		f.BackgroundTransparency = 1
+		f.Size = UDim2.new(1, 0, 0, 22)
+		f.LayoutOrder = order
+		f.Parent = tip
+		return f
+	end
+	local title = Instance.new("TextLabel")
+	title.BackgroundTransparency = 1
+	title.Size = UDim2.new(1, 0, 0, 20)
+	title.Font = Enum.Font.GothamBold
+	title.TextSize = 15
+	title.TextColor3 = Color3.new(1, 1, 1)
+	title.TextStrokeTransparency = 0.4
+	title.LayoutOrder = 0
+	title.Parent = tip
+	local function keyRow(order, key, text)
+		local f = row(order)
+		local k = Instance.new("TextLabel")
+		k.Name = "Key"
+		k.Size = UDim2.fromOffset(22, 22)
+		k.BackgroundColor3 = Color3.fromRGB(245, 245, 245)
+		k.TextColor3 = Color3.fromRGB(30, 30, 30)
+		k.Font = Enum.Font.GothamBlack
+		k.TextSize = 13
+		k.Text = key
+		k.Parent = f
+		local c = Instance.new("UICorner")
+		c.CornerRadius = UDim.new(0, 5)
+		c.Parent = k
+		local t = Instance.new("TextLabel")
+		t.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
+		t.BackgroundTransparency = 0.35
+		t.Position = UDim2.fromOffset(26, 0)
+		t.Size = UDim2.new(1, -26, 1, 0)
+		t.Font = Enum.Font.GothamMedium
+		t.TextSize = 14
+		t.TextColor3 = Color3.new(1, 1, 1)
+		t.TextXAlignment = Enum.TextXAlignment.Left
+		t.Text = "  " .. text
+		t.Parent = f
+		local c2 = Instance.new("UICorner")
+		c2.CornerRadius = UDim.new(0, 5)
+		c2.Parent = t
+		return f, k
+	end
+	local sackRow, sackKey = keyRow(1, "E", "Put in Sack")
+	local eatRow = keyRow(2, "R", "Eat Berries")
+	require(Client:WaitForChild("KeyHints")).Extra.Berry = function()
+		if berryHover then
+			return { { "Put in Sack", "E" }, { "Eat Berries", "R" } }
+		end
+		return nil
+	end
+	task.spawn(function()
+		tip.Parent = player:WaitForChild("PlayerGui")
+	end)
+
+	-- ลูกที่ยังเก็บได้ใกล้ตัว (สแกนทุก 0.15 วิ)
+	local cands, nextScan = {}, 0
+	local pending = setmetatable({}, { __mode = "k" }) -- [ลูก] = เวลาที่หยุดรอ
+	local function scan(root)
+		cands = {}
+		for _, src in ipairs(CollectionService:GetTagged("BerrySource")) do
+			if src:IsDescendantOf(Workspace) then
+				local ok, piv = pcall(src.GetPivot, src)
+				if ok and (piv.Position - root.Position).Magnitude < RANGE + 14 then
+					for _, d in ipairs(src:GetDescendants()) do
+						if d.Name == "Berry" and d:IsA("BasePart") and d.Transparency < 0.95 and not d:GetAttribute("Picked")
+							and (pending[d] or 0) < os.clock() then
+							table.insert(cands, { Source = src, Part = d })
+						end
+					end
+				end
+			end
+		end
+	end
+	-- ลูกที่ใกล้จุดบนจอที่สุด (เมาส์/นิ้วแตะ/กลางจอ)
+	local function aimAt(screen, root)
+		local cam = Workspace.CurrentCamera
+		local best, bd
+		for _, c in ipairs(cands) do
+			local p = c.Part
+			if p.Parent and p.Transparency < 0.95 and (p.Position - root.Position).Magnitude <= RANGE then
+				local v, on = cam:WorldToViewportPoint(p.Position)
+				if on then
+					local dist = (Vector2.new(v.X, v.Y) - screen).Magnitude
+					-- ลูกใหญ่บนจอ (ยืนใกล้) = ยอมให้ชี้คลาดได้มากขึ้น
+					local reach = math.max(AIM_PX, p.Size.Magnitude * cam.ViewportSize.Y / math.max(v.Z, 1) * 0.5)
+					if dist <= reach and (not bd or dist < bd) then
+						best, bd = c, dist
+					end
+				end
+			end
+		end
+		return best
+	end
+	local function alive()
+		local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+		if not root or not player:GetAttribute("InRun") or player:GetAttribute("Dead") or player:GetAttribute("Downed") then
+			return nil
+		end
+		return root
+	end
+	local function aimPoint()
+		if UIS.MouseEnabled and not Workspace:GetAttribute("ASAimCenter") and UIS.MouseBehavior ~= Enum.MouseBehavior.LockCenter then
+			return UIS:GetMouseLocation()
+		end
+		local vp = Workspace.CurrentCamera.ViewportSize
+		return Vector2.new(vp.X / 2, vp.Y / 2) -- ล็อกเมาส์กลางจอ (Shift Lock/มุมมองบุคคลที่ 1) / จอยเกม
+	end
+
+	RunService.RenderStepped:Connect(function()
+		local now = os.clock()
+		local root = alive()
+		local target
+		if root then
+			if now >= nextScan then
+				nextScan = now + 0.15
+				scan(root)
+			end
+			-- จอสัมผัสล้วน: ไม่มีเมาส์ชี้ -> โชว์กรอบลูกใกล้กลางจอให้รู้ว่าแตะเก็บได้
+			target = aimAt(aimPoint(), root)
+		end
+		berryHover = target
+		if target then
+			hl.Adornee = target.Part
+			hl.Parent = target.Part
+			hl.Enabled = true
+			tip.Adornee = target.Part
+			local src = target.Source
+			local n, max = src:GetAttribute("Berries"), src:GetAttribute("MaxBerries")
+			local patch = src:FindFirstChild("Crops") ~= nil
+			if n and max then
+				title.Text = string.format(patch and "Berry Patch %d/%d" or "Berry Bush %d/%d", n, max)
+			else
+				title.Text = patch and "Berry Patch" or "Berry Bush"
+			end
+			local touchOnly = UIS.TouchEnabled and not UIS.MouseEnabled
+			sackKey.Text = touchOnly and "👆" or (UIS.GamepadEnabled and not UIS.MouseEnabled and "X" or "E")
+			-- คอม (เมาส์+คีย์บอร์ด): ปุ่ม E/R ไปขึ้นแผงปุ่มลัดขวาล่าง (KeyHints.Extra) ป้ายบนลูกเหลือแค่ชื่อ+จำนวน
+			local pcKeys = UIS.KeyboardEnabled and not touchOnly and not UIKit.IsTouch
+			sackRow.Visible = not pcKeys
+			eatRow.Visible = not touchOnly and not pcKeys
+			tip.Enabled = true
+		else
+			hl.Enabled = false
+			hl.Adornee = nil
+			tip.Enabled = false
+		end
+	end)
+
+	local function pick(c, how)
+		if c and c.Part.Parent then
+			pickRemote:FireServer(c.Source, c.Part, how)
+			pending[c.Part] = os.clock() + 1 -- กันกดซ้ำลูกเดิมระหว่างรอเซิร์ฟเวอร์ตอบ
+			nextScan = 0
+		end
+	end
+	UIS.InputBegan:Connect(function(input, gp)
+		local root = alive()
+		if not root then
+			return
+		end
+		local t = input.UserInputType
+		if t == Enum.UserInputType.Touch then
+			-- แตะตรงลูก = เก็บ (แตะปุ่มบนจอ gp = true ไม่นับ)
+			if not gp then
+				pick(aimAt(Vector2.new(input.Position.X, input.Position.Y), root), "Sack")
+			end
+			return
+		end
+		if gp or not berryHover then
+			return
+		end
+		if t == Enum.UserInputType.MouseButton1 or input.KeyCode == Enum.KeyCode.E or input.KeyCode == Enum.KeyCode.ButtonX then
+			pick(berryHover, "Sack")
+		elseif input.KeyCode == Enum.KeyCode.R then
+			pick(berryHover, "Eat")
+		end
+	end)
+end
+
+-- กองไฟ: กดค้าง E (ไม้/ถ่าน) หรือ R (เนื้อดิบ) = โยนต่อเนื่องทีละชิ้น ไม่ต้องกดใหม่ทุกชิ้น (แบบ 99 Nights)
+do
+	local UIS = game:GetService("UserInputService")
+	local PPS = game:GetService("ProximityPromptService")
+	local WHAT = { FireFuel = "Fuel", FireCook = "Meat" }
+	local token = 0
+	PPS.PromptTriggered:Connect(function(prompt)
+		local what = WHAT[prompt.Name]
+		if not what then
+			return
+		end
+		token += 1
+		local my = token
+		local key, pad = prompt.KeyboardKeyCode, prompt.GamepadKeyCode
+		task.spawn(function()
+			task.wait(0.4)
+			while my == token and prompt.Parent and (UIS:IsKeyDown(key) or UIS:IsGamepadButtonDown(Enum.UserInputType.Gamepad1, pad)) do
+				Remotes.Get("ThrowFuel"):FireServer(what)
+				task.wait(0.26)
+			end
+		end)
+	end)
 end
 
 Remotes.Get("Cinematic").OnClientEvent:Connect(function(kind, data)

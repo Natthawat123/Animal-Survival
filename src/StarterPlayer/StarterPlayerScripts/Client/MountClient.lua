@@ -2,10 +2,12 @@
 	MountClient — ตอนขี่ลูกสัตว์ธาตุ (attribute Riding จาก MountService)
 	  ท่านั่งบนหลัง · ปุ่ม "ลงจากหลัง" ล่างกลางจอ + คีย์ X -> Remotes.Dismount
 	  ความเร็วตอนขี่: CombatClient คูณ attribute MountSpeed
+	  ขี่ลงน้ำ: ไม่ว่ายน้ำ (หัวสัตว์จม) -> แผ่นใสใต้ตัวที่ระดับผิวน้ำ ตามตัวไปทุกเฟรม = สัตว์ลอยว่ายเหนือน้ำ หัวพ้นน้ำ
 ]]
 
 local ContextActionService = game:GetService("ContextActionService")
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes"))
@@ -54,6 +56,11 @@ function MountClient.Init()
 	local function refresh()
 		local riding = player:GetAttribute("Riding")
 		holder.Visible = riding ~= nil
+		local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+		if hum then
+			-- ขี่อยู่ห้ามว่ายน้ำ (ท่าว่ายดึงตัวลงน้ำ) · ยืนบนแผ่นลอยน้ำแทน
+			hum:SetStateEnabled(Enum.HumanoidStateType.Swimming, riding == nil)
+		end
 		if riding then
 			playSit()
 			ContextActionService:BindAction("ASDismount", function(_, st)
@@ -67,6 +74,36 @@ function MountClient.Init()
 			ContextActionService:UnbindAction("ASDismount")
 		end
 	end
+	-- ลอยน้ำตอนขี่: แผ่นชนได้ (ใส · มีแค่ในเครื่องผู้เล่นนี้) ใต้ตัวที่ผิวน้ำลบนิดหน่อย ให้ขาสัตว์จุ่มน้ำแต่ตัว/หัวพ้นน้ำ
+	local raft = Instance.new("Part")
+	raft.Name = "MountRaft"
+	raft.Size = Vector3.new(14, 1, 14)
+	raft.Anchored = true
+	raft.CanCollide = true
+	raft.CanTouch = false
+	raft.Transparency = 1
+	raft.CastShadow = false
+	local rp = RaycastParams.new()
+	rp.FilterType = Enum.RaycastFilterType.Include
+	rp.FilterDescendantsInstances = { workspace.Terrain }
+	rp.IgnoreWater = false
+	RunService.Heartbeat:Connect(function()
+		local char = player.Character
+		local hrp = char and char:FindFirstChild("HumanoidRootPart")
+		local hum = char and char:FindFirstChildOfClass("Humanoid")
+		if not (player:GetAttribute("Riding") and hrp and hum) then
+			raft.Parent = nil
+			return
+		end
+		local hit = workspace:Raycast(hrp.Position + Vector3.new(0, 4, 0), Vector3.new(0, -80, 0), rp)
+		if hit and hit.Material == Enum.Material.Water then
+			local sink = math.clamp(hum.HipHeight * 0.3, 0.6, 1.8) -- ขาสัตว์จุ่มน้ำ ตัว/หัวพ้นน้ำ
+			raft.CFrame = CFrame.new(hrp.Position.X, hit.Position.Y - sink - raft.Size.Y / 2, hrp.Position.Z)
+			raft.Parent = workspace
+		else
+			raft.Parent = nil
+		end
+	end)
 	player:GetAttributeChangedSignal("Riding"):Connect(refresh)
 	player.CharacterAdded:Connect(function()
 		track = nil

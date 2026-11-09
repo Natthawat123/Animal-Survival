@@ -459,7 +459,7 @@ Kinds.SkyStone = {
 	end),
 }
 Kinds.IronRock = {
-	Node = { Node = "Rock", Yield = "Iron", HP = 10, Total = 3, Bonus = "Stone" }, Scale = { 0.8, 1.3 },
+	Node = { Node = "Rock", Yield = "Iron", HP = 10, Total = 3 }, Scale = { 0.8, 1.3 }, -- แร่เหล็กล้วน ไม่มีหินแถม (หินได้จากก้อนหินธรรมดา)
 	Build = rockKind("IronRock", V(9, 6, 8), C(92, 90, 92), Enum.Material.Slate, function()
 		local ores = {}
 		local rng = Random.new(5)
@@ -693,13 +693,13 @@ local STORE = {
 	Mushrooms = { Models = { "Mushrooms" }, Height = 2.6 },
 	GlowShroom = { Models = { "Mushrooms" }, Height = 4.5, Color = C(70, 170, 150), Material = Enum.Material.SmoothPlastic,
 		Light = { Color = C(90, 230, 190), Range = 10, Brightness = 0.6 } },
-	BerryBush = { Models = { "BerryBushLP" }, Height = 7 },
+	BerryBush = { Models = { "BerryBushLP" }, Split = "Whole", Height = 7 },
 	Flowers = { Models = { "FlowerBed" }, Height = 1.4 },
 	Coral = { Models = { "CoralSet" }, Split = "Models", Height = 5 },
 	Kelp = { Models = { "KelpLP" }, Height = 8 },
 	LavaVent = { Models = { "VolcanoLP" }, Height = 10, Solid = true },
 	CoalRock = { Models = { "CoalOreLP" }, Height = 5, Solid = true },
-	IronRock = { Models = { "IronOreLP" }, Height = 6, Solid = true },
+	IronRock = { Models = { "IronOreLP" }, Height = 6, Solid = true, Sparkle = C(255, 214, 160) }, -- ประกายแร่: บอกจากไกลว่าเป็นเหล็ก ไม่ใช่หินธรรมดา
 	ObsidianSpire = { Models = { "ObsidianEgg" }, Height = 9, Solid = true },
 	IceSpire = { Models = { "IceSpikeLP" }, Height = 15, Solid = true },
 	TerraCrystal = { Models = { "CrystalGreen" }, Height = 10, Solid = true, Light = { Color = C(130, 240, 100), Range = 14, Brightness = 0.9 }, Sparkle = C(170, 255, 140) },
@@ -713,6 +713,9 @@ local storeVariants = {}
 -- โมเดลย่อยของแพ็ก (ถ้ามีหลายชิ้นวางแยกกัน) หรือทั้งโมเดล
 local function variantsOf(model, split)
 	local subs = {}
+	if split == "Whole" then
+		return { model } -- โมเดลเดียวที่แบ่งเป็นกลุ่มย่อย (เช่น พุ่ม = กลุ่มใบ + กลุ่มลูก) ห้ามแยกเป็นหลายแบบ
+	end
 	if split == "Parts" then
 		for _, c in ipairs(model:GetChildren()) do
 			if c:IsA("BasePart") then
@@ -981,6 +984,10 @@ function PropBuilder.Place(kind, position, yaw, scale, parent, rng)
 end
 
 ---------------------------------------------------------------- กระจายของทั่วแมพ
+-- หินในแมพ (ขุด/ทุบได้) · ROCK_BONUS = สัดส่วนหินที่เพิ่มจากเดิม (0.25 = +25%)
+local ROCK_KINDS = { Boulder = true, MossRock = true, SeaRock = true, SkyStone = true, CoalRock = true, IronRock = true }
+local ROCK_BONUS = 0.25
+
 local function pickKind(list, rng)
 	local total = 0
 	for _, e in ipairs(list) do
@@ -1014,6 +1021,16 @@ function PropBuilder.Scatter(layout, parent, opts)
 	table.insert(avoid, { Vector3.new(0, 0, 0), 140 }) -- ลานโล่งรอบแคมป์ (พื้นที่สร้างฐานกว้างๆ ไม่ให้ต้นไม้เบียด)
 	table.insert(avoid, { Vector3.new(0, 0, -72), 42 }) -- บ้านพักนายพราน
 	table.insert(avoid, { Vector3.new(36, 0, 22), 14 }) -- โรงเก็บของ
+	local function inAvoid(ax, az)
+		for _, a in ipairs(avoid) do
+			if Vector3.new(ax - a[1].X, 0, az - a[1].Z).Magnitude < a[2] then
+				return true
+			end
+		end
+		return math.sqrt(ax * ax + az * az) < 160 -- หินเสริมไม่เบียดลานแคมป์
+	end
+	local rockRng = Random.new(layout.Seed + 5151)
+	local rocks = {} -- จุดหินทุกก้อน (ไว้กันกองแร่เหล็กไม่ให้ไปวางปนกับหิน)
 	local count = 0
 	local t0 = os.clock()
 	local x = -half
@@ -1087,10 +1104,29 @@ function PropBuilder.Scatter(layout, parent, opts)
 						ok = false
 					end
 				end
+				local s = ok and rng:NextNumber(spec.Scale[1], spec.Scale[2])
+				-- แร่เหล็กไม่วางปนในตารางของทั่วไป (ไปขึ้นเป็นกองแยกของตัวเองด้านล่าง)
+				if ok and kind == "IronRock" then
+					ok = false
+				end
 				if ok then
-					local s = rng:NextNumber(spec.Scale[1], spec.Scale[2])
 					PropBuilder.Place(kind, Vector3.new(px, h - 0.6, pz), rng:NextNumber(0, math.pi * 2), s, parent, rng)
 					count += 1
+					if ROCK_KINDS[kind] then
+						table.insert(rocks, Vector3.new(px, 0, pz))
+					end
+					-- หินเพิ่ม +25%: หินทุกก้อนมีโอกาส ROCK_BONUS วางอีกก้อนข้างๆ (rng แยก -> ของอื่นในแมพไม่เลื่อน)
+					if ROCK_KINDS[kind] and rockRng:NextNumber() < ROCK_BONUS then
+						local a = rockRng:NextNumber(0, math.pi * 2)
+						local d = rockRng:NextNumber(9, 18)
+						local bx, bz = px + math.cos(a) * d, pz + math.sin(a) * d
+						local bh, bBiome, bLava = layout:HeightAt(bx, bz)
+						if not bLava and Biomes.Data[bBiome] == data and bh > water + 1.5 and math.abs(bh - h) < 3 and not inAvoid(bx, bz) then
+							PropBuilder.Place(kind, Vector3.new(bx, bh - 0.6, bz), rockRng:NextNumber(0, math.pi * 2), rockRng:NextNumber(spec.Scale[1], spec.Scale[2]), parent, rockRng)
+							count += 1
+							table.insert(rocks, Vector3.new(bx, 0, bz))
+						end
+					end
 				end
 			end
 			end
@@ -1101,6 +1137,72 @@ function PropBuilder.Scatter(layout, parent, opts)
 			end
 		end
 		x += cell
+	end
+	-- กองแร่เหล็ก: 3-4 ก้อนกองรวมกันเอง ห่างจากหินธรรมดา (เดิมขึ้นปนกับหินจนแยกไม่ออก)
+	--   ขึ้นเฉพาะไบโอมที่มีเหล็ก (มี IronRock ใน Props) · กองละ ~ทุก 120 stud
+	do
+		local ironRng = Random.new(layout.Seed + 6161)
+		local IRON_CELL, ROCK_GAP, VEIN_GAP = 120, 28, 80
+		local veins = {}
+		local spec = Kinds.IronRock
+		local function hasIron(d)
+			for _, e in ipairs(d.Props or {}) do
+				if e.Kind == "IronRock" then
+					return true
+				end
+			end
+			return false
+		end
+		local gx = -half
+		while gx < half do
+			local gz = -half
+			while gz < half do
+				local px, pz = gx + ironRng:NextNumber(10, IRON_CELL - 10), gz + ironRng:NextNumber(10, IRON_CELL - 10)
+				local h, biome, lava = layout:HeightAt(px, pz)
+				local d = Biomes.Data[biome]
+				local ok = d and hasIron(d) and not lava and h > water + 1.5 and ironRng:NextNumber() < 0.55 and not inAvoid(px, pz)
+				if ok then
+					for _, o in ipairs({ { 8, 0 }, { -8, 0 }, { 0, 8 }, { 0, -8 } }) do
+						if math.abs(layout:HeightAt(px + o[1], pz + o[2]) - h) > 3 then
+							ok = false
+							break
+						end
+					end
+				end
+				local here = Vector3.new(px, 0, pz)
+				if ok then
+					for _, r in ipairs(rocks) do
+						if (r - here).Magnitude < ROCK_GAP then
+							ok = false
+							break
+						end
+					end
+				end
+				if ok then
+					for _, v in ipairs(veins) do
+						if (v - here).Magnitude < VEIN_GAP then
+							ok = false
+							break
+						end
+					end
+				end
+				if ok then
+					table.insert(veins, here)
+					local n = ironRng:NextInteger(3, 4)
+					local a0 = ironRng:NextNumber(0, math.pi * 2)
+					for i = 1, n do
+						local a = a0 + i / n * math.pi * 2
+						local r = i == 1 and 0 or ironRng:NextNumber(5, 8)
+						local bx, bz = px + math.cos(a) * r, pz + math.sin(a) * r
+						local bh = layout:HeightAt(bx, bz)
+						PropBuilder.Place("IronRock", Vector3.new(bx, bh - 0.6, bz), ironRng:NextNumber(0, math.pi * 2), ironRng:NextNumber(spec.Scale[1], spec.Scale[2]), parent, ironRng)
+						count += 1
+					end
+				end
+				gz += IRON_CELL
+			end
+			gx += IRON_CELL
+		end
 	end
 	-- กำแพงป่าสนรอบแคมป์ (ต้นไม้ชิดลานโล่ง ตัดได้)
 	for _ = 1, math.floor(45 * math.min(density, 1) + 0.5) do
@@ -1133,7 +1235,7 @@ function PropBuilder.TerrainBoulders(layout, opts)
 	local terrain = workspace.Terrain
 	local rng = Random.new(layout.Seed + 99)
 	local half = layout.Half - layout.EdgeOcean
-	local n = math.floor(layout.Size * layout.Size / 90000 * (opts and opts.Density or 1))
+	local n = math.floor(layout.Size * layout.Size / 90000 * (opts and opts.Density or 1) * 1.25) -- +25% หินใหญ่
 	for _ = 1, n do
 		local x, z = rng:NextNumber(-half, half), rng:NextNumber(-half, half)
 		local h, biome = layout:HeightAt(x, z)

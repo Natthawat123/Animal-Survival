@@ -43,6 +43,53 @@ local function roundButton(parent, icon, label, color, onClick)
 	return b, ic, lb
 end
 
+-- ปุ่มกลมโทนเข้มแบบ 99 Nights (รอบปุ่มกระโดด): พื้นดำโปร่ง + ขอบขาวจาง + ตัวหนังสือขาว · เปิดอยู่ = ตัวหนังสือ/ขอบเป็นสี
+--   iconMode = ตัวหนังสือใหญ่ (ไอคอนสกิล) · คืนค่า ปุ่ม, ป้าย, setActive(on, color)
+local DARK = Color3.fromRGB(26, 26, 30)
+local function darkButton(parent, label, onClick, iconMode)
+	local b = Instance.new("TextButton")
+	b.AutoButtonColor = false
+	b.Text = ""
+	b.AnchorPoint = Vector2.new(0.5, 0.5)
+	b.Size = UDim2.fromOffset(52, 52)
+	b.BackgroundColor3 = DARK
+	b.BackgroundTransparency = 0.3
+	b.BorderSizePixel = 0
+	b.Parent = parent
+	local c = Instance.new("UICorner")
+	c.CornerRadius = UDim.new(1, 0)
+	c.Parent = b
+	local st = Instance.new("UIStroke")
+	st.Color = Color3.new(1, 1, 1)
+	st.Transparency = 0.65
+	st.Thickness = 1.5
+	st.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	st.Parent = b
+	local lb = UIKit.Text(b, {
+		Size = UDim2.fromScale(0.84, iconMode and 0.56 or 0.34), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5),
+		Text = label, TextScaled = true, Font = UIKit.Fonts.Title, TextXAlignment = Enum.TextXAlignment.Center,
+	})
+	local sc = Instance.new("UIScale")
+	sc.Parent = b
+	b.MouseButton1Down:Connect(function()
+		sc.Scale = 0.9
+		b.BackgroundTransparency = 0.12
+	end)
+	local function up()
+		sc.Scale = 1
+		b.BackgroundTransparency = 0.3
+	end
+	b.MouseButton1Up:Connect(up)
+	b.MouseLeave:Connect(up)
+	b.Activated:Connect(onClick)
+	local function setActive(on, color)
+		lb.TextColor3 = on and (color or C.Gold) or Color3.new(1, 1, 1)
+		st.Color = on and (color or C.Gold) or Color3.new(1, 1, 1)
+		st.Transparency = on and 0.15 or 0.65
+	end
+	return b, lb, setActive
+end
+
 function MobileControls.Init(deps)
 	local menus, map, hud, combat = deps.Menus, deps.Map, deps.HUD, deps.Combat
 	if not MobileControls.IsTouch() then
@@ -53,19 +100,42 @@ function MobileControls.Init(deps)
 
 	-- ปุ่มรอบปุ่มกระโดด (ตำแหน่งคำนวณใหม่ทุกครั้งที่จอเปลี่ยนขนาด)
 	local ring = UIKit.Frame(gui, { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1 })
-	local sprint, _, sprintLabel = roundButton(ring, nil, "Sprint", C.Cyan, function()
+	local sprint, _, sprintActive = darkButton(ring, "Sprint", function()
 		if combat then
 			combat.SetSprint(not combat.IsSprinting())
 		end
 	end)
 	-- คราฟต์ = กด E ที่โต๊ะ · สร้าง = เลือกของในแถบไอเทม · กระสอบ = ปุ่มกระเป๋ามุมขวาบน -> ไม่ต้องมีปุ่มซ้ำ
-	local dropB = roundButton(ring, nil, "Take Out", C.Pink, function()
+	local dropB = darkButton(ring, "Take Out", function()
 		Remotes.Get("DropItem"):FireServer(nil, 1)
 	end)
+	-- สกิลคลาส (Q / Z ของคอม) = ปุ่มกลมไอคอนสกิล + ตัวเลขคูลดาวน์
+	local ClassSkill = require(script.Parent.ClassSkill)
+	local skillBtns = {}
+	for i = 1, 2 do
+		local b, icon = darkButton(ring, "", function()
+			ClassSkill.Use(i)
+		end, true)
+		icon:SetAttribute("NoTranslate", true)
+		local shade = Instance.new("Frame")
+		shade.Size = UDim2.fromScale(1, 1)
+		shade.BackgroundColor3 = Color3.new(0, 0, 0)
+		shade.BackgroundTransparency = 0.45
+		shade.Visible = false
+		shade.ZIndex = 3
+		shade.Parent = b
+		local sc = Instance.new("UICorner")
+		sc.CornerRadius = UDim.new(1, 0)
+		sc.Parent = shade
+		local cd = UIKit.Text(b, { Size = UDim2.fromScale(0.7, 0.42), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Text = "", TextScaled = true, Font = UIKit.Fonts.Title, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 4 })
+		cd:SetAttribute("NoTranslate", true)
+		b.Visible = false
+		skillBtns[i] = { B = b, Icon = icon, Shade = shade, CD = cd }
+	end
 	-- 🔒 ล็อกกล้อง (Shift Lock แบบมือถือ): ตัวละครหันตามกล้องตลอด + กล้องเยื้องข้างไหล่ · ปัดจอหมุนกล้อง = หมุนตัว
 	local RunService = game:GetService("RunService")
 	local locked = false
-	local lockB, _, lockLabel
+	local lockB, lockLabel, lockActive
 	local function hum()
 		local c = player.Character
 		return c and c:FindFirstChildOfClass("Humanoid"), c and c:FindFirstChild("HumanoidRootPart")
@@ -80,11 +150,11 @@ function MobileControls.Init(deps)
 			end
 		end
 		if lockB then
-			lockB.BackgroundColor3 = on and C.Gold or C.Blue
+			lockActive(on, C.Gold)
 			lockLabel.Text = on and "Locked" or "Lock"
 		end
 	end
-	lockB, _, lockLabel = roundButton(ring, nil, "Lock", C.Blue, function()
+	lockB, lockLabel, lockActive = darkButton(ring, "Lock", function()
 		setLock(not locked)
 	end)
 	RunService:BindToRenderStep("ASMobileLock", Enum.RenderPriority.Camera.Value + 1, function()
@@ -105,9 +175,9 @@ function MobileControls.Init(deps)
 	player.CharacterAdded:Connect(function()
 		task.defer(setLock, locked)
 	end)
-	-- φ = 0 (ซ้ายของปุ่มกระโดด) .. 90 (เหนือปุ่มกระโดด)
+	-- φ = 0 (ซ้ายของปุ่มกระโดด) .. 90 (เหนือปุ่มกระโดด) · >90 = เยื้องขวา (ถูกบีบไม่ให้ล้นขอบจอ)
 	local slots = {
-		{ sprint, 1, 0 }, { dropB, 1, 60 }, { lockB, 2, 30 },
+		{ sprint, 1, 0 }, { dropB, 1, 60 }, { lockB, 2, 30 }, { skillBtns[1].B, 2, 68 }, { skillBtns[2].B, 2, 104 },
 	}
 
 	-- แผนที่: ปุ่มเล็กใต้ปุ่ม ⚙ ข้างการ์ดกองไฟ (มุมขวาบน ไม่กินพื้นที่ปุ่มหลัก)
@@ -158,7 +228,7 @@ function MobileControls.Init(deps)
 			local b, ringNo, phi = sl[1], sl[2], math.rad(sl[3])
 			local r = ringNo == 1 and r1 or r2
 			b.Size = UDim2.fromOffset(size, size)
-			b.Position = UDim2.new(1, -(jx + r * math.cos(phi)), 1, -(jy + r * math.sin(phi)))
+			b.Position = UDim2.new(1, -math.max(jx + r * math.cos(phi), size * 0.5 + 6), 1, -(jy + r * math.sin(phi)))
 		end
 		-- ปุ่มโหมดสร้างเล็กสุด 56px x สเกล -> ไม่ให้ต่ำกว่า 44px
 		bscale.Scale = math.max(math.clamp(vp.Y / 420, 0.75, 1.15) * k, MIN_TOUCH / 56)
@@ -181,12 +251,37 @@ function MobileControls.Init(deps)
 		dropB.Visible = holding
 		buildBar.Visible = inRun and not out and building
 		cross.Visible = buildBar.Visible
+		-- แถบโหมดสร้างอยู่เหนือแถบไอเทม 1-0 จริง (สูงต่างกันตามจอ) + ข้อความแนะนำอยู่เหนือแถบอีกที ไม่ทับกัน
+		if buildBar.Visible then
+			local pg = player:FindFirstChildOfClass("PlayerGui")
+			local bp = pg and pg:FindFirstChild("ASBackpack")
+			local hot = bp and bp:FindFirstChild("Hotbar")
+			local top = ring.AbsoluteSize.Y - 96
+			if hot and hot:IsA("GuiObject") and hot.Visible and hot.AbsoluteSize.Y > 0 then
+				-- แปลงพิกัด: ASBackpack ไม่ข้ามแถบบนของ Roblox (GuiInset) · จอนี้ข้าม + เว้นขอบปลอดภัย (ring = เต็มพื้นที่จอนี้)
+				local inset = bp.IgnoreGuiInset and 0 or game:GetService("GuiService"):GetGuiInset().Y
+				top = hot.AbsolutePosition.Y + inset - ring.AbsolutePosition.Y
+			end
+			local barBottom = top - 8
+			buildBar.Position = UDim2.new(0.5, 0, 0, barBottom)
+			local hint = menus.BuildHint
+			if hint then
+				hint.Position = UDim2.new(0.5, 0, 0, barBottom - buildBar.AbsoluteSize.Y - 8)
+			end
+		end
 		if mapB then
 			mapB.Visible = inRun and not out
 		end
-		local on = combat and combat.IsSprinting()
-		sprint.BackgroundColor3 = on and C.Gold or C.Cyan
-		sprintLabel.Text = on and "Sprinting" or "Sprint"
+		sprintActive(combat and combat.IsSprinting(), Color3.fromRGB(255, 84, 72)) -- วิ่งอยู่ = ตัวหนังสือแดง
+		for i, s in ipairs(skillBtns) do
+			local sk, left = ClassSkill.Info(i)
+			s.B.Visible = sk ~= nil
+			if sk then
+				s.Icon.Text = sk.Icon or "✦"
+				s.Shade.Visible = left > 0
+				s.CD.Text = left > 0 and tostring(math.ceil(left)) or ""
+			end
+		end
 	end
 	local function watchTools(container)
 		container.ChildAdded:Connect(function(t)

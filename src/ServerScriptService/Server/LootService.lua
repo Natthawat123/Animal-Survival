@@ -13,7 +13,7 @@ local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 local LootService = {}
 
 local LOOT = {
-	Earth = { { "Wood", 3, 6 }, { "Iron", 1, 3 }, { "TerraCore", 0, 2 }, { "Bandage", 0, 1 }, { "Berries", 2, 4 } },
+	Earth = { { "Iron", 1, 3 }, { "TerraCore", 0, 2 }, { "Bandage", 0, 1 }, { "Berries", 2, 4 } },
 	Water = { { "Fiber", 3, 5 }, { "Iron", 1, 2 }, { "TidePearl", 0, 2 }, { "Bandage", 0, 1 }, { "CookedMeat", 1, 2 } },
 	Air = { { "Stone", 3, 5 }, { "Iron", 1, 3 }, { "GaleFeather", 0, 2 }, { "Bandage", 0, 1 }, { "Pelt", 1, 2 } },
 	Fire = { { "Coal", 2, 4 }, { "Iron", 1, 3 }, { "EmberShard", 0, 2 }, { "Bandage", 0, 1 }, { "Stone", 2, 4 } },
@@ -22,12 +22,14 @@ local LOOT = {
 -- กล่อง 3 ระดับ (โมเดล Props/Chest1-3 · ไม่มี = กล่องไม้เดิม) กระจายทั่วแมพ Config.CrateCount ใบ
 --   ระดับ 1 (ธรรมดา) / 2 (หายาก) / 3 (ตำนาน) : สุ่มตามน้ำหนัก Config.CrateTierWeight · ระดับสูง = อาวุธดีขึ้น ของมากขึ้น
 local TIER_TOOLS = {
-	{ { "StoneAxe", 20 }, { "Spear", 18 }, { "Dagger", 18 }, { "SpikedClub", 16 }, { "Pickaxe", 12 }, { "Torch", 10 }, { "Bow", 6 } },
-	{ { "IronSword", 22 }, { "Mace", 20 }, { "IronAxe", 18 }, { "Bow", 14 }, { "Crossbow", 8 }, { "GoodSack", 8 }, { "Katana", 5 } },
-	{ { "Katana", 20 }, { "BattleAxe", 20 }, { "Crossbow", 18 }, { "WarHammer", 14 }, { "Scythe", 14 }, { "GiantSack", 6 } },
+	-- น้ำหนัก = % (แต่ละระดับรวม 100)
+	{ { "StoneAxe", 18 }, { "Spear", 16 }, { "Dagger", 16 }, { "SpikedClub", 14 }, { "Pickaxe", 10 }, { "Torch", 9 }, { "Bow", 6 }, { "GoodSack", 11 } },
+	{ { "IronSword", 18 }, { "Mace", 18 }, { "IronAxe", 16 }, { "Bow", 12 }, { "Crossbow", 7 }, { "Katana", 6 }, { "GoodSack", 13 }, { "GiantSack", 10 } },
+	{ { "Katana", 20 }, { "BattleAxe", 21 }, { "Crossbow", 19 }, { "WarHammer", 14 }, { "Scythe", 14 }, { "GiantSack", 12 } },
 }
+-- ของใช้ในกล่อง (ไม่มีไม้ — ไม้หาเองจากต้นไม้)
 local TIER_EXTRA = {
-	{ count = { 2, 3 }, pool = { { "Bandage", 1, 1 }, { "CookedMeat", 1, 2 }, { "Berries", 2, 4 }, { "Coal", 1, 3 }, { "Wood", 3, 5 }, { "Fiber", 2, 4 }, { "Pelt", 1, 2 } } },
+	{ count = { 2, 3 }, pool = { { "Bandage", 1, 1 }, { "CookedMeat", 1, 2 }, { "Berries", 2, 4 }, { "Coal", 1, 3 }, { "Fiber", 2, 4 }, { "Pelt", 1, 2 } } },
 	{ count = { 3, 4 }, pool = { { "Bandage", 1, 2 }, { "CookedMeat", 2, 3 }, { "Iron", 2, 4 }, { "Coal", 2, 4 }, { "Pelt", 2, 3 }, { "Bone", 2, 3 }, { "AnyEssence", 1, 1 } } },
 	{ count = { 4, 5 }, pool = { { "Medkit", 1, 1 }, { "Iron", 4, 6 }, { "Coal", 3, 5 }, { "Pelt", 3, 4 }, { "AnyEssence", 1, 2 }, { "AnyEssence", 1, 2 }, { "Stew", 1, 2 } } },
 }
@@ -40,7 +42,7 @@ LootService.TierTools = TIER_TOOLS
 local CRATE_TOOLS = { { "StoneAxe", 25 }, { "Spear", 22 }, { "Bow", 15 }, { "Pickaxe", 15 }, { "Torch", 13 }, { "IronAxe", 7 }, { "GoodSack", 3 } }
 local CRATE_EXTRA = {
 	{ "Bandage", 1, 1 }, { "CookedMeat", 1, 2 }, { "Berries", 2, 4 }, { "Iron", 1, 3 },
-	{ "Coal", 1, 3 }, { "Wood", 3, 5 }, { "Fiber", 2, 4 }, { "Pelt", 1, 2 },
+	{ "Coal", 1, 3 }, { "Fiber", 2, 4 }, { "Pelt", 1, 2 },
 }
 
 local function weighted(rng, list)
@@ -68,11 +70,15 @@ end
 
 -- เอฟเฟกต์เปิดกล่อง (ทุกคนที่อยู่ใกล้เห็น): กล่องสั่น -> เด้ง -> แสงพุ่ง + ประกาย · tier 1-3 = ยิ่งสูงยิ่งอลัง
 --   หีบที่มีฝาจริง (ChestLid): สั่น -> ฝาเด้งเปิด (เครื่องผู้เล่นเล่นแอนิเมชัน) แล้วเซิร์ฟเวอร์ตั้งฝาเปิดค้างไว้
-function LootService:ChestFx(model, pos, tier, color)
+--   only = ผู้เล่น: กล่องส่วนตัว (เปิดได้ทุกคน คนละรอบ) -> เล่นเฉพาะเครื่องคนเปิด ไม่ขยับฝาฝั่งเซิร์ฟเวอร์
+function LootService:ChestFx(model, pos, tier, color, only)
 	tier = math.clamp(tier or 1, 1, 3)
-	self.ctx.Remotes.Get("HitFx"):FireAllClients("ChestOpen", {
-		Model = model, Position = pos, Tier = tier, Color = color or TIER_LIGHT[tier],
-	})
+	local data = { Model = model, Position = pos, Tier = tier, Color = color or TIER_LIGHT[tier] }
+	if only then
+		self.ctx.Remotes.Get("HitFx"):FireClient(only, "ChestOpen", data)
+		return
+	end
+	self.ctx.Remotes.Get("HitFx"):FireAllClients("ChestOpen", data)
 	local lid, hinge = ChestLid.Find(model)
 	if lid then
 		local closed = ChestLid.Closed(lid)
@@ -92,11 +98,24 @@ function LootService.CloseLid(model)
 	end
 end
 
+-- กล่องเปิดได้ทุกคน คนละ 1 ครั้งต่อรอบ: จำคนที่เปิดแล้วเป็น attribute "Opened_<UserId>" (client ซ่อนกล่องเฉพาะเครื่องคนนั้น)
+local function openKey(player)
+	return "Opened_" .. player.UserId
+end
+local function clearOpened(inst)
+	for k in pairs(inst:GetAttributes()) do
+		if string.sub(k, 1, 7) == "Opened_" then
+			inst:SetAttribute(k, nil)
+		end
+	end
+end
+
 function LootService:Open(chest, player)
-	if chest:GetAttribute("Opened") then
+	local key = openKey(player)
+	if chest:GetAttribute(key) or not player:GetAttribute("InRun") then
 		return
 	end
-	chest:SetAttribute("Opened", true)
+	chest:SetAttribute(key, true)
 	local el = chest:GetAttribute("Element") or "Earth"
 	local rng = Random.new()
 	local got = {}
@@ -111,15 +130,7 @@ function LootService:Open(chest, player)
 		self.ctx.Services.DataService:AddDiamonds(player, rng:NextInteger(1, 3), "Treasure Chest")
 	end
 	self.ctx.Remotes.Get("HitFx"):FireClient(player, "Loot", { Items = got, Position = chest:GetPivot().Position, Chest = true })
-	self:ChestFx(chest, chest:GetPivot().Position, 2)
-	local lid = chest:FindFirstChild("Lid")
-	if lid then
-		TweenService:Create(lid, TweenInfo.new(0.6, Enum.EasingStyle.Back), { CFrame = lid.CFrame * CFrame.new(0, 0.6, 1.2) * CFrame.Angles(math.rad(-70), 0, 0) }):Play()
-	end
-	local prompt = chest:FindFirstChildWhichIsA("ProximityPrompt", true)
-	if prompt then
-		prompt.Enabled = false
-	end
+	self:ChestFx(chest, chest:GetPivot().Position, 2, nil, player)
 end
 
 function LootService:SetupChest(chest)
@@ -142,42 +153,25 @@ end
 
 ---------------------------------------------------------------- กล่องเสบียง (กระจายทั่วแมพ)
 function LootService:OpenCrate(crate, player)
-	if crate:GetAttribute("Opened") then
+	local key = openKey(player)
+	if crate:GetAttribute(key) then
 		return
 	end
-	crate:SetAttribute("Opened", true)
+	crate:SetAttribute(key, true)
+	local pin = self.pins and self.pins[crate]
+	if pin then
+		pin:SetAttribute(key, true)
+	end
 	local rng = Random.new()
 	local tier = math.clamp(crate:GetAttribute("Tier") or 1, 1, 3)
 	local pos = crate:GetPivot().Position + Vector3.new(0, 2, 0)
 	local got = self:GiveTierLoot(tier, pos, rng)
 	if tier >= 2 then
-		self.ctx.Services.DataService:AddDiamonds(player, rng:NextInteger(tier == 3 and 3 or 1, tier == 3 and 6 or 2), TIER_NAME[tier])
+		self.ctx.Services.DataService:AddDiamonds(player, rng:NextInteger(tier == 3 and 3 or 1, tier == 3 and 4 or 2), TIER_NAME[tier])
 	end
 	self.ctx.Remotes.Get("HitFx"):FireClient(player, "Loot", { Items = got, Position = pos, Chest = true })
-	self:ChestFx(crate, pos, tier)
-	-- กล่องเปิดแล้ว: ปิดปุ่มทันที แล้วรอเอฟเฟกต์เปิดเล่นจบค่อยจางหายไป (เริ่มรอบใหม่ค่อยกลับมา)
-	for _, d in ipairs(crate:GetDescendants()) do
-		if d:IsA("ProximityPrompt") then
-			d.Enabled = false
-		end
-	end
-	task.delay(ChestLid.Find(crate) and 2.6 or 1.3, function()
-		if not crate:GetAttribute("Opened") then
-			return -- (รีเซ็ตรอบไปก่อนแล้ว)
-		end
-		for _, d in ipairs(crate:GetDescendants()) do
-			if d:IsA("BasePart") then
-				d:SetAttribute("BaseTransparency", d:GetAttribute("BaseTransparency") or d.Transparency)
-				if d:GetAttribute("BaseCollide") == nil then
-					d:SetAttribute("BaseCollide", d.CanCollide)
-				end
-				TweenService:Create(d, TweenInfo.new(0.8), { Transparency = 1 }):Play()
-				d.CanCollide = false
-			elseif d:IsA("Light") or d:IsA("ParticleEmitter") then
-				d.Enabled = false
-			end
-		end
-	end)
+	-- เอฟเฟกต์ + ปิดปุ่ม + กล่องจางหาย: เฉพาะเครื่องคนเปิด (CombatClient) · คนอื่นยังเปิดกล่องนี้ได้
+	self:ChestFx(crate, pos, tier, nil, player)
 end
 
 -- ของในกล่องระดับ tier (1-3) วางพื้นรอบ pos · คืน { [id] = จำนวน } (วิหารใช้ระดับ 3)
@@ -219,13 +213,28 @@ function LootService:SpawnCrates()
 	local PropBuilder = require(game:GetService("ReplicatedStorage").Shared.PropBuilder)
 	local size = layout.Size or 6144
 	local count = Config.CrateCount or 40
-	local weights = Config.CrateTierWeight or { 24, 12, 4 }
+	local weights = Config.CrateTierWeight or { 18, 14, 8 }
 	local rng = Random.new((self.ctx.State:GetAttribute("Seed") or 1) + 777)
 	local rp = RaycastParams.new()
 	rp.FilterType = Enum.RaycastFilterType.Include
 	rp.FilterDescendantsInstances = { Workspace.Terrain, world }
 	local placed = {}
 	local tries = 0
+	-- ห้ามซ้อนในของ: เดิมเช็กแค่ยิงลงจากฟ้าตรงจุดเดียว -> กล่องเกิดในก้อนหิน/แท่งน้ำแข็ง/ซากที่ยื่นมาคลุม
+	--   (มีปุ่ม Open แต่มองไม่เห็นกล่อง · เทส --crateprobe เจอ 3/40 ใบ) -> ต้องโล่งทั้งกล่อง + ขอบรอบ
+	local clearParams = OverlapParams.new()
+	clearParams.FilterType = Enum.RaycastFilterType.Include
+	clearParams.FilterDescendantsInstances = { world }
+	local function spotClear(p)
+		for _, part in ipairs(Workspace:GetPartBoundsInBox(CFrame.new(p + Vector3.new(0, 4.5, 0)), Vector3.new(11, 8, 11), clearParams)) do
+			local s = part.Size
+			-- หญ้า/เฟิร์นเล็กๆ (ทะลุได้) ไม่นับ · ของแข็งทุกชิ้น (หินแร่แยกเป็นก้อนเล็ก) + ของใหญ่ (ต้นไม้ พุ่ม ซาก) = ไม่โล่ง
+			if part.Transparency < 0.9 and not part:IsDescendantOf(folder) and (part.CanCollide or math.max(s.X, s.Y, s.Z) > 3) then
+				return false
+			end
+		end
+		return true
+	end
 	while #placed < count and tries < count * 30 do
 		tries += 1
 		local a, r = rng:NextNumber(0, math.pi * 2), size * 0.42 * math.sqrt(rng:NextNumber(0.02, 1))
@@ -238,7 +247,7 @@ function LootService:SpawnCrates()
 		end
 		local hit = ok and Workspace:Raycast(Vector3.new(x, 1500, z), Vector3.new(0, -3000, 0), rp)
 		-- ต้องตกบนพื้นดินโล่ง (ไม่ใช่น้ำ/บนหิน/ในซาก) และไม่ชันเกิน
-		if hit and hit.Instance == Workspace.Terrain and hit.Material ~= Enum.Material.Water and hit.Normal.Y > 0.85 then
+		if hit and hit.Instance == Workspace.Terrain and hit.Material ~= Enum.Material.Water and hit.Normal.Y > 0.85 and spotClear(hit.Position) then
 			local cf = CFrame.new(hit.Position) * CFrame.Angles(0, rng:NextNumber(0, math.pi * 2), 0)
 			-- ระดับ: สุ่มตามน้ำหนัก (ครบจำนวนแน่นอน: ระดับ 3 = weights[3] ใบ ฯลฯ)
 			local tier = 1
@@ -316,23 +325,24 @@ function LootService:PublishPins()
 	end
 	local pins = Instance.new("Folder")
 	pins.Name = "MapPins"
+	self.pins = {}
 	for _, crate in ipairs(self.crates and self.crates:GetChildren() or {}) do
 		local pin = Instance.new("Vector3Value")
 		pin.Name = "Crate"
 		pin.Value = crate:GetPivot().Position
 		pin:SetAttribute("Tier", crate:GetAttribute("Tier") or 1)
-		pin:SetAttribute("Opened", crate:GetAttribute("Opened") == true)
-		crate:GetAttributeChangedSignal("Opened"):Connect(function()
-			pin:SetAttribute("Opened", crate:GetAttribute("Opened") == true)
-		end)
+		self.pins[crate] = pin -- เปิดแล้ว = "Opened_<UserId>" (หมุดจางเฉพาะคนที่เปิด)
 		pin.Parent = pins
 	end
 	pins.Parent = ReplicatedStorage
 end
 
 function LootService:Reset()
+	for _, pin in pairs(self.pins or {}) do
+		clearOpened(pin)
+	end
 	for _, crate in ipairs(self.crates and self.crates:GetChildren() or {}) do
-		crate:SetAttribute("Opened", false)
+		clearOpened(crate)
 		LootService.CloseLid(crate)
 		for _, d in ipairs(crate:GetDescendants()) do
 			if d:IsA("BasePart") then
@@ -347,7 +357,7 @@ function LootService:Reset()
 		end
 	end
 	for _, chest in ipairs(self.chests) do
-		chest:SetAttribute("Opened", false)
+		clearOpened(chest)
 		LootService.CloseLid(chest)
 		local lid = chest:FindFirstChild("Lid")
 		if lid and chest:GetAttribute("LidCF") then

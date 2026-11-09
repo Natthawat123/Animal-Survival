@@ -1336,7 +1336,7 @@
 1537	Tongkat khas Elementalis · Menembakkan peluru arkana yang meledak (kuat terhadap semua elemen)
 1538	Pulih 2% HP maks setiap membunuh monster
 1539	HP Maks +30 · Pulih 0.8 HP/detik · Skill: Suaka Alam — hutan kecil yang memulihkan tim dan memperlambat monster 12 dtk · Cooldown 100 dtk
-1541	Skill: panggil 5 kelelawar (200 HP) yang menyerang monster · Cooldown 120 dtk · Pakai lagi = kawanan baru menggantikan yang lama
+1541	Skill: panggil 5 kelelawar (200 HP) yang menyerang monster · Cooldown 120 dtk · Pakai lagi = kawanan baru menggantikan yang lama (setengah damage ke bos)
 1542	Kawanan
 1543	Sabit khas Vampir · Jangkauan jauh, menyapu sekelompok musuh
 1544	Tongkat Hijau
@@ -1349,8 +1349,8 @@
 1551	Pulih 3% HP setiap 2 detik
 1552	Lari 30% lebih cepat
 1553	Selubung Bayangan
-1554	Skill: meteor gelap jatuh dari langit, damage besar area luas dan meninggalkan zona api gelap 10 dtk (membakar 2% HP/detik) · Cooldown 120 dtk
-1555	Skill: setrum monster di sekitar 4 dtk (bos 2 dtk) dan meracuni — kehilangan 1% HP/detik selama 15 dtk · Cooldown 150 dtk
+1554	Skill: meteor gelap jatuh dari langit, damage besar area luas dan meninggalkan zona api gelap 10 dtk (membakar 2% HP/detik) · Cooldown 120 dtk (bos: total 5%)
+1555	Skill: setrum monster di sekitar 4 dtk (bos 2 dtk) dan meracuni — kehilangan 1% HP/detik selama 15 dtk · Cooldown 150 dtk (bos: total 4%)
 1556	Skill: tak terlihat dan lari 50% lebih cepat 4 dtk (hilang saat memberi damage) · Cooldown 30 dtk
 1557	Belenggu Duri
 1558	Langkah Liar
@@ -1362,3 +1362,16 @@
 1582	Pasang untuk istirahat: pengali hari +1 (tanpa bonus = x2) · tiap pagi hari maju sesuai pengali · Maks 1 kasur per server
 1586	Menunggu ketua pad memilih jumlah tim
 1589	🛏️ %s memakai kasur — hari dihitung x%d!
+1590	📍 Klik peta untuk memasang penanda
+1591	📍 Kamu sampai di penandamu
+1592	📍 Penandamu sudah dekat
+1593	Dekat sekali! %dm
+1594	Penanda %dm
+1595	Ping
+1596	Peta
+1597	Serang
+1598	Tebang
+1599	Tambang
+1600	Ambil
+1601	Kebun Beri %d/%d
+1605	Kemah %dm

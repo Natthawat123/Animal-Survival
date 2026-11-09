@@ -262,7 +262,7 @@ function CampService:Craft(player, recipeId, count)
 		self.ctx.Remotes.Get("HitFx"):FireAllClients("Craft", { Position = self.benchPos })
 		return
 	end
-	if item.Category == "Tool" and inv:Count(player, r.Id) > 0 then
+	if item.Category == "Tool" and not Items.IsMulti(r.Id) and inv:Count(player, r.Id) > 0 then
 		self.ctx.Notify(player, "You already have " .. Items.DisplayName(r.Id) .. "", "Info")
 		return
 	end
@@ -347,7 +347,7 @@ function CampService:ThrowFrom(player, what)
 		return
 	end
 	local now = os.clock()
-	if (self.lastThrow[player] or 0) > now - 0.35 then
+	if (self.lastThrow[player] or 0) > now - 0.22 then -- โยนรัว ๆ ได้ (แบบ 99 Nights) กันแค่สแปมเกินเหตุ
 		return
 	end
 	self.lastThrow[player] = now
@@ -374,13 +374,79 @@ end
 
 -- เครื่องย่อย: ของที่บดได้ (วัตถุดิบ/แก่นธาตุ/ของหายาก)
 local GRINDABLE = { Resource = true, Essence = true, Relic = true }
+local GRIND_RANGE = 16 -- รัศมีรอบเครื่องบดที่ของบนพื้นถูกดูดเข้าไปบด
+
+-- อาวุธที่ย่อยได้: อาวุธทุกชิ้นที่มีสูตรคราฟต์ -> ได้วัตถุดิบตามสูตรนั้นคืนเข้าคลังแคมป์
+-- (รวมขวาน/อีเต้อ/คบไฟ/ค้อนช่างด้วย · ยกเว้นกระสอบ · ของที่ไม่มีสูตรคราฟต์ เช่น ขวานเก่า/อาวุธประจำอาชีพ = ไม่รู้ว่าจะคืนอะไร ย่อยไม่ได้)
+local NOT_WEAPON = Items.Sacks -- กระสอบไม่ใช่อาวุธ
+local function salvageCost(id)
+	if NOT_WEAPON[id] or not Items.Tools[id] then
+		return nil
+	end
+	local r = Recipes.ById[id]
+	return r and r.Cost
+end
+CampService.SalvageCost = salvageCost
+
+-- ของในสูตรที่เป็น "ธาตุไหนก็ได้" (AnyEssence/AnyHeart): อาวุธมีธาตุ = ได้ของธาตุนั้น · ไม่มี = สุ่ม
+local function salvageMat(mat, weaponId)
+	local group = Items.AnyGroups[mat]
+	if not group then
+		return mat
+	end
+	local el = Items.Data[weaponId] and Items.Data[weaponId].Element
+	local ess = el and Items.ElementEssence[el]
+	if mat == "AnyEssence" and ess then
+		return ess
+	end
+	return group[math.random(1, #group)]
+end
+
+-- ย่อยอาวุธ 1 ชิ้น: ใส่วัตถุดิบเข้าคลังแคมป์ + บันทึกลง got (ให้ฟีด/เอฟเฟกต์โชว์ของที่ได้)
+function CampService:SalvageInto(weaponId, count, got)
+	local cost = salvageCost(weaponId)
+	if not cost then
+		return false
+	end
+	local camp = self.ctx.Services.InventoryService.Camp
+	for _ = 1, count do
+		for mat, n in pairs(cost) do
+			local real = salvageMat(mat, weaponId)
+			camp[real] = (camp[real] or 0) + n
+			got[real] = (got[real] or 0) + n
+		end
+	end
+	return true
+end
+
+-- [V ค้าง] ถืออาวุธอยู่ -> โยนอาวุธในมือลงเครื่องย่อย
+function CampService:SalvageHeld(player)
+	local hopper = self.hopper
+	local char = player.Character
+	if not hopper or not char or (char:GetPivot().Position - hopper.Position).Magnitude > 34 then
+		return
+	end
+	local tool = char:FindFirstChildOfClass("Tool")
+	local id = tool and not tool:GetAttribute("StructureKind") and tool:GetAttribute("ItemId")
+	local inv = self.ctx.Services.InventoryService
+	if not (id and salvageCost(id)) then
+		self.ctx.Notify(player, "Hold a weapon in your hand to salvage it (gives back its crafting materials)", "Info")
+		return
+	end
+	if inv:Count(player, id) <= 0 or not inv:Remove(player, id, 1) then
+		return
+	end
+	inv:DestroyTool(player, id)
+	self.ctx.Services.DropService:Throw(player, id, 1, hopper.Position + Vector3.new(0, hopper.Size.Y * 0.2, 0))
+end
 
 function CampService:FeedGrinder(player, all)
 	local hopper = self.hopper
 	if not hopper then
-		local n = self.ctx.Services.InventoryService:Deposit(player)
+		local n, got = self.ctx.Services.InventoryService:Deposit(player)
 		if n > 0 then
-			self.ctx.Notify(player, string.format("📦 Stored %d items in the camp storage", n), "Good")
+			self.ctx.Notify(player, string.format("🔥 Stored %d items in the camp storage", n), "Good")
+			self.ctx.Remotes.Get("HitFx"):FireClient(player, "Stored", { Items = got }) -- ฟีดขวาจอ: รูปไอเทมจริงที่เทลงคลัง
 		end
 		return
 	end
@@ -455,13 +521,22 @@ function CampService:GrindDrops()
 	end
 	local drops = self.ctx.Services.DropService
 	local got = {}
-	for _, d in ipairs(drops:Near(hopper.Position, math.max(hopper.Size.X, hopper.Size.Z) * 0.6, hopper.Size.Y * 1.6)) do
+	-- ดูดของที่ตกรอบเครื่องบดทั้งวง (ราว 16 studs จากกลางเครื่อง) ไม่ใช่แค่ในช่องกรวย
+	local range = math.max(GRIND_RANGE, math.max(hopper.Size.X, hopper.Size.Z) * 0.6)
+	for _, d in ipairs(drops:Near(hopper.Position, range, hopper.Size.Y + 14)) do
 		local item = Items.Data[d.Id]
 		if item and GRINDABLE[item.Category] then
 			drops:Remove(d.Model)
 			local camp = self.ctx.Services.InventoryService.Camp
 			camp[d.Id] = (camp[d.Id] or 0) + d.Count
 			got[d.Id] = (got[d.Id] or 0) + d.Count
+		elseif d.By and salvageCost(d.Id) then
+			-- อาวุธที่ผู้เล่นโยน/ทิ้งลงเครื่อง (ของตกจากที่อื่นไม่โดนดูด) -> ได้วัตถุดิบตามสูตรคราฟต์คืน
+			drops:Remove(d.Model)
+			self:SalvageInto(d.Id, d.Count, got)
+			if d.By.Parent then
+				self.ctx.Notify(d.By, "🔧 Weapon salvaged — its materials went to the camp storage", "Good")
+			end
 		end
 	end
 	if next(got) then
@@ -481,6 +556,9 @@ function CampService:BurnDrops()
 	for _, d in ipairs(drops:Near(fire - Vector3.new(0, 1.5, 0), 5.5, 6)) do
 		local item = Items.Data[d.Id]
 		if COOK[d.Id] then
+			if not self:IsLit() and d.Model:GetAttribute("Thrown") then
+				d.Model:SetAttribute("Thrown", nil) -- ไฟดับ: เนื้อค้างในกองไฟ -> ให้เก็บคืนได้ตามปกติ
+			end
 			if self:IsLit() and not d.Model:GetAttribute("Cooking") then
 				-- ย่างอยู่ในไฟ 2.5 วิ (เห็นชิ้นเนื้อในกองไฟ) แล้วสุกเด้งออกไปทางคนโยน
 				d.Model:SetAttribute("Cooking", true)
@@ -495,7 +573,8 @@ function CampService:BurnDrops()
 					local root = by and by.Character and by.Character:FindFirstChild("HumanoidRootPart")
 					local dir = root and (root.Position - fire) * Vector3.new(1, 0, 1)
 					dir = dir and dir.Magnitude > 0.5 and dir.Unit or Vector3.new(1, 0, 0)
-					drops:Spawn(COOK[d.Id], count, fire + dir * 5 + Vector3.new(0, 1, 0), { Spread = 1.5 })
+					-- เด้งออกห่างกองไฟ (ไม่ตกข้างกองไฟแล้วแย่งปุ่มโยนชิ้นต่อไป)
+					drops:Spawn(COOK[d.Id], count, fire + dir * 8 + Vector3.new(0, 1, 0), { Spread = 1.5 })
 					self.ctx.Remotes.Get("HitFx"):FireAllClients("Refuel", { Position = fire })
 					if by and by.Parent then
 						self.ctx.Notify(by, "🍖 Meat is cooked! Put it in your sack or press R to eat", "Good")
@@ -624,6 +703,14 @@ function CampService:Start(ctx)
 	deposit.Triggered:Connect(function(p)
 		self:FeedGrinder(p, false) -- กด 1 ครั้ง = โยน 1 ชิ้น
 	end)
+	-- ย่อยอาวุธในมือ (กดค้าง กันกดพลาด) -> ได้วัตถุดิบที่ใช้คราฟต์อาวุธนั้นคืน
+	local salvage = prompt(depositHost, "Salvage", "Salvage held weapon (get its materials back)", "Grinder", Enum.KeyCode.V, 0.8, 20)
+	salvage.UIOffset = Vector2.new(0, self.hopper and 70 or 140)
+	salvage.Triggered:Connect(function(p)
+		if not ctx.Services.SurvivalService:IsIncapacitated(p) then
+			self:SalvageHeld(p)
+		end
+	end)
 	-- กองไฟ: เดินเข้าไปใกล้แล้วกดโยนเอง (ไม่ดูดของจากไกล ๆ) · [E] โยนไม้/ถ่าน · [R] โยนเนื้อดิบไปย่าง
 	local fuelPrompt = prompt(self.fireCore, "FireFuel", "Throw wood into the fire", "Campfire", Enum.KeyCode.E, 0, self.ThrowRange - 2)
 	local cookPrompt = prompt(self.fireCore, "FireCook", "Cook Meat", "Campfire", Enum.KeyCode.R, 0, self.ThrowRange - 2)
@@ -656,11 +743,12 @@ function CampService:Start(ctx)
 		end
 	end)
 	-- ถือกระสอบแล้วคลิกกองไฟ = โยนเชื้อเพลิงจากกระสอบเข้าไป (ไม่มีก็โยนเนื้อดิบไปย่าง)
-	ctx.Remotes.Get("ThrowFuel").OnServerEvent:Connect(function(player)
-		if ctx.Services.SurvivalService:IsIncapacitated(player) then
+	-- what = "Fuel"/"Meat" (กดค้างปุ่ม E/R ที่กองไฟ = โยนต่อเนื่อง) · nil = คลิกกองไฟตอนถือกระสอบ (เชื้อเพลิงก่อน)
+	ctx.Remotes.Get("ThrowFuel").OnServerEvent:Connect(function(player, what)
+		if ctx.Services.SurvivalService:IsIncapacitated(player) or not player:GetAttribute("InRun") then
 			return
 		end
-		self:ThrowFrom(player)
+		self:ThrowFrom(player, (what == "Fuel" or what == "Meat") and what or nil)
 	end)
 	task.spawn(function()
 		while true do

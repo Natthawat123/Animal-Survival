@@ -1412,9 +1412,7 @@ local function runShots(dur, shotFn, onDone)
 		camLook = camLook:Lerp(look, 1 - math.exp(-dt * 9))
 		fovNow += ((fov or 60) - fovNow) * math.min(1, dt * 7)
 		cam.FieldOfView = fovNow
-		local hx = math.noise(t * 0.9, 3.1) * 0.012
-		local hy = math.noise(t * 0.7, 7.7) * 0.012
-		cam.CFrame = CFrame.lookAt(camPos, camLook) * CFrame.Angles(hx, hy, hx * 0.5)
+		cam.CFrame = CFrame.lookAt(camPos, camLook) -- นิ่ง (ไม่ส่าย/สั่น)
 		if cineSaved and cineSaved.Dof then
 			cineSaved.Dof.FocusDistance = (camPos - camLook).Magnitude
 		end
@@ -1647,7 +1645,7 @@ function Cinematics.ShrineCleared(d)
 			local phase = st and st:GetAttribute("Phase")
 			local now = phase == "Day" or phase == "Dusk"
 			local dayText = now and st:GetAttribute("Night") and string.format("Now day %d", st:GetAttribute("Night")) or "Counted in the morning"
-			titleCard(string.format("x%d days", d.Days or 1), dayText .. " · " .. name .. " is now living at camp", C.Gold, 1.7)
+			titleCard(string.format("x%d days", d.Mult or d.Days or 1), dayText .. " · " .. name .. " is now living at camp", C.Gold, 1.7)
 		end },
 		{ HA + 2.6, function() caption("Buff: " .. (d.Buff or "") .. " · Press E on it to ride", C.Text, 1.5) end },
 	})
@@ -1845,7 +1843,7 @@ function Cinematics.StalkerWarning(d, combat)
 		g.Parent = e
 		table.insert(edges, e)
 	end
-	Cinematics.Banner("Something is coming...", "", Color3.fromRGB(255, 70, 60), 2.5, { Size = 50, Y = 0.2 })
+	Cinematics.Banner("Something is coming...", "", Color3.fromRGB(255, 70, 60), 2.5, { Size = 50, Y = UIKit.IsPhone() and 0.46 or 0.36 }) -- (0.2 ทับชื่อคืน/การ์ดมุมบนบนจอเตี้ย)
 	if combat and combat.Shake then
 		combat.Shake(0.12, 0.5)
 	end
@@ -1940,12 +1938,12 @@ function Cinematics.Handle(kind, d, menus, combat)
 		local tail = d.Continue and "♾ The game isn't over! Keep playing endlessly — survive as long as you can to climb the leaderboard" or ""
 		if d.Kind == "True" then
 			Cinematics.FullScreen("THE FOUR SPIRITS REUNITE", {
-				"All 4 Spirit Pups are back together", "You conquered 99 nights — the true ending", "♦️ +300 Ruby", tail,
+				"All 4 Spirit Pups are back together", "You conquered 99 nights — the true ending", "♦️ +50 Ruby", tail,
 			}, Color3.fromRGB(255, 226, 150), 12)
 		else
 			Cinematics.FullScreen("99 NIGHTS CONQUERED", {
 				"You conquered 99 Nights in the Wilds!", string.format("Spirit Pups rescued %d/4 — rescue them all for the true ending", d.Spirits or 0),
-				"♦️ +100 Ruby", tail,
+				tail,
 			}, C.Gold, 12)
 		end
 	elseif kind == "Purchased" then

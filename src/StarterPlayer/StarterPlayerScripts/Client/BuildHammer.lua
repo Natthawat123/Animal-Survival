@@ -1,7 +1,7 @@
 --[[
 	BuildHammer — ค้อนช่าง: ถือแล้วชี้/แตะสิ่งก่อสร้างในแคมป์ -> เมนู ย้าย / รื้อ / ยกเลิก
 	  ย้าย = ใช้โหมดวางของ Menus (เงาเขียว/แดง) กับของชิ้นเดิม -> Remotes.MoveStructure
-	  รื้อ = Remotes.Demolish (เซิร์ฟเวอร์คืนวัตถุดิบครึ่งหนึ่งเป็นของบนพื้น)
+	  รื้อ = Remotes.Demolish (เซิร์ฟเวอร์คืนของชิ้นนั้นทั้งชิ้นเข้ากระเป๋า · เตียงไม่คืน)
 	  คอม: ชี้แล้วขอบเรืองทอง · มือถือ: แตะที่สิ่งก่อสร้าง
 ]]
 
@@ -163,7 +163,7 @@ local function buildPopup()
 	end)
 	UIKit.Text(popup, {
 		Size = UDim2.new(1, -24, 0, 22), Position = UDim2.fromOffset(12, 116), TextSize = 15, Font = UIKit.Fonts.Bold,
-		TextXAlignment = Enum.TextXAlignment.Center, TextColor3 = C.TextDim, Text = "Remove = get half the materials back",
+		TextXAlignment = Enum.TextXAlignment.Center, TextColor3 = C.TextDim, Text = "Remove = pick it up whole (back to your hotbar)",
 	})
 	local close = UIKit.Button(popup, { Name = "Close", Size = UDim2.fromOffset(34, 34), Position = UDim2.new(1, -10, 0, -10), AnchorPoint = Vector2.new(0.5, 0.5),
 		Text = "X", TextSize = 18, BackgroundColor3 = C.Red }, closePopup)

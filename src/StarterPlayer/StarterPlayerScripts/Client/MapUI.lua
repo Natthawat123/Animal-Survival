@@ -38,18 +38,19 @@ function MapUI.Init(state, hud, atmosphere)
 	local mapFrame = UIKit.Frame(panel, { Size = UDim2.fromOffset(560, 560), Position = UDim2.fromOffset(30, 50), BackgroundColor3 = Color3.fromRGB(28, 70, 96), BackgroundTransparency = 0 })
 	UIKit.Corner(mapFrame, 8)
 	mapFrame.ClipsDescendants = true
+	mapFrame.Active = true -- คลิกบนแผนที่ (ปักหมุด) ไม่ทะลุไปฟันอาวุธในโลก
 	local legend = UIKit.Text(panel, {
 		Size = UDim2.new(1, -20, 0, 40), Position = UDim2.new(0, 10, 1, -46), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 13, TextWrapped = true,
-		TextColor3 = C.TextDim, Text = "🔥 Camp   ⛩ Spirit Pup Shrine   💀 Boss Lair   🏛 Ancient Sanctum   ▣ Chest   ☄📦 Events   ▲ You   ● Teammates   (places show up once the campfire light reaches them or you visit)",
+		TextColor3 = C.TextDim, Text = "🔥 Camp   ⛩ Spirit Pup Shrine   💀 Boss Lair   🏛 Ancient Sanctum   ▣ Chest   ☄ Events   ▲ You   ● Teammates   (places show up once the campfire light reaches them or you visit) · 📍 Click the map to place a marker",
 	})
 	local legendText = legend.Text
 	local function layoutMap()
 		local phone = UIKit.IsPhone()
-		panel.Size = UDim2.fromOffset(phone and 830 or 620, phone and 620 or 660)
+		panel.Size = UDim2.fromOffset(phone and 830 or 620, phone and 620 or 674)
 		mapFrame.Position = UDim2.fromOffset(phone and 20 or 30, 50)
-		legend.Size = phone and UDim2.fromOffset(220, 560) or UDim2.new(1, -20, 0, 40)
-		legend.Position = phone and UDim2.fromOffset(594, 50) or UDim2.new(0, 10, 1, -46)
-		legend.TextSize = phone and 24 or 13
+		legend.Size = phone and UDim2.fromOffset(220, 560) or UDim2.new(1, -20, 0, 54) -- สูงพอ 3 บรรทัด (ตัวใหญ่ขึ้นแล้วไม่ล้น)
+		legend.Position = phone and UDim2.fromOffset(594, 50) or UDim2.new(0, 10, 1, -58)
+		legend.TextSize = phone and 24 or 15
 		legend.TextXAlignment = phone and Enum.TextXAlignment.Left or Enum.TextXAlignment.Center
 		legend.TextYAlignment = phone and Enum.TextYAlignment.Top or Enum.TextYAlignment.Center
 		legend.Text = phone and legendText:gsub("%s%s+", "\n\n") or legendText
@@ -98,6 +99,7 @@ function MapUI.Init(state, hud, atmosphere)
 					color = color:Lerp(Color3.new(1, 1, 1), shade * 0.35)
 				end
 				local f = Instance.new("Frame")
+				f.Name = "Cell" -- ใช้เทียบตำแหน่งคลิก/แตะ (ดู inputToAbs)
 				f.BorderSizePixel = 0
 				f.Size = UDim2.fromOffset(math.ceil(cs), math.ceil(cs))
 				f.Position = UDim2.fromOffset(i * cs, k * cs)
@@ -116,10 +118,19 @@ function MapUI.Init(state, hud, atmosphere)
 	end
 
 	local markers = {}
+	local markerWorld = {} -- [key] = ตำแหน่งในโลกล่าสุดของหมุด (ไว้ให้คลิกหมุดแล้วปักตรงของจริง)
 	local function marker(key, text, color, size)
 		local m = markers[key]
 		if not m then
-			m = UIKit.Text(mapFrame, { Size = UDim2.fromOffset(size or 22, size or 22), TextXAlignment = Enum.TextXAlignment.Center, TextSize = size or 18, Text = text, TextColor3 = color or C.Text, ZIndex = 5, TextStrokeTransparency = 0.3 })
+			size = (size or 22) * (UIKit.IsPhone() and 1.45 or 1.2) -- มือถือ: แผนที่ถูกย่อพอดีจอ -> หมุดใหญ่ขึ้นให้มองเห็น/กดโดน
+			-- AnchorPoint กลาง: หมุดตรงจุดจริงทุกขนาดจอ (เดิมลบครึ่ง AbsoluteSize ซึ่งรวม UIScale -> เพี้ยนตามขนาดจอ)
+			m = UIKit.Text(mapFrame, { Size = UDim2.fromOffset(size or 22, size or 22), AnchorPoint = Vector2.new(0.5, 0.5), TextXAlignment = Enum.TextXAlignment.Center, TextSize = size or 18, Text = text, TextColor3 = color or C.Text, ZIndex = 5, TextStrokeTransparency = 0.3 })
+			m.TextScaled = true -- ไอคอนอีโมจิย่อให้พอดีกรอบหมุดเสมอ (จอเล็กเคยล้นกรอบ)
+			local fit = m:FindFirstChildOfClass("UITextSizeConstraint")
+			if fit then
+				fit.MinTextSize = 4 -- (FitText ตั้งขั้นต่ำครึ่งของขนาด -> กรอบเล็กย่อไม่ลง เลยล้น)
+			end
+			m:SetAttribute("Key", key)
 			markers[key] = m
 		end
 		return m
@@ -154,7 +165,21 @@ function MapUI.Init(state, hud, atmosphere)
 		end
 		local function place(m, pos)
 			local u, v = toMap(pos)
-			m.Position = UDim2.new(u, -m.AbsoluteSize.X / 2, v, -m.AbsoluteSize.Y / 2)
+			m.AnchorPoint = Vector2.new(0.5, 0.5)
+			m.Position = UDim2.fromScale(u, v)
+			local key = m:GetAttribute("Key")
+			if key then
+				markerWorld[key] = pos
+			end
+		end
+		-- หมุดที่ผู้เล่นปักเอง (ปลายหมุด = จุดที่กดพอดี)
+		local wp = MapUI.Waypoint
+		if MapUI.WpPin then
+			MapUI.WpPin.Visible = wp ~= nil
+			if wp then
+				local u, v = toMap(wp)
+				MapUI.WpPin.Position = UDim2.fromScale(u, v)
+			end
 		end
 		local camp = state:GetAttribute("CampPos")
 		if camp then
@@ -192,7 +217,7 @@ function MapUI.Init(state, hud, atmosphere)
 			m.Visible = seen(pin.Value)
 			if m.Visible then
 				m.TextColor3 = color
-				m.TextTransparency = pin:GetAttribute("Opened") and 0.75 or 0
+				m.TextTransparency = pin:GetAttribute("Opened_" .. Players.LocalPlayer.UserId) and 0.75 or 0
 				place(m, pin.Value)
 			end
 		end
@@ -230,6 +255,235 @@ function MapUI.Init(state, hud, atmosphere)
 	UserInputService.InputBegan:Connect(function(input, processed)
 		if not processed and input.KeyCode == Enum.KeyCode.M then
 			toggle()
+		end
+	end)
+
+	---------------------------------------------------------------- ปักหมุดเอง (คลิก/แตะบนแผนที่)
+	-- คลิก/แตะที่ว่าง = ปักหมุดตรงนั้น · ใกล้หมุดกล่อง/ศาล/รัง = ปักตรงของจริงเป๊ะ · กดหมุดเดิม = เอาออก
+	-- ในโลก: เสาแสง + ป้ายนำทางบนจอ (NavArrows: เกาะขอบจอ + ลูกศร) + จุดบนเข็มทิศ · ถึงที่ = หมุดหายเอง
+	local NavArrows = require(script.Parent.NavArrows)
+	local GuiService = game:GetService("GuiService")
+	local TweenService = game:GetService("TweenService")
+	local WP_COLOR = Color3.fromRGB(255, 220, 90)
+	local wpParts = {}
+	local wpNear = false
+
+	-- หมุดบนแผนที่: จุดกลม = ตำแหน่งจริง · 📍 ปลายแหลมชี้ลงจุดนั้นพอดี (เดิมจัดกลางตัวอักษร -> ดูเหมือนปักเลยขึ้นไปข้างบน)
+	local wpPin = Instance.new("Frame")
+	wpPin.Name = "WaypointPin"
+	wpPin.BackgroundTransparency = 1
+	wpPin.Size = UDim2.fromOffset(0, 0)
+	wpPin.AnchorPoint = Vector2.new(0.5, 0.5)
+	wpPin.ZIndex = 8
+	wpPin.Visible = false
+	wpPin.Parent = mapFrame
+	local wpScale = Instance.new("UIScale")
+	wpScale.Parent = wpPin
+	local dot = Instance.new("Frame")
+	dot.Size = UDim2.fromOffset(9, 9)
+	dot.AnchorPoint = Vector2.new(0.5, 0.5)
+	dot.BackgroundColor3 = WP_COLOR
+	dot.ZIndex = 8
+	dot.Parent = wpPin
+	UIKit.Corner(dot, 9)
+	local dotStroke = Instance.new("UIStroke")
+	dotStroke.Thickness = 1.5
+	dotStroke.Color = Color3.fromRGB(30, 20, 10)
+	dotStroke.Parent = dot
+	local pinGlyph = UIKit.Text(wpPin, { Size = UDim2.fromOffset(30, 30), AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.fromOffset(1, 3), Text = "📍", TextSize = 26, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 9 })
+	pinGlyph:SetAttribute("NoTranslate", true)
+	MapUI.WpPin = wpPin
+
+	local function ripple(u, v)
+		local r = Instance.new("Frame")
+		r.AnchorPoint = Vector2.new(0.5, 0.5)
+		r.Position = UDim2.fromScale(u, v)
+		r.Size = UDim2.fromOffset(6, 6)
+		r.BackgroundTransparency = 1
+		r.ZIndex = 7
+		r.Parent = mapFrame
+		UIKit.Corner(r, 40)
+		local st = Instance.new("UIStroke")
+		st.Color = WP_COLOR
+		st.Thickness = 2.5
+		st.Parent = r
+		TweenService:Create(r, TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = UDim2.fromOffset(46, 46) }):Play()
+		TweenService:Create(st, TweenInfo.new(0.45), { Transparency = 1 }):Play()
+		task.delay(0.5, function()
+			r:Destroy()
+		end)
+	end
+
+	local function clearWaypoint()
+		MapUI.Waypoint = nil
+		for _, inst in ipairs(wpParts) do
+			inst:Destroy()
+		end
+		wpParts = {}
+		hud.ExtraPOI.waypoint = nil
+		NavArrows.Remove("waypoint")
+		wpPin.Visible = false
+	end
+	local function setWaypoint(pos)
+		clearWaypoint()
+		MapUI.Waypoint = pos
+		wpNear = false
+		local holder = workspace.CurrentCamera -- ของเฉพาะเครื่องเรา (ไม่โดน streaming ลบ)
+		local beam = Instance.new("Part")
+		beam.Name = "WaypointBeam"
+		beam.Anchored, beam.CanCollide, beam.CanQuery, beam.CanTouch, beam.CastShadow = true, false, false, false, false
+		beam.Material = Enum.Material.Neon
+		beam.Color = WP_COLOR
+		beam.Transparency = 1
+		beam.Shape = Enum.PartType.Cylinder
+		beam.Size = Vector3.new(160, 1.6, 1.6)
+		beam.CFrame = CFrame.new(pos + Vector3.new(0, 80, 0)) * CFrame.Angles(0, 0, math.pi / 2)
+		beam.Parent = holder
+		TweenService:Create(beam, TweenInfo.new(0.6), { Transparency = 0.45 }):Play()
+		local ring = Instance.new("Part")
+		ring.Name = "WaypointRing"
+		ring.Anchored, ring.CanCollide, ring.CanQuery, ring.CanTouch, ring.CastShadow = true, false, false, false, false
+		ring.Material = Enum.Material.Neon
+		ring.Color = WP_COLOR
+		ring.Transparency = 0.6
+		ring.Shape = Enum.PartType.Cylinder
+		ring.Size = Vector3.new(0.3, 14, 14)
+		ring.CFrame = CFrame.new(pos + Vector3.new(0, 0.3, 0)) * CFrame.Angles(0, 0, math.pi / 2)
+		ring.Parent = holder
+		wpParts = { beam, ring }
+		hud.ExtraPOI.waypoint = { Position = pos, Icon = "📍", Color = WP_COLOR }
+		NavArrows.Set("waypoint", {
+			Position = pos, Icon = "📍", Color = WP_COLOR, Order = 2, Lift = 5,
+			Label = function(studs)
+				local m = math.floor(studs * 0.28)
+				return studs < 60 and string.format("Very close! %dm", m) or string.format("Marker %dm", m)
+			end,
+			LabelColor = function(studs)
+				return studs < 60 and Color3.fromRGB(140, 255, 140) or WP_COLOR
+			end,
+		})
+		-- หมุดบนแผนที่เด้งลง + วงคลื่น
+		local size = state:GetAttribute("MapSize") or 6144
+		local u, v = pos.X / size + 0.5, pos.Z / size + 0.5
+		wpPin.Position = UDim2.fromScale(u, v)
+		wpPin.Visible = true
+		wpScale.Scale = 0.3
+		TweenService:Create(wpScale, TweenInfo.new(0.32, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+		if panel.Visible then
+			ripple(u, v)
+		end
+	end
+	MapUI.SetWaypoint = setWaypoint
+	MapUI.ClearWaypoint = clearWaypoint
+
+	-- ตำแหน่งแตะ/คลิก (InputObject) -> พิกัดเดียวกับ AbsolutePosition
+	--   แถบบนของ Roblox (GuiInset) ทำให้สองระบบพิกัดต่างกันได้ ไม่เท่ากันแต่ละเครื่อง (คอม/มือถือ/แถบบนรุ่นใหม่)
+	--   -> ให้ Roblox บอกเองว่าช่องแผนที่ช่องไหนอยู่ใต้นิ้ว แล้วเลือกค่าชดเชยที่ทำให้จุดตกในช่องนั้นจริง
+	local function inputToAbs(p)
+		local inset = GuiService:GetGuiInset()
+		local ok, objs = pcall(function()
+			return player.PlayerGui:GetGuiObjectsAtPosition(p.X, p.Y)
+		end)
+		if ok then
+			for _, o in ipairs(objs) do
+				if o.Name == "Cell" and o:IsDescendantOf(mapFrame) then
+					local a, s = o.AbsolutePosition, o.AbsoluteSize
+					for _, off in ipairs({ Vector2.zero, inset, -inset }) do
+						local q = p + off
+						if q.X >= a.X - 1 and q.Y >= a.Y - 1 and q.X <= a.X + s.X + 1 and q.Y <= a.Y + s.Y + 1 then
+							return q, off
+						end
+					end
+					return a + s / 2, nil
+				end
+			end
+		end
+		return p, Vector2.zero
+	end
+	MapUI.InputToAbs = inputToAbs
+
+	local function mapClick(screenPos)
+		buildGrid()
+		if not built then
+			return
+		end
+		local ap, as = mapFrame.AbsolutePosition, mapFrame.AbsoluteSize
+		local rel = screenPos - ap
+		if rel.X < 0 or rel.Y < 0 or rel.X > as.X or rel.Y > as.Y then
+			return
+		end
+		local hit = 14 * as.X / 560 -- รัศมีกดโดนหมุด (ตามขนาดแผนที่บนจอ)
+		-- กดหมุดเดิม (จุดหรือตัว 📍) = เอาออก
+		if MapUI.Waypoint and wpPin.Visible then
+			local tip = wpPin.AbsolutePosition
+			local head = tip - Vector2.new(0, 18 * as.X / 560)
+			if (tip - screenPos).Magnitude < hit or (head - screenPos).Magnitude < hit then
+				clearWaypoint()
+				return
+			end
+		end
+		-- ใกล้หมุดสถานที่/กล่อง = ปักตรงของจริง
+		local best, bestD
+		for key, m in pairs(markers) do
+			local w = markerWorld[key]
+			if w and m.Visible and key:sub(1, 2) ~= "p_" then
+				local d = (m.AbsolutePosition + m.AbsoluteSize / 2 - screenPos).Magnitude
+				if d < hit and (not bestD or d < bestD) then
+					best, bestD = w, d
+				end
+			end
+		end
+		if not best then
+			local size = state:GetAttribute("MapSize") or 6144
+			local x, z = (rel.X / as.X - 0.5) * size, (rel.Y / as.Y - 0.5) * size
+			local h = layout:HeightAt(x, z)
+			best = Vector3.new(x, math.max(h, layout.WaterLevel), z)
+		end
+		setWaypoint(best)
+	end
+	MapUI.MapClick = mapClick
+	-- แตะ = กดแล้วปล่อยโดยนิ้วไม่ลาก (กันปักพลาดตอนเลื่อนนิ้ว)
+	local downAt, downType
+	UserInputService.InputBegan:Connect(function(input)
+		if panel.Visible and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
+			downAt, downType = Vector2.new(input.Position.X, input.Position.Y), input.UserInputType
+		end
+	end)
+	UserInputService.InputEnded:Connect(function(input)
+		if not (downAt and panel.Visible and input.UserInputType == downType) then
+			return
+		end
+		local p = Vector2.new(input.Position.X, input.Position.Y)
+		local moved = (p - downAt).Magnitude
+		downAt = nil
+		if moved < 14 then
+			mapClick((inputToAbs(p)))
+		end
+	end)
+	-- เตือนใกล้ถึง + ถึงแล้วหมุดหายเอง (ป้ายระยะอยู่ที่ NavArrows)
+	task.spawn(function()
+		while true do
+			task.wait(0.15)
+			local wp = MapUI.Waypoint
+			if wp and not player:GetAttribute("InRun") then
+				clearWaypoint()
+			elseif wp then
+				local char = player.Character
+				if char then
+					local flat = ((wp - char:GetPivot().Position) * Vector3.new(1, 0, 1)).Magnitude
+					if flat < 9 then
+						clearWaypoint()
+						hud.Notify("📍 Reached your marker", "Reward")
+					elseif flat < 60 then
+						if not wpNear then
+							wpNear = true
+							hud.Notify("📍 Your marker is close by", "Info")
+						end
+					elseif flat > 90 then
+						wpNear = false
+					end
+				end
+			end
 		end
 	end)
 

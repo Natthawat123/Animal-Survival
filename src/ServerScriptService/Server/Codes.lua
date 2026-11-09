@@ -7,8 +7,5 @@
 ]]
 
 return {
-	WELCOME = { Ruby = 50 },
-	ANIMAL99 = { Ruby = 30 },
-	FOURELEMENTS = { Ruby = 25, Title = "Pioneer" },
-	CAMPFIRE = { Ruby = 20, Expires = 1798761600 }, -- หมดอายุ 1 ม.ค. 2027 00:00 UTC
+	BETAANIMALSURVIVAL = { Ruby = 200 }, -- แจกผู้เข้าร่วมทดสอบ (คนละครั้ง)
 }

@@ -167,7 +167,7 @@ end
 
 function RejoinService:OnRemoving(player)
 	local uid = player.UserId
-	pcall(self.SaveRunFor, self, player, true) -- มี Save Run: ออกเกมกลางรอบ = เซฟไว้เล่นต่อ
+	pcall(self.SaveRunFor, self, player, true) -- เจ้าของโลกออกเกมกลางรอบ = เซฟโลกไว้เล่นต่อ
 	-- ออกจากรอบตามปกติ (ตาย/รอบจบ/กลับล็อบบี้) ไม่ต้องเก็บ
 	if not player:GetAttribute("InRun") or player:GetAttribute("Dead") or not runActive(self) then
 		return
@@ -221,6 +221,7 @@ function RejoinService:SerializeRun()
 		Structures = S.BuildingService:Serialize(),
 		Spirit = S.SpiritService:Serialize(),
 		Sanctums = S.SanctumService:Serialize(),
+		Trees = S.ResourceService:Serialize(), -- ต้นไม้ที่ตัดไปแล้ว (ยังไม่งอก)
 		Players = players,
 		Expire = os.time() + self.TTL,
 	}
@@ -241,8 +242,9 @@ end
 -- Save Run (Game Pass): เก็บทั้งรอบ + ของของทุกคนที่ยังเล่นอยู่ ลงเซฟถาวรของคนนี้ (DataService:SaveRun)
 --   เรียกตอนรุ่งเช้าทุกวัน และตอนคนนี้ออกเกมกลางรอบ · คืนค่า true = เซฟแล้ว
 function RejoinService:SaveRunFor(player, leaving)
-	local shop = self.ctx.Services.MonetizationService
-	if not (shop and shop:HasPass(player, "SaveRun") and player:GetAttribute("InRun") and not player:GetAttribute("Dead") and runActive(self)) then
+	-- เซฟเฉพาะในโลกที่สร้าง (WorldService) ลงช่องของเจ้าของโลก · โหมดแท่นธรรมดาไม่เซฟ
+	local world = self.ctx.Services.WorldService
+	if not (world and world:IsWorldOwner(player) and player:GetAttribute("InRun") and runActive(self)) then
 		return false
 	end
 	local ok, run = pcall(self.SerializeRun, self)
@@ -261,11 +263,12 @@ function RejoinService:SaveRunFor(player, leaving)
 	end
 	run.SavedAt = os.time()
 	local ds = self.ctx.Services.DataService
+	local worldId = self.ctx.State:GetAttribute("WorldId")
 	if leaving then
-		task.spawn(ds.SaveRun, ds, player, run)
+		task.spawn(ds.SaveWorld, ds, player, worldId, run)
 		return true
 	end
-	return ds:SaveRun(player, run)
+	return ds:SaveWorld(player, worldId, run)
 end
 
 -- คนสุดท้ายออกจากรอบ (ไม่ได้ตาย): เก็บรอบไว้ แทนการจบรอบ (เซิร์ฟเวอร์ทีมที่มี MemoryStore เท่านั้น)
@@ -329,9 +332,7 @@ function RejoinService:TryRestore(player)
 	for _, el in ipairs(type(snap.Auras) == "table" and snap.Auras or {}) do
 		player:SetAttribute("Aura_" .. el, true) -- ออร่าวิหาร: ใส่เอฟเฟกต์/เลือดเพิ่มตอนเกิด (OnCharacter)
 	end
-	for id, n in pairs(snap.Bag) do
-		inv:Add(player, id, n, true)
-	end
+	inv:RestoreBag(player, snap.Bag) -- จำนวนเท่าที่เซฟพอดี (ไม่บวกซ้อนของเริ่มต้นอาชีพ = ไม่งอก)
 	ctx.Remotes.Get("Cinematic"):FireClient(player, "Depart", {})
 	-- เกิดใหม่ที่แคมป์/เตียง แล้วใส่เลือด/ความหิว/ของในมือ/สถานะล้มกลับ (หลัง OnCharacter ตั้งค่าเริ่มต้นเสร็จ)
 	local conn
@@ -393,6 +394,9 @@ function RejoinService:ApplyResume()
 		end,
 		function()
 			S.SanctumService:Restore(run.Sanctums)
+		end,
+		function()
+			S.ResourceService:Restore(run.Trees)
 		end,
 	}
 	for _, fn in ipairs(steps) do
@@ -530,15 +534,15 @@ function RejoinService:Answer(player, accept)
 end
 
 function RejoinService:Start(ctx)
-	-- Save Run: รุ่งเช้าทุกวัน เซฟรอบให้คนที่มี Pass อัตโนมัติ
 	ctx.State:GetAttributeChangedSignal("Phase"):Connect(function()
 		if ctx.State:GetAttribute("Phase") ~= "Day" then
 			return
 		end
+		-- โลกที่สร้าง: รุ่งเช้าทุกวัน เซฟโลกลงช่องของเจ้าของ
 		for _, p in ipairs(Players:GetPlayers()) do
 			task.spawn(function()
 				if self:SaveRunFor(p) then
-					ctx.Notify(p, string.format("Run saved · Night %d", ctx.Services.DirectorService.night or 1), "Good")
+					ctx.Broadcast(string.format("🌍 World saved · Night %d", ctx.Services.DirectorService.night or 1), "Good")
 				end
 			end)
 		end

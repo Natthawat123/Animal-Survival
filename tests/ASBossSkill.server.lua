@@ -435,7 +435,7 @@ if ReplicatedStorage:FindFirstChild("ASBossOnly") and ReplicatedStorage.ASBossOn
 	-- พ่อค้า: แลกได้ 3 ครั้ง/รายการ/การมาเยือน
 	do
 		local Trader = require(Server:WaitForChild("TraderService"))
-		Trader:Arrive()
+		Trader:Arrive(true) -- เกิดที่จุดยืนเลย (ไม่รอเดินเข้า)
 		task.wait(0.5)
 		local bag = Inv:Get(player)
 		bag.Pelt, bag.Bone = 200, 200
@@ -450,7 +450,7 @@ if ReplicatedStorage:FindFirstChild("ASBossOnly") and ReplicatedStorage.ASBossOn
 		local good = gotIron == 18
 		if good then pass += 1 else fail += 1 end
 		print(string.format("[START] %s trader T_Iron x5 -> got %d (want 18 = 3 ครั้ง)", good and "PASS" or "FAIL", gotIron))
-		Trader:Leave()
+		Trader:Leave(true)
 	end
 	-- ตายแล้วเกิดใหม่: ได้ขวานในมือ + กระสอบใบเดียวกลับมา
 	player.Character:FindFirstChildOfClass("Humanoid").Health = 0
@@ -646,6 +646,208 @@ if ReplicatedStorage:FindFirstChild("ASBossOnly") and ReplicatedStorage.ASBossOn
 	shot("snow_day_wide")
 	task.wait(4)
 	print("[SNOW] phase=" .. tostring(ReplicatedStorage.GameState:GetAttribute("Phase")) .. " biome lighting exposure=" .. tostring(game:GetService("Lighting").ExposureCompensation))
+	print("[TEST] DONE probe")
+	return
+end
+-- --bossskill=DropAudit : ดรอปของทุกชิ้นในเกมเรียงเป็นแถว -> พิมพ์ว่าใช้โมเดลแบบไหน (Bundle = กล่องผ้าสำรอง = บัค) + ถ่ายภาพทีละแถว
+if ReplicatedStorage:FindFirstChild("ASBossOnly") and ReplicatedStorage.ASBossOnly.Value == "DropAudit" then
+	local Drops = require(Server:WaitForChild("DropService"))
+	local Items = require(ReplicatedStorage.Shared.Items)
+	task.wait(4)
+	local ids = {}
+	for id in pairs(Items.Data) do
+		table.insert(ids, id)
+	end
+	table.sort(ids, function(a, b)
+		local ca, cb = Items.Data[a].Category or "", Items.Data[b].Category or ""
+		if ca ~= cb then
+			return ca > cb
+		end
+		return a < b
+	end)
+	local base = cp + Vector3.new(0, 260, 0)
+	local COLS, GAP = 6, 6
+	local plat = Instance.new("Part")
+	plat.Anchored, plat.Size, plat.Color, plat.Material = true, Vector3.new(60, 1, 110), Color3.fromRGB(110, 150, 90), Enum.Material.Grass
+	plat.CFrame = CFrame.new(base + Vector3.new(0, -0.5, 48))
+	plat.Parent = workspace
+	standAt(base + Vector3.new(0, 0, -4), base + Vector3.new(0, 0, 40))
+	task.wait(2)
+	local rows = {}
+	local bad = {}
+	for i, id in ipairs(ids) do
+		local r, c = (i - 1) // COLS, (i - 1) % COLS
+		local x, z = base.X + (c - (COLS - 1) / 2) * GAP, base.Z + r * GAP
+		local pos = Vector3.new(x, base.Y + 1.5, z)
+		local m = Drops:Spawn(id, 1, pos, { Spread = 0 })
+		local src = m and m:GetAttribute("LookSource") or "Look"
+		if not m then
+			src = "NONE"
+		end
+		local nparts = 0
+		if m then
+			for _, d in ipairs(m:GetDescendants()) do
+				if d:IsA("BasePart") then
+					nparts += 1
+				end
+			end
+		end
+		print(string.format("[DROPAUDIT] %-14s cat=%-9s src=%-6s parts=%d", id, tostring(Items.Data[id].Category), src, nparts))
+		if src == "Bundle" or src == "NONE" or (Items.Tools[id] and src ~= "Tool" and src ~= "Store") then
+			table.insert(bad, id .. "(" .. src .. ")")
+		end
+		rows[r] = rows[r] or Vector3.new(base.X, pos.Y, z)
+	end
+	print("[DROPAUDIT] BAD=" .. (#bad == 0 and "none" or table.concat(bad, ", ")))
+	task.wait(4) -- ให้ของตกถึงพื้น
+	player:SetAttribute("ProbeCam", "look")
+	local r = 0
+	while rows[r] do
+		local row = rows[r]
+		player:SetAttribute("ProbeFrom", row + Vector3.new(0, 11, -17))
+		player:SetAttribute("ProbeAt", row + Vector3.new(0, 0, 2))
+		task.wait(1.5)
+		shot("drops_row" .. r)
+		task.wait(0.8)
+		r += 1
+	end
+	print("[TEST] DONE dropaudit")
+	return
+end
+-- --bossskill=RaidDrop : ฝูงบุกตายแล้วต้องมีของตก (คนตีเอง / ป้อมฆ่าตอนคนอยู่ไกล) + จำนวนฝูงต่อคืน + ข้ามคืนด้วยตัวคูณวันไม่ยกฝูงมา
+if ReplicatedStorage:FindFirstChild("ASBossOnly") and ReplicatedStorage.ASBossOnly.Value == "RaidDrop" then
+	local Dir = require(Server:WaitForChild("DirectorService"))
+	local Drops = require(Server:WaitForChild("DropService"))
+	local Nights = require(ReplicatedStorage.Shared.Nights)
+	player:SetAttribute("Class", "Survivor")
+	require(Server:WaitForChild("LobbyService")):Depart(player)
+	Dir:StartRun()
+	task.wait(6)
+	Dir.paused = true
+	-- จำลองตัวคูณ x5: เลขวันกระโดดทีละ 5 แต่บุกต้องทุก 5 กลางคืนที่เล่นจริง
+	for played = 1, 20 do
+		local n = (played - 1) * 5 + 1
+		local plan = Nights.Plan(n, Random.new(n), "Earth", 1, { Played = played })
+		local c = 0
+		for _, w in ipairs(plan.Waves) do
+			c += #w.Spawns
+		end
+		print(string.format("[RAIDDROP] played=%d night=%d bigRaid=%s blood=%s boss=%s count1p=%d dmgScale=%.2f", played, n, tostring(plan.BigRaid), tostring(plan.BloodMoon), tostring(plan.Boss), c, Nights.Scale(n).Damage))
+	end
+	for _, n in ipairs({ 5, 25, 50, 99 }) do
+		for _, pc in ipairs({ 1, 4 }) do
+			local plan = Nights.Plan(n, Random.new(n), "Earth", pc, { Played = 5 })
+			local c = 0
+			for _, w in ipairs(plan.Waves) do
+				c += #w.Spawns
+			end
+			print(string.format("[RAIDDROP] raidNight=%d players=%d count=%d", n, pc, c))
+		end
+	end
+	local campPos = ctx.CampPosition
+	local function at(r)
+		local x, z = campPos.X + r, campPos.Z
+		return Vector3.new(x, ground(x, z), z)
+	end
+	local function killTest(label, attacker, playerOff)
+		standAt(at(playerOff), campPos)
+		task.wait(1)
+		local total = 0
+		for k = 1, 6 do
+			local pos = at(30) + Vector3.new(0, 3, k * 6 - 18)
+			local a = AnimalService:Spawn("MossWolf", pos, { Kind = "Raid" })
+			if not a then
+				print("[RAIDDROP] spawn failed")
+				break
+			end
+			task.wait(0.3)
+			local before = #Drops:Near(a.Root.Position, 12, 30)
+			AnimalService:TakeDamage(a, 99999, attacker, { Source = attacker and nil or "Ballista" })
+			task.wait(1.2)
+			local after = #Drops:Near(pos, 14, 30)
+			total += math.max(0, after - before)
+		end
+		print(string.format("[RAIDDROP] %s drops from 6 kills = %d", label, total))
+	end
+	killTest("playerKill", player, 40)
+	killTest("ballistaFar", nil, 400)
+	-- ข้ามคืนด้วยตัวคูณ (ผ่านคืน 5,10 ไป) -> carry ต้องว่าง
+	Dir.night = 4
+	Dir:PassNight()
+	Dir:PassNight()
+	print(string.format("[RAIDDROP] afterSkip night=%d played=%s", Dir.night, tostring(Dir.played)))
+	print("[TEST] DONE raiddrop")
+	return
+end
+-- --bossskill=Stalker : จิ้งจอกจันทรา — ไล่คนนอกวงเสาไฟจนถึงตัว · คนอยู่ในวง = รอนอกขอบ ไม่วนเข้า-ออก · คนยืนชิดขอบนอก = ตีได้ ไม่กระตุก
+if ReplicatedStorage:FindFirstChild("ASBossOnly") and ReplicatedStorage.ASBossOnly.Value == "Stalker" then
+	local Dir = require(Server:WaitForChild("DirectorService"))
+	local CampS = require(Server:WaitForChild("CampService"))
+	player:SetAttribute("Class", "Survivor")
+	require(Server:WaitForChild("LobbyService")):Depart(player)
+	Dir:StartRun()
+	task.wait(6)
+	Dir.paused = true
+	local campPos = ctx.CampPosition
+	local zone = CampS:CampRadius()
+	print(string.format("[STALK] zone=%.1f safe=%.1f", zone, CampS:SafeRadius()))
+	local function flatD(a, b)
+		return ((a - b) * Vector3.new(1, 0, 1)).Magnitude
+	end
+	local function at(r)
+		local x, z = campPos.X + r, campPos.Z
+		return Vector3.new(x, ground(x, z), z)
+	end
+	local fox = AnimalService:Spawn("Moonfang", at(zone + 160) + Vector3.new(0, 3, 0), { Kind = "Stalker" })
+	if not fox then
+		print("[STALK] no fox model")
+		print("[TEST] DONE probe")
+		return
+	end
+	local function watch(label, secs)
+		local flips, last, attacks, lastAtk = 0, nil, 0, fox.Model:GetAttribute("AttackAt")
+		local minCamp, minPlayer, sumMove, prev = math.huge, math.huge, 0, fox.Root.Position
+		local t0 = os.clock()
+		while os.clock() - t0 < secs do
+			task.wait(0.25)
+			local st = fox.Model:GetAttribute("State")
+			if last and st ~= last then
+				flips += 1
+			end
+			last = st
+			local atk = fox.Model:GetAttribute("AttackAt")
+			if atk ~= lastAtk then
+				attacks += 1
+				lastAtk = atk
+			end
+			minCamp = math.min(minCamp, flatD(fox.Root.Position, campPos))
+			local pr = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+			if pr then
+				minPlayer = math.min(minPlayer, flatD(fox.Root.Position, pr.Position))
+			end
+			sumMove += flatD(fox.Root.Position, prev)
+			prev = fox.Root.Position
+		end
+		print(string.format("[STALK] %s state=%s flips=%d attacks=%d minFoxCamp=%.1f (zone %.1f) minFoxPlayer=%.1f moved=%.0f prey=%s",
+			label, tostring(last), flips, attacks, minCamp, zone, minPlayer, sumMove, tostring(fox.Prey and fox.Prey.Name)))
+	end
+	-- 1) นอกวงไกล ๆ: ต้องวิ่งมาถึงตัวแล้วตี
+	standAt(at(zone + 60), campPos)
+	watch("outside", 14)
+	-- 2) ในวง: ต้องไม่เข้าวง (minFoxCamp >= zone) และไม่สลับท่าถี่
+	standAt(at(zone - 8), campPos + Vector3.new(0, 0, -50))
+	watch("inside", 12)
+	-- 3) ชิดขอบนอก: ตีได้ ไม่วนเข้า-ออก
+	standAt(at(zone + 3), campPos + Vector3.new(0, 0, -50))
+	watch("edge", 12)
+	-- 4) วิ่งหนีออกนอกวง: ต้องตามทัน
+	task.spawn(function()
+		local h = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+		if h then
+			h:MoveTo(at(zone + 140))
+		end
+	end)
+	watch("runaway", 12)
 	print("[TEST] DONE probe")
 	return
 end

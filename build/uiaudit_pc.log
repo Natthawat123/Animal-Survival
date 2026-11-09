@@ -1,0 +1,335 @@
+ERR: torError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+ERR: torError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+orOutput] [AS] rebuilt mesh collisions: 1215
+torOutput] [AS] ???????????????????...
+torOutput] [AS] seed=602761827 map=2048
+torOutput] [AS] client ready
+orOutput] [AS] terrain 11.5s
+orOutput] [AS] world ready 13.2s props=421
+orOutput] [AS] READY
+orOutput] [AS] UI calib TextBounds.Y=20.0 screen=true ratio=1.00
+torOutput] [AS] UI Win900x560 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Win900x560_lobby
+torOutput] [AS] UI Win900x560 lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Win900x560_lobby_store
+orOutput] [AS] UI Win900x560 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Win900x560_lobby_quests
+orOutput] [AS] UI Win900x560 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Win900x560_lobby_badges
+orOutput] [AS] UI Win900x560 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Win900x560_lobby_settings
+orOutput] [AS] UI Win900x560 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Win900x560_lobby_tutorial
+torOutput] [AS] UI Win900x560 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Win900x560_lobby_padpicker
+torOutput] [AS] UI Win900x560 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Win900x560_lobby_classes
+torOutput] [AS] UI Win1024x576 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Win1024x576_lobby
+orOutput] [AS] UI Win1024x576 lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Win1024x576 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Win1024x576 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI Win1024x576 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Win1024x576 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Win1024x576 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Win1024x576 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1366@125 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1366@125_lobby
+torOutput] [AS] UI Laptop1366@125 lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1366@125_lobby_store
+torOutput] [AS] UI Laptop1366@125 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1366@125_lobby_quests
+torOutput] [AS] UI Laptop1366@125 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1366@125_lobby_badges
+torOutput] [AS] UI Laptop1366@125 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1366@125_lobby_settings
+torOutput] [AS] UI Laptop1366@125 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1366@125_lobby_tutorial
+torOutput] [AS] UI Laptop1366@125 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1366@125_lobby_padpicker
+torOutput] [AS] UI Laptop1366@125 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1366@125_lobby_classes
+torOutput] [AS] UI HD1280x720 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_HD1280x720_lobby
+torOutput] [AS] UI HD1280x720 lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI HD1280x720 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI HD1280x720 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI HD1280x720 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI HD1280x720 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI HD1280x720 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI HD1280x720 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI Laptop1366x705 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1366x705_lobby
+orOutput] [AS] UI Laptop1366x705 lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1366x705 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1366x705 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1366x705 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1366x705 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1366x705 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1366x705 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1536x864 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1536x864_lobby
+torOutput] [AS] UI Laptop1536x864 lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI Laptop1536x864 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI Laptop1536x864 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1536x864 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1536x864 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI Laptop1536x864 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1536x864 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI SXGA1280x1024 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_SXGA1280x1024_lobby
+orOutput] [AS] UI SXGA1280x1024 lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI SXGA1280x1024 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI SXGA1280x1024 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI SXGA1280x1024 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI SXGA1280x1024 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI SXGA1280x1024 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI SXGA1280x1024 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI FHD1920x1017 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_FHD1920x1017_lobby
+shot plants
+orOutput] [AS] UI FHD1920x1017 lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_FHD1920x1017_lobby_store
+torOutput] [AS] UI FHD1920x1017 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_FHD1920x1017_lobby_quests
+shot lobby_wide
+orOutput] [AS] UI FHD1920x1017 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_FHD1920x1017_lobby_badges
+orOutput] [AS] UI FHD1920x1017 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_FHD1920x1017_lobby_settings
+shot lobby_side
+torOutput] [AS] UI FHD1920x1017 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_FHD1920x1017_lobby_tutorial
+torOutput] [AS] UI FHD1920x1017 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_FHD1920x1017_lobby_padpicker
+shot bases
+orOutput] [AS] UI FHD1920x1017 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_FHD1920x1017_lobby_classes
+orOutput] [AS] UI QHD2560x1377 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_QHD2560x1377_lobby
+shot base_front
+torOutput] [AS] UI QHD2560x1377 lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI QHD2560x1377 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI QHD2560x1377 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI QHD2560x1377 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI QHD2560x1377 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI QHD2560x1377 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI QHD2560x1377 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Ultrawide3440 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Ultrawide3440_lobby
+shot base_close
+orOutput] [AS] UI Ultrawide3440 lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Ultrawide3440 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI Ultrawide3440 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI Ultrawide3440 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI Ultrawide3440 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Ultrawide3440 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Ultrawide3440 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI 4K3840x2097 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_4K3840x2097_lobby
+shot hub
+torOutput] [AS] UI 4K3840x2097 lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI 4K3840x2097 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI 4K3840x2097 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI 4K3840x2097 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI 4K3840x2097 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI 4K3840x2097 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot meadow
+orOutput] [AS] UI 4K3840x2097 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI inRun=true
+shot forest_top
+shot valley
+torOutput] [AS] UI Win900x560 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Win900x560_run
+shot mushroom
+orOutput] [AS] UI Win900x560 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Win900x560_run_craft
+torOutput] [AS] UI Win900x560 run+craftend oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Win900x560_run_craftend
+shot candy
+orOutput] [AS] UI Win900x560 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Win900x560_run_trader
+torOutput] [AS] UI Win900x560 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Win900x560_run_map
+shot tundra
+torOutput] [AS] UI Win900x560 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Win900x560_run_inventory
+orOutput] [AS] UI Win1024x576 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Win1024x576_run
+shot sky
+torOutput] [AS] UI Win1024x576 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI Win1024x576 run+craftend oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI Win1024x576 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI Win1024x576 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Win1024x576 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1366@125 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1366@125_run
+shot lava
+orOutput] [AS] UI Laptop1366@125 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1366@125_run_craft
+orOutput] [AS] UI Laptop1366@125 run+craftend oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1366@125_run_craftend
+shot crystal
+orOutput] [AS] UI Laptop1366@125 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1366@125_run_trader
+shot DONE
+torOutput] [AS] UI Laptop1366@125 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1366@125_run_map
+ERR: atorError] Error: Failed to load animation with sanitized ID rbxassetid://12084286830: Animation failed to load, assetId: https://assetdelivery.roblox.com/v1/asset?id=12084286830&serverplaceid=0
+ERR: atorError] Error: Failed to load animation with sanitized ID rbxassetid://7320008657: Animation failed to load, assetId: https://assetdelivery.roblox.com/v1/asset?id=7320008657&serverplaceid=0
+orOutput] [AS] UI Laptop1366@125 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1366@125_run_inventory
+ERR: atorError] Error: Failed to load animation with sanitized ID rbxassetid://12084286830: Animation failed to load, assetId: https://assetdelivery.roblox.com/v1/asset?id=12084286830&serverplaceid=0
+ERR: atorError] Error: Failed to load animation with sanitized ID rbxassetid://7320008657: Animation failed to load, assetId: https://assetdelivery.roblox.com/v1/asset?id=7320008657&serverplaceid=0
+torOutput] [AS] UI HD1280x720 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_HD1280x720_run
+torOutput] [TEST] OK   map exists 
+torOutput] [TEST] OK   biome count 7
+torOutput] [TEST] OK   7 plots 
+torOutput] [TEST] map parts: 8548
+torOutput] [TEST] OK   garden seeds spawned 70
+torOutput] [TEST] OK   guardians 7
+torOutput] [TEST] OK   boss models loaded 7
+torOutput] [TEST] OK   Blender plant + seed meshes loaded 49/49
+torOutput] [TEST] OK   plot assigned 
+torOutput] [TEST] OK   ground in front of the bases at y=0 0.015621185302734375
+torOutput] [TEST] OK   spawned in base -215.9993896484375, 3.4336462020874023, -26.000396728515625
+torOutput] [TEST] OK   walkspeed 16
+torOutput] [TEST] OK   start carry 
+torOutput] [TEST] OK   carry attribute Epic
+shot loading
+orOutput] [AS] UI HD1280x720 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [TEST] OK   seed banked in inventory {"1":{"Grow":2,"Mut":"Normal","Plant":"Corn","Kind":"Seed","Rarity":"Epic","Biome":1}}
+torOutput] [TEST] OK   seed is a Tool in the Roblox backpack Epic Seed
+torOutput] [TEST] OK   seed held in hand 
+torOutput] [TEST] OK   seed planted {"p1":{"Rarity":"Epic","GrowAt":1794063595,"Rot":274,"Biome":1,"X":0,"Z":-7,"Mut":"Normal","Kind":"Seed","GrowTime":2,"Plant":"Corn"}}
+torOutput] [TEST] OK   tool gone after planting 
+torOutput] [TEST] OK   planting outside the bed refused 
+torOutput] [TEST] OK   planting too close refused 
+torOutput] [TEST] OK   carry garden seed 
+torOutput] [TEST] OK   banked at the lobby gate 
+orOutput] [AS] UI HD1280x720 run+craftend oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI HD1280x720 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI HD1280x720 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI HD1280x720 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI Laptop1366x705 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1366x705_run
+torOutput] [TEST] OK   seed grown 1.02
+torOutput] [TEST] OK   plant model in base 
+reatorWarning] Warning: [TEST] FAIL index reward speed 0
+shot loading_play
+torOutput] [TEST] OK   income income 41.616 money 208.07999999999998
+torOutput] [TEST] OK   size distribution big=3209 max=9.92 min=0.80
+torOutput] [TEST] OK   size income 
+torOutput] [TEST] OK   plant picked up 
+torOutput] [TEST] OK   plant replanted with same size p2
+torOutput] [TEST] OK   backpack tools match inventory 3 items / 3 tools
+torOutput] [TEST] OK   dyno upgraded (level 1 is free) 2
+torOutput] [TEST] OK   garden upgraded 
+torOutput] [TEST] OK   car equipped 
+torOutput] [TEST] OK   riding the car 
+torOutput] [TEST] OK   carried seed rides on the back of the vehicle 0, -0.5708560943603516, 2.372312545776367
+torOutput] [TEST] OK   car parked at base 
+torOutput] [TEST] OK   real vehicle models imported 7
+torOutput] [TEST] OK   owner head shown 
+torOutput] [TEST] OK   nothing inside the fence but grass 
+torOutput] [TEST] OK   7 biomes x 7 rarities (Common..Secret) 
+torOutput] [TEST] OK   10 vehicles, Regera + orange carriage 10
+orOutput] [AS] UI Laptop1366x705 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1366x705 run+craftend oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [TEST] OK   treadmill gives speed 21
+shot dyno_empty
+torOutput] [AS] UI Laptop1366x705 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1366x705 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1366x705 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot dyno_low
+torOutput] [TEST] OK   turbo dyno built (rollers, fan, gauge, LEDs) 
+orOutput] [AS] UI Laptop1536x864 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1536x864_run
+ERR: atorError] Error: MeshContentProvider failed to process https://assetdelivery.roblox.com/v1/asset?id=12712260742 because 'could not fetch'
+torOutput] [TEST] OK   dyno gives speed in a car 420
+torOutput] [TEST] OK   Regera wheels on spin hubs 4
+shot dyno
+orOutput] [AS] UI Laptop1536x864 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1536x864 run+craftend oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1536x864 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot dyno_side
+torOutput] [TEST] OK   carry lake seed 
+torOutput] [AS] UI Laptop1536x864 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1536x864 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI SXGA1280x1024 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_SXGA1280x1024_run
+torOutput] [TEST] OK   guardian caught + seed dropped 
+orOutput] [TEST] OK   night: map closed, sent home, seed lost -215.9993896484375, 3.4373159408569336, -26.000396728515625
+orOutput] [TEST] OK   day: map open again 
+orOutput] [TEST] OK   sell plant 
+orOutput] [TEST] OK   fuse 1.98
+orOutput] [TEST] OK   rebirth 
+orOutput] [TEST] OK   speed boost x4000 4000
+orOutput] [TEST] OK   seed pack x3 into the backpack 3
+orOutput] [TEST] OK   x2 cash pass 
+orOutput] [TEST] OK   speed pack +150K 150000
+orOutput] [TEST] OK   index rewards claimed by hand 1
+orOutput] [TEST] OK   rare seed spawned 
+orOutput] [TEST] OK   top car mounted 
+orOutput] [AS] UI SXGA1280x1024 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI SXGA1280x1024 run+craftend oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI SXGA1280x1024 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI SXGA1280x1024 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot riding
+orOutput] [AS] UI SXGA1280x1024 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI FHD1920x1017 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_FHD1920x1017_run
+shot riding_side
+torOutput] [AS] UI FHD1920x1017 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_FHD1920x1017_run_craft
+torOutput] [TEST] OK   giant plants planted 4
+shot garden
+torOutput] [AS] UI FHD1920x1017 run+craftend oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_FHD1920x1017_run_craftend
+shot garden_low
+orOutput] [AS] UI FHD1920x1017 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_FHD1920x1017_run_trader
+shot hotbar
+shot car_display
+orOutput] [AS] UI FHD1920x1017 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_FHD1920x1017_run_map
+orOutput] [AS] UI FHD1920x1017 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_FHD1920x1017_run_inventory
+shot car1
+shot car2
+shot car3
+torOutput] [AS] UI QHD2560x1377 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_QHD2560x1377_run
+torOutput] [AS] UI QHD2560x1377 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI QHD2560x1377 run+craftend oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI QHD2560x1377 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI QHD2560x1377 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot car4
+shot car5
+ERR: atorError] Error: MeshContentProvider failed to process https://assetdelivery.roblox.com/v1/asset?id=1347916411 because 'could not fetch'
+shot car6
+torOutput] [AS] UI QHD2560x1377 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Ultrawide3440 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Ultrawide3440_run
+torOutput] [AS] UI Ultrawide3440 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI Ultrawide3440 run+craftend oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Ultrawide3440 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI Ultrawide3440 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot car7
+shot car8
+shot car9
+torOutput] [AS] UI Ultrawide3440 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI 4K3840x2097 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_4K3840x2097_run
+orOutput] [AS] UI 4K3840x2097 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI 4K3840x2097 run+craftend oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI 4K3840x2097 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot car10
+shot carshop
+orOutput] [AS] UI 4K3840x2097 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI 4K3840x2097 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI TOTAL oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [TEST] DONE uiaudit
+shot plantsui
+finished in 836s  done=True

@@ -282,10 +282,10 @@ local function dressBolt(p, kind)
 		return
 	end
 	local a0 = Instance.new("Attachment")
-	a0.Position = V(0, 0.3, 0)
+	a0.Position = V(0, 0.16, 0)
 	a0.Parent = p
 	local a1 = Instance.new("Attachment")
-	a1.Position = V(0, -0.3, 0)
+	a1.Position = V(0, -0.16, 0)
 	a1.Parent = p
 	local tr = Instance.new("Trail")
 	tr.Attachment0, tr.Attachment1 = a0, a1
@@ -299,11 +299,11 @@ local function dressBolt(p, kind)
 	local e = Instance.new("ParticleEmitter")
 	e.Texture = kind == "Verdant" and TEX.Spark or TEX.Spark
 	e.Color = ColorSequence.new(col.Core, col.Main)
-	e.Rate = 35
-	e.Lifetime = NumberRange.new(0.2, 0.4)
-	e.Speed = NumberRange.new(1, 3)
+	e.Rate = 18
+	e.Lifetime = NumberRange.new(0.15, 0.3)
+	e.Speed = NumberRange.new(0.5, 2)
 	e.SpreadAngle = Vector2.new(180, 180)
-	e.Size = NS({ NSK(0, 0.4), NSK(1, 0) })
+	e.Size = NS({ NSK(0, 0.25), NSK(1, 0) })
 	e.LightEmission = 1
 	e.Parent = a0
 	if kind == "Verdant" then
@@ -311,7 +311,7 @@ local function dressBolt(p, kind)
 		local leaf = Instance.new("ParticleEmitter")
 		leaf.Texture = TEX.Spark
 		leaf.Color = ColorSequence.new(C(90, 200, 70))
-		leaf.Rate = 12
+		leaf.Rate = 6
 		leaf.Lifetime = NumberRange.new(0.5, 0.9)
 		leaf.Speed = NumberRange.new(2, 5)
 		leaf.Acceleration = V(0, -10, 0)
@@ -332,16 +332,16 @@ function ClassFX.Impact(d)
 		return false
 	end
 	local pos = d.Position
-	vfx("StaffExp", pos, { Scale = (d.FxScale or 0.15) * 1.1, Duration = 0.3, Burst = 1, Tint = col.Main })
-	vfx("Shiny", pos, { Scale = 0.45, Duration = 0.25, Burst = 1, Tint = col.Main })
-	shockwave(pos, (d.Radius or 8) * 0.55, col.Main, 0.35)
-	flash(pos + V(0, 2, 0), col.Main, 14, 0.25)
+	vfx("StaffExp", pos, { Scale = (d.FxScale or 0.08), Duration = 0.25, Burst = 1, Tint = col.Main })
+	vfx("Shiny", pos, { Scale = 0.25, Duration = 0.2, Burst = 1, Tint = col.Main })
+	shockwave(pos, (d.Radius or 8) * 0.3, col.Main, 0.3)
+	flash(pos + V(0, 2, 0), col.Main, 8, 0.2)
 	if d.FxKind == "Arcane" then
-		burst(pos, { Texture = TEX.Spark, Color = ColorSequence.new(col.Core, col.Main), Speed = NumberRange.new(8, 16), Lifetime = NumberRange.new(0.25, 0.45), Size = NS({ NSK(0, 0.7), NSK(1, 0) }), LightEmission = 1, Drag = 4 }, 16)
+		burst(pos, { Texture = TEX.Spark, Color = ColorSequence.new(col.Core, col.Main), Speed = NumberRange.new(5, 10), Lifetime = NumberRange.new(0.2, 0.35), Size = NS({ NSK(0, 0.45), NSK(1, 0) }), LightEmission = 1, Drag = 4 }, 8)
 	else
-		burst(pos, { Texture = TEX.Spark, Color = ColorSequence.new(C(130, 230, 90), C(60, 150, 40)), Speed = NumberRange.new(5, 12), Lifetime = NumberRange.new(0.6, 1), Size = NS({ NSK(0, 0.5), NSK(1, 0.2) }), Acceleration = V(0, -18, 0), Rotation = NumberRange.new(0, 360), RotSpeed = NumberRange.new(-300, 300), Drag = 2 }, 14)
+		burst(pos, { Texture = TEX.Spark, Color = ColorSequence.new(C(130, 230, 90), C(60, 150, 40)), Speed = NumberRange.new(3, 8), Lifetime = NumberRange.new(0.5, 0.8), Size = NS({ NSK(0, 0.35), NSK(1, 0.15) }), Acceleration = V(0, -18, 0), Rotation = NumberRange.new(0, 360), RotSpeed = NumberRange.new(-300, 300), Drag = 2 }, 7)
 	end
-	sound("Boom", pos, 0.3, d.FxKind == "Arcane" and 1.5 or 1.3)
+	sound("Boom", pos, 0.22, d.FxKind == "Arcane" and 1.6 or 1.4)
 	return true
 end
 
@@ -366,14 +366,14 @@ local function onSwing(d)
 		local handle = tool and tool:FindFirstChild("Handle")
 		local tip = handle and (handle.CFrame * CF(0, handle.Size.Y * 0.45, 0)).Position or (origin + V(0, 3, 0) + dir * 2)
 		local orb = part({ Shape = Enum.PartType.Ball, Size = V(0.6, 0.6, 0.6), Color = col.Core, Position = tip, Transparency = 0 })
-		tween(orb, 0.3, { Size = V(2.4, 2.4, 2.4), Transparency = 1 })
+		tween(orb, 0.25, { Size = V(1.3, 1.3, 1.3), Transparency = 1 })
 		Debris:AddItem(orb, 0.4)
 		local ring = part({ Shape = Enum.PartType.Cylinder, Size = V(0.15, 1, 1), Color = col.Main, Transparency = 0.1 })
 		ring.CFrame = CFrame.lookAt(tip, tip + dir) * ANG(0, math.rad(90), 0)
-		tween(ring, 0.3, { Size = V(0.05, 3.4, 3.4), Transparency = 1 })
+		tween(ring, 0.25, { Size = V(0.05, 1.8, 1.8), Transparency = 1 })
 		Debris:AddItem(ring, 0.4)
-		burst(tip, { Texture = TEX.Spark, Color = ColorSequence.new(col.Core, col.Main), Speed = NumberRange.new(4, 10), Lifetime = NumberRange.new(0.2, 0.35), Size = NS({ NSK(0, 0.8), NSK(1, 0) }), LightEmission = 1 }, 16)
-		flash(tip, col.Main, 14, 0.25, 4)
+		burst(tip, { Texture = TEX.Spark, Color = ColorSequence.new(col.Core, col.Main), Speed = NumberRange.new(3, 6), Lifetime = NumberRange.new(0.15, 0.3), Size = NS({ NSK(0, 0.4), NSK(1, 0) }), LightEmission = 1 }, 6)
+		flash(tip, col.Main, 7, 0.2, 3)
 	end
 end
 
@@ -602,6 +602,85 @@ end
 local function onBatBite(d)
 	vfx("SlashImpact", d.Position, { Scale = 0.4, Duration = 0.15, Burst = 1, Tint = COL.Blood.Main })
 	burst(d.Position, { Texture = TEX.Spark, Color = ColorSequence.new(C(200, 0, 20)), Speed = NumberRange.new(5, 10), Lifetime = NumberRange.new(0.3, 0.5), Size = NS({ NSK(0, 0.5), NSK(1, 0) }), Acceleration = V(0, -30, 0) }, 8)
+end
+
+-- ไฟเผาบนตัวมอน: เปลวลุกท่วมตัว สีตามออร่าอาวุธ (ส่งซ้ำ = ต่อเวลา) · มอนตาย/หาย = ดับเอง
+local burning = {} -- [model] = { Until, Box, Emit }
+local function onBurning(d)
+	local model = d.Model
+	if typeof(model) ~= "Instance" or not model.Parent then
+		return
+	end
+	local root = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+	if not root then
+		return
+	end
+	local color = typeof(d.Color) == "ColorSequence" and d.Color or ColorSequence.new(C(255, 160, 60), C(255, 50, 20))
+	local b = burning[model]
+	if b and b.Box.Parent then
+		b.Until = os.clock() + (d.Time or 4)
+		b.Emit.Color, b.Core.Color = color, color
+		return
+	end
+	local ok, cf, size = pcall(model.GetBoundingBox, model)
+	if not ok then
+		cf, size = root.CFrame, root.Size
+	end
+	local box = part({ Size = V(math.max(size.X * 0.7, 1), math.max(size.Y * 0.5, 1), math.max(size.Z * 0.7, 1)), Transparency = 1, Anchored = false, Massless = true })
+	box.CFrame = CF(cf.Position - V(0, size.Y * 0.15, 0)) * root.CFrame.Rotation
+	box.Name = "BurnBox"
+	local w = Instance.new("WeldConstraint")
+	w.Part0, w.Part1 = root, box
+	w.Parent = box
+	-- อยู่ในโฟลเดอร์เอฟเฟกต์ (เชื่อมติดตัวมอน) · ห้ามใส่ในโมเดลมอน: ระบบสกิน/อนิเมชันของมอนล้างชิ้นแปลกปลอมทิ้ง
+	local s = math.clamp(math.max(size.X, size.Z) * 0.35, 1, 5)
+	local emit = Instance.new("ParticleEmitter")
+	emit.Texture = TEX.Fire
+	emit.Shape = Enum.ParticleEmitterShape.Box
+	emit.Color = color
+	emit.Rate = 40
+	emit.Lifetime = NumberRange.new(0.45, 0.8)
+	emit.Speed = NumberRange.new(2, 5)
+	emit.SpreadAngle = Vector2.new(10, 10)
+	emit.EmissionDirection = Enum.NormalId.Top
+	emit.Acceleration = V(0, 4, 0)
+	emit.Size = NS({ NSK(0, s * 1.1), NSK(0.5, s * 0.75), NSK(1, 0) })
+	emit.Transparency = NS({ NSK(0, 0.1), NSK(0.7, 0.4), NSK(1, 1) })
+	emit.Rotation = NumberRange.new(-30, 30)
+	emit.LightEmission = 1
+	emit.Brightness = 2.5
+	emit.LightInfluence = 0 -- สว่างเท่ากันทั้งกลางวัน/กลางคืน (ไฟสีเข้มอย่างม่วงดำยังเห็นชัด)
+	emit.Parent = box
+	local core = Instance.new("ParticleEmitter")
+	core.Texture = TEX.Spark
+	core.Shape = Enum.ParticleEmitterShape.Box
+	core.Color = color
+	core.Rate = 10
+	core.Lifetime = NumberRange.new(0.5, 1)
+	core.Speed = NumberRange.new(2, 5)
+	core.SpreadAngle = Vector2.new(30, 30)
+	core.EmissionDirection = Enum.NormalId.Top
+	core.Size = NS({ NSK(0, 0.35), NSK(1, 0) })
+	core.LightEmission = 1
+	core.Brightness = 3
+	core.LightInfluence = 0
+	core.Parent = box
+	local l = Instance.new("PointLight")
+	l.Color, l.Range, l.Brightness = color.Keypoints[1].Value, s * 4, 1.5
+	l.Parent = box
+	b = { Until = os.clock() + (d.Time or 4), Box = box, Emit = emit, Core = core }
+	burning[model] = b
+	task.spawn(function()
+		while box.Parent and model.Parent and os.clock() < b.Until and (model:GetAttribute("Health") or 1) > 0 do
+			task.wait(0.2)
+		end
+		burning[model] = nil
+		emit.Enabled, core.Enabled = false, false
+		if l.Parent then
+			tween(l, 0.4, { Brightness = 0 })
+		end
+		Debris:AddItem(box, 0.9)
+	end)
 end
 
 -- ค้างคาวฆ่ามอน: ลูกเลือดลอยจากศพเข้าตัวเจ้าของ + ประกายฮีลรอบตัว
@@ -1019,7 +1098,7 @@ local HANDLERS = {
 	ClassSwing = onSwing, ClassHit = onHit,
 	SkillSwarm = onSwarm, BatBite = onBatBite, BatGuard = onBatGuard,
 	SkillVeil = onVeil, SkillDarkMeteor = onDarkMeteor,
-	SkillThornBind = onThornBind, SkillThornMark = onThornMark, BatDrain = onBatDrain,
+	SkillThornBind = onThornBind, SkillThornMark = onThornMark, BatDrain = onBatDrain, Burning = onBurning,
 }
 
 -- เล่นเอฟเฟกต์ตรงๆ (ใช้ในเทส: ยิงเอฟเฟกต์ให้ตรงจังหวะถ่ายภาพ)

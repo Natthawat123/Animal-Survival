@@ -1336,7 +1336,7 @@
 1537	Natatanging tungkod ng Elementalist · Nagpapaputok ng sumasabog na arcane bolt (malakas sa lahat ng elemento)
 1538	Gumaling ng 2% ng max HP sa bawat napatay na halimaw
 1539	Max HP +30 · Regen 0.8 HP/seg · Skill: Santuwaryo ng Kalikasan — gubat na nagpapagaling sa team at nagpapabagal sa halimaw nang 12 seg · Cooldown 100 seg
-1541	Skill: tumawag ng 5 paniki (200 HP) na umaatake sa halimaw · Cooldown 120 seg · Gamitin ulit = bagong kawan ang papalit
+1541	Skill: tumawag ng 5 paniki (200 HP) na umaatake sa halimaw · Cooldown 120 seg · Gamitin ulit = bagong kawan ang papalit (kalahating pinsala sa boss)
 1542	Kawan
 1543	Natatanging karit ng Bampira · Malayo ang abot, winawalis ang grupo ng kaaway
 1544	Luntiang Tungkod
@@ -1349,8 +1349,8 @@
 1551	Regen 3% HP bawat 2 segundo
 1552	30% mas mabilis tumakbo
 1553	Belo ng Anino
-1554	Skill: babagsak ang madilim na meteor mula sa langit, malakas na damage sa malawak na lugar at mag-iiwan ng madilim na apoy nang 10 seg (sunog 2% HP/seg) · Cooldown 120 seg
-1555	Skill: i-stun ang mga halimaw sa paligid nang 4 seg (boss 2 seg) at lasunin — bawas 1% HP/seg nang 15 seg · Cooldown 150 seg
+1554	Skill: babagsak ang madilim na meteor mula sa langit, malakas na damage sa malawak na lugar at mag-iiwan ng madilim na apoy nang 10 seg (sunog 2% HP/seg) · Cooldown 120 seg (boss: 5% kabuuan)
+1555	Skill: i-stun ang mga halimaw sa paligid nang 4 seg (boss 2 seg) at lasunin — bawas 1% HP/seg nang 15 seg · Cooldown 150 seg (boss: 4% kabuuan)
 1556	Skill: maging invisible at tumakbo nang 50% mas mabilis nang 4 seg (mawawala kapag nag-damage) · Cooldown 30 seg
 1557	Gapos ng Tinik
 1558	Hakbang ng Kagubatan
@@ -1362,3 +1362,16 @@
 1582	Ilagay para magpahinga: day multiplier +1 (walang bonus = x2) · tuwing umaga uusad ang araw ayon sa multiplier · Max 1 kama bawat server
 1586	Hinihintay ang pad leader na pumili ng laki ng team
 1589	🛏️ Gumamit ng kama si %s — x%d na ang bilang ng araw!
+1590	📍 I-click ang mapa para maglagay ng marker
+1591	📍 Narating mo na ang marker mo
+1592	📍 Malapit na ang marker mo
+1593	Napakalapit na! %dm
+1594	Marker %dm
+1595	Ping
+1596	Mapa
+1597	Umatake
+1598	Pumutol
+1599	Magmina
+1600	Pulutin
+1601	Taniman ng Berry %d/%d
+1605	Kampo %dm

@@ -15,6 +15,21 @@ local function slow(a)
 	return a.Info.CastMult or Config.BossCastMult
 end
 
+-- ดาเมจสกิลบอส = ตัวเลขตามระดับ (Animals.SkillDamage: Light/Medium/Heavy) x a.DamageMult (= Nights.BossDamageMult ตามจำนวนคน)
+--   ระดับตั้งต้นของแต่ละท่า (บอสเปลี่ยนเองได้ด้วย Animals.SkillTier)
+local TIER = {
+	Quake = "Heavy", Fissure = "Medium", BoulderRain = "Light",
+	TidalWave = "Medium", WaterSpout = "Light",
+	Blizzard = "Heavy", IceSpikes = "Medium",
+	FlameNova = "Heavy", FireBreath = "Medium", MeteorRoar = "Light",
+}
+local function skillDamage(a, name, tier)
+	local info = a.Info
+	tier = tier or (info.SkillTier and info.SkillTier[name]) or TIER[name] or "Medium"
+	local t = info.SkillDamage
+	return (t and t[tier] or info.Damage) * (a.DamageMult or 1)
+end
+
 local ELEMENT_COLOR = {
 	Earth = Color3.fromRGB(150, 240, 90),
 	Water = Color3.fromRGB(70, 200, 255),
@@ -137,7 +152,7 @@ Abilities.Quake = function(ctx, a)
 	end
 	impact(ctx, a, center, radius, "Slam")
 	fx(ctx, "BossSpikes", { Pos = center, Radius = radius * 0.85, Count = 14, Element = a.Info.Element, Ring = true })
-	hitPlayers(ctx, center, radius, a.Info.Damage * a.DamageMult, a.Id, function(_, r)
+	hitPlayers(ctx, center, radius, skillDamage(a, "Quake"), a.Id, function(_, r)
 		local away = (r.Position - center) * Vector3.new(1, 0, 1)
 		away = away.Magnitude > 0.1 and away.Unit or Vector3.new(1, 0, 0)
 		return { Knockback = away * 75 + Vector3.new(0, 55, 0) }
@@ -164,7 +179,7 @@ Abilities.Fissure = function(ctx, a, target)
 			local r = charRoot(pl)
 			if r and not hitSet[pl] and ((r.Position - p) * Vector3.new(1, 0, 1)).Magnitude < width * 0.6 then
 				hitSet[pl] = true
-				ctx.Services.SurvivalService:Damage(pl, a.Info.Damage * a.DamageMult * 0.9, a.Id, { Knockback = Vector3.new(0, 85, 0) + dir * 20 })
+				ctx.Services.SurvivalService:Damage(pl, skillDamage(a, "Fissure"), a.Id, { Knockback = Vector3.new(0, 85, 0) + dir * 20 })
 			end
 		end
 		task.wait(0.06)
@@ -204,14 +219,14 @@ end
 Abilities.BoulderRain = function(ctx, a)
 	cast(ctx, a, "Summon", 1.6 * slow(a), "Rockslide!")
 	task.wait(0.4 * slow(a))
-	rain(ctx, a, 9, 11, a.Info.Damage * a.DamageMult * 0.75, Color3.fromRGB(112, 98, 82), false, 9)
+	rain(ctx, a, 9, 11, skillDamage(a, "BoulderRain"), Color3.fromRGB(112, 98, 82), false, 9)
 end
 
 Abilities.MeteorRoar = function(ctx, a)
 	cast(ctx, a, "Roar", 1.5 * slow(a), "Fire Meteor!")
 	ctx.FireRun("Cinematic", "Shake", { Power = 0.7, Time = 1.6 * slow(a) })
 	task.wait(0.4 * slow(a))
-	rain(ctx, a, 11, 12, a.Info.Damage * a.DamageMult * 0.7, Color3.fromRGB(255, 120, 40), true, 7)
+	rain(ctx, a, 11, 12, skillDamage(a, "MeteorRoar"), Color3.fromRGB(255, 120, 40), true, 7)
 end
 
 -- โมซาซอรัส: คลื่นยักษ์เป็นกำแพงน้ำวิ่งเข้าหาผู้เล่น
@@ -235,7 +250,7 @@ Abilities.TidalWave = function(ctx, a, target)
 				task.delay(math.max(0, along / length * travel), function()
 					local r2 = charRoot(p)
 					if r2 and inLine(r2, from, dir, length, width) and not a.Dead then
-						ctx.Services.SurvivalService:Damage(p, a.Info.Damage * a.DamageMult * 0.85, a.Id, { Knockback = dir * 95 + Vector3.new(0, 40, 0) })
+						ctx.Services.SurvivalService:Damage(p, skillDamage(a, "TidalWave"), a.Id, { Knockback = dir * 95 + Vector3.new(0, 40, 0) })
 					end
 				end)
 			end
@@ -259,7 +274,7 @@ Abilities.WaterSpout = function(ctx, a)
 					return
 				end
 				impact(ctx, a, g, 10, "Geyser")
-				local hit = hitPlayers(ctx, g, 10, a.Info.Damage * a.DamageMult * 0.6, a.Id)
+				local hit = hitPlayers(ctx, g, 10, skillDamage(a, "WaterSpout"), a.Id)
 				for _, hp in ipairs(hit) do
 					ctx.Remotes.Get("HitFx"):FireClient(hp, "Launch", { Velocity = Vector3.new(0, 120, 0) })
 				end
@@ -288,7 +303,7 @@ Abilities.Blizzard = function(ctx, a)
 	end
 	impact(ctx, a, g, radius, "Slam")
 	fx(ctx, "BossSpikes", { Pos = g, Radius = radius * 0.8, Count = 16, Element = a.Info.Element, Ring = true })
-	hitPlayers(ctx, g, radius, a.Info.Damage * a.DamageMult, a.Id, function()
+	hitPlayers(ctx, g, radius, skillDamage(a, "Blizzard"), a.Id, function()
 		return { Knockback = Vector3.new(0, 90, 0) }
 	end)
 end
@@ -310,7 +325,7 @@ Abilities.IceSpikes = function(ctx, a)
 				end
 				fx(ctx, "BossSpikes", { Pos = g, Radius = 6, Count = 7, Element = a.Info.Element })
 				impact(ctx, a, g, 9, "Small")
-				hitPlayers(ctx, g, 9, a.Info.Damage * a.DamageMult * 0.7, a.Id, function()
+				hitPlayers(ctx, g, 9, skillDamage(a, "IceSpikes"), a.Id, function()
 					return { Knockback = Vector3.new(0, 100, 0) }
 				end)
 			end)
@@ -334,7 +349,7 @@ Abilities.FireBreath = function(ctx, a, target)
 		for _, p in ipairs(Players:GetPlayers()) do
 			local r = charRoot(p)
 			if r and inLine(r, from, dir, length, width) then
-				ctx.Services.SurvivalService:Damage(p, a.Info.Damage * a.DamageMult * 0.28, a.Id, { Burn = 6 })
+				ctx.Services.SurvivalService:Damage(p, skillDamage(a, "FireBreath") / 5, a.Id, { Burn = 6 })
 			end
 		end
 		task.wait(dur / 5)
@@ -353,7 +368,7 @@ Abilities.FlameNova = function(ctx, a)
 	end
 	impact(ctx, a, center, 24, "Slam")
 	fx(ctx, "BossSpikes", { Pos = center, Radius = 20, Count = 12, Element = "Fire", Ring = true })
-	hitPlayers(ctx, center, 24, a.Info.Damage * a.DamageMult, a.Id, function()
+	hitPlayers(ctx, center, 24, skillDamage(a, "FlameNova"), a.Id, function()
 		return { Burn = 8 }
 	end)
 	local g2 = tele(ctx, a, center, 48, w2)
@@ -363,9 +378,22 @@ Abilities.FlameNova = function(ctx, a)
 	end
 	impact(ctx, a, g2, 48, "Slam")
 	fx(ctx, "BossSpikes", { Pos = g2, Radius = 42, Count = 20, Element = "Fire", Ring = true })
-	hitPlayers(ctx, g2, 48, a.Info.Damage * a.DamageMult * 0.6, a.Id, function()
+	hitPlayers(ctx, g2, 48, skillDamage(a, "FlameNova", "Light"), a.Id, function()
 		return { Burn = 6 }
 	end)
+end
+
+-- ท่าถัดไปที่คูลดาวน์ครบแล้ว (วนตามลำดับ) · ไม่มีท่าพร้อม -> nil (รอ)
+function BossAbilities.Pick(a, abilities)
+	local now = os.clock()
+	for k = 1, #abilities do
+		local i = ((a.AbilityIndex or 0) + k - 1) % #abilities + 1
+		if now >= ((a.SkillReady or {})[abilities[i]] or 0) then
+			a.AbilityIndex = i
+			return abilities[i]
+		end
+	end
+	return nil
 end
 
 function BossAbilities.Run(ctx, a, name, target)
@@ -374,15 +402,17 @@ function BossAbilities.Run(ctx, a, name, target)
 		return
 	end
 	a.Casting = true
-	-- คูลดาวน์นับหลังร่ายจบ (เดิมนับตั้งแต่เริ่มร่าย -> ท่ายาวจบปุ๊บร่ายต่อทันที ไม่มีจังหวะสวน)
-	local cd = math.max(0, (a.NextAbility or 0) - os.clock())
 	task.spawn(function()
 		local ok, err = pcall(fn, ctx, a, target)
 		if not ok then
 			warn("[AS] boss ability", name, err)
 		end
 		task.wait(0.6)
-		a.NextAbility = os.clock() + cd
+		-- นับหลังร่ายจบ: ท่านี้ติดคูลดาวน์ของตัวเอง + เว้นก่อนร่ายท่าถัดไป
+		local now = os.clock()
+		a.SkillReady = a.SkillReady or {}
+		a.SkillReady[name] = now + Config.BossSkillCooldown
+		a.NextAbility = math.max(a.NextAbility or 0, now + Config.BossSkillGap)
 		a.Casting = false
 		a.CastFace = nil
 		if a.Model and a.Model.Parent then

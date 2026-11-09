@@ -1336,7 +1336,7 @@
 1537	Bastón característico del Elementalista · Dispara proyectiles arcanos explosivos (fuerte contra todo elemento)
 1538	Recupera el 2% de vida máx. tras cada monstruo abatido
 1539	Vida máx. +30 · Regenera 0.8 PV/s · Habilidad: Santuario natural — una arboleda que cura al equipo y ralentiza monstruos 12 s · Recarga 100 s
-1541	Habilidad: invoca 5 murciélagos (200 PV) que atacan monstruos · Recarga 120 s · Usarla de nuevo reemplaza el enjambre
+1541	Habilidad: invoca 5 murciélagos (200 PV) que atacan monstruos · Recarga 120 s · Usarla de nuevo reemplaza el enjambre (mitad de daño a jefes)
 1542	Enjambre
 1543	Guadaña característica del Vampiro · Gran alcance, barre grupos de enemigos
 1544	Bastón verde
@@ -1349,8 +1349,8 @@
 1551	Regenera 3% de vida cada 2 segundos
 1552	Corres 30% más rápido
 1553	Velo de sombras
-1554	Habilidad: un meteorito oscuro cae del cielo, daño fuerte en área y deja una zona de fuego oscuro 10 s (quema 2% de vida/s) · Recarga 120 s
-1555	Habilidad: aturde a los monstruos cercanos 4 s (jefes 2 s) y los envenena — pierden 1% de vida/s durante 15 s · Recarga 150 s
+1554	Habilidad: un meteorito oscuro cae del cielo, daño fuerte en área y deja una zona de fuego oscuro 10 s (quema 2% de vida/s) · Recarga 120 s (jefes: 5% en total)
+1555	Habilidad: aturde a los monstruos cercanos 4 s (jefes 2 s) y los envenena — pierden 1% de vida/s durante 15 s · Recarga 150 s (jefes: 4% en total)
 1556	Habilidad: hazte invisible y corre 50% más rápido 4 s (se rompe al hacer daño) · Recarga 30 s
 1557	Atadura de espinas
 1558	Paso salvaje
@@ -1362,3 +1362,16 @@
 1582	Colócala para descansar: multiplicador de días +1 (sin bonus = x2) · cada mañana el contador avanza según el multiplicador · Máx. 1 cama por servidor
 1586	Esperando a que el líder elija el tamaño del equipo
 1589	🛏️ %s usó una cama — ¡los días cuentan x%d!
+1590	📍 Haz clic en el mapa para poner un marcador
+1591	📍 Llegaste a tu marcador
+1592	📍 Tu marcador está cerca
+1593	¡Muy cerca! %dm
+1594	Marcador %dm
+1595	Marcar
+1596	Mapa
+1597	Atacar
+1598	Talar
+1599	Picar
+1600	Recoger
+1601	Huerto de bayas %d/%d
+1605	Campamento %dm

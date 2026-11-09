@@ -20,12 +20,16 @@ local Animals = {}
 local C = Color3.fromRGB
 local V = Vector3.new
 
+-- ระดับม่อนป่า (Tier) = ขนาดตัวต่างกันชัด ดูปุ๊บรู้ว่าตัวไหนโหด (ผู้เล่นสูง ~5 stud)
+--   1 ทั่วไป ~ตัวเท่าคน · 2 กลาง ~1.6 เท่า · 3 โหด ~2.5 เท่า  (Skin.Size = ด้านยาวสุด คิดจากสัดส่วนสูง/ยาวของแต่ละโมเดล)
+Animals.TierName = { "Common", "Tough", "Elite" }
+
 Animals.Data = {
 	------------------------------------------------------------ สัตว์ทั่วไป
 	Rabbit = {
 		Name = "Meadow Hare", Thai = "Meadow Hare", Element = nil, Behaviour = "Passive",
 		Health = 15, Damage = 0, Speed = 22, Aggro = 30,
-		Drops = { { Item = "RawMeat", Chance = 0.3, Exact = true }, { Item = "Fiber", Min = 1, Max = 2 } },
+		Drops = { { Item = "RawMeat", Chance = 0.3, Exact = true }, { Item = "Fiber", Chance = 1, Min = 1, Max = 2, Exact = true } },
 		Model = {
 			Template = "Rabbit", Body = V(1.6, 1.4, 2.0), Head = V(1.2, 1.1, 1.2), LegLen = 0.7, LegThick = 0.45,
 			Colors = { Main = C(196, 178, 156), Belly = C(244, 236, 224), Dark = C(120, 100, 84), Eye = C(25, 20, 20) },
@@ -35,7 +39,7 @@ Animals.Data = {
 	Deer = {
 		Name = "Dawn Deer", Thai = "Dawn Deer", Element = nil, Behaviour = "Passive",
 		Health = 45, Damage = 0, Speed = 26, Aggro = 50,
-		Drops = { { Item = "RawMeat", Chance = 0.3, Exact = true }, { Item = "Pelt", Min = 1, Max = 1 }, { Item = "Bone", Min = 1, Max = 2 } },
+		Drops = { { Item = "RawMeat", Chance = 0.3, Exact = true }, { Item = "Pelt", Chance = 1, Min = 1, Max = 1, Exact = true }, { Item = "Bone", Chance = 0.5, Min = 1, Max = 1, Exact = true } },
 		Model = {
 			Template = "Quadruped", Body = V(2.2, 2.2, 4.4), Head = V(1.3, 1.4, 1.6), Snout = V(0.8, 0.7, 1.0), LegLen = 3.2, LegThick = 0.5,
 			Neck = 1.6, Colors = { Main = C(160, 104, 62), Belly = C(236, 216, 186), Dark = C(90, 60, 40), Eye = C(25, 18, 14), Horn = C(214, 196, 160) },
@@ -45,36 +49,36 @@ Animals.Data = {
 
 	------------------------------------------------------------ ธาตุดิน
 	MossWolf = {
-		Name = "Crystal Stag", Thai = "Crystal Stag", Element = "Earth", Behaviour = "Hunter",
+		Name = "Crystal Stag", Thai = "Crystal Stag", Element = "Earth", Tier = 1, Behaviour = "Hunter",
 		Health = 70, Damage = 10, Speed = 23, AttackRange = 6, AttackCooldown = 1.7, Aggro = 42, StructureDamage = 1,
 		RaidCost = 2, MinNight = 1, Pack = { 2, 4 },
-		Drops = { { Item = "RawMeat", Chance = 0.3, Exact = true }, { Item = "Pelt", Min = 1, Max = 1 }, { Item = "Bone", Min = 1, Max = 2 } },
+		Drops = { { Item = "RawMeat", Chance = 0.3, Exact = true }, { Item = "Pelt", Chance = 1, Min = 1, Max = 1, Exact = true }, { Item = "Bone", Chance = 0.6, Min = 1, Max = 2, Exact = true } },
 		Model = {
-			Skin = { Scale = 2.1, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
+			Skin = { Size = 5.2, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
 			Template = "Quadruped", Body = V(2.4, 2.4, 5.2), Head = V(1.7, 1.6, 1.8), Snout = V(1.0, 0.8, 1.4), LegLen = 2.6, LegThick = 0.7,
 			Neck = 1.0, Colors = { Main = C(70, 80, 66), Belly = C(132, 140, 112), Dark = C(38, 44, 36), Eye = C(170, 255, 110), Glow = C(120, 220, 80), Moss = C(84, 150, 56) },
 			Ears = "Pointy", Tail = "Bushy", Extras = { "Moss", "Ruff" },
 		},
 	},
 	Thornboar = {
-		Name = "Earth Crocodile", Thai = "Stone Crocodile", Element = "Earth", Behaviour = "Charger",
+		Name = "Earth Crocodile", Thai = "Stone Crocodile", Element = "Earth", Tier = 2, Behaviour = "Charger",
 		Health = 110, Damage = 16, Speed = 22, AttackRange = 6, AttackCooldown = 2.4, Aggro = 38, ChargeCooldown = 8, StructureDamage = 2,
 		RaidCost = 3, MinNight = 3,
-		Drops = { { Item = "RawMeat", Chance = 0.3, Exact = true }, { Item = "Pelt", Min = 1, Max = 2 }, { Item = "Fiber", Min = 1, Max = 3 }, { Item = "Bone", Min = 1, Max = 1 } },
+		Drops = { { Item = "RawMeat", Chance = 0.3, Exact = true }, { Item = "Pelt", Chance = 0.8, Min = 1, Max = 2, Exact = true }, { Item = "Fiber", Chance = 0.5, Min = 1, Max = 2, Exact = true }, { Item = "Bone", Chance = 0.7, Min = 1, Max = 1, Exact = true } },
 		Model = {
-			Skin = { Scale = 7, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
+			Skin = { Size = 13.5, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
 			Template = "Quadruped", Body = V(3.0, 2.8, 4.8), Head = V(2.0, 1.9, 2.0), Snout = V(1.2, 1.0, 1.0), LegLen = 1.6, LegThick = 0.8,
 			Neck = 0.3, Colors = { Main = C(92, 62, 48), Belly = C(124, 92, 70), Dark = C(54, 36, 28), Eye = C(255, 140, 60), Horn = C(238, 228, 204), Glow = C(130, 220, 70), Spike = C(66, 104, 44) },
 			Ears = "Round", Tail = "Thin", Extras = { "Tusks", "BackThorns" },
 		},
 	},
 	StoneBear = {
-		Name = "Earth Turtle", Thai = "Mountain Rock Turtle", Element = "Earth", Behaviour = "Brute",
+		Name = "Earth Turtle", Thai = "Mountain Rock Turtle", Element = "Earth", Tier = 3, Behaviour = "Brute",
 		Health = 260, Damage = 26, Speed = 15, AttackRange = 8, AttackCooldown = 2.6, Aggro = 36, StructureDamage = 4,
 		RaidCost = 7, MinNight = 8,
-		Drops = { { Item = "RawMeat", Chance = 0.3, Exact = true }, { Item = "Pelt", Min = 2, Max = 3 }, { Item = "Stone", Min = 1, Max = 3 }, { Item = "Bone", Min = 1, Max = 2 } },
+		Drops = { { Item = "RawMeat", Chance = 0.3, Exact = true }, { Item = "Pelt", Chance = 0.8, Min = 1, Max = 2, Exact = true }, { Item = "Stone", Chance = 1, Min = 1, Max = 2, Exact = true }, { Item = "Bone", Chance = 0.5, Min = 1, Max = 1, Exact = true } },
 		Model = {
-			Skin = { Scale = 3.8, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
+			Skin = { Size = 16.6, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
 			Template = "Quadruped", Body = V(4.6, 4.4, 7.6), Head = V(2.8, 2.6, 2.6), Snout = V(1.4, 1.2, 1.2), LegLen = 3.0, LegThick = 1.5,
 			Neck = 0.6, Colors = { Main = C(98, 94, 92), Belly = C(70, 66, 64), Dark = C(48, 46, 46), Eye = C(150, 255, 110), Glow = C(110, 230, 90), Crystal = C(120, 230, 110) },
 			Ears = "Round", Tail = "Stub", Extras = { "Crystals", "Hump" }, Material = "Slate",
@@ -83,34 +87,34 @@ Animals.Data = {
 
 	------------------------------------------------------------ ธาตุน้ำ
 	ReefCrab = {
-		Name = "Coralshell Crab", Thai = "Coralshell Crab", Element = "Water", Behaviour = "Brute",
+		Name = "Coralshell Crab", Thai = "Coralshell Crab", Element = "Water", Tier = 1, Behaviour = "Brute",
 		Health = 160, Damage = 16, Speed = 13, AttackRange = 8, AttackCooldown = 1.8, Aggro = 48, StructureDamage = 3, Armor = 0.3,
 		RaidCost = 4, MinNight = 4,
-		Drops = { { Item = "RawMeat", Chance = 0.3, Exact = true }, { Item = "Stone", Min = 1, Max = 3 }, { Item = "Fiber", Min = 1, Max = 2 } },
+		Drops = { { Item = "RawMeat", Chance = 0.3, Exact = true }, { Item = "Stone", Chance = 1, Min = 1, Max = 2, Exact = true }, { Item = "Fiber", Chance = 0.5, Min = 1, Max = 1, Exact = true } },
 		Model = {
-			Skin = { Size = 10, Rig = "Clip" }, -- ปูบอส (Creator Store) เมชผูกกระดูก + ท่าในโมเดล 7 ท่า (AnimalClips/ReefCrab: เดิน/ยืน/ตีซ้าย-ขวา/ตีหนัก/คำราม/ตาย)
+			Skin = { Size = 7.2, Rig = "Clip" }, -- ปูบอส (Creator Store) เมชผูกกระดูก + ท่าในโมเดล 7 ท่า (AnimalClips/ReefCrab: เดิน/ยืน/ตีซ้าย-ขวา/ตีหนัก/คำราม/ตาย)
 			Template = "Crab",
 		},
 	},
 	-- วาฬเพชฌฆาต: อยู่แต่ในน้ำ (Aquatic) ว่ายวนชายฝั่ง พุ่งงับคนที่ลงน้ำ/ยืนริมน้ำ · ไม่ร่วมบุกแคมป์
 	TideOrca = {
-		Name = "Riptide Orca", Thai = "Riptide Orca", Element = "Water", Behaviour = "Hunter", Aquatic = true,
+		Name = "Riptide Orca", Thai = "Riptide Orca", Element = "Water", Tier = 2, Behaviour = "Hunter", Aquatic = true,
 		Health = 220, Damage = 24, Speed = 22, AttackRange = 12, AttackCooldown = 2.2, Aggro = 70, StructureDamage = 0,
-		Drops = { { Item = "RawMeat", Chance = 0.3, Exact = true }, { Item = "Pelt", Min = 1, Max = 2 }, { Item = "Bone", Min = 2, Max = 3 } },
+		Drops = { { Item = "RawMeat", Chance = 0.3, Exact = true }, { Item = "Pelt", Chance = 0.8, Min = 1, Max = 2, Exact = true }, { Item = "Bone", Chance = 0.7, Min = 1, Max = 2, Exact = true } },
 		Model = {
-			Skin = { Size = 20, Rig = "Parts", Hip = 0.1 }, -- ออร์กา (Creator Store) ชิ้นแยก: ลำตัว/ขากรรไกร/หาง 2 ท่อน/ครีบ
+			Skin = { Size = 11, Rig = "Parts", Hip = 0.1 }, -- ออร์กา (Creator Store) ชิ้นแยก: ลำตัว/ขากรรไกร/หาง 2 ท่อน/ครีบ
 			Template = "Whale",
 		},
 	},
 	-- ช้างวารี (Meshy Azure Royal Elephant) แทนหมึกยักษ์เดิม · รหัสยังเป็น InkOctopus (ไบโอม/ฝูงบุก/เอฟเฟกต์น้ำอ้างอยู่)
 	InkOctopus = {
-		Name = "Azure Royal Elephant", Thai = "Azure Royal Elephant", Element = "Water", Behaviour = "Hunter",
+		Name = "Azure Royal Elephant", Thai = "Azure Royal Elephant", Element = "Water", Tier = 3, Behaviour = "Hunter",
 		-- ตัวท็อปของม่อนน้ำ (เกิดคืนหลังสุด): ตัวใหญ่ + อึด/ตีแรงกว่าปู (160) และวาฬ (220)
 		Health = 280, Damage = 26, Speed = 15, AttackRange = 11, AttackCooldown = 2.1, Aggro = 55, StructureDamage = 5, Armor = 0.15,
 		RaidCost = 3, MinNight = 5,
-		Drops = { { Item = "RawMeat", Chance = 0.3, Exact = true }, { Item = "Fiber", Min = 2, Max = 3 } },
+		Drops = { { Item = "RawMeat", Chance = 0.3, Exact = true }, { Item = "Fiber", Chance = 1, Min = 2, Max = 2, Exact = true }, { Item = "Fiber", Chance = 0.3, Min = 1, Max = 1, Exact = true } },
 		Model = {
-			Skin = { Size = 15, Rig = "Skeleton", Yaw = 0, -- หัวชี้ -Z อยู่แล้ว · ขาไม่มี R_ = ซ้าย · ข้อเท้าหน้าขวาหายตอน Import (ใช้ 2 ท่อน)
+			Skin = { Size = 15.4, Rig = "Skeleton", Yaw = 0, -- หัวชี้ -Z อยู่แล้ว · ขาไม่มี R_ = ซ้าย · ข้อเท้าหน้าขวาหายตอน Import (ใช้ 2 ท่อน)
 				Body = "Hips", Neck = { "head" }, Tail = { "tailstart", "tail1", "tail2", "tail3" },
 				Legs = { FL = { "frontleg0", "frontleg1", "frontleg2" }, FR = { "R_frontleg0", "R_frontleg1" }, BL = { "backleg0", "backleg1", "backleg2" }, BR = { "R_backleg0", "R_backleg1", "R_backleg2" } },
 				Gait = { Hip = 0.42, Knee = 0.55, Foot = 0.3, Stride = 0.45, Bob = 0.022, Tail = 0.3 } },
@@ -120,35 +124,35 @@ Animals.Data = {
 
 	------------------------------------------------------------ ธาตุลม
 	GaleHawk = {
-		Name = "Frostfang Bear", Thai = "Frostfang Bear", Element = "Air", Behaviour = "Brute",
+		Name = "Frostfang Bear", Thai = "Frostfang Bear", Element = "Air", Tier = 3, Behaviour = "Brute",
 		Health = 170, Damage = 20, Speed = 18, AttackRange = 7, AttackCooldown = 2.5, Aggro = 38, StructureDamage = 3,
 		RaidCost = 4, MinNight = 4,
-		Drops = { { Item = "RawMeat", Chance = 0.3, Exact = true }, { Item = "Pelt", Min = 1, Max = 2 }, { Item = "Bone", Min = 1, Max = 2 } },
+		Drops = { { Item = "RawMeat", Chance = 0.3, Exact = true }, { Item = "Pelt", Chance = 0.8, Min = 1, Max = 2, Exact = true }, { Item = "Bone", Chance = 0.6, Min = 1, Max = 1, Exact = true } },
 		Model = {
-			Skin = { Size = 8.5, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
+			Skin = { Size = 19, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
 			Template = "Quadruped", Body = V(1.8, 1.8, 3.2), Head = V(1.2, 1.2, 1.3), Wing = V(5.5, 0.3, 2.4),
 			Colors = { Main = C(226, 232, 244), Belly = C(250, 250, 255), Dark = C(72, 102, 160), Eye = C(130, 225, 255), Beak = C(250, 196, 70), Glow = C(150, 220, 255) },
 		},
 	},
 	SkyLynx = {
-		Name = "Ice Tiger", Thai = "Ice Tiger", Element = "Air", Behaviour = "Hunter",
+		Name = "Ice Tiger", Thai = "Ice Tiger", Element = "Air", Tier = 1, Behaviour = "Hunter",
 		Health = 85, Damage = 14, Speed = 26, AttackRange = 7, AttackCooldown = 1.7, Aggro = 42, StructureDamage = 1,
 		RaidCost = 3, MinNight = 5, Leap = true,
-		Drops = { { Item = "RawMeat", Chance = 0.3, Exact = true }, { Item = "Pelt", Min = 1, Max = 2 }, { Item = "Bone", Min = 1, Max = 1 } },
+		Drops = { { Item = "RawMeat", Chance = 0.3, Exact = true }, { Item = "Pelt", Chance = 0.8, Min = 1, Max = 1, Exact = true }, { Item = "Bone", Chance = 0.5, Min = 1, Max = 1, Exact = true } },
 		Model = {
-			Skin = { Size = 7.5, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
+			Skin = { Size = 7.1, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
 			Template = "Quadruped", Body = V(2.2, 2.2, 5.0), Head = V(1.7, 1.6, 1.6), Snout = V(0.9, 0.7, 0.6), LegLen = 2.8, LegThick = 0.65,
 			Neck = 0.8, Colors = { Main = C(212, 218, 234), Belly = C(250, 250, 255), Dark = C(110, 122, 168), Eye = C(150, 235, 255), Glow = C(170, 230, 255) },
 			Ears = "Tufted", Tail = "Long", Extras = { "Spots", "WindRibbons" },
 		},
 	},
 	StormRam = {
-		Name = "Snow Bull", Thai = "Snow Bull", Element = "Air", Behaviour = "Charger",
+		Name = "Snow Bull", Thai = "Snow Bull", Element = "Air", Tier = 2, Behaviour = "Charger",
 		Health = 140, Damage = 18, Speed = 21, AttackRange = 6, AttackCooldown = 2.5, Aggro = 38, ChargeCooldown = 8, StructureDamage = 3, Knockback = 90,
 		RaidCost = 4, MinNight = 7,
-		Drops = { { Item = "RawMeat", Chance = 0.3, Exact = true }, { Item = "Fiber", Min = 2, Max = 4 }, { Item = "Bone", Min = 1, Max = 2 } },
+		Drops = { { Item = "RawMeat", Chance = 0.3, Exact = true }, { Item = "Fiber", Chance = 1, Min = 2, Max = 3, Exact = true }, { Item = "Bone", Chance = 0.6, Min = 1, Max = 1, Exact = true } },
 		Model = {
-			Skin = { Size = 8.5, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
+			Skin = { Size = 11, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
 			Template = "Quadruped", Body = V(3.2, 3.0, 4.6), Head = V(1.6, 1.8, 1.8), Snout = V(1.0, 1.0, 0.8), LegLen = 2.2, LegThick = 0.6,
 			Neck = 0.6, Colors = { Main = C(236, 240, 250), Belly = C(210, 216, 232), Dark = C(54, 60, 80), Eye = C(140, 220, 255), Horn = C(214, 190, 130), Glow = C(160, 220, 255) },
 			Ears = "Floppy", Tail = "Puff", Extras = { "Wool", "CurledHorns", "Sparks" },
@@ -157,36 +161,36 @@ Animals.Data = {
 
 	------------------------------------------------------------ ธาตุไฟ
 	EmberFox = {
-		Name = "Ember Wolf", Thai = "Ember Wolf", Element = "Fire", Behaviour = "Hunter",
+		Name = "Ember Wolf", Thai = "Ember Wolf", Element = "Fire", Tier = 1, Behaviour = "Hunter",
 		Health = 60, Damage = 9, Speed = 25, AttackRange = 6, AttackCooldown = 1.6, Aggro = 42, StructureDamage = 1, Burn = 3,
 		RaidCost = 2, MinNight = 3, Pack = { 2, 5 },
-		Drops = { { Item = "RawMeat", Chance = 0.3, Exact = true }, { Item = "Pelt", Min = 1, Max = 1 }, { Item = "Bone", Min = 1, Max = 1 }, { Item = "Coal", Min = 0, Max = 1 } },
+		Drops = { { Item = "RawMeat", Chance = 0.3, Exact = true }, { Item = "Pelt", Chance = 1, Min = 1, Max = 1, Exact = true }, { Item = "Bone", Chance = 0.6, Min = 1, Max = 1, Exact = true }, { Item = "Coal", Chance = 0.3, Min = 1, Max = 1, Exact = true } },
 		Model = {
-			Skin = { Size = 6.5, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
+			Skin = { Size = 6.6, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
 			Template = "Quadruped", Body = V(1.8, 1.8, 4.0), Head = V(1.5, 1.3, 1.5), Snout = V(0.8, 0.6, 1.2), LegLen = 2.0, LegThick = 0.45,
 			Neck = 0.8, Colors = { Main = C(236, 92, 30), Belly = C(255, 226, 180), Dark = C(60, 30, 24), Eye = C(255, 236, 90), Glow = C(255, 150, 40) },
 			Ears = "Big", Tail = "FlameBushy", Extras = { "FlameTips" },
 		},
 	},
 	MagmaRhino = {
-		Name = "Fire Ram", Thai = "Lava Fire Ram", Element = "Fire", Behaviour = "Charger",
+		Name = "Fire Ram", Thai = "Lava Fire Ram", Element = "Fire", Tier = 3, Behaviour = "Charger",
 		Health = 300, Damage = 28, Speed = 19, AttackRange = 7, AttackCooldown = 2.8, Aggro = 38, ChargeCooldown = 9, StructureDamage = 6, Knockback = 120,
 		RaidCost = 9, MinNight = 12,
-		Drops = { { Item = "RawMeat", Chance = 0.3, Exact = true }, { Item = "Pelt", Min = 2, Max = 3 }, { Item = "Coal", Min = 1, Max = 3 }, { Item = "Fiber", Min = 1, Max = 2 } },
+		Drops = { { Item = "RawMeat", Chance = 0.3, Exact = true }, { Item = "Pelt", Chance = 0.8, Min = 1, Max = 2, Exact = true }, { Item = "Coal", Chance = 0.7, Min = 1, Max = 2, Exact = true }, { Item = "Fiber", Chance = 0.4, Min = 1, Max = 1, Exact = true } },
 		Model = {
-			Skin = { Size = 7.5, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
+			Skin = { Size = 16, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
 			Template = "Quadruped", Body = V(5.0, 4.4, 8.4), Head = V(2.6, 2.4, 3.0), Snout = V(1.8, 1.4, 1.4), LegLen = 2.6, LegThick = 1.6,
 			Neck = 0.3, Colors = { Main = C(52, 42, 42), Belly = C(84, 60, 52), Dark = C(26, 20, 20), Eye = C(255, 210, 80), Horn = C(28, 24, 30), Glow = C(255, 104, 20) },
 			Ears = "Round", Tail = "Thin", Extras = { "NoseHorn", "LavaCracks", "BackSpikes" }, Material = "Basalt",
 		},
 	},
 	LavaSalamander = {
-		Name = "Emberclaw Scorpion", Thai = "Emberclaw Scorpion", Element = "Fire", Behaviour = "Spitter",
+		Name = "Emberclaw Scorpion", Thai = "Emberclaw Scorpion", Element = "Fire", Tier = 2, Behaviour = "Spitter",
 		Health = 90, Damage = 12, Speed = 16, AttackRange = 70, AttackCooldown = 2.8, Aggro = 45, StructureDamage = 2, Burn = 5,
 		RaidCost = 3, MinNight = 5,
-		Drops = { { Item = "RawMeat", Chance = 0.3, Exact = true }, { Item = "Bone", Min = 0, Max = 1 }, { Item = "Coal", Min = 0, Max = 1 } },
+		Drops = { { Item = "RawMeat", Chance = 0.3, Exact = true }, { Item = "Bone", Chance = 0.4, Min = 1, Max = 1, Exact = true }, { Item = "Coal", Chance = 0.5, Min = 1, Max = 1, Exact = true } },
 		Model = {
-			Skin = { Size = 8, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
+			Skin = { Size = 9.7, Rig = "Clip" }, -- โมเดล Meshy (Import 3D) + ท่าเดินจาก Shared/AnimalClips
 			Template = "Quadruped", Body = V(2.2, 1.4, 4.6), Head = V(1.7, 1.0, 1.6), Snout = V(1.2, 0.6, 1.0), LegLen = 1.0, LegThick = 0.55,
 			TailLen = 4.5, Colors = { Main = C(38, 28, 30), Belly = C(255, 140, 40), Dark = C(18, 12, 14), Eye = C(255, 240, 120), Glow = C(255, 110, 20) },
 			Extras = { "GlowSpots", "Frills" },
@@ -196,8 +200,9 @@ Animals.Data = {
 	------------------------------------------------------------ บอสธาตุ
 	Terragon = {
 		Name = "GOLGRAN, the Living Mountain", Thai = "Golgran, the Living Mountain", Element = "Earth", Behaviour = "Boss",
-		Health = 15500, Damage = 42, Speed = 12, AttackRange = 26, AttackCooldown = 3.0, Aggro = 160, StructureDamage = 10, Armor = 0.2,
-		BossNight = 25, Scale = 1, CastMult = 2.0, -- ร่ายเร็วกว่าบอสตัวอื่นนิดนึง
+		Health = 3000, Damage = 15, Speed = 12, AttackRange = 26, AttackCooldown = 3.0, Aggro = 160, StructureDamage = 10, Armor = 0.2,
+		SkillDamage = { Light = 10, Medium = 15, Heavy = 20 }, -- ดาเมจจริงที่ผู้เล่นโดน (ตีธรรมดา = Medium)
+		BossNight = 25, Scale = 1, CastMult = 1.4, -- ร่ายเร็วกว่าบอสตัวอื่นนิดนึง (เดิม 2.0 · เร็วขึ้น 30% เท่ากันทุกตัว)
 		Abilities = { "Quake", "Fissure", "BoulderRain" },
 		Drops = { { Item = "TerraHeart", Min = 1, Max = 1 }, { Item = "TerraCore", Min = 5, Max = 7 } },
 		Model = {
@@ -209,7 +214,8 @@ Animals.Data = {
 	},
 	Leviathan = {
 		Name = "TYRANNOMOSA, Terror of the Deep", Thai = "Tyrannomosa, Terror of the Deep", Element = "Water", Behaviour = "Boss",
-		Health = 24500, Damage = 38, Speed = 18, AttackRange = 30, AttackCooldown = 2.6, Aggro = 180, StructureDamage = 8,
+		Health = 4500, Damage = 18, Speed = 18, AttackRange = 30, AttackCooldown = 2.6, Aggro = 180, StructureDamage = 8,
+		SkillDamage = { Light = 12, Medium = 18, Heavy = 25 },
 		BossNight = 50,
 		Abilities = { "TidalWave", "WaterSpout", "Quake" },
 		Drops = { { Item = "TideHeart", Min = 1, Max = 1 }, { Item = "TidePearl", Min = 5, Max = 7 } },
@@ -222,7 +228,8 @@ Animals.Data = {
 	},
 	TempestRoc = {
 		Name = "FROSTMAW, the Glacier Yeti", Thai = "Frostmaw, the Glacier Yeti", Element = "Air", Behaviour = "Boss",
-		Health = 34000, Damage = 40, Speed = 20, AttackRange = 22, AttackCooldown = 2.4, Aggro = 220, StructureDamage = 8,
+		Health = 6000, Damage = 20, Speed = 20, AttackRange = 22, AttackCooldown = 2.4, Aggro = 220, StructureDamage = 8,
+		SkillDamage = { Light = 15, Medium = 20, Heavy = 30 }, SkillTier = { Quake = "Medium", IceSpikes = "Light" },
 		BossNight = 75,
 		Abilities = { "Blizzard", "IceSpikes", "Quake" },
 		Drops = { { Item = "FrostHeart", Min = 1, Max = 1 }, { Item = "GaleFeather", Min = 5, Max = 7 } },
@@ -235,7 +242,8 @@ Animals.Data = {
 	},
 	Solfang = {
 		Name = "IGNARAX, the Molten Dragon", Thai = "Ignarax, the Molten Dragon", Element = "Fire", Behaviour = "Boss",
-		Health = 50000, Damage = 52, Speed = 34, AttackRange = 26, AttackCooldown = 2.2, Aggro = 200, StructureDamage = 10, Burn = 8, Flying = true,
+		Health = 7500, Damage = 25, Speed = 34, AttackRange = 26, AttackCooldown = 2.2, Aggro = 200, StructureDamage = 10, Burn = 8, Flying = true,
+		SkillDamage = { Light = 18, Medium = 25, Heavy = 35 },
 		BossNight = 99,
 		Abilities = { "FireBreath", "FlameNova", "MeteorRoar" },
 		Drops = { { Item = "EmberHeart", Min = 1, Max = 1 }, { Item = "EmberShard", Min = 5, Max = 7 } },

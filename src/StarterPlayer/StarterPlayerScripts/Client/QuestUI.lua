@@ -561,7 +561,7 @@ local function buildCodes(page)
 	ui.CodesUsed = WoodKit.Ink(f, { Size = UDim2.new(1, -40, 0, 22), Position = UDim2.new(0, 20, 1, -40), Text = "", TextSize = 16, Font = UIKit.Fonts.Bold, TextColor3 = W.InkDim, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 3 })
 	UIKit.Text(page, {
 		Size = UDim2.new(1, 0, 0, 24), Position = UDim2.fromOffset(0, 408), TextSize = 16, TextColor3 = rgb(226, 206, 176), TextXAlignment = Enum.TextXAlignment.Center,
-		Text = "Find new codes on the game page and in the game's group · Try the code WELCOME!",
+		Text = "Find new codes on the game page and in the game's group",
 	})
 end
 
@@ -687,6 +687,7 @@ end
 function QuestUI.Init(gui)
 	local win = WoodKit.Window(gui, { Name = "QuestWindow", Size = Vector2.new(1080, 620), Title = "Quests & Rewards", Shrink = false, OnClose = QuestUI.Close })
 	ui.Panel = win.Frame
+	UIKit.RegisterWindow(ui.Panel, QuestUI.Close, { Dim = 0.55 }) -- นับเป็นหน้าต่าง: Esc ปิดได้ + เมนูซ้าย/ปุ่ม Worlds หลบให้
 	local body = win.Body
 	-- Ruby ของเรา
 	ui.Gems = WoodKit.RubyPill(body, { Position = UDim2.new(1, -206, 0, 42) })

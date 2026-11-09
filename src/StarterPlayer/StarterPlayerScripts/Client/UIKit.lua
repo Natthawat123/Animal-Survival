@@ -749,13 +749,24 @@ function UIKit.Bar(parent, props)
 		Text = props.Label or "", TextColor3 = Color3.new(1, 1, 1), ZIndex = 3, TextStrokeTransparency = 0,
 	})
 	local api = { Holder = holder, Fill = fill, Label = label, Value = 1 }
+	local fillTw, lagTw
 	function api.Set(frac, text)
-		frac = math.clamp(frac, 0, 1)
+		frac = math.clamp(frac ~= frac and 0 or frac, 0, 1) -- (NaN -> 0)
 		if math.abs(frac - api.Value) > 0.001 then
-			TweenService:Create(fill, TweenInfo.new(0.15), { Size = UDim2.fromScale(frac, 1) }):Play()
+			if fillTw then
+				fillTw:Cancel()
+			end
+			fillTw = TweenService:Create(fill, TweenInfo.new(0.15), { Size = UDim2.fromScale(frac, 1) })
+			fillTw:Play()
+			if lagTw then
+				lagTw:Cancel()
+			end
 			if frac < api.Value then
-				TweenService:Create(lag, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0.25), { Size = UDim2.fromScale(frac, 1) }):Play()
+				-- แถบขาวไล่ตาม: ไม่มีดีเลย์ (เดิมดีเลย์ 0.25 วิ -> โดนตีถี่ๆ ทวีนเริ่มใหม่ตลอด แถบค้างไม่ลด)
+				lagTw = TweenService:Create(lag, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = UDim2.fromScale(frac, 1) })
+				lagTw:Play()
 			else
+				lagTw = nil
 				lag.Size = UDim2.fromScale(frac, 1)
 			end
 			api.Value = frac
@@ -763,6 +774,20 @@ function UIKit.Bar(parent, props)
 		if text then
 			label.Text = text
 		end
+	end
+	-- ตั้งค่าทันที (ไม่มีแอนิเมชัน) — ใช้ตอนเปลี่ยนเป้า
+	function api.Snap(frac)
+		frac = math.clamp(frac ~= frac and 0 or frac, 0, 1)
+		if fillTw then
+			fillTw:Cancel()
+		end
+		if lagTw then
+			lagTw:Cancel()
+		end
+		fillTw, lagTw = nil, nil
+		fill.Size = UDim2.fromScale(frac, 1)
+		lag.Size = UDim2.fromScale(frac, 1)
+		api.Value = frac
 	end
 	return api
 end

@@ -93,7 +93,7 @@ Classes.Data = {
 			{ Name = "Dark Power", Text = "All damage +30%", Perks = { DamageMult = 1.3 } },
 			{ Name = "Shadow Veil", Text = "Skill: turn invisible and run 50% faster for 4s (breaks when you deal damage) · Cooldown 30s", Perks = { DamageMult = 1.3 },
 				Active = { Id = "ShadowVeil", Cooldown = 30, Icon = "👻" } },
-			{ Name = "Dark Meteor", Text = "Skill: a dark meteor crashes from the sky, heavy damage in a wide area and leaves a dark fire zone for 10s (burns 2% HP/sec) · Cooldown 120s", Perks = { DamageMult = 1.3 },
+			{ Name = "Dark Meteor", Text = "Skill: a dark meteor crashes from the sky, heavy damage in a wide area and leaves a dark fire zone for 10s (burns 2% HP/sec, bosses 5% total) · Cooldown 120s", Perks = { DamageMult = 1.3 },
 				Active = { Id = "DarkMeteor", Cooldown = 120, Icon = "☄" } },
 		},
 	},
@@ -104,19 +104,19 @@ Classes.Data = {
 		Skills = {
 			{ Name = "Blood Bite", Text = "Heal 2% max HP after every monster kill", Perks = { KillHealPct = 0.02 } },
 			{ Name = "Blood Moon", Text = "Attack +30%", Perks = { KillHealPct = 0.02, DamageMult = 1.3 } },
-			{ Name = "Swarm", Text = "Skill: summon 5 bats (200 HP) that attack monsters · Cooldown 120s · Using it again replaces the old swarm", Perks = { KillHealPct = 0.02, DamageMult = 1.3 },
+			{ Name = "Swarm", Text = "Skill: summon 5 bats (200 HP) that attack monsters (half damage to bosses) · Cooldown 120s · Using it again replaces the old swarm", Perks = { KillHealPct = 0.02, DamageMult = 1.3 },
 				Active = { Id = "Swarm", Cooldown = 120, Icon = "🦇" } },
 		},
 	},
-	-- คลาสพาส "พงไพร" (ผู้พิทักษ์ป่า): Pass = คีย์ใน Config.GamePasses (มี Season Pass = ใช้ได้เลย) · ไม่อยู่ในสต็อกร้าน
+	-- คลาส "พงไพร" (ผู้พิทักษ์ป่า): รางวัล Season Pass สายพรีเมียมขั้น SeasonReward (กดรับเองใน Quests) · ซื้อพาสอย่างเดียวยังไม่ได้ · ไม่อยู่ในสต็อกร้าน
 	-- รหัสคลาสยังเป็น "Sage" (คนที่ได้คลาสพาสไปแล้วเซฟไว้ด้วยรหัสนี้) · โมเดล Assets.Characters.Sage
 	Sage = {
-		Name = "Wildwood Druid", Thai = "Wildwood Druid", Role = "Pass Exclusive", Stars = 5, Price = 0, Pass = "SeasonPass", Icon = "🌿",
+		Name = "Wildwood Druid", Thai = "Wildwood Druid", Role = "Pass Exclusive", Stars = 5, Price = 0, SeasonReward = 30, Icon = "🌿",
 		StartItems = { OldAxe = 1, VerdantStaff = 1 },
 		Skills = {
 			{ Name = "Forest's Embrace", Text = "Regen 3% HP every 2 seconds", Perks = { RegenPct = 0.015 } },
 			{ Name = "Wild Stride", Text = "Run 30% faster", Perks = { RegenPct = 0.015, SpeedMult = 1.3 } },
-			{ Name = "Thorn Bind", Text = "Skill: stun nearby monsters for 4s (bosses 2s) and poison them — lose 1% HP/sec for 15s · Cooldown 150s", Perks = { RegenPct = 0.015, SpeedMult = 1.3 },
+			{ Name = "Thorn Bind", Text = "Skill: stun nearby monsters for 4s (bosses 2s) and poison them — lose 1% HP/sec for 15s (bosses 4% total) · Cooldown 150s", Perks = { RegenPct = 0.015, SpeedMult = 1.3 },
 				Active = { Id = "ThornBind", Cooldown = 150, Icon = "🌿" } },
 		},
 	},
@@ -163,7 +163,7 @@ end
 -- จำนวนคลาสที่สะสมได้ด้วย Ruby (ภารกิจ "สะสมครบทุกคลาส" ไม่นับคลาสพาส)
 Classes.CollectCount = 0
 for _, id in ipairs(Classes.Order) do
-	if not Classes.Data[id].Pass then
+	if not (Classes.Data[id].Pass or Classes.Data[id].SeasonReward) then
 		Classes.CollectCount += 1
 	end
 end
@@ -245,8 +245,8 @@ end
 
 ---------------------------------------------------------------- Ruby
 -- Ruby ที่ได้ตอนรอดถึงคืน
-Classes.NightRewards = { [5] = 5, [10] = 10, [25] = 20, [50] = 40, [75] = 60, [99] = 150 }
-Classes.BossReward = 20
+Classes.NightRewards = { [5] = 5, [10] = 10, [25] = 20, [50] = 40, [75] = 60, [99] = 150 } -- ตอนนี้ไม่ได้ใช้ (DirectorService ปิด Ruby รอดคืนไว้)
+Classes.BossReward = { Earth = 3, Water = 5, Air = 5, Fire = 7 } -- Ruby ต่อการฆ่าบอส 1 ครั้ง ตามธาตุ (ทุกคนในระยะได้)
 Classes.SpiritReward = 5
 Classes.DailyReward = 5 -- หม้อรางวัลประจำวันในล็อบบี้
 

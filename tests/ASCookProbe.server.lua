@@ -45,4 +45,28 @@ task.wait(4)
 print("[AS] COOKPROBE near raw=" .. tostring(inv:Count(player, "RawMeat")) .. " cooked=" .. cooked())
 shot.Value = "cooked"
 task.wait(1.5)
+-- โยนรัว ๆ 6 ชิ้น (ไม่รอให้สุกก่อน) -> ต้องสุกครบทุกชิ้น
+local before = cooked()
+inv:Add(player, "RawMeat", 6, true)
+local thrown = 0
+for i = 1, 8 do
+	local r0 = inv:Count(player, "RawMeat")
+	camp:ThrowFrom(player, "Meat")
+	if inv:Count(player, "RawMeat") < r0 then
+		thrown += 1
+	end
+	task.wait(0.4)
+	local inFire = 0
+	for _, d in ipairs(drops:Near(fire - Vector3.new(0, 1.5, 0), 5.5, 6)) do
+		if d.Id == "RawMeat" then
+			inFire += d.Count
+		end
+	end
+	print(string.format("[AS] COOKPROBE rapid t=%d thrown=%d inFire=%d cooked=%d", i, thrown, inFire, cooked() - before))
+end
+shot.Value = "rapid"
+task.wait(5)
+print(string.format("[AS] COOKPROBE rapid RESULT thrown=%d cooked=%d raw_left_in_sack=%d", thrown, cooked() - before, inv:Count(player, "RawMeat")))
+shot.Value = "rapid_done"
+task.wait(1.5)
 print("[AS] COOKPROBE done")

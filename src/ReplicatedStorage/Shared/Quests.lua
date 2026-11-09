@@ -159,22 +159,22 @@ Quests.Colors = {
 Quests.ColorOrder = { "Sky", "Gold", "Ember", "Frost", "Jade", "Violet", "Crimson" }
 
 -- รางวัลแต่ละขั้น: { Ruby = n } / { Title = id } / { Color = id } / { Class = id } (ใส่ Ruby คู่กับอย่างอื่นได้)
--- คลาสในพาสสูงสุดแค่ 4 ดาว (ม่วง) · มีคลาสนั้นแล้ว = ได้ Ruby ชดเชยครึ่งราคาแทน (Quests.ClassRefund)
+-- สายฟรี: ทุกขั้น 3 Ruby · สายเติม: ทุกขั้น 10 Ruby · ฉายา/สีฉายาแถมแค่บางขั้น (ไม่ให้เยอะ)
+-- คลาสในพาสมีตัวเดียว = "พงไพร" (Sage / Wildwood Druid) ขั้นสุดท้ายของสายเติม · มีแล้ว = ได้ Ruby ตามขั้นอย่างเดียว
 Quests.Track = { Free = {}, Prem = {} }
+Quests.FreeRuby, Quests.PremRuby = 3, 10
 do
 	local freeSpecial = {
-		[5] = { Title = "Camper" }, [10] = { Class = "Forager" }, [15] = { Color = "Sky" },
-		[20] = { Class = "Lumberjack" }, [25] = { Title = "NightOwl" }, [30] = { Title = "SeasonHero", Ruby = 40 },
+		[10] = { Title = "Camper" }, [30] = { Title = "SeasonHero" },
 	}
 	local premSpecial = {
-		[1] = { Color = "Gold", Ruby = 10 }, [3] = { Title = "Firekeeper" }, [5] = { Class = "Medic" }, [8] = { Color = "Ember" },
-		[10] = { Class = "Hunter" }, [12] = { Color = "Frost" }, [15] = { Title = "BeastSlayer" }, [17] = { Class = "Builder" },
-		[19] = { Color = "Jade" }, [21] = { Color = "Violet" }, [23] = { Title = "ElementLord" }, [25] = { Title = "Legend" },
-		[28] = { Color = "Crimson" }, [30] = { Class = "Scout", Ruby = 100 },
+		[5] = { Color = "Gold" }, [12] = { Title = "Firekeeper" }, [20] = { Color = "Ember" }, [25] = { Title = "Legend" },
+		[30] = { Class = "Sage" },
 	}
 	for t = 1, Quests.SeasonTiers do
-		Quests.Track.Free[t] = freeSpecial[t] or { Ruby = (t % 5 == 0) and 15 or ((t % 2 == 0) and 8 or 5) }
-		Quests.Track.Prem[t] = premSpecial[t] or { Ruby = (t % 5 == 0) and 30 or (10 + math.floor(t / 6) * 3) }
+		local f, p = table.clone(freeSpecial[t] or {}), table.clone(premSpecial[t] or {})
+		f.Ruby, p.Ruby = Quests.FreeRuby, Quests.PremRuby
+		Quests.Track.Free[t], Quests.Track.Prem[t] = f, p
 	end
 end
 

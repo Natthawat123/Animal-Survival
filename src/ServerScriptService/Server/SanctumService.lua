@@ -508,7 +508,7 @@ function SanctumService:SpawnGuardians(site, count)
 		local p = site.Center + Vector3.new(math.cos(ang) * 34, 0, math.sin(ang) * 34)
 		local h = layout:HeightAt(p.X, p.Z)
 		local g = animals:Spawn(pool[self.rng:NextInteger(1, #pool)], Vector3.new(p.X, math.max(h, site.Center.Y) + 3, p.Z), {
-			Kind = "Guardian", Home = site.Center, Leash = 60, HealthMult = 1.4, DamageMult = 1.1, Yaw = ang + i,
+			Kind = "Guardian", Home = site.Center, Leash = 60, Yaw = ang + i, -- เลือด/ดาเมจคงที่ (Monster Balance)
 		})
 		if g then
 			g.Model:SetAttribute("Guardian", true)
@@ -533,6 +533,7 @@ function SanctumService:TickWaves(site)
 	if not site.Wave then
 		if near then
 			GuardianWaves.Begin(site, spawn)
+			self.ctx.Services.DirectorService:AddFightTime("Sanctum" .. site.Element, "a Sanctum")
 			self:Tell(site, string.format("⚔ The %s Sanctum guardians awaken! Wave 1/%d — %d guardians", THAI[site.Element], #GuardianWaves.Counts, GuardianWaves.Counts[1]), "Warn", SHOW_RANGE + 20)
 		end
 		return

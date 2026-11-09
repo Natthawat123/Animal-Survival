@@ -14,6 +14,14 @@ local CombatService = {}
 
 local BEATS = { Water = "Fire", Fire = "Air", Air = "Earth", Earth = "Water" }
 local projectiles = {}
+-- สีไฟเผาตามออร่าอาวุธ (ToolFactory)
+local function burnColor(toolId, tool)
+	local ok, TF = pcall(require, script.Parent.ToolFactory)
+	if ok and TF and TF.BurnColor then
+		return TF.BurnColor(toolId, tool)
+	end
+	return nil
+end
 
 function CombatService:Init(ctx)
 	self.ctx = ctx
@@ -121,7 +129,7 @@ function CombatService:Melee(player, toolId, tool, root, aim)
 		local targets = tool.Aoe and hits or { best }
 		for _, a in ipairs(targets) do
 			local dmg, crit, mult = self:PlayerDamage(player, toolId, tool, a)
-			self:DamageAnimal(a, dmg, player, { Burn = tool.Burn, Slow = tool.Slow, Crit = crit, Mult = mult, Knock = look })
+			self:DamageAnimal(a, dmg, player, { Burn = tool.Burn, BurnColor = tool.Burn and burnColor(toolId, tool), Slow = tool.Slow, Crit = crit, Mult = mult, Knock = look })
 			if tool.Fx then
 				self.ctx.Remotes.Get("HitFx"):FireAllClients("ClassHit", { Fx = tool.Fx, Position = a.Root.Position, Dir = look, Crit = crit })
 			end
@@ -196,7 +204,7 @@ function CombatService:Staff(player, toolId, tool, aim, char, root)
 	local from = (head and head.Position or root.Position) + aim * 3
 	self:Projectile({
 		From = from, Velocity = aim * b.Speed, Gravity = 0, Radius = 1.5, Blast = b.Blast, Size = b.Size,
-		Owner = "Player", Player = player, ToolId = toolId, Tool = tool, Fire = true, Burn = tool.Burn,
+		Owner = "Player", Player = player, ToolId = toolId, Tool = tool, Fire = true, Burn = tool.Burn, BurnColor = tool.Burn and burnColor(toolId, tool),
 		Color = FX_COLOR[tool.Fx] or Color3.fromRGB(255, 120, 40), VFX = "StaffBolt", FxScale = b.FxScale, Life = b.Range / b.Speed,
 		ImpactFx = "StaffExplosion", ImpactScale = b.ImpactScale, Tint = FX_COLOR[tool.Fx], FxKind = tool.Fx,
 	})
@@ -386,7 +394,7 @@ function CombatService:StepProjectiles(dt)
 				for _, a in ipairs(animals:InRadius(newPos, blast + 12, false)) do
 					if a.Kind ~= "Spirit" and not a.Dead and (a.Root.Position - newPos).Magnitude < blast + a.Radius then
 						local dmg, crit, mult = self:PlayerDamage(spec.Player, spec.ToolId, spec.Tool, a)
-						self:DamageAnimal(a, dmg, spec.Player, { Burn = spec.Burn, Crit = crit, Mult = mult, Knock = pr.Vel.Unit })
+						self:DamageAnimal(a, dmg, spec.Player, { Burn = spec.Burn, BurnColor = spec.BurnColor, Crit = crit, Mult = mult, Knock = pr.Vel.Unit })
 					end
 				end
 			end

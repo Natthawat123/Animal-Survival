@@ -50,6 +50,16 @@ local function step(name)
 	return pos
 end
 
+task.wait(2)
+print("[SHOT] hud0")
+task.wait(1.5)
+step("pup")
+task.wait(0.25)
+print("[SHOT] hud_pop")
+task.wait(2)
+print("[SHOT] hud1")
+task.wait(1.5)
+print("[AS] LOOT HUDDONE")
 step("airdrop")
 print("[AS] LOOT AIRDONE")
 step("bush")

@@ -28,6 +28,7 @@ local LAIR_RESPAWN = 15 * 60 -- บอสในรังตายแล้วก
 local INTRO_TIME, INTRO_TURN = 12, 9 -- ฉากเปิดศาลเจ้า: ผู้เฝ้าถูกปล่อย / หันมาหาผู้เล่น (ตรงกับ Cinematics.ShrineIntro)
 local CLEAR_PILLAR, CLEAR_HOME = 3.6, 8.6 -- ฉากจบศาลเจ้า: เสาผุด / ลูกสัตว์ไปโผล่ที่แคมป์ (ตรงกับ Cinematics.ShrineCleared)
 local PET_SIZE = 1.9 -- ลูกสัตว์ที่ช่วยแล้วโตขึ้นที่แคมป์ (ตัวใหญ่พอให้ขี่)
+local PET_GROW = 1.35 -- ขยายสัตว์เลี้ยงทุกตัวเพิ่มอีก (คูณกับ Skin.PetScale ของแต่ละตัว)
 -- อนุสาวรีย์ลูกสัตว์ธาตุ (3D Model/anuzon -> Assets.Props.Monument<El>) ผุดแทนเสาผลึกตอนช่วยสำเร็จ · ไม่มีโมเดล = เสาผลึกเดิม
 local MONUMENT_WIDTH = 30 -- ความกว้างฐาน (stud) สูงราว 40
 local MONUMENT_YAW = 0 -- แก้ทิศหน้าโมเดล (Import 3D: บันได = -Z ของโมเดล -> lookAt หาแคมป์ตรง ๆ)
@@ -150,7 +151,8 @@ function SpiritService:SpawnGuardians(sh)
 		end
 		local h = self.ctx.Layout:HeightAt(pos.X, pos.Z)
 		local a = animals:Spawn(id, Vector3.new(pos.X, math.max(h, sh.Base.Y) + 1, pos.Z), {
-			Kind = "Guardian", Home = sh.Base, Leash = 70, HealthMult = 1.6, DamageMult = 1.2,
+			Kind = "Guardian", Home = sh.Base, Leash = 70, -- เลือด/ดาเมจ x1.5 (Config.ShrineGuardianMult)
+			HealthMult = Config.ShrineGuardianMult, DamageMult = Config.ShrineGuardianMult,
 			Yaw = intro and math.atan2(pos.X - sh.Base.X, pos.Z - sh.Base.Z) or nil, -- หันหน้าเข้าหากรง
 		})
 		if a then
@@ -166,6 +168,7 @@ function SpiritService:SpawnGuardians(sh)
 		end
 	end
 	sh.GuardiansSpawned = true
+	self.ctx.Services.DirectorService:AddFightTime("Shrine" .. sh.Element, "a Shrine")
 	if not intro then
 		self.ctx.Broadcast(string.format("The %s Shrine guardians have awakened", sh.Element), "Warn")
 		return
@@ -213,7 +216,8 @@ function SpiritService:SpawnWave(sh, wave, count)
 		local pos = sh.Base + Vector3.new(math.cos(ang) * r, 2, math.sin(ang) * r)
 		local h = self.ctx.Layout:HeightAt(pos.X, pos.Z)
 		local a = animals:Spawn(pool[(i - 1) % #pool + 1], Vector3.new(pos.X, math.max(h, sh.Base.Y) + 1, pos.Z), {
-			Kind = "Guardian", Home = sh.Base, Leash = 70, HealthMult = 1.6, DamageMult = 1.2,
+			Kind = "Guardian", Home = sh.Base, Leash = 70, -- เลือด/ดาเมจ x1.5 (Config.ShrineGuardianMult)
+			HealthMult = Config.ShrineGuardianMult, DamageMult = Config.ShrineGuardianMult,
 			Yaw = math.atan2(sh.Base.X - pos.X, sh.Base.Z - pos.Z), -- หันออกหาทางที่ผู้เล่นอยู่
 		})
 		if a then
@@ -328,7 +332,7 @@ function SpiritService:SpawnPet(sh)
 	end
 	local pos = self:PetSpot(sh.Element)
 	local spiritId = Animals.Spirits[sh.Element]
-	local petScale = Animals.Data[spiritId].Model.Skin.PetScale or PET_SIZE -- แต่ละตัวโตไม่เท่ากัน ให้ขนาดพอดีขี่
+	local petScale = (Animals.Data[spiritId].Model.Skin.PetScale or PET_SIZE) * PET_GROW -- แต่ละตัวโตไม่เท่ากัน ให้ขนาดพอดีขี่
 	local a = animals:Spawn(spiritId, pos, { Kind = "Spirit", SizeMult = petScale, Yaw = math.random() * math.pi * 2 })
 	if not a then
 		return nil
@@ -499,16 +503,17 @@ function SpiritService:Rescue(a, player)
 		end
 	end
 	s:SetAttribute("SpiritCount", count)
-	-- ข้ามวันตามธาตุ (Config.SpiritBonusDays: ดิน 2 · น้ำ 3 · น้ำแข็ง 4 · ไฟ 5)
+	-- บวกตัวคูณวันตามธาตุ (Config.SpiritBonusDays: ไม้ +1 · น้ำ +2 · น้ำแข็ง +3 · ไฟ +4)
 	local days = Config.SpiritBonusDays[el] or 1
 	local name = a.Info.Thai
-	-- ตัวคูณวัน: ทุกเช้านับวันเพิ่มตามผลรวม (ช่วยดิน+น้ำ = x5)
+	-- ตัวคูณวัน: ยังไม่มี = ปกติ x1 แล้วบวกเพิ่ม (ช่วยไม้ = x2 · ไม้+น้ำ = x4 · ครบ 4 ตัว = x11)
 	local director = self.ctx.Services.DirectorService
-	local skipped = director:AddDayMultiplier(days, "Spirit Pup")
+	local cur = math.floor(s:GetAttribute("BonusDays") or 0)
+	local skipped = director:AddDayMultiplier(days + (cur > 0 and 0 or 1), "Spirit Pup")
 	if skipped then
 		self.ctx.Broadcast(string.format("🌟 Rescued %s — days now count x%d!", name, director:DayMultiplier()), "Good")
 	end
-	self.ctx.FireRun("Cinematic", "SpiritRescued", { Element = el, Name = name, Buff = BUFF_TEXT[el], Count = count, Day = skipped, Days = days })
+	self.ctx.FireRun("Cinematic", "SpiritRescued", { Element = el, Name = name, Buff = BUFF_TEXT[el], Count = count, Day = skipped, Days = days, Mult = director:DayMultiplier() })
 	for _, p in ipairs(Players:GetPlayers()) do
 		self.ctx.Services.DataService:AddDiamonds(p, Classes.SpiritReward, "Rescued " .. a.Info.Thai)
 		if self.ctx.Services.QuestService then
@@ -588,7 +593,8 @@ function SpiritService:WakeLair(lair, player)
 	local info = Animals.Data[({ Earth = "Terragon", Water = "Leviathan", Air = "TempestRoc", Fire = "Solfang" })[lair.Element]]
 	local id = ({ Earth = "Terragon", Water = "Leviathan", Air = "TempestRoc", Fire = "Solfang" })[lair.Element]
 	local a = self.ctx.Services.AnimalService:Spawn(id, lair.Pos + Vector3.new(0, 2, 0), {
-		Kind = "Guardian", Home = lair.Pos, Leash = 60, HealthMult = 0.7 * Nights.BossHealthMult(self.ctx.Services.SurvivalService:RunPlayerCount(true)),
+		Kind = "Guardian", Home = lair.Pos, Leash = 60, HealthMult = Nights.BossHealthMult(self.ctx.Services.SurvivalService:RunPlayerCount(true)),
+		DamageMult = Nights.BossDamageMult(self.ctx.Services.SurvivalService:RunPlayerCount(true)), -- ตีธรรมดา + สกิล +25%/คน
 	})
 	if not a then
 		return
@@ -598,6 +604,7 @@ function SpiritService:WakeLair(lair, player)
 	self.ctx.Services.AnimalService:BeginIntro(a) -- ฉากเปิดตัว: ตรึงไว้ ~7 วิ
 	lair.Boss = a
 	lair.LastSeen = os.clock()
+	self.ctx.Services.DirectorService:AddFightTime("Lair" .. lair.Element, "a boss lair")
 	local s = self.ctx.State
 	s:SetAttribute("BossId", id)
 	s:SetAttribute("BossHP", a.Hum.MaxHealth)

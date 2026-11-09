@@ -20,6 +20,7 @@ local MeshProps = require(Shared.MeshProps)
 local Remotes = require(Shared.Remotes)
 local ClassAvatars = require(script.Parent.ClassAvatars)
 local UIKit = require(script.Parent.UIKit)
+local ItemIcon = require(script.Parent.ItemIcon)
 
 local ClassShop = {}
 
@@ -37,7 +38,8 @@ local GOLD = C(236, 170, 40) -- คลาสพาส
 
 -- Game Pass ของคลาสพาส (Classes.Data[id].Pass -> Config.GamePasses) หรือ nil
 local function passOf(id)
-	local key = Classes.Data[id] and Classes.Data[id].Pass
+	local c = Classes.Data[id]
+	local key = c and (c.Pass or (c.SeasonReward and "SeasonPass")) -- คลาสซีซั่น = ต้องมี Season Pass ก่อน
 	for _, p in ipairs(key and Config.GamePasses or {}) do
 		if p.Id == key then
 			return p
@@ -50,10 +52,6 @@ local LEVEL_COLOR = { C(90, 200, 90), C(70, 150, 245), C(180, 90, 245) }
 local STAT_LABEL = { Kills = "⚔ Kill", Nights = "🌙 Survive" }
 local STAT_SHORT = { Kills = "Kills %d/%d", Nights = "Survived %d/%d nights" }
 local BAR_COLOR = { Kills = C(255, 120, 90), Nights = C(120, 170, 255) }
-local ITEM_EMOJI = {
-	Torch = "🔥", Bandage = "🩹", Medkit = "⛑", Berries = "🍇", Coal = "⚫", LogWall = "🧱", Bow = "🏹",
-	OldAxe = "🪓", StoneAxe = "🪓", IronAxe = "🪓", Spear = "🔱", Wood = "🪵", Stone = "🪨",
-}
 
 -- โมเดลของไอคอน: เมชในเกม (MeshProps) ก่อน ไม่มีก็ใช้โมเดลจริงจาก Store (Assets.Weapons / Assets.Items) เช่น คทาเพลิง
 local function iconModel(itemId)
@@ -382,7 +380,7 @@ end
 
 ---------------------------------------------------------------- การ์ดคลาส (ซ้าย)
 local function cardHeight()
-	return math.clamp(math.floor(UIKit.Viewport().Y * 0.105), 72, 132 * UIKit.BigScale())
+	return math.clamp(math.floor(UIKit.Viewport().Y * 0.105), UIKit.IsPhone() and 92 or 72, 132 * UIKit.BigScale()) -- มือถือ: การ์ดสูงขึ้น ตัวหนังสือในการ์ดอ่านออก
 end
 
 function ClassShop.MakeCard(id, order)
@@ -426,9 +424,9 @@ function ClassShop.MakeCard(id, order)
 	-- ตัวหนังสือ
 	text(card, { Position = UDim2.new(0.31, 0, 0.07, 0), Size = UDim2.new(0.66, 0, 0.32, 0), Text = c.Thai, TextXAlignment = Enum.TextXAlignment.Left }, 30)
 	text(card, { Position = UDim2.new(0.31, 0, 0.42, 0), Size = UDim2.new(0.3, 0, 0.22, 0), Text = stars(c.Stars), TextColor3 = C(255, 205, 50), TextXAlignment = Enum.TextXAlignment.Left }, 24)
-	text(card, { Position = UDim2.new(0.31, 0, 0.68, 0), Size = UDim2.new(0.3, 0, 0.22, 0), Text = c.Role, TextColor3 = rare:Lerp(C(255, 255, 255), 0.35), TextXAlignment = Enum.TextXAlignment.Left }, 20)
+	text(card, { Position = UDim2.new(0.3, 0, 0.64, 0), Size = UDim2.new(0.32, 0, 0.3, 0), TextWrapped = true, Text = c.Role, TextColor3 = rare:Lerp(C(255, 255, 255), 0.35), TextXAlignment = Enum.TextXAlignment.Left }, 20)
 	local tag = text(card, { Position = UDim2.new(0.62, 0, 0.4, 0), Size = UDim2.new(0.35, 0, 0.2, 0), Text = "", TextXAlignment = Enum.TextXAlignment.Right }, 20)
-	local btn = button(card, { Position = UDim2.new(0.62, 0, 0.62, 0), Size = UDim2.new(0.35, 0, 0.3, 0), Text = "" }, BLUE, nil, 22)
+	local btn = button(card, { Position = UDim2.new(0.62, 0, 0.6, 0), Size = UDim2.new(0.35, 0, 0.34, 0), TextWrapped = true, Text = "" }, BLUE, nil, 22)
 	local function pick()
 		if selected ~= id then
 			selected = id
@@ -591,14 +589,13 @@ local function drawTools(c)
 		icon.BackgroundTransparency = 1
 		icon.Parent = tile
 		-- ไอคอน = โมเดลจริงของของชิ้นนั้น · อีโมจิใช้เฉพาะตอนหาโมเดลไม่เจอจริงๆ เท่านั้น
-		local emoji = text(tile, { Size = UDim2.fromScale(0.8, 0.6), Position = UDim2.fromScale(0.1, 0.05), Text = ITEM_EMOJI[itemId] or "📦", Visible = false }, 54, 0)
 		text(tile, { Position = UDim2.fromScale(0.55, 0.02), Size = UDim2.fromScale(0.42, 0.26), Text = "x" .. n, TextXAlignment = Enum.TextXAlignment.Right }, 24)
 		text(tile, { Position = UDim2.fromScale(0.04, 0.68), Size = UDim2.fromScale(0.92, 0.26), Text = Items.DisplayName(itemId) }, 18, 1.5)
 		do
 			task.spawn(function()
 				local model = iconModel(itemId)
-				if not model then
-					emoji.Visible = true
+				if not model and icon.Parent then
+					ItemIcon.Make(tile, itemId, { Size = icon.Size, Position = icon.Position })
 				end
 				if model and icon.Parent then
 					local wm = Instance.new("WorldModel")
@@ -632,7 +629,6 @@ local function drawTools(c)
 					end
 					cam.Parent = icon
 					icon.CurrentCamera = cam
-					emoji.Visible = false
 				end
 			end)
 		end
@@ -662,6 +658,8 @@ function ClassShop.Refresh()
 			cd.Tag.Text, cd.Tag.TextColor3 = "✔ Equipped", C(255, 220, 60)
 		elseif owned then
 			cd.Tag.Text, cd.Tag.TextColor3 = "Owned", C(140, 240, 100)
+		elseif c.SeasonReward then
+			cd.Tag.Text, cd.Tag.TextColor3 = "🎟 Season Lv." .. c.SeasonReward, C(255, 200, 80)
 		elseif c.Pass then
 			cd.Tag.Text, cd.Tag.TextColor3 = "🎫 Pass", C(255, 200, 80)
 		else
@@ -670,6 +668,8 @@ function ClassShop.Refresh()
 		if owned then
 			local _, _, frac = progressOf(id)
 			setButton(cd.Button, frac and string.format("Lv.%d · %d%%", levelOf(id), math.floor(frac * 100)) or ("Lv.%d ⭐MAX"):format(levelOf(id)), BLUE)
+		elseif c.SeasonReward then
+			setButton(cd.Button, "Season Pass Lv." .. c.SeasonReward, GOLD)
 		elseif c.Pass then
 			setButton(cd.Button, "Unlock with Pass", GOLD)
 		elseif st[id] then
@@ -694,7 +694,13 @@ function ClassShop.Refresh()
 	ui.Info.Visible = not showBars
 	if not owned then
 		ui.ProgTitle.Text = "Unlock This Class"
-		if c.Pass then
+		if c.SeasonReward then
+			-- คลาสซีซั่น: รางวัลขั้นสุดท้ายของสายพรีเมียม (ต้องมีพาส + เก็บ XP ถึงขั้นนั้น แล้วกดรับใน Quests)
+			local hasPass = player:GetAttribute("Pass_SeasonPass") == true
+			ui.Info.Text = hasPass and string.format("Reward at Season Pass premium tier %d — claim it in Quests", c.SeasonReward)
+				or string.format("Get the Season Pass, then reach premium tier %d", c.SeasonReward)
+			ui.Info.TextColor3 = C(255, 200, 80)
+		elseif c.Pass then
 			-- คลาสพาส: ไม่มีขายด้วย Ruby · ซื้อ Game Pass แล้วใช้ได้ทันที
 			ui.Info.Text = (pass and (pass.PassId or 0) > 0) and string.format("Unlock with %s (R$ %d)", pass.Name, pass.Robux or 0)
 				or "Pass exclusive — coming soon"
@@ -730,6 +736,14 @@ function ClassShop.Refresh()
 		end
 	elseif owned then
 		setButton(ui.Main, "Equip", GREEN)
+	elseif c.SeasonReward then
+		if player:GetAttribute("Pass_SeasonPass") == true then
+			setButton(ui.Main, "Reach Season Lv." .. c.SeasonReward, GRAY, false)
+		elseif pass and (pass.PassId or 0) > 0 then
+			setButton(ui.Main, "🎟 Get Season Pass", GOLD)
+		else
+			setButton(ui.Main, "Pass coming soon", GRAY, false)
+		end
 	elseif c.Pass then
 		if pass and (pass.PassId or 0) > 0 then
 			setButton(ui.Main, "🎫 Unlock with Pass", GOLD)
@@ -760,7 +774,7 @@ function ClassShop.Refresh()
 		sk.Lock.Visible = not unlocked
 		local canSkip = owned and i == lv + 1
 		sk.Foot.Visible = not unlocked
-		sk.Foot.Text = owned and ("Unlocks at level " .. i) or (c.Pass and "Get the pass first" or "Buy the class first")
+		sk.Foot.Text = owned and ("Unlocks at level " .. i) or (c.SeasonReward and ("Season Pass tier " .. c.SeasonReward) or (c.Pass and "Get the pass first" or "Buy the class first"))
 		sk.Skip.Visible = canSkip
 		if canSkip then
 			sk.Skip.Text = "Skip ♦️" .. Classes.SkipPrice(selected, i)
@@ -787,7 +801,7 @@ function ClassShop.MainAction()
 		end
 	elseif owned then
 		Remotes.Get("ChooseClass"):FireServer(selected)
-	elseif Classes.Data[selected].Pass then
+	elseif Classes.Data[selected].Pass or Classes.Data[selected].SeasonReward then
 		local pass = passOf(selected)
 		if pass and (pass.PassId or 0) > 0 then
 			game:GetService("MarketplaceService"):PromptGamePassPurchase(player, pass.PassId)

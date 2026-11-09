@@ -17,6 +17,7 @@ local Classes = require(Shared.Classes)
 local Config = require(Shared.Config)
 local Remotes = require(Shared.Remotes)
 local StructureModels = require(Shared.StructureModels)
+local WallSnap = require(Shared.WallSnap)
 local Shop = require(Shared.Shop)
 local Limits = require(Shared.Limits)
 local UIKit = require(script.Parent.UIKit)
@@ -123,7 +124,7 @@ local function maxCraft(r)
 	end
 	local item = Items.Data[r.Id]
 	if item and item.Category == "Tool" then
-		m = math.min(m, (have(r.Id) > 0) and 0 or 1)
+		m = math.min(m, (have(r.Id) > 0 and not Items.IsMulti(r.Id)) and 0 or 1)
 	elseif m > 1 and Items.Bulk(r.Id) then
 		m = math.max(1, math.min(m, math.floor(math.max(sackCap - sackUsed, 0) / (r.Amount or 1))))
 	end
@@ -253,8 +254,15 @@ function craft.Build(gui)
 	grid.CellPadding = UDim2.fromOffset(14, 14)
 	grid.SortOrder = Enum.SortOrder.LayoutOrder
 	grid.Parent = scroll
+	craft.Grid = grid
 	craft.Panel = panel
 	craft.Scroll = scroll
+	-- จอเปลี่ยนขนาด/หมุนจอ -> จัดการ์ดใหม่ (จำนวนคอลัมน์ + ความสูงการ์ด)
+	UIKit.OnResize(function()
+		if panel.Visible then
+			craft.Refresh()
+		end
+	end)
 end
 
 function craft.UpdateStatus()
@@ -262,7 +270,7 @@ function craft.UpdateStatus()
 		return
 	end
 	if inCampNow() then
-		craft.Status.Text = "📦 In camp: uses items in your sack first, then takes from camp storage"
+		craft.Status.Text = "🔥 In camp: uses items in your sack first, then takes from camp storage"
 		craft.Status.TextColor3 = GOOD_C
 	else
 		craft.Status.Text = "⚠ Outside camp: go back to camp to craft (counts include camp storage)"
@@ -287,13 +295,15 @@ local function costChips(parent, cost, r, pos, size)
 		return a[1] < b[1]
 	end)
 	local all = true
+	local phone = UIKit.IsPhone()
+	local chipH, iconS, textS = phone and 38 or 30, phone and 32 or 26, phone and 20 or 15
 	for i, cn in ipairs(list) do
 		local h = have(cn[1])
 		local ok = h >= cn[2]
 		all = all and ok
 		-- ป้าย = รูปวัตถุดิบ + ชื่อ มี/ต้องใช้
 		local chip = WoodKit.Frame(holder, {
-			Size = UDim2.fromOffset(0, 30), AutomaticSize = Enum.AutomaticSize.X, LayoutOrder = i,
+			Size = UDim2.fromOffset(0, chipH), AutomaticSize = Enum.AutomaticSize.X, LayoutOrder = i,
 			BackgroundColor3 = ok and Color3.fromRGB(46, 62, 34) or Color3.fromRGB(78, 36, 28),
 		})
 		WoodKit.Corner(chip, 6)
@@ -307,14 +317,45 @@ local function costChips(parent, cost, r, pos, size)
 		cl.SortOrder = Enum.SortOrder.LayoutOrder
 		cl.Padding = UDim.new(0, 3)
 		cl.Parent = chip
-		ItemIcon.Make(chip, cn[1], { Size = UDim2.fromOffset(26, 26), LayoutOrder = 1 })
+		ItemIcon.Make(chip, cn[1], { Size = UDim2.fromOffset(iconS, iconS), LayoutOrder = 1 })
 		UIKit.Text(chip, {
-			Size = UDim2.fromOffset(0, 26), AutomaticSize = Enum.AutomaticSize.X, LayoutOrder = 2, TextSize = 15, Font = UIKit.Fonts.Bold,
+			Size = UDim2.fromOffset(0, iconS), AutomaticSize = Enum.AutomaticSize.X, LayoutOrder = 2, TextSize = textS, Font = UIKit.Fonts.Bold,
 			BackgroundTransparency = 1, TextColor3 = ok and GOOD_C or BAD_C, Text = string.format("%s %d/%d", Items.DisplayName(cn[1]), h, cn[2]),
 		})
 		ItemTooltip.Attach(chip, cn[1])
 	end
-	return all
+	return all, holder
+end
+
+-- การ์ดในกริดสูงเท่ากันหมด -> วัดว่าป้ายวัตถุดิบตัดขึ้นกี่แถวจริง แล้วขยายทุกการ์ดให้พอ
+--   (เดิมสูงตายตัว: จอแคบ/มือถือ ป้ายตัดลง 2-3 แถว แล้วปุ่ม "คราฟต์/มีแล้ว/อัปเกรด" ทับจำนวนของ)
+--   fits = { { holder, top = y ของป้าย, min = ความสูงการ์ดขั้นต่ำ } } · ปุ่มอยู่ใต้ป้าย 54 px
+local fitToken = {} -- แยกต่อกริด (คราฟต์/พ่อค้ารีเฟรชพร้อมกันได้)
+local function fitCards(grid, fits)
+	fitToken[grid] = (fitToken[grid] or 0) + 1
+	local token = fitToken[grid]
+	task.defer(function()
+		RunService.Heartbeat:Wait() -- รอเอนจินจัดวาง (ตัดแถว) ก่อนวัด
+		if token ~= fitToken[grid] then
+			return
+		end
+		local cellH = 0
+		for _, f in ipairs(fits) do
+			local h = f.holder
+			local lay = h.Parent and h:FindFirstChildOfClass("UIListLayout")
+			local ratio = h.Size.Y.Offset > 0 and h.AbsoluteSize.Y / h.Size.Y.Offset or 0
+			local need = f.min
+			if lay and ratio > 0 then
+				local contentH = math.max(30, math.ceil(lay.AbsoluteContentSize.Y / ratio))
+				h.Size = UDim2.new(h.Size.X.Scale, h.Size.X.Offset, 0, contentH)
+				need = math.max(need, f.top + contentH + (f.below or 62))
+			end
+			cellH = math.max(cellH, need)
+		end
+		if cellH > 0 then
+			grid.CellSize = UDim2.new(grid.CellSize.X.Scale, grid.CellSize.X.Offset, 0, cellH)
+		end
+	end)
 end
 
 -- กรอบรูปเข้ม (รูปของจริงจาก ItemIcon หรืออีโมจิ)
@@ -351,6 +392,10 @@ function craft.Refresh()
 			c:Destroy()
 		end
 	end
+	-- มือถือ (จอแคบ) = การ์ดเต็มแถว 1 คอลัมน์ -> ป้ายวัตถุดิบไม่ต้องตัดหลายแถว ตัวเลขอ่านง่าย
+	local oneCol = UIKit.IsPhone() or (craft.Scroll.AbsoluteSize.X > 0 and craft.Scroll.AbsoluteSize.X / math.max(UIKit.GetScale(craft.Panel), 0.3) < 700)
+	craft.Grid.CellSize = oneCol and UDim2.new(1, -4, 0, 172) or UDim2.new(0.5, -8, 0, 172)
+	local fits = {}
 	-- อัปเกรดกองไฟ / โต๊ะ (อยู่บนสุดทุกแท็บ แทนปุ่มกดที่กองไฟ) — ซ่อนตอนค้นหา
 	local fireLv = state:GetAttribute("CampLevel") or 1
 	local upgrades = {}
@@ -375,7 +420,9 @@ function craft.Refresh()
 		UIKit.Text(card, { Size = UDim2.new(1, -132, 0, 18), Position = UDim2.fromOffset(122, 40), Text = up.Desc, TextSize = 13, TextColor3 = Color3.fromRGB(226, 214, 236), Font = UIKit.Fonts.Body })
 		local can = up.Next ~= nil
 		if up.Next then
-			can = costChips(card, up.Next.Cost, nil, UDim2.fromOffset(122, 66), UDim2.new(1, -134, 0, 66)) and can
+			local ok, holder = costChips(card, up.Next.Cost, nil, UDim2.fromOffset(122, 66), UDim2.new(1, -134, 0, 66))
+			can = ok and can
+			table.insert(fits, { holder = holder, top = 66, min = 172 })
 		end
 		WoodKit.Button(card, can and "Night" or "Off", { Size = UDim2.fromOffset(150, 44), Position = UDim2.new(1, -162, 1, -54), Text = up.Next and "⚒ Upgrade" or "Max", TextSize = 18, ZIndex = 4 }, function()
 			if up.Next then
@@ -392,7 +439,7 @@ function craft.Refresh()
 			local locked = r.Bench > bench
 			local isTool = item.Category == "Tool" or item.Category == "Armor"
 			local worn = Items.Data[player:GetAttribute("Armor") or ""]
-			local owned = (item.Category == "Tool" and have(r.Id) > 0) or (item.Category == "Armor" and worn ~= nil and (worn.Tier or 0) >= (item.Tier or 0))
+			local owned = (item.Category == "Tool" and not Items.IsMulti(r.Id) and have(r.Id) > 0) or (item.Category == "Armor" and worn ~= nil and (worn.Tier or 0) >= (item.Tier or 0))
 			local maxN = locked and 0 or maxCraft(r)
 			-- จำนวนสูงสุด (Limits): ถือ + วางอยู่ / สูงสุด
 			local lim = Limits.Structures[r.Id]
@@ -410,14 +457,16 @@ function craft.Refresh()
 			picBox(card, r.Id, nil, 100, UDim2.fromOffset(12, 14))
 			WoodKit.Ink(card, { Size = UDim2.new(1, -192, 0, 26), Position = UDim2.fromOffset(122, 10), Text = item.Thai .. (lim and string.format("  (%d/%d%s)", limN, lim.Max, lim.Scope == "Server" and " whole server" or "") or "") .. (can and "  ✔" or ""), TextSize = 21, TextColor3 = locked and WoodKit.Colors.InkDim or (can and WoodKit.Colors.Good or WoodKit.Colors.Ink) })
 			WoodKit.Ink(card, { Size = UDim2.new(1, -192, 0, 18), Position = UDim2.fromOffset(122, 36), Text = item.Name, TextSize = 14, Font = UIKit.Fonts.Bold, TextColor3 = WoodKit.Colors.InkDim })
-			WoodKit.Ink(card, { Size = UDim2.new(1, -134, 0, 18), Position = UDim2.fromOffset(122, 56), Text = itemDesc(r.Id), TextSize = 14, Font = UIKit.Fonts.Bold, TextColor3 = Color3.fromRGB(96, 66, 40), TextTruncate = Enum.TextTruncate.AtEnd })
+			WoodKit.Ink(card, { Size = UDim2.new(1, -134, 0, UIKit.IsPhone() and 40 or 32), Position = UDim2.fromOffset(122, 55), Text = itemDesc(r.Id), TextSize = UIKit.IsPhone() and 18 or 15, TextWrapped = true, TextYAlignment = Enum.TextYAlignment.Top, Font = UIKit.Fonts.Bold, TextColor3 = Color3.fromRGB(96, 66, 40), TextTruncate = Enum.TextTruncate.AtEnd }) -- 2 บรรทัด (คำอธิบายอาวุธยาวเคยย่อจนอ่านไม่ออก)
 			-- 📌 ปักหมุดสูตร (แถบติดตามบนจอ)
 			WoodKit.Button(card, pinned == r.Id and "Red" or "Parch", { Size = UDim2.fromOffset(46, 46), Position = UDim2.new(1, -58, 0, 10), Text = "📌", TextSize = 22, ZIndex = 4 }, function()
 				PinTracker.Toggle(r.Id)
 				craft.Refresh()
 			end)
-			-- วัตถุดิบ
-			costChips(card, r.Cost, r, UDim2.fromOffset(122, 80), UDim2.new(1, -134, 0, 36))
+			-- วัตถุดิบ (ความสูงจริงวัดทีหลังใน fitCards)
+			local chipTop = UIKit.IsPhone() and 98 or 90
+			local _, holder = costChips(card, r.Cost, r, UDim2.fromOffset(122, chipTop), UDim2.new(1, -134, 0, 36))
+			table.insert(fits, { holder = holder, top = chipTop, min = 142 })
 			-- ปุ่มคราฟต์: x1 / x5 / สูงสุด
 			local row = UIKit.Frame(card, { Size = UDim2.new(1, -134, 0, 44), Position = UDim2.new(0, 122, 1, -54), BackgroundTransparency = 1 })
 			local rl = Instance.new("UIListLayout")
@@ -447,6 +496,7 @@ function craft.Refresh()
 			end
 		end
 	end
+	fitCards(craft.Grid, fits)
 	if searching and shown == 0 then
 		local f = UIKit.Frame(craft.Scroll, { BackgroundTransparency = 1, LayoutOrder = 1 })
 		UIKit.Text(f, { Size = UDim2.fromScale(1, 1), Text = "No recipes match your search", TextSize = 18, TextColor3 = Color3.fromRGB(226, 206, 176), TextXAlignment = Enum.TextXAlignment.Center })
@@ -531,8 +581,9 @@ function bag.Refresh()
 		local card = UIKit.Frame(bag.Scroll, { BackgroundColor3 = Color3.fromRGB(50, 56, 94), BackgroundTransparency = 0.1, LayoutOrder = i })
 		UIKit.Corner(card, 8)
 		UIKit.Stroke(card, item.Color or C.GoldDim, 1, 0.5)
-		UIKit.Text(card, { Size = UDim2.new(1, -12, 0, 20), Position = UDim2.fromOffset(8, 6), Text = item.Thai, TextSize = 14, TextTruncate = Enum.TextTruncate.AtEnd })
-		UIKit.Text(card, { Size = UDim2.new(0, 60, 0, 18), Position = UDim2.fromOffset(8, 36), Text = "x" .. sack[id], TextSize = 14, TextColor3 = C.Gold })
+		ItemIcon.Make(card, id, { Size = UDim2.fromOffset(40, 40), Position = UDim2.fromOffset(5, 12) })
+		UIKit.Text(card, { Size = UDim2.new(1, -54, 0, 20), Position = UDim2.fromOffset(50, 6), Text = item.Thai, TextSize = 14, TextTruncate = Enum.TextTruncate.AtEnd })
+		UIKit.Text(card, { Size = UDim2.new(0, 34, 0, 18), Position = UDim2.fromOffset(50, 36), Text = "x" .. sack[id], TextSize = 14, TextColor3 = C.Gold })
 		if Items.Bulk(id) then
 			UIKit.Button(card, { Size = UDim2.fromOffset(36, 22), Position = UDim2.new(1, -42, 0, 4), Text = "Drop", TextSize = 11 }, function()
 				Remotes.Get("DropItem"):FireServer(id, 1)
@@ -563,8 +614,9 @@ function bag.Refresh()
 		local card = UIKit.Frame(bag.Scroll, { BackgroundColor3 = Color3.fromRGB(36, 92, 76), BackgroundTransparency = 0.1, LayoutOrder = 1000 + i })
 		UIKit.Corner(card, 8)
 		UIKit.Stroke(card, Color3.fromRGB(120, 200, 140), 1, 0.6)
-		UIKit.Text(card, { Size = UDim2.new(1, -12, 0, 20), Position = UDim2.fromOffset(8, 6), Text = "📦 " .. item.Thai, TextSize = 14, TextTruncate = Enum.TextTruncate.AtEnd })
-		UIKit.Text(card, { Size = UDim2.new(1, -12, 0, 18), Position = UDim2.fromOffset(8, 36), Text = "Camp storage x" .. campStock[id], TextSize = 13, TextColor3 = Color3.fromRGB(150, 230, 170) })
+		ItemIcon.Make(card, id, { Size = UDim2.fromOffset(40, 40), Position = UDim2.fromOffset(5, 12) })
+		UIKit.Text(card, { Size = UDim2.new(1, -54, 0, 20), Position = UDim2.fromOffset(50, 6), Text = item.Thai, TextSize = 14, TextTruncate = Enum.TextTruncate.AtEnd })
+		UIKit.Text(card, { Size = UDim2.new(1, -54, 0, 18), Position = UDim2.fromOffset(50, 36), Text = "Camp storage x" .. campStock[id], TextSize = 12, TextColor3 = Color3.fromRGB(150, 230, 170), TextTruncate = Enum.TextTruncate.AtEnd })
 	end
 end
 
@@ -736,6 +788,7 @@ function Menus.StopBuild()
 		end
 	end
 	build.ZoneKey = nil
+	build.SnapCF = nil
 	if Menus.BuildHint then
 		Menus.BuildHint.Visible = false
 	end
@@ -811,7 +864,8 @@ function Menus.PlaceBuild()
 	end
 	local res = buildTarget()
 	if res and build.Valid then
-		local cf = CFrame.new(res.Position) * CFrame.Angles(0, build.Yaw, 0)
+		-- กำแพงที่ดูดต่อกับกำแพงเดิม: ใช้ตำแหน่งที่ดูดแล้ว (ตรงกับเงาที่เห็น)
+		local cf = build.SnapCF or CFrame.new(res.Position) * CFrame.Angles(0, build.Yaw, 0)
 		if build.Move then
 			Remotes.Get("MoveStructure"):FireServer(build.Move, cf)
 			Menus.StopBuild()
@@ -880,8 +934,14 @@ function trader.Build(gui)
 	grid.CellSize = UDim2.new(0.5, -8, 0, 132)
 	grid.CellPadding = UDim2.fromOffset(14, 14)
 	grid.Parent = scroll
+	trader.Grid = grid
 	trader.Panel = panel
 	trader.Scroll = scroll
+	UIKit.OnResize(function()
+		if panel.Visible then
+			trader.Refresh()
+		end
+	end)
 end
 
 local function listText(t, have)
@@ -907,6 +967,9 @@ function trader.Refresh()
 			c:Destroy()
 		end
 	end
+	-- มือถือ = 1 คอลัมน์ · การ์ดสูงพอให้ป้ายของที่ต้องจ่ายครบทุกแถว (ปุ่มแลกอยู่ขวา ไม่ทับ)
+	trader.Grid.CellSize = UIKit.IsPhone() and UDim2.new(1, -4, 0, 132) or UDim2.new(0.5, -8, 0, 132)
+	local fits = {}
 	for i, o in ipairs(Shop.Trader) do
 		local okAll = true
 		for id, n in pairs(o.Cost) do
@@ -922,12 +985,14 @@ function trader.Refresh()
 		WoodKit.Ink(f, { Size = UDim2.new(1, -134, 0, 26), Position = UDim2.fromOffset(122, 12), Text = "Get: " .. listText(o.Give), TextSize = 19, TextTruncate = Enum.TextTruncate.AtEnd })
 		WoodKit.Ink(f, { Size = UDim2.new(1, -134, 0, 16), Position = UDim2.fromOffset(122, 40), Text = "Pay:", TextSize = 14, Font = UIKit.Fonts.Bold, TextColor3 = WoodKit.Colors.InkDim })
 		-- ป้ายของที่ต้องจ่าย (รูป + มี/ต้องใช้ จากกระสอบ)
-		costChips(f, o.Cost, nil, UDim2.fromOffset(122, 58), UDim2.new(1, -262, 0, 66))
+		local _, holder = costChips(f, o.Cost, nil, UDim2.fromOffset(122, 58), UDim2.new(1, -262, 0, 66))
+		table.insert(fits, { holder = holder, top = 58, min = 132, below = 12 })
 		WoodKit.Ink(f, { Size = UDim2.fromOffset(116, 18), Position = UDim2.new(1, -128, 1, -82), Text = left > 0 and string.format("%d/%d trades left", left, Limits.TradesPerVisit) or "Sold out", TextSize = 14, Font = UIKit.Fonts.Bold, TextXAlignment = Enum.TextXAlignment.Center, TextColor3 = left > 0 and WoodKit.Colors.InkDim or Color3.fromRGB(170, 50, 40) })
 		WoodKit.Button(f, okAll and "Red" or "Off", { Size = UDim2.fromOffset(116, 48), Position = UDim2.new(1, -128, 1, -60), Text = "🤝 Trade", TextSize = 20, ZIndex = 4 }, function()
 			Remotes.Get("Trade"):FireServer(o.Id)
 		end)
 	end
+	fitCards(trader.Grid, fits)
 end
 
 function Menus.OpenTrader()
@@ -1147,6 +1212,21 @@ function Menus.Init(state, hud)
 				build.ZoneKey = key
 			end
 			local cf = CFrame.new(res.Position) * CFrame.Angles(0, build.Yaw, 0)
+			-- กำแพงไม้/หิน: เล็งใกล้ปลายกำแพงเดิม = ดูดไปต่อกันเอง (ต่อตรง/หักมุม 90° ตามจุดที่เล็ง)
+			build.SnapCF = nil
+			if WallSnap.IsWall(build.Kind) then
+				local snap = WallSnap.Find(build.Kind, res.Position, Workspace:FindFirstChild("Structures"), build.Move)
+				if snap then
+					local gp = RaycastParams.new()
+					gp.FilterType = Enum.RaycastFilterType.Include
+					gp.FilterDescendantsInstances = { Workspace.Terrain }
+					local g = Workspace:Raycast(Vector3.new(snap.X, res.Position.Y + 20, snap.Z), Vector3.new(0, -60, 0), gp)
+					cf = CFrame.new(snap.X, g and g.Position.Y or res.Position.Y, snap.Z) * snap.Rotation
+					build.SnapCF = cf
+					local _, ry = cf:ToOrientation()
+					build.Yaw = ry -- ปล่อยจากจุดดูดแล้วยังหันตามกำแพงที่ต่อ
+				end
+			end
 			local ok = d <= Config.BuildRange and res.Material ~= Enum.Material.Water and res.Material ~= Enum.Material.CrackedLava and (res.Position - camp).Magnitude > NO_BUILD_R
 				and fromCamp.Magnitude <= campR -- นอกเขตแคมป์ = วางไม่ได้ (แดง)
 				-- เตียงข้ามวันไม่ได้ช่วงคืนสุดท้าย (ตรงกับ DirectorService:CanSkipDay)
@@ -1171,7 +1251,8 @@ function Menus.Init(state, hud)
 			local up = res.Normal
 			local look = cf.LookVector - up * cf.LookVector:Dot(up)
 			look = look.Magnitude > 0.01 and look.Unit or cf.LookVector
-			local base = CFrame.lookAt(res.Position, res.Position + look, up)
+			local fpPos = build.SnapCF and build.SnapCF.Position or res.Position
+			local base = CFrame.lookAt(fpPos, fpPos + look, up)
 			for _, part in ipairs(build.Footprint:GetChildren()) do
 				part.CFrame = base * CFrame.new(part:GetAttribute("Offset") or Vector3.new(0, 0.06, 0))
 			end

@@ -2,8 +2,8 @@
 	SkillService — สกิลกดของคลาส 5 ดาว (Classes.ActiveSkills · ปลดตามเลเวล · คลาสหนึ่งมีได้หลายสกิล)
 	  Swarm (แวมไพร์ Lv3)       : ค้างคาว 5 ตัว (เลือด 200) ตามเจ้าของ ไล่กัดมอน · อยู่จนโดนตีตาย หรือกดใหม่ = ฝูงใหม่มาแทน
 	  ShadowVeil (พ่อมดมืด Lv2) : ล่องหน + วิ่งเร็วขึ้น 50% 4 วิ · มอนมองไม่เห็น · ทำดาเมจ = หลุดล่องหน
-	  DarkMeteor (พ่อมดมืด Lv3) : อุกกาบาตมืดตกตรงจุดที่เล็ง ดาเมจแรงวงกว้าง + วงไฟมืด 10 วิ เผา 2% เลือด/วิ
-	  ThornBind (พงไพร Lv3)     : สตั้นมอนรอบตัว 4 วิ (บอส 2 วิ) + พิษ 1% เลือด/วิ 15 วิ
+	  DarkMeteor (พ่อมดมืด Lv3) : อุกกาบาตมืดตกตรงจุดที่เล็ง ดาเมจแรงวงกว้าง + วงไฟมืด 10 วิ เผา 2% เลือด/วิ (บอสรวมไม่เกิน 5%)
+	  ThornBind (พงไพร Lv3)     : สตั้นมอนรอบตัว 4 วิ (บอส 2 วิ) + พิษ 1% เลือด/วิ 15 วิ (บอสรวม 4%)
 	ผู้เล่น: attribute "Skills" = รหัสสกิลที่ใช้ได้คั่นด้วย "," · "SkillReady_<Id>" = เวลาเซิร์ฟเวอร์ที่คูลดาวน์หมด
 	ฝั่งเครื่องผู้เล่น: ClassSkill.lua (ช่องสกิลหน้าแถบของ · ปุ่ม Q / Z)
 ]]
@@ -301,7 +301,11 @@ function SkillService:TickBats()
 						b.NextBite = t + 0.9
 						local deadBefore = target.Dead
 						local tpos = target.Root.Position
-						combat:DamageAnimal(target, BAT_DAMAGE * self.ctx.Services.SurvivalService:Perk(player, "DamageMult", 1), player, { Source = "Summon" })
+						local batDmg = BAT_DAMAGE * self.ctx.Services.SurvivalService:Perk(player, "DamageMult", 1)
+						if target.Kind == "Boss" or target.Info.Behaviour == "Boss" then
+							batDmg *= 0.5 -- บอสโดนค้างคาวกัดแค่ครึ่ง
+						end
+						combat:DamageAnimal(target, batDmg, player, { Source = "Summon" })
 						self.ctx.Remotes.Get("HitFx"):FireAllClients("BatBite", { Position = tpos, From = pos })
 						if target.Dead and not deadBefore then
 							local surv = self.ctx.Services.SurvivalService
@@ -427,11 +431,22 @@ function SkillService:DarkMeteor(player, aim)
 				combat:DamageAnimal(a, dmg, player, { Source = "Skill" })
 			end
 		end
-		-- วงไฟมืด: เผา 2% เลือดสูงสุด/วิ
+		-- วงไฟมืด: เผา 2% เลือดสูงสุด/วิ (บอส 0.5%/วิ รวมไม่เกิน 5%)
 		local stop = os.clock() + DM_ZONE_TIME
+		local burned = {} -- [animal] = % ที่เผาไปแล้ว
 		while os.clock() < stop do
 			for _, a in ipairs(animals:InRadius(center, DM_ZONE, true)) do
-				combat:DamageAnimal(a, a.Hum.MaxHealth * 0.02, player, { Source = "Skill", Silent = true })
+				local boss = a.Kind == "Boss" or a.Info.Behaviour == "Boss"
+				local pct, cap = 0.02, 0.2
+				if boss then
+					pct, cap = 0.005, 0.05
+				end
+				local done = burned[a] or 0
+				pct = math.min(pct, cap - done)
+				if pct > 1e-6 then
+					burned[a] = done + pct
+					combat:DamageAnimal(a, a.Hum.MaxHealth * pct, player, { Source = "Skill", Silent = true })
+				end
 			end
 			task.wait(1)
 		end
@@ -452,7 +467,7 @@ function SkillService:ThornBind(player)
 		local stun = boss and 2 or 4
 		a.StunUntil = t + stun
 		a.PoisonUntil = t + 15
-		a.PoisonPct = 0.01
+		a.PoisonPct = boss and (0.04 / 15) or 0.01 -- บอสรวมไม่เกิน 4% / 15 วิ
 		a.PoisonBy = player
 		self.ctx.Remotes.Get("HitFx"):FireAllClients("SkillThornMark", { Model = a.Model, Stun = stun, Poison = 15 })
 	end

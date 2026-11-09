@@ -49,6 +49,14 @@ local function collect(model)
 	model:GetAttributeChangedSignal("Vanish"):Connect(function()
 		rig.VanishT = os.clock()
 	end)
+	-- ตัวไล่ซ่อน/โผล่ (Hidden): จางหาย-จางเข้า ทั้งตัว + ปิดแสง/อนุภาค
+	model:GetAttributeChangedSignal("Hidden"):Connect(function()
+		rig.HiddenT = os.clock()
+		rig.HideSync = 0
+	end)
+	if model:GetAttribute("Hidden") then
+		rig.HiddenT = -10
+	end
 	return rig
 end
 
@@ -113,6 +121,40 @@ local function fade(model, alpha)
 				d.Enabled = false
 			end
 		end
+	end
+end
+
+local HIDE_FADE = 0.4
+local function applyHidden(rig, now)
+	local hidden = rig.Model:GetAttribute("Hidden") == true
+	local t = math.clamp((now - rig.HiddenT) / HIDE_FADE, 0, 1)
+	local alpha = hidden and t or 1 - t
+	if alpha == rig.HideAlpha and now < (rig.HideSync or 0) then
+		return
+	end
+	rig.HideAlpha = alpha
+	rig.HideSync = now + 0.5 -- ซ่อนอยู่: ทาซ้ำทุกครึ่งวิ (ผิวโมเดลโหลดมาทีหลัง)
+	for _, d in ipairs(rig.Model:GetDescendants()) do
+		if d:IsA("BasePart") then
+			d.LocalTransparencyModifier = alpha
+		elseif d:IsA("Decal") then
+			local base = d:GetAttribute("HideBaseT")
+			if base == nil then
+				base = d.Transparency
+				d:SetAttribute("HideBaseT", base)
+			end
+			d.Transparency = base + (1 - base) * alpha
+		elseif d:IsA("ParticleEmitter") or d:IsA("Light") or d:IsA("Beam") or d:IsA("Trail") or d:IsA("Highlight") or d:IsA("BillboardGui") then
+			local orig = d:GetAttribute("HideOrig")
+			if orig == nil then
+				orig = d.Enabled
+				d:SetAttribute("HideOrig", orig)
+			end
+			d.Enabled = alpha < 0.5 and orig or false
+		end
+	end
+	if not hidden and t >= 1 then
+		rig.HiddenT = nil -- โผล่ครบแล้ว หยุดทา
 	end
 end
 
@@ -443,8 +485,13 @@ function AnimalAnimator.Init()
 		local char = player.Character
 		local playerPos = char and char:GetPivot().Position
 		for model, rig in pairs(rigs) do
+			if rig.HiddenT then
+				pcall(applyHidden, rig, now)
+			end
 			if not model.Parent then
 				rigs[model] = nil
+			elseif rig.Model:GetAttribute("Hidden") and not rig.HiddenT then
+				-- ซ่อนอยู่บนฟ้า: ไม่ต้องขยับท่า
 			elseif (rig.Root.Position - cam).Magnitude < 420 then
 				local ok, err = pcall(animate, rig, now, dt, cam, playerPos)
 				if not ok then

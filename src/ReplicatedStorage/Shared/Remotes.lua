@@ -30,6 +30,7 @@ Remotes.Events = {
 	"PickupDrop", -- (dropModel) เก็บของบนพื้น (คลิกตอนถือกระสอบ)
 	"ThrowFuel", -- () ถือกระสอบคลิกกองไฟ: โยนเชื้อเพลิง/เนื้อดิบเข้าไป
 	"ThrowGrind", -- () ถือกระสอบคลิกเครื่องย่อย: โยนวัตถุดิบลงช่องบด
+	"PickBerry", -- (source, berryPart, "Sack"/"Eat") ชี้ลูกเบอร์รี่บนต้น/แปลงแล้วเก็บ
 	"PadSize", -- (padIndex, n) หัวหน้าแท่นเลือกจำนวนคน 1-8
 	"LeavePad", -- () กดออกจากกลุ่มแท่น (ขึ้นแท่นแล้วเดินออกเองไม่ได้)
 	"LeaveRun", -- () คนที่ตายแล้ว (ดูเพื่อน) กดกลับล็อบบี้
@@ -43,6 +44,9 @@ Remotes.Events = {
 	"RejoinAnswer", -- (accept: boolean) ตอบคำถาม "กลับเข้ารอบเดิม?"
 	"GiftTarget", -- (userId | nil) เลือกเพื่อนที่จะซื้อ Ruby เป็นของขวัญให้ (ก่อนกดซื้อแพ็ก)
 	"UseReviveToken", -- () ใช้ตั๋วคืนชีพตอนล้ม
+	"WorldAction", -- (action, a, b) ห้องโลก: Open(password,size) / Delete / Join(hostId,password) / Leave / Start (WorldService)
+	"WipeSkip", -- () ทีมล้มหมด: ไม่ชุบ กลับล็อบบี้ (ทุกคนในทีมกดครบ = จบทันที ไม่ต้องรอ 30 วิ)
+	"ReviveAllMode", -- (on: boolean) ทีมล้มหมด: ซื้อคืนชีพแบบ "ชุบทั้งทีม" (ซื้อแต่ละครั้ง = ชุบคนถัดไป)
 	"PadResume", -- (padIndex, on) หัวหน้าแท่น (มี Save Run) เลือกเล่นต่อจากเซฟ
 	-- server -> client
 	"Notify", -- (text, kind)

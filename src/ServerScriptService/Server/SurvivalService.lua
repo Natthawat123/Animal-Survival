@@ -319,6 +319,46 @@ function SurvivalService:Revive(player, frac)
 	self.ctx.Remotes.Get("Cinematic"):FireClient(player, "Revived", {})
 end
 
+-- ทีมล้มหมด: กด "กลับล็อบบี้" (ไม่ชุบ) · ทุกคนในรอบกดครบ = จบรอบทันที ไม่ต้องรอนับถอยหลัง
+function SurvivalService:SkipWipe(player)
+	if not (self.wipeUntil and self.wipeSkip) or not player:GetAttribute("InRun") then
+		return
+	end
+	self.wipeSkip[player] = true
+	local team, voted = 0, 0
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p:GetAttribute("InRun") then
+			team += 1
+			if self.wipeSkip[p] then
+				voted += 1
+			end
+		end
+	end
+	self.ctx.State:SetAttribute("WipeSkips", voted)
+	if voted >= team then
+		self.wipeUntil = os.clock() -- ครบทุกคน: ตัวรอในลูปจบรอบเลย
+	end
+end
+
+-- ล้มหรือตายอยู่ในรอบ (ชุบได้ตอนทีมล้มหมด)
+function SurvivalService:IsFallen(player)
+	local s = state[player]
+	return s ~= nil and player:GetAttribute("InRun") == true and (s.Downed or s.Dead) == true
+end
+
+-- ชุบด้วย Robux: ล้มอยู่ = ลุกเลือดเต็ม · ตายแล้ว = เกิดใหม่ที่แคมป์ (ยังอยู่ในรอบ)
+function SurvivalService:ReviveAny(player)
+	local s = state[player]
+	if not s then
+		return
+	end
+	if s.Downed then
+		self:Revive(player, 1)
+	elseif s.Dead and player:GetAttribute("InRun") then
+		self:Spawn(player)
+	end
+end
+
 function SurvivalService:Die(player)
 	local s = state[player]
 	local hum, char = humanoidOf(player)
@@ -411,6 +451,8 @@ function SurvivalService:CheckWipe()
 		end
 	end
 	self.wipeUntil = os.clock() + grace
+	self.wipeSkip = {}
+	self.ctx.State:SetAttribute("WipeSkips", 0)
 	if grace > 2 then
 		self.ctx.State:SetAttribute("WipeAt", Workspace:GetServerTimeNow() + grace)
 	end
@@ -423,7 +465,9 @@ function SurvivalService:CheckWipe()
 			end
 		end
 		self.wipeUntil = nil
+		self.wipeSkip = nil
 		self.ctx.State:SetAttribute("WipeAt", nil)
+		self.ctx.State:SetAttribute("WipeSkips", nil)
 		local c2, a2 = standing()
 		if a2 == 0 and (c2 > 0 or count > 0) then
 			director:GameOver()
@@ -803,6 +847,9 @@ end
 ---------------------------------------------------------------- loop
 function SurvivalService:Start(ctx)
 	Players.CharacterAutoLoads = false
+	ctx.Remotes.Get("WipeSkip").OnServerEvent:Connect(function(player)
+		self:SkipWipe(player)
+	end)
 	ctx.Remotes.Get("UseItem").OnServerEvent:Connect(function(player, id)
 		if type(id) == "string" then
 			self:UseItem(player, id)

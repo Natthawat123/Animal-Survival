@@ -8,6 +8,7 @@ local BadgeService = game:GetService("BadgeService")
 local DataStoreService = game:GetService("DataStoreService")
 local MessagingService = game:GetService("MessagingService")
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Classes = require(ReplicatedStorage.Shared.Classes)
@@ -27,6 +28,7 @@ local function default()
 		-- ภารกิจ / ล็อกอิน 7 วัน / Season Pass / โค้ด / ความสำเร็จ (QuestService, SeasonService)
 		Quests = {}, LoginStreak = 0, BestStreak = 0, AchClaimed = {}, CodesUsed = {}, WeekBest = {},
 		Season = {}, Titles = {}, NameColors = {}, EquipTitle = "", EquipColor = "",
+		Worlds = {}, WorldCredits = 0, -- โลกที่สร้าง (WorldService)
 		Revives = 0, ReviveTokens = 0, FuelAdded = 0, Crafts = 0, Gathered = 0, SpiritsSaved = 0, QuestsDone = 0,
 	}
 end
@@ -48,19 +50,67 @@ local function key(player)
 	return "u_" .. player.UserId
 end
 
+-- ล็อกเซฟต่อเซิร์ฟ (session lock): เซฟหลักเก็บ _Lock = { Job = JobId ของเซิร์ฟที่ถือข้อมูลอยู่, T = เวลาเซฟล่าสุด }
+--   ย้ายเซิร์ฟ: เซิร์ฟใหม่รอให้เซิร์ฟเก่าเซฟรอบสุดท้าย (ปลดล็อก) ก่อนค่อยโหลด -> ไม่ได้ข้อมูลเก่ามาเล่นต่อ
+--   เซิร์ฟเก่าที่ล็อกโดนแย่งไปแล้ว -> เซฟไม่ทับ (กันข้อมูลย้อน/ของซ้ำ)
+local LOCK_STALE = 330 -- วินาที: ล็อกที่ไม่ได้ต่ออายุนานเกินนี้ = เซิร์ฟนั้นดับไปแล้ว (เซฟอัตโนมัติทุก 120 วิ)
+local LOCK_WAIT = 8 -- รอเซิร์ฟเก่าปลดล็อกสูงสุดกี่รอบ (รอบละ 3 วิ) แล้วค่อยยึดล็อก
+local function jobId()
+	return game.JobId ~= "" and game.JobId or "studio"
+end
+
+-- โหลด + ล็อกเซฟ · คืน data(หรือ nil = ผู้เล่นใหม่), สำเร็จไหม
+local function loadLocked(player)
+	local tries, lastErr = 0, nil
+	while tries < LOCK_WAIT + 4 do
+		tries += 1
+		local busy = false
+		local loaded
+		local ok, err = pcall(function()
+			store:UpdateAsync(key(player), function(old)
+				local lock = type(old) == "table" and old._Lock
+				if lock and lock.Job ~= jobId() and os.time() - (tonumber(lock.T) or 0) < LOCK_STALE and tries <= LOCK_WAIT then
+					busy = true
+					return nil -- เซิร์ฟอื่นยังถือข้อมูลอยู่: ยังไม่เขียน รอรอบหน้า
+				end
+				busy = false
+				loaded = type(old) == "table" and old or nil
+				local out = loaded or default()
+				out._Lock = { Job = jobId(), T = os.time() }
+				return out
+			end)
+		end)
+		if ok and not busy then
+			return loaded, true
+		end
+		lastErr = err
+		if not player.Parent or (not ok and RunService:IsStudio()) then
+			break -- Studio ที่ไม่ได้เปิด API Services: พังทันที ไม่ต้องรอ (เทสต์ไม่ค้าง)
+		end
+		task.wait(ok and 3 or math.min(2 ^ tries, 8))
+	end
+	warn("[AS] Couldn't load save:", lastErr)
+	return nil, false
+end
+
 function DataService:Load(player)
 	local data
+	local noSave = false
 	if storeOk and player.UserId > 0 then
-		local ok, res = pcall(function()
-			return store:GetAsync(key(player))
-		end)
-		if ok and type(res) == "table" then
-			data = res
-		elseif not ok then
-			warn("[AS] Couldn't load save (API Services not enabled?)", res)
+		local loaded, ok = loadLocked(player)
+		if ok then
+			data = loaded
+		else
+			-- โหลดไม่ได้ (DataStore ล่ม/ยังไม่เปิด API) -> ห้ามเซฟทับของจริงด้วยข้อมูลเปล่า
+			noSave = true
+			if not RunService:IsStudio() and player.Parent then
+				player:Kick("Couldn't load your save data right now — please rejoin in a moment. Your progress is safe.")
+				return nil
+			end
 		end
 	end
 	data = data or default()
+	data._NoSave = noSave or nil
 	for k, v in pairs(default()) do
 		if data[k] == nil then
 			data[k] = v
@@ -78,13 +128,7 @@ function DataService:Load(player)
 	if self.ctx.Services.QuestService then
 		self.ctx.Services.QuestService:OnLoad(player, data)
 	end
-	task.spawn(function()
-		-- มีรอบที่เซฟไว้ (Save Run) -> บอกแท่นเริ่มเกมว่าเล่นต่อได้จากคืนไหน
-		local run = self:LoadRun(player.UserId)
-		if run and player.Parent then
-			player:SetAttribute("SavedNight", run.Night)
-		end
-	end)
+	self:PushWorlds(player) -- รายชื่อโลกที่สร้างไว้ -> เมนู Worlds
 	task.spawn(function()
 		self:ClaimGifts(player)
 		self:CheckBadges(player)
@@ -93,6 +137,13 @@ function DataService:Load(player)
 			self:PushBoard(player)
 		end
 	end)
+	-- คลาสซีซั่น (พงไพร): เดิมซื้อพาสแล้วได้ทันที -> ตอนนี้ต้องกดรับขั้น 30 ของสายพรีเมียมเอง
+	--   ที่ได้มาแบบเก่า (ไม่ได้มาจากการกดรับ) = ถอดออก ให้ไปกดรับตามขั้น
+	for id, c in pairs(Classes.Data) do
+		if c.SeasonReward and data.Owned[id] and not (type(data.SeasonClasses) == "table" and data.SeasonClasses[id]) then
+			data.Owned[id] = nil
+		end
+	end
 	local cls = (data.Owned[data.Class] and Classes.Data[data.Class]) and data.Class or "Survivor" -- คลาสที่ถูกลบออกจากเกม -> Survivor
 	player:SetAttribute("Class", cls)
 	player:SetAttribute("ClassLevel", data.ClassLevel[cls] or 1)
@@ -240,19 +291,44 @@ function DataService:CheckBadges(player)
 	end
 end
 
-function DataService:Save(player)
+-- เซฟ (ลองซ้ำ 3 ครั้งถ้าพลาด) · release = ออกเกมแล้ว ปลดล็อกให้เซิร์ฟถัดไปโหลดได้ทันที
+--   คืน false = เซฟไม่ได้ (ล่ม / เซิร์ฟอื่นยึดล็อกไปแล้ว / โหลดไม่สำเร็จตั้งแต่แรก)
+function DataService:Save(player, release)
 	local data = profiles[player]
-	if not (data and storeOk and player.UserId > 0) then
+	if not (data and storeOk and player.UserId > 0) or data._NoSave then
 		return false
 	end
-	local ok = pcall(function()
-		store:SetAsync(key(player), data)
-	end)
-	return ok
+	for attempt = 1, 3 do
+		local stolen = false
+		local ok, err = pcall(function()
+			store:UpdateAsync(key(player), function(old)
+				local lock = type(old) == "table" and old._Lock
+				if lock and lock.Job ~= jobId() then
+					stolen = true
+					return nil -- อีกเซิร์ฟถือข้อมูลอยู่ (คนนี้ย้ายไปแล้ว) -> ไม่เขียนทับของใหม่กว่า
+				end
+				data._Lock = (not release) and { Job = jobId(), T = os.time() } or nil
+				return data
+			end)
+		end)
+		if ok then
+			if stolen then
+				warn("[AS] save skipped: profile is now owned by another server", player.UserId)
+				data._NoSave = true
+				return false
+			end
+			return true
+		end
+		warn("[AS] save failed (try " .. attempt .. "):", err)
+		if attempt < 3 then
+			task.wait(attempt * 2)
+		end
+	end
+	return false
 end
 
 ---------------------------------------------------------------- เซฟรอบ (Game Pass Save Run)
--- เก็บแยกคีย์ "runsave_<UserId>" (ตารางเดียวกับ RejoinService:SerializeRun) · ช่องเดียว เซฟใหม่ทับของเก่า
+-- โลกที่สร้างไว้ (World Pass): เก็บแยกคีย์ "runsave_<UserId>" (ตารางเดียวกับ RejoinService:SerializeRun) · โลกเดียว เซฟใหม่ทับของเก่า
 local function runKey(userId)
 	return "runsave_" .. userId
 end
@@ -280,6 +356,71 @@ function DataService:LoadRun(userId)
 		return store:GetAsync(runKey(userId))
 	end)
 	return ok and type(v) == "table" and type(v.Seed) == "number" and v or nil
+end
+
+---------------------------------------------------------------- โลกที่สร้าง (จ่ายต่อ 1 โลก · WorldService)
+-- รายชื่อโลกอยู่ในโปรไฟล์ data.Worlds[id] = { Name, Night, Created } · ตัวโลก (แมพ/แคมป์/ของ) เก็บแยกคีย์ "world_<UserId>_<id>"
+local function worldKey(userId, id)
+	return "world_" .. userId .. "_" .. id
+end
+
+-- ส่งรายชื่อโลกให้เมนู Worlds (attribute MyWorlds = JSON)
+function DataService:PushWorlds(player)
+	local data = profiles[player]
+	if not data then
+		return
+	end
+	local list = {}
+	for id, w in pairs(type(data.Worlds) == "table" and data.Worlds or {}) do
+		table.insert(list, { Id = id, Name = w.Name, Night = w.Night or 1, Created = w.Created or 0 })
+	end
+	table.sort(list, function(a, b)
+		return a.Created < b.Created
+	end)
+	player:SetAttribute("MyWorlds", game:GetService("HttpService"):JSONEncode(list))
+	player:SetAttribute("WorldCredits", data.WorldCredits or 0)
+end
+
+function DataService:SaveWorld(player, id, run)
+	local data = profiles[player]
+	if not (storeOk and data and type(data.Worlds) == "table" and data.Worlds[id]) then
+		return false
+	end
+	local ok, err = pcall(function()
+		store:SetAsync(worldKey(player.UserId, id), run)
+	end)
+	if not ok then
+		warn("[AS] save world:", err)
+		return false
+	end
+	data.Worlds[id].Night = run.Night
+	self:PushWorlds(player)
+	return true
+end
+
+function DataService:LoadWorld(userId, id)
+	if not storeOk then
+		return nil
+	end
+	local ok, v = pcall(function()
+		return store:GetAsync(worldKey(userId, id))
+	end)
+	return ok and type(v) == "table" and type(v.Seed) == "number" and v or nil
+end
+
+-- ลบโลก (ทีมตายหมดในโลก / เจ้าของกดลบ)
+function DataService:DeleteWorld(player, id)
+	local data = profiles[player]
+	if data and type(data.Worlds) == "table" then
+		data.Worlds[id] = nil
+	end
+	if storeOk then
+		pcall(function()
+			store:RemoveAsync(worldKey(player.UserId, id))
+		end)
+	end
+	self:PushWorlds(player)
+	task.spawn(self.Save, self, player)
 end
 
 ---------------------------------------------------------------- ของขวัญ Ruby (dev ส่งให้ tester)
@@ -377,8 +518,8 @@ function DataService:Start(ctx)
 		if not (data and c) or data.Owned[classId] then
 			return
 		end
-		if c.Pass then
-			return -- คลาสพาส: ปลดด้วย Game Pass เท่านั้น (MonetizationService)
+		if c.Pass or c.SeasonReward then
+			return -- คลาสพาส: ปลดด้วย Game Pass (MonetizationService) · คลาสซีซั่น: กดรับขั้นสุดท้ายของ Season Pass เท่านั้น
 		end
 		self:EnsureStock(data)
 		if not Classes.Stock(data.StockDay, data.StockRoll, player.UserId)[classId] then
@@ -476,12 +617,22 @@ function DataService:Start(ctx)
 		end
 	end)
 	Players.PlayerRemoving:Connect(function(player)
-		self:Save(player)
+		self:Save(player, true)
 		profiles[player] = nil
 	end)
+	-- เซิร์ฟปิด: เซฟทุกคนพร้อมกัน (ไม่ทีละคน) แล้วรอให้ครบก่อนปิด (Roblox ให้เวลา ~30 วิ)
 	game:BindToClose(function()
+		local left = 0
 		for _, p in ipairs(Players:GetPlayers()) do
-			self:Save(p)
+			left += 1
+			task.spawn(function()
+				pcall(self.Save, self, p, true)
+				left -= 1
+			end)
+		end
+		local t0 = os.clock()
+		while left > 0 and os.clock() - t0 < 25 do
+			task.wait(0.2)
 		end
 	end)
 	task.spawn(function()

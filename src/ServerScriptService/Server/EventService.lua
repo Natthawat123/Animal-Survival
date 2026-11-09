@@ -21,6 +21,8 @@ local Nights = require(ReplicatedStorage.Shared.Nights)
 local EventService = {}
 
 local ELEMENTS = { "Earth", "Water", "Air", "Fire" }
+-- กล่อง Airdrop: อาวุธพิเศษ 1 ชิ้น (น้ำหนัก = % รวม 100)
+local AIRDROP_WEAPONS = { { "Katana", 20 }, { "BattleAxe", 20 }, { "Crossbow", 15 }, { "WarHammer", 15 }, { "Scythe", 20 }, { "GiantSack", 10 } }
 local THAI = { Earth = "Earth", Water = "Water", Air = "Frost", Fire = "Fire" }
 local COLOR = {
 	Earth = Color3.fromRGB(120, 245, 90), Water = Color3.fromRGB(70, 210, 255),
@@ -411,7 +413,7 @@ function EventService:Meteor(token)
 			local p = spot + V(math.cos(a) * 19, 0, math.sin(a) * 19)
 			local h = groundY(p.X, p.Z, ctx.Layout:HeightAt(p.X, p.Z))
 			local g = ctx.Services.AnimalService:Spawn(pool[self.rng:NextInteger(1, #pool)], V(p.X, math.max(h, spot.Y) + 3, p.Z), {
-				Kind = "Guardian", Home = spot, Leash = 55, HealthMult = scale.Health * 1.2, DamageMult = scale.Damage, Night = night,
+				Kind = "Guardian", Home = spot, Leash = 55, SpeedMult = scale.Speed, Night = night, -- เลือด/ดาเมจคงที่ (Monster Balance)
 			})
 			if g then
 				g.Model:SetAttribute("Guardian", true)
@@ -724,10 +726,18 @@ function EventService:Supply(token)
 			give("CookedMeat", rng:NextInteger(4, 5))
 			give("Bandage", 3)
 			give("Medkit", rng:NextNumber() < 0.2 and 1 or 0)
-			give("Wood", rng:NextInteger(6, 8))
 			give("Iron", rng:NextInteger(5, 6))
 			give("Coal", rng:NextInteger(4, 5))
 			give(ESSENCE[ELEMENTS[rng:NextInteger(1, 4)]], 1)
+			-- อาวุธพิเศษ 1 ชิ้น (อาวุธกล่องระดับ 3 · น้ำหนัก = %)
+			local roll = rng:NextNumber() * 100
+			for _, e in ipairs(AIRDROP_WEAPONS) do
+				roll -= e[2]
+				if roll <= 0 then
+					give(e[1], 1)
+					break
+				end
+			end
 			ctx.Services.DataService:AddDiamonds(player, rng:NextInteger(2, 3), "Supply Chest")
 			ctx.Remotes.Get("HitFx"):FireClient(player, "Loot", { Items = got, Position = pos, Chest = true })
 			ctx.Services.LootService:ChestFx(model, pos, 2, Color3.fromRGB(255, 120, 90))

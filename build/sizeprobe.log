@@ -1,0 +1,25 @@
+﻿ERR: orError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+orOutput] [AS] rebuilt mesh collisions: 1215
+torOutput] [AS] เริ่มเทสต์อัตโนมัติ...
+orOutput] [AS] seed=443737397 map=2048
+torOutput] [AS] client ready
+orOutput] [AS] terrain 5.4s
+torOutput] [AS] world ready 6.1s props=472
+torOutput] [AS] READY
+orOutput] [AS] SIZE Earth id=MossWolf hp=70 night=1 rig=Clip skinSize=5.2 skinScale=nil height=4.99 long=5.20 wide=3.72
+orOutput] [AS] SIZE Earth id=Thornboar hp=110 night=3 rig=Clip skinSize=13.5 skinScale=nil height=4.77 long=13.50 wide=5.96
+torOutput] [AS] SIZE Earth id=StoneBear hp=260 night=8 rig=Clip skinSize=16.6 skinScale=nil height=9.39 long=16.60 wide=9.06
+torOutput] [AS] SIZE Water id=ReefCrab hp=160 night=4 rig=Clip skinSize=7.2 skinScale=nil height=3.46 long=7.20 wide=5.62
+torOutput] [AS] SIZE Water id=TideOrca hp=220 night=nil rig=Parts skinSize=11 skinScale=nil height=6.19 long=11.00 wide=5.35
+torOutput] [AS] SIZE Water id=InkOctopus hp=280 night=5 rig=Skeleton skinSize=15.4 skinScale=nil height=10.13 long=15.40 wide=6.77
+shot size_Water
+orOutput] [AS] SIZE Air id=SkyLynx hp=85 night=5 rig=Clip skinSize=7.1 skinScale=nil height=3.47 long=7.10 wide=2.37
+orOutput] [AS] SIZE Air id=StormRam hp=140 night=7 rig=Clip skinSize=11 skinScale=nil height=5.88 long=11.00 wide=6.08
+torOutput] [AS] SIZE Air id=GaleHawk hp=170 night=4 rig=Clip skinSize=19 skinScale=nil height=8.25 long=19.00 wide=8.64
+shot size_Air
+orOutput] [AS] SIZE Fire id=EmberFox hp=60 night=3 rig=Clip skinSize=6.6 skinScale=nil height=3.83 long=6.60 wide=1.96
+orOutput] [AS] SIZE Fire id=LavaSalamander hp=90 night=5 rig=Clip skinSize=9.7 skinScale=nil height=6.58 long=9.70 wide=7.12
+torOutput] [AS] SIZE Fire id=MagmaRhino hp=300 night=12 rig=Clip skinSize=16 skinScale=nil height=9.73 long=16.00 wide=7.56
+shot size_Fire
+torOutput] [TEST] DONE sizeprobe
+finished in 469s  done=True

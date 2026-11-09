@@ -6,6 +6,7 @@
 	  CLIP    ตัวหนังสือไม่พอดีกรอบ (TextFits = false)
 	  SMALL   ตัวหนังสือเล็กเกินอ่าน (px บนจอเครื่องนั้น)
 	  TOUCH   ปุ่มเล็กเกินนิ้วกด (โหมด touch)
+	  COVER   ปุ่มบังตัวหนังสือ/ตัวเลข (ในการ์ดเดียวกันก็จับ เช่น ปุ่มคราฟต์ทับจำนวนวัตถุดิบ)
 	  OVERLAP แผงทับกันเอง / ทับปุ่ม Roblox (แถบบน, ปุ่มกระโดด, จอยสติ๊ก) — ตรวจเฉพาะหน้าจอหลัก (ไม่เปิดหน้าต่าง)
 	ผล: log "[AS] UI ..." + ภาพ build/test_screenshots/ui_<เครื่อง>_<หน้าจอ>.png
 ]]
@@ -377,7 +378,7 @@ end
 local MIN_TEXT = { Phone = 9, Tablet = 10, Desktop = 10 }
 local MIN_TOUCH = 36
 local agg = {} -- key -> { n, worst, where = {} }
-local totals = { OOB = 0, CLIP = 0, CUT = 0, SMALL = 0, TOUCH = 0, OVERLAP = 0 }
+local totals = { OOB = 0, CLIP = 0, CUT = 0, SMALL = 0, TOUCH = 0, OVERLAP = 0, COVER = 0 }
 local function report(kind, key, amount, list)
 	local k = kind .. " " .. key
 	local a = agg[k]
@@ -397,6 +398,7 @@ local function audit(stateName, checkOverlap)
 	local screen = { 0, 0, V.X, V.Y }
 	local issues = {}
 	local units = {}
+	local texts, buttons = {}, {} -- COVER: ปุ่มทับตัวหนังสือ
 	local dev = cur.Dev
 	for gui, root in pairs(sims) do
 		if gui.Enabled and gui.Parent then
@@ -438,6 +440,9 @@ local function audit(stateName, checkOverlap)
 								if not c.TextFits and c.TextTransparency < 0.5 then
 									report("CLIP", nameOf(c, gui), 0, issues)
 								end
+								if c.TextTransparency < 0.5 and not c:IsA("GuiButton") then
+									table.insert(texts, { c, cr, gui })
+								end
 							end
 							if area(cr) > 1 then
 								local over = math.max(screen[1] - cr[1], screen[2] - cr[2], cr[3] - screen[3], cr[4] - screen[4])
@@ -448,6 +453,10 @@ local function audit(stateName, checkOverlap)
 									myUnit.rect = union(myUnit.rect, inter(cr, screen))
 								end
 							end
+						end
+						if c:IsA("GuiButton") and c.Name ~= "TouchHit" and area(vis) > 1 and not full
+							and (c.BackgroundTransparency < 0.9 or (c:IsA("ImageButton") and c.ImageTransparency < 0.9)) then
+							table.insert(buttons, { c, vis, gui })
 						end
 						local dead = isText(c) and (c.Text:find("เร็วๆ", 1, true) or c.Text:find("เติม Ruby", 1, true))
 						if TOUCH and not dead and c:IsA("GuiButton") and c.Active and area(vis) > 1 and c.Name ~= "TouchHit" and not full then
@@ -470,10 +479,22 @@ local function audit(stateName, checkOverlap)
 			walk(root, nil, nil, false)
 		end
 	end
+	for _, b in ipairs(buttons) do
+		for _, t in ipairs(texts) do
+			if b[3] == t[3] and not t[1]:IsDescendantOf(b[1]) and not b[1]:IsDescendantOf(t[1]) then
+				local ta = area(t[2])
+				local ia = area(inter(t[2], b[2]))
+				if ta > 20 and ia > ta * 0.25 then
+					report("COVER", nameOf(b[1], b[3]) .. " > " .. nameOf(t[1], t[3]), ia / ta * 100, issues)
+				end
+			end
+		end
+	end
 	if checkOverlap then
 		local list = {}
 		for _, u in ipairs(units) do
-			if u.rect and area(u.rect) > 16 then
+			-- เอฟเฟกต์เต็มจอที่ตั้งใจคลุมทั้งจอ (ขอบจอแดงตอนจิ้งจอกจันทรา) ไม่นับว่าทับ
+			if u.rect and area(u.rect) > 16 and not u.name:find("Vignette", 1, true) then
 				table.insert(list, u)
 			end
 		end
@@ -493,12 +514,12 @@ local function audit(stateName, checkOverlap)
 			end
 		end
 	end
-	local c = { OOB = 0, CLIP = 0, CUT = 0, SMALL = 0, TOUCH = 0, OVERLAP = 0 }
+	local c = { OOB = 0, CLIP = 0, CUT = 0, SMALL = 0, TOUCH = 0, OVERLAP = 0, COVER = 0 }
 	for _, s in ipairs(issues) do
 		local k = s:match("^(%u+)")
 		c[k] = (c[k] or 0) + 1
 	end
-	print(string.format("[AS] UI %s %s oob=%d clip=%d cut=%d small=%d touch=%d overlap=%d", cur.Name, stateName, c.OOB, c.CLIP, c.CUT, c.SMALL, c.TOUCH, c.OVERLAP))
+	print(string.format("[AS] UI %s %s oob=%d clip=%d cut=%d small=%d touch=%d overlap=%d cover=%d", cur.Name, stateName, c.OOB, c.CLIP, c.CUT, c.SMALL, c.TOUCH, c.OVERLAP, c.COVER))
 	for i = 1, math.min(#issues, 14) do
 		print("[AS] UI    " .. issues[i])
 	end
@@ -545,6 +566,12 @@ local function closeAll()
 	pcall(function()
 		Backpack.ToggleInventory(false)
 	end)
+	pcall(function()
+		local W = req("WorldUI")
+		if W then
+			W.Close()
+		end
+	end)
 	for _, n in ipairs({ "BadgeWindow", "TraderWindow", "PadPicker" }) do
 		local w = pg:FindFirstChild(n, true)
 		if w then
@@ -571,9 +598,20 @@ local LOBBY = {
 	{ "tutorial", function() Tutorial.Open() end },
 	{ "padpicker", showNamed("PadPicker") },
 	{ "classes", function() ClassShop.Open() end },
+	{ "worlds", function() local W = req("WorldUI"); if W then W.Open() end end },
 }
 local RUN = {
 	{ "craft", function() Menus.OpenCraft() end },
+	-- ท้ายรายการคราฟต์ (การ์ดสูตรใหญ่ เช่น ดาบสี่ธาตุ ป้ายวัตถุดิบหลายแถว) — เลื่อนลงล่างสุด
+	{ "craftend", function()
+		Menus.OpenCraft()
+		task.wait(0.4)
+		local w = pg:FindFirstChild("CraftWindow", true)
+		local sc = w and w:FindFirstChildWhichIsA("ScrollingFrame", true)
+		if sc then
+			sc.CanvasPosition = Vector2.new(0, 1e6)
+		end
+	end },
 	{ "trader", function() Menus.OpenTrader() end },
 	{ "map", function() MapUI.Toggle() end },
 	{ "inventory", function() Backpack.ToggleInventory(true) end },
@@ -641,7 +679,7 @@ end
 
 ---------------------------------------------------------------- สรุป
 setSim(nil)
-print(string.format("[AS] UI TOTAL oob=%d clip=%d cut=%d small=%d touch=%d overlap=%d", totals.OOB, totals.CLIP, totals.CUT, totals.SMALL, totals.TOUCH, totals.OVERLAP))
+print(string.format("[AS] UI TOTAL oob=%d clip=%d cut=%d small=%d touch=%d overlap=%d cover=%d", totals.OOB, totals.CLIP, totals.CUT, totals.SMALL, totals.TOUCH, totals.OVERLAP, totals.COVER))
 local keys = {}
 for k in pairs(agg) do
 	table.insert(keys, k)

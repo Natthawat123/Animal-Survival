@@ -115,10 +115,11 @@ function InventoryService:ToolHolders(player)
 	return list
 end
 
--- เครื่องมือต้องมีชนิดละ 1 อันเท่านั้น: ลบ Tool ที่ซ้ำ (เก็บอันที่ถืออยู่) และ Tool ที่ไม่มีในกระเป๋าแล้ว
+-- Tool ต้องเท่ากับจำนวนในกระเป๋า: เครื่องมือชนิดละ 1 · อาวุธซ้ำได้ (Items.MultiTools) = 1 Tool ต่อ 1 ชิ้น
+--   ลบ Tool ที่เกิน (เก็บอันที่ถืออยู่ก่อน) และ Tool ที่ไม่มีในกระเป๋าแล้ว -> กันของงอก
 function InventoryService:DedupeTools(player)
 	local bag = self:Get(player)
-	local keep = {}
+	local keep = {} -- [id] = จำนวน Tool ที่เก็บไว้แล้ว
 	local removed = 0
 	local holders = self:ToolHolders(player)
 	-- อันที่ถือในมือมาก่อน
@@ -129,11 +130,12 @@ function InventoryService:DedupeTools(player)
 		for _, t in ipairs(holder:GetChildren()) do
 			local id = t:IsA("Tool") and not t:GetAttribute("StructureKind") and t:GetAttribute("ItemId")
 			if id and Items.Data[id] and Items.Data[id].Category == "Tool" then
-				if keep[id] or (bag[id] or 0) <= 0 then
+				local limit = Items.IsMulti(id) and (bag[id] or 0) or math.min(1, bag[id] or 0)
+				if (keep[id] or 0) >= limit then
 					t:Destroy()
 					removed += 1
 				else
-					keep[id] = t
+					keep[id] = (keep[id] or 0) + 1
 				end
 			end
 		end
@@ -146,15 +148,24 @@ function InventoryService:GiveTool(player, id)
 	if not backpack then
 		return
 	end
+	local have = 0
 	for _, container in ipairs(self:ToolHolders(player)) do
 		for _, t in ipairs(container:GetChildren()) do
 			if t:IsA("Tool") and t:GetAttribute("ItemId") == id then
-				return
+				have += 1
 			end
 		end
 	end
-	local tool = ToolFactory.Build(id)
-	if tool then
+	local multi = Items.IsMulti(id)
+	local want = multi and math.max(1, self:Count(player, id)) or 1
+	for _ = have + 1, want do
+		local tool = ToolFactory.Build(id)
+		if not tool then
+			return
+		end
+		if multi then
+			tool:SetAttribute("Multi", true) -- client: ช่องแยกต่อชิ้น (ไม่รวมช่องตามชนิด)
+		end
 		tool.Parent = backpack
 	end
 end
@@ -254,7 +265,9 @@ function InventoryService:Add(player, id, n, silent)
 	end
 	bag[id] = (bag[id] or 0) + n
 	if Items.Data[id].Category == "Tool" then
-		bag[id] = 1
+		if not Items.IsMulti(id) then
+			bag[id] = 1
+		end
 		self:GiveTool(player, id)
 	end
 	markDirty(player)
@@ -399,19 +412,20 @@ end
 -- เทวัตถุดิบในกระสอบลงคลังแคมป์ -> คืนจำนวนชิ้น
 function InventoryService:Deposit(player)
 	local bag = self:Get(player)
-	local moved = 0
+	local moved, got = 0, {}
 	for id, n in pairs(bag) do
 		local d = Items.Data[id]
 		if d and DEPOSIT[d.Category] and n > 0 then
 			camp[id] = (camp[id] or 0) + n
 			bag[id] = nil
 			moved += n
+			got[id] = n
 		end
 	end
 	if moved > 0 then
 		markAll()
 	end
-	return moved
+	return moved, got
 end
 
 function InventoryService:MarkAll()
@@ -522,6 +536,19 @@ end
 
 -- ลบ Tool ของไอเทมนี้ออกจากเป้/มือ -> คืน true ถ้าถืออยู่ในมือ
 function InventoryService:DestroyTool(player, id)
+	if Items.IsMulti(id) then
+		-- อาวุธซ้ำได้: ลบแค่ 1 อัน (อันที่ถืออยู่ก่อน ไม่งั้นอันในเป้) · เรียกหลัง Remove 1 ชิ้นเสมอ
+		local char = player.Character
+		for _, holder in ipairs({ char, player:FindFirstChild("Backpack") }) do
+			for _, t in ipairs(holder and holder:GetChildren() or {}) do
+				if t:IsA("Tool") and t:GetAttribute("ItemId") == id then
+					t:Destroy()
+					return holder == char
+				end
+			end
+		end
+		return false
+	end
 	local holding = false
 	for _, holder in ipairs({ player:FindFirstChild("Backpack"), player.Character }) do
 		for _, t in ipairs(holder and holder:GetChildren() or {}) do
@@ -579,6 +606,30 @@ local function toolOrder(id)
 	return 4
 end
 InventoryService.ToolOrder = toolOrder
+
+-- คืนของจากเซฟ (กลับเข้าเกม): ตั้งจำนวนให้เท่ากับที่เซฟไว้พอดี
+--   (ของเริ่มต้นของอาชีพให้ไปแล้ว -> บวกเฉพาะส่วนที่ขาด · มีเกินเซฟ = ตัดออก) กันของงอกทุกครั้งที่เข้าใหม่
+function InventoryService:RestoreBag(player, saved)
+	for id, n in pairs(saved) do
+		local cur = self:Count(player, id)
+		if type(n) == "number" and n > cur and Items.Data[id] then
+			self:Add(player, id, n - cur, true)
+		end
+	end
+	local bag = self:Get(player)
+	local extra = {}
+	for id, n in pairs(bag) do
+		local want = tonumber(saved[id]) or 0
+		if n > want and not Items.Sacks[id] then
+			extra[id] = n - want
+		end
+	end
+	for id, k in pairs(extra) do
+		self:Remove(player, id, k)
+	end
+	self:DedupeTools(player)
+	markDirty(player)
+end
 
 -- คืน Tool ทุกชิ้นหลังเกิดใหม่
 function InventoryService:RestoreTools(player)

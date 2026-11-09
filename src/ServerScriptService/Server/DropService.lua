@@ -104,6 +104,52 @@ local function surfaceFor(pos, origin)
 	return T
 end
 
+-- หาจุดวางของที่ไม่ทับชิ้นอื่น (ตัดไม้/ล่าทีละหลายชิ้น หรือทิ้งของจากกระสอบรัวๆ เคยกองซ้อนกันเป็นตั้ง)
+--   ไล่วงรอบจุดกลางทีละชั้น (ในพัดฝั่งผู้เล่นถ้ามี dir) เอาจุดแรกที่ไม่ทับของบนพื้น/ที่กำลังตก และไม่ชนลำต้น/กำแพง
+--   ไม่มีจุดว่างเลย = เอาจุดที่ห่างของอื่นมากที่สุด · คืน จุด, รัศมีของชิ้นนี้
+local function freeSpot(m, pos, rng, a, dist, dir, avoid)
+	local ext = m:GetExtentsSize()
+	local myR = math.max(ext.X, ext.Z) * 0.45 + 0.4
+	local others = {}
+	for om, od in pairs(drops) do
+		local op = od.Land or (om.PrimaryPart and om.PrimaryPart.Position)
+		if om ~= m and op and ((op - pos) * V(1, 0, 1)).Magnitude < dist + 24 then
+			table.insert(others, { op, od.R or 1 })
+		end
+	end
+	local function clearance(p)
+		local c = math.huge
+		for _, o in ipairs(others) do
+			c = math.min(c, ((o[1] - p) * V(1, 0, 1)).Magnitude - o[2])
+		end
+		return c - myR
+	end
+	local base = dir and math.atan2(dir.Z, dir.X) or a
+	local fan = dir and math.rad(75) or math.pi
+	local land = pos + V(math.cos(a) * dist, 0, math.sin(a) * dist)
+	local bestP, bestC = nil, -math.huge
+	for ringI = 0, 8 do
+		local r = dist + ringI * (myR * 1.6)
+		local n = r < 0.1 and 1 or math.max(3, math.floor((fan * 2 * r) / (myR * 2.2)))
+		local start = rng:NextInteger(0, n - 1) -- เริ่มมุมสุ่ม (ไม่ไปกองที่ขอบพัดก่อน)
+		for kk = 0, n - 1 do
+			local k = (kk + start) % n
+			local t = n == 1 and 0.5 or k / (n - 1)
+			local aa = base - fan + t * fan * 2 + (rng:NextNumber() - 0.5) * 0.15
+			local cand = pos + V(math.cos(aa) * r, 0, math.sin(aa) * r)
+			if not blocked(cand, avoid) then
+				local c = clearance(cand)
+				if c >= 0 then
+					return cand, myR
+				elseif c > bestC then
+					bestP, bestC = cand, c
+				end
+			end
+		end
+	end
+	return bestP or land, myR
+end
+
 -- ตรึงของลงพื้น: ถ้าวางอยู่บนพื้นดีแล้วไม่ขยับ (ท่าล้มตามธรรมชาติ) · ลอย/จมดิน/ทะลุโลก -> วางใหม่บนผิวพื้น
 local function place(m, origin, force)
 	local root = m.PrimaryPart
@@ -355,6 +401,106 @@ local function emberCrystal(m)
 	return root
 end
 
+-- จัดโมเดล tmp ให้เป็นของตกพื้น: ย่อให้ด้านยาวสุด <= maxLen · flat = วางนอน (ด้านบางสุดชี้ขึ้น) · คืน Root ใส (กล่องชนพื้น)
+local function placeLook(m, tmp, maxLen, flat)
+	for _, d in ipairs(tmp:GetDescendants()) do
+		if d:IsA("Script") or d:IsA("LocalScript") or d:IsA("Sound") then
+			d:Destroy()
+		end
+	end
+	-- ชิ้นล่องหน (กล่องชน/จุดยึดในโมเดล) ทำให้กรอบใหญ่เกินจริง -> ของย่อจนเล็กจิ๋ว: ตัดทิ้งถ้าไม่มีเอฟเฟกต์ติดอยู่
+	local visible = 0
+	for _, p in ipairs(tmp:GetDescendants()) do
+		if p:IsA("BasePart") and p.Transparency < 0.99 then
+			visible += 1
+		end
+	end
+	if visible > 0 then
+		for _, p in ipairs(tmp:GetDescendants()) do
+			if p:IsA("BasePart") and p.Transparency >= 0.99 and not p:FindFirstChildWhichIsA("ParticleEmitter", true)
+				and not p:FindFirstChildWhichIsA("Fire", true) and not p:FindFirstChildWhichIsA("Light", true) and not p:FindFirstChildWhichIsA("Attachment")
+				and not p:FindFirstChildWhichIsA("BasePart", true) then
+				p:Destroy()
+			end
+		end
+	end
+	local _, size = tmp:GetBoundingBox()
+	local long = math.max(size.X, size.Y, size.Z)
+	if long <= 0.05 then
+		tmp:Destroy()
+		return nil
+	end
+	if long > maxLen then
+		pcall(function()
+			tmp:ScaleTo(tmp:GetScale() * maxLen / long)
+		end)
+	end
+	local cf
+	cf, size = tmp:GetBoundingBox()
+	local rot, box = CFrame.identity, size
+	if flat then
+		if size.X <= size.Y and size.X <= size.Z then
+			rot, box = ANG(0, 0, math.pi / 2), V(size.Y, size.X, size.Z)
+		elseif size.Z <= size.Y then
+			rot, box = ANG(math.pi / 2, 0, 0), V(size.X, size.Z, size.Y)
+		end
+	end
+	local to = rot * cf:Inverse()
+	for _, p in ipairs(tmp:GetDescendants()) do
+		if p:IsA("BasePart") then
+			p.CFrame = to * p.CFrame
+			p.Anchored, p.CanCollide, p.CanTouch, p.CanQuery, p.Massless = false, false, false, false, true
+			if p.Name == "Handle" then
+				p.Name = "Grip"
+			end
+		end
+	end
+	for _, c in ipairs(tmp:GetChildren()) do
+		c.Parent = m
+	end
+	tmp:Destroy()
+	local root = piece(m, V(math.max(box.X, 0.4), math.max(box.Y, 0.4), math.max(box.Z, 0.4)), C(255, 255, 255))
+	root.Transparency = 1
+	return root
+end
+
+-- อาวุธ/เครื่องมือ: ใช้โมเดลเดียวกับตอนถือ (ToolFactory) วางนอนบนพื้น · เดิมไม่มีโมเดลดรอป = กล่องผ้าสีเข้ม (ดูเหมือนหนังสัตว์)
+local function toolLook(m, id)
+	local ToolFactory = require(script.Parent.ToolFactory)
+	local ok, tool = pcall(ToolFactory.Build, id)
+	if not ok or not tool then
+		return nil
+	end
+	local tmp = Instance.new("Model")
+	for _, c in ipairs(tool:GetChildren()) do
+		c.Parent = tmp
+	end
+	tool:Destroy()
+	return placeLook(m, tmp, 4, true)
+end
+
+-- เกราะ: โมเดลเกราะแข็งชุดเดียวกับที่สวม (Assets.Armor/<id>) ตั้งตรงบนพื้น
+local function armorLook(m, id)
+	local assets = ReplicatedStorage:FindFirstChild("Assets")
+	local src = assets and assets:FindFirstChild("Armor") and assets.Armor:FindFirstChild(id)
+	if not src then
+		return nil
+	end
+	local tmp = Instance.new("Model")
+	for _, c in ipairs(src:GetChildren()) do
+		c:Clone().Parent = tmp
+	end
+	-- ย่อตามขนาดส่วนที่มองเห็นจริง (ArmorModels.FIT.Ref) · กรอบโมเดลบางชิ้นใหญ่เกินตัวเกราะ (เกราะเหล็กเคยเล็กจิ๋ว)
+	local fit = require(ReplicatedStorage.Shared.ArmorModels).FIT[id]
+	if fit then
+		pcall(function()
+			tmp:ScaleTo(tmp:GetScale() * 2.3 / math.max(fit.Ref.X, fit.Ref.Y, fit.Ref.Z))
+		end)
+		return placeLook(m, tmp, 4, false)
+	end
+	return placeLook(m, tmp, 2.4, false)
+end
+
 local function build(id, n)
 	local item = Items.Data[id]
 	local m = Instance.new("Model")
@@ -365,6 +511,16 @@ local function build(id, n)
 	local root
 	if ItemModels.Has(id) then
 		root = storeLook(m, id)
+		m:SetAttribute("LookSource", "Store")
+	elseif Items.Tools[id] or Items.Sacks[id] then
+		root = toolLook(m, id)
+		m:SetAttribute("LookSource", root and "Tool" or nil)
+	elseif item.Category == "Armor" then
+		root = armorLook(m, id)
+		m:SetAttribute("LookSource", root and "Armor" or nil)
+	end
+	if root then
+		-- (ได้โมเดลแล้ว)
 	elseif id == "EmberShard" then
 		root = emberCrystal(m)
 		local l = Instance.new("PointLight")
@@ -376,6 +532,7 @@ local function build(id, n)
 		root = gem(m, item.Color or C(255, 255, 255))
 	else
 		root = bundle(m, item.Color or C(200, 190, 170))
+		m:SetAttribute("LookSource", "Bundle") -- กล่องผ้าสำรอง (ยังไม่มีโมเดล)
 	end
 	essenceAura(root, id)
 	root.Name = "Root"
@@ -507,7 +664,8 @@ function DropService:Spawn(id, n, pos, opts)
 		m.Parent = folder
 		-- เซิร์ฟเวอร์คิดฟิสิกส์เอง: ถ้าให้เครื่องผู้เล่นคิด ของจะตกทะลุพื้นที่ยังสตรีมมาไม่ถึง
 		pcall(root.SetNetworkOwner, root, nil)
-		root.AssemblyLinearVelocity = opts.Velocity or V(math.cos(a) * 7, 16, math.sin(a) * 7)
+		local fling = opts.Fling or 7 -- แรงกระเด็นด้านข้าง (ResourceService ใช้ค่าต่ำ ให้ของแต่ละชนิดกองแยกกัน ไม่ปนกัน)
+		root.AssemblyLinearVelocity = opts.Velocity or V(math.cos(a) * fling, 16, math.sin(a) * fling)
 		root.AssemblyAngularVelocity = V(rng:NextNumber() * 4, rng:NextNumber() * 4, rng:NextNumber() * 4)
 		drops[m] = { Id = id, Count = c, Born = os.clock(), By = opts.By }
 		table.insert(order, m)
@@ -524,6 +682,7 @@ function DropService:Spawn(id, n, pos, opts)
 		-- โยนเข้าเป้า (กองไฟ/เครื่องบด): ลอยเป็นเส้นโค้งด้วยสคริปต์ ไม่ใช้ฟิสิกส์
 		--   (เดิมใช้ความเร็ว -> ชนตัวผู้เล่น/กระสอบในมือ/ท่อนฟืนแล้วพุ่งขึ้นฟ้า)
 		if opts.Arc then
+			m:SetAttribute("Thrown", true) -- ของที่โยนเข้ากองไฟ/เครื่องบด: client ไม่เลือกเป็นของโฟกัส (ไม่แย่งปุ่ม E/R ของกองไฟ)
 			root.Anchored = true
 			root.CanCollide = false
 			root.AssemblyLinearVelocity = Vector3.zero
@@ -553,7 +712,11 @@ function DropService:Spawn(id, n, pos, opts)
 			-- วางลงพื้นทันที ไม่ปล่อยฟิสิกส์ (ของที่ผู้เล่นทิ้ง: ไม่ชนตัว/กระสอบแล้วกระเด็น)
 			root.AssemblyLinearVelocity = Vector3.zero
 			root.AssemblyAngularVelocity = Vector3.zero
-			place(m, pos + V(0, 1, 0), true)
+			-- วางตรงหน้าตัว ถ้ามีของวางอยู่แล้วขยับไปข้างๆ (ไม่ซ้อนทับกัน)
+			local land, myR = freeSpot(m, pos, rng, a, 0, nil, nil)
+			m:PivotTo(CF(land + V(0, 2.2, 0)) * ANG(0, rng:NextNumber() * 6.28, 0))
+			place(m, land + V(0, 1, 0), true)
+			drops[m].Land, drops[m].R = m.PrimaryPart and m.PrimaryPart.Position or land, myR
 		elseif opts.Velocity then
 			settle(m, pos + V(0, 1, 0))
 		else
@@ -570,17 +733,10 @@ function DropService:Spawn(id, n, pos, opts)
 				a = base + (rng:NextNumber() * 2 - 1) * math.rad(70)
 			end
 			local dist = spread * (0.6 + rng:NextNumber() * 0.8)
-			local land = pos + V(math.cos(a) * dist, 0, math.sin(a) * dist)
-			-- จุดตกทับของที่ชนได้ (ลำต้น/หิน/กำแพง) -> เลื่อนออกไปตามทิศจนพ้น
-			local out = opts.Dir or V(math.cos(a), 0, math.sin(a))
-			for _ = 1, 8 do
-				if not blocked(land, opts.Avoid) then
-					break
-				end
-				land += out * 1.2
-			end
+			local land, myR = freeSpot(m, pos, rng, a, dist, opts.Dir, opts.Avoid)
 			local hit = surfaceFor(land + V(0, 3, 0), pos + V(0, 1, 0))
 			local to = hit and (hit.Position + V(0, root.Size.Y / 2, 0)) or land
+			drops[m].Land, drops[m].R = to, myR
 			local spin = rng:NextNumber() * 6.28
 			local dur = 0.45
 			task.spawn(function()
@@ -647,13 +803,15 @@ function DropService:Pickup(player, m)
 	local inv = self.ctx.Services.InventoryService
 	-- ยา/อาวุธ/เกราะ/สิ่งก่อสร้าง เข้าแถบเครื่องมือเลย (ไม่ต้องถือกระสอบ ไม่กินที่กระสอบ — กระสอบเต็มก็เก็บได้)
 	if not Items.Bulk(d.Id) then
-		if Items.Data[d.Id].Category == "Tool" and inv:Count(player, d.Id) > 0 then
+		if Items.Data[d.Id].Category == "Tool" and not Items.IsMulti(d.Id) and inv:Count(player, d.Id) > 0 then
 			-- อาวุธมีได้ชิ้นเดียวต่อชนิด: ไม่เก็บซ้ำ (ไม่งั้นชิ้นที่เก็บหายไปเฉยๆ)
 			self.ctx.Notify(player, "You already have " .. Items.DisplayName(d.Id) .. "", "Info")
 			return
 		end
-		inv:Add(player, d.Id, d.Count)
+		-- ลบของบนพื้นก่อนแล้วค่อยใส่กระเป๋า: กดเก็บรัวระหว่างสร้าง Tool = ไม่ได้ซ้ำ (กันของงอก)
+		local id, count = d.Id, d.Count
 		self:Remove(m)
+		inv:Add(player, id, count)
 		return
 	end
 	if not inv:HoldingSack(player) then
@@ -756,10 +914,16 @@ function DropService:DropFromPlayer(player, id, n)
 end
 
 -- [Backspace] ทิ้งของในมือ: ถือกระสอบ = ทิ้งชิ้นล่าสุดในกระสอบ · ถืออาวุธ/เครื่องมือ = ทิ้งทั้งชิ้น · สิ่งปลูกสร้าง/ยา = ทิ้งทีละ 1
-function DropService:DropHeld(player)
+-- pick = Tool ที่ลากออกจากแถบ (มือถือ/คอม: ลากไปปล่อยนอกแถบ = ทิ้งชิ้นนั้น · ไม่ต้องถือในมือ)
+function DropService:DropHeld(player, pick)
 	local inv = self.ctx.Services.InventoryService
 	local char = player.Character
 	local tool = char and char:FindFirstChildOfClass("Tool")
+	-- ของที่ลากมาต้องเป็น Tool ของผู้เล่นคนนี้จริง (อยู่ในมือหรือในเป้ของเขา) กันยิงรีโมตทิ้งของคนอื่น
+	if typeof(pick) == "Instance" and pick:IsA("Tool") and pick.Parent
+		and (pick.Parent == char or (pick.Parent:IsA("Backpack") and pick.Parent.Parent == player)) then
+		tool = pick
+	end
 	if not tool or not player:GetAttribute("InRun") then
 		return
 	end
@@ -775,12 +939,16 @@ function DropService:DropHeld(player)
 		return
 	end
 	if Items.Data[id].Category == "Tool" then
-		inv:DestroyTool(player, id)
+		if tool:GetAttribute("ItemId") == id and Items.IsMulti(id) then
+			tool:Destroy() -- อาวุธซ้ำได้: ลบชิ้นที่เลือกทิ้งพอดี (ไม่ใช่ชิ้นอื่น)
+		else
+			inv:DestroyTool(player, id)
+		end
 	else
 		inv:SyncStructureTools(player)
 	end
 	local cf = char:GetPivot()
-	self:Spawn(id, 1, cf.Position + cf.LookVector * 5, { Spread = 0.5, Place = true })
+	self:Spawn(id, 1, cf.Position + cf.LookVector * 5, { Spread = 0.5, Place = true, By = player })
 end
 
 function DropService:Init(ctx)
@@ -800,9 +968,9 @@ function DropService:Start(ctx)
 			self:Pickup(player, m)
 		end
 	end)
-	ctx.Remotes.Get("DropHeld").OnServerEvent:Connect(function(player)
+	ctx.Remotes.Get("DropHeld").OnServerEvent:Connect(function(player, pick)
 		if not ctx.Services.SurvivalService:IsIncapacitated(player) then
-			self:DropHeld(player)
+			self:DropHeld(player, pick)
 		end
 	end)
 	ctx.Remotes.Get("DropItem").OnServerEvent:Connect(function(player, id, n)

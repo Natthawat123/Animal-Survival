@@ -1539,7 +1539,7 @@
 1538	Heal 2% max HP after every monster kill
 1539	Max HP +30 · Regen 0.8 HP/sec · Skill: Nature's Sanctuary — a grove that heals the team and slows monsters for 12s · Cooldown 100s
 1540	Sanctuary
-1541	Skill: summon 5 bats (200 HP) that attack monsters · Cooldown 120s · Using it again replaces the old swarm
+1541	Skill: summon 5 bats (200 HP) that attack monsters (half damage to bosses) · Cooldown 120s · Using it again replaces the old swarm
 1542	Swarm
 1543	Vampire's signature scythe · Huge reach, sweeps groups of enemies
 1544	Verdant Staff
@@ -1552,8 +1552,8 @@
 1551	Regen 3% HP every 2 seconds
 1552	Run 30% faster
 1553	Shadow Veil
-1554	Skill: a dark meteor crashes from the sky, heavy damage in a wide area and leaves a dark fire zone for 10s (burns 2% HP/sec) · Cooldown 120s
-1555	Skill: stun nearby monsters for 4s (bosses 2s) and poison them — lose 1% HP/sec for 15s · Cooldown 150s
+1554	Skill: a dark meteor crashes from the sky, heavy damage in a wide area and leaves a dark fire zone for 10s (burns 2% HP/sec, bosses 5% total) · Cooldown 120s
+1555	Skill: stun nearby monsters for 4s (bosses 2s) and poison them — lose 1% HP/sec for 15s (bosses 4% total) · Cooldown 150s
 1556	Skill: turn invisible and run 50% faster for 4s (breaks when you deal damage) · Cooldown 30s
 1557	Thorn Bind
 1558	Wild Stride
@@ -1588,3 +1588,21 @@
 1587	With Save Run, your run is saved every dawn. Next time the whole team falls, continue from the last saved night instead of starting over at Night 1. Also available any time in the Shop.
 1588	Your run is saved every dawn and when you leave. If the whole team falls, continue from the last saved night with the Continue button on the start pad.
 1589	🛏️ %s used a bed — days now count x%d!
+1590	📍 Click the map to place a marker
+1591	📍 Reached your marker
+1592	📍 Your marker is close by
+1593	Very close! %dm
+1594	Marker %dm
+1595	Ping
+1596	Map
+1597	Attack
+1598	Chop
+1599	Mine
+1600	Pick Up
+1601	Berry Patch %d/%d
+1602	Salvage held weapon (get its materials back)
+1603	Hold a weapon in your hand to salvage it (gives back its crafting materials)
+1604	🔧 Weapon salvaged — its materials went to the camp storage
+1605	Camp %dm
+1606	⏳ Fighting at %s — daylight +%d minute
+1607	a boss lair

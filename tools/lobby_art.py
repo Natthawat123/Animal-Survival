@@ -571,12 +571,9 @@ def build():
             b = math.radians(ad + rng.uniform(-6, 6))
             x, z = gx + math.cos(b) * r, gz + math.sin(b) * r
             flower_patch(x, z, rng.uniform(1.0, 1.3)) if rng.random() < 0.6 else glow_plant((x, 1.0, z), rng.uniform(1.0, 1.4))
-    # ป้ายหินกลางลาน + โคมคริสตัลรอบลาน
-    block((5.6, 3.2, 1.0), T(gx - 6, 3.2, gz) @ RY(math.pi / 2), (86, 94, 90), "Slate", name="GroveSign")
-    block((6.4, 1.2, 1.8), T(gx - 6, 1.6, gz) @ RY(math.pi / 2), C_STONE_D, "Slate")
-    for k in (1, 2, 4, 5):
-        a = k / 6 * math.tau
-        crystal_lamp(gx + math.cos(a) * 20.5, gz + math.sin(a) * 20.5, 5.5)
+    # (เอาป้ายกลางลาน + โคมคริสตัล 4 ต้นรอบลานออกแล้ว) — ยังสุ่มเลขทิ้งเท่าเดิม กันของตกแต่งชิ้นอื่นขยับตำแหน่ง
+    for _ in range(4):
+        jit(rng.choice(C_STONE), 6)
     entrance_gate(FZ1)
     for x, z in ((12, -26), (-12, -26)):  # เสาไฟแค่หน้าร้านคลาส (หน้าแท่น = 4 ต้นรอบลานประตูด้านบน)
         crystal_lamp(x, z)

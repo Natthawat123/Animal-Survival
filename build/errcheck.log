@@ -1,0 +1,23 @@
+ERR: torError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+orOutput] [AS] ???????????????????...
+orOutput] [AS] seed=599905851 map=2048
+rOutput] [AS] client ready
+orOutput] [AS] terrain 9.3s
+orOutput] [AS] world ready 10.3s props=479
+orOutput] [AS] READY
+shot geyser_near_0
+orOutput] [AS] GEYSER round=1 shot=1 maxMeshScale=0
+shot geyser_near_1
+orOutput] [AS] GEYSER round=1 shot=2 maxMeshScale=0
+shot geyser_near_2
+orOutput] [AS] GEYSER round=1 shot=3 maxMeshScale=0
+shot geyser_near_3
+shot geyser_far_0
+orOutput] [AS] GEYSER round=2 shot=1 maxMeshScale=0
+shot geyser_far_1
+orOutput] [AS] GEYSER round=2 shot=2 maxMeshScale=0
+shot geyser_far_2
+orOutput] [AS] GEYSER round=2 shot=3 maxMeshScale=0
+shot geyser_far_3
+orOutput] [TEST] DONE geyserprobe
+finished in 64s  done=True

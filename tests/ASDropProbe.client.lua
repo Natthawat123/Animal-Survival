@@ -5,6 +5,72 @@ local Workspace = game:GetService("Workspace")
 if not ReplicatedStorage:FindFirstChild("ASDropProbe") then
 	return
 end
+local dm = ReplicatedStorage:FindFirstChild("ASDropMode")
+if dm and dm.Value == "overlap" then
+	return -- โหมดวัดของทับกัน: เซิร์ฟเวอร์ทำเองทั้งหมด
+end
+if dm and dm.Value == "ride" then
+	-- กล้องข้างตัวสัตว์ ให้เห็นระดับน้ำเทียบหัว
+	local RunService = game:GetService("RunService")
+	local cam = workspace.CurrentCamera
+	RunService.RenderStepped:Connect(function()
+		local c = Players.LocalPlayer.Character
+		local r = c and c:FindFirstChild("HumanoidRootPart")
+		if r and Players.LocalPlayer:GetAttribute("Riding") then
+			cam.CameraType = Enum.CameraType.Scriptable
+			cam.CFrame = CFrame.lookAt(r.Position + r.CFrame.RightVector * 22 + Vector3.new(0, 3, 0), r.Position - Vector3.new(0, 3, 0))
+		else
+			cam.CameraType = Enum.CameraType.Custom
+		end
+	end)
+	return
+end
+if dm and dm.Value == "world" then
+	-- ฟัง log ของเซิร์ฟเวอร์ไม่ได้ -> ดูสถานะเอง: มีห้อง = เปิดเมนูถ่าย · WipeAt = ถ่ายหน้าต่างชุบ
+	local WorldUI = require(script.Parent:FindFirstChild("WorldUI") or Players.LocalPlayer.PlayerScripts:WaitForChild("Client"):WaitForChild("WorldUI"))
+	local UIKitP = require(Players.LocalPlayer.PlayerScripts:WaitForChild("Client"):WaitForChild("UIKit"))
+	local function openClean()
+		-- ปิดหน้าต่างที่เด้งเองตอนเข้าเกม (ล็อกอินรายวัน ฯลฯ) ก่อนเปิดเมนู Worlds
+		for _ = 1, 6 do
+			if UIKitP.AnyWindowOpen() then
+				UIKitP.CloseTopWindow()
+			end
+		end
+		WorldUI.Open()
+		task.delay(0.5, function()
+			local win = Players.LocalPlayer.PlayerGui:FindFirstChild("WorldsWindow", true)
+			local texts = {}
+			for _, d in ipairs(win and win:GetDescendants() or {}) do
+				if (d:IsA("TextButton") or d:IsA("TextLabel") or d:IsA("TextBox")) and d.Visible and (d.Text ~= "" or d:IsA("TextBox")) then
+					table.insert(texts, d.ClassName:sub(5, 7) .. ":" .. (d:IsA("TextBox") and ("[" .. d.PlaceholderText .. "]") or d.Text))
+				end
+			end
+			print("[AS] WORLDPROBE ui visible=" .. tostring(win and win.Visible) .. " | " .. table.concat(texts, " | "))
+		end)
+	end
+	local state = ReplicatedStorage:WaitForChild("GameState")
+	local me = Players.LocalPlayer
+	me:GetAttributeChangedSignal("WorldRoom"):Wait()
+	task.wait(20)
+	openClean()
+	task.wait(1.5)
+	print("[SHOT] world_room")
+	me:GetAttributeChangedSignal("WorldRoom"):Wait()
+	task.wait(1.5)
+	openClean()
+	task.wait(1.5)
+	print("[SHOT] world_menu")
+	task.wait(3) -- ภาพจากปลั๊กอินช้า: ปิดหน้าต่างหลังถ่ายเสร็จ
+	WorldUI.OpenCreate()
+	task.wait(1.5)
+	print("[SHOT] world_setup")
+	task.wait(3)
+	WorldUI.Close()
+	state:GetAttributeChangedSignal("WipeAt"):Wait()
+	task.wait(1.5)
+	print("[SHOT] world_wipe")
+	return
+end
 local player = Players.LocalPlayer
 local state = ReplicatedStorage:WaitForChild("GameState")
 while not state:GetAttribute("Ready") do

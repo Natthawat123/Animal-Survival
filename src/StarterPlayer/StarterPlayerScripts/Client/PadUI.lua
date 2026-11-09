@@ -21,9 +21,14 @@ function PadUI.Init()
 	local gui = UIKit.Screen("PadUI", 30)
 
 	-------------------------------------------------- หน้าต่างเลือกจำนวน (กลางจอ) · ธีมกรอบไม้
-	local current = { Zone = nil, Picked = {} }
+	local current = { Zone = nil, PickedAt = nil, Dismissed = false }
+	local leaveGroup -- ตั้งค่าด้านล่าง (ปุ่มออกจากกลุ่ม)
 	local function close()
 		current.PickerFrame.Visible = false
+		-- ปิดหน้าต่างเองโดยยังไม่เลือก = ไม่เด้งซ้ำ (เลือกได้จากปุ่ม "เลือก" บนแถบ หรือกด "ออกจากกลุ่ม")
+		if not current.PickedAt then
+			current.Dismissed = true
+		end
 	end
 	local win = WoodKit.Window(gui, { Name = "PadPicker", Size = Vector2.new(780, 330), Title = "Choose Team Size", TitleWidth = 470, BannerHeight = 120, OnClose = close })
 	local picker = win.Frame
@@ -45,7 +50,7 @@ function PadUI.Init()
 		local b = WoodKit.Button(grid, "Parch", { Text = n == 1 and "1 (Solo)" or (n .. " players"), TextSize = 26, LayoutOrder = n }, function()
 			if current.Zone then
 				Remotes.Get("PadSize"):FireServer(current.Zone:GetAttribute("PadIndex"), n)
-				current.Picked[current.Zone] = true
+				current.PickedAt = os.clock()
 			end
 			close() -- เลือกแล้วปิดทันที ไปรอคน/รอเวลาที่แถบด้านบน
 		end)
@@ -81,11 +86,13 @@ function PadUI.Init()
 
 	-- กดออก: หยุดคุมวงทันที (ไม่งั้นระหว่างรอ attribute Pad ถูกลบ วงจะดึงตัวกลับเข้าแท่น แล้วถูกจับเข้ากลุ่มใหม่)
 	local leftAt = -10
-	leave = WoodKit.Button(bar, "Red", { Size = UDim2.fromOffset(230, 56), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 1, 10), Text = "Leave Group", TextSize = 26, ZIndex = 3 }, function()
+	leaveGroup = function()
 		leftAt = os.clock()
 		bar.Visible = false
+		picker.Visible = false
 		Remotes.Get("LeavePad"):FireServer()
-	end)
+	end
+	leave = WoodKit.Button(bar, "Red", { Size = UDim2.fromOffset(230, 56), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 1, 10), Text = "Leave Group", TextSize = 26, ZIndex = 3 }, leaveGroup)
 
 	-- เล่นต่อจากเซฟ (หัวหน้าแท่นที่มี Save Run และมีรอบที่เซฟไว้)
 	local resumeBtn = WoodKit.Button(bar, "Green", { Size = UDim2.fromOffset(230, 56), AnchorPoint = Vector2.new(0, 0), Position = UDim2.new(0.5, 125, 1, 10), Text = "", TextSize = 22, ZIndex = 3, Visible = false }, function()
@@ -128,21 +135,27 @@ function PadUI.Init()
 		local zone = pad and lobby and lobby:FindFirstChild("MatchBox" .. pad, true) or nil
 		if zone ~= current.Zone then
 			current.Zone = zone
+			current.PickedAt = nil
+			current.Dismissed = false
 			bar.Visible = zone ~= nil
 			picker.Visible = false
 			if zone then
 				UIKit.Pop(bar)
-				-- หัวหน้าแท่นที่ยังไม่เคยเลือก: เปิดหน้าต่างเลือกให้เลย
-				task.delay(0.25, function()
-					if current.Zone == zone and zone:GetAttribute("Host") == player.UserId and not current.Picked[zone] then
-						picker.Visible = true
-						UIKit.Pop(picker)
-					end
-				end)
 			end
 		end
 		if not zone then
 			return
+		end
+		-- หัวหน้าแท่นที่ยังไม่เลือกจำนวน (เช็กจากเซิร์ฟเวอร์ทุกเฟรม ไม่จำค่าเก่าของรอบก่อน): เปิดหน้าต่างเลือกเสมอ
+		--   เพิ่งกดเลือก = รอเซิร์ฟเวอร์ตอบ 2 วิ ไม่เด้งซ้ำ
+		if current.PickedAt and zone:GetAttribute("Picked") == true then
+			current.PickedAt = nil
+		end
+		if not picker.Visible and not current.Dismissed and zone:GetAttribute("Host") == player.UserId and zone:GetAttribute("Picked") ~= true
+			and os.clock() - (current.PickedAt or -99) > 2 and os.clock() - leftAt > 2 then
+			current.PickedAt = nil
+			picker.Visible = true
+			UIKit.Pop(picker)
 		end
 		-- เปิดหน้าต่างเลือกจำนวนอยู่ = ซ่อนแถบสถานะ+ปุ่มออก (จอมือถือเตี้ย สองอันซ้อนทับกันจนอ่านไม่ออก)
 		local showBar = not picker.Visible and os.clock() - leftAt > 1.5
@@ -164,7 +177,7 @@ function PadUI.Init()
 		change.Visible = host
 		-- เล่นต่อจากเซฟ
 		local resumeNight = zone:GetAttribute("ResumeNight")
-		local canResume = host and player:GetAttribute("Pass_SaveRun") == true and player:GetAttribute("SavedNight") ~= nil
+		local canResume = false -- แท่นธรรมดาไม่มีเล่นต่อจากเซฟแล้ว (โลกที่เซฟไว้เปิดจากเมนู Worlds)
 		resumeBtn.Visible = canResume
 		if canResume then
 			local t = resumeNight and ("✔ Continue · Night " .. resumeNight) or ("Continue · Night " .. tostring(player:GetAttribute("SavedNight")))

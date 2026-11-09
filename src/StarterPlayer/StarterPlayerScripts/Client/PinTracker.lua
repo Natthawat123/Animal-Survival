@@ -13,6 +13,7 @@ local Recipes = require(Shared.Recipes)
 local UIKit = require(script.Parent.UIKit)
 local ClientSettings = require(script.Parent.ClientSettings)
 local ItemTooltip = require(script.Parent.ItemTooltip)
+local ItemIcon = require(script.Parent.ItemIcon)
 
 local PinTracker = {}
 local player = Players.LocalPlayer
@@ -118,8 +119,10 @@ function PinTracker.Refresh()
 		local have = lastHave(cn[1])
 		local ok = have >= cn[2]
 		can = can and ok
-		local row = UIKit.Text(ui.Rows, {
-			Size = UDim2.new(1, 0, 0, 20), LayoutOrder = i, TextSize = 14, Font = UIKit.Fonts.Bold, TextColor3 = ok and GOOD or BAD,
+		local row = UIKit.Frame(ui.Rows, { Size = UDim2.new(1, 0, 0, 22), LayoutOrder = i, BackgroundTransparency = 1 })
+		ItemIcon.Make(row, cn[1], { Size = UDim2.fromOffset(22, 22) })
+		UIKit.Text(row, {
+			Size = UDim2.new(1, -26, 1, 0), Position = UDim2.fromOffset(26, 0), TextSize = 14, Font = UIKit.Fonts.Bold, TextColor3 = ok and GOOD or BAD,
 			Text = string.format("%s %s  %d/%d", ok and "✔" or "•", Items.DisplayName(cn[1]), have, cn[2]),
 		})
 		ItemTooltip.Attach(row, cn[1])

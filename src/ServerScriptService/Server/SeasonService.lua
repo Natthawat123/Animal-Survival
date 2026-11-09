@@ -128,7 +128,7 @@ function SeasonService:GrantCosmetics(player, reward)
 	end
 end
 
--- คลาส (สูงสุด 4 ดาว) · มีอยู่แล้ว -> Ruby ชดเชยครึ่งราคา
+-- คลาสจากพาส · มีอยู่แล้ว -> Ruby ชดเชยครึ่งราคา (คลาสพาสราคา 0 = ไม่ชดเชย)
 function SeasonService:GrantClass(player, classId, reason)
 	local data = ds(self):Get(player)
 	local c = Classes.Data[classId]
@@ -138,11 +138,16 @@ function SeasonService:GrantClass(player, classId, reason)
 	data.Owned = type(data.Owned) == "table" and data.Owned or {}
 	if data.Owned[classId] then
 		local refund = Quests.ClassRefund(classId)
+		if refund <= 0 then
+			return -- คลาสพาส (ราคา 0): มีแล้วก็ไม่ชดเชย (Ruby ของขั้นนั้นได้อยู่แล้ว)
+		end
 		self.ctx.Notify(player, string.format("You already have the %s class — got %d Ruby instead", c.Thai, refund), "Reward")
 		ds(self):AddDiamonds(player, refund, reason)
 		return
 	end
 	data.Owned[classId] = true
+	data.SeasonClasses = type(data.SeasonClasses) == "table" and data.SeasonClasses or {}
+	data.SeasonClasses[classId] = true -- จำว่าได้จากการกดรับ (DataService:Load ถอดคลาสซีซั่นที่ไม่ได้มาทางนี้)
 	self.ctx.Notify(player, c.Icon .. " Unlocked class " .. c.Thai .. " from the Season Pass!", "Reward")
 	ds(self):Push(player)
 end

@@ -1,0 +1,77 @@
+﻿ERR: torError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+torOutput] [AS] rebuilt mesh collisions: 1215
+torOutput] [AS] เริ่มเทสต์อัตโนมัติ...
+torOutput] [AS] seed=793030960 map=6144
+torOutput] [AS] client ready
+torOutput] [AS] terrain 12.7s
+orOutput] [AS] world ready 18.4s props=12317
+orOutput] [AS] READY
+torOutput] [AS] CRATE 01 tier=2 biome=Fire pos=(1172,48,-778) size=(6.2,4.8,4.3) ground=47.9 sunk=-0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 02 tier=3 biome=Air pos=(-2277,47,890) size=(7.2,4.9,4.6) ground=46.9 sunk=-0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 03 tier=1 biome=Air pos=(-836,288,-982) size=(5.4,3.7,3.7) ground=288.5 sunk=-0.0 clear=4/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 04 tier=2 biome=Air pos=(-1230,46,-1448) size=(6.2,4.8,4.3) ground=46.1 sunk=-0.0 clear=6/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 05 tier=1 biome=Earth pos=(434,47,-2220) size=(5.4,3.7,3.7) ground=46.8 sunk=-0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 06 tier=1 biome=Fire pos=(961,34,-427) size=(5.4,3.7,3.7) ground=34.0 sunk=0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 07 tier=3 biome=Fire pos=(1506,34,44) size=(7.2,4.9,4.6) ground=33.6 sunk=-0.0 clear=7/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 08 tier=2 biome=Fire pos=(2409,34,314) size=(6.2,4.8,4.3) ground=34.0 sunk=0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 09 tier=1 biome=Fire pos=(145,44,547) size=(5.4,3.7,3.7) ground=44.3 sunk=-0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 10 tier=1 biome=Air pos=(-2070,246,102) size=(5.4,3.7,3.7) ground=246.0 sunk=0.0 clear=7/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 11 tier=1 biome=Earth pos=(-12,77,-885) size=(5.4,3.7,3.7) ground=76.7 sunk=0.0 clear=4/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 12 tier=3 biome=Fire pos=(1755,50,-549) size=(7.2,4.9,4.6) ground=49.5 sunk=-0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 13 tier=2 biome=Earth pos=(993,79,-1978) size=(6.2,4.8,4.3) ground=78.6 sunk=-0.0 clear=7/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 14 tier=1 biome=Fire pos=(2247,33,-568) size=(5.4,3.7,3.7) ground=33.1 sunk=0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 15 tier=1 biome=Air pos=(-1954,47,-1516) size=(5.4,3.7,3.7) ground=47.4 sunk=-0.0 clear=7/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 16 tier=2 biome=Air pos=(-2435,47,-251) size=(6.2,4.8,4.3) ground=47.2 sunk=0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 17 tier=2 biome=Air pos=(-1633,50,-170) size=(6.2,4.8,4.3) ground=49.6 sunk=0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 18 tier=2 biome=Fire pos=(1904,50,-1531) size=(6.2,4.8,4.3) ground=50.0 sunk=0.0 clear=6/8 pinD=0.0 over=[CoalRock] COVERED
+torOutput] [AS] CRATE 19 tier=1 biome=Earth pos=(48,64,-2046) size=(5.4,3.7,3.7) ground=64.3 sunk=-0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 20 tier=1 biome=Fire pos=(1828,33,993) size=(5.4,3.7,3.7) ground=33.5 sunk=-0.0 clear=7/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 21 tier=2 biome=Earth pos=(304,66,-1342) size=(6.2,4.8,4.3) ground=66.0 sunk=-0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 22 tier=2 biome=Fire pos=(1296,22,1268) size=(6.2,4.8,4.3) ground=21.8 sunk=0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 23 tier=1 biome=Air pos=(-292,62,-273) size=(5.4,3.7,3.7) ground=62.3 sunk=-0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 24 tier=3 biome=Fire pos=(847,31,-21) size=(7.2,4.9,4.6) ground=31.4 sunk=-0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 25 tier=3 biome=Water pos=(1208,31,2161) size=(7.2,4.9,4.6) ground=31.1 sunk=-0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 26 tier=1 biome=Fire pos=(483,50,802) size=(5.4,3.7,3.7) ground=50.0 sunk=0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 27 tier=1 biome=Fire pos=(1978,22,631) size=(5.4,3.7,3.7) ground=21.9 sunk=-0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 28 tier=3 biome=Fire pos=(1278,47,888) size=(7.2,4.9,4.6) ground=46.8 sunk=-0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 29 tier=1 biome=Air pos=(-1231,52,305) size=(5.4,3.7,3.7) ground=52.1 sunk=0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 30 tier=2 biome=Fire pos=(449,33,-600) size=(6.2,4.8,4.3) ground=32.6 sunk=0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 31 tier=3 biome=Air pos=(-1470,45,-1084) size=(7.2,4.9,4.6) ground=45.4 sunk=-0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 32 tier=1 biome=Fire pos=(1451,49,-1304) size=(5.4,3.7,3.7) ground=49.5 sunk=0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 33 tier=2 biome=Earth pos=(14,25,-2494) size=(6.2,4.8,4.3) ground=25.0 sunk=-0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 34 tier=1 biome=Air pos=(-2085,41,-690) size=(5.4,3.7,3.7) ground=40.6 sunk=-0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 35 tier=1 biome=Air pos=(-1722,59,673) size=(5.4,3.7,3.7) ground=59.4 sunk=-0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 36 tier=2 biome=Water pos=(-113,48,1595) size=(6.2,4.8,4.3) ground=48.1 sunk=0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 37 tier=1 biome=Fire pos=(1450,29,1656) size=(5.4,3.7,3.7) ground=29.4 sunk=0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 38 tier=3 biome=Air pos=(-2453,48,378) size=(7.2,4.9,4.6) ground=47.7 sunk=0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 39 tier=2 biome=Fire pos=(2275,22,933) size=(6.2,4.8,4.3) ground=22.0 sunk=0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE 40 tier=2 biome=Fire pos=(1985,34,1548) size=(6.2,4.8,4.3) ground=34.0 sunk=0.0 clear=8/8 pinD=0.0 over=[] 
+torOutput] [AS] CRATE TOTAL n=40 pins=40 sunk=0 buried=0 covered=1 hidden=0 pinoff=0
+torOutput] [AS] CRATESHOT crate1_clear6_COVERED streamed=true
+shot crate1_clear6_COVERED
+orOutput] [AS] WAYPOINT crate1_clear6_COVERED snapD=0.0
+shot crate1_clear6_COVERED_map
+shot crate1_clear6_COVERED_beam
+torOutput] [AS] CRATESHOT crate2_clear4_OK streamed=true
+shot crate2_clear4_OK
+torOutput] [AS] WAYPOINT crate2_clear4_OK snapD=0.0
+shot crate2_clear4_OK_map
+shot crate2_clear4_OK_beam
+torOutput] [AS] CRATESHOT crate3_clear4_OK streamed=true
+shot crate3_clear4_OK
+torOutput] [AS] WAYPOINT crate3_clear4_OK snapD=0.0
+shot crate3_clear4_OK_map
+shot crate3_clear4_OK_beam
+torOutput] [AS] CRATESHOT crate4_clear6_OK streamed=true
+shot crate4_clear6_OK
+torOutput] [AS] WAYPOINT crate4_clear6_OK snapD=0.0
+shot crate4_clear6_OK_map
+shot crate4_clear6_OK_beam
+ERR: torError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+orOutput] [AS] CRATESHOT crate5_clear8_OK streamed=true
+shot crate5_clear8_OK
+torOutput] [AS] WAYPOINT crate5_clear8_OK snapD=0.0
+shot crate5_clear8_OK_map
+shot crate5_clear8_OK_beam
+torOutput] [TEST] DONE crateprobe
+finished in 574s  done=True

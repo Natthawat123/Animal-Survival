@@ -14,6 +14,7 @@ local Workspace = game:GetService("Workspace")
 local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes"))
 local UIKit = require(script.Parent.UIKit)
 local Cinematics = require(script.Parent.Cinematics)
+local ItemIcon = require(script.Parent.ItemIcon)
 
 local WorldEventsClient = {}
 local player = Players.LocalPlayer
@@ -23,7 +24,7 @@ local THAI = UIKit.ElementThai
 local EVENTS = {
 	{ Kind = "Meteor", Icon = "☄", Color = Color3.fromRGB(255, 170, 80), Name = "Meteor" },
 	{ Kind = "Migration", Icon = "🦌", Color = Color3.fromRGB(230, 200, 140), Name = "Animal Migration" },
-	{ Kind = "Supply", Icon = "📦", Color = Color3.fromRGB(255, 90, 70), Name = "Supply Chest" },
+	{ Kind = "Supply", Icon = "", Prop = "AirdropCrate", Color = Color3.fromRGB(255, 90, 70), Name = "Supply Chest" }, -- ไอคอน = โมเดลกล่องแอร์ดรอปจริง
 }
 
 local fxFolder
@@ -266,6 +267,12 @@ local function updatePins(state)
 				t.TextStrokeTransparency = 0.3
 				t.TextColor3 = ev.Color
 				t.Parent = bb
+				if ev.Prop then
+					bb.Size = UDim2.fromOffset(130, 94)
+					t.Size = UDim2.new(1, 0, 0, 54)
+					t.Position = UDim2.fromOffset(0, 40)
+					ItemIcon.Prop(bb, ev.Prop, { Size = UDim2.fromOffset(40, 40), Position = UDim2.new(0.5, -20, 0, 0) })
+				end
 				pin = { Holder = holder, Label = t }
 				pins[ev.Kind] = pin
 			end
@@ -274,7 +281,7 @@ local function updatePins(state)
 			end
 			pin.Holder.Position = pos
 			local dist = (me - pos).Magnitude
-			pin.Label.Text = string.format("%s %s\n%d m", ev.Icon, ev.Name, math.floor(dist / 3.5))
+			pin.Label.Text = string.format("%s%s\n%d m", ev.Icon ~= "" and ev.Icon .. " " or "", ev.Name, math.floor(dist / 3.5))
 			pin.Holder.Parent = dist > 45 and folder() or nil
 		elseif pin then
 			pin.Holder:Destroy()
@@ -330,6 +337,9 @@ function WorldEventsClient.Init(state, hud, mapUI, combat)
 			for _, ev in ipairs(EVENTS) do
 				local pos = state:GetAttribute("Event_" .. ev.Kind)
 				local m = marker("ev_" .. ev.Kind, ev.Icon, ev.Color, 22)
+				if ev.Prop and not m:FindFirstChild("Pic") then
+					ItemIcon.Prop(m, ev.Prop, { Name = "Pic", Size = UDim2.fromScale(1.4, 1.4), Position = UDim2.fromScale(-0.2, -0.2), ZIndex = m.ZIndex })
+				end
 				m.Visible = pos ~= nil
 				if pos then
 					if ev.Kind == "Meteor" then

@@ -43,6 +43,27 @@ local function aimPoint()
 	return res and res.Position or (ray.Origin + ray.Direction * 60)
 end
 
+-- ข้อมูลสกิลช่อง index: (สกิล, วินาทีคูลดาวน์ที่เหลือ, คูลดาวน์เต็ม) · ไม่มีสกิล = nil (แผงปุ่มลัด/ปุ่มมือถือใช้)
+function ClassSkill.Info(index)
+	local sk = skills()[index]
+	if not sk then
+		return nil
+	end
+	local left = (player:GetAttribute("SkillReady_" .. sk.Id) or 0) - Workspace:GetServerTimeNow()
+	return sk, math.max(left, 0), sk.Cooldown
+end
+
+-- ชื่อสกิล (ชื่อขั้นของคลาสที่ปลดสกิลนี้)
+function ClassSkill.NameOf(sk)
+	local c = Classes.Data[player:GetAttribute("Class") or "Survivor"]
+	for _, s in ipairs(c and c.Skills or {}) do
+		if s.Active == sk then
+			return s.Name or sk.Id
+		end
+	end
+	return sk.Id
+end
+
 function ClassSkill.Use(index)
 	local sk = skills()[index or 1]
 	if not sk or Workspace:GetServerTimeNow() < (player:GetAttribute("SkillReady_" .. sk.Id) or 0) then
@@ -96,7 +117,7 @@ local function update()
 	local inRun = player:GetAttribute("InRun") == true
 	for i = 1, #KEYS do
 		local s, sk = slots[i], list[i]
-		s.Button.Visible = sk ~= nil and inRun
+		s.Button.Visible = sk ~= nil and inRun and not UIKit.IsTouch -- มือถือ: ปุ่มสกิลกลมรอบปุ่มกระโดด (MobileControls)
 		if s.Button.Visible then
 			s.Icon.Text = sk.Icon or "✦"
 			local left = (player:GetAttribute("SkillReady_" .. sk.Id) or 0) - Workspace:GetServerTimeNow()

@@ -1,0 +1,257 @@
+ERR: orError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+orOutput] [AS] rebuilt mesh collisions: 1215
+torOutput] [AS] ???????????????????...
+torOutput] [AS] seed=461700813 map=2048
+torOutput] [AS] client ready
+torOutput] [AS] terrain 5.3s
+torOutput] [AS] world ready 6.2s props=433
+torOutput] [AS] READY
+torOutput] [AS] UI calib TextBounds.Y=20.0 screen=true ratio=1.00
+torOutput] [AS] UI Win900x560 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Win900x560_lobby
+torOutput] [AS] UI Win900x560 lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Win900x560_lobby_store
+torOutput] [AS] UI Win900x560 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Win900x560_lobby_quests
+torOutput] [AS] UI Win900x560 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Win900x560_lobby_badges
+torOutput] [AS] UI Win900x560 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Win900x560_lobby_settings
+torOutput] [AS] UI Win900x560 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Win900x560_lobby_tutorial
+torOutput] [AS] UI Win900x560 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Win900x560_lobby_padpicker
+torOutput] [AS] UI Win900x560 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Win900x560_lobby_classes
+torOutput] [AS] UI Win1024x576 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Win1024x576_lobby
+torOutput] [AS] UI Win1024x576 lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Win1024x576 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Win1024x576 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Win1024x576 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Win1024x576 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI Win1024x576 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Win1024x576 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1366@125 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1366@125_lobby
+torOutput] [AS] UI Laptop1366@125 lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1366@125_lobby_store
+torOutput] [AS] UI Laptop1366@125 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1366@125_lobby_quests
+torOutput] [AS] UI Laptop1366@125 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1366@125_lobby_badges
+torOutput] [AS] UI Laptop1366@125 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1366@125_lobby_settings
+torOutput] [AS] UI Laptop1366@125 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1366@125_lobby_tutorial
+torOutput] [AS] UI Laptop1366@125 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1366@125_lobby_padpicker
+torOutput] [AS] UI Laptop1366@125 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1366@125_lobby_classes
+torOutput] [AS] UI HD1280x720 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_HD1280x720_lobby
+torOutput] [AS] UI HD1280x720 lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI HD1280x720 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI HD1280x720 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI HD1280x720 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI HD1280x720 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI HD1280x720 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI HD1280x720 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1366x705 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1366x705_lobby
+torOutput] [AS] UI Laptop1366x705 lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1366x705 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1366x705 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1366x705 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1366x705 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1366x705 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1366x705 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1536x864 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1536x864_lobby
+torOutput] [AS] UI Laptop1536x864 lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1536x864 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1536x864 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1536x864 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1536x864 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1536x864 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1536x864 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI SXGA1280x1024 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_SXGA1280x1024_lobby
+torOutput] [AS] UI SXGA1280x1024 lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI SXGA1280x1024 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI SXGA1280x1024 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI SXGA1280x1024 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI SXGA1280x1024 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI SXGA1280x1024 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI SXGA1280x1024 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI FHD1920x1017 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_FHD1920x1017_lobby
+torOutput] [AS] UI FHD1920x1017 lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_FHD1920x1017_lobby_store
+torOutput] [AS] UI FHD1920x1017 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_FHD1920x1017_lobby_quests
+torOutput] [AS] UI FHD1920x1017 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_FHD1920x1017_lobby_badges
+torOutput] [AS] UI FHD1920x1017 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_FHD1920x1017_lobby_settings
+torOutput] [AS] UI FHD1920x1017 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_FHD1920x1017_lobby_tutorial
+torOutput] [AS] UI FHD1920x1017 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_FHD1920x1017_lobby_padpicker
+torOutput] [AS] UI FHD1920x1017 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_FHD1920x1017_lobby_classes
+torOutput] [AS] UI QHD2560x1377 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_QHD2560x1377_lobby
+torOutput] [AS] UI QHD2560x1377 lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI QHD2560x1377 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI QHD2560x1377 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI QHD2560x1377 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI QHD2560x1377 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI QHD2560x1377 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI QHD2560x1377 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Ultrawide3440 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Ultrawide3440_lobby
+torOutput] [AS] UI Ultrawide3440 lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Ultrawide3440 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Ultrawide3440 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI Ultrawide3440 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Ultrawide3440 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Ultrawide3440 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Ultrawide3440 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI 4K3840x2097 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_4K3840x2097_lobby
+orOutput] [AS] UI 4K3840x2097 lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI 4K3840x2097 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI 4K3840x2097 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI 4K3840x2097 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI 4K3840x2097 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI 4K3840x2097 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI 4K3840x2097 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI inRun=true
+orOutput] [AS] UI Win900x560 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Win900x560_run
+torOutput] [AS] UI Win900x560 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Win900x560_run_craft
+orOutput] [AS] UI Win900x560 run+craftend oob=0 clip=1 cut=0 small=1 touch=0 overlap=0 cover=0
+orOutput] [AS] UI    SMALL Menus/Body/ScrollingFrame'?? Upgrade Campf'/Frame'Four-Element Sword'/TextLabel'Damage 65 ú Range' (8)
+orOutput] [AS] UI    CLIP Menus/Body/ScrollingFrame'?? Upgrade Campf'/Frame'Four-Element Sword'/TextLabel'Damage 65 ú Range' (0)
+shot ui_Win900x560_run_craftend
+torOutput] [AS] UI Win900x560 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Win900x560_run_trader
+orOutput] [AS] UI Win900x560 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Win900x560_run_map
+torOutput] [AS] UI Win900x560 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Win900x560_run_inventory
+orOutput] [AS] UI Win1024x576 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Win1024x576_run
+torOutput] [AS] UI Win1024x576 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Win1024x576 run+craftend oob=0 clip=1 cut=0 small=1 touch=0 overlap=0 cover=0
+torOutput] [AS] UI    SMALL Menus/Body/ScrollingFrame'?? Upgrade Campf'/Frame'Four-Element Sword'/TextLabel'Damage 65 ú Range' (8)
+torOutput] [AS] UI    CLIP Menus/Body/ScrollingFrame'?? Upgrade Campf'/Frame'Four-Element Sword'/TextLabel'Damage 65 ú Range' (0)
+torOutput] [AS] UI Win1024x576 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Win1024x576 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Win1024x576 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI Laptop1366@125 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1366@125_run
+torOutput] [AS] UI Laptop1366@125 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1366@125_run_craft
+orOutput] [AS] UI Laptop1366@125 run+craftend oob=0 clip=1 cut=0 small=1 touch=0 overlap=0 cover=0
+orOutput] [AS] UI    SMALL Menus/Body/ScrollingFrame'?? Upgrade Campf'/Frame'Four-Element Sword'/TextLabel'Damage 65 ú Range' (8)
+orOutput] [AS] UI    CLIP Menus/Body/ScrollingFrame'?? Upgrade Campf'/Frame'Four-Element Sword'/TextLabel'Damage 65 ú Range' (0)
+shot ui_Laptop1366@125_run_craftend
+torOutput] [AS] UI Laptop1366@125 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1366@125_run_trader
+orOutput] [AS] UI Laptop1366@125 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1366@125_run_map
+orOutput] [AS] UI Laptop1366@125 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1366@125_run_inventory
+torOutput] [AS] UI HD1280x720 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_HD1280x720_run
+torOutput] [AS] UI HD1280x720 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI HD1280x720 run+craftend oob=0 clip=0 cut=0 small=1 touch=0 overlap=0 cover=0
+torOutput] [AS] UI    SMALL Menus/Body/ScrollingFrame'?? Upgrade Campf'/Frame'Four-Element Sword'/TextLabel'Damage 65 ú Range' (8)
+torOutput] [AS] UI HD1280x720 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI HD1280x720 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI HD1280x720 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI Laptop1366x705 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Laptop1366x705_run
+torOutput] [AS] UI Laptop1366x705 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1366x705 run+craftend oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI Laptop1366x705 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1366x705 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1366x705 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1536x864 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=17 cover=0
+torOutput] [AS] UI    OVERLAP ASKeyHints/Panel x Cinematics/StalkerVignette/Frame (25872)
+torOutput] [AS] UI    OVERLAP ASKeyHints/Panel x Cinematics/StalkerVignette/Frame (25872)
+torOutput] [AS] UI    OVERLAP HUD/Frame'SURVIVOR ú Lv.1' x Cinematics/StalkerVignette/Frame (39208)
+torOutput] [AS] UI    OVERLAP HUD/Frame'SURVIVOR ú Lv.1' x Cinematics/StalkerVignette/Frame (34464)
+torOutput] [AS] UI    OVERLAP HUD/Frame'NIGHT 1' x Cinematics/StalkerVignette/Frame (61360)
+torOutput] [AS] UI    OVERLAP HUD/Frame'Campfire Lv.1 ú B' x Cinematics/StalkerVignette/Frame (62124)
+torOutput] [AS] UI    OVERLAP HUD/Frame'Campfire Lv.1 ú B' x Cinematics/StalkerVignette/Frame (53304)
+torOutput] [AS] UI    OVERLAP ASBackpack/Hotbar x Cinematics/StalkerVignette/Frame (11400)
+torOutput] [AS] UI    OVERLAP Cinematics/StalkerVignette/Frame x Cinematics/StalkerVignette/Frame (50961)
+torOutput] [AS] UI    OVERLAP Cinematics/StalkerVignette/Frame x Cinematics/StalkerVignette/Frame (50961)
+torOutput] [AS] UI    OVERLAP Cinematics/StalkerVignette/Frame x Cinematics/Frame'Something is comin' (6421)
+torOutput] [AS] UI    OVERLAP Cinematics/StalkerVignette/Frame x ASBackpackButton/InventoryButton (1936)
+torOutput] [AS] UI    OVERLAP Cinematics/StalkerVignette/Frame x [RobloxTopbar] (9512)
+torOutput] [AS] UI    OVERLAP Cinematics/StalkerVignette/Frame x Cinematics/StalkerVignette/Frame (50961)
+shot ui_Laptop1536x864_run
+torOutput] [AS] UI Laptop1536x864 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1536x864 run+craftend oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1536x864 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1536x864 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Laptop1536x864 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI SXGA1280x1024 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_SXGA1280x1024_run
+torOutput] [AS] UI SXGA1280x1024 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI SXGA1280x1024 run+craftend oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI SXGA1280x1024 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI SXGA1280x1024 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI SXGA1280x1024 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI FHD1920x1017 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_FHD1920x1017_run
+torOutput] [AS] UI FHD1920x1017 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_FHD1920x1017_run_craft
+orOutput] [AS] UI FHD1920x1017 run+craftend oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_FHD1920x1017_run_craftend
+torOutput] [AS] UI FHD1920x1017 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_FHD1920x1017_run_trader
+torOutput] [AS] UI FHD1920x1017 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_FHD1920x1017_run_map
+torOutput] [AS] UI FHD1920x1017 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_FHD1920x1017_run_inventory
+torOutput] [AS] UI QHD2560x1377 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_QHD2560x1377_run
+orOutput] [AS] UI QHD2560x1377 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI QHD2560x1377 run+craftend oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI QHD2560x1377 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI QHD2560x1377 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI QHD2560x1377 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Ultrawide3440 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Ultrawide3440_run
+torOutput] [AS] UI Ultrawide3440 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Ultrawide3440 run+craftend oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Ultrawide3440 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Ultrawide3440 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Ultrawide3440 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI 4K3840x2097 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_4K3840x2097_run
+torOutput] [AS] UI 4K3840x2097 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI 4K3840x2097 run+craftend oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI 4K3840x2097 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+orOutput] [AS] UI 4K3840x2097 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI 4K3840x2097 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI TOTAL oob=0 clip=3 cut=0 small=4 touch=0 overlap=17 cover=0
+torOutput] [AS] UI ISSUE x4 worst=50961 OVERLAP Cinematics/StalkerVignette/Frame x Cinematics/StalkerVignette/Frame @ Laptop1536x864
+torOutput] [AS] UI ISSUE x4 worst=8 SMALL Menus/Body/ScrollingFrame'?? Upgrade Campf'/Frame'Four-Element Sword'/TextLabel'Damage 65 ú Range' @ HD1280x720,Laptop1366@125,Win1024x576,Win900x560
+torOutput] [AS] UI ISSUE x3 worst=0 CLIP Menus/Body/ScrollingFrame'?? Upgrade Campf'/Frame'Four-Element Sword'/TextLabel'Damage 65 ú Range' @ Laptop1366@125,Win1024x576,Win900x560
+torOutput] [AS] UI ISSUE x2 worst=62124 OVERLAP HUD/Frame'Campfire Lv.1 ú B' x Cinematics/StalkerVignette/Frame @ Laptop1536x864
+torOutput] [AS] UI ISSUE x2 worst=9512 OVERLAP Cinematics/StalkerVignette/Frame x [RobloxTopbar] @ Laptop1536x864
+torOutput] [AS] UI ISSUE x2 worst=1936 OVERLAP Cinematics/StalkerVignette/Frame x ASBackpackButton/InventoryButton @ Laptop1536x864
+torOutput] [AS] UI ISSUE x2 worst=25872 OVERLAP ASKeyHints/Panel x Cinematics/StalkerVignette/Frame @ Laptop1536x864
+torOutput] [AS] UI ISSUE x2 worst=39208 OVERLAP HUD/Frame'SURVIVOR ú Lv.1' x Cinematics/StalkerVignette/Frame @ Laptop1536x864
+torOutput] [AS] UI ISSUE x1 worst=11400 OVERLAP ASBackpack/Hotbar x Cinematics/StalkerVignette/Frame @ Laptop1536x864
+torOutput] [AS] UI ISSUE x1 worst=61360 OVERLAP HUD/Frame'NIGHT 1' x Cinematics/StalkerVignette/Frame @ Laptop1536x864
+torOutput] [AS] UI ISSUE x1 worst=6421 OVERLAP Cinematics/StalkerVignette/Frame x Cinematics/Frame'Something is comin' @ Laptop1536x864
+torOutput] [TEST] DONE uiaudit
+finished in 813s  done=True

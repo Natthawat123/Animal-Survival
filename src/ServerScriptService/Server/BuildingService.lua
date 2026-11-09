@@ -47,10 +47,22 @@ function BuildingService:Damage(structure, amount)
 	if not structure.Parent or structure:GetAttribute("Broken") then
 		return
 	end
+	-- พังได้เฉพาะกำแพง (Items.Structures[kind].Breakable) · เตียง/หน้าไม้/กับดัก/เสาธาตุ ฯลฯ ไม่มีวันพัง
+	local spec = Items.Structures[structure:GetAttribute("Kind")]
+	if not (spec and spec.Breakable) then
+		return
+	end
 	local hp = (structure:GetAttribute("Health") or 0) - amount
 	structure:SetAttribute("Health", hp)
 	self.ctx.Remotes.Get("HitFx"):FireAllClients("StructureHit", { Structure = structure, Amount = amount })
 	if hp <= 0 then
+		self:Vanish(structure)
+	end
+end
+
+-- เอาออกจากแมพ: ท่าพังฝั่งผู้เล่น + คืนโควต้า + ซ่อนแล้วลบ (ใช้ทั้งตอนพังและตอนค้อนรื้อ)
+function BuildingService:Vanish(structure)
+	do
 		structure:SetAttribute("Broken", true)
 		-- ท่าพังตามวัสดุเล่นฝั่งเครื่องผู้เล่น (BreakFX) · เซิร์ฟเวอร์ซ่อนของจริงแล้วลบ
 		self.ctx.Remotes.Get("HitFx"):FireAllClients("StructureBreak", { Structure = structure, Kind = structure:GetAttribute("Kind"), Position = structure:GetPivot().Position })
@@ -143,6 +155,7 @@ function BuildingService:Place(player, kind, cf)
 	local hp = spec.Health * self.ctx.Services.SurvivalService:Perk(player, "WallHealthMult", 1)
 	local model = self:Spawn(kind, final, hp, hp, player.UserId)
 	self.ctx.Remotes.Get("HitFx"):FireAllClients("Build", { Position = pos, Kind = kind, Structure = model })
+	self.ctx.Services.TraderService:MakeRoom(pos, spec.Size) -- พ่อค้ายืนตรงนั้น = เดินหลบให้
 	if kind == "Bed" or kind == "Bed2" then
 		-- เตียง 1 / เตียง 2 = ตัวคูณวัน +1 (โควต้านับแยกชนิด)
 		local st, used = self.ctx.State, kind == "Bed" and "BedsUsed" or "Bed2Used"
@@ -195,27 +208,27 @@ function BuildingService:Move(player, structure, cf)
 	end
 	structure:PivotTo(final)
 	self.ctx.Remotes.Get("HitFx"):FireAllClients("Build", { Position = pos, Kind = kind, Structure = structure })
+	self.ctx.Services.TraderService:MakeRoom(pos, Items.Structures[kind].Size)
 	self.ctx.Notify(player, string.format("Moved %s", shortName(kind)), "Good")
 	return true
 end
 
--- รื้อ: พังทิ้ง (เล่นท่าพังเหมือนโดนตีแตก) + คืนวัตถุดิบครึ่งหนึ่ง (ปัดลง) วางเป็นของบนพื้นตรงนั้น
+-- รื้อ: เก็บสิ่งก่อสร้างคืน "ทั้งชิ้น" เข้ากระเป๋า (ไปวางใหม่ได้) — ไม่ใช่วัตถุดิบ
+--   รื้อได้ทุกชนิด (เดิมใช้ Damage -> ของที่พังไม่ได้ เช่นหน้าไม้/กับดัก ไม่หายไปแต่ได้วัตถุดิบ = ปั๊มของได้)
+--   เตียง: ได้โบนัสข้ามวันไปแล้วตอนวาง -> รื้อได้แต่ไม่คืนเตียง (กันวางซ้ำปั๊มวัน)
 function BuildingService:Demolish(player, structure)
 	local kind = self:HammerTarget(player, structure)
 	if not kind then
 		return false
 	end
-	local pos = structure:GetPivot().Position + Vector3.new(0, 1.5, 0)
-	local recipe = Recipes.ById[kind]
-	local drops = self.ctx.Services.DropService
-	for id, n in pairs(recipe and recipe.Cost or {}) do
-		local back = math.floor(n / 2)
-		if back > 0 and Items.Data[id] then -- AnyEssence/AnyHeart ไม่คืน (ไม่รู้ว่าใช้ธาตุไหน)
-			drops:Spawn(id, back, pos)
-		end
+	self:Vanish(structure)
+	if kind == "Bed" or kind == "Bed2" then
+		self.ctx.Notify(player, string.format("Removed %s (its day bonus was already used, so it isn't returned)", shortName(kind)), "Info")
+		return true
 	end
-	self:Damage(structure, math.huge)
-	self.ctx.Notify(player, string.format("Removed %s — half the materials dropped on the ground", shortName(kind)), "Good")
+	self.ctx.Services.InventoryService:Add(player, kind, 1)
+	self.ctx.Services.InventoryService:MarkDirty()
+	self.ctx.Notify(player, string.format("Picked up %s — it's back in your hotbar", shortName(kind)), "Good")
 	return true
 end
 
@@ -268,17 +281,113 @@ function BuildingService:Restore(list)
 	self.ctx.State:SetAttribute("Bed2Used", math.max(self.ctx.State:GetAttribute("Bed2Used") or 0, beds2))
 end
 
--- แปลงเบอร์รี่: ลูกบนพุ่มโผล่เมื่อโตเต็มที่ (เก็บได้) · ยังไม่โต = เห็นแต่ใบ
-local function showCrops(model, ready)
+-- แปลงเบอร์รี่: ปลูกแล้วต้นค่อย ๆ โต (ต้นกล้า -> ต้นเล็ก -> ต้นใหญ่) -> โตเต็มที่ลูกออก (Yield ลูกทั้งแปลง)
+--   ผู้เล่นชี้ลูกบนต้นแล้วคลิก/แตะเก็บทีละลูก (ResourceService:OnPickRequest -> PickCrop) · เก็บหมดแปลง = ต้นหดเป็นต้นกล้า ปลูกรอบใหม่
+local FARM_STAGES = { 0.3, 0.55, 0.8 } -- ขนาดต้นช่วงโต (สัดส่วนของต้นโตเต็มที่)
+
+-- ลูกที่ใช้ในแปลง: ต้นละ per ลูกแรก (ลูกส่วนเกินในโมเดลซ่อนถาวร)
+local function cropBerries(model)
 	local crops = model:FindFirstChild("Crops")
+	local out = {}
 	if not crops then
-		return
+		return out
 	end
-	for _, p in ipairs(crops:GetDescendants()) do
-		if p:IsA("BasePart") and p.Name == "Berry" then
-			p.Transparency = ready and 0 or 1
+	local bushes = crops:GetChildren()
+	local per = math.max(1, math.ceil(Items.Structures.FarmPlot.Yield / math.max(1, #bushes)))
+	for _, bush in ipairs(bushes) do
+		local n = 0
+		for _, p in ipairs(bush:GetDescendants()) do
+			if p:IsA("BasePart") and p.Name == "Berry" then
+				n += 1
+				if n <= per then
+					table.insert(out, p)
+				else
+					p.Transparency = 1
+					p.Name = "BerryUnused"
+				end
+			end
 		end
 	end
+	return out
+end
+
+local function showCrops(model, ready)
+	local n = 0
+	for _, p in ipairs(cropBerries(model)) do
+		if p:GetAttribute("OrigT") == nil then
+			p:SetAttribute("OrigT", p.Transparency)
+		end
+		p.Transparency = ready and p:GetAttribute("OrigT") or 1
+		p:SetAttribute("Picked", not ready)
+		if ready then
+			n += 1
+		end
+	end
+	model:SetAttribute("Berries", n)
+	model:SetAttribute("MaxBerries", #cropBerries(model))
+end
+
+-- ย่อ/ขยายต้นในแปลงตามช่วงโต (ย่อรอบโคนต้น ต้นไม่ลอย/จม)
+local function sizeCrops(model, f)
+	if model:GetAttribute("CropScale") == f then
+		return
+	end
+	model:SetAttribute("CropScale", f)
+	local crops = model:FindFirstChild("Crops")
+	for _, bush in ipairs(crops and crops:GetChildren() or {}) do
+		if bush:IsA("Model") then
+			local full = bush:GetAttribute("FullScale")
+			if not full then
+				full = bush:GetScale()
+				bush:SetAttribute("FullScale", full)
+			end
+			local cf, sz = bush:GetBoundingBox()
+			bush.WorldPivot = CFrame.new(cf.Position - Vector3.new(0, sz.Y / 2, 0))
+			pcall(function()
+				bush:ScaleTo(full * f)
+			end)
+		end
+	end
+end
+
+local function growStage(model, now)
+	local grow = Items.Structures.FarmPlot.GrowTime
+	local left = (model:GetAttribute("GrowAt") or now) - now
+	if left <= 0 then
+		return 1
+	end
+	local p = 1 - left / grow
+	return FARM_STAGES[math.clamp(math.floor(p * #FARM_STAGES) + 1, 1, #FARM_STAGES)]
+end
+
+function BuildingService:UpdateFarm(model, now)
+	local f = growStage(model, now)
+	sizeCrops(model, f)
+	local ready = f >= 1
+	if ready and not model:GetAttribute("Ripe") then
+		model:SetAttribute("Ripe", true)
+		showCrops(model, true)
+	end
+end
+
+-- เก็บลูก 1 ลูกจากแปลง (ลูกที่ชี้) · หมดแปลง = เริ่มปลูกรอบใหม่
+function BuildingService:PickCrop(player, model, part, how)
+	if not model:GetAttribute("Ripe") or part.Name ~= "Berry" or part:GetAttribute("Picked") or not part:IsDescendantOf(model) then
+		return false
+	end
+	local from = part.Position
+	part.Transparency = 1
+	part:SetAttribute("Picked", true)
+	local left = math.max(0, (model:GetAttribute("Berries") or 1) - 1)
+	model:SetAttribute("Berries", left)
+	self.ctx.Services.ResourceService:GiveBerry(player, from, how)
+	if left <= 0 then
+		model:SetAttribute("Ripe", false)
+		model:SetAttribute("GrowAt", os.clock() + Items.Structures.FarmPlot.GrowTime)
+		showCrops(model, false)
+		sizeCrops(model, FARM_STAGES[1])
+	end
+	return true
 end
 
 -- หม้อตุ๋น: Stew = เนื้อ 2 + เบอร์รี่ 2 (ใช้เนื้อย่างก่อน) · BerryPie = เบอร์รี่ 5 + ไม้ 1
@@ -304,30 +413,12 @@ end
 -- ปุ่มกดของแปลงผัก/หม้อ
 function BuildingService:Setup(model, kind)
 	if kind == "FarmPlot" then
+		-- ปลูกใหม่: ต้นกล้าเล็ก ๆ ค่อยโตจนลูกออก · ชี้ลูกบนต้นแล้วเก็บ (แท็ก BerrySource)
 		model:SetAttribute("GrowAt", os.clock() + Items.Structures.FarmPlot.GrowTime)
+		model:SetAttribute("Ripe", false)
 		showCrops(model, false)
-		local p = Instance.new("ProximityPrompt")
-		p.ActionText = "Pick Berries"
-		p.ObjectText = "Berry Patch"
-		p.MaxActivationDistance = 12
-		p.Enabled = false
-		-- โมเดล Store มีแต่ Model ซ้อนกัน (ไม่มี BasePart ชั้นบน) -> ทำจุดกดใสไว้กลางแปลงเอง
-		local spot = Instance.new("Part")
-		spot.Name = "Harvest"
-		spot.Size = Vector3.new(1, 1, 1)
-		spot.Transparency = 1
-		spot.Anchored, spot.CanCollide, spot.CanTouch, spot.CanQuery = true, false, false, false
-		spot.CFrame = model:GetPivot() * CFrame.new(0, 1.5, 0)
-		spot.Parent = model
-		p.Parent = spot
-		p.Triggered:Connect(function(player)
-			if os.clock() >= (model:GetAttribute("GrowAt") or math.huge) then
-				self.ctx.Services.DropService:Spawn("Berries", Items.Structures.FarmPlot.Yield, model:GetPivot().Position + Vector3.new(0, 1, 0))
-				model:SetAttribute("GrowAt", os.clock() + Items.Structures.FarmPlot.GrowTime)
-				p.Enabled = false
-				showCrops(model, false)
-			end
-		end)
+		self:UpdateFarm(model, os.clock())
+		CollectionService:AddTag(model, "BerrySource")
 	elseif kind == "CookPot" then
 		local p = Instance.new("ProximityPrompt")
 		p.ActionText = "Make Stew (2 meat + 2 berries)"
@@ -427,12 +518,7 @@ function BuildingService:Tick(dt)
 					combat:DamageAnimal(a, spec.Damage * dt, nil, { Source = "Totem", Silent = true })
 				end
 			elseif kind == "FarmPlot" then
-				local ready = now >= (s:GetAttribute("GrowAt") or math.huge)
-				local prompt = s:FindFirstChildWhichIsA("ProximityPrompt", true)
-				if ready and prompt and not prompt.Enabled then
-					prompt.Enabled = true
-					showCrops(s, true)
-				end
+				self:UpdateFarm(s, now)
 			end
 		end
 	end

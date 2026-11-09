@@ -614,11 +614,19 @@ local function portalHook(art, parent, i)
 		end
 	end
 	-- ป้ายกลางม่าน (ตัวหนังสือขาวขอบเข้ม แบบภาพต้นแบบ)
+	-- ป้ายลอยหน้าม่าน (เดิมจมอยู่ในม่าน/โดนเสาบัง = เห็นแค่ครึ่ง ๆ "4 / pad to start")
+	local toPad = (center.Position - veil.Position) * V(1, 0, 1)
+	toPad = toPad.Magnitude > 0.1 and toPad.Unit or veil.CFrame.LookVector
+	local anchor = Instance.new("Attachment")
+	anchor.Name = "PortalLabelAnchor"
+	anchor.Parent = veil
+	anchor.WorldPosition = veil.Position + toPad * 3.5
 	local bb = Instance.new("BillboardGui")
 	bb.Size = UDim2.fromScale(9, 4)
-	bb.MaxDistance = 160
+	bb.MaxDistance = 140
 	bb.LightInfluence = 0
-	bb.Adornee = veil
+	bb.AlwaysOnTop = true -- ไม่โดนเสา/ม่าน/ต้นไม้บัง
+	bb.Adornee = anchor
 	bb.Parent = veil
 	local function line(y, h, txt, font)
 		local t = Instance.new("TextLabel")
@@ -936,7 +944,7 @@ function LobbyService:Build()
 	nt.TextColor3 = C(255, 240, 200)
 	local nst = Instance.new("UIStroke")
 	nst.Color, nst.Thickness, nst.Parent = C(70, 40, 20), 2, nt
-	nt.Text = '<font color="#FFE066" size="40">Camp News</font>\n\nSurvive milestone nights (every 5-25 nights)\n= Earn Ruby ♦️\n\nRescue a Spirit Pup = ♦️15\n<font color="#8CFF8C">Free Ruby at the green cauldron every day!</font>'
+	nt.Text = '<font color="#FFE066" size="40">Camp News</font>\n\nDefeat a boss = ♦️3-7\nRescue a Spirit Pup = ♦️5\nSanctums, meteors, chests = ♦️\n\n<font color="#8CFF8C">Free Ruby at the green cauldron every day!</font>'
 	nt.Parent = nbg
 	local nlamp = P(deco, { Size = V(0.9, 0.9, 0.9), CFrame = nbCf * CF(0, 12, -1.6), Color = C(255, 214, 150), Material = Enum.Material.Neon, CanCollide = false })
 	light(nlamp, C(255, 196, 130), 14, 1.6)
@@ -1144,13 +1152,15 @@ function LobbyService:RetryTeleport(player, reason)
 	end)
 end
 
-function LobbyService:DepartTeam(list, resumeFrom)
+-- worldOwner/worldId = เจ้าของโลก + โลกไหน (ห้องโลก WorldService) -> เซิร์ฟเวอร์ทีมเซฟโลกทุกเช้า
+function LobbyService:DepartTeam(list, resumeFrom, worldOwner, worldId)
 	local canTeleport = not RunService:IsStudio() and game.PlaceId ~= 0 and not self.IsTeamServer
 	-- เล่นต่อจากเซฟ (Save Run ของหัวหน้าแท่น): โหลดรอบที่เซฟไว้ แล้วฝากให้เซิร์ฟเวอร์ใหม่ของทีมอ่านตอนเปิด
 	local resumeRun
 	if resumeFrom and resumeFrom.Parent then
 		if canTeleport then
-			resumeRun = self.ctx.Services.DataService:LoadRun(resumeFrom.UserId)
+			resumeRun = worldId and self.ctx.Services.DataService:LoadWorld(resumeFrom.UserId, worldId)
+				or self.ctx.Services.DataService:LoadRun(resumeFrom.UserId)
 		end
 		if not resumeRun then
 			for _, p in ipairs(list) do
@@ -1183,7 +1193,7 @@ function LobbyService:DepartTeam(list, resumeFrom)
 			end
 			local opts = Instance.new("TeleportOptions")
 			opts.ReservedServerAccessCode = code
-			opts:SetTeleportData({ Team = true, Resumed = resumeRun ~= nil })
+			opts:SetTeleportData({ Team = true, Resumed = resumeRun ~= nil, World = worldOwner, WorldId = worldId })
 			for _, p in ipairs(list) do
 				if self.departing[p] then
 					self.departing[p].Opts = opts -- คนที่ล้มเหลวลองใหม่เข้าเซิร์ฟเวอร์เดียวกับทีม
@@ -1549,9 +1559,18 @@ function LobbyService:Tick(dt)
 				self.padBlock[p] = nil
 				block = nil
 			end
-			if not self.padOf[p] and not (self.departing and self.departing[p]) then
+			if not self.padOf[p] and not (self.departing and self.departing[p]) and not p:GetAttribute("WorldRoom") then
 				for _, box in ipairs(self.boxes) do
-					if not (block and block.Box == box) and inside(box.Zone, r.Position) and #(box.Order or {}) < box.Size then
+					-- มีหัวหน้าแท่นแล้วแต่ยังไม่เลือกจำนวน = คนอื่นยังเข้ากลุ่มไม่ได้ (ยืนรอบนแท่น เลือกแล้วเข้าเอง)
+					local waitPick = #(box.Order or {}) > 0 and not box.Picked and not running
+					if waitPick and not (block and block.Box == box) and inside(box.Zone, r.Position) then
+						self.padWaitMsg = self.padWaitMsg or setmetatable({}, { __mode = "k" })
+						if os.clock() - (self.padWaitMsg[p] or -99) > 5 then
+							self.padWaitMsg[p] = os.clock()
+							self.ctx.Notify(p, "Waiting for the pad leader to choose the team size", "Info")
+						end
+					end
+					if not waitPick and not (block and block.Box == box) and inside(box.Zone, r.Position) and #(box.Order or {}) < box.Size then
 						box.Order = box.Order or {}
 						table.insert(box.Order, p)
 						self.padOf[p] = box
@@ -1601,6 +1620,7 @@ function LobbyService:Tick(dt)
 		elseif n == 0 then
 			box.Countdown = nil
 			box.Picked = false
+			box.WaitSince = nil
 			box.Resume = nil
 			box.Sub.Text = running and "⚔ Join the team in progress" or "Step on the pad to start"
 			box.Pad.Color = PORTAL_VEIL
@@ -1615,6 +1635,12 @@ function LobbyService:Tick(dt)
 			-- ยังไม่เลือกจำนวนคน: ยังไม่นับถอยหลัง (หัวหน้าแท่นเลือกก่อน แล้วค่อยเริ่มนับ)
 			box.Countdown = nil
 			box.Sub.Text = "Waiting for the pad leader to choose the team size"
+			-- หัวหน้าไม่เลือกนาน 30 วิ (AFK) = ตั้ง 4 คนให้เอง ไม่ให้แท่นค้างจนคนอื่นเข้าไม่ได้
+			box.WaitSince = box.WaitSince or os.clock()
+			if os.clock() - box.WaitSince > 30 then
+				box.Size = math.max(4, n)
+				box.Picked = true
+			end
 			box.Pad.Color = PORTAL_VEIL
 			box.Ring.Color = PORTAL_IDLE
 			if box.Disc then
@@ -1663,6 +1689,7 @@ function LobbyService:LeavePad(player, moveOut)
 		box.Countdown = nil
 		box.Size = 4
 		box.Picked = false
+		box.WaitSince = nil
 	end
 	if player.Parent then
 		player:SetAttribute("Pad", nil)
@@ -1772,9 +1799,6 @@ function LobbyService:Start(ctx)
 			task.delay(6, function()
 				if player.Parent and td.Result == "Defeat" then
 					ctx.Notify(player, string.format("🔥 Last run: the team reached night %d — try again!", tonumber(td.Night) or 0), "Info")
-					task.delay(2, function()
-						ctx.Services.MonetizationService:OfferSaveRun(player, tonumber(td.Night))
-					end)
 				end
 			end)
 		end
@@ -1814,6 +1838,7 @@ function LobbyService:Start(ctx)
 		box.Size = math.max(n, #(box.List or {}))
 		box.Countdown = nil
 		box.Picked = true -- เริ่มนับถอยหลังหลังเลือกจำนวนแล้วเท่านั้น
+		box.WaitSince = nil
 	end)
 	-- หัวหน้าแท่นที่มี Save Run: เลือกเล่นต่อจากรอบที่เซฟไว้ (on = false ยกเลิก)
 	ctx.Remotes.Get("PadResume").OnServerEvent:Connect(function(player, index, on)
@@ -1821,19 +1846,8 @@ function LobbyService:Start(ctx)
 		if not box or not (box.List and box.List[1] == player) then
 			return
 		end
-		if on then
-			if not ctx.Services.MonetizationService:HasPass(player, "SaveRun") then
-				ctx.Notify(player, "Requires the Save Run pass", "Info")
-				return
-			end
-			if not player:GetAttribute("SavedNight") then
-				ctx.Notify(player, "You don't have a saved run yet", "Info")
-				return
-			end
-			box.Resume = player
-		else
-			box.Resume = nil
-		end
+		-- แท่นธรรมดาไม่มีเล่นต่อจากเซฟแล้ว (โลกที่เซฟไว้เปิดจากเมนู Worlds -> WorldService)
+		box.Resume = nil
 	end)
 	ctx.Remotes.Get("LeavePad").OnServerEvent:Connect(function(player)
 		self:LeavePad(player, true)

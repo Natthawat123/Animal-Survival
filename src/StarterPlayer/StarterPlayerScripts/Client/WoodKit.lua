@@ -406,6 +406,10 @@ function WoodKit.Window(parent, opts)
 		shade(plaque)
 		local paper = WoodKit.Parchment(plaque, { Position = UDim2.fromOffset(7, 7), Size = UDim2.new(1, -14, 1, -14), ZIndex = 11 })
 		title = WoodKit.Ink(paper, { Size = UDim2.new(1, -16, 1, 0), Position = UDim2.fromOffset(8, 0), Text = opts.Title or "", TextSize = 32, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 12 })
+		title.TextScaled = true -- ชื่อยาวย่อลงให้พอดีป้าย (ไม่ล้น/ไม่ถูกตัด)
+		local tfit = title:FindFirstChildOfClass("UITextSizeConstraint") or Instance.new("UITextSizeConstraint")
+		tfit.MaxTextSize, tfit.MinTextSize = 32, 6
+		tfit.Parent = title
 	end
 	-- หัวหมาป่า (ซ้าย หันเข้ากลาง) / อินทรี (ขวา) — อยู่นอกป้ายชื่อ ซ้อนแค่ขอบนิดเดียว และวาดทับป้าย ไม่ให้ป้ายบังหัว
 	local beasts = {}

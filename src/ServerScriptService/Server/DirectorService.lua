@@ -34,6 +34,23 @@ function DirectorService:Init(ctx)
 	self.pendingBonus = 0 -- ได้ตอนกลางคืน -> บวกให้กลางวันถัดไป
 end
 
+-- เริ่มสู้ตอนกลางวัน (บอสในรัง/วิหาร/ศาลเจ้า): กลางวัน +Config.FightDayBonus · แห่งละครั้งต่อวัน · กลางคืนไม่ได้
+function DirectorService:AddFightTime(key, place)
+	local phase = self.ctx.State:GetAttribute("Phase")
+	if not self.running or (phase ~= "Day" and phase ~= "Dusk") then
+		return false
+	end
+	self.fightBonus = self.fightBonus or {}
+	local stamp = tostring(self.runId) .. ":" .. tostring(self.night)
+	if self.fightBonus[key] == stamp then
+		return false
+	end
+	self.fightBonus[key] = stamp
+	self:AddTime(Config.FightDayBonus)
+	self.ctx.Broadcast(string.format("⏳ Fighting at %s — daylight +%d minute", place, math.max(1, Config.FightDayBonus // 60)), "Good")
+	return true
+end
+
 -- เวลาเพิ่ม (วินาที): กลางวัน/พลบค่ำ = ยืดออกไปทันที · กลางคืน = เก็บไว้บวกให้กลางวันถัดไป
 function DirectorService:AddTime(seconds)
 	if not self.running then
@@ -96,10 +113,10 @@ function DirectorService:SpawnRaid(id, plan, night)
 	local pos = layout:RaidSpawnPoint(self.rng, Config.RaidSpawnRadius.Min, Config.RaidSpawnRadius.Max, element)
 	local scale = Nights.Scale(night)
 	if info.Behaviour == "Boss" then
-		-- เลือดบอสเพิ่มตามจำนวนคนที่ยังรอดในรอบ (1 คน = x1.0 · +25% ต่อคนที่เพิ่ม)
+		-- เลือดบอสเพิ่มตามจำนวนคนที่ยังรอดในรอบ (1 คน = x1.0 · +50% ต่อคนที่เพิ่ม) · คืนปกติไม่เพิ่มตามคืน (โหมดไม่รู้จบหลังคืน 99 ค่อยถึกขึ้น)
 		local players = self.ctx.Services.SurvivalService:RunPlayerCount(true)
 		local a = animals:Spawn(id, pos, {
-			Kind = "Boss", HealthMult = (1 + night * 0.004) * Nights.BossHealthMult(players), DamageMult = 1, Night = night,
+			Kind = "Boss", HealthMult = Nights.BossHealthMult(players), DamageMult = Nights.BossDamageMult(players), Night = night,
 		})
 		if a then
 			a.Model:SetAttribute("IsBoss", true)
@@ -112,8 +129,9 @@ function DirectorService:SpawnRaid(id, plan, night)
 		end
 		return a
 	end
+	local blood = plan and plan.BloodMoon and Nights.BloodMoonPower or 1 -- พระจันทร์เลือด: เลือด + ดาเมจ x1.5
 	return animals:Spawn(id, pos, {
-		Kind = "Raid", HealthMult = scale.Health, DamageMult = scale.Damage, SpeedMult = scale.Speed, Night = night,
+		Kind = "Raid", HealthMult = scale.Health * blood, DamageMult = scale.Damage * blood, SpeedMult = scale.Speed, Night = night,
 	})
 end
 
@@ -137,15 +155,16 @@ function DirectorService:RunNight(night, runId)
 		Elements = plan.Elements,
 	})
 	-- ฝูงบุกเฉพาะคืนบุกใหญ่ (ทุก 5 คืน + คืน 99) · คืนอื่นสงบ: บอกว่าอีกกี่คืนฝูงจะมา
+	local played = self.played or night
 	if not plan.BigRaid then
-		local left = Nights.NextBigRaid(night) - night
+		local left = Nights.NextBigRaid(played) - played
 		task.delay(6, function()
 			if runId == self.runId then
 				ctx.Broadcast(string.format("Big raid in %d nights", left), "Info")
 			end
 		end)
 	end
-	s:SetAttribute("NextRaidNight", plan.BigRaid and night or Nights.NextBigRaid(night))
+	s:SetAttribute("NextRaidNight", night + (Nights.NextBigRaid(played + (plan.BigRaid and 1 or 0)) - played)) -- (โดยประมาณ ถ้าไม่มีตัวคูณวัน)
 	local total = 0
 	for _, w in ipairs(plan.Waves) do
 		total += #w.Spawns
@@ -170,11 +189,17 @@ function DirectorService:RunNight(night, runId)
 			return
 		end
 		local animals = ctx.Services.AnimalService
-		if animals:CountKind("Stalker") == 0 then
+		-- จิ้งจอกเท่าจำนวนคนที่ยังรอดในรอบ: แยกกันไล่คนละคน (วิ่งหนีคนละทิศ = โดนไล่ทุกคน)
+		local want = ctx.Services.SurvivalService:RunPlayerCount(true) - animals:CountKind("Stalker")
+		local spawned = 0
+		for _ = 1, want do
 			local pos = ctx.Layout:RaidSpawnPoint(self.rng, 260, 340)
 			if animals:Spawn("Moonfang", pos, { Kind = "Stalker" }) then
-				ctx.Broadcast("Something is watching from the darkness", "Danger")
+				spawned += 1
 			end
+		end
+		if spawned > 0 then
+			ctx.Broadcast("Something is watching from the darkness", "Danger")
 		end
 	end)
 
@@ -278,14 +303,7 @@ function DirectorService:RewardNight(night)
 					ctx.Services.QuestService:Progress(p, "Night", 1, night)
 				end
 			end
-			local bonus = Classes.NightRewards[night]
-			if bonus then
-				ctx.Services.DataService:AddDiamonds(p, bonus, "Survived to night " .. night)
-			elseif night > Config.TotalNights and night % 10 == 0 then
-				ctx.Services.DataService:AddDiamonds(p, 10, "Endless mode night " .. night)
-			elseif night >= 3 then
-				ctx.Services.DataService:AddDiamonds(p, 1, "Survived night " .. night)
-			end
+			-- Ruby รอดคืน (คืนละ 1 / คืนพิเศษ Classes.NightRewards / โหมดไร้ขีดจำกัด) ปิดไว้ทั้งหมด
 		end
 	end
 end
@@ -333,6 +351,9 @@ function DirectorService:Loop(runId)
 		end
 		-- กลางคืน (เตียงอาจข้ามวันระหว่างกลางวัน -> คืนนี้เป็นคืนถัดไป)
 		night = self.night
+		-- ฝูงบุกนับ "กลางคืนที่เล่นจริง" (ไม่ใช่เลขวัน): ตัวคูณ x วันกระโดดเลขวันได้ตามปกติ ไม่ทำให้บุกถี่
+		self.played = (self.played or 0) + 1
+		self.carry = { Played = self.played }
 		if not self:RunNight(night, runId) then
 			return
 		end
@@ -341,8 +362,7 @@ function DirectorService:Loop(runId)
 			self:Complete()
 		end
 		-- บอสที่ย้ายมาแต่คืนนี้มีบอสของตัวเองอยู่แล้ว -> เลื่อนไปคืนถัดไป · อย่างอื่นใช้ไปแล้ว
-		local carry = self.carry
-		self.carry = (carry.Boss and Nights.BossFor(night)) and { Boss = carry.Boss, BossNight = carry.BossNight } or {}
+		self.carry = { Played = self.played or 0 }
 		if self.night == night then -- (DEV setNight กลางคืน = ใช้เลขที่ตั้งไว้)
 			self.night = night + 1
 		end
@@ -355,20 +375,11 @@ function DirectorService:Loop(runId)
 	end
 end
 
--- ผ่านคืนนี้โดยไม่ต้องเล่น: นับว่ารอด + เหตุการณ์ของคืนนี้ย้ายไปคืนถัดไปที่เล่นจริง
+-- ผ่านคืนนี้โดยไม่ต้องเล่น: นับว่ารอด · ฝูงบุก/พระจันทร์เลือด/บอสของคืนที่ข้าม "ไม่ยกมา" คืนถัดไป
+-- (เดิมยกมา -> ตัวคูณ x2-x5 วันข้ามคืนบุกแทบทุกเช้า = บุกทุกคืน)
 function DirectorService:PassNight()
 	local night = self.night
 	self:RewardNight(night)
-	local boss = Nights.BossFor(night)
-	if boss then
-		self.carry.Boss, self.carry.BossNight = boss, night
-	end
-	if Nights.IsBloodMoon(night) then
-		self.carry.BloodMoonNight = night
-	end
-	if Nights.IsBigRaid(night) then
-		self.carry.BigRaid = true
-	end
 	self.night = night + 1
 	self.ctx.State:SetAttribute("Night", self.night)
 end
@@ -511,7 +522,9 @@ function DirectorService:Complete()
 					data.TrueEndings = (data.TrueEndings or 0) + 1
 				end
 			end
-			ctx.Services.DataService:AddDiamonds(p, kind == "True" and 300 or 100, "Conquer 99 Nights")
+			if kind == "True" then -- รอดครบ 99 คืนเฉยๆ ไม่มี Ruby · ฉากจบสมบูรณ์ (ช่วยครบ 4) เท่านั้นที่ได้
+				ctx.Services.DataService:AddDiamonds(p, 50, "Conquer 99 Nights")
+			end
 			ctx.Services.DataService:CheckBadges(p)
 			ctx.Services.DataService:Save(p)
 		end
@@ -571,16 +584,9 @@ function DirectorService:EndRun()
 		end)
 		return
 	end
-	-- กลับล็อบบี้ในเซิร์ฟเวอร์นี้ (Studio): เสนอ Save Run ให้คนที่เพิ่งตายหมดทีม
-	local wiped, night = self.wiped or {}, self.night
+	-- กลับล็อบบี้ในเซิร์ฟเวอร์นี้ (Studio)
 	self.wiped = nil
 	self:ResetRun()
-	task.delay(4, function()
-		local shop = self.ctx.Services.MonetizationService
-		for _, p in ipairs(wiped) do
-			pcall(shop.OfferSaveRun, shop, p, night)
-		end
-	end)
 end
 
 function DirectorService:IsRunning()
@@ -597,7 +603,9 @@ function DirectorService:StartRun(night, pendingSkips, carry)
 	self.runId += 1
 	self.night = math.max(1, math.floor(tonumber(night) or 1))
 	self.pendingSkips = math.max(0, math.floor(tonumber(pendingSkips) or 0))
-	self.carry = type(carry) == "table" and carry or {}
+	-- นับคืนที่เล่นจริงต่อจากเซฟ (ฝูงบุกนับจากตัวนี้) · เซฟเก่าที่มีฝูง/บอสค้างยกมา -> ไม่ใช้แล้ว
+	self.played = type(carry) == "table" and math.max(0, math.floor(tonumber(carry.Played) or 0)) or 0
+	self.carry = { Played = self.played }
 	self.ctx.State:SetAttribute("PendingDays", self.pendingSkips)
 	local runId = self.runId
 	task.spawn(function()
@@ -612,7 +620,8 @@ function DirectorService:ResetRun()
 	self.night = 1
 	self.lastElement = nil
 	self.pendingSkips = 0
-	self.carry = {}
+	self.played = 0
+	self.carry = { Played = 0 }
 	self.bonus, self.pendingBonus = 0, 0
 	self.nightBoss = nil
 	ctx.State:SetAttribute("BossHoldEnd", 0)

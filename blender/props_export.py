@@ -49,7 +49,7 @@ PROPS = {
     "FrostPine": ("K", "tree_pineRoundC", ("h", 26), dict(recolor={"leaf": C(150, 196, 200), "leafs": C(150, 196, 200)})),
     "CharredTree": ("K", "tree_thin_dark", ("h", 20), dict(recolor_all=C(34, 30, 30), embers=C(255, 110, 30))),
     "Bush": ("K", "plant_bushLarge", ("h", 4.5), dict(recolor={"leaf": C(70, 130, 58)})),
-    "BerryBush": ("K", "plant_bushDetailed", ("h", 4.5), dict(recolor={"leaf": C(60, 118, 52)}, berries=C(214, 40, 90))),
+    # BerryBush: เลิกใช้เมชจาก Blender แล้ว -> ใช้โมเดล Creator Store (assets/rbxm/Props/BerryBushLP)
     "Flowers": ("K", "flower_yellowA", ("h", 2.4)),
     "GlowShroom": ("K", "mushroom_redGroup", ("h", 6), dict(glow_all_but_stem=C(90, 240, 200))),
     # ---------- หิน/แร่/คริสตัล

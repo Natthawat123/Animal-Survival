@@ -1,0 +1,239 @@
+ERR: orError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+torOutput] [AS] rebuilt mesh collisions: 1215
+torOutput] [AS] ???????????????????...
+torOutput] [AS] seed=551335759 map=2048
+torOutput] [AS] client ready
+torOutput] [AS] terrain 4.6s
+torOutput] [AS] world ready 5.3s props=450
+torOutput] [AS] READY
+torOutput] [AS] UI calib TextBounds.Y=20.0 screen=true ratio=1.00
+torOutput] [AS] UI Phone640x360 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Phone640x360_lobby
+torOutput] [AS] UI Phone640x360 lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Phone640x360_lobby_store
+torOutput] [AS] UI Phone640x360 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Phone640x360_lobby_quests
+torOutput] [AS] UI Phone640x360 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Phone640x360_lobby_badges
+torOutput] [AS] UI Phone640x360 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Phone640x360_lobby_settings
+torOutput] [AS] UI Phone640x360 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Phone640x360_lobby_tutorial
+torOutput] [AS] UI Phone640x360 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Phone640x360_lobby_padpicker
+torOutput] [AS] UI Phone640x360 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Phone640x360_lobby_classes
+torOutput] [AS] UI Phone640x360 lobby+worlds oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Phone640x360_lobby_worlds
+torOutput] [AS] UI iPhoneSE lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPhoneSE_lobby
+torOutput] [AS] UI iPhoneSE lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPhoneSE lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPhoneSE lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPhoneSE lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPhoneSE lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPhoneSE lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPhoneSE lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPhoneSE lobby+worlds oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Galaxy740x360 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Galaxy740x360_lobby
+torOutput] [AS] UI Galaxy740x360 lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Galaxy740x360 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Galaxy740x360 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Galaxy740x360 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Galaxy740x360 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Galaxy740x360 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Galaxy740x360 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Galaxy740x360 lobby+worlds oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPhone14 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPhone14_lobby
+torOutput] [AS] UI iPhone14 lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPhone14_lobby_store
+torOutput] [AS] UI iPhone14 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPhone14_lobby_quests
+torOutput] [AS] UI iPhone14 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPhone14_lobby_badges
+torOutput] [AS] UI iPhone14 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPhone14_lobby_settings
+torOutput] [AS] UI iPhone14 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPhone14_lobby_tutorial
+torOutput] [AS] UI iPhone14 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPhone14_lobby_padpicker
+torOutput] [AS] UI iPhone14 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPhone14_lobby_classes
+torOutput] [AS] UI iPhone14 lobby+worlds oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPhone14_lobby_worlds
+torOutput] [AS] UI iPhoneProMax lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPhoneProMax_lobby
+torOutput] [AS] UI iPhoneProMax lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPhoneProMax lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPhoneProMax lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPhoneProMax lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPhoneProMax lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPhoneProMax lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPhoneProMax lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPhoneProMax lobby+worlds oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Android885x412 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Android885x412_lobby
+torOutput] [AS] UI Android885x412 lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Android885x412 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Android885x412 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Android885x412 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Android885x412 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Android885x412 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Android885x412 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Android885x412 lobby+worlds oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Fold882x690 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Fold882x690_lobby
+torOutput] [AS] UI Fold882x690 lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Fold882x690 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Fold882x690 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Fold882x690 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Fold882x690 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Fold882x690 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Fold882x690 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Fold882x690 lobby+worlds oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPadMini lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPadMini_lobby
+torOutput] [AS] UI iPadMini lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPadMini_lobby_store
+torOutput] [AS] UI iPadMini lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPadMini_lobby_quests
+torOutput] [AS] UI iPadMini lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPadMini_lobby_badges
+torOutput] [AS] UI iPadMini lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPadMini_lobby_settings
+torOutput] [AS] UI iPadMini lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPadMini_lobby_tutorial
+torOutput] [AS] UI iPadMini lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPadMini_lobby_padpicker
+torOutput] [AS] UI iPadMini lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPadMini_lobby_classes
+torOutput] [AS] UI iPadMini lobby+worlds oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPadMini_lobby_worlds
+torOutput] [AS] UI AndroidTab1280x800 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_AndroidTab1280x800_lobby
+torOutput] [AS] UI AndroidTab1280x800 lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI AndroidTab1280x800 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI AndroidTab1280x800 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI AndroidTab1280x800 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI AndroidTab1280x800 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI AndroidTab1280x800 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI AndroidTab1280x800 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI AndroidTab1280x800 lobby+worlds oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPad lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPad_lobby
+torOutput] [AS] UI iPad lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPad lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPad lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPad lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPad lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPad lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPad lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPad lobby+worlds oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPadPro13 lobby oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPadPro13_lobby
+torOutput] [AS] UI iPadPro13 lobby+store oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPadPro13 lobby+quests oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPadPro13 lobby+badges oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPadPro13 lobby+settings oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPadPro13 lobby+tutorial oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPadPro13 lobby+padpicker oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPadPro13 lobby+classes oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPadPro13 lobby+worlds oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI inRun=true
+torOutput] [AS] UI Phone640x360 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Phone640x360_run
+torOutput] [AS] UI Phone640x360 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Phone640x360_run_craft
+torOutput] [AS] UI Phone640x360 run+craftend oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Phone640x360_run_craftend
+orOutput] [AS] UI Phone640x360 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Phone640x360_run_trader
+torOutput] [AS] UI Phone640x360 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Phone640x360_run_map
+torOutput] [AS] UI Phone640x360 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Phone640x360_run_inventory
+torOutput] [AS] UI iPhoneSE run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPhoneSE_run
+torOutput] [AS] UI iPhoneSE run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPhoneSE run+craftend oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPhoneSE run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPhoneSE run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPhoneSE run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Galaxy740x360 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Galaxy740x360_run
+torOutput] [AS] UI Galaxy740x360 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Galaxy740x360 run+craftend oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Galaxy740x360 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Galaxy740x360 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Galaxy740x360 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPhone14 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPhone14_run
+torOutput] [AS] UI iPhone14 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPhone14_run_craft
+torOutput] [AS] UI iPhone14 run+craftend oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPhone14_run_craftend
+torOutput] [AS] UI iPhone14 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPhone14_run_trader
+torOutput] [AS] UI iPhone14 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPhone14_run_map
+torOutput] [AS] UI iPhone14 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPhone14_run_inventory
+torOutput] [AS] UI iPhoneProMax run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPhoneProMax_run
+torOutput] [AS] UI iPhoneProMax run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPhoneProMax run+craftend oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPhoneProMax run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPhoneProMax run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPhoneProMax run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Android885x412 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Android885x412_run
+torOutput] [AS] UI Android885x412 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Android885x412 run+craftend oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Android885x412 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Android885x412 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Android885x412 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Fold882x690 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_Fold882x690_run
+torOutput] [AS] UI Fold882x690 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Fold882x690 run+craftend oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Fold882x690 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Fold882x690 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI Fold882x690 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPadMini run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPadMini_run
+torOutput] [AS] UI iPadMini run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPadMini_run_craft
+torOutput] [AS] UI iPadMini run+craftend oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPadMini_run_craftend
+torOutput] [AS] UI iPadMini run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPadMini_run_trader
+torOutput] [AS] UI iPadMini run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPadMini_run_map
+torOutput] [AS] UI iPadMini run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPadMini_run_inventory
+torOutput] [AS] UI AndroidTab1280x800 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_AndroidTab1280x800_run
+torOutput] [AS] UI AndroidTab1280x800 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI AndroidTab1280x800 run+craftend oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI AndroidTab1280x800 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI AndroidTab1280x800 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI AndroidTab1280x800 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPad run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPad_run
+torOutput] [AS] UI iPad run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPad run+craftend oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPad run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPad run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPad run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPadPro13 run oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+shot ui_iPadPro13_run
+torOutput] [AS] UI iPadPro13 run+craft oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPadPro13 run+craftend oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPadPro13 run+trader oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPadPro13 run+map oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI iPadPro13 run+inventory oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [AS] UI TOTAL oob=0 clip=0 cut=0 small=0 touch=0 overlap=0 cover=0
+torOutput] [TEST] DONE uiaudit
+finished in 768s  done=True

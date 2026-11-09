@@ -1336,7 +1336,7 @@
 1537	Cajado exclusivo do Elementalista · Dispara projéteis arcanos explosivos (forte contra todo elemento)
 1538	Recupera 2% da vida máx. a cada monstro abatido
 1539	Vida máx. +30 · Regenera 0.8 PV/s · Habilidade: Santuário da natureza — um bosque que cura a equipe e deixa monstros lentos por 12 s · Recarga 100 s
-1541	Habilidade: invoca 5 morcegos (200 PV) que atacam monstros · Recarga 120 s · Usar de novo troca o enxame
+1541	Habilidade: invoca 5 morcegos (200 PV) que atacam monstros · Recarga 120 s · Usar de novo troca o enxame (metade do dano em chefes)
 1542	Enxame
 1543	Foice exclusiva do Vampiro · Grande alcance, varre grupos de inimigos
 1544	Cajado verdejante
@@ -1349,8 +1349,8 @@
 1551	Regenera 3% de vida a cada 2 segundos
 1552	Corre 30% mais rápido
 1553	Véu das sombras
-1554	Habilidade: um meteoro sombrio cai do céu, dano forte em área e deixa uma zona de fogo sombrio por 10 s (queima 2% de vida/s) · Recarga 120 s
-1555	Habilidade: atordoa monstros próximos por 4 s (chefes 2 s) e os envenena — perdem 1% de vida/s por 15 s · Recarga 150 s
+1554	Habilidade: um meteoro sombrio cai do céu, dano forte em área e deixa uma zona de fogo sombrio por 10 s (queima 2% de vida/s) · Recarga 120 s (chefes: 5% no total)
+1555	Habilidade: atordoa monstros próximos por 4 s (chefes 2 s) e os envenena — perdem 1% de vida/s por 15 s · Recarga 150 s (chefes: 4% no total)
 1556	Habilidade: fique invisível e corra 50% mais rápido por 4 s (quebra ao causar dano) · Recarga 30 s
 1557	Amarra de espinhos
 1558	Passo selvagem
@@ -1362,3 +1362,16 @@
 1582	Coloque para descansar: multiplicador de dias +1 (sem bônus = x2) · toda manhã o contador avança pelo multiplicador · Máx. 1 cama por servidor
 1586	Aguardando o líder escolher o tamanho da equipe
 1589	🛏️ %s usou uma cama — os dias contam x%d!
+1590	📍 Clique no mapa para colocar um marcador
+1591	📍 Você chegou ao seu marcador
+1592	📍 Seu marcador está perto
+1593	Muito perto! %dm
+1594	Marcador %dm
+1595	Marcar
+1596	Mapa
+1597	Atacar
+1598	Cortar
+1599	Minerar
+1600	Pegar
+1601	Canteiro de frutas %d/%d
+1605	Acampamento %dm

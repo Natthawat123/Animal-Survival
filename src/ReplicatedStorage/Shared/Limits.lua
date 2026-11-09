@@ -10,7 +10,7 @@ local Limits = {}
 Limits.Structures = {
 	SpikeTrap = { Max = 8, Scope = "Player" },
 	Lantern = { Max = 6, Scope = "Player" },
-	Ballista = { Max = 2, Scope = "Player" },
+	Ballista = { Max = 5, Scope = "Server" }, -- หอคอยธนู (หน้าไม้ยักษ์): ทั้งเซิร์ฟรวมกัน 5 อัน
 	Bed2 = { Max = 1, Scope = "Server" }, -- เตียง 2 (โต๊ะเลเวล 4): ข้าม 1 วัน (นับที่ใช้ไปแล้ว เหมือนเตียง 1)
 	Bed = { Max = 1, Scope = "Server" }, -- วางแล้วข้าม 1 วัน (นับที่ใช้ไปแล้ว ไม่ใช่ที่ตั้งอยู่)
 	FarmPlot = { Max = 10, Scope = "Player" },

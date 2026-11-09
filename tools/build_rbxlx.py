@@ -37,12 +37,15 @@ ARMORPROBE = "--armorprobe" in sys.argv  # คราฟต์เกราะ 3 �
 SKILLPROBE = "--skillprobe" in sys.argv  # สกิลกดคลาส 5 ดาว (tests/ASSkillProbe.*.lua)
 HAMMERPROBE = "--hammerprobe" in sys.argv  # ค้อนช่าง ย้าย/รื้อสิ่งก่อสร้าง (tests/ASHammerProbe.*.lua)
 MEDPROBE = "--medprobe" in sys.argv  # ถือยา + ท่าพันแผล/ช่วยเพื่อน (tests/ASMedProbe.*.lua)
+GEYSERPROBE = "--geyserprobe" in sys.argv  # พวยน้ำบอสน้ำ (tests/ASGeyserProbe.client.lua) -> AnimalSurvival_GEYSER.rbxlx
+TRADERPROBE = "--traderprobe" in sys.argv  # พ่อค้าเดินเข้า/ยืนนอกเขตแคมป์/เดินหลบ (tests/ASTraderProbe.*.lua) -> AnimalSurvival_TRADER.rbxlx
 SWINGPROBE = "--swingprobe" in sys.argv  # ท่าตีหอก/ตรีศูล ค้างภาพกลางท่า (tests/ASSwingProbe.*.lua) -> build/AnimalSurvival_SWING.rbxlx
 GRIPPROBE = "--gripprobe" in sys.argv  # หมุนท่าจับหน้าไม้/เคียวหลายทิศ (tests/ASGripProbe.*.lua)
 ELEPHPROBE = "--elephprobe" in sys.argv  # ช้างวารีเดินจริง (tests/ASElephProbe.*.lua) -> AnimalSurvival_ELEPH.rbxlx
 LIDPROBE = "--lidprobe" in sys.argv  # หีบฝาเปิดได้จริง (tests/ASLidProbe.*.lua) -> build/AnimalSurvival_LID.rbxlx
 CHESTPROBE = "--chestprobe" in sys.argv  # กล่อง 3 ระดับ + อาวุธใหม่ (tests/ASChestProbe.*.lua)
 PADPROBE = "--padprobe" in sys.argv  # แท่นเริ่มเกม: เลือกจำนวนก่อนค่อยนับ (tests/ASPadProbe.client.lua)
+WALLPROBE = "--wallprobe" in sys.argv  # กำแพงไม้/หินดูดต่อกันอัตโนมัติ (tests/ASWallProbe.server.lua)
 COOKPROBE = "--cookprobe" in sys.argv  # ย่างเนื้อที่กองไฟ + ไม่ดูดของจากไกล (tests/ASCookProbe.*.lua)
 BERRYPROBE = "--berryprobe" in sys.argv  # พุ่มเบอร์รี่ เก็บ/กิน + ปุ่มกินบน HUD (tests/ASBerryProbe.*.lua)
 REJOINPROBE = "--rejoinprobe" in sys.argv  # จำลองทุกคนหลุด -> เซฟรอบ -> คืนรอบ (tests/ASRejoinProbe.server.lua)
@@ -57,6 +60,8 @@ BOSSSKILL = next((a for a in sys.argv if a.startswith("--bossskill")), None)  # 
 REALMPROBE = any(a.startswith("--realmprobe") for a in sys.argv)  # เดินผ่านประตูมิติศาลเจ้า/วิหาร + สู้บอสในรังจริง (tests/ASRealmProbe.*.lua) แมพขนาดจริง
 BOSSPROBE = "--bossprobe" in sys.argv  # ถ่ายภาพฉากเปิดตัวบอสทั้ง 4 (tests/ASBossProbe.*.lua)
 CLASSPROBE = "--classprobe" in sys.argv  # ถ่ายภาพร้านคลาสทีละคลาส (tests/ASClassProbe.client.lua)
+SIZEPROBE = "--sizeprobe" in sys.argv  # วัด/ถ่ายขนาดม่อนป่า 3 ระดับต่อธาตุ (tests/ASSizeProbe.*.lua) -> AnimalSurvival_SIZE.rbxlx
+CRATEPROBE = any(a.startswith("--crateprobe") for a in sys.argv)  # กล่องในแมพจริง: จม/ถูกบัง/หมุดตรงไหม + ภาพ (tests/ASCrateProbe.*.lua) -> AnimalSurvival_CRATE.rbxlx
 PROPPROBE = "--propprobe" in sys.argv  # วัดขนาดพุ่ม/เห็ด/ต้นไม้ในแมพจริง + ถ่ายภาพ (tests/ASPropProbe.server.lua)
 FORCELANG = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--lang=")), None)  # บังคับภาษา (เทสคำแปล) เช่น --uiaudit=touch --lang=th
 UIAUDIT = next((a for a in sys.argv if a.startswith("--uiaudit")), None)  # จำลองจอหลายขนาด ตรวจ UI ล้น/ทับ/ตัวเล็ก (tests/ASUIAudit.*.lua) · =touch มือถือ/แท็บเล็ต
@@ -65,7 +70,7 @@ SITEPROBE = "--siteprobe" in sys.argv  # ถ่ายภาพศาลเจ้
 LOOTPROBE = "--lootprobe" in sys.argv  # กติกาดรอปใหม่: AnyEssence/บอสรัง/วิหารออร่า/เกราะหน่วยลาดตระเวน (tests/ASLootProbe.*.lua)
 BREAKPROBE = "--breakprobe" in sys.argv  # วาง/พังสิ่งก่อสร้างทุกแบบ + โค่นต้นไม้/หิน/คริสตัล (tests/ASBreakProbe.*.lua)
 TOOLSPAM = "--toolspam" in sys.argv  # กดสลับของในแถบเครื่องมือรัวๆ เช็ก Tool งอก + ช่องยา (tests/ASToolSpam.*.lua)
-DROPPROBE = "--dropprobe" in sys.argv  # เสกของตกหน้าผู้เล่น เช็กว่ามองเห็น/อยู่บนพื้น/เก็บได้ (tests/ASDropProbe.*.lua)
+DROPPROBE = any(a.startswith("--dropprobe") for a in sys.argv)  # เสกของตกหน้าผู้เล่น เช็กว่ามองเห็น/อยู่บนพื้น/เก็บได้ (tests/ASDropProbe.*.lua)
 CAMPPROBE = "--campprobe" in sys.argv  # ถ่ายภาพกองไฟล็อบบี้/แคมป์ (tests/ASCampProbe.client.lua)
 LOBBYPROBE = "--lobbyprobe" in sys.argv  # วัดของจม/ลอยในล็อบบี้เทียบพื้นจริง (tests/ASLobbyProbe.client.lua)
 GALLERY = "--gallery" in sys.argv  # สตูดิโอถ่ายภาพ: สัตว์/ไอเทม/คลาส ทีละตัว
@@ -73,10 +78,20 @@ VFXSHOW = next((a.split("=", 1)[1] if "=" in a else "*" for a in sys.argv if a.s
 
 if GALLERY or VFXSHOW:
     TEST = True
-if TEST or SHOTS or TOOLSPAM or BREAKPROBE or LOOTPROBE or DROPPROBE or LOBBYPROBE or SITEPROBE or CLASSPROBE or UIPROBE or UIAUDIT or PROPPROBE or BOSSPROBE or FOGPROBE or SACKPROBE or BOSSSKILL or REALMPROBE or MONPROBE or SHRINEPROBE or GATEPROBE or REJOINPROBE or SKIPPROBE or BERRYPROBE or COOKPROBE or PADPROBE or ARMORPROBE or MEDPROBE or CHESTPROBE or LIDPROBE or ELEPHPROBE or GRIPPROBE or HAMMERPROBE or SKILLPROBE or SWINGPROBE:
+if TEST or SHOTS or TOOLSPAM or BREAKPROBE or LOOTPROBE or DROPPROBE or LOBBYPROBE or SITEPROBE or CLASSPROBE or UIPROBE or UIAUDIT or PROPPROBE or BOSSPROBE or FOGPROBE or SACKPROBE or BOSSSKILL or REALMPROBE or MONPROBE or SHRINEPROBE or GATEPROBE or REJOINPROBE or SKIPPROBE or BERRYPROBE or COOKPROBE or WALLPROBE or PADPROBE or ARMORPROBE or MEDPROBE or CHESTPROBE or LIDPROBE or ELEPHPROBE or GRIPPROBE or HAMMERPROBE or SKILLPROBE or SWINGPROBE or TRADERPROBE or GEYSERPROBE or CRATEPROBE or SIZEPROBE:
     OUT = os.path.join(OUT_DIR, "AnimalSurvival_TEST.rbxlx")
+    if SIZEPROBE:
+        OUT = os.path.join(OUT_DIR, "AnimalSurvival_SIZE.rbxlx")
+    if CRATEPROBE:
+        OUT = os.path.join(OUT_DIR, "AnimalSurvival_CRATE.rbxlx")
+        if "--crateprobe=touch" in sys.argv:
+            OUT = os.path.join(OUT_DIR, "AnimalSurvival_CRATETOUCH.rbxlx")
     if SWINGPROBE:
         OUT = os.path.join(OUT_DIR, "AnimalSurvival_SWING.rbxlx")
+    if TRADERPROBE:
+        OUT = os.path.join(OUT_DIR, "AnimalSurvival_TRADER.rbxlx")
+    if GEYSERPROBE:
+        OUT = os.path.join(OUT_DIR, "AnimalSurvival_GEYSER.rbxlx")
     if LIDPROBE:
         OUT = os.path.join(OUT_DIR, "AnimalSurvival_LID.rbxlx")
     if ELEPHPROBE:
@@ -97,6 +112,12 @@ if SHRINEPROBE:  # ไฟล์แยก: หลายเซสชันเท�
     OUT = os.path.join(OUT_DIR, "AnimalSurvival_SHRINE.rbxlx")
 if "--realmprobe=portals" in sys.argv:  # ไฟล์แยกเหมือนกัน
     OUT = os.path.join(OUT_DIR, "AnimalSurvival_PORTAL.rbxlx")
+if "--dropprobe=overlap" in sys.argv:  # ไฟล์แยก
+    OUT = os.path.join(OUT_DIR, "AnimalSurvival_DROPOV.rbxlx")
+if "--dropprobe=world" in sys.argv:
+    OUT = os.path.join(OUT_DIR, "AnimalSurvival_WORLD.rbxlx")
+if "--dropprobe=ride" in sys.argv:
+    OUT = os.path.join(OUT_DIR, "AnimalSurvival_RIDE.rbxlx")
 if UIAUDIT:  # ไฟล์แยกเหมือนกัน
     OUT = os.path.join(OUT_DIR, "AnimalSurvival_UIAUDIT.rbxlx")
 
@@ -237,6 +258,15 @@ def main():
         rs += value_item("BoolValue", "ASAutoTest", "true")
         rs += value_item("BoolValue", "ASLobbyTest", "true")
         rs += value_item("BoolValue", "ASLobbyProbe", "true")
+    if SIZEPROBE:
+        rs += value_item("BoolValue", "ASSizeProbe", "true")
+        rs += value_item("BoolValue", "ASAutoTest", "true")
+    if CRATEPROBE:
+        rs += value_item("BoolValue", "ASCrateProbe", "true")
+        if "--crateprobe=touch" in sys.argv:  # จำลองมือถือ (ไอคอนนำทาง/แตะแผนที่)
+            rs += value_item("BoolValue", "ASSimTouch", "true")
+        rs += value_item("BoolValue", "ASSiteProbe", "true")  # แมพขนาดจริง
+        rs += value_item("BoolValue", "ASAutoTest", "true")
     if PROPPROBE:
         rs += value_item("BoolValue", "ASPropProbe", "true")
         rs += value_item("BoolValue", "ASSiteProbe", "true")
@@ -278,6 +308,20 @@ def main():
         rs += value_item("BoolValue", "ASDropProbe", "true")
         rs += value_item("BoolValue", "ASAutoTest", "true")
         rs += value_item("BoolValue", "ASLobbyTest", "true")
+        if "--dropprobe=overlap" in sys.argv:  # วางของรัวๆ + ดรอปแบบตัดไม้ แล้ววัดว่าทับกันไหม
+            rs += value_item("StringValue", "ASDropMode", "overlap")
+        if "--dropprobe=ride" in sys.argv:  # ขี่สัตว์เลี้ยงลงน้ำลึก วัดว่าหัวพ้นน้ำไหม
+            rs += value_item("StringValue", "ASDropMode", "ride")
+        if "--dropprobe=world" in sys.argv:  # เมนู Worlds + เปิดห้องโลก + หน้าต่างชุบตอนทีมล้มหมด (ภาพ)
+            rs += value_item("StringValue", "ASDropMode", "world")
+    if GEYSERPROBE:
+        rs += value_item("BoolValue", "ASGeyserProbe", "true")
+        rs += value_item("BoolValue", "ASAutoTest", "true")
+        rs += value_item("BoolValue", "ASSkipCollision", "true")
+    if TRADERPROBE:
+        rs += value_item("BoolValue", "ASTraderProbe", "true")
+        rs += value_item("BoolValue", "ASAutoTest", "true")
+        rs += value_item("BoolValue", "ASSkipCollision", "true")
     if SWINGPROBE:
         rs += value_item("BoolValue", "ASSwingProbe", "true")
         rs += value_item("BoolValue", "ASAutoTest", "true")
@@ -319,6 +363,10 @@ def main():
         rs += value_item("BoolValue", "ASAutoTest", "true")
         rs += value_item("BoolValue", "ASLobbyTest", "true")
         rs += value_item("BoolValue", "ASSkipCollision", "true")
+    if WALLPROBE:
+        rs += value_item("BoolValue", "ASWallProbe", "true")
+        rs += value_item("BoolValue", "ASAutoTest", "true")
+        rs += value_item("BoolValue", "ASSkipCollision", "true")
     if COOKPROBE:
         rs += value_item("BoolValue", "ASCookProbe", "true")
         rs += value_item("BoolValue", "ASAutoTest", "true")
@@ -357,6 +405,7 @@ def main():
     if BOSSSKILL:
         rs += value_item("BoolValue", "ASBossSkill", "true")
         rs += value_item("BoolValue", "ASAutoTest", "true")
+        rs += value_item("BoolValue", "ASSkipCollision", "true")  # ไม่รอคำนวณกล่องชน (หลายนาที)
         if "=" in BOSSSKILL:
             rs += value_item("StringValue", "ASBossOnly", BOSSSKILL.split("=", 1)[1])
     if REALMPROBE:
@@ -399,6 +448,12 @@ def main():
     if CLASSPROBE:
         sps += script_item(os.path.join(TESTS, "ASClassProbe.client.lua"))
         sss += script_item(os.path.join(TESTS, "ASClassPassProbe.server.lua"))
+    if SIZEPROBE:
+        sss += script_item(os.path.join(TESTS, "ASSizeProbe.server.lua"))
+        sps += script_item(os.path.join(TESTS, "ASSizeProbe.client.lua"))
+    if CRATEPROBE:
+        sss += script_item(os.path.join(TESTS, "ASCrateProbe.server.lua"))
+        sps += script_item(os.path.join(TESTS, "ASCrateProbe.client.lua"))
     if PROPPROBE:
         sss += script_item(os.path.join(TESTS, "ASPropProbe.server.lua"))
     if UIAUDIT:
@@ -406,6 +461,11 @@ def main():
         sps += script_item(os.path.join(TESTS, "ASUIAudit.client.lua"))
     if UIPROBE:
         sps += script_item(os.path.join(TESTS, "ASUIProbe.client.lua"))
+    if GEYSERPROBE:
+        sps += script_item(os.path.join(TESTS, "ASGeyserProbe.client.lua"))
+    if TRADERPROBE:
+        sss += script_item(os.path.join(TESTS, "ASTraderProbe.server.lua"))
+        sps += script_item(os.path.join(TESTS, "ASTraderProbe.client.lua"))
     if SWINGPROBE:
         sss += script_item(os.path.join(TESTS, "ASSwingProbe.server.lua"))
         sps += script_item(os.path.join(TESTS, "ASSwingProbe.client.lua"))
@@ -441,6 +501,9 @@ def main():
         sps += script_item(os.path.join(TESTS, "ASArmorProbe.client.lua"))
     if PADPROBE:
         sps += script_item(os.path.join(TESTS, "ASPadProbe.client.lua"))
+    if WALLPROBE:
+        sss += script_item(os.path.join(TESTS, "ASWallProbe.server.lua"))
+        sps += script_item(os.path.join(TESTS, "ASWallProbe.client.lua"))
     if COOKPROBE:
         sss += script_item(os.path.join(TESTS, "ASCookProbe.server.lua"))
         sps += script_item(os.path.join(TESTS, "ASCookProbe.client.lua"))

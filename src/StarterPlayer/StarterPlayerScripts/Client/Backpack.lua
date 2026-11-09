@@ -12,6 +12,7 @@ local UserInputService = game:GetService("UserInputService")
 
 local ItemIcon = require(script.Parent.ItemIcon)
 local UIKit = require(script.Parent.UIKit)
+local Remotes = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Remotes"))
 
 local Backpack = {}
 local player = Players.LocalPlayer
@@ -28,6 +29,9 @@ local picked -- Tool ที่แตะเลือกไว้ (มือถื
 local drag -- { Tool, From = slotIndex|nil, Ghost, Start, Moved }
 local stashed = {} -- [ItemId/StructureKind] = true : ของที่ลากออกจากแถบไปเก็บกระเป๋า (ไม่เติมกลับเข้าช่องเอง)
 local function keyOf(t)
+	if t:GetAttribute("Multi") then
+		return t -- อาวุธซ้ำได้: แยกช่องทีละชิ้น ห้ามรวม
+	end
 	return t:GetAttribute("StructureKind") or t:GetAttribute("ItemId") or t
 end
 
@@ -48,7 +52,7 @@ local function tools()
 	for _, holder in ipairs(holders) do
 		for _, t in ipairs(holder:GetChildren()) do
 			if t:IsA("Tool") then
-				local key = t:GetAttribute("StructureKind") or t:GetAttribute("ItemId") or t
+				local key = keyOf(t)
 				if not seen[key] then
 					seen[key] = true
 					table.insert(list, t)
@@ -127,6 +131,16 @@ local function countText(t)
 		return "x" .. n
 	end
 	return t:GetAttribute("Fill") or ""
+end
+
+-- จุดนี้อยู่บนหน้าต่างกระเป๋าที่เปิดอยู่ไหม
+local function overInv(pos)
+	local f = ui.Inv
+	if not (f and f.Visible) then
+		return false
+	end
+	local a, z = f.AbsolutePosition, f.AbsoluteSize
+	return pos.X >= a.X and pos.X <= a.X + z.X and pos.Y >= a.Y and pos.Y <= a.Y + z.Y
 end
 
 local function slotAt(pos)
@@ -443,6 +457,9 @@ function Backpack.Build()
 			local i = slotAt(p)
 			if i then
 				assign(d.Tool, i)
+			elseif d.From and not overInv(p) and player:GetAttribute("InRun") then
+				-- ลากออกจากแถบไปปล่อยที่อื่น (ไม่ใช่ช่อง/กระเป๋า) = ทิ้งของชิ้นนั้นลงพื้น (มือถือ + คอม เหมือนกด Backspace)
+				Remotes.Get("DropHeld"):FireServer(d.Tool)
 			elseif d.From and ui.Inv.Visible then
 				-- ลากออกจากแถบไปที่กระเป๋า = เก็บเข้ากระเป๋า (ช่องว่าง · ไม่เติมกลับเอง จนกว่าจะลากใส่ช่องใหม่)
 				slots[d.From] = nil
@@ -531,7 +548,7 @@ function Backpack.Refresh()
 	for i = 1, N do
 		local t = slots[i]
 		if t then
-			local key = t:GetAttribute("StructureKind") or t:GetAttribute("ItemId") or t
+			local key = keyOf(t)
 			if not present[t] or used[t] or usedKey[key] then
 				slots[i] = nil
 			else

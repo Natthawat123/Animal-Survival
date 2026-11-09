@@ -19,6 +19,7 @@ local Classes = require(Shared.Classes)
 local Remotes = require(Shared.Remotes)
 local UIKit = require(script.Parent.UIKit)
 local SwingAnim = require(script.Parent.SwingAnim)
+local ItemIcon = require(script.Parent.ItemIcon)
 
 local CombatClient = {}
 local player = Players.LocalPlayer
@@ -51,6 +52,8 @@ local SOUND = {
 	Break = ids(9113974103),
 	WoodHit = ids(9113225985),
 	Chest = ids(17208361335), -- เปิดกล่อง (เสียงรางวัล)
+	Warp = ids(9113077334), -- ลมวูบหนัก (จิ้งจอกวาป/หาย)
+	Snarl = ids(9120790555, 9120790847), -- หมาป่าแยกเขี้ยว (จิ้งจอกโผล่)
 }
 
 function CombatClient.Sound(name, at, volume, pitch)
@@ -79,15 +82,19 @@ end
 
 ---------------------------------------------------------------- จอสั่น
 local shake = 0
-CombatClient.ShakeEnabled = true -- ตั้งค่า: ปิดจอสั่นได้
-function CombatClient.Shake(power, time)
-	if not CombatClient.ShakeEnabled then
-		return
-	end
+CombatClient.ShakeEnabled = false -- ปิดจอสั่นทั้งเกม (ตีโดน/อาวุธ/ฝูงบุก/ฉากคัตซีน) กันผู้เล่นมึนหัว
+local function addShake(power, time)
 	shake = math.max(shake, power)
 	task.delay(time or 0.3, function()
 		shake = math.max(0, shake - power)
 	end)
+end
+function CombatClient.Shake(power, time)
+	-- ไม่สั่นจอ (ยกเว้นยืนอยู่ในเขตบอสทุบ = CombatClient.ZoneShake)
+end
+-- บอสทุบ/ระเบิด: สั่นเบา ๆ เฉพาะคนที่ยืนอยู่ในเขตนั้น (BossFX ตัดสินระยะเอง) · นอกเขตไม่สั่น
+function CombatClient.ZoneShake(power, time)
+	addShake(math.min(power, 0.6), time)
 end
 
 ---------------------------------------------------------------- ตัวช่วย FX
@@ -588,6 +595,30 @@ local function dreadVignette(power)
 	TweenService:Create(dread, TweenInfo.new(1.6), { GroupTransparency = 1 }):Play()
 end
 
+-- จิ้งจอกจันทรา: โผล่ (วาป) — ควันม่วงดำพุ่ง + วงพื้น + เสียงวูบ/แยกเขี้ยว · เหยื่อ = ขอบจอมืด + สั่น
+Handlers.StalkerWarp = function(d)
+	local pos = d.Position
+	smoke(pos + Vector3.new(0, 3, 0), Color3.fromRGB(40, 16, 60), 30, 14)
+	smoke(pos + Vector3.new(0, 1, 0), Color3.fromRGB(8, 4, 14), 18, 18)
+	burst(pos + Vector3.new(0, 4, 0), Color3.fromRGB(190, 110, 255), 26, 26, 0.7)
+	ring(pos, 16, Color3.fromRGB(150, 70, 230), 0.6, 0.5)
+	CombatClient.Sound("Warp", pos, 1.2, 0.55)
+	task.delay(0.15, function()
+		CombatClient.Sound("Snarl", pos, 1.4, 0.8)
+	end)
+	if d.Prey == player then
+		task.delay(0.1, function()
+			dreadVignette(0.75)
+			CombatClient.Shake(0.35, 1.2)
+		end)
+	end
+end
+-- จิ้งจอกจันทรา: หายตัว — ควันดำม้วน + เสียงวูบต่ำ
+Handlers.StalkerFade = function(d)
+	smoke(d.Position + Vector3.new(0, 2, 0), Color3.fromRGB(20, 10, 30), 26, 16)
+	burst(d.Position + Vector3.new(0, 4, 0), Color3.fromRGB(150, 80, 220), 14, 14, 0.5)
+	CombatClient.Sound("Warp", d.Position, 0.9, 0.42)
+end
 -- คนอื่นตี: เล่นท่าตีของอาวุธนั้นบนตัวเขา (ตัวเองเล่นไปแล้วตอนกด)
 Handlers.Swing = function(d)
 	if d.Player ~= player then
@@ -634,6 +665,40 @@ Handlers.NodeHit = function(d)
 				node:PivotTo(cf)
 			end
 		end)
+	end
+end
+-- เก็บเบอร์รี่จากต้น: ลูกเด้งออกจากต้นลอยโค้งเข้าตัวคนเก็บ (กิน = เข้าปาก)
+Handlers.BerryPick = function(d)
+	local from = d.From
+	local char = d.Player and d.Player.Character
+	local head = char and (char:FindFirstChild("Head") or char:FindFirstChild("HumanoidRootPart"))
+	if typeof(from) ~= "Vector3" or not head then
+		return
+	end
+	local b = Instance.new("Part")
+	b.Shape = Enum.PartType.Ball
+	b.Size = Vector3.one * 0.7
+	b.Color = Color3.fromRGB(160, 80, 190)
+	b.Material = Enum.Material.SmoothPlastic
+	b.Anchored, b.CanCollide, b.CanQuery, b.CanTouch, b.CastShadow = true, false, false, false, false
+	b.Position = from
+	b.Parent = workspace
+	burst(from, Color3.fromRGB(110, 200, 90), 5, 8, 0.35, "rbxasset://textures/particles/smoke_main.dds")
+	local t0, dur = os.clock(), 0.32
+	local conn
+	conn = game:GetService("RunService").RenderStepped:Connect(function()
+		local a = math.min(1, (os.clock() - t0) / dur)
+		if not head.Parent or a >= 1 then
+			conn:Disconnect()
+			b:Destroy()
+			return
+		end
+		local to = head.Position + Vector3.new(0, d.Eat and 0 or -1.2, 0)
+		b.Position = from:Lerp(to, a) + Vector3.new(0, math.sin(a * math.pi) * 2.2, 0)
+		b.Size = Vector3.one * (0.7 * (1 - a * 0.5))
+	end)
+	if d.Player == game:GetService("Players").LocalPlayer then
+		CombatClient.Sound("Bush", from, 0.4, 1.25)
 	end
 end
 -- พัง/วางของ: ท่าแยกตามวัสดุ (BreakFX)
@@ -713,15 +778,18 @@ Handlers.Grind = function(d)
 	st.Until = os.clock() + 1.6
 	-- อนุภาคตามชนิดของ
 	local hasWood, hasHard = false, false
-	local lines = {}
+	local got = {}
 	for id, n in pairs(d.Items or {}) do
 		if id == "Wood" or id == "Fiber" then
 			hasWood = true
 		else
 			hasHard = true
 		end
-		table.insert(lines, "+" .. n .. " " .. Items.DisplayName(id))
+		table.insert(got, { id, n })
 	end
+	table.sort(got, function(a, b)
+		return a[1] < b[1]
+	end)
 	local outPart = bench:FindFirstChild("GrindOut")
 	local top = outPart and outPart.Position or (hopper.Position + Vector3.new(0, hopper.Size.Y * 0.4, 0))
 	if hasWood then
@@ -732,24 +800,38 @@ Handlers.Grind = function(d)
 		burst(top, Color3.fromRGB(255, 200, 110), 28, 26, 0.3)
 		smoke(top, Color3.fromRGB(150, 145, 140), 10, 4)
 	end
-	-- ป้ายตัวเลขลอยขึ้น
+	-- ป้ายลอยขึ้น: รูปไอเทมจริง (ItemIcon) + "+n ชื่อ" ต่อชนิด
 	local bb = Instance.new("BillboardGui")
-	bb.Size = UDim2.fromOffset(220, 60)
+	bb.Size = UDim2.fromOffset(420, 52)
 	bb.StudsOffsetWorldSpace = Vector3.new(0, hopper.Size.Y * 0.9, 0)
 	bb.AlwaysOnTop = true
 	bb.Adornee = hopper
-	local t = Instance.new("TextLabel")
-	t.Size = UDim2.fromScale(1, 1)
-	t.BackgroundTransparency = 1
-	t.Font = Enum.Font.GothamBlack
-	t.TextScaled = true
-	t.TextColor3 = Color3.fromRGB(150, 255, 160)
-	t.TextStrokeTransparency = 0.3
-	t.Text = "📦 " .. table.concat(lines, "  ")
-	t.Parent = bb
+	local lay = Instance.new("UIListLayout")
+	lay.FillDirection = Enum.FillDirection.Horizontal
+	lay.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	lay.VerticalAlignment = Enum.VerticalAlignment.Center
+	lay.SortOrder = Enum.SortOrder.LayoutOrder
+	lay.Padding = UDim.new(0, 6)
+	lay.Parent = bb
+	local fade = TweenInfo.new(1.6, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+	for i, g in ipairs(got) do
+		local vp = ItemIcon.Make(bb, g[1], { Size = UDim2.fromOffset(44, 44), LayoutOrder = i * 2 })
+		TweenService:Create(vp, fade, { ImageTransparency = 1 }):Play()
+		local t = Instance.new("TextLabel")
+		t.Size = UDim2.fromOffset(0, 44)
+		t.AutomaticSize = Enum.AutomaticSize.X
+		t.BackgroundTransparency = 1
+		t.Font = Enum.Font.GothamBlack
+		t.TextSize = 30
+		t.TextColor3 = Color3.fromRGB(150, 255, 160)
+		t.TextStrokeTransparency = 0.3
+		t.Text = "+" .. g[2] .. " " .. Items.DisplayName(g[1]) .. (i < #got and "  " or "")
+		t.LayoutOrder = i * 2 + 1
+		t.Parent = bb
+		TweenService:Create(t, fade, { TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
+	end
 	bb.Parent = hopper
 	TweenService:Create(bb, TweenInfo.new(1.6), { StudsOffsetWorldSpace = Vector3.new(0, hopper.Size.Y + 6, 0) }):Play()
-	TweenService:Create(t, TweenInfo.new(1.6, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
 	Debris:AddItem(bb, 1.7)
 	if already then
 		return
@@ -813,7 +895,7 @@ end
 local BossFX = require(script.Parent:WaitForChild("BossFX"))
 BossFX.Init(function(power, time)
 	CombatClient.Shake(power, time)
-end)
+end, CombatClient.ZoneShake)
 for k, fn in pairs(BossFX.Handlers) do
 	Handlers[k] = fn
 end
@@ -958,6 +1040,83 @@ Handlers.ChestOpen = function(d)
 		CombatClient.Sound("Chest", pos, 0.7, 0.95 + tier * 0.05)
 	end)
 end
+
+-- กล่องเปิดได้ทุกคน (คนละรอบ): เซิร์ฟเวอร์ติด attribute "Opened_<UserId>" ให้คนที่เปิดแล้ว
+--   เครื่องเราเท่านั้นที่ปิดปุ่ม / ฝาค้างเปิด / กล่องเสบียงจางหาย · คนอื่นยังเห็นกล่องปิดและเปิดเองได้
+--   attribute หาย (เริ่มรอบใหม่) = คืนสภาพเดิมบนเครื่องเรา
+do
+	local CollectionService = game:GetService("CollectionService")
+	local KEY = "Opened_" .. player.UserId
+	local function setShown(model, shown, instant)
+		local fade = CollectionService:HasTag(model, "SupplyCrate")
+		local lid, hinge = ChestLid.Find(model)
+		for _, d in ipairs(model:GetDescendants()) do
+			if d:IsA("ProximityPrompt") then
+				d.Enabled = shown
+			end
+		end
+		if shown then
+			if lid then
+				lid.CFrame = ChestLid.Closed(lid)
+			end
+			for _, d in ipairs(model:GetDescendants()) do
+				if d:IsA("BasePart") and d:GetAttribute("LocalBaseT") ~= nil then
+					d.Transparency = d:GetAttribute("LocalBaseT")
+					d.CanCollide = d:GetAttribute("LocalBaseC")
+					d:SetAttribute("LocalBaseT", nil)
+					d:SetAttribute("LocalBaseC", nil)
+				elseif d:IsA("Light") or d:IsA("ParticleEmitter") then
+					d.Enabled = true
+				end
+			end
+			return
+		end
+		if instant and lid then
+			lid.CFrame = ChestLid.CFrameAt(ChestLid.Closed(lid), hinge, 1)
+		end
+		if not fade then
+			return -- หีบในซาก: ฝาค้างเปิดไว้ ไม่หาย
+		end
+		task.delay(instant and 0 or (lid and 2.6 or 1.3), function()
+			if not model:GetAttribute(KEY) then
+				return
+			end
+			for _, d in ipairs(model:GetDescendants()) do
+				if d:IsA("BasePart") then
+					if d:GetAttribute("LocalBaseT") == nil then
+						d:SetAttribute("LocalBaseT", d.Transparency)
+						d:SetAttribute("LocalBaseC", d.CanCollide)
+					end
+					if instant then
+						d.Transparency = 1
+					else
+						TweenService:Create(d, TweenInfo.new(0.8), { Transparency = 1 }):Play()
+					end
+					d.CanCollide = false
+				elseif d:IsA("Light") or d:IsA("ParticleEmitter") then
+					d.Enabled = false
+				end
+			end
+		end)
+	end
+	local function watch(model)
+		if not model:IsA("Model") then
+			return
+		end
+		if model:GetAttribute(KEY) then
+			setShown(model, false, true)
+		end
+		model:GetAttributeChangedSignal(KEY):Connect(function()
+			setShown(model, not model:GetAttribute(KEY), false)
+		end)
+	end
+	for _, tag in ipairs({ "SupplyCrate", "Chest" }) do
+		for _, m in ipairs(CollectionService:GetTagged(tag)) do
+			watch(m)
+		end
+		CollectionService:GetInstanceAddedSignal(tag):Connect(watch)
+	end
+end
 wrap("Refuel", function(d)
 	vfx(VFX_NAMES.Fire, d.Position + Vector3.new(0, 2, 0), { Scale = 3.5, Duration = 0.4 })
 end)
@@ -966,9 +1125,9 @@ function CombatClient.HandleFx(kind, data, hud)
 	if kind == "Pickup" then
 		hud.Pickup(data.Item, data.Count)
 		return
-	elseif kind == "Loot" then
+	elseif kind == "Loot" or kind == "Stored" then
 		for id, n in pairs(data.Items or {}) do
-			hud.Pickup(id, n)
+			hud.Pickup(id, n, kind == "Stored")
 		end
 		return
 	elseif kind == "Eat" or kind == "Heal" then

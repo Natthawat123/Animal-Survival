@@ -304,6 +304,9 @@ st:SetAttribute("BonusDays", 0)
 hum:UnequipTools()
 player:SetAttribute("TestGod", nil)
 hum.Health = hum.MaxHealth
+-- จิ้งจอกของคืนจริงที่เกมปล่อยเอง (ถ้ามี) จะจองเหยื่อคนเดียวกัน -> เคลียร์ก่อนเทสต์
+print("[AS] SKILLPROBE INFO stalkers-before " .. S.AnimalService:CountKind("Stalker"))
+S.AnimalService:ClearKind("Stalker", true)
 local fox = S.AnimalService:Spawn("Moonfang", root.Position + Vector3.new(35, 0, 0), { Kind = "Stalker" })
 check("fox-spawn", fox ~= nil)
 if fox then
@@ -312,6 +315,7 @@ if fox then
 	local t2 = os.clock() + 15
 	repeat
 		task.wait(0.1)
+		S.SkillService:BreakVeil(player) -- เทสฝั่งไคลเอนต์กดล่องหนพร้อมกัน = จิ้งจอกมองไม่เห็น
 	until hum.Health < hp0 - 1 or os.clock() > t2
 	local firstAt = os.clock()
 	local dmg1 = hp0 - hum.Health
@@ -321,28 +325,165 @@ if fox then
 	repeat
 		task.wait(0.1)
 		maxGap = math.max(maxGap, (fox.Root.Position - root.Position).Magnitude)
+		S.SkillService:BreakVeil(player)
 	until hum.Health < hp1 - 1 or os.clock() > firstAt + 8
 	local gap = os.clock() - firstAt
 	check("fox-cooldown-4", gap > 3.6 and gap < 5, string.format("%.2f", gap))
 	check("fox-stays-close", maxGap < 20, string.format("%.1f", maxGap))
+	check("fox-chase-sound", fox.ChaseSound ~= nil and fox.ChaseSound.Playing, fox.State)
 	player:SetAttribute("TestGod", true)
 	hum.Health = hum.MaxHealth
-	-- เข้าแคมป์: จิ้งจอกต้องอยู่นอกเขต
+	local AS = S.AnimalService
+	local function waitFor(fn, t)
+		local untilT = os.clock() + t
+		repeat
+			task.wait(0.1)
+			S.SkillService:BreakVeil(player)
+		until fn() or os.clock() > untilT
+		return fn()
+	end
+	-- ถือไฟ: เดินหนีออก แล้วหายตัว (ไม่วนเฝ้า)
+	local CS = S.CombatService
+	local origEq = CS.EquippedTool
+	CS.EquippedTool = function(p)
+		if p == player then
+			return "Torch", { Light = 20 }
+		end
+		return origEq(p)
+	end
+	local sawRetreat = waitFor(function() return fox.State == "Retreat" end, 2)
+	local hid = waitFor(function() return fox.Hidden == true end, 5)
+	check("fox-torch-vanish", sawRetreat and hid, string.format("retreat=%s hidden=%s st=%s", tostring(sawRetreat), tostring(hid), tostring(fox.State)))
+	task.wait(1)
+	check("fox-hidden-in-sky", fox.Root.Position.Y > 500 and fox.Model:GetAttribute("Hidden") == true, string.format("y %.0f", fox.Root.Position.Y))
+	-- เลิกถือไฟ: พักครบแล้ววาปโผล่ใกล้ ๆ แล้วไล่ต่อ
+	CS.EquippedTool = origEq
+	local back = waitFor(function() return not fox.Hidden and fox.State == "Hunt" end, 9)
+	local wd = (fox.Root.Position - root.Position).Magnitude
+	check("fox-warp-back", back and wd < 60, string.format("back=%s d=%.1f stalkers=%d", tostring(back), wd, AS:CountKind("Stalker")))
+	-- เข้าแคมป์: เดินออกแล้วหายตัว · ไม่ยืนเฝ้า
 	local safe = S.CampService:SafeRadius()
 	player.Character:PivotTo(CFrame.new(ctx.CampPosition + Vector3.new(0, 4, 0)))
-	task.wait(7)
-	local fd = S.AnimalService:CampDistance(fox.Root.Position)
-	check("fox-outside-camp", fd >= safe + 6, string.format("%.1f (safe %.1f)", fd, safe))
-	S.AnimalService:ClearKind("Stalker", true)
+	local gone = waitFor(function() return fox.Hidden == true end, 6)
+	task.wait(0.8)
+	local fd = AS:CampDistance(fox.Root.Position)
+	check("fox-camp-vanish", gone and fd >= safe, string.format("hidden=%s fd=%.1f (safe %.1f)", tostring(gone), fd, safe))
+	-- ออกจากแคมป์: วาปไปหาแล้วไล่
+	player.Character:PivotTo(CFrame.new(spot + Vector3.new(0, 3, 0)))
+	local again = waitFor(function() return not fox.Hidden and fox.State == "Hunt" end, 9)
+	local ad = (fox.Root.Position - root.Position).Magnitude
+	check("fox-warp-after-camp", again and ad < 60, string.format("back=%s d=%.1f", tostring(again), ad))
+	-- ขี่สัตว์ = จิ้งจอกเร่งตาม (WalkSpeed สูงกว่าตอนเดิน)
+	local ws0 = 0
+	waitFor(function()
+		ws0 = math.max(ws0, fox.Hum.WalkSpeed)
+		return false
+	end, 1.2)
+	player:SetAttribute("MountSpeed", 1.6)
+	local ws1 = 0
+	waitFor(function()
+		ws1 = math.max(ws1, fox.Hum.WalkSpeed)
+		return false
+	end, 1.2)
+	player:SetAttribute("MountSpeed", nil)
+	check("fox-mount-faster", ws1 > ws0 * 1.4, string.format("walk %.1f ride %.1f", ws0, ws1))
+	-- ตัวที่ 2: คนเดียวในห้อง = ไม่แย่งเหยื่อตัวแรก (ซ่อน/เดินหนี ไม่ไล่ซ้อน)
+	local fox2 = AS:Spawn("Moonfang", root.Position + Vector3.new(-35, 0, 0), { Kind = "Stalker" })
+	local both = false
+	waitFor(function()
+		both = both or (fox2 and fox2.State == "Hunt" and fox.State == "Hunt")
+		return false
+	end, 4)
+	check("fox-no-double-chase", fox2 ~= nil and not both and fox2.Prey ~= player, string.format("fox1=%s fox2=%s", tostring(fox.State), tostring(fox2 and fox2.State)))
+	AS:ClearKind("Stalker", true)
 	player.Character:PivotTo(CFrame.new(spot + Vector3.new(0, 3, 0)))
 	task.wait(1)
 end
+-- กัดหลบได้: ยืนเฉย = โดน · ถอยออกตอนเห็นแถบเตือน = ไม่โดน
+do
+	player:SetAttribute("TestGod", false)
+	hum.Health = hum.MaxHealth
+	local here = root.Position
+	local wolf = S.AnimalService:Spawn("MossWolf", here + root.CFrame.LookVector * 6, { Kind = "Wild" })
+	check("bite-spawn", wolf ~= nil)
+	if wolf then
+		task.wait(0.5)
+		local AS = S.AnimalService
+		local w = AS:BiteWindup(wolf)
+		wolf.IntroUntil = math.huge -- แช่ AI ตัวทดสอบ (ไม่กัดเอง/ไม่เดินตาม) ทดสอบเฉพาะจังหวะกัด
+		local function bite()
+			wolf.BiteUntil, wolf.NextAttack = nil, 0
+			player.Character:PivotTo(CFrame.new(wolf.Root.Position + ((root.Position - wolf.Root.Position) * Vector3.new(1, 0, 1)).Unit * 4, wolf.Root.Position))
+			task.wait()
+			AS:AttackPlayer(wolf, player, os.clock())
+		end
+		hum.Health = hum.MaxHealth
+		local h0 = hum.Health
+		bite()
+		task.wait(w + 0.25)
+		check("bite-stand-hit", hum.Health < h0 - 0.5, string.format("windup %.2f dmg %.1f", w, h0 - hum.Health))
+		task.wait((wolf.Info.AttackCooldown or 1.5) + 0.2)
+		hum.Health = hum.MaxHealth
+		h0 = hum.Health
+		bite()
+		task.wait(0.2) -- เห็นแถบเตือนแล้วถอยหลัง 14 สตั๊ด
+		local back = (root.Position - wolf.Root.Position) * Vector3.new(1, 0, 1)
+		player.Character:PivotTo(CFrame.new(root.Position + back.Unit * 14))
+		task.wait(w)
+		check("bite-dodge-back", hum.Health >= h0 - 0.5, string.format("dmg %.1f", h0 - hum.Health))
+		wolf.Model:Destroy()
+	end
+	hum.Health = hum.MaxHealth
+	player.Character:PivotTo(CFrame.new(spot + Vector3.new(0, 3, 0)))
+	task.wait(0.5)
+end
 player:SetAttribute("TestGod", true)
+-- ไฟเผา: สีตามออร่าอาวุธ (คทาพ่อมดมืด = ม่วงดำ · ดาบไฟ = ส้มแดง)
+local TF = require(game:GetService("ServerScriptService").Server.ToolFactory)
+local sc = TF.BurnColor("ArcaneStaff", Items.Tools.ArcaneStaff)
+local k0 = sc and sc.Keypoints[1].Value
+check("burn-color-shadow", k0 ~= nil and k0.B > k0.G and k0.R > k0.G, k0 and tostring(k0))
+local fc = TF.BurnColor("EmberBlade", Items.Tools.EmberBlade)
+local f0 = fc and fc.Keypoints[1].Value
+check("burn-color-fire", f0 ~= nil and f0.R > f0.B, f0 and tostring(f0))
+-- ของตก: ตัดไม้ 6 ท่อนไม่ทับกัน
+local dropPos = root.Position + root.CFrame.LookVector * 12
+for _ = 1, 6 do
+	S.DropService:Spawn("Wood", 1, dropPos, { Dir = -root.CFrame.LookVector, Spread = 2 })
+end
+task.wait(1.2)
+local logs = {}
+for _, m in ipairs(Workspace.Drops:GetChildren()) do
+	if m:GetAttribute("ItemId") == "Wood" and m.PrimaryPart and (m.PrimaryPart.Position - dropPos).Magnitude < 25 then
+		table.insert(logs, m.PrimaryPart.Position)
+	end
+end
+local minGap = math.huge
+for i = 1, #logs do
+	for j = i + 1, #logs do
+		minGap = math.min(minGap, ((logs[i] - logs[j]) * Vector3.new(1, 0, 1)).Magnitude)
+	end
+end
+check("drops-no-overlap", #logs >= 6 and minGap > 1.6, string.format("%d logs · min gap %.2f", #logs, minGap))
 print(string.format("[AS] SKILLPROBE RESULT fails=%d", fails))
 -- ภาพเอฟเฟกต์ (client เล่นเองให้ตรงจังหวะถ่าย) · มอน 1 ตัวให้หนามพัน
 killAll()
 local mob = wolf(root.CFrame.LookVector * 10)
 mob.Root.Anchored = true
+-- ระหว่างถ่ายภาพ: ไม่มีจิ้งจอกจันทรามาบังกล้อง + กลางวัน
+task.spawn(function()
+	while true do
+		S.AnimalService:ClearKind("Stalker", true)
+		game:GetService("Lighting").ClockTime = 13
+		-- สัตว์ป่าตัวอื่นเดินมารุมจุดถ่าย -> เอาออก (เหลือมอนทดสอบตัวเดียว)
+		for _, o in ipairs(S.AnimalService:InRadius(root.Position, 90, false)) do
+			if o ~= mob and o.Kind == "Wild" and not o.Dead then
+				S.AnimalService:Remove(o)
+			end
+		end
+		task.wait(1)
+	end
+end)
 ReplicatedStorage:SetAttribute("FxShow", true)
 task.wait(75)
 -- ทดสอบจริงทั้งเส้น: client กดช่องสกิล (ClassSkill.Use เดียวกับปุ่ม Q/Z/แตะ) -> remote -> เซิร์ฟเวอร์ -> เอฟเฟกต์จริง
