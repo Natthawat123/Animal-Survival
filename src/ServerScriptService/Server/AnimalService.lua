@@ -111,7 +111,7 @@ function AnimalService:Spawn(id, position, opts)
 	local surv = self.ctx.Services.SurvivalService
 	local partyScale = Nights.PartyScale(surv and surv:RunPlayerCount(true) or 1)
 	local isBoss = opts.Kind == "Boss" or (opts.Kind == "Guardian" and info.Behaviour == "Boss")
-	local healthMult = (opts.HealthMult or 1) * (isBoss and 1 or partyScale.Health)
+	local healthMult = (opts.HealthMult or 1) * (isBoss and Config.BossHealthScale or partyScale.Health)
 	local maxHp = (info.Health == math.huge) and 1e9 or info.Health * healthMult
 	hum.MaxHealth = maxHp
 	hum.Health = maxHp

@@ -51,6 +51,9 @@ local function folder()
 end
 
 local function priceText()
+	if player:GetAttribute("DevFreeWorlds") then
+		return "Free (dev)"
+	end
 	if (Config.WorldProductId or 0) <= 0 then
 		return "Free (test)"
 	end
@@ -532,7 +535,7 @@ function WorldUI.Init()
 			WorldUI.Refresh()
 		end
 	end)
-	for _, a in ipairs({ "MyWorlds", "BestNight" }) do
+	for _, a in ipairs({ "MyWorlds", "BestNight", "DevFreeWorlds" }) do
 		player:GetAttributeChangedSignal(a):Connect(WorldUI.Refresh)
 	end
 	Players.PlayerAdded:Connect(WorldUI.Refresh)

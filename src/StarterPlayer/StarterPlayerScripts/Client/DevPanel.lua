@@ -295,6 +295,8 @@ local TABS = {
 		local amount = box(page, "Ruby amount", "1000")
 		btn(page, "🎁 Send Ruby to this player", C(150, 100, 40), function() run("giftDiamonds", who.Text, amount.Text) end)
 		btn(page, "🎁 Send to everyone in the server", C(150, 100, 40), function() run("giftDiamonds", "*", amount.Text) end)
+		btn(page, "🌍 Free Create World ON/OFF (no Robux)", C(60, 130, 90), function() run("freeWorlds") end)
+		btn(page, "🌍 +5 World credits", C(60, 110, 130), function() run("worldCredits", 5) end)
 		btn(page, "🔓 Unlocked all classes", C(70, 120, 70), function() run("unlockAll") end)
 		btn(page, "⭐ Current class to level 3", C(150, 120, 40), function() run("maxClass") end)
 		btn(page, "🔄 Reset daily reward + stock", nil, function() run("resetDaily") end)

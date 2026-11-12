@@ -1606,3 +1606,6 @@
 1605	Camp %dm
 1606	⏳ Fighting at %s — daylight +%d minute
 1607	a boss lair
+1608	🔥 Upgrade the campfire to Lv.%d to free this pup
+1609	Needs Campfire Lv.%d
+1610	The %s Shrine seal has weakened · needs Campfire Lv.%d to free the pup

@@ -5,6 +5,99 @@ if not ReplicatedStorage:FindFirstChild("ASDropProbe") then
 end
 local Server = game:GetService("ServerScriptService"):WaitForChild("Server")
 
+-- --dropprobe=worldsave / --resumejson: เซฟโลกตอนเจ้าของออก -> เปิดใหม่จากเซฟ ได้ของเดิมไหม
+local wsMode = ReplicatedStorage:FindFirstChild("ASDropMode")
+if wsMode and (wsMode.Value == "worldsave" or wsMode.Value == "worldresume") then
+	task.spawn(function()
+		local Players = game:GetService("Players")
+		local HttpService = game:GetService("HttpService")
+		local player = Players:GetPlayers()[1] or Players.PlayerAdded:Wait()
+		local state = ReplicatedStorage:WaitForChild("GameState")
+		repeat
+			task.wait(1)
+		until state:GetAttribute("Ready") and player.Character
+		task.wait(4)
+		local S = function(n)
+			return require(Server:WaitForChild(n))
+		end
+		local inv, build, res = S("InventoryService"), S("BuildingService"), S("ResourceService")
+		local function felled()
+			local n = 0
+			for _ in pairs(res.felled or {}) do
+				n += 1
+			end
+			return n
+		end
+		if wsMode.Value == "worldsave" then
+			S("LobbyService"):Depart(player)
+			task.wait(8)
+			player:SetAttribute("TestGod", true)
+			state:SetAttribute("WorldOwner", player.UserId)
+			state:SetAttribute("WorldId", "probe_world")
+			local dir = S("DirectorService")
+			dir.night = 3
+			state:SetAttribute("Night", 3)
+			inv:Add(player, "Wood", 17, true)
+			inv:Add(player, "Iron", 5, true)
+			local root = player.Character.HumanoidRootPart
+			build:Spawn("LogWall", CFrame.new(root.Position + Vector3.new(12, 0, 0)), 200, 200, player.UserId)
+			build:Spawn("LogWall", CFrame.new(root.Position + Vector3.new(18, 0, 0)), 200, 200, player.UserId)
+			-- โค่นต้นไม้ 3 ต้นที่ใกล้สุด
+			local trees = {}
+			for _, node in ipairs(game:GetService("CollectionService"):GetTagged("ResourceNode")) do
+				if node:GetAttribute("Node") == "Tree" and not node:GetAttribute("Depleted") then
+					table.insert(trees, node)
+					if #trees >= 3 then
+						break
+					end
+				end
+			end
+			for _, node in ipairs(trees) do
+				res:Fell(node, root.Position)
+			end
+			task.wait(2)
+			-- เส้นทางจริงตอนเจ้าของออก: WorldService:OnOwnerLeft -> SaveRunFor -> DataService:SaveWorld (ดักไว้แทน DataStore)
+			local captured
+			local ds = S("DataService")
+			ds.SaveWorld = function(_, p, id, run)
+				captured = { Id = id, Run = run }
+				return true
+			end
+			print(string.format("[AS] WSAVE before: night=%d structures=%d felled=%d wood=%d iron=%d", dir.night, #build:All(), felled(), inv:Count(player, "Wood"), inv:Count(player, "Iron")))
+			S("WorldService"):OnOwnerLeft(player)
+			task.wait(1)
+			if not captured then
+				print("[AS] WSAVE FAIL nothing saved")
+			else
+				local run = captured.Run
+				local snap = run.Players and run.Players[tostring(player.UserId)]
+				print(string.format("[AS] WSAVE saved id=%s night=%s seed=%s structures=%d trees=%d players=%s bagWood=%s",
+					tostring(captured.Id), tostring(run.Night), tostring(run.Seed), #(run.Structures or {}), #(run.Trees or {}),
+					tostring(snap ~= nil), tostring(snap and snap.Bag and snap.Bag.Wood)))
+				local json = HttpService:JSONEncode(run)
+				local parts = math.ceil(#json / 1500)
+				for i = 1, parts do
+					print(string.format("[AS] RUNJSON %d/%d %s", i, parts, json:sub((i - 1) * 1500 + 1, i * 1500)))
+				end
+			end
+			print("[AS] WSAVE FINISHED")
+		else
+			-- เปิดจากเซฟ: ผู้เล่นมาถึง = เหมือนเข้าเซิร์ฟเวอร์ทีม
+			local rejoin = S("RejoinService")
+			rejoin:OnTeamArrive(player)
+			task.wait(6)
+			local run = rejoin.ctx.Resume
+			print(string.format("[AS] WRESUME seed=%s(saved %s) night=%s(saved %s) running=%s structures=%d felled=%d wood=%d iron=%d inRun=%s",
+				tostring(state:GetAttribute("Seed")), tostring(run and run.Seed), tostring(S("DirectorService").night), tostring(run and run.Night),
+				tostring(S("DirectorService"):IsRunning()), #build:All(), felled(), inv:Count(player, "Wood"), inv:Count(player, "Iron"), tostring(player:GetAttribute("InRun"))))
+			print("[SHOT] world_resumed")
+			task.wait(3)
+			print("[AS] WSAVE FINISHED")
+		end
+	end)
+	return
+end
+
 -- --dropprobe=ride: สัตว์เลี้ยงน้ำ (ขนาดจริง) -> ขี่ -> พาไปน้ำลึก -> วัดยอดหัว/ตัวเทียบผิวน้ำ
 local rmode = ReplicatedStorage:FindFirstChild("ASDropMode")
 if rmode and rmode.Value == "ride" then

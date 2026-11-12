@@ -146,7 +146,7 @@ Items.Tools = {
 	WarHammer = { Damage = 68, Chop = 1.5, Mine = 4.5, Range = 12, Cooldown = 1.1, Kind = "Hammer", Aoe = 11 },
 	Scythe = { Damage = 58, Chop = 2, Mine = 0.5, Range = 15, Cooldown = 0.8, Kind = "Sword", Aoe = 8 },
 	ArcaneStaff = { Fx = "Arcane", Damage = 34, Chop = 0, Mine = 0, Range = 9, Cooldown = 0.6, Kind = "Staff", Bolt = { Speed = 170, Range = 150, Blast = 9, Size = 1.8, FxScale = 0.03, ImpactScale = 0.08 }, Burn = 4, Light = 16, Element = "All" },
-	BloodScythe = { Fx = "Blood", Damage = 54, Chop = 1.5, Mine = 0.5, Range = 14, Cooldown = 0.72, Kind = "Sword", Aoe = 8 },
+	BloodScythe = { Fx = "Blood", Damage = 46, Chop = 1.5, Mine = 0.5, Range = 14, Cooldown = 0.72, Kind = "Sword", Aoe = 8 }, -- ดาเมจเดิม 54 · แวมไพร์ Lv.2+ (+30%) = ตีละ 60
 	VerdantStaff = { Fx = "Verdant", Damage = 30, Chop = 0, Mine = 0, Range = 9, Cooldown = 0.6, Kind = "Staff", Bolt = { Speed = 150, Range = 140, Blast = 8, Size = 1.6, FxScale = 0.03, ImpactScale = 0.07 }, Slow = 0.5, Light = 12, Element = "Earth" },
 }
 

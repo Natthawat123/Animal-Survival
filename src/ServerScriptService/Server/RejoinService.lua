@@ -167,7 +167,7 @@ end
 
 function RejoinService:OnRemoving(player)
 	local uid = player.UserId
-	pcall(self.SaveRunFor, self, player, true) -- เจ้าของโลกออกเกมกลางรอบ = เซฟโลกไว้เล่นต่อ
+	-- (เจ้าของโลกออกเกม: WorldService:OnOwnerLeft เซฟโลกก่อนล้างสถานะ — ไม่เซฟซ้ำที่นี่)
 	-- ออกจากรอบตามปกติ (ตาย/รอบจบ/กลับล็อบบี้) ไม่ต้องเก็บ
 	if not player:GetAttribute("InRun") or player:GetAttribute("Dead") or not runActive(self) then
 		return
@@ -264,10 +264,6 @@ function RejoinService:SaveRunFor(player, leaving)
 	run.SavedAt = os.time()
 	local ds = self.ctx.Services.DataService
 	local worldId = self.ctx.State:GetAttribute("WorldId")
-	if leaving then
-		task.spawn(ds.SaveWorld, ds, player, worldId, run)
-		return true
-	end
 	return ds:SaveWorld(player, worldId, run)
 end
 

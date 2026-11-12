@@ -13,6 +13,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local Items = require(ReplicatedStorage.Shared.Items)
 local Recipes = require(ReplicatedStorage.Shared.Recipes)
 local StructureModels = require(ReplicatedStorage.Shared.StructureModels)
+local WallSnap = require(ReplicatedStorage.Shared.WallSnap)
 
 local BuildingService = {}
 
@@ -122,7 +123,11 @@ function BuildingService:CheckSpot(player, kind, cf, ignore)
 	local params = OverlapParams.new()
 	params.FilterType = Enum.RaycastFilterType.Include
 	params.FilterDescendantsInstances = { self.folder }
-	for _, p in ipairs(Workspace:GetPartBoundsInBox(final * CFrame.new(0, spec.Size.Y / 2 + 0.5, 0), spec.Size * 0.85, params)) do
+	local boxCf, boxSize = final * CFrame.new(0, spec.Size.Y / 2 + 0.5, 0), spec.Size * 0.85
+	if WallSnap.IsWall(kind) then
+		boxCf, boxSize = WallSnap.OverlapBox(kind, final, spec.Size.Y * 0.85)
+	end
+	for _, p in ipairs(Workspace:GetPartBoundsInBox(boxCf, boxSize, params)) do
 		if not (ignore and p:IsDescendantOf(ignore)) then
 			self.ctx.Notify(player, "Overlaps another building", "Error")
 			return nil

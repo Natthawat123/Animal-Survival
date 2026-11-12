@@ -123,7 +123,17 @@ function WallSnap.Find(kind, aim, folder, ignore)
 	if not best then
 		return nil
 	end
-	return pivotFor(kind, best[1], best[2])
+	local cf = pivotFor(kind, best[1], best[2])
+	return CFrame.new(cf.X, aim.Y, cf.Z) * cf.Rotation -- ความสูง = จุดที่เล็ง (ฝั่ง client/server หาพื้นจริงต่อเอง)
+end
+
+-- กล่องกันวางทับของกำแพง (ตามแนวกำแพงจริง ไม่ใช่ Items.Structures.Size ที่วางแกนผิด) -> CFrame กลางกล่อง, ขนาด
+function WallSnap.OverlapBox(kind, pivot, height)
+	local b = boxOf(kind)
+	local c = pivot:PointToWorldSpace(b.Center) + Vector3.new(0, height / 2 + 0.5, 0)
+	local len, thick = b.Len * 2 * 0.85, math.max(b.Thick * 2, 0.6) * 0.85
+	local size = b.AlongX and Vector3.new(len, height, thick) or Vector3.new(thick, height, len)
+	return CFrame.new(c) * pivot.Rotation, size
 end
 
 return WallSnap

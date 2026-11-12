@@ -1386,4 +1386,7 @@ return {
 	["Camp %dm"] = "แคมป์ %dm",
 	["⏳ Fighting at %s — daylight +%d minute"] = "⏳ กำลังสู้ที่%s — กลางวัน +%d นาที",
 	["a boss lair"] = "รังบอส",
+	["🔥 Upgrade the campfire to Lv.%d to free this pup"] = "🔥 อัปกองไฟเป็น Lv.%d ก่อนถึงจะช่วยลูกสัตว์ตัวนี้ได้",
+	["Needs Campfire Lv.%d"] = "ต้องใช้กองไฟ Lv.%d",
+	["The %s Shrine seal has weakened · needs Campfire Lv.%d to free the pup"] = "ผนึกศาลเจ้า%sอ่อนลงแล้ว · ต้องใช้กองไฟ Lv.%d ถึงจะช่วยลูกสัตว์ได้",
 }

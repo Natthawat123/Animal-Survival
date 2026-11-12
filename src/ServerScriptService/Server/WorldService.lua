@@ -166,7 +166,9 @@ function WorldService:Create(player, name, password, size)
 		notify(self, player, string.format("You can keep up to %d worlds — delete one first", Config.WorldMaxSlots or 5), "Error")
 		return
 	end
-	local free = (Config.WorldProductId or 0) == 0 and RunService:IsStudio() -- Studio ยังไม่ตั้งสินค้า = สร้างฟรีไว้เทส
+	-- ฟรี: Studio ที่ยังไม่ตั้งสินค้า / โหมด dev (DevPanel: Free Create World) -> ไม่เสีย Robux ไม่หักสิทธิ์
+	local free = ((Config.WorldProductId or 0) == 0 and RunService:IsStudio())
+		or (player:GetAttribute("DevFreeWorlds") == true and self.ctx.Services.DevService:IsDev(player))
 	if not free then
 		if (data.WorldCredits or 0) <= 0 then
 			-- ยังไม่ได้ซื้อ: จำค่าที่ตั้งไว้ แล้วให้เครื่องผู้เล่นเด้งหน้าซื้อ (ซื้อเสร็จ -> OnCredit สร้างต่อเอง)
@@ -344,7 +346,9 @@ function WorldService:OnOwnerLeft(owner)
 	if not director:IsRunning() or ctx.State:GetAttribute("Phase") == "Ended" then
 		return
 	end
-	pcall(ctx.Services.RejoinService.SaveRunFor, ctx.Services.RejoinService, owner, true)
+	-- เซฟโลกก่อน (ยังเป็นเจ้าของโลกอยู่) แล้วค่อยล้างสถานะ/ส่งคนกลับ
+	local saved = select(2, pcall(ctx.Services.RejoinService.SaveRunFor, ctx.Services.RejoinService, owner, true))
+	print("[AS] world owner left · saved=" .. tostring(saved))
 	local others = {}
 	for _, p in ipairs(Players:GetPlayers()) do
 		if p ~= owner then
@@ -379,6 +383,17 @@ function WorldService:Start(ctx)
 			self:Leave(player)
 		elseif action == "Start" then
 			self:StartRoom(player)
+		end
+	end)
+	-- เซฟโลกอัตโนมัติทุก 60 วิ (นอกจากเซฟตอนเช้า/ตอนออก) -> หลุด/เกมค้าง/ไฟดับ ก็เสียแค่ไม่เกิน 1 นาที
+	task.spawn(function()
+		while true do
+			task.wait(60)
+			local owner = ctx.State:GetAttribute("WorldOwner")
+			local p = owner and Players:GetPlayerByUserId(owner)
+			if p and ctx.Services.DirectorService:IsRunning() and ctx.State:GetAttribute("Phase") ~= "Ended" then
+				pcall(ctx.Services.RejoinService.SaveRunFor, ctx.Services.RejoinService, p)
+			end
 		end
 	end)
 	Players.PlayerRemoving:Connect(function(p)

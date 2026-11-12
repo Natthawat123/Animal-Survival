@@ -29,10 +29,11 @@ end
 
 local Director = require(Server.DirectorService)
 local skips = 0
-local realSkip = Director.SkipDay
-Director.SkipDay = function(...)
+-- ช่วยลูกสัตว์ = บวกตัวคูณวัน (AddDayMultiplier) ครั้งเดียวต่อตัว
+local realAdd = Director.AddDayMultiplier
+Director.AddDayMultiplier = function(...)
 	skips += 1
-	return realSkip(...)
+	return realAdd(...)
 end
 local fails = 0
 local function check(name, ok, detail)
@@ -71,6 +72,14 @@ for _, el in ipairs({ "Earth", "Water", "Air", "Fire" }) do
 	local before = skips
 	local pup = sh.Pup
 	check(el .. " portal-open-before-free", sh.OutVeil and sh.OutVeil:GetAttribute("Sealed") ~= true)
+	-- กองไฟเลเวลไม่ถึง = ปลดผนึกไม่ได้ · ถึงแล้วค่อยได้
+	local Camp = Spirit.ctx.Services.CampService
+	local lv0 = Camp.level
+	local need = require(ReplicatedStorage.Shared.Config).SpiritFireLevel[el]
+	Camp.level = need - 1
+	Spirit:Free(el, player)
+	check(el .. " fire-gate-blocks", not sh.Freed, "need Lv." .. tostring(need))
+	Camp.level = math.max(lv0, need)
 	-- กดซ้ำรัวๆ พร้อมกันหลายคน ต้องนับครั้งเดียว
 	Spirit:Free(el, player)
 	Spirit:Free(el, player)

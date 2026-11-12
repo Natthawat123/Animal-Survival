@@ -15,6 +15,12 @@ task.wait(4)
 player:SetAttribute("TestGod", true)
 local S = require(game:GetService("ServerScriptService").Server.RejoinService).ctx.Services
 local Build, inv = S.BuildingService, S.InventoryService
+local ctx = require(game:GetService("ServerScriptService").Server.RejoinService).ctx
+local oldNotify = ctx.Notify
+ctx.Notify = function(p, msg, kind)
+	print("[AS] WALLPROBE notify: " .. tostring(msg))
+	return oldNotify(p, msg, kind)
+end
 local folder = workspace:WaitForChild("Structures")
 local fire = S.CampService:FirePosition()
 local fails = 0
@@ -43,6 +49,8 @@ local function newest()
 end
 local function place(kind, cf, tag)
 	stand(cf.Position)
+	local _, yy = cf:ToOrientation()
+	print(string.format("[AS] WALLPROBE try %s %s pos=%.1f,%.1f,%.1f yaw=%.0f", tag, kind, cf.X, cf.Y, cf.Z, math.deg(yy)))
 	local ok = Build:Place(player, kind, cf)
 	task.wait(0.2)
 	local m = ok and newest()
@@ -75,6 +83,10 @@ if w then
 	dir = Vector3.new(dir.X, 0, dir.Z).Unit
 end
 local perp = Vector3.new(-dir.Z, 0, dir.X)
+if w then
+	local bcf, bsz = w:GetBoundingBox()
+	print(string.format("[AS] WALLPROBE first pivot=%s bbox=%s size=%s dir=%s", tostring(w:GetPivot().Position), tostring(bcf.Position), tostring(bsz), tostring(dir)))
+end
 local last = w
 for i = 2, 3 do
 	local c = last:GetBoundingBox().Position

@@ -129,6 +129,7 @@ function DataService:Load(player)
 		self.ctx.Services.QuestService:OnLoad(player, data)
 	end
 	self:PushWorlds(player) -- รายชื่อโลกที่สร้างไว้ -> เมนู Worlds
+	task.spawn(self.SyncWorldNights, self, player)
 	task.spawn(function()
 		self:ClaimGifts(player)
 		self:CheckBadges(player)
@@ -381,21 +382,58 @@ function DataService:PushWorlds(player)
 	player:SetAttribute("WorldCredits", data.WorldCredits or 0)
 end
 
+-- เซฟตัวโลก: ไม่พึ่งโปรไฟล์ (ตอนเจ้าของออกเกม โปรไฟล์อาจถูกล้างไปก่อน -> เดิมเซฟไม่ติด กลับมาเริ่มคืน 1)
+--   ลองซ้ำ 3 ครั้ง · นับงานเขียนค้าง (BindToClose รอให้เสร็จก่อนเซิร์ฟเวอร์ดับ)
+local worldWrites = 0
 function DataService:SaveWorld(player, id, run)
-	local data = profiles[player]
-	if not (storeOk and data and type(data.Worlds) == "table" and data.Worlds[id]) then
+	if not (storeOk and type(id) == "string" and id ~= "" and type(run) == "table") then
 		return false
 	end
-	local ok, err = pcall(function()
-		store:SetAsync(worldKey(player.UserId, id), run)
-	end)
+	worldWrites += 1
+	local ok, err
+	for attempt = 1, 3 do
+		ok, err = pcall(function()
+			store:SetAsync(worldKey(player.UserId, id), run)
+		end)
+		if ok then
+			break
+		end
+		task.wait(attempt)
+	end
+	worldWrites -= 1
 	if not ok then
 		warn("[AS] save world:", err)
 		return false
 	end
-	data.Worlds[id].Night = run.Night
-	self:PushWorlds(player)
+	local data = profiles[player]
+	if data and type(data.Worlds) == "table" and data.Worlds[id] then
+		data.Worlds[id].Night = run.Night
+		data.Worlds[id].Played = true
+		self:PushWorlds(player)
+	end
 	return true
+end
+
+function DataService:PendingWorldWrites()
+	return worldWrites
+end
+
+-- เข้าเกม: คืนในรายชื่อโลก (โปรไฟล์) อาจเก่ากว่าตัวโลกที่เซฟตอนออก -> อ่านจากตัวโลกจริงมาแสดง
+function DataService:SyncWorldNights(player)
+	local data = profiles[player]
+	if not (data and type(data.Worlds) == "table") then
+		return
+	end
+	for id, w in pairs(data.Worlds) do
+		local run = self:LoadWorld(player.UserId, id)
+		if run and profiles[player] == data then
+			w.Night = run.Night or w.Night
+			w.Played = true
+		end
+	end
+	if player.Parent then
+		self:PushWorlds(player)
+	end
 end
 
 function DataService:LoadWorld(userId, id)
@@ -631,7 +669,7 @@ function DataService:Start(ctx)
 			end)
 		end
 		local t0 = os.clock()
-		while left > 0 and os.clock() - t0 < 25 do
+		while (left > 0 or worldWrites > 0) and os.clock() - t0 < 27 do -- รอเซฟโปรไฟล์ + เซฟโลกที่ค้างอยู่
 			task.wait(0.2)
 		end
 	end)

@@ -116,6 +116,10 @@ if "--dropprobe=overlap" in sys.argv:  # ไฟล์แยก
     OUT = os.path.join(OUT_DIR, "AnimalSurvival_DROPOV.rbxlx")
 if "--dropprobe=world" in sys.argv:
     OUT = os.path.join(OUT_DIR, "AnimalSurvival_WORLD.rbxlx")
+if "--dropprobe=worldsave" in sys.argv:
+    OUT = os.path.join(OUT_DIR, "AnimalSurvival_WSAVE.rbxlx")
+if any(a.startswith("--resumejson=") for a in sys.argv):
+    OUT = os.path.join(OUT_DIR, "AnimalSurvival_WRESUME.rbxlx")
 if "--dropprobe=ride" in sys.argv:
     OUT = os.path.join(OUT_DIR, "AnimalSurvival_RIDE.rbxlx")
 if UIAUDIT:  # ไฟล์แยกเหมือนกัน
@@ -312,6 +316,12 @@ def main():
             rs += value_item("StringValue", "ASDropMode", "overlap")
         if "--dropprobe=ride" in sys.argv:  # ขี่สัตว์เลี้ยงลงน้ำลึก วัดว่าหัวพ้นน้ำไหม
             rs += value_item("StringValue", "ASDropMode", "ride")
+        if "--dropprobe=worldsave" in sys.argv:  # เล่นในโลก -> เจ้าของออก -> จับข้อมูลเซฟโลกพิมพ์ออก log
+            rs += value_item("StringValue", "ASDropMode", "worldsave")
+        _rj = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--resumejson=")), None)
+        if _rj:  # เปิดเกมจากข้อมูลเซฟโลก (ไฟล์ JSON) -> เช็กว่าได้แมพ/คืน/ของเดิม
+            rs += value_item("StringValue", "ASDropMode", "worldresume")
+            rs += value_item("StringValue", "ASResumeJSON", open(_rj, encoding="utf-8").read())
         if "--dropprobe=world" in sys.argv:  # เมนู Worlds + เปิดห้องโลก + หน้าต่างชุบตอนทีมล้มหมด (ภาพ)
             rs += value_item("StringValue", "ASDropMode", "world")
     if GEYSERPROBE:

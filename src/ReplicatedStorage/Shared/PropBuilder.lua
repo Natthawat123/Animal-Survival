@@ -2245,7 +2245,7 @@ local REALM_THEME = {
 		Feature = "Avenue", Air = "Spores",
 	},
 	ShrineWater = {
-		Gate = "GateStargate", GateW = 30, Building = "ShrineWater", BW = 110,
+		Gate = "GateWaterArch", GateW = 26, Building = "ShrineWater", BW = 110,
 		Floor = { C(226, 210, 160), Enum.Material.Sand }, Skirt = { C(170, 160, 136), Enum.Material.Sandstone },
 		Plaza = { C(232, 226, 210), Enum.Material.Limestone },
 		Decor = { { "Palm", 9, 1.1 }, { "Coral", 14, 1.6 }, { "SeaRock", 6, 1.1 }, { "TideCrystal", 4, 1.3 } },
@@ -2259,7 +2259,7 @@ local REALM_THEME = {
 		Feature = "Avenue", Pools = true, Air = "Mist",
 	},
 	ShrineAir = {
-		Gate = "PortalArch", GateW = 26, Building = "ShrineAir", BW = 110,
+		Gate = "GateIce", GateW = 22, Building = "ShrineAir", BW = 110,
 		Floor = { C(236, 242, 250), Enum.Material.Snow }, Skirt = { C(170, 186, 206), Enum.Material.Glacier },
 		Plaza = { C(200, 214, 232), Enum.Material.Ice },
 		Decor = { { "FrostPine", 12, 1.1 }, { "IceSpire", 9, 1.2 }, { "SkyStone", 5, 1.2 } },

@@ -34,6 +34,12 @@ State.Parent = ReplicatedStorage
 
 -- เซิร์ฟเวอร์ทีมที่เปิดใหม่เพื่อเล่นรอบเดิมต่อ (ทุกคนหลุดออกไปก่อนหน้า) -> ใช้ seed เดิม = แมพเดิม
 local resume = require(script.Parent:WaitForChild("RejoinService")).LoadHeldRun()
+-- เทสต์ (--resumejson): เปิดจากข้อมูลเซฟโลกที่ฝังไว้ เหมือนเซิร์ฟเวอร์ทีมที่โหลดโลกเดิม
+local resumeJson = ReplicatedStorage:FindFirstChild("ASResumeJSON")
+if resumeJson then
+	local ok, v = pcall(game:GetService("HttpService").JSONDecode, game:GetService("HttpService"), resumeJson.Value)
+	resume = ok and type(v) == "table" and v or resume
+end
 local seedValue = ReplicatedStorage:FindFirstChild("ASSeed")
 local seed = (resume and resume.Seed) or (seedValue and seedValue.Value) or Config.Seed or Random.new():NextInteger(1, 2 ^ 30)
 State:SetAttribute("Seed", seed)

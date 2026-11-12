@@ -310,6 +310,25 @@ function C.diamonds(self, p, n)
 	return "♦️ +" .. (tonumber(n) or 1000)
 end
 
+-- โหมด dev สร้างโลกฟรี (ไม่เสีย Robux): เปิด/ปิด · เปิดอยู่ = ปุ่ม + Create World สร้างได้เลย (WorldService)
+function C.freeWorlds(self, p)
+	local on = not p:GetAttribute("DevFreeWorlds")
+	p:SetAttribute("DevFreeWorlds", on or nil)
+	return on and "🌍 Dev: Create World is FREE (no Robux)" or "🌍 Dev: Create World costs Robux again"
+end
+
+-- เพิ่มสิทธิ์สร้างโลก (เหมือนซื้อแล้ว) ไว้เทส
+function C.worldCredits(self, p, n)
+	local ds = self.ctx.Services.DataService
+	local data = ds:Get(p)
+	if not data then
+		return "Profile not loaded yet"
+	end
+	data.WorldCredits = (data.WorldCredits or 0) + (tonumber(n) or 5)
+	ds:PushWorlds(p)
+	return "🌍 World credits: " .. data.WorldCredits
+end
+
 -- ส่ง Ruby ให้คนอื่น: target = ชื่อ/ชื่อที่แสดง/UserId · "*" = ทุกคนในเซิร์ฟ (ยกเว้นตัวเอง)
 --   อยู่เซิร์ฟนี้ = ได้ทันที · ไม่อยู่ = เก็บเป็นของขวัญ ได้ตอนเข้าเกม (หรือทันทีถ้าออนไลน์เซิร์ฟอื่น)
 function C.giftDiamonds(self, p, target, n)

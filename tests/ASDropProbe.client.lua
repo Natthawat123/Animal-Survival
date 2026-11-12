@@ -9,6 +9,9 @@ local dm = ReplicatedStorage:FindFirstChild("ASDropMode")
 if dm and dm.Value == "overlap" then
 	return -- โหมดวัดของทับกัน: เซิร์ฟเวอร์ทำเองทั้งหมด
 end
+if dm and (dm.Value == "worldsave" or dm.Value == "worldresume") then
+	return -- เทสต์เซฟ/โหลดโลก: เซิร์ฟเวอร์ทำเองทั้งหมด
+end
 if dm and dm.Value == "ride" then
 	-- กล้องข้างตัวสัตว์ ให้เห็นระดับน้ำเทียบหัว
 	local RunService = game:GetService("RunService")

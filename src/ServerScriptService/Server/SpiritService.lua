@@ -151,7 +151,7 @@ function SpiritService:SpawnGuardians(sh)
 		end
 		local h = self.ctx.Layout:HeightAt(pos.X, pos.Z)
 		local a = animals:Spawn(id, Vector3.new(pos.X, math.max(h, sh.Base.Y) + 1, pos.Z), {
-			Kind = "Guardian", Home = sh.Base, Leash = 70, -- เลือด/ดาเมจ x1.5 (Config.ShrineGuardianMult)
+			Kind = "Guardian", Home = sh.Base, Leash = 70, -- เลือด/ดาเมจ x1.53 (Config.ShrineGuardianMult)
 			HealthMult = Config.ShrineGuardianMult, DamageMult = Config.ShrineGuardianMult,
 			Yaw = intro and math.atan2(pos.X - sh.Base.X, pos.Z - sh.Base.Z) or nil, -- หันหน้าเข้าหากรง
 		})
@@ -216,7 +216,7 @@ function SpiritService:SpawnWave(sh, wave, count)
 		local pos = sh.Base + Vector3.new(math.cos(ang) * r, 2, math.sin(ang) * r)
 		local h = self.ctx.Layout:HeightAt(pos.X, pos.Z)
 		local a = animals:Spawn(pool[(i - 1) % #pool + 1], Vector3.new(pos.X, math.max(h, sh.Base.Y) + 1, pos.Z), {
-			Kind = "Guardian", Home = sh.Base, Leash = 70, -- เลือด/ดาเมจ x1.5 (Config.ShrineGuardianMult)
+			Kind = "Guardian", Home = sh.Base, Leash = 70, -- เลือด/ดาเมจ x1.53 (Config.ShrineGuardianMult)
 			HealthMult = Config.ShrineGuardianMult, DamageMult = Config.ShrineGuardianMult,
 			Yaw = math.atan2(sh.Base.X - pos.X, sh.Base.Z - pos.Z), -- หันออกหาทางที่ผู้เล่นอยู่
 		})
@@ -242,9 +242,20 @@ function SpiritService:SealPortal(sh)
 	end
 end
 
+-- กองไฟถึงเลเวลที่ธาตุนี้ต้องการไหม (Config.SpiritFireLevel) -> ok, เลเวลที่ต้องการ
+function SpiritService:FireReady(el)
+	local need = Config.SpiritFireLevel[el] or 1
+	return (self.ctx.Services.CampService.level or 1) >= need, need
+end
+
 function SpiritService:Free(el, player)
 	local sh = self.shrines[el]
 	if not sh or sh.Freed or not sh.Pup then
+		return
+	end
+	local ready, need = self:FireReady(el)
+	if not ready then
+		self.ctx.Notify(player, string.format("🔥 Upgrade the campfire to Lv.%d to free this pup", need), "Error")
 		return
 	end
 	sh.Freed = true
@@ -660,6 +671,11 @@ end
 function SpiritService:Tick()
 	local animals = self.ctx.Services.AnimalService
 	for el, sh in pairs(self.shrines) do
+		if not sh.Freed and sh.Prompt then
+			local ready, need = self:FireReady(el)
+			sh.Prompt.ActionText = ready and "Unseal" or string.format("Needs Campfire Lv.%d", need)
+			sh.Prompt.HoldDuration = ready and 3 or 0
+		end
 		if not sh.Freed then
 			local p = nearestPlayer(sh.Base, 140)
 			if p and not sh.GuardiansSpawned then
@@ -676,7 +692,12 @@ function SpiritService:Tick()
 				end)
 				if step == "done" then
 					sh.Prompt.Enabled = true
-					self.ctx.Broadcast(string.format("The %s Shrine seal has weakened · Hold E", el), "Good")
+					local ready, need = self:FireReady(el)
+					if ready then
+						self.ctx.Broadcast(string.format("The %s Shrine seal has weakened · Hold E", el), "Good")
+					else
+						self.ctx.Broadcast(string.format("The %s Shrine seal has weakened · needs Campfire Lv.%d to free the pup", el, need), "Warn")
+					end
 				end
 			end
 			-- ไม่มีคนอยู่ใกล้นาน -> ผู้เฝ้ากลับไป (เกิดใหม่รอบหน้า)

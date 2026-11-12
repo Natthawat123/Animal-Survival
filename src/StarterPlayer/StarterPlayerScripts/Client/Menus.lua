@@ -1238,7 +1238,11 @@ function Menus.Init(state, hud)
 				local params = OverlapParams.new()
 				params.FilterType = Enum.RaycastFilterType.Include
 				params.FilterDescendantsInstances = { folder }
-				for _, p in ipairs(Workspace:GetPartBoundsInBox(cf * CFrame.new(0, spec.Size.Y / 2 + 0.5, 0), spec.Size * 0.85, params)) do
+				local boxCf, boxSize = cf * CFrame.new(0, spec.Size.Y / 2 + 0.5, 0), spec.Size * 0.85
+				if WallSnap.IsWall(build.Kind) then
+					boxCf, boxSize = WallSnap.OverlapBox(build.Kind, cf, spec.Size.Y * 0.85)
+				end
+				for _, p in ipairs(Workspace:GetPartBoundsInBox(boxCf, boxSize, params)) do
 					if not (build.Move and p:IsDescendantOf(build.Move)) then
 						ok = false
 						break
