@@ -34,7 +34,7 @@ function DirectorService:Init(ctx)
 	self.pendingBonus = 0 -- ได้ตอนกลางคืน -> บวกให้กลางวันถัดไป
 end
 
--- เริ่มสู้ตอนกลางวัน (บอสในรัง/วิหาร/ศาลเจ้า): กลางวัน +Config.FightDayBonus · แห่งละครั้งต่อวัน · กลางคืนไม่ได้
+-- เริ่มสู้บอสในรังตอนกลางวัน: กลางวัน +Config.FightDayBonus · รังละครั้งต่อวัน · กลางคืนไม่ได้ (ศาลเจ้า/วิหารได้เวลาตอนเข้าครั้งแรกแทน PortalService)
 function DirectorService:AddFightTime(key, place)
 	local phase = self.ctx.State:GetAttribute("Phase")
 	if not self.running or (phase ~= "Day" and phase ~= "Dusk") then
@@ -45,8 +45,10 @@ function DirectorService:AddFightTime(key, place)
 	if self.fightBonus[key] == stamp then
 		return false
 	end
+	if self:AddTime(Config.FightDayBonus) ~= "now" then
+		return false -- กลางวันเต็มเพดาน 4 นาทีแล้ว
+	end
 	self.fightBonus[key] = stamp
-	self:AddTime(Config.FightDayBonus)
 	self.ctx.Broadcast(string.format("⏳ Fighting at %s — daylight +%d minute", place, math.max(1, Config.FightDayBonus // 60)), "Good")
 	return true
 end
@@ -57,9 +59,20 @@ function DirectorService:AddTime(seconds)
 		return false
 	end
 	local phase = self.ctx.State:GetAttribute("Phase")
+	-- เพดาน: กลางวันรวม (ปกติ + เวลาที่ได้เพิ่ม + พลบค่ำ) ไม่เกิน Config.DayMaxLength
+	local maxLen = Config.DayMaxLength or math.huge
 	if phase == "Day" or phase == "Dusk" then
+		local room = maxLen - (self.dayTotal or Config.DayLength) - self.bonus
+		seconds = math.min(seconds, room)
+		if seconds <= 0 then
+			return "full"
+		end
 		self.bonus += seconds
 		return "now"
+	end
+	seconds = math.min(seconds, maxLen - Config.DayLength - self.pendingBonus)
+	if seconds <= 0 then
+		return "full"
 	end
 	self.pendingBonus += seconds
 	return "nextDay"
@@ -90,6 +103,7 @@ function DirectorService:Wait(seconds, runId)
 		if self.bonus > 0 then -- เข้าศาลเจ้า/วิหาร: ยืดเวลาช่วงนี้ (นาฬิกาบนจอขยับตาม)
 			local s = self.ctx.State
 			seconds += self.bonus
+			self.dayTotal = (self.dayTotal or Config.DayLength) + self.bonus
 			s:SetAttribute("PhaseEnd", (s:GetAttribute("PhaseEnd") or 0) + self.bonus)
 			s:SetAttribute("PhaseLength", (s:GetAttribute("PhaseLength") or 0) + self.bonus)
 			self.bonus = 0
@@ -154,7 +168,7 @@ function DirectorService:RunNight(night, runId)
 		Night = night, Element = plan.Element, BloodMoon = plan.BloodMoon, Boss = plan.Boss, Title = title, Endless = Nights.IsEndless(night),
 		Elements = plan.Elements,
 	})
-	-- ฝูงบุกเฉพาะคืนบุกใหญ่ (ทุก 5 คืน + คืน 99) · คืนอื่นสงบ: บอกว่าอีกกี่คืนฝูงจะมา
+	-- ฝูงบุกเฉพาะคืนบุกใหญ่ (ทุก 3 คืน x3 · พระจันทร์เลือดทุก 5 คืน x5) · คืนอื่นสงบ: บอกว่าอีกกี่คืนฝูงจะมา
 	local played = self.played or night
 	if not plan.BigRaid then
 		local left = Nights.NextBigRaid(played) - played
@@ -219,7 +233,7 @@ function DirectorService:RunNight(night, runId)
 					return
 				end
 				-- (บอสไม่ต้องรอคิวเพดานฝูง)
-				while not wave.Boss and ctx.Services.AnimalService.raidCount >= Nights.MaxRaid(Config.MaxRaidAnimals, ctx.Services.SurvivalService:RunPlayerCount(true)) do
+				while not wave.Boss and ctx.Services.AnimalService.raidCount >= math.floor(Nights.MaxRaid(Config.MaxRaidAnimals, ctx.Services.SurvivalService:RunPlayerCount(true)) * (plan.CapMult or 1)) do
 					task.wait(1)
 					if runId ~= self.runId or s:GetAttribute("Phase") ~= "Night" then
 						return
@@ -337,6 +351,7 @@ function DirectorService:Loop(runId)
 		-- กลางวัน
 		local dayLen = Config.DayLength + (night == 1 and Config.FirstDayBonus or 0)
 		self:SetPhase("Day", dayLen - Config.DuskLength)
+		self.dayTotal = dayLen -- ความยาวกลางวันรวมตอนนี้ (เวลาเพิ่มบวกเข้าไปใน Wait · เพดาน Config.DayMaxLength)
 		self.bonus += self.pendingBonus -- ได้เวลาเพิ่มตอนกลางคืน -> กลางวันนี้ยาวขึ้น
 		self.pendingBonus = 0
 		ctx.FireRun("Cinematic", "DayStart", { Day = night })
@@ -573,9 +588,10 @@ function DirectorService:GameOver()
 end
 
 -- จบรอบ: เซิร์ฟเวอร์ของทีม (มาจากล็อบบี้หลัก) = ส่งทุกคนกลับล็อบบี้หลัก / ที่อื่น (Studio) = กลับล็อบบี้ในเซิร์ฟเวอร์นี้
-function DirectorService:EndRun()
+-- info: { Result = "Defeat" (ทีมตายหมด) / "Escape" (เดินออกประตูกลับบ้านหลัง 99 คืน), Night }
+function DirectorService:EndRun(info)
 	local lobby = self.ctx.Services.LobbyService
-	if lobby.IsTeamServer and lobby:ReturnToMainLobby(Players:GetPlayers(), { Result = "Defeat", Night = self.night }) then
+	if lobby.IsTeamServer and lobby:ReturnToMainLobby(Players:GetPlayers(), info or { Result = "Defeat", Night = self.night }) then
 		-- กันพลาด: ส่งไม่สำเร็จ (Roblox ล่ม ฯลฯ) -> กลับล็อบบี้ในเซิร์ฟเวอร์นี้แทน
 		task.delay(20, function()
 			if #Players:GetPlayers() > 0 and self.ctx.State:GetAttribute("Phase") == "Ended" then

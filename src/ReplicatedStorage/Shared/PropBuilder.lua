@@ -447,16 +447,7 @@ Kinds.MossRock = {
 Kinds.SeaRock = { Node = { Node = "Rock", Yield = "Stone", HP = 8, Total = 5 }, Scale = { 0.8, 2.0 }, Build = rockKind("SeaRock", V(10, 9, 9), C(186, 204, 196), Enum.Material.Limestone) }
 Kinds.SkyStone = {
 	Node = { Node = "Rock", Yield = "Stone", HP = 8, Total = 5 }, Scale = { 0.7, 1.6 },
-	Build = rockKind("SkyStone", V(9, 7, 8), C(120, 132, 168), Enum.Material.Slate, function()
-		-- หินลอยเล็กๆ ข้างบน (พลังลม)
-		local out = {}
-		for i = 1, 3 do
-			local s = rockShape(V(2.4, 2, 2.4), i * 5, { Name = "FloatStone", Color = C(150, 164, 200), Material = Enum.Material.Slate, CanCollide = false })
-			s:PivotTo(CF(math.cos(i * 2.1) * 4, 9 + i * 1.5, math.sin(i * 2.1) * 4))
-			table.insert(out, s)
-		end
-		return out
-	end),
+	Build = rockKind("SkyStone", V(9, 7, 8), C(120, 132, 168), Enum.Material.Slate), -- เอาหินลอยเล็กๆ ข้างบนออกแล้ว (ไม่มีของลอยในไบโอมหิมะ)
 }
 Kinds.IronRock = {
 	Node = { Node = "Rock", Yield = "Iron", HP = 10, Total = 3 }, Scale = { 0.8, 1.3 }, -- แร่เหล็กล้วน ไม่มีหินแถม (หินได้จากก้อนหินธรรมดา)
@@ -684,10 +675,10 @@ local STORE = {
 	Palm = { Models = { "PalmLP" }, Height = 28, Trunk = 2, Foliage = C(70, 136, 70), Bark = C(120, 96, 70) },
 	FrostPine = { Models = { "SnowPine" }, Height = 42, Trunk = 3, Foliage = C(50, 86, 70), Bark = C(84, 66, 54) },
 	CharredTree = { Models = { "DeadTree" }, Height = 28, Trunk = 2.2, Color = C(44, 36, 34) },
-	Boulder = { Models = { "RockLP" }, Split = "Parts", Height = 7, Solid = true, Color = C(120, 118, 114) },
-	MossRock = { Models = { "RockLP" }, Split = "Parts", Height = 9, Solid = true, Color = C(100, 116, 88) },
-	SeaRock = { Models = { "RockLP" }, Split = "Parts", Height = 8, Solid = true, Color = C(178, 170, 150) },
-	SkyStone = { Models = { "RockLP" }, Split = "Parts", Height = 10, Solid = true, Color = C(168, 178, 198) },
+	Boulder = { Models = { "RockReal" }, Height = 7, Solid = true, Color = C(120, 118, 114) },
+	MossRock = { Models = { "RockReal" }, Height = 9, Solid = true, Color = C(100, 116, 88) },
+	SeaRock = { Models = { "RockReal" }, Height = 8, Solid = true, Color = C(178, 170, 150) },
+	SkyStone = { Models = { "RockReal" }, Height = 10, Solid = true, Color = C(168, 178, 198) },
 	Bush = { Models = { "BushLP" }, Height = 5, Foliage = C(66, 108, 50) },
 	Fern = { Models = { "GrassTuft", "GrassTuft2" }, Height = 3.2, Foliage = C(84, 128, 58) },
 	Mushrooms = { Models = { "Mushrooms" }, Height = 2.6 },
@@ -699,7 +690,7 @@ local STORE = {
 	Kelp = { Models = { "KelpLP" }, Height = 8 },
 	LavaVent = { Models = { "VolcanoLP" }, Height = 10, Solid = true },
 	CoalRock = { Models = { "CoalOreLP" }, Height = 5, Solid = true },
-	IronRock = { Models = { "IronOreLP" }, Height = 6, Solid = true, Sparkle = C(255, 214, 160) }, -- ประกายแร่: บอกจากไกลว่าเป็นเหล็ก ไม่ใช่หินธรรมดา
+	IronRock = { Models = { "IronOre2" }, Split = "Whole", Height = 6, Solid = true, Sparkle = C(255, 214, 160) }, -- ประกายแร่: บอกจากไกลว่าเป็นเหล็ก ไม่ใช่หินธรรมดา
 	ObsidianSpire = { Models = { "ObsidianEgg" }, Height = 9, Solid = true },
 	IceSpire = { Models = { "IceSpikeLP" }, Height = 15, Solid = true },
 	TerraCrystal = { Models = { "CrystalGreen" }, Height = 10, Solid = true, Light = { Color = C(130, 240, 100), Range = 14, Brightness = 0.9 }, Sparkle = C(170, 255, 140) },
@@ -984,9 +975,9 @@ function PropBuilder.Place(kind, position, yaw, scale, parent, rng)
 end
 
 ---------------------------------------------------------------- กระจายของทั่วแมพ
--- หินในแมพ (ขุด/ทุบได้) · ROCK_BONUS = สัดส่วนหินที่เพิ่มจากเดิม (0.25 = +25%)
+-- หินในแมพ (ขุด/ทุบได้) · ROCK_BONUS = สัดส่วนหินที่เพิ่มจากเดิม (0.4375 = +25% แล้ว +15% อีกรอบ: 1.25 x 1.15 = 1.4375)
 local ROCK_KINDS = { Boulder = true, MossRock = true, SeaRock = true, SkyStone = true, CoalRock = true, IronRock = true }
-local ROCK_BONUS = 0.25
+local ROCK_BONUS = 0.4375
 
 local function pickKind(list, rng)
 	local total = 0
@@ -1012,7 +1003,7 @@ function PropBuilder.Scatter(layout, parent, opts)
 	local water = layout.WaterLevel
 	local avoid = {}
 	for _, sp in ipairs(layout.Specials) do
-		table.insert(avoid, { sp.Position, sp.Radius or (sp.Kind == "Lair" and 90 or 40) })
+		table.insert(avoid, { sp.Position, sp.Radius or (sp.Kind == "Lair" and 200 or 40) }) -- ลานรังบอสโล่ง ไม่มีต้นไม้/หินขวางบอส
 		local padC, padR = SiteSpec.Pad(sp.Kind, sp.Element, sp.Position)
 		if padC then
 			table.insert(avoid, { padC, padR + 6 }) -- อาคารใหญ่ของจุดนี้
@@ -1235,7 +1226,7 @@ function PropBuilder.TerrainBoulders(layout, opts)
 	local terrain = workspace.Terrain
 	local rng = Random.new(layout.Seed + 99)
 	local half = layout.Half - layout.EdgeOcean
-	local n = math.floor(layout.Size * layout.Size / 90000 * (opts and opts.Density or 1) * 1.25) -- +25% หินใหญ่
+	local n = math.floor(layout.Size * layout.Size / 90000 * (opts and opts.Density or 1) * 1.4375) -- หินใหญ่ +25% แล้ว +15% อีกรอบ (1.25 x 1.15)
 	for _ = 1, n do
 		local x, z = rng:NextNumber(-half, half), rng:NextNumber(-half, half)
 		local h, biome = layout:HeightAt(x, z)
@@ -2266,7 +2257,7 @@ local REALM_THEME = {
 		Feature = "Snowfield", Air = "Snow",
 	},
 	SanctumAir = {
-		Gate = "GateSkyArch", GateW = 30, Building = "SanctumAir", BW = 160,
+		Gate = "GateIce", GateW = 32, Building = "SanctumAir", BW = 160,
 		Floor = { C(214, 222, 236), Enum.Material.Marble }, Skirt = { C(160, 174, 200), Enum.Material.Slate },
 		Plaza = { C(236, 240, 250), Enum.Material.Marble },
 		Decor = { { "GaleCrystal", 10, 1.8 }, { "IceSpire", 7, 1.4 }, { "FrostPine", 4, 1 } },
@@ -2611,7 +2602,7 @@ end
 --   opts.Model/Width = โมเดลซุ้มจาก Store (ต่างกันทุกจุด) · opts.Floor = ความสูงพื้น (ในมิติ ไม่มี Terrain)
 function PropBuilder.BuildPortal(frame, el, parent, opts)
 	opts = opts or {}
-	local col = ELEMENT_COLOR[el] or C(255, 255, 255)
+	local col = opts.Color or ELEMENT_COLOR[el] or C(255, 255, 255)
 	local rot = frame - frame.Position
 	local gy = opts.Floor or terrainY(frame.Position, 7)
 	local base = CF(frame.Position.X, gy - (opts.Floor and 0.3 or 1.5), frame.Position.Z) * rot
@@ -2656,7 +2647,9 @@ function PropBuilder.BuildPortal(frame, el, parent, opts)
 	prompt.MaxActivationDistance = 14
 	prompt.RequiresLineOfSight = false
 	prompt.Parent = veil
-	CollectionService:AddTag(veil, "RealmPortal")
+	if not opts.NoTag then -- NoTag = ประตูที่จัดการเอง (ประตูกลับบ้าน EscapeService) ไม่ใช่ประตูวาร์ปของ PortalService
+		CollectionService:AddTag(veil, "RealmPortal")
+	end
 	m.Parent = parent
 	return m, veil, base
 end
@@ -2905,6 +2898,157 @@ function PropBuilder.BuildRealmRoom(el, xz, parent, name, rot, key)
 end
 
 -- มิติทั้งชุด: ประตูข้างนอก (frame) + ห้องบนฟ้า + ประตูกลับในห้อง · kind = "Shrine" | "Sanctum" · คืน room, center (CFrame พื้นกลางลาน)
+-- ป้ายไม้หน้าประตู: บอกเงื่อนไขเข้า + รางวัลที่ทั้งทีมได้ (ข้อความจาก Shared/SiteSigns)
+--   frame = ตำแหน่ง/ทิศป้าย (-Z = หน้าป้าย หันหาคนที่เดินมา) · วางบนผิวดินจริง · อ่านได้กลางคืน (ไม่โดนแสง)
+function PropBuilder.BuildSiteSign(frame, kind, el, parent, noSnap)
+	local SiteSigns = require(script.Parent.SiteSigns)
+	local info = SiteSigns.Get(kind, el)
+	if not info then
+		return nil
+	end
+	local col = ELEMENT_COLOR[el] or C(255, 220, 140)
+	local gy = noSnap and frame.Position.Y or terrainY(frame.Position, 2)
+	local base = CF(frame.Position.X, gy, frame.Position.Z) * (frame - frame.Position)
+	local m = Instance.new("Model")
+	m.Name = "SiteSign"
+	-- โครงป้ายไม้แบบป้ายแคมป์: เสาซุง 2 ต้น + คานบน + แผ่นไม้มีกรอบ + หลังคากันฝน + โคมแขวน
+	local W, H, LIFT = 12, 10, 2.2
+	local LOG, PLANK, FRAME, ROOF = C(96, 66, 44), C(132, 94, 60), C(70, 48, 32), C(84, 58, 40)
+	local top = LIFT + H
+	for _, x in ipairs({ -W / 2 - 0.35, W / 2 + 0.35 }) do
+		cylinderY(top + 1.6, 1.0, base * CF(x, (top + 1.6) / 2 - 0.4, 0.15), { Name = "Post", Color = LOG, Material = Enum.Material.Wood }, m)
+		cylinderY(0.5, 1.25, base * CF(x, top + 1.45, 0.15), { Name = "PostCap", Color = FRAME, Material = Enum.Material.Wood }, m)
+	end
+	P("Part", { Name = "Beam", Size = V(W + 2.6, 0.7, 0.7), CFrame = base * CF(0, top + 0.9, 0.15), Color = LOG, Material = Enum.Material.Wood }, m)
+	local board = P("Part", { Name = "Board", Size = V(W, H, 0.4), CFrame = base * CF(0, LIFT + H / 2, 0.25), Color = PLANK, Material = Enum.Material.WoodPlanks }, m)
+	for _, e in ipairs({ { 0, H / 2, W + 0.5, 0.45 }, { 0, -H / 2, W + 0.5, 0.45 }, { -W / 2, 0, 0.45, H }, { W / 2, 0, 0.45, H } }) do
+		P("Part", { Name = "Frame", Size = V(e[3], e[4], 0.6), CFrame = board.CFrame * CF(e[1], e[2], -0.05), Color = FRAME, Material = Enum.Material.Wood }, m)
+	end
+	-- หลังคาไม้เอียงยื่นมาข้างหน้า
+	P("Part", { Name = "Roof", Size = V(W + 3.4, 0.3, 2.4), CFrame = base * CF(0, top + 1.55, -0.45) * ANG(math.rad(-16), 0, 0), Color = ROOF, Material = Enum.Material.WoodPlanks }, m)
+	P("Part", { Name = "RoofTrim", Size = V(W + 3.4, 0.25, 0.25), CFrame = base * CF(0, top + 1.25, -1.6), Color = col, Material = Enum.Material.SmoothPlastic }, m)
+	-- โคมแขวนปลายคาน (ส่องป้ายตอนกลางคืน)
+	local hx = W / 2 - 0.6
+	P("Part", { Name = "Chain", Size = V(0.12, 1.1, 0.12), CFrame = base * CF(hx, top + 0.05, -0.9), Color = C(60, 56, 52), Material = Enum.Material.Metal, CanCollide = false }, m)
+	P("Part", { Name = "LampCase", Size = V(0.75, 0.95, 0.75), CFrame = base * CF(hx, top - 0.95, -0.9), Color = C(52, 44, 36), Material = Enum.Material.Metal, CanCollide = false }, m)
+	local glow = P("Part", { Name = "LampGlow", Size = V(0.5, 0.55, 0.5), CFrame = base * CF(hx, top - 0.95, -1.05), Color = C(255, 196, 110), Material = Enum.Material.Neon, CanCollide = false }, m)
+	local pl = Instance.new("PointLight")
+	pl.Color, pl.Range, pl.Brightness = C(255, 206, 140), 16, 1
+	pl.Parent = glow
+
+	------------------------------------------------ ใบประกาศบนป้าย (SurfaceGui)
+	local sg = Instance.new("SurfaceGui")
+	sg.Name = "SignGui"
+	sg.Face = Enum.NormalId.Front
+	sg.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+	sg.PixelsPerStud = 50 -- 600 x 500 px
+	sg.LightInfluence = 0
+	sg.MaxDistance = 150
+	sg.Parent = board
+	local FONT_T, FONT_B, FONT_R = Enum.Font.FredokaOne, Enum.Font.BuilderSansBold, Enum.Font.BuilderSansMedium
+	local INK, INK2 = C(62, 40, 24), C(110, 78, 50)
+	local function frameUI(parent, props)
+		local f = Instance.new("Frame")
+		f.BorderSizePixel = 0
+		for k, v in pairs(props) do
+			f[k] = v
+		end
+		f.Parent = parent
+		return f
+	end
+	local function corner(o, r)
+		local c = Instance.new("UICorner")
+		c.CornerRadius = UDim.new(0, r)
+		c.Parent = o
+	end
+	local function stroke(o, c, t, tr)
+		local s = Instance.new("UIStroke")
+		s.Color, s.Thickness, s.Transparency = c, t, tr or 0
+		s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		s.Parent = o
+	end
+	local function text(parent, props)
+		local t = Instance.new("TextLabel")
+		t.BackgroundTransparency = 1
+		t.TextWrapped = true
+		for k, v in pairs(props) do
+			t[k] = v
+		end
+		t.Parent = parent
+		return t
+	end
+	-- กระดาษประกาศ (สีครีม ขอบไล่เข้ม) ติดบนแผ่นไม้
+	local paper = frameUI(sg, { Size = UDim2.new(1, -44, 1, -40), Position = UDim2.fromOffset(22, 22), BackgroundColor3 = C(241, 228, 198) })
+	corner(paper, 10)
+	stroke(paper, C(150, 112, 70), 3)
+	local pg = Instance.new("UIGradient")
+	pg.Color = ColorSequence.new({ ColorSequenceKeypoint.new(0, C(248, 238, 212)), ColorSequenceKeypoint.new(1, C(226, 206, 166)) })
+	pg.Rotation = 90
+	pg.Parent = paper
+	-- หมุดปักมุมกระดาษ
+	for _, p in ipairs({ { 0, 0 }, { 1, 0 }, { 0, 1 }, { 1, 1 } }) do
+		local pin = frameUI(paper, { Size = UDim2.fromOffset(16, 16), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(p[1], p[1] == 0 and 14 or -14, p[2], p[2] == 0 and 14 or -14), BackgroundColor3 = C(178, 58, 46), ZIndex = 5 })
+		corner(pin, 8)
+		stroke(pin, C(90, 24, 18), 2)
+	end
+	-- แถบหัวข้อสีตามธาตุ + ตราธาตุวงกลม
+	local ribbon = frameUI(paper, { Size = UDim2.new(1, -40, 0, 66), Position = UDim2.fromOffset(20, 20), BackgroundColor3 = col })
+	corner(ribbon, 12)
+	stroke(ribbon, Color3.new(col.R * 0.45, col.G * 0.45, col.B * 0.45), 3)
+	local rg = Instance.new("UIGradient")
+	rg.Color = ColorSequence.new(col:Lerp(Color3.new(1, 1, 1), 0.25), Color3.new(col.R * 0.7, col.G * 0.7, col.B * 0.7))
+	rg.Rotation = 90
+	rg.Parent = ribbon
+	local badge = frameUI(ribbon, { Size = UDim2.fromOffset(78, 78), AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, -14, 0.5, 0), BackgroundColor3 = C(250, 240, 214), ZIndex = 3 })
+	corner(badge, 39)
+	stroke(badge, Color3.new(col.R * 0.45, col.G * 0.45, col.B * 0.45), 4)
+	local em = text(badge, { Size = UDim2.fromScale(1, 1), Text = info.Emblem, TextSize = 44, Font = FONT_T, TextColor3 = INK, ZIndex = 4 })
+	em:SetAttribute("NoTranslate", true)
+	local title = text(ribbon, { Size = UDim2.new(1, -86, 1, 0), Position = UDim2.fromOffset(76, 0), Text = info.Title, TextSize = 40, Font = FONT_T, TextColor3 = C(255, 255, 255), TextScaled = true })
+	local tsc = Instance.new("UITextSizeConstraint")
+	tsc.MaxTextSize = 42
+	tsc.Parent = title
+	stroke(title, C(40, 26, 16), 2.5)
+	title:FindFirstChildOfClass("UIStroke").ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
+	-- เงื่อนไขเข้า (ป้ายเม็ดยา: ส้ม = ต้องทำก่อน · เขียว = เข้าได้เลย)
+	local ok = info.Need.Ok
+	local pill = frameUI(paper, { Size = UDim2.new(1, -60, 0, 46), Position = UDim2.fromOffset(30, 100), BackgroundColor3 = ok and C(86, 160, 84) or C(214, 104, 52) })
+	corner(pill, 23)
+	stroke(pill, ok and C(40, 90, 40) or C(120, 50, 20), 2.5)
+	local pIcon = text(pill, { Size = UDim2.fromOffset(46, 46), Position = UDim2.fromOffset(6, 0), Text = ok and "✔" or "🔥", TextSize = 28, Font = FONT_T, TextColor3 = C(255, 255, 255) })
+	pIcon:SetAttribute("NoTranslate", true)
+	local pTxt = text(pill, { Size = UDim2.new(1, -64, 1, 0), Position = UDim2.fromOffset(52, 0), Text = info.Need.Text, TextSize = 26, Font = FONT_T, TextColor3 = C(255, 255, 255), TextXAlignment = Enum.TextXAlignment.Left, TextScaled = true })
+	local psc = Instance.new("UITextSizeConstraint")
+	psc.MaxTextSize = 27
+	psc.Parent = pTxt
+	-- คำอธิบายสั้น
+	text(paper, { Size = UDim2.new(1, -60, 0, 44), Position = UDim2.fromOffset(30, 152), Text = info.Info, TextSize = 21, Font = FONT_R, TextColor3 = INK2 })
+	-- หัวข้อรางวัล + เส้นคั่น
+	local hdr = frameUI(paper, { Size = UDim2.new(1, -60, 0, 30), Position = UDim2.fromOffset(30, 200), BackgroundTransparency = 1 })
+	frameUI(hdr, { Size = UDim2.new(1, 0, 0, 2), Position = UDim2.new(0, 0, 0.5, 0), BackgroundColor3 = C(176, 140, 92) })
+	local hlab = text(hdr, { AutomaticSize = Enum.AutomaticSize.X, Size = UDim2.fromOffset(0, 30), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.fromScale(0.5, 0), Text = "REWARDS FOR THE WHOLE TEAM", TextSize = 21, Font = FONT_T, TextColor3 = C(150, 98, 32), BackgroundTransparency = 0, BackgroundColor3 = C(238, 224, 192), TextWrapped = false })
+	local hp = Instance.new("UIPadding")
+	hp.PaddingLeft, hp.PaddingRight = UDim.new(0, 10), UDim.new(0, 10)
+	hp.Parent = hlab
+	-- รายการรางวัล: ไอคอนในวงกลมสีธาตุ + ข้อความ
+	local list = frameUI(paper, { Size = UDim2.new(1, -60, 0, 210), Position = UDim2.fromOffset(30, 236), BackgroundTransparency = 1 })
+	local lay = Instance.new("UIListLayout")
+	lay.Padding = UDim.new(0, 6)
+	lay.SortOrder = Enum.SortOrder.LayoutOrder
+	lay.Parent = list
+	for i, r in ipairs(info.Rewards) do
+		local row = frameUI(list, { Size = UDim2.new(1, 0, 0, 44), AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1, LayoutOrder = i })
+		local dot = frameUI(row, { Size = UDim2.fromOffset(40, 40), BackgroundColor3 = col:Lerp(C(255, 255, 255), 0.55) })
+		corner(dot, 20)
+		stroke(dot, Color3.new(col.R * 0.55, col.G * 0.55, col.B * 0.55), 2)
+		local ic = text(dot, { Size = UDim2.fromScale(1, 1), Text = r[1], TextSize = 24, Font = FONT_T, TextColor3 = INK })
+		ic:SetAttribute("NoTranslate", true)
+		text(row, { Size = UDim2.new(1, -52, 0, 40), AutomaticSize = Enum.AutomaticSize.Y, Position = UDim2.fromOffset(52, 0), Text = r[2], TextSize = 22, Font = FONT_B, TextColor3 = INK, TextXAlignment = Enum.TextXAlignment.Left })
+	end
+	m.Parent = parent
+	return m
+end
+
 function PropBuilder.BuildRealm(frame, el, parent, label, action, kind)
 	local key = (kind or "Shrine") .. el
 	local th = REALM_THEME[key]
@@ -2939,6 +3083,7 @@ function PropBuilder.BuildShrine(sp, parent)
 	-- ประตูมิติบนพื้น -> ห้องในปราสาทบนฟ้า · กรง + ผู้พิทักษ์อยู่กลางห้อง (พื้นหินเรียบ ไม่ลอย/ไม่จม)
 	local TH = { Earth = "Earth", Water = "Water", Air = "Frost", Fire = "Fire" }
 	local _, center = PropBuilder.BuildRealm(base, el, m, (TH[el] or "") .. " Shrine", "Enter Shrine", "Shrine")
+	PropBuilder.BuildSiteSign(base * CF(-27, 0, -14) * ANG(0, math.rad(-20), 0), "Shrine", el, m) -- ป้ายเงื่อนไข/รางวัล ข้างประตู
 	base = center * (base - base.Position)
 	m.WorldPivot = base
 	m:SetAttribute("SitePos", sp.Position) -- ตำแหน่งลานเดิม (ใช้สร้างใหม่ตอนเริ่มรอบ)
@@ -3026,19 +3171,19 @@ local function decorIceLair(m, base, R, col, floating)
 			terrain:FillCylinder(CF(base.X, gy - 0.9, base.Z), 1.9, ring[1], ring[2])
 		end
 	end)
-	-- กำแพงหน้าผาน้ำแข็ง (ไม่ทำบนเกาะลอย — ขอบเกาะจะลอยกลางฟ้า)
+	-- ลานน้ำแข็งเปิดโล่ง: เสาน้ำแข็งแตกห่าง ๆ รอบลาน (เดิมกำแพงหน้าผาทึบล้อมเกือบรอบวง -> เยติติดอยู่ข้างใน สู้คนข้างนอกไม่ถึง)
 	if not floating then
-		local N = 30
+		local N = 10
 		for i = 0, N - 1 do
-			local a = i / N * math.pi * 2 + rng:NextNumber(-0.04, 0.04)
-			if gapDist(a) > 0.42 then
-				local r = R + 18 + rng:NextNumber(-3, 6)
-				local h = rng:NextNumber(20, 36)
+			local a = i / N * math.pi * 2 + rng:NextNumber(-0.08, 0.08)
+			if gapDist(a) > 0.7 then
+				local r = R + 16 + rng:NextNumber(-2, 4)
+				local h = rng:NextNumber(10, 20)
 				local mat = (i % 3 == 0) and Enum.Material.Ice or Enum.Material.Glacier
-				local cf = at(a, r, h / 2 - 12) * ANG(0, -a, 0) * ANG(rad(rng:NextNumber(-6, 6)), 0, rad(rng:NextNumber(-4, 10)))
+				local cf = at(a, r, h / 2 - 6) * ANG(0, -a, 0) * ANG(rad(rng:NextNumber(-10, 10)), 0, rad(rng:NextNumber(-8, 14)))
 				pcall(function()
-					terrain:FillBlock(cf, V(rng:NextNumber(10, 16), h + 24, rng:NextNumber(12, 18)), mat)
-					terrain:FillBall(at(a, r, h - 1).Position, rng:NextNumber(4, 6), Enum.Material.Snow)
+					terrain:FillBlock(cf, V(rng:NextNumber(6, 9), h + 10, rng:NextNumber(6, 9)), mat)
+					terrain:FillBall(at(a, r, h - 3).Position, rng:NextNumber(2.5, 4), Enum.Material.Snow)
 				end)
 				if i % 3 == 1 then
 					local top = at(a, r, h - 2).Position
@@ -3214,7 +3359,7 @@ function PropBuilder.BuildLair(sp, parent)
 	local m = Instance.new("Model")
 	m.Name = "Lair_" .. el
 	local base = faceCamp(sp.Position)
-	local R = sp.Floating and 52 or 62
+	local R = sp.Floating and 52 or (el == "Earth" and 62 or 120) -- น้ำ/น้ำแข็ง/ไฟ: วงลานกว้างขึ้นเกือบเท่าตัว
 	local stoneColor = ({ Earth = C(96, 100, 90), Water = C(190, 206, 200), Air = C(120, 132, 168), Fire = C(40, 34, 36) })[el]
 	local stoneMat = ({ Earth = Enum.Material.Slate, Water = Enum.Material.Limestone, Air = Enum.Material.Slate, Fire = Enum.Material.Basalt })[el]
 	-- ฉากหลังจาก Creator Store (ต่อธาตุ) -> แทนวงเสาหินปั้น
@@ -3272,7 +3417,7 @@ function PropBuilder.BuildLair(sp, parent)
 		local floorY = base.Position.Y
 		local rngW = Random.new(math.floor(base.Position.X + base.Position.Z))
 		local islands = {}
-		for ring, info in ipairs({ { 64, 9, 11 }, { 104, 12, 14 } }) do
+		for ring, info in ipairs({ { 118, 12, 12 }, { 168, 16, 14 } }) do -- เกาะหินอยู่ขอบลาน (เดิม 64/104 = บอสว่ายชนเกาะ)
 			local n = info[2]
 			for i = 0, n - 1 do
 				local a = (i + (ring == 2 and 0.5 or 0)) / n * math.pi * 2 + rngW:NextNumber(-0.12, 0.12)
@@ -3377,6 +3522,12 @@ function PropBuilder.BuildLair(sp, parent)
 			local ok, err = pcall(decorIceLair, m, base, R, col, sp.Floating)
 			if not ok then
 				warn("[AS] Frost boss room:", err)
+			end
+			-- ของประดับในลานบอสน้ำแข็ง (ยอดน้ำแข็ง/ผลึก/หินรูน/เตาไฟ) ไม่ชนตัว: เยติตัวใหญ่เคยติดของประดับเดินไม่ออก
+			for _, d in ipairs(m:GetDescendants()) do
+				if d:IsA("BasePart") then
+					d.CanCollide = false
+				end
 			end
 		end
 	end

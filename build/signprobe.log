@@ -1,0 +1,293 @@
+﻿ERR: orError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+ERR: torError] Error: MeshContentProvider failed to process https://assetdelivery.roblox.com/v1/asset?id=70559294799847 because 'could not fetch'
+ERR: orError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+rOutput] [AS] เริ่มเทสต์อัตโนมัติ...
+rOutput] [AS] seed=220039252 map=2048
+rOutput] [AS] client ready
+rOutput] [AS] terrain 5.9s
+rOutput] [AS] world ready 6.9s props=380
+rOutput] [AS] READY
+shot arena_Water_wide
+shot arena_Water_close
+rOutput] [AS] ARENA Water boss=Leviathan radius=45.6 leash=150 hp=5197
+shot arena_Water_boss
+rOutput] [AS] ARENA trace Water TidalWave t=0.6 pos=-489,16,288 anch=false state=Swimming
+rOutput] [AS] ARENA trace Water TidalWave t=1.2 pos=-489,16,288 anch=false state=Swimming
+shot arena_Water_TidalWave_1
+rOutput] [AS] ARENA trace Water TidalWave t=1.8 pos=-489,16,288 anch=false state=Swimming
+rOutput] [AS] ARENA trace Water TidalWave t=2.4 pos=-489,16,288 anch=false state=Swimming
+rOutput] [AS] ARENA trace Water TidalWave t=3.0 pos=-489,16,288 anch=false state=GettingUp
+rOutput] [AS] ARENA trace Water TidalWave t=3.6 pos=-489,16,288 anch=false state=Swimming
+rOutput] [AS] ARENA trace Water TidalWave t=4.2 pos=-489,16,288 anch=false state=GettingUp
+shot arena_Water_TidalWave_2
+rOutput] [AS] ARENA trace Water TidalWave t=4.8 pos=-489,16,288 anch=false state=Swimming
+rOutput] [AS] ARENA trace Water TidalWave t=5.4 pos=-489,16,288 anch=false state=Swimming
+rOutput] [AS] ARENA trace Water TidalWave t=6.0 pos=-489,16,288 anch=false state=Swimming
+shot arena_Water_TidalWave_3
+shot arena_Water_TidalWave_4
+rOutput] [AS] ARENA Water TidalWave done fromHome=0.0 moved=0.1
+rOutput] [AS] ARENA Water chase moved=0.1 fromHome=0.0
+rOutput] [AS] ARENA trace Water WaterSpout t=0.6 pos=-489,16,288 anch=false state=Running
+rOutput] [AS] ARENA trace Water WaterSpout t=1.2 pos=-489,16,288 anch=false state=GettingUp
+shot arena_Water_WaterSpout_1
+rOutput] [AS] ARENA trace Water WaterSpout t=1.8 pos=-489,16,288 anch=false state=Swimming
+rOutput] [AS] ARENA trace Water WaterSpout t=2.4 pos=-489,16,288 anch=false state=Swimming
+rOutput] [AS] ARENA trace Water WaterSpout t=3.0 pos=-489,16,288 anch=false state=Swimming
+rOutput] [AS] ARENA trace Water WaterSpout t=3.6 pos=-489,16,288 anch=false state=Swimming
+rOutput] [AS] ARENA trace Water WaterSpout t=4.2 pos=-489,16,288 anch=false state=Running
+shot arena_Water_WaterSpout_2
+rOutput] [AS] ARENA trace Water WaterSpout t=4.8 pos=-489,16,288 anch=false state=Swimming
+rOutput] [AS] ARENA trace Water WaterSpout t=5.4 pos=-489,16,288 anch=false state=Running
+rOutput] [AS] ARENA trace Water WaterSpout t=6.0 pos=-489,16,288 anch=false state=Swimming
+shot arena_Water_WaterSpout_3
+shot arena_Water_WaterSpout_4
+rOutput] [AS] ARENA Water WaterSpout done fromHome=0.0 moved=0.0
+rOutput] [AS] ARENA Water chase moved=0.0 fromHome=0.0
+rOutput] [AS] ARENA trace Water WaterMissiles t=0.6 pos=-489,16,288 anch=false state=Swimming
+rOutput] [AS] ARENA trace Water WaterMissiles t=1.2 pos=-489,16,288 anch=false state=GettingUp
+shot arena_Water_WaterMissiles_1
+rOutput] [AS] ARENA trace Water WaterMissiles t=1.8 pos=-489,16,288 anch=false state=Swimming
+rOutput] [AS] ARENA trace Water WaterMissiles t=2.4 pos=-489,16,288 anch=false state=Running
+rOutput] [AS] ARENA trace Water WaterMissiles t=3.0 pos=-489,16,288 anch=false state=Swimming
+rOutput] [AS] ARENA trace Water WaterMissiles t=3.6 pos=-489,16,288 anch=false state=Swimming
+rOutput] [AS] ARENA trace Water WaterMissiles t=4.2 pos=-489,16,288 anch=false state=Running
+shot arena_Water_WaterMissiles_2
+rOutput] [AS] ARENA trace Water WaterMissiles t=4.8 pos=-489,16,288 anch=false state=Running
+rOutput] [AS] ARENA trace Water WaterMissiles t=5.4 pos=-489,16,288 anch=false state=GettingUp
+rOutput] [AS] ARENA trace Water WaterMissiles t=6.0 pos=-489,16,288 anch=false state=Swimming
+shot arena_Water_WaterMissiles_3
+shot arena_Water_WaterMissiles_4
+rOutput] [AS] ARENA Water WaterMissiles done fromHome=0.0 moved=0.0
+rOutput] [AS] ARENA Water chase moved=0.0 fromHome=0.0
+rOutput] [TEST] DONE arenaprobe
+ERR: orError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+rOutput] [AS] เริ่มเทสต์อัตโนมัติ...
+rOutput] [AS] seed=521408505 map=2048
+rOutput] [AS] client ready
+rOutput] [AS] terrain 5.7s
+rOutput] [AS] world ready 6.5s props=386
+rOutput] [AS] READY
+rOutput] [TEST] DONE probe
+ERR: orError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+ERR: orError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+rOutput] [AS] เริ่มเทสต์อัตโนมัติ...
+rOutput] [AS] เริ่มเทสต์อัตโนมัติ...
+rOutput] [AS] seed=702975089 map=2048
+rOutput] [AS] seed=21452441 map=2048
+rOutput] [AS] client ready
+rOutput] [AS] client ready
+rOutput] [AS] terrain 7.3s
+rOutput] [AS] terrain 7.0s
+rOutput] [AS] world ready 8.2s props=306
+rOutput] [AS] READY
+rOutput] [AS] world ready 8.0s props=361
+rOutput] [AS] READY
+shot arena_Water_wide
+shot arena_Water_close
+rOutput] [AS] ARENA Water boss=Leviathan radius=45.6 leash=150 hp=5197
+shot arena_Water_boss
+rOutput] [TEST] DONE probe
+rOutput] [AS] ARENA trace Water TidalWave t=0.6 pos=192,16,439 balls=0 far=0
+rOutput] [AS] ARENA trace Water TidalWave t=1.2 pos=192,16,439 balls=0 far=0
+shot arena_Water_TidalWave_1
+rOutput] [AS] ARENA trace Water TidalWave t=1.8 pos=192,16,439 balls=0 far=0
+rOutput] [AS] ARENA trace Water TidalWave t=2.4 pos=192,16,439 balls=0 far=0
+rOutput] [AS] ARENA trace Water TidalWave t=3.0 pos=192,16,439 balls=0 far=0
+rOutput] [AS] ARENA trace Water TidalWave t=3.6 pos=192,16,439 balls=0 far=0
+shot arena_Water_TidalWave_2
+rOutput] [AS] ARENA trace Water TidalWave t=4.2 pos=192,16,439 balls=0 far=0
+rOutput] [AS] ARENA trace Water TidalWave t=4.8 pos=192,16,439 balls=0 far=0
+rOutput] [AS] ARENA trace Water TidalWave t=5.4 pos=192,16,439 balls=0 far=0
+rOutput] [AS] ARENA trace Water TidalWave t=6.0 pos=192,16,439 balls=0 far=0
+shot arena_Water_TidalWave_3
+ERR: orError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+shot arena_Water_TidalWave_4
+rOutput] [AS] ARENA Water TidalWave done fromHome=1.8 moved=0.0
+rOutput] [AS] ARENA Water chase moved=0.0 fromHome=1.8
+rOutput] [AS] ARENA trace Water WaterSpout t=0.6 pos=192,16,439 balls=0 far=0
+rOutput] [AS] ARENA trace Water WaterSpout t=1.2 pos=192,16,439 balls=0 far=0
+shot arena_Water_WaterSpout_1
+rOutput] [AS] ARENA trace Water WaterSpout t=1.8 pos=192,16,439 balls=0 far=0
+rOutput] [AS] ARENA trace Water WaterSpout t=2.4 pos=192,16,439 balls=0 far=0
+rOutput] [AS] ARENA trace Water WaterSpout t=3.0 pos=192,16,439 balls=0 far=0
+rOutput] [AS] ARENA trace Water WaterSpout t=3.6 pos=192,16,439 balls=0 far=0
+rOutput] [AS] ARENA trace Water WaterSpout t=4.2 pos=190,71,435 balls=0 far=0
+shot arena_Water_WaterSpout_2
+rOutput] [AS] ARENA trace Water WaterSpout t=4.8 pos=187,59,428 balls=0 far=0
+rOutput] [AS] ARENA trace Water WaterSpout t=5.4 pos=185,17,424 balls=0 far=0
+rOutput] [AS] ARENA trace Water WaterSpout t=6.0 pos=185,19,424 balls=0 far=0
+shot arena_Water_WaterSpout_3
+shot arena_Water_WaterSpout_4
+rOutput] [AS] ARENA Water WaterSpout done fromHome=15.5 moved=17.2
+rOutput] [AS] ARENA Water chase moved=11.9 fromHome=3.6
+rOutput] [AS] ARENA trace Water WaterMissiles t=0.6 pos=190,16,435 balls=0 far=0
+rOutput] [AS] ARENA trace Water WaterMissiles t=1.2 pos=190,16,435 balls=0 far=0
+shot arena_Water_WaterMissiles_1
+rOutput] [AS] ARENA trace Water WaterMissiles t=1.8 pos=190,16,435 balls=4 far=46
+rOutput] [AS] ARENA trace Water WaterMissiles t=2.4 pos=190,16,435 balls=4 far=87
+rOutput] [AS] ARENA trace Water WaterMissiles t=3.0 pos=190,16,435 balls=8 far=142
+rOutput] [AS] ARENA trace Water WaterMissiles t=3.6 pos=190,16,435 balls=8 far=196
+rOutput] [AS] ARENA trace Water WaterMissiles t=4.2 pos=190,16,435 balls=12 far=244
+shot arena_Water_WaterMissiles_2
+rOutput] [AS] ARENA trace Water WaterMissiles t=4.8 pos=190,16,435 balls=11 far=278
+rOutput] [AS] ARENA trace Water WaterMissiles t=5.4 pos=190,16,435 balls=8 far=244
+rOutput] [AS] ARENA trace Water WaterMissiles t=6.0 pos=190,16,435 balls=6 far=278
+shot arena_Water_WaterMissiles_3
+shot arena_Water_WaterMissiles_4
+rOutput] [AS] ARENA Water WaterMissiles done fromHome=3.6 moved=0.1
+ERR: orError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+rOutput] [AS] ARENA Water chase moved=0.1 fromHome=3.6
+orOutput] [TEST] DONE arenaprobe
+orOutput] [AS] rebuilt mesh collisions: 1240
+orOutput] [AS] เริ่มเทสต์อัตโนมัติ...
+orOutput] [AS] seed=587886383 map=6144
+orOutput] [AS] client ready
+orOutput] [AS] terrain 15.4s
+orOutput] [AS] I18N MISS Spirit Pups in camp
+orOutput] [AS] I18N MISS Label
+orOutput] [AS] I18N MISS With Save Run, your run is saved every dawn. Next time the whole team falls, continue from the last saved night instead of starting over at Night 1. Also available any time in the Shop.
+orOutput] [AS] I18N MISS Combat
+orOutput] [AS] I18N MISS Lv.1
+orOutput] [AS] I18N MISS Lv.2
+orOutput] [AS] I18N MISS Lv.3
+orOutput] [AS] I18N MISS DEV
+orOutput] [AS] I18N MISS 🛠 DEV TOOLS   [F8]  · Drag here to move
+orOutput] [AS] I18N MISS 🛡 God mode (on/off)
+orOutput] [AS] I18N MISS ❤ Refill HP + hunger
+orOutput] [AS] I18N MISS 🕊 Fly (on/off)
+orOutput] [AS] I18N MISS 👻 Noclip
+orOutput] [AS] I18N MISS 🏃 Speed x1
+orOutput] [AS] I18N MISS 🏃 Speed x2
+orOutput] [AS] I18N MISS 🏃 Speed x4
+orOutput] [AS] I18N MISS 🔄 Respawn
+orOutput] [AS] I18N MISS 🧭 Enter map (from lobby)
+orOutput] [AS] I18N MISS 🏕 Back to lobby
+orOutput] [AS] I18N MISS 🖥 Hide/show HUD
+orOutput] [AS] I18N MISS ℹ Game status
+orOutput] [AS] I18N MISS 🎁 All Materials x100
+orOutput] [AS] I18N MISS 🎁 All Food x20
+orOutput] [AS] I18N MISS 🎁 All Element Essence x20
+orOutput] [AS] I18N MISS 🎁 All Medicine x10
+orOutput] [AS] I18N MISS 🎁 All Rare Items x3
+orOutput] [AS] I18N MISS 🎁 All Tools x1
+orOutput] [AS] I18N MISS 🎁 All Buildings x10
+orOutput] [AS] I18N MISS 🗑 Clear bag
+orOutput] [AS] I18N MISS 👑 Azure Royal Elephant
+orOutput] [AS] I18N MISS 🧹 Remove all bosses/animals
+orOutput] [AS] I18N MISS Time
+orOutput] [AS] I18N MISS ⏭ Skip phase
+orOutput] [AS] I18N MISS 🌙 Go to night now
+orOutput] [AS] I18N MISS ⏸ Pause/resume time
+orOutput] [AS] I18N MISS Set night 1
+orOutput] [AS] I18N MISS Set night 5
+orOutput] [AS] I18N MISS Set night 10
+orOutput] [AS] I18N MISS Set night 24
+orOutput] [AS] I18N MISS Set night 25 👑Earth
+orOutput] [AS] I18N MISS Set night 49
+orOutput] [AS] I18N MISS Set night 50 👑Water
+orOutput] [AS] I18N MISS Set night 74
+orOutput] [AS] I18N MISS Set night 75 👑Frost
+orOutput] [AS] I18N MISS Set night 98
+orOutput] [AS] I18N MISS Set night 99 👑Fire
+orOutput] [AS] I18N MISS 🔥 Fuel filled
+orOutput] [AS] I18N MISS 💨 Campfire put out
+orOutput] [AS] I18N MISS 🔥 Campfire +1 level
+orOutput] [AS] I18N MISS 🔥 Campfire -1 level
+orOutput] [AS] I18N MISS 🌫 Pass through fog wall on/off
+orOutput] [AS] I18N MISS 🔨 Crafting bench +1
+orOutput] [AS] I18N MISS 🔨 Crafting bench -1
+orOutput] [AS] I18N MISS ➡ Forward 120
+orOutput] [AS] I18N MISS 🗺 Biome Earth
+orOutput] [AS] I18N MISS ⛩ Shrine Earth
+orOutput] [AS] I18N MISS 👑 Boss Lair Earth
+orOutput] [AS] I18N MISS 🏚 Ruins Earth
+orOutput] [AS] I18N MISS 🏛 Sanctum Earth
+orOutput] [AS] I18N MISS 🗺 Biome Water
+orOutput] [AS] I18N MISS ⛩ Shrine Water
+orOutput] [AS] I18N MISS 👑 Boss Lair Water
+orOutput] [AS] I18N MISS 🏚 Ruins Water
+orOutput] [AS] I18N MISS 🏛 Sanctum Water
+orOutput] [AS] I18N MISS 🗺 Biome Frost
+orOutput] [AS] I18N MISS ⛩ Shrine Frost
+orOutput] [AS] I18N MISS 👑 Boss Lair Frost
+orOutput] [AS] I18N MISS 🏚 Ruins Frost
+orOutput] [AS] I18N MISS 🏛 Sanctum Frost
+orOutput] [AS] I18N MISS 🗺 Biome Fire
+orOutput] [AS] I18N MISS ⛩ Shrine Fire
+orOutput] [AS] I18N MISS 👑 Boss Lair Fire
+orOutput] [AS] I18N MISS 🏚 Ruins Fire
+orOutput] [AS] I18N MISS 🏛 Sanctum Fire
+orOutput] [AS] I18N MISS ♦️ +1000 Ruby
+orOutput] [AS] I18N MISS Username or UserId
+orOutput] [AS] I18N MISS Ruby amount
+orOutput] [AS] I18N MISS 🎁 Send Ruby to this player
+orOutput] [AS] I18N MISS 🎁 Send to everyone in the server
+orOutput] [AS] I18N MISS 🌍 Free Create World ON/OFF (no Robux)
+orOutput] [AS] I18N MISS 🌍 +5 World credits
+orOutput] [AS] I18N MISS 🔓 Unlocked all classes
+orOutput] [AS] I18N MISS ⭐ Current class to level 3
+orOutput] [AS] I18N MISS 🔄 Reset daily reward + stock
+orOutput] [AS] I18N MISS ♻ Reset profile
+orOutput] [AS] I18N MISS 🌍 Worlds
+orOutput] [AS] I18N MISS + Create World
+orOutput] [AS] I18N MISS My Worlds
+orOutput] [AS] I18N MISS No worlds yet — press + Create World
+orOutput] [AS] I18N MISS Worlds in this server
+orOutput] [AS] I18N MISS No world rooms open right now
+orOutput] [AS] I18N MISS Password
+orOutput] [AS] I18N MISS Join
+orOutput] [AS] I18N MISS World name
+orOutput] [AS] I18N MISS e.g. Wolf Den
+orOutput] [AS] I18N MISS (empty = anyone can join)
+orOutput] [AS] I18N MISS Your world saves every dawn until the whole team falls. Friends with the password (or your invite) can join your room.
+orOutput] [AS] I18N MISS ▶ Enter World
+orOutput] [AS] I18N MISS 📨 Invite Players
+orOutput] [AS] I18N MISS Leave Room
+orOutput] [AS] I18N MISS Invite players in this server
+orOutput] [AS] I18N MISS No one else in this server yet
+orOutput] [AS] I18N MISS Decline
+orOutput] [AS] I18N MISS OK
+orOutput] [AS] I18N MISS English
+orOutput] [AS] I18N MISS Español
+orOutput] [AS] I18N MISS Português
+orOutput] [AS] I18N MISS Bahasa Indonesia
+orOutput] [AS] I18N MISS Tiếng Việt
+orOutput] [AS] I18N MISS Filipino
+orOutput] [AS] I18N MISS ✨ Season Pass
+orOutput] [AS] I18N MISS Find new codes on the game page and in the game's group
+orOutput] [AS] I18N MISS Remove = pick it up whole (back to your hotbar)
+orOutput] [AS] I18N MISS Leave channel <XX>?
+orOutput] [AS] I18N MISS To chat click here or press "/" key
+orOutput] [AS] I18N MISS [ All Time ] · This Week  —  This server only (save system not connected yet)
+orOutput] [AS] I18N MISS <font color="#FFE066" size="40">Camp News</font>\n\nDefeat a boss = ♦️3-7\nRescue a Spirit Pup = ♦️5\nSanctums, meteors, chests = ♦️\n\n<font color="#8CFF8C">Free Ruby at the green cauldron every day!</font>
+orOutput] [AS] I18N MISS Chat '/?' or '/help' for a list of chat commands.
+orOutput] [AS] I18N MISS System
+orOutput] [AS] I18N MISS Thanks for buying Save Run — you got 1 free world (press + Create World)
+orOutput] [AS] I18N MISS 👑 VIP
+orOutput] [AS] I18N MISS [K] Class Shop   ·   Green cauldron = Daily reward   ·   Step on a pad to start
+orOutput] [AS] I18N MISS 5 Ruby
+orOutput] [AS] I18N MISS 8 Ruby
+orOutput] [AS] I18N MISS 10 Ruby
+orOutput] [AS] I18N MISS 12 Ruby
+orOutput] [AS] I18N MISS 15 Ruby
+orOutput] [AS] I18N MISS 20 Ruby
+orOutput] [AS] I18N MISS 60 Ruby
+orOutput] [AS] I18N MISS All Time · [ This Week ]  —  This server only (save system not connected yet)
+orOutput] [AS] world ready 21.8s props=13227
+orOutput] [AS] READY
+orOutput] [AS] I18N MISS [Click] Hit   [Shift] Sprint   [C] Craft   [E] Pick up   [Tab] Sack   [M] Map
+ERR: torError] Error: MeshContentProvider failed to process https://assetdelivery.roblox.com/v1/asset?id=70559294799847 because 'could not fetch'
+orOutput] [AS] I18N MISS Azure Royal Elephant
+ERR: torError] Error: MeshContentProvider failed to process https://assetdelivery.roblox.com/v1/asset?id=70559294799847 because 'could not fetch'
+orOutput] [AS] SIGNPROBE signs=4
+orOutput] [AS] SIGNPROBE Shrine_Earth lines=14 boardY=69.2 groundY=62.0
+shot sign_Shrine_Earth
+orOutput] [AS] SIGNPROBE Shrine_Water lines=14 boardY=41.2 groundY=34.0
+orOutput] [AS] SIGNPROBE Shrine_Air lines=14 boardY=53.2 groundY=46.0
+orOutput] [AS] SIGNPROBE Shrine_Fire lines=14 boardY=41.2 groundY=34.0
+shot sign_Shrine_Earth_wide
+orOutput] [AS] I18N MISS Discovered: Sealed ShrineEarth
+orOutput] [AS] I18N MISS Discovered: Sealed ShrineFire
+shot sign_Shrine_Fire
+orOutput] [TEST] DONE signprobe
+finished in 703s  done=True

@@ -122,6 +122,21 @@ local function show(data)
 		Size = UDim2.new(1, 0, 0, 26), Position = UDim2.fromOffset(0, 34), TextSize = 15, Font = UIKit.Fonts.Black, TextXAlignment = Enum.TextXAlignment.Center,
 		TextColor3 = spec.Color, Text = "",
 	})
+	-- รูปโปรไฟล์คนปิง (ข้างไอคอน) -> รู้ทันทีว่าใครปิง
+	if uid > 0 then
+		local av = Instance.new("ImageLabel")
+		av.Name = "Avatar"
+		av.Size = UDim2.fromOffset(30, 30)
+		av.AnchorPoint = Vector2.new(1, 0)
+		av.Position = UDim2.new(0.5, -16, 0, 2)
+		av.BackgroundColor3 = Color3.fromRGB(24, 22, 30)
+		av.Image = "rbxthumb://type=AvatarHeadShot&id=" .. uid .. "&w=48&h=48"
+		av.Parent = bb
+		UIKit.Corner(av, 15)
+		local s = Instance.new("UIStroke")
+		s.Color, s.Thickness = spec.Color, 2
+		s.Parent = av
+	end
 	-- เด้งตอนขึ้น
 	local sc = Instance.new("UIScale")
 	sc.Scale = 0.4
@@ -199,8 +214,8 @@ function TeamPing.Init(state, hud, map, sound)
 		gPrompts[prompt] = nil
 	end)
 	UserInputService.InputBegan:Connect(function(input, processed)
-		if processed or input.KeyCode ~= Enum.KeyCode.G then
-			return
+		if processed or input.KeyCode ~= Enum.KeyCode.G or out() then
+			return -- ล็อบบี้/ตายแล้ว: G ไม่ทำอะไร
 		end
 		for prompt in pairs(gPrompts) do
 			if not (prompt.Parent and prompt.Enabled) then

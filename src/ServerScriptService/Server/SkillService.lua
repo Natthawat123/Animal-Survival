@@ -16,7 +16,9 @@ local Classes = require(ReplicatedStorage.Shared.Classes)
 
 local SkillService = {}
 
-local BAT_COUNT, BAT_HP, BAT_DAMAGE, BAT_RANGE = 5, 200, 14, 48
+local BAT_COUNT, BAT_HP, BAT_DAMAGE, BAT_RANGE = 5, 200, 5, 48 -- ดาเมจค้างคาวตัวละ 5 คงที่ (เดิม 14 x โบนัสโจมตีแวมไพร์ = ~18)
+local BAT_LIFETIME = 80 -- ฝูงค้างคาวอยู่ได้กี่วินาทีแล้วหายไปเอง
+local swarmEnd = {} -- [player] = เวลาที่ฝูงหมดอายุ
 local BAT_KILL_HEAL = 0.05 -- ค้างคาวฆ่ามอนได้ 1 ตัว = เจ้าของได้เลือดคืน 5% ของเลือดสูงสุด
 local hurtBatRef -- = hurtBat (ประกาศด้านล่าง)
 local swarms = {} -- [player] = { bats... }
@@ -132,7 +134,7 @@ local function batModel()
 	end
 	m.Name = "VampBat"
 	pcall(function()
-		m:ScaleTo(m:GetScale() * 1.4) -- ตัวใหญ่ขึ้น มองเห็นชัด
+		m:ScaleTo(m:GetScale() * 0.9) -- (เดิม x1.4 ตัวใหญ่เกิน)
 	end)
 	local torso = m:FindFirstChild("Torso") or m:FindFirstChildWhichIsA("BasePart", true)
 	for _, d in ipairs(m:GetDescendants()) do
@@ -211,6 +213,7 @@ end
 function SkillService:Dismiss(player)
 	local list = swarms[player]
 	swarms[player] = nil
+	swarmEnd[player] = nil
 	for _, b in ipairs(list or {}) do
 		b.Dead = true
 		if b.Model.Parent then
@@ -255,6 +258,7 @@ function SkillService:Swarm(player)
 		table.insert(list, { Model = m, Torso = torso, Align = ap, Orient = ao, Fill = fill, HP = BAT_HP, Slot = a, NextBite = 0, NextHurt = 0 })
 	end
 	swarms[player] = list
+	swarmEnd[player] = now() + BAT_LIFETIME
 	self.ctx.Remotes.Get("HitFx"):FireAllClients("SkillSwarm", { Position = root.Position, Player = player })
 	return true
 end
@@ -273,8 +277,8 @@ function SkillService:TickBats()
 	local t = now()
 	for player, list in pairs(swarms) do
 		local root = rootOf(player)
-		if not root or not player.Parent or not player:GetAttribute("InRun") then
-			self:Dismiss(player)
+		if not root or not player.Parent or not player:GetAttribute("InRun") or t >= (swarmEnd[player] or math.huge) then
+			self:Dismiss(player) -- (ครบ BAT_LIFETIME = ฝูงสลายไป)
 			continue
 		end
 		local alive = {}
@@ -301,7 +305,7 @@ function SkillService:TickBats()
 						b.NextBite = t + 0.9
 						local deadBefore = target.Dead
 						local tpos = target.Root.Position
-						local batDmg = BAT_DAMAGE * self.ctx.Services.SurvivalService:Perk(player, "DamageMult", 1)
+						local batDmg = BAT_DAMAGE -- ไม่คูณโบนัสโจมตีของเจ้าของ
 						if target.Kind == "Boss" or target.Info.Behaviour == "Boss" then
 							batDmg *= 0.5 -- บอสโดนค้างคาวกัดแค่ครึ่ง
 						end
@@ -427,7 +431,7 @@ function SkillService:DarkMeteor(player, aim)
 		-- ตกกระแทก: ดาเมจแรงวงกว้าง
 		local dmg = 160 * surv:Perk(player, "DamageMult", 1)
 		for _, a in ipairs(animals:InRadius(center, DM_RADIUS, false)) do
-			if a.Kind ~= "Spirit" then
+			if combat.Hittable(a) then
 				combat:DamageAnimal(a, dmg, player, { Source = "Skill" })
 			end
 		end

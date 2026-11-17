@@ -130,6 +130,8 @@ function AtmosphereController.Init(state)
 		local inRealm = pos.Y > 1900 and not outside
 		if inLobby then
 			clock, night = 15.4, 0
+		elseif pos.Y > 3200 and not outside then
+			clock, night = 20.6, 1 -- มิติเทศกาลลอยกระทง (KrathongService Y 3400): ค่ำคืนพระจันทร์เต็มดวงตลอด
 		elseif inRealm then
 			clock, night = 14, 0 -- มิติ: กลางวันสว่างตลอด โทนตามไบโอมใต้เกาะ
 		elseif state:GetAttribute("TestClock") then

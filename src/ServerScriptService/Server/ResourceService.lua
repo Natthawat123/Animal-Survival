@@ -17,7 +17,7 @@ function ResourceService:Init(ctx)
 	self.ctx = ctx
 	self.overlap = OverlapParams.new()
 	self.overlap.FilterType = Enum.RaycastFilterType.Include
-	self.felled = {} -- [ต้นไม้ที่ล้ม] = วันที่ล้ม (State.Night)
+	self.felled = {} -- [ต้นไม้ที่ล้ม] = { Due = os.clock() ที่จะงอกคืน, Night = คืนที่ล้ม (เริ่มรอบใหม่ = งอกหมด) }
 end
 
 -- หา node ใกล้จุดนั้นที่สุด
@@ -92,13 +92,25 @@ function ResourceService:Fell(node, from)
 		end
 	end)
 	if kind == "Tree" then
-		-- ต้นไม้: งอกใหม่ตามจำนวนวันในเกม (นับวันที่ข้ามด้วยเตียง/ศาลเจ้าด้วย) ไม่ใช่วินาที
-		self.felled[node] = self.ctx.State:GetAttribute("Night") or 1
+		-- ต้นไม้: แต่ละต้นจับเวลาของตัวเอง งอกคืน Config.TreeRegrowSeconds (7 นาที) หลังต้นนั้นล้ม
+		--   (เดิมนับคืน + เช็กทุกต้นพร้อมกันตอนเปลี่ยนวัน -> ตัวคูณวันกระโดดหลายคืน = ป่างอกคืนพร้อมกันทั้งป่า)
+		self:ScheduleTree(node, Config.TreeRegrowSeconds or 420)
 		return
 	end
 	local regrow = node:GetAttribute("Regrow") or 240
 	task.delay(regrow, function()
 		self:Regrow(node)
+	end)
+end
+
+-- ตั้งเวลางอกคืนของต้นไม้ต้นนี้ (วินาทีจากตอนนี้)
+function ResourceService:ScheduleTree(node, seconds, night)
+	local entry = { Due = os.clock() + seconds, Night = night or self.ctx.State:GetAttribute("Night") or 1 }
+	self.felled[node] = entry
+	task.delay(seconds, function()
+		if self.felled[node] == entry then -- ยังเป็นรอบตัดเดิม (ไม่ได้งอกไปก่อน/ถูกตัดซ้ำ)
+			self:Regrow(node)
+		end
 	end)
 end
 
@@ -120,9 +132,11 @@ end
 
 function ResourceService:Serialize()
 	local out = {}
-	for node, at in pairs(self.felled) do
+	local now = os.clock()
+	for node, e in pairs(self.felled) do
 		if node.Parent then
-			table.insert(out, { nodeKey(node), at })
+			-- { ตำแหน่ง, วินาทีที่เหลือก่อนงอก, "s" = รูปแบบใหม่ (นับวินาที) }
+			table.insert(out, { nodeKey(node), math.max(0, math.floor(e.Due - now)), "s" })
 		end
 	end
 	return out
@@ -133,20 +147,22 @@ function ResourceService:Restore(list)
 		return 0
 	end
 	local want = {}
+	local full = Config.TreeRegrowSeconds or 420
 	for _, e in ipairs(list) do
 		if type(e) == "table" and type(e[1]) == "string" then
-			want[e[1]] = tonumber(e[2]) or 1
+			-- เซฟเก่า (เก็บเป็นเลขคืน) = นับใหม่เต็ม 7 นาที
+			want[e[1]] = e[3] == "s" and math.clamp(tonumber(e[2]) or full, 1, full) or full
 		end
 	end
 	local n = 0
 	for _, node in ipairs(CollectionService:GetTagged("ResourceNode")) do
 		if node:GetAttribute("Node") == "Tree" and not node:GetAttribute("Depleted") then
-			local at = want[nodeKey(node)]
-			if at then
+			local left = want[nodeKey(node)]
+			if left then
 				node:SetAttribute("Depleted", true)
 				node:SetAttribute("HP", 0)
 				setVisible(node, false)
-				self.felled[node] = at
+				self:ScheduleTree(node, left)
 				n += 1
 			end
 		end
@@ -154,14 +170,13 @@ function ResourceService:Restore(list)
 	return n
 end
 
--- วันเปลี่ยน: ต้นที่ล้มครบ Config.TreeRegrowDays คืน -> ทยอยงอกคืน (คืนละ TreeRegrowChance ต่อต้น ไม่ขึ้นพร้อมกันทั้งป่า)
--- เริ่มรอบใหม่ (วันนับถอยกลับ) งอกคืนทั้งหมด
+-- วันเปลี่ยน: งอกคืนเฉพาะตอนเริ่มรอบใหม่ (คืนนับถอยกลับ) · ปกติแต่ละต้นงอกตามเวลาของตัวเอง (ScheduleTree)
 function ResourceService:CheckTrees()
 	local night = self.ctx.State:GetAttribute("Night") or 1
-	for node, at in pairs(self.felled) do
+	for node, e in pairs(self.felled) do
 		if not node.Parent then
 			self.felled[node] = nil -- แมพใหม่ (รอบใหม่) ลบต้นเก่าไปแล้ว
-		elseif night < at or (night >= at + Config.TreeRegrowDays and math.random() < Config.TreeRegrowChance) then
+		elseif night < e.Night then
 			self:Regrow(node)
 		end
 	end

@@ -463,7 +463,7 @@ function AnimalService:PickTarget(a)
 	local best, bestD
 	for _, p in ipairs(Players:GetPlayers()) do
 		local r = charRoot(p)
-		if r and surv:IsAlive(p) and not p:GetAttribute("Invisible") then -- ล่องหน (สกิลพ่อมดมืด) = มอนมองไม่เห็น
+		if r and surv:IsAlive(p) and not p:GetAttribute("Invisible") and not surv:IsProtected(p) then -- ล่องหน (สกิลพ่อมดมืด) / กำลังดูฉาก = มอนมองไม่เห็น
 			local d = (r.Position - a.Root.Position).Magnitude
 			local ok = d <= aggro or (a.Provoked == p and os.clock() < (a.ProvokedUntil or 0) and d < aggro * 2.5)
 			if ok and a.Kind == "Wild" then
@@ -485,6 +485,45 @@ function AnimalService:PickTarget(a)
 		end
 	end
 	return best, bestD
+end
+
+-- ฝูงบุกกลางคืน: เลือกตีของที่ใกล้ตัวที่สุด = คน (ในระยะมองเห็น) / กองไฟ (ตอนยังติด) / กำแพงที่พังได้
+--   คืนค่า "Player" | "Fire" | "Wall", กำแพง · เป้าเดิมได้แต้มต่อ RAID_STICK สตัด (กันสลับเป้าไปมา)
+local RAID_STICK = 5
+local FIRE_PAD = 8 -- รัศมีกองไฟ (วัดถึงขอบ ไม่ใช่กลางกอง)
+local WALL_PAD = 5 -- ครึ่งความกว้างกำแพงโดยประมาณ
+function AnimalService:RaidGoal(a, target, dist)
+	local pos = a.Root.Position
+	local cur = a.RaidGoal
+	local bestKind, bestObj, bestD
+	local function offer(kind, obj, d)
+		if cur == kind and (kind ~= "Wall" or a.RaidWall == obj) then
+			d -= RAID_STICK
+		end
+		if not bestD or d < bestD then
+			bestKind, bestObj, bestD = kind, obj, d
+		end
+	end
+	if target and dist then
+		offer("Player", target, dist)
+	end
+	if self.ctx.Services.CampService:IsLit() then
+		offer("Fire", nil, self:CampDistance(pos) - FIRE_PAD)
+	end
+	if not a.Flying then
+		local aggro = (a.Info.Aggro or 60) * 1.3
+		for _, s in ipairs(self.ctx.Services.BuildingService:All()) do
+			local spec = Items.Structures[s:GetAttribute("Kind")]
+			if spec and spec.Breakable and not s:GetAttribute("Broken") and (s:GetAttribute("Health") or 0) > 0 then
+				local d = (s:GetPivot().Position - pos).Magnitude - WALL_PAD
+				if d <= aggro then
+					offer("Wall", s, d)
+				end
+			end
+		end
+	end
+	a.RaidGoal, a.RaidWall = bestKind, bestKind == "Wall" and bestObj or nil
+	return bestKind, bestObj
 end
 
 ---------------------------------------------------------------- การเคลื่อนที่
@@ -515,6 +554,9 @@ function AnimalService:MoveTo(a, pos, speedFactor)
 	end
 	local hum = a.Hum
 	local slow = (a.SlowUntil or 0) > os.clock() and 0.5 or 1
+	if (a.TotemSlowUntil or 0) > os.clock() then
+		slow = math.min(slow, 1 - (a.TotemSlow or 0)) -- เสาน้ำ: ช้าลงตามค่าเสา
+	end
 	hum.WalkSpeed = (a.Info.Speed or 16) * a.SpeedMult * (speedFactor or 1) * slow
 	-- เดิน = ให้ Humanoid หันตามทางเดินเอง (นุ่ม) · ปิดตัวหมุนตอนยืน
 	if a.Turn and a.Turn.Enabled then
@@ -657,12 +699,32 @@ function AnimalService:AttackPlayer(a, player, now, trigger)
 	self:Stop(a)
 	self:Face(a, a.Root.Position + dir * 10)
 	self:DashTelegraph(a, dir, reach, math.max(5, a.Radius * 1.6 + 3), windup)
-	-- ท่ากัดฝั่งไคลเอนต์ใช้ ~0.3 วิถึงจังหวะงับ -> ส่ง AttackAt ให้ตรงจังหวะตัดสิน
-	task.delay(math.max(windup - 0.3, 0), function()
-		if not a.Dead then
-			self:MarkAttack(a, "Bite")
-		end
-	end)
+	if a.Kind == "Stalker" then
+		-- จิ้งจอก: ท่าตะปบ (ไคลเอนต์ย่อตัวง้างตลอดช่วง windup แล้วพุ่งงับตรงจังหวะโดนพอดี)
+		a.Model:SetAttribute("AttackWind", windup)
+		self:MarkAttack(a, "Pounce")
+		-- พุ่งตะปบจริง (ทั้งตัวกระโจนไปข้างหน้า) + รอยกรงเล็บ ก่อนจังหวะงับนิดเดียว
+		task.delay(math.max(windup - 0.14, 0), function()
+			if a.Dead or not a.Root.Parent or a.Hidden then
+				return
+			end
+			-- กระโจนสั้นๆ แค่ถึงตัวเหยื่อ (ไม่พุ่งเลยไกล/เด้งกระเด็น -> จิ้งจอกหลุดเป้าแล้วหายตัว)
+			local r1 = charRoot(player)
+			local gap = r1 and ((r1.Position - a.Root.Position) * Vector3.new(1, 0, 1)).Magnitude or 0
+			local push = math.clamp((gap - a.Radius - 1.5) * 3, 0, 22)
+			a.Root.AssemblyLinearVelocity = Vector3.new(0, a.Root.AssemblyLinearVelocity.Y, 0) + dir * push + Vector3.new(0, 14, 0)
+			self.ctx.Remotes.Get("HitFx"):FireAllClients("StalkerPounce", {
+				Position = a.Root.Position + dir * (reach * 0.75) + Vector3.new(0, 2, 0), Dir = dir,
+			})
+		end)
+	else
+		-- ท่ากัดฝั่งไคลเอนต์ใช้ ~0.3 วิถึงจังหวะงับ -> ส่ง AttackAt ให้ตรงจังหวะตัดสิน
+		task.delay(math.max(windup - 0.3, 0), function()
+			if not a.Dead then
+				self:MarkAttack(a, "Bite")
+			end
+		end)
+	end
 	task.delay(windup, function()
 		if a.Dead or not a.Root.Parent then
 			return
@@ -705,8 +767,11 @@ function AnimalService:AttackFire(a, now)
 	a.NextAttack = now + (a.Info.AttackCooldown or 1.5)
 	self:Face(a, self.ctx.CampPosition)
 	self:MarkAttack(a, "Bite")
-	self.ctx.Services.CampService:DamageFire((a.Info.Damage or 5) * (a.Info.StructureDamage or 1) * 0.6 * a.DamageMult)
-	self.ctx.Remotes.Get("HitFx"):FireAllClients("FireHit", { Position = self.ctx.CampPosition })
+	local camp = self.ctx.Services.CampService
+	if camp:IsLit() then
+		camp:DamageFire(camp:Info().MaxFuel * Config.RaidFireHitPct) -- ตี 1 ครั้ง = -2% ของกองไฟ
+		self.ctx.Remotes.Get("HitFx"):FireAllClients("FireHit", { Position = self.ctx.CampPosition })
+	end
 end
 
 function AnimalService:Spit(a, target, now)
@@ -794,7 +859,8 @@ function AnimalService:ThinkFlyer(a, now, target, dist)
 			alt = 30
 			if self:CampDistance(pos) < 70 and now >= a.NextAttack then
 				a.NextAttack = now + 3
-				self.ctx.Services.CampService:DamageFire((a.Info.Damage or 8) * 0.5 * a.DamageMult)
+				local camp = self.ctx.Services.CampService
+				camp:DamageFire(camp:Info().MaxFuel * Config.RaidFireHitPct)
 				a.DivePos = self.ctx.CampPosition + Vector3.new(0, 4, 0)
 				a.DiveUntil = now + 1
 				a.DiveHit = true
@@ -891,15 +957,31 @@ function AnimalService:ThinkBoss(a, now)
 	else
 		-- บอสเดินพื้น: ยืนคุมพื้นที่ หันหาผู้เล่น (ไม่ถอยหนี จะได้เข้าไปตีได้) เดินเข้าหาเมื่ออยู่ไกล
 		self:FaceBoss(a, center)
+		-- เดินเข้าหาจนสกิลรอบตัว (ทุบพื้น/พายุหิมะ) ถึงตัวผู้เล่น · เดิมยืนคุมเชิงห่าง ~80 = คนยืนนอกรังไม่โดนอะไรเลย
+		local close = r and math.max(a.Radius + 16, 26) or keep
 		if a.Casting then
 			self:Stop(a)
 			a.State = "Cast"
-		elseif dist > keep + 35 then
+			a.BossStuckAt = nil
+		elseif dist > close + 6 then
 			self:MoveTo(a, center, 1)
 			a.State = "Chase"
+			-- ติดกำแพง/ของประดับในรัง (ไม่ขยับ 2 วิ ทั้งที่ยังไกลเป้า) -> กระโดดพุ่งข้ามออกไปหา
+			local pos = a.Root.Position
+			if not a.BossStuckAt or (pos - a.BossStuckPos).Magnitude > 3 then
+				a.BossStuckAt, a.BossStuckPos = now, pos
+			elseif now - a.BossStuckAt > 2 and r then
+				a.BossStuckAt, a.BossStuckPos = now, pos
+				local to = (center - pos) * Vector3.new(1, 0, 1)
+				to = to.Magnitude > 0.1 and to.Unit or a.Root.CFrame.LookVector
+				a.Hum.Jump = true
+				a.Root.AssemblyLinearVelocity = to * 75 + Vector3.new(0, 115, 0)
+				self:MarkAttack(a, "Roar")
+			end
 		else
 			self:Stop(a)
 			a.State = "Idle"
+			a.BossStuckAt = nil
 		end
 	end
 	-- สกิล (วนตามลำดับ · แต่ละท่าคูลดาวน์ของตัวเอง ยังไม่พร้อม = รอ)
@@ -921,6 +1003,12 @@ function AnimalService:ThinkHostile(a, now)
 	end
 	local target, dist = self:PickTarget(a)
 	local campMode = (a.Kind == "Raid") or (a.Kind == "Boss" and not a.Leash)
+	-- ฝูงบุก: คน/กองไฟ/กำแพง อันไหนใกล้สุดตีอันนั้น (ไม่ใช่คน -> ล้างเป้าคน แล้วไปทางสายกองไฟ/กำแพงด้านล่าง)
+	if a.Kind == "Raid" and not (a.State == "Windup" or a.State == "Charge" or a.LeapAt) then
+		if self:RaidGoal(a, target, dist) ~= "Player" then
+			target, dist = nil, nil
+		end
+	end
 	-- สัตว์ป่า: ไล่ไม่ถึงตัวนานเกิน WildChaseTime = เลิกไล่คนนั้นสักพัก แล้วกลับถิ่น (ไม่ตามยาวจนถึงแคมป์)
 	if target and a.Kind == "Wild" then
 		local close = dist and dist <= (info.AttackRange or 6) + a.Radius + 3
@@ -1066,6 +1154,21 @@ function AnimalService:ThinkHostile(a, now)
 			end
 			self:MoveTo(a, r.Position, 1)
 			a.State = "Chase"
+			local blocking = self:CheckStuck(a, now)
+			if blocking then
+				self:AttackStructure(a, blocking, now)
+			end
+		end
+	elseif campMode and a.RaidWall and a.RaidWall.Parent and not a.RaidWall:GetAttribute("Broken") then
+		local w = a.RaidWall
+		local wp = w:GetPivot().Position
+		if ((wp - a.Root.Position) * Vector3.new(1, 0, 1)).Magnitude <= (info.AttackRange or 6) + a.Radius + WALL_PAD + 2 then
+			self:Stop(a)
+			self:AttackStructure(a, w, now)
+			a.State = "Attack"
+		else
+			self:MoveTo(a, wp, 1)
+			a.State = "Raid"
 			local blocking = self:CheckStuck(a, now)
 			if blocking then
 				self:AttackStructure(a, blocking, now)
@@ -1344,6 +1447,56 @@ function AnimalService:ThinkStalker(a, now)
 		return
 	end
 	a.DetourUntil = nil
+	-- ตะครุบเงา: ย่อตัวเล็ง (แถบเตือนแดง) แล้วพุ่งปิดระยะทีเดียว · โดนกลางทาง = เจ็บ + กระเด็น
+	if a.PounceAt then
+		if now < a.PounceAt then
+			self:Stop(a)
+			return
+		end
+		local dir = a.PounceDir
+		a.PounceAt = nil
+		a.Root.AssemblyLinearVelocity = dir * 66 + Vector3.new(0, 22, 0)
+		self:MarkAttack(a, "Leap")
+		a.NextAttack = now + 1.2
+		task.delay(0.3, function()
+			if a.Dead or a.Hidden then
+				return
+			end
+			self.ctx.Remotes.Get("HitFx"):FireAllClients("StalkerPounce", { Position = a.Root.Position + dir * (a.Radius + 3) + Vector3.new(0, 2, 0), Dir = dir })
+			for _, p in ipairs(Players:GetPlayers()) do
+				local pr = charRoot(p)
+				if pr and surv:IsAlive(p) and (pr.Position - a.Root.Position).Magnitude < a.Radius + 10 then
+					surv:Damage(p, a.Info.Damage or 15, a.Id, { Knockback = dir * 60 + Vector3.new(0, 35, 0) })
+				end
+			end
+		end)
+		return
+	end
+	if d > 16 and d < 44 and now >= (a.NextPounce or 0) then
+		local to = (r.Position - a.Root.Position) * Vector3.new(1, 0, 1)
+		if to.Magnitude > 0.5 then
+			a.PounceDir = to.Unit
+			a.PounceAt = now + 0.6
+			a.NextPounce = now + 7
+			self:Stop(a)
+			self:Face(a, r.Position)
+			self:DashTelegraph(a, a.PounceDir, math.clamp(d + 8, 18, 50), a.Radius * 2 + 4, 0.6)
+			setState("Pounce")
+			return
+		end
+	end
+	-- หอนเย็นยะเยือก: เหยื่ออยู่ระยะกลาง -> หอนใส่ = เหยื่อเดินช้าลง 40% 3 วิ (ทุก 16 วิ)
+	if d > 20 and d < 70 and now >= (a.NextHowl or (a.SpawnedAt or 0) + 6) then
+		a.NextHowl = now + 16
+		self:MarkAttack(a, "Roar")
+		prey:SetAttribute("FearSlow", 0.6)
+		self.ctx.Notify(prey, "🐺 The Moonfang's howl chills you — you slow down!", "Danger")
+		task.delay(3, function()
+			if prey.Parent then
+				prey:SetAttribute("FearSlow", nil)
+			end
+		end)
+	end
 	-- ถึงระยะ + คูลดาวน์ครบ = ตี · คูลดาวน์อยู่ = วิ่งตามติดตัวต่อ
 	local reach = (a.Info.AttackRange or 7) + a.Radius + 2
 	if d < reach and now >= a.NextAttack then

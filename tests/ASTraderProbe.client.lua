@@ -16,7 +16,7 @@ RunService.RenderStepped:Connect(function()
 		local from = root and root.Position or p + Vector3.new(20, 10, 0)
 		local dir = Vector3.new(p.X - from.X, 0, p.Z - from.Z)
 		dir = dir.Magnitude > 0.1 and dir.Unit or Vector3.new(1, 0, 0)
-		cam.CFrame = CFrame.lookAt(p - dir * 26 + Vector3.new(0, 12, 0) + dir:Cross(Vector3.yAxis) * 10, p + Vector3.new(0, 3, 0))
+		cam.CFrame = CFrame.lookAt(p - dir * 14 + Vector3.new(0, 6, 0) + dir:Cross(Vector3.yAxis) * 8, p + Vector3.new(0, 3, 0))
 	end
 end)
 ReplicatedStorage:GetAttributeChangedSignal("TraderStep"):Connect(function()

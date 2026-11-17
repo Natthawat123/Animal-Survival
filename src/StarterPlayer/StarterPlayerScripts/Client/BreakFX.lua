@@ -526,7 +526,7 @@ end
 
 ---------------------------------------------------------------- สิ่งก่อสร้าง
 local PROFILE = {
-	LogWall = "Wood", Ballista = "Wood", SpikeTrap = "Spikes", Bed = "Bed", Bed2 = "Bed", FarmPlot = "Soil",
+	LogWall = "Wood", WoodDoor = "Wood", StorageBox = "Wood", BigStorageBox = "Wood", Ballista = "Wood", SpikeTrap = "Spikes", Bed = "Bed", Bed2 = "Bed", FarmPlot = "Soil",
 	StoneWall = "Stone", CookPot = "Metal", Lantern = "Lamp", SunBeacon = "Beacon",
 	TerraTotem = "Totem", TideTotem = "Totem", GaleTotem = "Totem", EmberTotem = "Totem",
 }
@@ -936,6 +936,10 @@ function BreakFX.Build(d)
 		smoke(d.Position, C(180, 160, 130), 10, 5)
 		return
 	end
+	if m:GetAttribute("BuildFX") then
+		return -- ท่ากำลังเล่นอยู่ (เล่นซ้อน = จำตำแหน่งกลางท่าแล้วคืนผิด ชิ้นส่วนลอยค้าง/ดูพัง)
+	end
+	m:SetAttribute("BuildFX", true)
 	local cf, size = m:GetBoundingBox()
 	local floor = cf.Position - V(0, size.Y / 2, 0)
 	local parts = {}
@@ -945,6 +949,7 @@ function BreakFX.Build(d)
 		end
 	end
 	if #parts == 0 then
+		m:SetAttribute("BuildFX", nil)
 		return
 	end
 	local fn = BUILD[PROFILE[d.Kind] or "Wood"] or BUILD.Wood
@@ -958,6 +963,8 @@ function BreakFX.Build(d)
 			e.P.CFrame = e.CF
 			e.P.Transparency = e.T
 		end
+	end	if m.Parent then
+		m:SetAttribute("BuildFX", nil)
 	end
 end
 

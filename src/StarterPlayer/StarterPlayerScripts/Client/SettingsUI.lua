@@ -272,13 +272,19 @@ function SettingsUI.Init(gui, handlers)
 	bl.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	bl.Padding = UDim.new(0, 16)
 	bl.Parent = bottom
-	WoodKit.Button(bottom, "Red", { Size = UDim2.fromOffset(240, 52), Text = "📖 How to Play", TextSize = 21 }, function()
+	WoodKit.Button(bottom, "Red", { Size = UDim2.fromOffset(210, 52), Text = "📖 How to Play", TextSize = 20 }, function()
 		SettingsUI.Close()
 		if handlers.Tutorial then
 			handlers.Tutorial()
 		end
 	end)
-	WoodKit.Button(bottom, "Dark", { Size = UDim2.fromOffset(240, 52), Text = "🔄 Defaults", TextSize = 21 }, function()
+	WoodKit.Button(bottom, "Red", { Size = UDim2.fromOffset(210, 52), Text = "🎬 Story", TextSize = 20 }, function()
+		SettingsUI.Close()
+		if handlers.Story then
+			handlers.Story()
+		end
+	end)
+	WoodKit.Button(bottom, "Dark", { Size = UDim2.fromOffset(210, 52), Text = "🔄 Defaults", TextSize = 20 }, function()
 		for k, v in pairs(ClientSettings.Defaults) do
 			ClientSettings.Set(k, v)
 		end

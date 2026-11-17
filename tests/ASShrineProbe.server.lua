@@ -84,7 +84,7 @@ for _, el in ipairs({ "Earth", "Water", "Air", "Fire" }) do
 	Spirit:Free(el, player)
 	Spirit:Free(el, player)
 	Spirit:Free(el, player)
-	check(el .. " portal-sealed-after-free", sh.OutVeil and sh.OutVeil:GetAttribute("Sealed") == true)
+	check(el .. " portal-open-after-free", sh.OutVeil and sh.OutVeil:GetAttribute("Cleared") == true and sh.OutVeil:GetAttribute("Sealed") ~= true)
 	task.wait(0.6)
 	step(el .. "_c1free", 2.6)
 	step(el .. "_c2rise", 2)
@@ -102,7 +102,7 @@ for _, el in ipairs({ "Earth", "Water", "Air", "Fire" }) do
 	Spirit:Restore(Spirit:Serialize())
 	check(el .. " no-extra-skip", skips - before == 1, skips - before)
 	check(el .. " same-pet", sh.Pet == pet0 and pet0 ~= nil and not pet0.Removed)
-	check(el .. " still-sealed", sh.OutVeil:GetAttribute("Sealed") == true)
+	check(el .. " still-cleared-open", sh.OutVeil:GetAttribute("Cleared") == true and sh.OutVeil:GetAttribute("Sealed") ~= true)
 	check(el .. " back-portal-open", (function()
 		for _, d in ipairs(sh.Model:GetDescendants()) do
 			if typeof(d:GetAttribute("Dest")) == "Vector3" and d ~= sh.OutVeil and d:GetAttribute("Sealed") then

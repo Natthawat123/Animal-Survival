@@ -72,6 +72,14 @@ if dm and dm.Value == "world" then
 	state:GetAttributeChangedSignal("WipeAt"):Wait()
 	task.wait(1.5)
 	print("[SHOT] world_wipe")
+	task.wait(3)
+	WorldUI.ShowHostLeft({ Name = "NightmareX", Seconds = 6, InWorld = true })
+	task.wait(1.5)
+	print("[SHOT] world_hostleft")
+	task.wait(6)
+	WorldUI.ShowHostLeft({ Name = "NightmareX", Text = "🌍 The host closed the world room" })
+	task.wait(1.5)
+	print("[SHOT] world_roomclosed")
 	return
 end
 local player = Players.LocalPlayer

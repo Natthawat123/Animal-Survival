@@ -35,10 +35,22 @@ local function notify(self, p, text, kind)
 	self.ctx.Notify(p, text, kind or "Info")
 end
 
--- คืนที่เข้าห้องได้สูงสุดของคนนี้
-function WorldService:MaxNight(player)
+-- คืนที่รอดไกลสุดของคนนี้
+function WorldService:Best(player)
 	local data = self.ctx.Services.DataService:Get(player)
-	return math.floor(tonumber(data and data.BestNight) or 0) + (Config.WorldNightGate or 20)
+	return math.floor(tonumber(data and data.BestNight) or tonumber(player:GetAttribute("BestNight")) or 0)
+end
+
+-- ประตูคืนของโลก: คืนที่รอดไกลสุดของคนเข้า ต้องห่างจากของหัวห้องไม่เกิน ±Config.WorldNightGate
+--   (หัวห้อง 200 = เข้าได้ 180-220 · โลกเพิ่งเล่นไปกี่คืนไม่เกี่ยว) · คืน ok, ข้อความเหตุผล
+function WorldService:GateOk(player, host)
+	local gate = Config.WorldNightGate or 20
+	local mine, hostBest = self:Best(player), self:Best(host)
+	if math.abs(mine - hostBest) <= gate then
+		return true
+	end
+	return false, string.format("Your best is Night %d — this host's best is Night %d. You can only join hosts within ±%d nights (Night %d-%d)",
+		mine, hostBest, gate, math.max(0, hostBest - gate), hostBest + gate)
 end
 
 function WorldService:Publish(room)
@@ -62,6 +74,7 @@ function WorldService:Publish(room)
 	inst:SetAttribute("Size", room.Size)
 	inst:SetAttribute("Locked", room.Password ~= "")
 	inst:SetAttribute("Members", table.concat(ids, ","))
+	inst:SetAttribute("HostBest", self:Best(room.Host)) -- ประตูคืน ±20 (เครื่องผู้เล่นโชว์ว่าเข้าได้ไหม)
 	inst:SetAttribute("Invited", table.concat(room.InviteList or {}, ","))
 end
 
@@ -82,6 +95,10 @@ end
 -- ปิดห้อง: ทุกคนเด้งออก
 function WorldService:Close(room, why)
 	for _, m in ipairs(table.clone(room.Members)) do
+		if m ~= room.Host and m.Parent and why then
+			-- ลูกห้อง: ป้ายกลางจอให้อ่านทัน (ห้องปิด/หัวห้องออก)
+			self.ctx.Remotes.Get("Cinematic"):FireClient(m, "HostLeft", { Name = room.Host.DisplayName, Text = why, Seconds = 0 })
+		end
 		self:RemoveMember(room, m, m ~= room.Host and why or nil)
 	end
 	self.rooms[room.Host] = nil
@@ -104,10 +121,17 @@ function WorldService:Leave(player)
 	end
 end
 
+-- รหัสห้อง: ตัดเว้นวรรคหน้า/หลัง + ไม่สนตัวพิมพ์เล็ก/ใหญ่ (มือถือชอบใส่ตัวใหญ่ตัวแรก/เว้นวรรคท้ายให้เอง -> เดิมรหัสถูกแต่เข้าไม่ได้)
 local function cleanPassword(pw)
 	pw = type(pw) == "string" and pw or ""
-	pw = pw:gsub("[%c]", ""):sub(1, 12)
-	return pw
+	pw = pw:gsub("[%c]", ""):gsub("^%s+", ""):gsub("%s+$", "")
+	return string.lower(pw:sub(1, 12))
+end
+
+-- เข้าห้องไม่ได้: บอกเหตุผลในหน้าต่าง Worlds ด้วย (แจ้งเตือนปกติจมอยู่หลังหน้าต่าง ผู้เล่นไม่เห็น)
+local function joinFail(self, player, reason)
+	notify(self, player, reason, "Error")
+	self.ctx.Remotes.Get("Cinematic"):FireClient(player, "WorldJoinFail", { Reason = reason })
 end
 
 -- ชื่อโลก (คนอื่นเห็น) ต้องผ่านตัวกรองข้อความของ Roblox · กรองไม่ได้/ว่าง = ชื่อสำรอง
@@ -129,6 +153,16 @@ function WorldService:Open(player, worldId, password, size)
 	if not w or player:GetAttribute("InRun") or player:GetAttribute("Departing") then
 		return
 	end
+	-- คืนจริงของโลก = จากตัวโลกที่เซฟไว้ (รายชื่อในโปรไฟล์อาจค้างเป็นคืนเก่า -> เดิมประตูคืนเช็กผิด คนคืนน้อยเข้าโลกคืนสูงได้)
+	if w.Played then
+		local run = self.ctx.Services.DataService:LoadWorld(player.UserId, worldId)
+		if run and tonumber(run.Night) then
+			w.Night = math.floor(tonumber(run.Night))
+		end
+	end
+	if player:GetAttribute("InRun") or not player.Parent then
+		return
+	end
 	self:Leave(player)
 	self.ctx.Services.LobbyService:LeavePad(player, true)
 	local room = {
@@ -147,6 +181,7 @@ function WorldService:Open(player, worldId, password, size)
 	self.roomOf[player] = room
 	player:SetAttribute("WorldRoom", player.UserId)
 	self:Publish(room)
+	self.ctx.Remotes.Get("Cinematic"):FireClient(player, "WorldRoomPw", { Pw = room.Password })
 	notify(self, player, string.format("🌍 %s is open%s — invite friends or wait for them to join", room.WorldName, room.New and "" or (" · Night " .. room.Night)), "Good")
 end
 
@@ -220,25 +255,29 @@ function WorldService:Join(player, hostId, password, viaInvite)
 	local host = Players:GetPlayerByUserId(tonumber(hostId) or 0)
 	local room = host and self.rooms[host]
 	if not room then
-		notify(self, player, "That world room is gone", "Error")
+		joinFail(self, player, "That world room is gone")
 		return
 	end
 	if self.roomOf[player] == room then
 		return
 	end
 	if #room.Members >= room.Size then
-		notify(self, player, "That world room is full", "Error")
+		joinFail(self, player, "That world room is full")
 		return
 	end
 	local invited = viaInvite and room.Invited[player.UserId]
 	if room.Password ~= "" and not invited and cleanPassword(password) ~= room.Password then
-		notify(self, player, "🔒 Wrong password", "Error")
+		joinFail(self, player, "🔒 Wrong password — ask the host for it")
 		return
 	end
-	local max = self:MaxNight(player)
-	if room.Night > max then
-		notify(self, player, string.format("This world is on Night %d — you can join worlds up to Night %d (your best night + %d)", room.Night, max, Config.WorldNightGate or 20), "Error")
+	local gateOk, why = self:GateOk(player, host)
+	if not gateOk then
+		joinFail(self, player, why)
 		return
+	end
+	-- รหัสถูก: บอกในหน้าต่างใส่รหัสก่อน (ส่งก่อนตั้ง WorldRoom -> เครื่องผู้เล่นได้ข้อความนี้ก่อนเปิดหน้าห้อง)
+	if room.Password ~= "" and not invited then
+		self.ctx.Remotes.Get("Cinematic"):FireClient(player, "WorldJoinOk", {})
 	end
 	self:Leave(player)
 	self.ctx.Services.LobbyService:LeavePad(player, true)
@@ -271,8 +310,8 @@ function WorldService:Invite(player, userId)
 		notify(self, player, "Your room is full", "Error")
 		return
 	end
-	if room.Night > self:MaxNight(target) then
-		notify(self, player, string.format("%s can't join yet — Night %d is too far for them", target.DisplayName, room.Night), "Error")
+	if not self:GateOk(target, player) then
+		notify(self, player, string.format("%s can't join — their best night (%d) isn't within ±%d of yours (%d)", target.DisplayName, self:Best(target), Config.WorldNightGate or 20, self:Best(player)), "Error")
 		return
 	end
 	room.Invited[target.UserId] = true
@@ -304,7 +343,13 @@ function WorldService:StartRoom(player)
 	local list = {}
 	for _, m in ipairs(room.Members) do
 		if m.Parent and not m:GetAttribute("InRun") then
-			table.insert(list, m)
+			local gateOk, why = self:GateOk(m, player)
+			if m ~= player and not gateOk then
+				-- กันพลาด: คืนห่างจากหัวห้องเกิน ±20 -> ไม่พาไปด้วย
+				notify(self, m, why, "Error")
+			else
+				table.insert(list, m)
+			end
 		end
 	end
 	local resume = not room.New and player or nil
@@ -346,18 +391,23 @@ function WorldService:OnOwnerLeft(owner)
 	if not director:IsRunning() or ctx.State:GetAttribute("Phase") == "Ended" then
 		return
 	end
-	-- เซฟโลกก่อน (ยังเป็นเจ้าของโลกอยู่) แล้วค่อยล้างสถานะ/ส่งคนกลับ
-	local saved = select(2, pcall(ctx.Services.RejoinService.SaveRunFor, ctx.Services.RejoinService, owner, true))
-	print("[AS] world owner left · saved=" .. tostring(saved))
+	-- บอกทุกคนก่อน (ป้ายใหญ่กลางจอ + นับถอยหลัง ให้อ่านทัน) แล้วเซฟโลก (ยังเป็นเจ้าของโลกอยู่) ค่อยส่งกลับล็อบบี้
+	local WAIT = 6
+	local t0 = os.clock()
+	-- โลกปิด: ห้ามกลับเข้า (ลบบันทึก "กลับเข้ารอบเดิม" ของทุกคนในเซิร์ฟเวอร์นี้) · ใครวาร์ปเข้ามาอีก = ส่งกลับล็อบบี้
+	ctx.State:SetAttribute("WorldClosed", true)
+	pcall(ctx.Services.RejoinService.ClearAll, ctx.Services.RejoinService)
 	local others = {}
 	for _, p in ipairs(Players:GetPlayers()) do
 		if p ~= owner then
 			table.insert(others, p)
-			notify(self, p, "🌍 The world owner left — the world is saved, back to the lobby", "Warn")
+			ctx.Remotes.Get("Cinematic"):FireClient(p, "HostLeft", { Name = owner.DisplayName, Seconds = WAIT, InWorld = true })
 		end
 	end
+	local saved = select(2, pcall(ctx.Services.RejoinService.SaveRunFor, ctx.Services.RejoinService, owner, true))
+	print("[AS] world owner left · saved=" .. tostring(saved))
 	ctx.State:SetAttribute("WorldOwner", nil)
-	task.delay(3, function()
+	task.delay(math.max(0.5, WAIT - (os.clock() - t0)), function()
 		local lobby = ctx.Services.LobbyService
 		if not (lobby.IsTeamServer and lobby:ReturnToMainLobby(others, { Result = "HostLeft" })) then
 			director:ResetRun()
@@ -433,6 +483,45 @@ function WorldService:Start(ctx)
 		if type(td) == "table" and tonumber(td.World) and ctx.State:GetAttribute("WorldOwner") == nil then
 			ctx.State:SetAttribute("WorldOwner", tonumber(td.World))
 			ctx.State:SetAttribute("WorldId", tostring(td.WorldId or ""))
+		end
+		-- ในโลก: เจ้าของไม่อยู่ / โลกปิดแล้ว = เข้าไม่ได้ (รอเจ้าของมาถึงก่อนนิดหนึ่ง เพราะตอนเริ่มทุกคนวาร์ปมาพร้อมกัน)
+		local isWorld = type(td) == "table" and tonumber(td.World) or ctx.State:GetAttribute("WorldOwner") or ctx.State:GetAttribute("WorldClosed")
+		if isWorld and ctx.Services.LobbyService.IsTeamServer then
+			task.spawn(function()
+				local t0 = os.clock()
+				while p.Parent and os.clock() - t0 < 25 do
+					local o = ctx.State:GetAttribute("WorldOwner")
+					if ctx.State:GetAttribute("WorldClosed") or (o and Players:GetPlayerByUserId(o)) then
+						break
+					end
+					task.wait(0.5)
+				end
+				local o = ctx.State:GetAttribute("WorldOwner")
+				if p.Parent and (ctx.State:GetAttribute("WorldClosed") or not (o and Players:GetPlayerByUserId(o))) then
+					notify(self, p, "🌍 The world host isn't here — this world is closed", "Error")
+					ctx.Services.LobbyService:ReturnToMainLobby({ p }, { Result = "HostLeft" })
+				end
+			end)
+		end
+		-- ในโลก: คนที่ไม่ใช่เจ้าของ ต้องผ่านประตูคืน (คืนที่รอดไกลสุด + 20) ไม่งั้นส่งกลับล็อบบี้
+		local owner = ctx.State:GetAttribute("WorldOwner")
+		if owner and owner ~= p.UserId then
+			task.spawn(function()
+				local t0 = os.clock()
+				while p.Parent and not ctx.Services.DataService:Get(p) and os.clock() - t0 < 20 do
+					task.wait(0.5)
+				end
+				task.wait(3) -- รอเจ้าของโลก/เซฟโหลดเสร็จ
+				local o = Players:GetPlayerByUserId(owner)
+				local gateOk, why = true, nil
+				if o then
+					gateOk, why = self:GateOk(p, o)
+				end
+				if p.Parent and not gateOk then
+					notify(self, p, why, "Error")
+					ctx.Services.LobbyService:ReturnToMainLobby({ p }, { Result = "WorldGate" })
+				end
+			end)
 		end
 		if type(td) == "table" and td.Back and td.Result == "HostLeft" then
 			task.delay(6, function()

@@ -112,10 +112,39 @@ function BuildingService:CheckSpot(player, kind, cf, ignore)
 		return nil
 	end
 	-- วางได้เฉพาะในเขตแคมป์ (รัศมีตามเลเวลกองไฟ — อัปเกรดกองไฟ = เขตกว้างขึ้น)
+	--   spec.Anywhere (หินวาร์ป) = วางนอกแคมป์ได้ทั่วแมพ
 	local campR = self.ctx.Services.CampService:CampRadius()
-	if ((pos - self.ctx.CampPosition) * Vector3.new(1, 0, 1)).Magnitude > campR then
+	if not spec.Anywhere and ((pos - self.ctx.CampPosition) * Vector3.new(1, 0, 1)).Magnitude > campR then
 		self.ctx.Notify(player, "Can only be placed inside the camp (upgrade the campfire to expand it)", "Error")
 		return nil
+	end
+	-- ของฐานกว้าง (ลานหินวาร์ปบาง): วัดพื้นใต้ลาน -> วางที่ระดับดินสูงสุด (ดินไม่โผล่ทับลาน) · ฝั่งที่ดินต่ำกว่า = แท่นหิน Foundation รองไว้
+	if spec.GroundRadius then
+		local high = pos.Y
+		for _, r in ipairs({ spec.GroundRadius * 0.5, spec.GroundRadius }) do
+			for i = 0, 11 do
+				local a = i / 12 * math.pi * 2
+				local q = pos + Vector3.new(math.cos(a) * r, 0, math.sin(a) * r)
+				local h = Workspace:Raycast(q + Vector3.new(0, 20, 0), Vector3.new(0, -60, 0), self.rayParams)
+				if h and h.Material ~= Enum.Material.Water then
+					high = math.max(high, h.Position.Y)
+				end
+			end
+		end
+		pos = Vector3.new(pos.X, math.min(high, pos.Y + 4) + 0.03, pos.Z)
+	end
+	-- ฐานแคบทรงเหลี่ยม (เสาธาตุ): วางที่ดินต่ำสุดใต้ฐาน -> บนพื้นเอียงฐานไม่ลอยเห็นช่อง (ฝั่งดินสูงจมลงแทน)
+	if spec.GroundLow then
+		local low = pos.Y
+		for i = 0, 7 do
+			local a = i / 8 * math.pi * 2
+			local q = pos + Vector3.new(math.cos(a) * spec.GroundLow, 0, math.sin(a) * spec.GroundLow)
+			local h = Workspace:Raycast(q + Vector3.new(0, 20, 0), Vector3.new(0, -60, 0), self.rayParams)
+			if h and h.Material ~= Enum.Material.Water then
+				low = math.min(low, h.Position.Y)
+			end
+		end
+		pos = Vector3.new(pos.X, math.max(low, pos.Y - 1.5), pos.Z)
 	end
 	local _, yaw = cf:ToOrientation()
 	local final = CFrame.new(pos) * CFrame.Angles(0, yaw, 0)
@@ -226,6 +255,9 @@ function BuildingService:Demolish(player, structure)
 	if not kind then
 		return false
 	end
+	if Items.Structures[kind] and Items.Structures[kind].Storage then
+		self.ctx.Services.StorageService:Spill(structure) -- ของในกล่องหล่นพื้น
+	end
 	self:Vanish(structure)
 	if kind == "Bed" or kind == "Bed2" then
 		self.ctx.Notify(player, string.format("Removed %s (its day bonus was already used, so it isn't returned)", shortName(kind)), "Info")
@@ -237,9 +269,12 @@ function BuildingService:Demolish(player, structure)
 	return true
 end
 
-function BuildingService:Spawn(kind, cf, hp, maxHp, owner)
+function BuildingService:Spawn(kind, cf, hp, maxHp, owner, contents)
 	local model = StructureModels.Build(kind)
 	model:PivotTo(cf)
+	if type(contents) == "string" and contents ~= "" then
+		model:SetAttribute("Contents", contents)
+	end
 	model:SetAttribute("Kind", kind)
 	model:SetAttribute("Health", hp)
 	model:SetAttribute("MaxHealth", maxHp)
@@ -259,7 +294,8 @@ function BuildingService:Serialize()
 			local cf = m:GetPivot()
 			local _, yaw = cf:ToOrientation()
 			table.insert(out, { kind, math.floor(cf.X * 10) / 10, math.floor(cf.Y * 10) / 10, math.floor(cf.Z * 10) / 10, math.floor(yaw * 1000) / 1000,
-				math.floor(m:GetAttribute("Health")), math.floor(m:GetAttribute("MaxHealth") or 0), m:GetAttribute("Owner") or 0 })
+				math.floor(m:GetAttribute("Health")), math.floor(m:GetAttribute("MaxHealth") or 0), m:GetAttribute("Owner") or 0,
+				m:GetAttribute("Contents") or "" }) -- [9] ของในกล่องเก็บของ (JSON)
 		end
 	end
 	return out
@@ -275,7 +311,7 @@ function BuildingService:Restore(list)
 		end
 		local kind = r[1]
 		if Items.Structures[kind] then
-			local ok, err = pcall(self.Spawn, self, kind, CFrame.new(r[2], r[3], r[4]) * CFrame.Angles(0, r[5], 0), r[6], math.max(r[7], r[6]), r[8])
+			local ok, err = pcall(self.Spawn, self, kind, CFrame.new(r[2], r[3], r[4]) * CFrame.Angles(0, r[5], 0), r[6], math.max(r[7], r[6]), r[8], r[9])
 			if not ok then
 				warn("[AS] restore structure", kind, err)
 			end
@@ -415,8 +451,12 @@ function BuildingService:Cook(player, dish)
 	return true
 end
 
--- ปุ่มกดของแปลงผัก/หม้อ
+-- ปุ่มกดของแปลงผัก/หม้อ/กล่องเก็บของ/ประตู
 function BuildingService:Setup(model, kind)
+	local storage = self.ctx.Services.StorageService
+	if storage then
+		storage:Setup(model, kind)
+	end
 	if kind == "FarmPlot" then
 		-- ปลูกใหม่: ต้นกล้าเล็ก ๆ ค่อยโตจนลูกออก · ชี้ลูกบนต้นแล้วเก็บ (แท็ก BerrySource)
 		model:SetAttribute("GrowAt", os.clock() + Items.Structures.FarmPlot.GrowTime)
@@ -491,19 +531,23 @@ function BuildingService:Tick(dt)
 					end
 				end
 			elseif kind == "TerraTotem" then
-				for _, other in ipairs(self.folder:GetChildren()) do
-					if other ~= s and (other:GetPivot().Position - pos).Magnitude < spec.Radius then
-						local mh = other:GetAttribute("MaxHealth") or 0
-						other:SetAttribute("Health", math.min(mh, (other:GetAttribute("Health") or 0) + mh * 0.02 * dt))
+				-- ซ่อมสิ่งก่อสร้างรอบๆ ทุก HealEvery วิ ครั้งละ Heal หน่วย
+				if now >= (s:GetAttribute("NextHeal") or 0) then
+					s:SetAttribute("NextHeal", now + (spec.HealEvery or 2))
+					for _, other in ipairs(self.folder:GetChildren()) do
+						if other ~= s and (other:GetPivot().Position - pos).Magnitude < spec.Radius then
+							local mh = other:GetAttribute("MaxHealth") or 0
+							other:SetAttribute("Health", math.min(mh, (other:GetAttribute("Health") or 0) + (spec.Heal or 20)))
+						end
 					end
 				end
 			elseif kind == "TideTotem" then
 				for _, a in ipairs(animals:InRadius(pos, spec.Radius, true)) do
-					a.SlowUntil = now + 1
+					a.TotemSlowUntil, a.TotemSlow = now + 1, spec.Slow or 0.15 -- ช้าลง 15% (AnimalService)
 				end
 			elseif kind == "GaleTotem" then
 				if now >= (s:GetAttribute("NextGust") or 0) then
-					s:SetAttribute("NextGust", now + 4)
+					s:SetAttribute("NextGust", now + (spec.GustEvery or 5))
 					local hitAny = false
 					for _, a in ipairs(animals:InRadius(pos, spec.Radius, true)) do
 						if a.Info.Behaviour ~= "Boss" then
@@ -519,8 +563,12 @@ function BuildingService:Tick(dt)
 					end
 				end
 			elseif kind == "EmberTotem" then
-				for _, a in ipairs(animals:InRadius(pos, spec.Radius, true)) do
-					combat:DamageAnimal(a, spec.Damage * dt, nil, { Source = "Totem", Silent = true })
+				-- เผาทุก Tick วิ ครั้งละ Damage (มีเลขเด้ง)
+				if now >= (s:GetAttribute("NextTick") or 0) then
+					s:SetAttribute("NextTick", now + (spec.Tick or 1))
+					for _, a in ipairs(animals:InRadius(pos, spec.Radius, true)) do
+						combat:DamageAnimal(a, spec.Damage, nil, { Source = "Totem" })
+					end
 				end
 			elseif kind == "FarmPlot" then
 				self:UpdateFarm(s, now)

@@ -15,7 +15,9 @@ local Recipes = require(ReplicatedStorage.Shared.Recipes)
 
 local CampService = {}
 
-local FUEL_ORDER = { "Wood", "Coal", "EmberShard", "TerraCore" }
+-- กองไฟรับแค่ไม้ (เชื้อเพลิง) กับเนื้อดิบ (ไปย่าง) เท่านั้น — ของอื่นโยนเข้าไม่ได้
+local FUEL_ORDER = { "Wood" }
+CampService.FireItems = { Wood = true, RawMeat = true }
 
 function CampService:Init(ctx)
 	self.lastThrow = {}
@@ -62,6 +64,16 @@ function CampService:InCamp(player)
 		return true
 	end
 	return self.benchPos ~= nil and (pos - self.benchPos).Magnitude <= 40
+end
+
+-- ยืนอยู่ที่โต๊ะคราฟต์ (คราฟต์ได้เฉพาะตรงนี้ แบบ 99 Nights · ปุ่ม C ที่อื่นเปิดเมนูไม่ได้)
+CampService.BenchRange = 20
+function CampService:AtBench(player)
+	local char = player and player.Character
+	if not char or not player:GetAttribute("InRun") or not self.benchTopPos then
+		return false
+	end
+	return (char:GetPivot().Position - self.benchTopPos).Magnitude <= self.BenchRange
 end
 
 function CampService:Publish()
@@ -171,7 +183,7 @@ function CampService:Refuel(player)
 		if self.fuel >= max - 6 then
 			self.ctx.Notify(player, "The campfire is full", "Info")
 		else
-			self.ctx.Notify(player, "No fuel (wood / coal / ember shards)", "Error")
+			self.ctx.Notify(player, "No wood in your sack", "Error")
 		end
 		return
 	end
@@ -219,6 +231,8 @@ function CampService:UpgradeBench(player)
 	end
 	self.bench += 1
 	self.ctx.Broadcast(string.format("Crafting Bench Lv.%d · New recipes", self.bench), "Reward")
+	-- เสียงค้อนตอก + เสียงพิณอัปเลเวล + ประกายที่โต๊ะ (ทุกคนในรอบ)
+	self.ctx.FireRun("Cinematic", "BenchUpgrade", { Level = self.bench, Position = self.benchTopPos })
 	self:Publish()
 	self:RefreshPrompts()
 end
@@ -229,8 +243,12 @@ function CampService:Craft(player, recipeId, count)
 	if not r then
 		return
 	end
-	if not self:InCamp(player) then
-		self.ctx.Notify(player, "You must be in the camp (near the campfire/crafting bench) to craft", "Error")
+	if player:GetAttribute("Riding") then -- ขี่สัตว์อยู่ = คราฟต์ไม่ได้
+		self.ctx.Notify(player, "Get off your mount to craft", "Error")
+		return
+	end
+	if not self:AtBench(player) then
+		self.ctx.Notify(player, "Go to the crafting bench to craft", "Error")
 		return
 	end
 	if r.Bench > self.bench then
@@ -365,7 +383,7 @@ function CampService:ThrowFrom(player, what)
 	end
 	if not pick then
 		self.ctx.Notify(player, what == "Meat" and "No raw meat in your sack (go hunting first)"
-			or what == "Fuel" and "No wood/coal in your sack" or "No wood/coal/raw meat in your sack to throw into the fire", "Info")
+			or what == "Fuel" and "No wood in your sack" or "No wood or raw meat in your sack to throw into the fire", "Info")
 		return
 	end
 	inv:Remove(player, pick, 1)
@@ -581,7 +599,7 @@ function CampService:BurnDrops()
 					end
 				end)
 			end
-		elseif item and item.Fuel then
+		elseif item and item.Fuel and CampService.FireItems[d.Id] then
 			drops:Remove(d.Model)
 			local before = self.fuel
 			self:AddFuel(item.Fuel * d.Count)
@@ -689,8 +707,13 @@ function CampService:Start(ctx)
 	self.benchPos = bench:GetPivot().Position
 
 	local benchTop = bench.PrimaryPart
+	self.benchTopPos = benchTop.Position
 	local craft = prompt(benchTop, "Craft", "Open Crafting Menu", "Crafting Bench", Enum.KeyCode.E, 0, 14)
 	craft.Triggered:Connect(function(p)
+		if p:GetAttribute("Riding") then
+			ctx.Notify(p, "Get off your mount to craft", "Error")
+			return
+		end
 		ctx.Remotes.Get("Cinematic"):FireClient(p, "OpenCraft", {})
 	end)
 	-- เครื่องย่อย (ซ้าย): โยนวัตถุดิบลงช่อง -> บด -> เข้าคลังแคมป์ (ทุกคนใช้ร่วมกัน)
@@ -731,8 +754,10 @@ function CampService:Start(ctx)
 		end
 		if recipeId == "UpgradeFire" or recipeId == "UpgradeBench" then
 			-- อัปเกรดจากเมนูคราฟต์ (ต้องอยู่ในแคมป์)
-			if not self:InCamp(player) then
-				self.ctx.Notify(player, "Must be in the camp", "Error")
+			if player:GetAttribute("Riding") then
+				self.ctx.Notify(player, "Get off your mount to craft", "Error")
+			elseif not self:AtBench(player) then
+				self.ctx.Notify(player, "Go to the crafting bench to craft", "Error")
 			elseif recipeId == "UpgradeFire" then
 				self:UpgradeFire(player)
 			else

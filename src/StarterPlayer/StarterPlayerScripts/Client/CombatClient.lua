@@ -464,9 +464,16 @@ Handlers.Pull = function(d)
 		-- หยุดดูดที่ขอบตัวบอส (เดิมดูดเข้ากลางตัว -> ชนกล่องชนยักษ์ของเยติแล้วฟิสิกส์ดีดผู้เล่นกระเด็นไกลเป็นพันสตั๊ด)
 		local stop = d.Stop or 3
 		if dir.Magnitude > stop then
+			-- ดูดเข้าแบบลื่นน้ำแข็ง: ยังบังคับเดินได้แต่ช้าลง (เดินหนีสุดแรง = ค่อย ๆ หลุดออก) · กระโดดได้ (ไม่ทับความเร็วแนวตั้ง)
 			local v = root.AssemblyLinearVelocity
 			local k = math.clamp((dir.Magnitude - stop) / 10, 0.2, 1)
-			root.AssemblyLinearVelocity = Vector3.new(0, math.min(v.Y, 30), 0) + dir.Unit * 34 * k + dir.Unit:Cross(Vector3.new(0, 1, 0)) * 22 * k
+			local hum = player.Character:FindFirstChildOfClass("Humanoid")
+			local move = hum and hum.MoveDirection * hum.WalkSpeed * 0.75 or Vector3.zero
+			local pull = dir.Unit * 8 * k + dir.Unit:Cross(Vector3.new(0, 1, 0)) * 4 * k
+			local flat = Vector3.new(v.X, 0, v.Z)
+			local want = move + pull
+			flat = flat:Lerp(want, 0.25) -- ลื่น: ความเร็วเปลี่ยนแบบค่อยเป็นค่อยไป
+			root.AssemblyLinearVelocity = Vector3.new(flat.X, v.Y, flat.Z)
 		end
 	end)
 end
@@ -613,6 +620,69 @@ Handlers.StalkerWarp = function(d)
 		end)
 	end
 end
+-- จิ้งจอกจันทรา: ตะปบ — รอยกรงเล็บม่วง 3 เส้นเฉียง + ประกาย + เสียงแยกเขี้ยว
+-- จิ้งจอกจันทรา: ตะปบ — กรงเล็บแสงจันทร์ 3 เส้น + เสี้ยวจันทร์เรืองแสง + คลื่นเงาม่วง + ประกายดาว
+local MOON = Color3.fromRGB(196, 120, 255)
+local MOON_CORE = Color3.fromRGB(240, 215, 255)
+Handlers.StalkerPounce = function(d)
+	local pos, dir = d.Position, d.Dir or Vector3.new(0, 0, -1)
+	local side = dir:Cross(Vector3.new(0, 1, 0))
+	local VL = require(script.Parent:WaitForChild("VFXLib"))
+	-- รอยกรงเล็บ: เส้นขาวอมม่วงตรงกลาง + ขอบม่วงหนา (เฉียงลงตามท่าตะปบ)
+	for k = -1, 1 do
+		local c = pos + side * k * 1.5
+		local a0, a1 = c + Vector3.new(0, 3.6, 0) - side * 2.6, c - Vector3.new(0, 2.6, 0) + side * 2.6
+		tracer(a0, a1, MOON, 0.55, 0.35)
+		tracer(a0, a1, MOON_CORE, 0.18, 0.22)
+	end
+	local look = CFrame.lookAt(pos, pos + dir)
+	VL.Play("VFXPack/Anime/Slashes-01", look, { Scale = 1.6, Duration = 0.35, Tint = MOON })
+	VL.Play("VFXPack/Anime/Slash-Impact-01", look * CFrame.new(0, 0, -1.5), { Scale = 1.4, Duration = 0.3, Tint = MOON })
+	-- เสี้ยวจันทร์เรืองแสงวาบหลังรอยเล็บ (อนุภาคบวกแสง: พื้นดำของภาพไม่โผล่)
+	local tex
+	local dcl = VL.Find("VFXPack/cresent")
+	dcl = dcl and (dcl:IsA("Decal") and dcl or dcl:FindFirstChildWhichIsA("Decal", true))
+	tex = dcl and dcl.Texture
+	local at = Instance.new("Attachment")
+	at.WorldPosition = pos + Vector3.new(0, 1, 0)
+	at.Parent = Workspace.Terrain
+	if tex then
+		local e = Instance.new("ParticleEmitter")
+		e.Texture = tex
+		e.Rate = 0
+		e.LightEmission = 1
+		e.LightInfluence = 0
+		e.Speed = NumberRange.new(0)
+		e.Lifetime = NumberRange.new(0.45)
+		e.Rotation = NumberRange.new(-40, 40)
+		e.Color = ColorSequence.new(MOON_CORE, MOON)
+		e.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 3), NumberSequenceKeypoint.new(1, 9) })
+		e.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.1), NumberSequenceKeypoint.new(1, 1) })
+		e.Parent = at
+		e:Emit(1)
+	end
+	-- ประกายดาวกระจาย + หมอกเงาม่วงม้วน
+	local sp = Instance.new("ParticleEmitter")
+	sp.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+	sp.Rate = 0
+	sp.LightEmission = 1
+	sp.Speed = NumberRange.new(12, 26)
+	sp.SpreadAngle = Vector2.new(180, 180)
+	sp.Lifetime = NumberRange.new(0.4, 0.8)
+	sp.Drag = 4
+	sp.Color = ColorSequence.new(MOON_CORE, MOON)
+	sp.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1.1), NumberSequenceKeypoint.new(1, 0) })
+	sp.Parent = at
+	sp:Emit(26)
+	local light = Instance.new("PointLight")
+	light.Color, light.Range, light.Brightness = MOON, 18, 6
+	light.Parent = at
+	TweenService:Create(light, TweenInfo.new(0.45), { Brightness = 0 }):Play()
+	Debris:AddItem(at, 1.2)
+	smoke(pos, Color3.fromRGB(40, 16, 60), 8, 8)
+	burst(pos, MOON, 14, 18, 0.55)
+	CombatClient.Sound("Snarl", pos, 1.2, 1)
+end
 -- จิ้งจอกจันทรา: หายตัว — ควันดำม้วน + เสียงวูบต่ำ
 Handlers.StalkerFade = function(d)
 	smoke(d.Position + Vector3.new(0, 2, 0), Color3.fromRGB(20, 10, 30), 26, 16)
@@ -711,6 +781,18 @@ for _, name in ipairs({ "NodeBreak", "StructureBreak", "Build" }) do
 	Handlers[name] = function(d)
 		task.spawn(BreakFX[name], d)
 	end
+end
+-- หินวาร์ป: วงแสงแผ่ + ประกายพุ่งขึ้น (ต้นทาง = ตอนหายไป · ปลายทาง = ตอนโผล่)
+Handlers.WarpPad = function(d)
+	local pos = d.Position
+	if typeof(pos) ~= "Vector3" then
+		return
+	end
+	local col = d.Color or Color3.fromRGB(110, 220, 255)
+	ring(pos + Vector3.new(0, 0.4, 0), 9, col, 0.6, 0.4)
+	burst(pos + Vector3.new(0, 2.5, 0), col, d.Arrive and 30 or 22, 14, 0.45)
+	flashLight(pos + Vector3.new(0, 3, 0), col, 28, 0.6)
+	CombatClient.Sound("Craft", pos, 0.35)
 end
 Handlers.Craft = function(d)
 	burst(d.Position + Vector3.new(0, 4, 0), Color3.fromRGB(255, 220, 140), 16, 12, 0.4)
@@ -1188,7 +1270,14 @@ function CombatClient.Init(state, hud)
 			local speedMult = (perks.SpeedMult or 1) * (state:GetAttribute("SpiritAir") and 1.1 or 1) * (player:GetAttribute("DevSpeed") or 1) * (player:GetAttribute("MountSpeed") or 1) * (player:GetAttribute("CineRun") or 1) * (player:GetAttribute("SkillSpeed") or 1)
 			local staminaMult = (perks.StaminaMult or 1) / (player:GetAttribute("Aura_Air") and 0.85 or 1) -- ออร่าวิหารน้ำแข็ง
 			local moving = hum.MoveDirection.Magnitude > 0.1
-			if sprinting and moving and stamina > 0 then
+			-- กำลังพันแผล/ใช้ยา (MedUse จากเซิร์ฟเวอร์): เดินได้แต่ช้าลงเหลือ 45% และวิ่งไม่ได้
+			local healing = player:GetAttribute("MedUse") ~= nil
+			if healing then
+				speedMult *= 0.45
+			end
+			speedMult *= player:GetAttribute("FearSlow") or 1 -- โดนจิ้งจอกจันทราหอนใส่ = ช้าลงชั่วคราว
+			speedMult *= player:GetAttribute("Chill") or 1 -- โดนสกิลเยติ = ตัวเย็นเดินช้า
+			if sprinting and moving and stamina > 0 and not healing then
 				stamina = math.max(0, stamina - 5 / staminaMult * dt) -- วิ่งได้ ~20 วิ ต่อหลอด (เดิม 10/วิ = 10 วิ)
 				hum.WalkSpeed = Config.SprintSpeed * speedMult
 				if stamina <= 0 then

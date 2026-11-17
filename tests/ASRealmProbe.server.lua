@@ -173,7 +173,7 @@ for _, kind in ipairs(lairsOnly and {} or { "Shrine", "Sanctum" }) do
 				SpiritService:SealPortal(SpiritService.shrines[el])
 			end
 			local prompt = veil:FindFirstChildOfClass("ProximityPrompt")
-			local sealedOk = veil:GetAttribute("Sealed") == true and prompt ~= nil and prompt.ActionText == "Sealed" and not (bveil and bveil:GetAttribute("Sealed"))
+			local sealedOk = veil:GetAttribute("Cleared") == true and veil:GetAttribute("Sealed") ~= true and prompt ~= nil and prompt.ActionText ~= "Sealed" and not (bveil and bveil:GetAttribute("Sealed"))
 			if not sealedOk then
 				fails += 1
 			end

@@ -27,7 +27,7 @@ local TIPS = {
 	"Hold a torch and the Moonfang won't dare come near",
 	"Water beats Fire · Fire beats Frost · Frost beats Earth · Earth beats Water",
 	"4 Spirit Pups are trapped in the shrines. Rescue them all for the true ending",
-	"Every 10 nights a Blood Moon rises and every element's pack attacks at once",
+	"Every 5 nights a Blood Moon rises and every element's pack attacks at once",
 	"Teammate down? Use a bandage within 30 seconds — if nobody is left standing, the whole team loses",
 	"No respawning in a run after you die — watch each other's backs",
 	"Survive 99 nights = conquered! But you can keep playing endlessly to climb the leaderboard",
@@ -722,6 +722,8 @@ function Cinematics.Loading(state)
 	local ui = loadingScreen(Config.GameName, Config.Subtitle)
 	Cinematics.IsLoading = true
 	task.spawn(function()
+	-- ครอบทั้งขั้นตอน: error กลางทาง (ของในแมพยังมาไม่ครบ ฯลฯ) เคยทำให้เธรดตาย -> หน้าโหลดค้างตลอดไป ต้องออกเข้าใหม่
+	local okLoad, errLoad = pcall(function()
 		local CP = game:GetService("ContentProvider")
 		local function collect(root)
 			local items = {}
@@ -739,6 +741,15 @@ function Cinematics.Loading(state)
 			local p0 = os.clock()
 			for i = 1, #items, 40 do
 				if os.clock() - p0 > limit then
+					-- หมดเวลา: ที่เหลือโหลดต่อเบื้องหลังระหว่างเล่น (ไม่ให้หน้าโหลดค้างรอเน็ตช้า)
+					local rest = table.move(items, i, #items, 1, {})
+					task.spawn(function()
+						for k = 1, #rest, 40 do
+							pcall(function()
+								CP:PreloadAsync(table.move(rest, k, math.min(k + 39, #rest), 1, {}))
+							end)
+						end
+					end)
 					break
 				end
 				-- ชุดเดียวค้างนาน (เน็ตช้า) ก็ไม่รอเกินเวลาที่เหลือ — ของที่ยังไม่มาจะโหลดตามมาเองระหว่างเล่น
@@ -776,7 +787,7 @@ function Cinematics.Loading(state)
 		end
 		-- 2) พื้นผิว/โมเดลของค่าย 25-50%
 		if not team then
-			preload(lobby and collect(lobby) or {}, 0.25, 0.5, "Loading camp", 60)
+			preload(lobby and collect(lobby) or {}, 0.25, 0.5, "Loading camp", 25)
 		end
 		-- 3) รอเซิร์ฟเวอร์สร้างแมพเสร็จ 50-85%
 		local g0 = os.clock()
@@ -791,7 +802,7 @@ function Cinematics.Loading(state)
 		ui.Set(0.85, "World ready")
 		-- 4) โมเดลในแมพ/สัตว์/บอส/อาวุธ/เอฟเฟกต์ 85-97%
 		local assets = ReplicatedStorage:FindFirstChild("Assets")
-		preload(assets and collect(assets) or {}, 0.85, 0.97, "Loading models", team and 12 or 45)
+		preload(assets and collect(assets) or {}, 0.85, 0.97, "Loading models", team and 8 or 15) -- เดิม 45 วิ (เน็ตช้าค้าง 87-93% นาน) · ที่เหลือโหลดต่อเบื้องหลัง
 		-- 5) ตัวละคร + พื้นใต้เท้า 97-100% · เซิร์ฟเวอร์ทีม: รอจนตัวละครไปเกิดในแมพแล้ว (ไม่เปิดจอที่ล็อบบี้แล้วโหลดเดินทางซ้ำ)
 		--   เช็ก "ออกห่างล็อบบี้" (ล็อบบี้อยู่นอกแมพไกลมาก) ไม่ใช่ "ใกล้แคมป์" -> กลับเข้ารอบเดิมไปเกิดที่เตียงไกลแคมป์ก็ผ่าน
 		ui.Set(0.97, team and "Entering camp..." or "Lighting the campfire...")
@@ -807,10 +818,23 @@ function Cinematics.Loading(state)
 			return not lb or (root.Position - lb:GetPivot().Position).Magnitude > 1500
 		end
 		local t0 = os.clock()
-		while not (player.Character and atCamp() and groundReady()) and os.clock() - t0 < 60 do
+		while os.clock() - t0 < 60 do
+			local okC, ready = pcall(function()
+				return player.Character ~= nil and atCamp() and groundReady()
+			end)
+			if okC and ready then
+				break
+			end
+			if os.clock() - t0 > 20 then
+				ui.Set(0.98, "Reconnecting to camp...") -- เซิร์ฟเวอร์จะพาลงแมพให้ใหม่เอง (ตัวเฝ้าการเกิด)
+			end
 			task.wait(0.1)
 		end
 		task.wait(0.4) -- ให้เฟรมแรกในค่ายวาดเสร็จก่อนค่อยเปิดจอ
+	end)
+	if not okLoad then
+		warn("[AS] loading screen:", errLoad)
+	end
 		ui.Close()
 		Cinematics.IsLoading = false
 		if Cinematics.OnLoaded then
@@ -1571,6 +1595,42 @@ function Cinematics.ShrineIntro(d)
 end
 
 -- ฉากจบ: กรงแตก ลูกสัตว์ดีใจ -> เสาผลึกธาตุพุ่งจากดิน ลำแสงทะลุฟ้า "เคลียร์แล้ว" -> ลูกสัตว์ไปโผล่ที่บ้าน ดีใจ + 1 วัน
+-- ทั้งทีมได้บัพ (เคลียร์วิหาร): ทุกคนเห็นบนตัวเอง — แสงพุ่งจากพื้น + ประกาย + คลื่นแสง + หัวข้อบอกบัพ (~3.5 วิ)
+--   ช่วงนี้ server กันสัตว์เล็ง/ดาเมจให้แล้ว (SurvivalService:Protect)
+function Cinematics.TeamBuff(d)
+	local col = C.Element[d.Element] or C.Gold
+	local char = player.Character
+	local root = char and char:FindFirstChild("HumanoidRootPart")
+	flash(col:Lerp(Color3.new(1, 1, 1), 0.6), 0.4)
+	sfx("CampUpgrade")
+	if root then
+		local feet = root.Position - Vector3.new(0, 3, 0)
+		shockRing(feet, col, 18)
+		sparkBurst(root.Position, col, 70, 16)
+		-- เสาแสงห่อตัว แล้วหดหาย
+		local beam = Instance.new("Part")
+		beam.Anchored, beam.CanCollide, beam.CanQuery, beam.CanTouch, beam.CastShadow = true, false, false, false, false
+		beam.Shape = Enum.PartType.Cylinder
+		beam.Material = Enum.Material.Neon
+		beam.Color = col
+		beam.Transparency = 0.35
+		beam.Size = Vector3.new(40, 7, 7)
+		beam.CFrame = CFrame.new(feet + Vector3.new(0, 20, 0)) * CFrame.Angles(0, 0, math.pi / 2)
+		beam.Parent = Workspace
+		TweenService:Create(beam, TweenInfo.new(1.6, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Size = Vector3.new(40, 0.4, 0.4), Transparency = 1 }):Play()
+		game:GetService("Debris"):AddItem(beam, 1.8)
+		task.delay(0.9, function()
+			if root.Parent then
+				sparkBurst(root.Position + Vector3.new(0, 2, 0), Color3.new(1, 1, 1):Lerp(col, 0.5), 40, 8)
+			end
+		end)
+	end
+	if Cinematics.Combat then
+		Cinematics.Combat.Shake(0.25, 0.4)
+	end
+	titleCard(d.Title or "BUFF GAINED", d.Text or "", col, 2.6)
+end
+
 function Cinematics.ShrineCleared(d)
 	local col = C.Element[d.Element] or C.Gold
 	local cage, pillar, home = d.Cage, d.Pillar, d.Home
@@ -1812,6 +1872,359 @@ function Cinematics.FullScreen(title, lines, color, time)
 	end)
 end
 
+---------------------------------------------------------------- ประตูกลับบ้าน (หลังรอดครบ 99 คืน · EscapeService)
+local ESC_GOLD = Color3.fromRGB(255, 214, 130)
+CLEAR_VIEW.Walk = true
+CLEAR_VIEW.Pets = true
+CLEAR_VIEW.Behind = true
+
+local function campfirePos(fallback)
+	local camp = Workspace:FindFirstChild("World") and Workspace.World:FindFirstChild("Sites") and Workspace.World.Sites:FindFirstChild("Camp")
+	local core = camp and camp:FindFirstChild("Campfire") and camp.Campfire:FindFirstChild("FireCore", true)
+	return core and core.Position or fallback
+end
+
+local function hostileNear(pos, radius)
+	for _, m in ipairs(animalsNear(pos, radius, function(m)
+		local k = m:GetAttribute("Kind")
+		return k == "Raid" or k == "Boss" or k == "Stalker" or k == "Wild"
+	end)) do
+		local h = m:FindFirstChildOfClass("Humanoid")
+		if not h or h.Health > 0 then
+			return true
+		end
+	end
+	return false
+end
+
+-- แผ่นแสงวงกลมกลางซุ้ม (เฉพาะเครื่องนี้): ประตู "ตื่น" สว่างขึ้นตอนฉาก
+local function gateGlow(center, normal, gate)
+	local d = 16
+	if gate then
+		local _, s = gate:GetBoundingBox()
+		d = math.clamp(math.min(s.Y, math.max(s.X, s.Z)) * 0.72, 8, 30)
+	end
+	local disc = Instance.new("Part")
+	disc.Name = "EscapeGlow"
+	disc.Anchored, disc.CanCollide, disc.CanQuery, disc.CanTouch, disc.CastShadow = true, false, false, false, false
+	disc.Shape = Enum.PartType.Cylinder
+	disc.Material = Enum.Material.Neon
+	disc.Color = ESC_GOLD
+	disc.Transparency = 1
+	disc.Size = Vector3.new(0.4, d * 0.3, d * 0.3)
+	disc.CFrame = CFrame.fromMatrix(center, normal, Vector3.yAxis)
+	disc.Parent = Workspace
+	local light = Instance.new("PointLight")
+	light.Color, light.Range, light.Brightness, light.Shadows = ESC_GOLD, 40, 0, false
+	light.Parent = disc
+	local swirl = Instance.new("ParticleEmitter")
+	swirl.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+	swirl.Color = ColorSequence.new(ESC_GOLD, Color3.new(1, 1, 1))
+	swirl.LightEmission = 1
+	swirl.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.9), NumberSequenceKeypoint.new(1, 0) })
+	swirl.Lifetime = NumberRange.new(1, 2)
+	swirl.Speed = NumberRange.new(2, 6)
+	swirl.SpreadAngle = Vector2.new(180, 180)
+	swirl.Rate = 0
+	swirl.Parent = disc
+	return {
+		Part = disc,
+		Wake = function(time)
+			TweenService:Create(disc, TweenInfo.new(time or 1.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Transparency = 0.55, Size = Vector3.new(0.4, d, d) }):Play()
+			TweenService:Create(light, TweenInfo.new(time or 1.2), { Brightness = 2.5 }):Play()
+			swirl.Rate = 60
+		end,
+		Destroy = function()
+			disc:Destroy()
+		end,
+	}
+end
+
+-- ซ่อนตัวละครที่เดินทะลุประตูแล้ว (เฉพาะเครื่องนี้) · show = คืน
+local function charVisible(char, show)
+	for _, d in ipairs(char:GetDescendants()) do
+		if d:IsA("BasePart") or d:IsA("Decal") then
+			d.LocalTransparencyModifier = show and 0 or 1
+		end
+	end
+end
+
+-- ประตูเปิด: ซุ้มทองโผล่ขอบแคมป์ (ฉากสั้น ~6.5 วิ · กำลังสู้อยู่ = แค่ป้าย ไม่ยึดกล้อง)
+function Cinematics.EscapeGateOpen(d)
+	local center, normal = d.Center, d.Normal
+	if typeof(center) ~= "Vector3" or typeof(normal) ~= "Vector3" then
+		return
+	end
+	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+	local busy = Cinematics.Cutscene or Cinematics.ShrineCut or player:GetAttribute("Dead") or player:GetAttribute("Downed")
+		or (root and hostileNear(root.Position, 80))
+	if busy then
+		Cinematics.Banner("A PORTAL HOME", "It opened at the edge of camp — vote there to leave, or keep surviving", ESC_GOLD, 4.5, { Size = 64 })
+		return
+	end
+	local DUR = 6.8
+	local side = Vector3.yAxis:Cross(normal).Unit
+	local glow = gateGlow(center, normal, d.Gate)
+	Cinematics.Cutscene = true
+	Cinematics.ShrineCut = true
+	letterbox(true)
+	cinemaMode(true, ESC_GOLD)
+	local run = timeline({
+		{ 0.35, function()
+			flash(ESC_GOLD:Lerp(Color3.new(1, 1, 1), 0.5), 0.5)
+			sfx("CampUpgrade")
+			glow.Wake(1.4)
+			shockRing(Vector3.new(center.X, d.Ground or center.Y, center.Z), ESC_GOLD, 40)
+			sparkBurst(center, ESC_GOLD, 90, 18)
+		end },
+		{ 0.8, function() titleCard("A PORTAL HOME", "The 99th night is over — a way out of the wilds has opened", ESC_GOLD, 2.6) end },
+		{ 3.7, function() caption("Gather at the portal and vote — leave together, or stay and keep surviving", C.Text, 2.8) end },
+	})
+	runShots(DUR, function(t)
+		run(t)
+		local k = ease(math.clamp(t / DUR, 0, 1))
+		return center + normal * (44 - 14 * k) + side * (14 - 6 * k) + Vector3.new(0, 12 - 7 * k, 0), center + Vector3.new(0, 1 - 2 * k, 0), 58, "Reveal"
+	end, function()
+		letterbox(false)
+		cinemaMode(false)
+		Cinematics.Cutscene = false
+		Cinematics.ShrineCut = false
+		task.delay(1.5, glow.Destroy)
+	end)
+end
+
+-- ฉากจบ: ค่ำคืนที่ 99 ผ่านไป -> กองไฟ -> ลูกสัตว์มาส่ง -> ประตูตื่น -> ทุกคนเดินเข้าแสง -> จอสรุป -> กลับล็อบบี้
+function Cinematics.Escape(d)
+	if Cinematics.EscapeCut then
+		return
+	end
+	local center, normal = d.Center, d.Normal
+	if typeof(center) ~= "Vector3" or typeof(normal) ~= "Vector3" then
+		return
+	end
+	Cinematics.EscapeCut = true
+	Cinematics.ShrineCut = true
+	Cinematics.Cutscene = true
+	if Cinematics.Death then
+		pcall(Cinematics.Death.StopSpectate)
+	end
+	clearDeath(0.3)
+	local gy = d.Ground or (center.Y - 8)
+	local side = Vector3.yAxis:Cross(normal).Unit
+	local camp = typeof(d.Camp) == "Vector3" and d.Camp or Vector3.zero
+	local fire = campfirePos(camp)
+	local g2f = (fire - center) * Vector3.new(1, 0, 1)
+	g2f = g2f.Magnitude > 1 and g2f.Unit or normal
+	local nights, spirits = tonumber(d.Nights) or 99, tonumber(d.Spirits) or 0
+	local glow = gateGlow(center, normal, d.Gate)
+	local pets = animalsNear(camp, 400, function(m)
+		return m:GetAttribute("Pet") == true
+	end)
+	for _, m in ipairs(pets) do
+		m:SetAttribute("Cheer", true)
+	end
+	local T_FIRE, T_PETS, T_GATE, T_WALK, T_OUT, DUR = 6.5, 12, 17.5, 21, 29.2, 31
+	local total = tonumber(d.Time) or 40
+	-- จอดำค่อยๆ เปิด (ซ่อนตอนเซิร์ฟเวอร์ย้ายทุกคนไปยืนหน้าประตู)
+	local cover = UIKit.Frame(gui, { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(0, 0, 0), BackgroundTransparency = 0, ZIndex = 80 })
+	TweenService:Create(cover, TweenInfo.new(1.8, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { BackgroundTransparency = 1 }):Play()
+	letterbox(true)
+	cinemaMode(true, ESC_GOLD)
+	local gone = {}
+	local walking = false
+	local function walkIn()
+		walking = true
+		-- ซุ้มไม่บังทาง (เฉพาะเครื่องนี้: ตัวเราเดินทะลุขอบวงแหวนได้)
+		if d.Gate then
+			for _, p in ipairs(d.Gate:GetDescendants()) do
+				if p:IsA("BasePart") then
+					p.CanCollide = false
+				end
+			end
+		end
+		local char = player.Character
+		local hum = char and char:FindFirstChildOfClass("Humanoid")
+		local root = char and char:FindFirstChild("HumanoidRootPart")
+		if hum and root and not player:GetAttribute("Dead") then
+			root.Anchored = false
+			-- เดินช้าๆ ตรงเข้าม่าน (เบียดเข้าหากลางวงนิดหน่อย) ทะลุไปอีกฝั่ง · สั่งทุกเฟรม (ระบบวิ่ง/ความเร็วตั้ง WalkSpeed ทับได้)
+			local lateral = (root.Position - center):Dot(side) * 0.4
+			local goal = Vector3.new(center.X, root.Position.Y, center.Z) - normal * 12 + side * lateral
+			local conn
+			conn = RunService.Heartbeat:Connect(function()
+				if not (root.Parent and hum.Parent) or not Cinematics.EscapeCut then
+					conn:Disconnect()
+					return
+				end
+				local to = (goal - root.Position) * Vector3.new(1, 0, 1)
+				if to.Magnitude < 1.5 then
+					hum:Move(Vector3.zero)
+					conn:Disconnect()
+					return
+				end
+				hum.WalkSpeed = 6.5
+				hum:Move(to.Unit)
+			end)
+		end
+	end
+	local function checkThrough()
+		for _, p in ipairs(Players:GetPlayers()) do
+			local ch = p.Character
+			local r = ch and ch:FindFirstChild("HumanoidRootPart")
+			if r and not gone[ch] and (r.Position - center):Dot(normal) < 0.3 and ((r.Position - center) * Vector3.new(1, 0, 1)).Magnitude < 16 then
+				gone[ch] = true
+				sparkBurst(r.Position + Vector3.new(0, 1, 0), ESC_GOLD, 50, 12)
+				sfx("Spirit", 1.25)
+				charVisible(ch, false)
+			end
+		end
+	end
+	local white
+	local run = timeline({
+		{ 0.9, function() caption("Night 99 has passed...", C.Text, 2.4) end },
+		{ 3.6, function() caption("For the first time, the forest is silent", C.Text, 2.6) end },
+		{ T_FIRE + 0.4, function() caption("The campfire that kept you alive burns bright one last time", C.Text, 2.4) end },
+		{ T_FIRE + 3, function() caption("Night after night, it held back the dark", C.Text, 2.4) end },
+		{ T_PETS + 0.3, function()
+			if #pets > 0 then
+				caption("The Spirit Pups you rescued gather to say goodbye", C.Text, 2.5)
+			else
+				caption("Somewhere in the dark, the beasts watch you leave", C.Text, 2.5)
+			end
+		end },
+		{ T_PETS + 3, function()
+			if #pets > 0 then
+				caption("From now on, they will guard the forest", C.Text, 2.3)
+			else
+				caption("But tonight, none of them dare to follow", C.Text, 2.3)
+			end
+		end },
+		{ T_GATE - 0.2, function() flash(ESC_GOLD:Lerp(Color3.new(1, 1, 1), 0.6), 0.6) end },
+		{ T_GATE, function()
+			sfx("CampUpgrade")
+			glow.Wake(1.6)
+			shockRing(Vector3.new(center.X, gy, center.Z), ESC_GOLD, 46)
+			sparkBurst(center, ESC_GOLD, 120, 20)
+			if Cinematics.Combat then
+				Cinematics.Combat.Shake(0.25, 0.8)
+			end
+		end },
+		{ T_GATE + 0.4, function() titleCard("THE WAY HOME", string.format("%d nights survived", nights), ESC_GOLD, 2.6) end },
+		{ T_WALK + 1.2, walkIn },
+		{ T_WALK + 0.5, function() caption("Together, you step into the light", C.Text, 3.2) end },
+		{ T_WALK + 4.2, function() caption("Home is waiting on the other side", C.Text, 3) end },
+		{ T_WALK + 5.5, function()
+			local ok, Sound = pcall(require, script.Parent:FindFirstChild("SoundController"))
+			if ok and Sound then
+				pcall(Sound.Sting, "Victory")
+			end
+		end },
+		{ T_OUT, function()
+			-- ถูกดูดเข้าแสง: จอขาวทอง -> ค่อยๆ ดำ -> จอสรุป
+			local s = Instance.new("Sound")
+			s.SoundId = "rbxassetid://9113077334"
+			s.Volume = 0.7
+			s.Parent = SoundService
+			s:Play()
+			game:GetService("Debris"):AddItem(s, 4)
+			white = UIKit.Frame(gui, { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(1, 0.97, 0.88), BackgroundTransparency = 1, ZIndex = 88 })
+			TweenService:Create(white, TweenInfo.new(0.9, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { BackgroundTransparency = 0 }):Play()
+			TweenService:Create(Workspace.CurrentCamera, TweenInfo.new(1.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { FieldOfView = 100 }):Play()
+		end },
+	})
+	local function cleanup()
+		if not Cinematics.EscapeCut then
+			return
+		end
+		Cinematics.EscapeCut = false
+		Cinematics.ShrineCut = false
+		Cinematics.Cutscene = false
+		letterbox(false)
+		cinemaMode(false)
+		glow.Destroy()
+		for ch in pairs(gone) do
+			if ch.Parent then
+				charVisible(ch, true)
+			end
+		end
+		for _, m in ipairs(pets) do
+			if m.Parent then
+				m:SetAttribute("Cheer", nil)
+			end
+		end
+		for _, f in ipairs({ cover, white }) do
+			if f and f.Parent then
+				UIKit.Tween(f, 1, { BackgroundTransparency = 1 })
+				game:GetService("Debris"):AddItem(f, 1.2)
+			end
+		end
+	end
+	runShots(DUR, function(t)
+		run(t)
+		if walking then
+			checkThrough()
+		end
+		if t < T_FIRE then
+			-- 1: มุมสูงเหนือแคมป์ ค่อยๆ ลดลงหากองไฟ (ประตูทองอยู่ฉากหลัง)
+			local k = ease(t / T_FIRE)
+			return fire + g2f * (50 - 12 * k) + side * 10 + Vector3.new(0, 30 - 12 * k, 0), fire:Lerp(center, 0.25) + Vector3.new(0, 2, 0), 55, "Camp"
+		elseif t < T_PETS then
+			-- 2: วนต่ำรอบกองไฟ
+			local a = math.atan2(g2f.Z, g2f.X) + (t - T_FIRE) * 0.32
+			return fire + Vector3.new(math.cos(a) * 12, 4, math.sin(a) * 12), fire + Vector3.new(0, 2.2, 0), 50, "Fire"
+		elseif t < T_GATE then
+			local k = ease((t - T_PETS) / (T_GATE - T_PETS))
+			if #pets > 0 then
+				-- 3: ลูกสัตว์ธาตุที่ช่วยมา (ตัวโต) ยืนดีใจ
+				local at = centroid(pets, camp)
+				local fwd = (fire - at) * Vector3.new(1, 0, 1)
+				fwd = fwd.Magnitude > 1 and fwd.Unit or g2f
+				local sd = fwd:Cross(Vector3.yAxis)
+				return at + fwd * (26 - 8 * k) + sd * (8 - 10 * k) + Vector3.new(0, 7 - 2 * k, 0), at + Vector3.new(0, 3, 0), 50, "Pets"
+			end
+			-- 3 (ไม่มีลูกสัตว์): มองออกไปป่ามืดนอกแคมป์
+			return fire + side * (18 + 6 * k) + Vector3.new(0, 6, 0), fire + side * 140 + Vector3.new(0, 10 - 4 * k, 0), 52, "Forest"
+		elseif t < T_WALK then
+			-- 4: ประตูตื่น: หน้าซุ้ม กล้องยกขึ้นช้าๆ
+			local k = ease((t - T_GATE) / (T_WALK - T_GATE))
+			return center + normal * (36 - 6 * k) + side * (12 - 4 * k) + Vector3.new(0, -4 + 7 * k, 0), center + Vector3.new(0, 1, 0), 58, "Gate"
+		elseif t < T_OUT - 1.2 then
+			-- 5: ด้านหลังกลุ่ม ทุกคนเดินเข้าแสง
+			local k = (t - T_WALK) / (T_OUT - 1.2 - T_WALK)
+			return center + normal * (32 - 10 * k) + side * 3 + Vector3.new(0, 7 - 3 * k, 0), center + Vector3.new(0, -1, 0), 60, "Walk"
+		end
+		-- 6: กล้องตามเข้าไปในแสง
+		local k = easeIn(math.clamp((t - (T_OUT - 1.2)) / (DUR - T_OUT + 1.2), 0, 1))
+		return center + normal * (22 - 20 * k) + Vector3.new(0, 4 - 3 * k, 0), center - normal * 20, 62, "Behind"
+	end, function()
+		-- จอสรุปเรื่อง (บนจอขาว -> ดำ)
+		if white and white.Parent then
+			TweenService:Create(white, TweenInfo.new(1.4), { BackgroundColor3 = Color3.new(0, 0, 0) }):Play()
+		end
+		local lines = {
+			string.format("You survived %d nights in the wilds and found the way home", nights),
+			spirits >= 4 and "All 4 Spirit Pups are free — the forest is at peace again" or string.format("Spirit Pups rescued: %d/4", spirits),
+			"The campfire's last embers fade... but your story lives on",
+			"Thank you for playing!",
+			"Returning to the lobby...",
+		}
+		Cinematics.FullScreen(spirits >= 4 and "THE TRUE ENDING" or "HOME AT LAST", lines, ESC_GOLD, math.max(5, total - DUR - 0.8))
+		task.delay(math.max(5, total - DUR) + 1.5, cleanup)
+	end)
+	-- กันค้าง: กลับล็อบบี้ในเซิร์ฟนี้ (Studio) / ยังอยู่ที่เดิมนานเกิน -> คืนจอ
+	local st = Cinematics.State
+	if st then
+		local conn
+		conn = st:GetAttributeChangedSignal("Phase"):Connect(function()
+			if st:GetAttribute("Phase") == "Lobby" then
+				conn:Disconnect()
+				task.delay(0.5, cleanup)
+			end
+		end)
+	end
+	task.delay(total + 25, cleanup)
+end
+
 ---------------------------------------------------------------- ตัวจัดการ
 local ELEMENT_NIGHT_TEXT = {
 	Earth = "The whole forest awakens... the beasts of Earth are coming",
@@ -1935,7 +2348,7 @@ function Cinematics.Handle(kind, d, menus, combat)
 		}
 		Cinematics.FullScreen("ALL HAVE PERISHED", lines, Color3.fromRGB(170, 20, 24), 11)
 	elseif kind == "Ending" then
-		local tail = d.Continue and "♾ The game isn't over! Keep playing endlessly — survive as long as you can to climb the leaderboard" or ""
+		local tail = d.Continue and "🌀 A portal home will open at camp — vote to leave together, or keep playing endlessly" or ""
 		if d.Kind == "True" then
 			Cinematics.FullScreen("THE FOUR SPIRITS REUNITE", {
 				"All 4 Spirit Pups are back together", "You conquered 99 nights — the true ending", "♦️ +50 Ruby", tail,
@@ -1964,13 +2377,26 @@ function Cinematics.Handle(kind, d, menus, combat)
 		Cinematics.ShrineIntro(d)
 	elseif kind == "ShrineCleared" then
 		Cinematics.ShrineCleared(d)
+	elseif kind == "TeamBuff" then
+		Cinematics.TeamBuff(d)
 	elseif kind == "CampUpgrade" then
 		Cinematics.Banner("BONFIRE LV." .. d.Level, "Safe zone expanded", C.Fire, 3, { Size = 54, Y = 0.22 })
+	elseif kind == "BenchUpgrade" then
+		-- อัปโต๊ะคราฟต์: ค้อนตอก 3 ที (เสียงสูงขึ้นทีละนิด) + ประกายที่โต๊ะ แล้วเสียงพิณอัปเลเวล (SoundController)
+		Cinematics.Banner(string.format("CRAFTING BENCH LV.%d", d.Level or 1), "New recipes unlocked", C.Gold, 3, { Size = 54, Y = 0.22 })
+		for i = 0, 2 do
+			task.delay(i * 0.22, function()
+				sfx(i == 2 and "Build" or "Craft", 1 + i * 0.12)
+				if typeof(d.Position) == "Vector3" then
+					sparkBurst(d.Position + Vector3.new(0, 1.5, 0), Color3.fromRGB(255, 214, 120), 18 + i * 10, 10 + i * 4)
+				end
+			end)
+		end
 	elseif kind == "FireOut" then
 		Cinematics.Banner("THE FIRE IS OUT", "Add wood, quick", Color3.fromRGB(255, 80, 60), 3, { Size = 56 })
 		combat.Shake(0.3, 0.5)
 	elseif kind == "OpenCraft" then
-		menus.OpenCraft()
+		menus.OpenCraft(true) -- กด E ที่โต๊ะคราฟต์ (เซิร์ฟเวอร์ตรวจระยะแล้ว)
 	elseif kind == "OpenShop" then
 		menus.OpenShop("Diamonds")
 	elseif kind == "OpenClasses" then
@@ -1986,7 +2412,7 @@ function Cinematics.Handle(kind, d, menus, combat)
 			Cinematics.Banner("DEPARTING", "Traveling...", C.Gold, 6, { Size = 60 })
 		end
 	elseif kind == "Depart" then
-		Cinematics.Banner("INTO THE WILDS", "Survive 99 nights", C.Gold, 3, { Size = 64 })
+		Cinematics.Banner("INTO THE WILDS", "Survive 99 nights until the portal home opens", C.Gold, 3, { Size = 64 })
 	elseif kind == "Shake" then
 		combat.Shake(d.Power or 0.5, d.Time or 0.5)
 	elseif kind == "Flash" then
@@ -2009,6 +2435,10 @@ function Cinematics.Handle(kind, d, menus, combat)
 		end
 	elseif kind == "Warp" then
 		Cinematics.Warp(d)
+	elseif kind == "EscapeGateOpen" then
+		Cinematics.EscapeGateOpen(d)
+	elseif kind == "Escape" then
+		Cinematics.Escape(d)
 	elseif kind == "StalkerWarning" then
 		Cinematics.StalkerWarning(d, combat)
 	end
@@ -2106,6 +2536,24 @@ end
 
 function Cinematics.Init(state)
 	Cinematics.State = state
+	-- โหลดอนุสาวรีย์ลูกสัตว์ธาตุไว้ล่วงหน้า (เมช/เท็กซ์เจอร์ใหญ่): ไม่งั้นช่วยลูกสัตว์ครั้งแรก เสาผุด 3 วิแต่โมเดลยังโหลดไม่เสร็จ = เห็นแค่ประกาย
+	task.spawn(function()
+		local assets = ReplicatedStorage:WaitForChild("Assets", 60)
+		local props = assets and assets:WaitForChild("Props", 60)
+		if not props then
+			return
+		end
+		local list = {}
+		for _, el in ipairs({ "Earth", "Water", "Air", "Fire" }) do
+			local m = props:FindFirstChild("Monument" .. el)
+			if m then
+				table.insert(list, m)
+			end
+		end
+		pcall(function()
+			game:GetService("ContentProvider"):PreloadAsync(list)
+		end)
+	end)
 	gui = UIKit.Screen("Cinematics", 40, true)
 	Cinematics.Gui = gui
 	-- หน้าโหลดเสมอตอนเข้าเกม (ปิดเองเมื่อโหลดทุกอย่างครบ) · ลงแมพ = หน้าโหลดเดินทาง

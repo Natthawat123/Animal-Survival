@@ -1020,14 +1020,27 @@ if ReplicatedStorage:FindFirstChild("ASBossOnly") and ReplicatedStorage.ASBossOn
 	Portal:GiveEnterBonus(player, veils[1])
 	task.wait(1)
 	local e1 = left()
-	check("day_plus_2min", st:GetAttribute("Phase") == "Day" and math.abs((e1 - e0) - 119) < 3 and st:GetAttribute("PhaseLength") == l0 + 120,
+	check("day_plus_1min", st:GetAttribute("Phase") == "Day" and math.abs((e1 - e0) - 59) < 3 and st:GetAttribute("PhaseLength") == l0 + 60,
 		string.format("left %.0f -> %.0f s", e0, e1))
 	Portal:GiveEnterBonus(player, veils[1])
 	task.wait(1)
 	check("same_realm_once", math.abs(left() - (e1 - 1)) < 2, string.format("left=%.0f", left()))
 	Portal:GiveEnterBonus(player, veils[2])
 	task.wait(1)
-	check("other_realm_adds", left() > e1 + 110, string.format("left=%.0f", left()))
+	-- เพดาน Config.DayMaxLength: เติมได้จนเต็มแล้วหยุด (แห่งที่เกินไม่ได้เวลา และไม่เสียสิทธิ์)
+	local Cfg = require(ReplicatedStorage.Shared.Config)
+	local room = Cfg.DayMaxLength - Cfg.DayLength - 60
+	local add2 = math.min(60, room)
+	check("other_realm_adds", math.abs(left() - (e1 - 1 + add2)) < 3, string.format("left=%.0f want+%d", left(), add2))
+	local e2 = left()
+	local add3 = math.min(60, math.max(0, room - add2))
+	Portal:GiveEnterBonus(player, veils[3])
+	task.wait(1)
+	check("cap_partial", math.abs(left() - (e2 - 1 + add3)) < 3, string.format("left=%.0f want+%d", left(), add3))
+	local e3 = left()
+	Portal:GiveEnterBonus(player, veils[5])
+	task.wait(1)
+	check("cap_full_no_more", math.abs(left() - (e3 - 1)) < 2 and (Dir.dayTotal or 0) <= Cfg.DayMaxLength, string.format("left=%.0f total=%s", left(), tostring(Dir.dayTotal)))
 	-- ข้ามไปกลางคืน
 	local t = os.clock()
 	while st:GetAttribute("Phase") ~= "Night" and os.clock() - t < 30 do
@@ -1035,9 +1048,9 @@ if ReplicatedStorage:FindFirstChild("ASBossOnly") and ReplicatedStorage.ASBossOn
 		task.wait(0.5)
 	end
 	local n0 = left()
-	Portal:GiveEnterBonus(player, veils[3])
+	Portal:GiveEnterBonus(player, veils[4])
 	task.wait(1)
-	check("night_not_longer", st:GetAttribute("Phase") == "Night" and left() <= n0 and Dir.pendingBonus == 120,
+	check("night_not_longer", st:GetAttribute("Phase") == "Night" and left() <= n0 and Dir.pendingBonus == 60,
 		string.format("phase=%s pending=%s", tostring(st:GetAttribute("Phase")), tostring(Dir.pendingBonus)))
 	t = os.clock()
 	while st:GetAttribute("Phase") ~= "Day" and os.clock() - t < 40 do
@@ -1047,7 +1060,7 @@ if ReplicatedStorage:FindFirstChild("ASBossOnly") and ReplicatedStorage.ASBossOn
 	task.wait(1.5)
 	local Config = require(ReplicatedStorage.Shared.Config)
 	local normal = Config.DayLength - Config.DuskLength
-	check("next_day_longer", st:GetAttribute("Phase") == "Day" and st:GetAttribute("PhaseLength") == normal + 120 and Dir.pendingBonus == 0,
+	check("next_day_longer", st:GetAttribute("Phase") == "Day" and st:GetAttribute("PhaseLength") == normal + 60 and Dir.pendingBonus == 0,
 		string.format("dayLen=%s normal=%d", tostring(st:GetAttribute("PhaseLength")), normal))
 	print("[TEST] DONE probe")
 	return
@@ -1671,6 +1684,172 @@ if onlyStaff then
 	print("[TEST] DONE probe")
 	return
 end
+-- --bossskill=GatesAir : ถ่ายภาพประตูมิติข้างนอกของศาลเจ้า/วิหารน้ำแข็ง (ดูโมเดลซุ้มประตู)
+if ReplicatedStorage:FindFirstChild("ASBossOnly") and ReplicatedStorage.ASBossOnly.Value == "GatesAir" then
+	task.wait(15)
+	for _, key in ipairs({ "SanctumAir" }) do
+		local veil = nil -- ถ่ายจากประตูตัวอย่างบนลานโล่ง (ของจริงติดตัววิหาร กล้องมองไม่เห็น)
+		if veil then
+			local gate = veil:FindFirstAncestorOfClass("Model")
+			local cf, size = gate:GetBoundingBox()
+			local vp = veil:IsA("BasePart") and veil.Position or cf.Position
+			local dest = veil:GetAttribute("Dest")
+			local front = ((vp - cf.Position) * Vector3.new(1, 0, 1))
+			local fwd = veil:IsA("BasePart") and veil.CFrame.LookVector or Vector3.zAxis
+			print(string.format("[AS] GATES %s model=%s size=%s parts=%d", key, gate.Name, tostring(size), #gate:GetDescendants()))
+			for _, c in ipairs(gate:GetChildren()) do
+				print("[AS] GATES   child", c.ClassName, c.Name)
+			end
+			standAt(vp - fwd * 30 + Vector3.new(0, 0, 0), vp)
+			task.wait(2)
+			for i, side in ipairs({ -1, 1 }) do
+				player:SetAttribute("ProbeFrom", vp + fwd * 32 * side + Vector3.new(0, 10, 0) + fwd:Cross(Vector3.yAxis) * 14)
+				player:SetAttribute("ProbeAt", vp + Vector3.new(0, size.Y * 0.35, 0))
+				player:SetAttribute("ProbeCam", "look")
+				task.wait(2.5)
+				shot(string.format("gate_%s_%d", key, i))
+			end
+		else
+			print("[AS] GATES missing " .. key .. " -> build sample gate near camp")
+			local PB = require(ReplicatedStorage.Shared.PropBuilder)
+			local o = cp + Vector3.new(60, 0, -60)
+			local frame = CFrame.lookAt(Vector3.new(o.X, ground(o.X, o.Z), o.Z), Vector3.new(cp.X, ground(o.X, o.Z), cp.Z))
+			local g = PB.BuildPortal(frame, "Air", workspace, { Name = "SampleGate", Model = "GateIce", Width = 32, Label = "Frost Sanctum" })
+			local vp = frame.Position
+			local fwd = frame.LookVector
+			print("[AS] GATES sample", tostring(g))
+			for i, side in ipairs({ 1, -1 }) do
+				player:SetAttribute("ProbeFrom", vp + fwd * 40 * side + Vector3.new(0, 12, 0) + fwd:Cross(Vector3.yAxis) * 16)
+				player:SetAttribute("ProbeAt", vp + Vector3.new(0, 10, 0))
+				player:SetAttribute("ProbeCam", "look")
+				task.wait(2.5)
+				shot(string.format("gate_sample_%d", i))
+			end
+		end
+	end
+	player:SetAttribute("ProbeCam", "")
+	print("[AS] GATES DONE")
+	return
+end
+-- --bossskill=FoxPounce : ท่าตะปบจิ้งจอก (ย่อง้าง -> พุ่งงับ) ถ่ายภาพมุมข้าง
+if ReplicatedStorage:FindFirstChild("ASBossOnly") and ReplicatedStorage.ASBossOnly.Value == "FoxPounce" then
+	local o = cp + Vector3.new(0, 0, -70)
+	local gy = ground(o.X, o.Z)
+	local fox = AnimalService:Spawn("Moonfang", Vector3.new(o.X, gy + 3, o.Z), { Kind = "Stalker", Yaw = math.pi / 2 })
+	if not fox then
+		print("[AS] FOXPOUNCE no fox")
+		print("[AS] FOXPOUNCE DONE")
+		return
+	end
+	fox.IntroUntil = math.huge -- ไม่ให้ AI ขยับเอง
+	task.wait(3)
+	local fp = fox.Root.Position
+	local fwd = (fox.Root.CFrame.LookVector * Vector3.new(1, 0, 1)).Unit
+	standAt(Vector3.new(fp.X, gy, fp.Z) + fwd * 11, fp)
+	task.wait(1)
+	local right = fwd:Cross(Vector3.yAxis)
+	player:SetAttribute("ProbeFrom", fp + fwd * 5 + right * 26 + Vector3.new(0, 6, 0))
+	player:SetAttribute("ProbeAt", fp + Vector3.new(0, 2, 0))
+	player:SetAttribute("ProbeCam", "look")
+	task.wait(1.5)
+	shot("fox_rest")
+	for cyc = 1, 2 do
+		fox.Model:PivotTo(CFrame.lookAt(fp, fp + fwd))
+		fox.NextAttack = 0
+		fox.BiteUntil = nil
+		AnimalService:AttackPlayer(fox, player, os.clock(), 14)
+		local t0 = os.clock()
+		for _, t in ipairs({ 0.25, 0.38, 0.5, 0.7 }) do
+			while os.clock() - t0 < t do
+				task.wait()
+			end
+			shot(string.format("fox_pounce%d_%02d", cyc, math.floor(t * 100)))
+		end
+		task.wait(2)
+	end
+	player:SetAttribute("ProbeCam", "")
+	print("[AS] FOXPOUNCE DONE")
+	return
+end
+-- --bossskill=LairAir : ปลุกเยติในรังจริง ผู้เล่นยืนนอกรัง -> เยติต้องเดินออกมาหา/สกิลต้องถึง (วัดระยะ + ถ่ายภาพมุมบน)
+if ReplicatedStorage:FindFirstChild("ASBossOnly") and ReplicatedStorage.ASBossOnly.Value == "LairAir" then
+	local Spirit = require(Server:WaitForChild("SpiritService"))
+	local lair = Spirit.lairs and Spirit.lairs.Air
+	if not lair then
+		print("[AS] LAIRAIR no lair")
+		print("[AS] LAIRAIR DONE")
+		return
+	end
+	local lp = lair.Pos
+	local toCamp = ((cp - lp) * Vector3.new(1, 0, 1)).Unit
+	local function flat(a, b)
+		return ((a - b) * Vector3.new(1, 0, 1)).Magnitude
+	end
+	player:SetAttribute("ProbeFrom", lp + toCamp * 150 + Vector3.new(0, 90, 0))
+	player:SetAttribute("ProbeAt", lp)
+	player:SetAttribute("ProbeCam", "look")
+	local sp0 = lp + toCamp * 160
+	standAt(Vector3.new(sp0.X, ground(sp0.X, sp0.Z), sp0.Z), lp)
+	task.wait(4)
+	shot("lairair_overview")
+	player:SetAttribute("ProbeFrom", lp - toCamp * 120 + toCamp:Cross(Vector3.yAxis) * 90 + Vector3.new(0, 70, 0))
+	task.wait(1.5)
+	shot("lairair_overview2")
+	for _, dist in ipairs({ 70 }) do
+		local sp = lp + toCamp * dist
+		standAt(Vector3.new(sp.X, ground(sp.X, sp.Z), sp.Z), lp)
+		task.wait(2)
+		if lair.Boss and not lair.Boss.Dead then
+			AnimalService:Remove(lair.Boss)
+			lair.Boss = nil
+		end
+		Spirit:WakeLair(lair, player)
+		local a = lair.Boss
+		if not a then
+			print("[AS] LAIRAIR no boss")
+			break
+		end
+		player:SetAttribute("ProbeFrom", lp + toCamp * (dist * 0.5) + Vector3.new(0, 150, 0) - toCamp:Cross(Vector3.yAxis) * 90)
+		player:SetAttribute("ProbeAt", lp + toCamp * (dist * 0.5))
+		player:SetAttribute("ProbeCam", "look")
+		local start, minD, hits = a.Root.Position, math.huge, 0
+		local hum = player.Character:FindFirstChildOfClass("Humanoid")
+		local hp0 = hum.Health
+		GOD = false
+		local t0 = os.clock()
+		while os.clock() - t0 < 28 do
+			task.wait(0.5)
+			if a.Dead then
+				break
+			end
+			minD = math.min(minD, flat(a.Root.Position, player.Character:GetPivot().Position))
+			if hum.Health < hp0 - 0.5 then
+				hits += 1
+			end
+			hum.Health = hum.MaxHealth
+			hp0 = hum.Health
+			local el = os.clock() - t0
+			if math.floor(el * 2) % 4 == 0 then
+				local tg, td = AnimalService:PickTarget(a)
+				local pr = player.Character:GetPivot().Position
+				print(string.format("[AS] LAIRAIR dbg target=%s td=%s d3=%.1f alive=%s ppos=%s", tostring(tg), tostring(td), (pr - a.Root.Position).Magnitude, tostring(ctx.Services.SurvivalService:IsAlive(player)), tostring(pr)))
+				print(string.format("[AS] LAIRAIR t=%.0f anch=%s state=%s cast=%s nextAb=%.1f intro=%s hp=%.0f pos=%s", el, tostring(a.Root.Anchored), tostring(a.State), tostring(a.Casting), (a.NextAbility or 0) - os.clock(), tostring(a.IntroUntil and a.IntroUntil - os.clock()), a.Hum.Health, tostring(a.Root.Position)))
+			end
+			if math.abs(el - 6) < 0.26 or math.abs(el - 14) < 0.26 then
+				shot(string.format("lairair_%d_%02d", dist, math.floor(el)))
+			end
+		end
+		GOD = true
+		print(string.format("[AS] LAIRAIR dist=%d bossMoved=%.1f minBossPlayer=%.1f hitsTaken=%d bossFromHome=%.1f state=%s",
+			dist, flat(a.Root.Position, start), minD, hits, flat(a.Root.Position, lp), tostring(a.State)))
+		AnimalService:Remove(a)
+		lair.Boss = nil
+		task.wait(2)
+	end
+	player:SetAttribute("ProbeCam", "")
+	print("[AS] LAIRAIR DONE")
+	return
+end
 local list = { "Terragon", "Leviathan", "TempestRoc", "Solfang" }
 local only = ReplicatedStorage:FindFirstChild("ASBossOnly")
 if only and only.Value ~= "" then
@@ -1760,4 +1939,5 @@ for _, id in ipairs(list) do
 	AnimalService:Remove(a)
 	task.wait(2)
 end
+print("[AS] BOSSSKILL DONE")
 print("[TEST] DONE probe")

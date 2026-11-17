@@ -8,7 +8,7 @@ local CollectionService = game:GetService("CollectionService")
 
 local PortalService = {}
 
-PortalService.EnterBonus = 120 -- เข้าศาลเจ้า/วิหารแต่ละแห่งครั้งแรกของรอบ = เวลา +2 นาที
+PortalService.EnterBonus = 60 -- เข้าศาลเจ้า/วิหารแต่ละแห่งครั้งแรกของรอบ = เวลา +1 นาที (กลางวันรวมไม่เกิน Config.DayMaxLength)
 
 function PortalService:Init(ctx)
 	self.ctx = ctx
@@ -24,8 +24,8 @@ function PortalService:GiveEnterBonus(player, veil)
 		return
 	end
 	local how = dir:AddTime(self.EnterBonus)
-	if not how then
-		return
+	if not how or how == "full" then
+		return -- กลางวันเต็มเพดานแล้ว (ไม่เสียสิทธิ์ ไว้เข้าวันอื่นค่อยได้)
 	end
 	self.bonusGiven[key] = dir.runId
 	local place = key:match("^Sanctum") and "a Sanctum" or "a Shrine"
@@ -106,6 +106,41 @@ function PortalService:Teleport(player, dest, look, color, onGround)
 	end)
 end
 
+-- ประตูเข้าศาลเจ้าลูกสัตว์ (RealmKey "Shrine<ธาตุ>") -> ธาตุ · ประตูอื่น (วิหาร/ประตูกลับ) = nil
+local function shrineElement(veil)
+	local key = veil:GetAttribute("RealmKey")
+	return type(key) == "string" and key:match("^Shrine(%a+)$") or nil
+end
+
+-- ศาลเจ้ายังเข้าไม่ได้: กองไฟยังไม่ถึงเลเวลของธาตุนี้ (Config.SpiritFireLevel: ดิน 2 · น้ำ 3 · น้ำแข็ง 4 · ไฟ 5)
+--   เดิมดักแค่ตอนเปิดกรง -> ผู้เล่นเข้าไปสู้ผู้เฝ้าศาลจนจบแล้วค่อยรู้ว่าเปิดกรงไม่ได้
+function PortalService:ShrineLocked(veil)
+	local el = shrineElement(veil)
+	local spirit = self.ctx.Services.SpiritService
+	if not el or not spirit then
+		return false
+	end
+	local ready, need = spirit:FireReady(el)
+	return not ready, need
+end
+
+-- ป้ายปุ่มหน้าประตู: ยังเข้าไม่ได้ = บอกเลเวลกองไฟที่ต้องการ
+function PortalService:RefreshLocks()
+	for _, veil in ipairs(CollectionService:GetTagged("RealmPortal")) do
+		local prompt = veil:FindFirstChildOfClass("ProximityPrompt")
+		if prompt and shrineElement(veil) then
+			if prompt:GetAttribute("BaseAction") == nil then
+				prompt:SetAttribute("BaseAction", prompt.ActionText)
+			end
+			local locked, need = self:ShrineLocked(veil)
+			local text = locked and string.format("🔒 Needs Campfire Lv.%d", need) or prompt:GetAttribute("BaseAction")
+			if prompt.ActionText ~= text then
+				prompt.ActionText = text
+			end
+		end
+	end
+end
+
 local function hook(self, veil)
 	local prompt = veil:FindFirstChildOfClass("ProximityPrompt")
 	if not prompt then
@@ -114,6 +149,11 @@ local function hook(self, veil)
 	prompt.Triggered:Connect(function(player)
 		if veil:GetAttribute("Sealed") then
 			self.ctx.Notify(player, "🔒 This place is sealed for the rest of this run", "Info")
+			return
+		end
+		local locked, need = self:ShrineLocked(veil)
+		if locked then
+			self.ctx.Notify(player, string.format("🔥 Upgrade the campfire to Lv.%d to enter this shrine", need), "Error")
 			return
 		end
 		local dest, look = veil:GetAttribute("Dest"), veil:GetAttribute("DestLook")
@@ -132,6 +172,13 @@ function PortalService:Start()
 	-- ศาลเจ้าถูกสร้างใหม่ตอนเริ่มรอบ (SpiritService.Reset) -> ประตูใหม่ต้องต่อด้วย
 	CollectionService:GetInstanceAddedSignal("RealmPortal"):Connect(function(v)
 		hook(self, v)
+	end)
+	-- ป้ายล็อกตามเลเวลกองไฟ (อัปกองไฟแล้วป้ายเปลี่ยนเองภายใน ~1 วิ)
+	task.spawn(function()
+		while true do
+			pcall(self.RefreshLocks, self)
+			task.wait(1)
+		end
 	end)
 end
 

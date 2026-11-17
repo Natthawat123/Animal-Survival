@@ -274,7 +274,7 @@ function MapGenerator.BuildSpecialPads(layout, terrain)
 			-- รังบอสน้ำ = ลากูนน้ำตื้นกลางทะเล (ลุยน้ำสู้ได้) · ธาตุอื่นยกพ้นน้ำ
 			local y = inWater and (layout.WaterLevel - 16) or math.max(pos.Y, layout.WaterLevel + 6) -- น้ำ: แอ่งลึกให้บอสว่าย
 			local mat = ({ Earth = Enum.Material.Mud, Water = Enum.Material.Sand, Fire = Enum.Material.Basalt })[sp.Element] or Enum.Material.Rock
-			MapGenerator.FlattenPad(terrain, Vector3.new(pos.X, y, pos.Z), 75, mat, 120, MapGenerator.TopMaterial(sp.Element))
+			MapGenerator.FlattenPad(terrain, Vector3.new(pos.X, y, pos.Z), 155, mat, 150, MapGenerator.TopMaterial(sp.Element)) -- ลานราบรัศมี 155 (เดิม 75)
 			sp.Position = Vector3.new(pos.X, y, pos.Z)
 			MapGenerator.FlattenBuildingPad(terrain, sp, mat)
 			if inWater then

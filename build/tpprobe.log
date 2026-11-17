@@ -1,0 +1,24 @@
+﻿ERR: orError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+ERR: torError] Error: MeshContentProvider failed to process https://assetdelivery.roblox.com/v1/asset?id=70559294799847 because 'could not fetch'
+orOutput] [AS] rebuilt mesh collisions: 1228
+orOutput] [AS] เริ่มเทสต์อัตโนมัติ...
+orOutput] [AS] seed=590614410 map=2048
+orOutput] [AS] client ready
+orOutput] [AS] terrain 4.6s
+orOutput] [AS] world ready 5.3s props=414
+orOutput] [AS] READY
+orOutput] [AS] TPPROBE recipe=true
+orOutput] [AS] TPPROBE added=nil bag=8
+orOutput] [AS] TPPROBE place1 ok=true model=true tpId=1 num=1 fromCamp=50
+orOutput] [AS] TPPROBE place2 ok=true model=true tpId=2 num=2 fromCamp=380
+orOutput] [AS] TPPROBE place3 ok=true model=true tpId=3 num=3 fromCamp=380
+orOutput] [AS] TPPROBE pins=3 lim=8
+shot tp_model
+shot tp_menu
+orOutput] [AS] TPPROBE warp 2->3 distToDest=0.0 y=47.2 destY=39.2
+shot tp_arrived
+orOutput] [AS] TPPROBE notify Stand on the Waystone to teleport
+orOutput] [AS] TPPROBE farUse moved=0.0 (expect ~0)
+shot tp_map
+orOutput] [TEST] DONE tpprobe
+finished in 465s  done=True

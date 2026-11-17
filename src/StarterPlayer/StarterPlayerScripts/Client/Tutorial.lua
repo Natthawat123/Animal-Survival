@@ -1,6 +1,6 @@
 --[[
 	Tutorial — หน้าสอนเล่นแบบช่องการ์ตูน (โชว์ครั้งแรกหลังโหลดเข้าล็อบบี้ / เปิดซ้ำได้จากหน้าตั้งค่า "ดูวิธีเล่น")
-	  2 หน้า × 4 ช่อง: ภาพในช่องเป็นโมเดลจริงในเกม (ViewportFrame) + คำบรรยายตัวโต
+	  หน้าเดียว 4 × 2 ช่อง: ภาพในช่องเป็นโมเดลจริงในเกม (ViewportFrame) + คำบรรยายตัวโต
 	  หน้าสุดท้ายมีปุ่ม "เล่น" สีเขียว · ดูจบแล้วเซิร์ฟเวอร์จำไว้ (TutorialSeen) ไม่โชว์ซ้ำ
 ]]
 
@@ -12,12 +12,12 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Remotes = require(Shared.Remotes)
 local StructureModels = require(Shared.StructureModels)
 local UIKit = require(script.Parent.UIKit)
+local TutorialArt = require(Shared.TutorialArt)
 local ClassAvatars = require(script.Parent.ClassAvatars)
 
 local Tutorial = {}
 local C = UIKit.Colors
 local ui = {}
-local page = 1
 local currentWorld -- WorldModel ของช่องที่กำลังสร้าง (ของในฉากถูกใส่ที่นี่)
 
 local V = Vector3.new
@@ -106,94 +106,111 @@ local function frameCamera(vpf, world, yaw, pitch, zoom)
 	vpf.CurrentCamera = cam
 end
 
+local PUPS = { "TerraPup", "TidePup", "GalePup", "EmberPup" }
+
 local SCENES = {
-	function(world) -- ป่าสี่ธาตุ
-		place(asset("Props", "Fir1"), 16, CF(-7, 0, -4))
-		place(asset("Props", "OakPack"), 13, CF(7, 0, -6))
-		place(asset("Props", "SnowPine"), 12, CF(0, 0, -12))
-		character("Survivor", CF(0, 0, 3) * ANG(0, math.pi + 0.3, 0))
-		return { Yaw = 0, Pitch = 0.12, Zoom = 0.75, Sky = { rgb(20, 24, 60), rgb(70, 40, 90) } }
+	function(world) -- 1 เข้าสู่โลกอดีต: ประตูมิติ + นักสำรวจ
+		place(asset("Props", "GateStargate"), 12, CF(0, 0, -6))
+		character("Scout", CF(-3.5, 0, 3) * ANG(0, math.pi - 0.5, 0))
+		return { Yaw = 0.35, Pitch = 0.08, Zoom = 0.72, Sky = { rgb(70, 40, 140), rgb(18, 12, 46) }, Light = rgb(200, 170, 255) }
 	end,
-	function(world) -- กองไฟ
-		place(asset("Props", "CampfireLogs"), 4, CF(0, 0, 0))
-		place(asset("Props", "LogPileStore"), 3, CF(6, 0, -3))
-		character("Survivor", CF(-4.5, 0, 2) * ANG(0, -math.pi / 2 - 0.8, 0))
-		return { Yaw = 0.4, Pitch = 0.3, Zoom = 0.85, Sky = { rgb(60, 26, 14), rgb(20, 10, 10) }, Light = rgb(255, 170, 90) }
-	end,
-	function(world) -- เก็บของ
-		place(asset("Props", "Fir1"), 15, CF(4, 0, -3))
-		place(asset("Props", "RockLP"), 3.5, CF(-5, 0, -2))
+	function(world) -- 2 รวบรวมทรัพยากร
+		place(asset("Props", "Fir1"), 14, CF(4, 0, -3))
+		place(asset("Props", "RockLP"), 3.2, CF(-5, 0, -1))
 		character("Lumberjack", CF(0, 0, 2) * ANG(0, math.pi / 2 + 0.6, 0))
-		return { Yaw = -0.3, Pitch = 0.18, Zoom = 0.78, Sky = { rgb(40, 90, 60), rgb(16, 36, 26) } }
+		return { Yaw = -0.3, Pitch = 0.16, Zoom = 0.78, Sky = { rgb(110, 170, 220), rgb(60, 120, 70) } }
 	end,
-	function(world) -- คราฟต์ & สร้าง
-		place(asset("Props", "Crafter"), 6, CF(-4, 0, -2))
-		structure("LogWall", CF(5, 0, -1) * ANG(0, 0.4, 0))
-		structure("SpikeTrap", CF(3, 0, 4))
-		character("Builder", CF(0.5, 0, 2) * ANG(0, math.pi + 0.5, 0))
-		return { Yaw = 0.2, Pitch = 0.25, Zoom = 0.8, Sky = { rgb(70, 60, 30), rgb(26, 22, 14) } }
+	function(world) -- 3 สร้างแคมป์ให้แข็งแรง
+		place(asset("Props", "CampfireLogs"), 3.5, CF(-1, 0, 2))
+		structure("LogWall", CF(0, 0, -5) * ANG(0, math.pi / 2, 0))
+		structure("SpikeTrap", CF(5, 0, 3))
+		character("Builder", CF(-5, 0, 0) * ANG(0, -math.pi / 2 - 0.5, 0))
+		return { Yaw = 0.25, Pitch = 0.28, Zoom = 0.8, Sky = { rgb(90, 60, 30), rgb(26, 18, 12) }, Light = rgb(255, 190, 120) }
 	end,
-	function(world) -- กลางคืนฝูงบุก
-		place(asset("Props", "CampfireLogs"), 3.5, CF(-6, 0, 2))
-		structure("LogWall", CF(0, 0, 0) * ANG(0, math.pi / 2, 0))
-		structure("Ballista", CF(-3, 0, -4))
-		character("Hunter", CF(-3, 0, 4) * ANG(0, -math.pi / 2, 0))
-		return { Yaw = -0.9, Pitch = 0.22, Zoom = 0.8, Sky = { rgb(12, 14, 40), rgb(6, 6, 14) }, Light = rgb(150, 170, 255) }
+	function(world) -- 4 เอาชีวิตรอดในแต่ละคืน: จิ้งจอกเงา
+		place(asset("Animals", "Moonfang"), 8, CF(0, 0, -2) * ANG(0, math.pi + 0.4, 0))
+		place(asset("Props", "CampfireLogs"), 2.6, CF(-6, 0, 4))
+		return { Yaw = -0.2, Pitch = 0.1, Zoom = 0.72, Sky = { rgb(30, 26, 80), rgb(6, 6, 18) }, Light = rgb(170, 160, 255) }
 	end,
-	function(world) -- บอส
-		place(asset("Animals", "Terragon"), 14, CF(0, 0, -2) * ANG(0, math.pi + 0.5, 0))
-		character("Survivor", CF(4, 0, 8) * ANG(0, 0.4, 0))
-		return { Yaw = 0.5, Pitch = 0.1, Zoom = 0.7, Sky = { rgb(90, 20, 20), rgb(20, 6, 6) }, Light = rgb(255, 140, 120) }
+	function(world) -- 5 ระวังบอสธาตุ
+		place(asset("Animals", "Terragon"), 13, CF(0, 0, -2) * ANG(0, math.pi + 0.5, 0))
+		character("Hunter", CF(4, 0, 8) * ANG(0, 0.4, 0))
+		return { Yaw = 0.5, Pitch = 0.1, Zoom = 0.7, Sky = { rgb(110, 30, 24), rgb(24, 6, 6) }, Light = rgb(255, 150, 120) }
 	end,
-	function(world) -- ช่วยเพื่อน
-		local downed = character("Survivor", CF(2, 1, 0) * ANG(0, 0.3, 0) * ANG(math.rad(-90), 0, 0))
-		local _ = downed
-		character("Medic", CF(-2, 0, 0.5) * ANG(0, -math.pi / 2, 0))
-		return { Yaw = 0.25, Pitch = 0.35, Zoom = 0.9, Sky = { rgb(70, 20, 30), rgb(20, 8, 12) } }
+	function(world) -- 6 ผจญภัย 4 ไบโอม: คริสตัล 4 ธาตุ
+		local crystals = { "CrystalGreen", "CrystalBlue", "CrystalWhite", "CrystalRed" }
+		for i, g in ipairs(crystals) do
+			place(asset("Props", g), 5, CF((i - 2.5) * 5, 0, 0))
+		end
+		return { Yaw = 0, Pitch = 0.12, Zoom = 0.62, Sky = { rgb(70, 150, 200), rgb(150, 60, 30) } }
 	end,
-	function(world) -- 99 คืน
-		place(asset("Props", "CampfireLogs"), 3.5, CF(0, 0, 0))
-		character("Elementalist", CF(-3.5, 0, 1) * ANG(0, math.pi + 0.6, 0))
-		character("Hunter", CF(3.5, 0, 1) * ANG(0, math.pi - 0.6, 0))
-		character("Scout", CF(0, 0, -3.5) * ANG(0, 0, 0))
-		return { Yaw = 0, Pitch = 0.3, Zoom = 0.85, Sky = { rgb(90, 70, 20), rgb(30, 16, 6) }, Light = rgb(255, 210, 140) }
+	function(world) -- 7 ช่วยเหลือสัตว์ทั้ง 4 ตัว: กรง + ลูกสัตว์
+		place(asset("Props", "CageLP"), 6, CF(0, 0, -4))
+		for i, p in ipairs(PUPS) do
+			place(asset("Animals", p), 2.6, CF((i - 2.5) * 3, 0, 2) * ANG(0, math.pi, 0))
+		end
+		return { Yaw = 0, Pitch = 0.2, Zoom = 0.72, Sky = { rgb(80, 60, 40), rgb(24, 16, 10) }, Light = rgb(255, 220, 170) }
+	end,
+	function(world) -- 8 รอดครบ 99 คืน และกลับบ้าน
+		place(asset("Props", "GateStargate"), 12, CF(0, 0, -7))
+		for i, p in ipairs(PUPS) do
+			place(asset("Animals", p), 2.4, CF((i - 2.5) * 3, 0, 2) * ANG(0, math.pi, 0))
+		end
+		return { Yaw = 0, Pitch = 0.1, Zoom = 0.7, Sky = { rgb(120, 80, 200), rgb(30, 16, 60) }, Light = rgb(255, 225, 160) }
 	end,
 }
 
+-- ข้อความตามภาพต้นแบบที่ผู้ใช้ส่งมา (หน้าเดียว 8 ช่อง)
 local PANELS = {
-	{ Title = "The Wilds Awaken", Text = "Survive 99 nights in the wilds of Earth, Water, Frost and Fire" },
-	{ Title = "The campfire is life", Text = "Throw wood/coal into the campfire — if it goes out, the safe zone is gone!" },
-	{ Title = "Gather during the day", Text = "Chop wood, break rocks, hunt animals, hold your sack to collect items" },
-	{ Title = "Craft & Build a Base", Text = "Throw materials into the crafter, then build walls, traps and ballistas" },
-	{ Title = "At night, the packs attack!", Text = "Element packs attack the campfire every night — hold out until morning" },
-	{ Title = "Element Bosses", Text = "Bosses attack on nights 25 · 50 · 75 · 99 — dodge the warning circles on the ground!" },
-	{ Title = "Revive Downed Teammates", Text = "Use bandages to revive teammates — if nobody is left standing, the whole team loses" },
-	{ Title = "99 nights... and beyond", Text = "Survive 99 nights = conquered! Keep playing to climb the leaderboard" },
+	{ Title = "Into the past", Text = "An experiment went wrong\nand everyone was pulled through the portal\ninto the ancient world" },
+	{ Title = "Gather resources", Text = "Chop trees, mine rocks, collect materials\nto craft tools, weapons\nand upgrade your camp" },
+	{ Title = "Build a strong camp", Text = "Build shelter, walls and defenses\nto get ready for the attacks at night" },
+	{ Title = "Survive every night", Text = "Defend the camp from wild beasts\nand the shadow wolf-fox that keeps attacking" },
+	{ Title = "Beware the mysterious tribe", Text = "Fight off attacks, set traps\nand stop the tribe\nthat gets in the way of your mission" },
+	{ Title = "Explore the 4 biomes", Text = "Explore 4 lands: the primeval forest,\nthe forgotten desert, the ice kingdom and the volcano lands\nand face the boss of each biome" },
+	{ Title = "Rescue all 4 animals", Text = "Find where the captured animals are held,\ndefeat the enemies and free them\nback to camp — all 4 of them" },
+	{ Title = "Survive 99 nights & go home", Text = "Survive all 99 nights,\nrescue all 4 animals\nand activate the portal\nto travel back to the present!" },
 }
 
----------------------------------------------------------------- ช่องการ์ตูน
+---------------------------------------------------------------- ช่องภาพ
 local function comicPanel(parent, index)
 	local info = PANELS[index]
-	local holder = UIKit.Frame(parent, { BackgroundTransparency = 1, LayoutOrder = index })
-	local frame = UIKit.Frame(holder, { Size = UDim2.new(1, 0, 0.62, 0), BackgroundColor3 = rgb(14, 14, 20), BackgroundTransparency = 0, Rotation = (index % 2 == 0) and 1.2 or -1.2 })
-	UIKit.Corner(frame, 6)
-	local st = Instance.new("UIStroke")
-	st.Thickness = 5
-	st.Color = rgb(240, 236, 226)
-	st.Parent = frame
+	local holder = UIKit.Frame(parent, { BackgroundColor3 = rgb(40, 42, 58), BackgroundTransparency = 0, LayoutOrder = index })
+	UIKit.Corner(holder, 12)
+	local hs = Instance.new("UIStroke")
+	hs.Thickness = 3
+	hs.Color = rgb(225, 200, 150)
+	hs.Parent = holder
+	local frame = UIKit.Frame(holder, { Size = UDim2.new(1, -12, 0.52, 0), Position = UDim2.fromOffset(6, 6), BackgroundColor3 = rgb(14, 14, 20), BackgroundTransparency = 0, ClipsDescendants = true })
+	UIKit.Corner(frame, 8)
 	-- ฉากหลังไล่สี (อยู่ใต้ ViewportFrame — ถ้าใส่ UIGradient ที่ ViewportFrame โมเดลจะมืดตาม)
-	local skyBg = UIKit.Frame(frame, { Size = UDim2.new(1, -10, 1, -10), Position = UDim2.fromOffset(5, 5), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0 })
-	UIKit.Corner(skyBg, 4)
+	local skyBg = UIKit.Frame(frame, { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0 })
+	UIKit.Corner(skyBg, 8)
 	local vpf = Instance.new("ViewportFrame")
-	vpf.Size = UDim2.new(1, -10, 1, -10)
-	vpf.Position = UDim2.fromOffset(5, 5)
+	vpf.Size = UDim2.fromScale(1, 1)
 	vpf.BackgroundTransparency = 1
 	vpf.BorderSizePixel = 0
 	vpf.Parent = frame
 	local world = Instance.new("WorldModel")
 	world.Parent = vpf
+	-- ภาพวาดตามแบบ (Shared/TutorialArt จาก tools/tutorial_art.py) · วาดไม่ได้ -> ใช้ฉากโมเดล 3D แทน
+	local okArt, editable = pcall(TutorialArt.Image, "Tut" .. index)
+	local art = okArt and editable or nil
+	if art then
+		local img = Instance.new("ImageLabel")
+		img.Size = UDim2.fromScale(1, 1)
+		img.BackgroundTransparency = 1
+		img.ImageContent = Content.fromObject(art)
+		img.ScaleType = Enum.ScaleType.Crop
+		img.ZIndex = 2
+		img.Parent = frame
+		UIKit.Corner(img, 8)
+	end
 	currentWorld = world
-	local ok, opts = pcall(SCENES[index], world)
+	local ok, opts = true, {}
+	if not art then
+		ok, opts = pcall(SCENES[index], world)
+	end
 	currentWorld = nil
 	opts = ok and opts or {}
 	if not ok then
@@ -205,47 +222,41 @@ local function comicPanel(parent, index)
 	vpf.LightColor = opts.Light or rgb(255, 245, 230)
 	vpf.LightDirection = V(-0.5, -1, -0.4)
 	-- เลขช่อง
-	local num = UIKit.IconBadge(frame, tostring(index), C.Gold, 40, { Position = UDim2.fromOffset(-12, -12), ZIndex = 6 })
-	local _ = num
-	-- คำบรรยาย
+	UIKit.IconBadge(holder, tostring(index), C.Gold, 50, { Position = UDim2.fromOffset(-6, -6), ZIndex = 6 }) -- ทับเลขที่วาดติดมากับภาพ
+	-- หัวข้อ + คำอธิบายสั้น
 	UIKit.Text(holder, {
-		Size = UDim2.new(1, 0, 0, 34), Position = UDim2.new(0, 0, 0.64, 4), Text = info.Title, Font = UIKit.Fonts.Title, TextSize = 26, TextScaled = false,
-		TextXAlignment = Enum.TextXAlignment.Center, TextColor3 = C.Gold, TextWrapped = true,
+		Size = UDim2.new(1, -12, 0, 30), Position = UDim2.new(0, 6, 0.52, -12), Text = info.Title, Font = UIKit.Fonts.Title, TextSize = 25, TextScaled = false,
+		TextXAlignment = Enum.TextXAlignment.Center, TextColor3 = Color3.new(1, 1, 1), TextWrapped = true, ZIndex = 5,
+		TextStrokeTransparency = 0, TextStrokeColor3 = rgb(20, 14, 10),
 	})
 	UIKit.Text(holder, {
-		Size = UDim2.new(1, 0, 0.3, -40), Position = UDim2.new(0, 0, 0.64, 40), Text = info.Text, Font = UIKit.Fonts.Black, TextSize = 21,
+		Size = UDim2.new(1, -12, 0.48, -28), Position = UDim2.new(0, 6, 0.52, 22), Text = info.Text, Font = UIKit.Fonts.Black, TextSize = 16,
 		TextXAlignment = Enum.TextXAlignment.Center, TextYAlignment = Enum.TextYAlignment.Top, TextWrapped = true,
 	})
 	return holder, vpf, world, opts
 end
 
-local function buildPage(p)
-	for _, c in ipairs(ui.Row:GetChildren()) do
+local function buildPage()
+	for _, c in ipairs(ui.Grid:GetChildren()) do
 		if c:IsA("GuiObject") then
 			c:Destroy()
 		end
 	end
-	for i = 1, 4 do
-		local index = (p - 1) * 4 + i
-		local holder, vpf, world, opts = comicPanel(ui.Row, index)
+	for index = 1, #PANELS do
+		local holder, vpf, world, opts = comicPanel(ui.Grid, index)
 		pcall(frameCamera, vpf, world, opts.Yaw, opts.Pitch, opts.Zoom)
 		-- เด้งเข้าทีละช่อง
 		local sc = Instance.new("UIScale")
 		sc.Scale = 0.6
 		sc.Parent = holder
-		TweenService:Create(sc, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out, 0, false, (i - 1) * 0.12), { Scale = 1 }):Play()
+		TweenService:Create(sc, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out, 0, false, (index - 1) * 0.06), { Scale = 1 }):Play()
 	end
-	ui.PageLabel.Text = string.format("Page %d / %d", p, #PANELS // 4)
-	ui.Prev.Visible = p > 1
-	ui.Next.Text = p < #PANELS // 4 and "Next ▶" or "Play!"
-	ui.Next.BackgroundColor3 = p < #PANELS // 4 and C.Blue or C.Green
 end
 
 function Tutorial.Open()
-	page = 1
 	ui.Root.Visible = true
 	UIKit.Pop(ui.Card)
-	local ok, err = pcall(buildPage, page)
+	local ok, err = pcall(buildPage)
 	if not ok then
 		-- สร้างหน้าไม่สำเร็จ: ปิดไปเลย ไม่ปล่อยให้พื้นหลังมืดบังจอ
 		warn("[AS] tutorial", err)
@@ -269,34 +280,24 @@ function Tutorial.Init(gui)
 	local root = UIKit.Frame(gui, { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(0, 0, 0), BackgroundTransparency = 0.35, Visible = false, Active = true })
 	ui.Root = root
 	local card = UIKit.Card(root, {
-		Size = UDim2.fromOffset(1220, 560), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), BackgroundColor3 = rgb(26, 26, 34),
+		Size = UDim2.fromOffset(1240, 620), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), BackgroundColor3 = rgb(30, 32, 44),
 	})
 	ui.Card = card
 	UIKit.AutoScale(card)
-	UIKit.Header(card, "📖 How to Survive", C.Orange)
-	local row = UIKit.Frame(card, { Size = UDim2.new(1, -60, 1, -150), Position = UDim2.fromOffset(30, 44), BackgroundTransparency = 1 })
-	local grid = Instance.new("UIGridLayout")
-	grid.CellSize = UDim2.new(0.25, -18, 1, 0)
-	grid.CellPadding = UDim2.fromOffset(24, 0)
-	grid.SortOrder = Enum.SortOrder.LayoutOrder
-	grid.Parent = row
-	ui.Row = row
-	ui.PageLabel = UIKit.Text(card, { Size = UDim2.fromOffset(200, 24), Position = UDim2.new(0, 30, 1, -66), Text = "", TextSize = 18, TextColor3 = C.TextDim })
-	ui.Prev = UIKit.ColorButton(card, rgb(90, 96, 140), { Size = UDim2.fromOffset(180, 56), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, -200, 1, -84), Text = "◀ Back", TextSize = 24, Font = UIKit.Fonts.Title }, function()
-		page = math.max(1, page - 1)
-		buildPage(page)
-	end)
-	ui.Next = UIKit.ColorButton(card, C.Green, { Size = UDim2.fromOffset(340, 64), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 80, 1, -90), Text = "Next ▶", TextSize = 34, Font = UIKit.Fonts.Title }, function()
-		if page < #PANELS // 4 then
-			page += 1
-			buildPage(page)
-		else
-			Tutorial.Close()
-		end
-	end)
-	local skip = UIKit.Button(card, { Size = UDim2.fromOffset(120, 34), Position = UDim2.new(1, -150, 1, -62), Text = "Skip", TextSize = 16 }, Tutorial.Close)
-	UIKit.EnsureTouchSize(skip, 44, Tutorial.Close)
-	-- Esc = ข้าม (ไม่ปิดเมื่อแตะนอกการ์ด กันกดพลาดตอนอ่าน)
+	UIKit.Header(card, "📖 Survival Guide", C.Orange)
+	-- 4 x 2 ช่อง
+	local grid = UIKit.Frame(card, { Size = UDim2.new(1, -56, 1, -136), Position = UDim2.fromOffset(28, 42), BackgroundTransparency = 1 })
+	local layout = Instance.new("UIGridLayout")
+	layout.CellSize = UDim2.new(0.25, -15, 0.5, -9)
+	layout.CellPadding = UDim2.fromOffset(20, 18)
+	layout.SortOrder = Enum.SortOrder.LayoutOrder
+	layout.Parent = grid
+	ui.Grid = grid
+	UIKit.Text(card, { Size = UDim2.fromOffset(200, 24), Position = UDim2.new(0, 30, 1, -58), Text = string.format("Page %d / %d", 1, 1), TextSize = 18, TextColor3 = C.TextDim })
+	UIKit.ColorButton(card, C.Green, { Size = UDim2.fromOffset(380, 66), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 1, -84), Text = "Start the adventure! ▶", TextSize = 32, Font = UIKit.Fonts.Title }, Tutorial.Close)
+	local close = UIKit.ColorButton(card, rgb(70, 74, 110), { Size = UDim2.fromOffset(150, 48), Position = UDim2.new(1, -180, 1, -74), Text = "Close", TextSize = 22, Font = UIKit.Fonts.Title }, Tutorial.Close)
+	UIKit.EnsureTouchSize(close, 44, Tutorial.Close)
+	-- Esc = ปิด (ไม่ปิดเมื่อแตะนอกการ์ด กันกดพลาดตอนอ่าน)
 	UIKit.RegisterWindow(root, Tutorial.Close, { Backdrop = false })
 end
 

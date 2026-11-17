@@ -18,6 +18,8 @@ PingService.MaxDistance = 2500
 function PingService:Init(ctx)
 	self.ctx = ctx
 	self.last = {}
+	self.wpLast = {}
+	self.waypoints = {} -- [userId] = { Name, Position } หมุดแผนที่ที่ปักอยู่ (คนเข้ามาทีหลังได้รับด้วย)
 end
 
 -- ลูกโดยตรงของ folder ที่ inst อยู่ข้างใน (เช่น โมเดลสัตว์ใน Workspace.Animals)
@@ -88,12 +90,68 @@ function PingService:Ping(player, position, target)
 	end
 end
 
+-- หมุดแผนที่ (ปักจากแผนที่ M) แชร์ทั้งทีม: ("Set", pos) / ("Clear") -> ส่งให้ทุกคนในรอบ ("Set", userId, name, pos) / ("Clear", userId)
+function PingService:Waypoint(player, action, pos)
+	local now = os.clock()
+	if (self.wpLast[player] or 0) > now - 0.25 then
+		return
+	end
+	self.wpLast[player] = now
+	local remote = self.ctx.Remotes.Get("Waypoint")
+	if action == "Set" and typeof(pos) == "Vector3" and finite(pos) and player:GetAttribute("InRun") then
+		self.waypoints[player.UserId] = { Name = player.DisplayName, Position = pos }
+		for _, p in ipairs(Players:GetPlayers()) do
+			if p ~= player and p:GetAttribute("InRun") then
+				remote:FireClient(p, "Set", player.UserId, player.DisplayName, pos)
+			end
+		end
+	elseif action == "Clear" then
+		self:ClearWaypoint(player.UserId)
+	end
+end
+
+function PingService:ClearWaypoint(uid)
+	if not self.waypoints[uid] then
+		return
+	end
+	self.waypoints[uid] = nil
+	local remote = self.ctx.Remotes.Get("Waypoint")
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p.UserId ~= uid then
+			remote:FireClient(p, "Clear", uid)
+		end
+	end
+end
+
 function PingService:Start(ctx)
 	ctx.Remotes.Get("TeamPing").OnServerEvent:Connect(function(player, position, target)
 		self:Ping(player, position, target)
 	end)
+	ctx.Remotes.Get("Waypoint").OnServerEvent:Connect(function(player, action, pos)
+		self:Waypoint(player, action, pos)
+	end)
+	-- เข้ารอบ (เกิด/กลับเข้ามา): ส่งหมุดของเพื่อนที่ปักไว้แล้ว · ออกจากรอบ/ออกเกม = ลบหมุดตัวเอง
+	local function hook(p)
+		p:GetAttributeChangedSignal("InRun"):Connect(function()
+			if p:GetAttribute("InRun") then
+				for uid, w in pairs(self.waypoints) do
+					if uid ~= p.UserId then
+						ctx.Remotes.Get("Waypoint"):FireClient(p, "Set", uid, w.Name, w.Position)
+					end
+				end
+			else
+				self:ClearWaypoint(p.UserId)
+			end
+		end)
+	end
+	for _, p in ipairs(Players:GetPlayers()) do
+		hook(p)
+	end
+	Players.PlayerAdded:Connect(hook)
 	Players.PlayerRemoving:Connect(function(p)
 		self.last[p] = nil
+		self.wpLast[p] = nil
+		self:ClearWaypoint(p.UserId)
 	end)
 end
 

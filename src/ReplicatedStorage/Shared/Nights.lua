@@ -43,14 +43,19 @@ end
 -- คืนพิเศษที่มีชื่อ
 Nights.Named = {
 	[1] = "First Night in the Woods",
-	[10] = "First Blood Moon",
+	[5] = "First Blood Moon",
 	[99] = "The Final Night",
 }
 
 -- ฝูงบุก/พระจันทร์เลือดนับจาก "กลางคืนที่เล่นจริง" (played) ไม่ใช่เลขวัน
-Nights.RaidEvery = 5 -- ฝูงบุกทุก 5 กลางคืนที่เล่นจริง
+Nights.RaidEvery = 3 -- ฝูงบุกทุก 3 กลางคืนที่เล่นจริง
+Nights.BloodMoonEvery = 5 -- พระจันทร์เลือดทุก 5 กลางคืนที่เล่นจริง (คืนพระจันทร์เลือด = คืนบุกด้วยเสมอ)
+Nights.RaidCountMult = 3 -- คืนบุก: จำนวนมอน x3
+Nights.BloodMoonCountMult = 5 -- คืนพระจันทร์เลือด: จำนวนมอน x5 (แทน x3 ไม่คูณซ้อน)
+Nights.RaidCapMult = 1.5 -- เพดานมอนบนแมพพร้อมกัน (Config.MaxRaidAnimals) คืนบุก
+Nights.BloodMoonCapMult = 2 -- ... คืนพระจันทร์เลือด (ที่เหลือทยอยเกิดเมื่อมีตัวตาย)
 function Nights.IsBloodMoon(played)
-	return played % (Nights.RaidEvery * 2) == 0
+	return played % Nights.BloodMoonEvery == 0
 end
 
 -- ตัวคูณความแรงของสัตว์ตามคืน (ดาเมจไม่คูณตามคืนแล้ว — ตีเท่าเดิมทุกคืน)
@@ -63,10 +68,8 @@ function Nights.Scale(night)
 	}
 end
 
--- พระจันทร์เลือดครั้งแรก (คืน 10) เบากว่า: งบ x1.25 และมาแค่ 2-3 ธาตุ
-Nights.FirstBloodMoon = 10
-Nights.FirstBloodMoonMult = 1.25
-Nights.BloodMoonMult = 1.5
+-- พระจันทร์เลือดครั้งแรก (คืน 5) มาแค่ 2-3 ธาตุ (จำนวนยัง x5)
+Nights.FirstBloodMoon = 5
 -- คืนพระจันทร์เลือด: ม่อนบุกแคมป์ เลือด + ดาเมจ x1.5 (เฉพาะฝูงบุก · ไม่รวมสัตว์ป่า/ผู้เฝ้า/บอส)
 Nights.BloodMoonPower = 1.5
 
@@ -83,9 +86,11 @@ end
 
 -- บอสแรงขึ้นตามจำนวนคนในรอบ: เลือด + ดาเมจ (ตีธรรมดา + ทุกสกิล) +25% ต่อคนที่เพิ่ม
 --   1 คน = x1.0, 2 = x1.25, 3 = x1.5, 4 = x1.75, 5 = x2.0, 6 = x2.25, 7 = x2.5, 8 = x2.75
-Nights.BossPartyStep = 0.25
+Nights.BossPartyStep = 0.25 -- ดาเมจบอส +25% ต่อคนที่เพิ่ม
+-- เลือดบอส +60% ต่อคนที่เพิ่ม (1 = x1.0, 2 = x1.6, 4 = x2.8, 8 = x5.2) — คนเยอะยังสู้นาน ~65-70% ของเวลาตอนเล่นคนเดียว
+Nights.BossHealthStep = 0.6
 function Nights.BossHealthMult(players)
-	return 1 + Nights.BossPartyStep * (party(players) - 1)
+	return 1 + Nights.BossHealthStep * (party(players) - 1)
 end
 function Nights.BossDamageMult(players)
 	return 1 + Nights.BossPartyStep * (party(players) - 1)
@@ -103,7 +108,7 @@ end
 
 -- คืนบุก: ทุก Nights.RaidEvery กลางคืนที่เล่นจริง
 function Nights.IsBigRaid(played)
-	return played % Nights.RaidEvery == 0
+	return played % Nights.RaidEvery == 0 or Nights.IsBloodMoon(played)
 end
 
 -- กลางคืนที่บุกครั้งถัดไป (นับคืนนี้ด้วย) เป็นเลข played
@@ -117,15 +122,15 @@ end
 -- bloodMoonNight = เลขคืนต้นทางของพระจันทร์เลือด (nil = ไม่ใช่คืนพระจันทร์เลือด)
 function Nights.Budget(night, players, bloodMoonNight)
 	local b = 1.5 + night * 0.5 + (night / 10) ^ 2 * 0.6 -- (เดิม 3 + n×1.35 + (n/10)²×2)
-	if bloodMoonNight then
-		b *= (bloodMoonNight == Nights.FirstBloodMoon) and Nights.FirstBloodMoonMult or Nights.BloodMoonMult
-	end
+	b *= bloodMoonNight and Nights.BloodMoonCountMult or Nights.RaidCountMult
 	return b * Nights.PlayerBudgetMult(players)
 end
 
 -- เพดานจำนวนมอนทั้งคืน (กันยากเกินช่วงต้น · ปรับความยากรวมที่นี่): คืนยิ่งสูง มอนยิ่งเยอะ
-function Nights.MaxCount(night, players)
+--   bloodMoon = คืนพระจันทร์เลือด (x5) · ไม่ใช่ = คืนบุก (x3)
+function Nights.MaxCount(night, players, bloodMoon)
 	local n = 3 + night * 0.12 -- (เดิม 5 + n×0.4)
+	n *= bloodMoon and Nights.BloodMoonCountMult or Nights.RaidCountMult
 	return math.max(1, math.floor(n * Nights.PlayerBudgetMult(players)))
 end
 
@@ -257,7 +262,8 @@ function Nights.Plan(night, rng, element, players, carry)
 	for _, wave in ipairs(plan.Waves) do
 		total += #wave.Spawns
 	end
-	for _ = 1, total - Nights.MaxCount(night, players) do
+	plan.CapMult = plan.BloodMoon and Nights.BloodMoonCapMult or Nights.RaidCapMult
+	for _ = 1, total - Nights.MaxCount(night, players, plan.BloodMoon) do
 		local biggest = plan.Waves[1]
 		for _, wave in ipairs(plan.Waves) do
 			if #wave.Spawns > #biggest.Spawns then

@@ -1,0 +1,62 @@
+ERR: orError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+ERR: orError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+rOutput] [AS] ???????????????????...
+rOutput] [AS] seed=719220526 map=2048
+rOutput] [AS] client ready
+rOutput] [AS] terrain 8.2s
+rOutput] [AS] world ready 9.4s props=352
+rOutput] [AS] READY
+shot arena_Water_wide
+shot arena_Water_close
+rOutput] [AS] ARENA Water boss=Leviathan radius=45.6 leash=150 hp=5197
+shot arena_Water_boss
+rOutput] [AS] ARENA trace Water TidalWave t=0.6 pos=-37,16,601 anch=false state=Running
+rOutput] [AS] ARENA trace Water TidalWave t=1.2 pos=-37,16,601 anch=false state=GettingUp
+shot arena_Water_TidalWave_1
+rOutput] [AS] ARENA trace Water TidalWave t=1.8 pos=-37,16,601 anch=false state=Running
+rOutput] [AS] ARENA trace Water TidalWave t=2.4 pos=-37,16,601 anch=false state=Swimming
+rOutput] [AS] ARENA trace Water TidalWave t=3.0 pos=-37,16,601 anch=false state=GettingUp
+rOutput] [AS] ARENA trace Water TidalWave t=3.6 pos=-37,16,601 anch=false state=Running
+rOutput] [AS] ARENA trace Water TidalWave t=4.2 pos=-37,16,601 anch=false state=Running
+shot arena_Water_TidalWave_2
+rOutput] [AS] ARENA trace Water TidalWave t=4.8 pos=-37,16,601 anch=false state=Swimming
+rOutput] [AS] ARENA trace Water TidalWave t=5.4 pos=-37,16,601 anch=false state=Swimming
+rOutput] [AS] ARENA trace Water TidalWave t=6.0 pos=-37,16,601 anch=false state=Running
+shot arena_Water_TidalWave_3
+shot arena_Water_TidalWave_4
+rOutput] [AS] ARENA Water TidalWave done fromHome=2.0 moved=0.0
+rOutput] [AS] ARENA Water chase moved=0.0 fromHome=2.0
+rOutput] [AS] ARENA trace Water WaterSpout t=0.6 pos=-37,16,601 anch=false state=Swimming
+rOutput] [AS] ARENA trace Water WaterSpout t=1.2 pos=-37,16,601 anch=false state=Swimming
+shot arena_Water_WaterSpout_1
+rOutput] [AS] ARENA trace Water WaterSpout t=1.8 pos=-37,16,601 anch=false state=Running
+rOutput] [AS] ARENA trace Water WaterSpout t=2.4 pos=-37,16,601 anch=false state=Swimming
+rOutput] [AS] ARENA trace Water WaterSpout t=3.0 pos=-37,16,601 anch=false state=Running
+rOutput] [AS] ARENA trace Water WaterSpout t=3.6 pos=-37,16,601 anch=false state=Swimming
+rOutput] [AS] ARENA trace Water WaterSpout t=4.2 pos=-37,16,601 anch=false state=Swimming
+shot arena_Water_WaterSpout_2
+rOutput] [AS] ARENA trace Water WaterSpout t=4.8 pos=-37,16,601 anch=false state=Swimming
+rOutput] [AS] ARENA trace Water WaterSpout t=5.4 pos=-37,16,601 anch=false state=Running
+rOutput] [AS] ARENA trace Water WaterSpout t=6.0 pos=-37,16,601 anch=false state=Swimming
+shot arena_Water_WaterSpout_3
+shot arena_Water_WaterSpout_4
+rOutput] [AS] ARENA Water WaterSpout done fromHome=2.0 moved=0.0
+rOutput] [AS] ARENA Water chase moved=0.0 fromHome=2.0
+rOutput] [AS] ARENA trace Water AbyssCharge t=0.6 pos=-37,16,601 anch=false state=Swimming
+rOutput] [AS] ARENA trace Water AbyssCharge t=1.2 pos=-37,16,601 anch=false state=Running
+shot arena_Water_AbyssCharge_1
+rOutput] [AS] ARENA trace Water AbyssCharge t=1.8 pos=-37,16,601 anch=false state=Swimming
+rOutput] [AS] ARENA trace Water AbyssCharge t=2.4 pos=-33,17,555 anch=false state=Running
+rOutput] [AS] ARENA trace Water AbyssCharge t=3.0 pos=-12,14,497 anch=false state=Swimming
+rOutput] [AS] ARENA trace Water AbyssCharge t=3.6 pos=-5,12,494 anch=false state=Swimming
+rOutput] [AS] ARENA trace Water AbyssCharge t=4.2 pos=-5,12,494 anch=false state=Swimming
+shot arena_Water_AbyssCharge_2
+rOutput] [AS] ARENA trace Water AbyssCharge t=4.8 pos=-13,12,512 anch=false state=Swimming
+rOutput] [AS] ARENA trace Water AbyssCharge t=5.4 pos=-53,13,603 anch=false state=Swimming
+rOutput] [AS] ARENA trace Water AbyssCharge t=6.0 pos=-53,16,603 anch=false state=Swimming
+shot arena_Water_AbyssCharge_3
+shot arena_Water_AbyssCharge_4
+rOutput] [AS] ARENA Water AbyssCharge done fromHome=18.1 moved=16.8
+rOutput] [AS] ARENA Water chase moved=0.0 fromHome=18.1
+rOutput] [TEST] DONE arenaprobe
+finished in 103s  done=True

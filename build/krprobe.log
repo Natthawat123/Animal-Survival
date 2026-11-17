@@ -1,0 +1,154 @@
+﻿ERR: orError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+ERR: torError] Error: MeshContentProvider failed to process https://assetdelivery.roblox.com/v1/asset?id=70559294799847 because 'could not fetch'
+orOutput] [AS] rebuilt mesh collisions: 1247
+orOutput] [AS] เริ่มเทสต์อัตโนมัติ...
+orOutput] [AS] seed=140272829 map=2048
+orOutput] [AS] client ready
+orOutput] [AS] terrain 7.7s
+orOutput] [AS] world ready 8.8s props=357
+orOutput] [AS] READY
+orOutput] [AS] KRPROBE started=true spot=231.1865692138672, 29.344989776611328, 204.2117462158203 gate=true realm=true
+orOutput] [AS] I18N MISS To chat click here or press "/" key
+orOutput] [AS] I18N MISS Leave channel <XX>?
+orOutput] [AS] I18N MISS Spirit Pups in camp
+orOutput] [AS] I18N MISS Label
+orOutput] [AS] I18N MISS With Save Run, your run is saved every dawn. Next time the whole team falls, continue from the last saved night instead of starting over at Night 1. Also available any time in the Shop.
+orOutput] [AS] I18N MISS Combat
+orOutput] [AS] I18N MISS Lv.1
+orOutput] [AS] I18N MISS Lv.2
+orOutput] [AS] I18N MISS Lv.3
+orOutput] [AS] I18N MISS DEV
+orOutput] [AS] I18N MISS 🛠 DEV TOOLS   [F8]  · Drag here to move
+orOutput] [AS] I18N MISS 🛡 God mode (on/off)
+orOutput] [AS] I18N MISS ❤ Refill HP + hunger
+orOutput] [AS] I18N MISS 🕊 Fly (on/off)
+orOutput] [AS] I18N MISS 👻 Noclip
+orOutput] [AS] I18N MISS 🏃 Speed x1
+orOutput] [AS] I18N MISS 🏃 Speed x2
+orOutput] [AS] I18N MISS 🏃 Speed x4
+orOutput] [AS] I18N MISS 🔄 Respawn
+orOutput] [AS] I18N MISS 🧭 Enter map (from lobby)
+orOutput] [AS] I18N MISS 🏕 Back to lobby
+orOutput] [AS] I18N MISS 🖥 Hide/show HUD
+orOutput] [AS] I18N MISS ℹ Game status
+orOutput] [AS] I18N MISS 🎁 All Materials x100
+orOutput] [AS] I18N MISS 🎁 All Food x20
+orOutput] [AS] I18N MISS 🎁 All Element Essence x20
+orOutput] [AS] I18N MISS 🎁 All Medicine x10
+orOutput] [AS] I18N MISS 🎁 All Rare Items x3
+orOutput] [AS] I18N MISS 🎁 All Tools x1
+orOutput] [AS] I18N MISS 🎁 All Buildings x10
+orOutput] [AS] I18N MISS 🗑 Clear bag
+orOutput] [AS] I18N MISS 👑 Azure Royal Elephant
+orOutput] [AS] I18N MISS 🧹 Remove all bosses/animals
+orOutput] [AS] I18N MISS Time
+orOutput] [AS] I18N MISS ⏭ Skip phase
+orOutput] [AS] I18N MISS 🌙 Go to night now
+orOutput] [AS] I18N MISS ⏸ Pause/resume time
+orOutput] [AS] I18N MISS Set night 1
+orOutput] [AS] I18N MISS Set night 5
+orOutput] [AS] I18N MISS Set night 10
+orOutput] [AS] I18N MISS Set night 24
+orOutput] [AS] I18N MISS Set night 25 👑Earth
+orOutput] [AS] I18N MISS Set night 49
+orOutput] [AS] I18N MISS Set night 50 👑Water
+orOutput] [AS] I18N MISS Set night 74
+orOutput] [AS] I18N MISS Set night 75 👑Frost
+orOutput] [AS] I18N MISS Set night 98
+orOutput] [AS] I18N MISS Set night 99 👑Fire
+orOutput] [AS] I18N MISS 🔥 Fuel filled
+orOutput] [AS] I18N MISS 💨 Campfire put out
+orOutput] [AS] I18N MISS 🔥 Campfire +1 level
+orOutput] [AS] I18N MISS 🔥 Campfire -1 level
+orOutput] [AS] I18N MISS 🌫 Pass through fog wall on/off
+orOutput] [AS] I18N MISS 🔨 Crafting bench +1
+orOutput] [AS] I18N MISS 🔨 Crafting bench -1
+orOutput] [AS] I18N MISS ➡ Forward 120
+orOutput] [AS] I18N MISS 🗺 Biome Earth
+orOutput] [AS] I18N MISS ⛩ Shrine Earth
+orOutput] [AS] I18N MISS 👑 Boss Lair Earth
+orOutput] [AS] I18N MISS 🏚 Ruins Earth
+orOutput] [AS] I18N MISS 🏛 Sanctum Earth
+orOutput] [AS] I18N MISS 🗺 Biome Water
+orOutput] [AS] I18N MISS ⛩ Shrine Water
+orOutput] [AS] I18N MISS 👑 Boss Lair Water
+orOutput] [AS] I18N MISS 🏚 Ruins Water
+orOutput] [AS] I18N MISS 🏛 Sanctum Water
+orOutput] [AS] I18N MISS 🗺 Biome Frost
+orOutput] [AS] I18N MISS ⛩ Shrine Frost
+orOutput] [AS] I18N MISS 👑 Boss Lair Frost
+orOutput] [AS] I18N MISS 🏚 Ruins Frost
+orOutput] [AS] I18N MISS 🏛 Sanctum Frost
+orOutput] [AS] I18N MISS 🗺 Biome Fire
+orOutput] [AS] I18N MISS ⛩ Shrine Fire
+orOutput] [AS] I18N MISS 👑 Boss Lair Fire
+orOutput] [AS] I18N MISS 🏚 Ruins Fire
+orOutput] [AS] I18N MISS 🏛 Sanctum Fire
+orOutput] [AS] I18N MISS ♦️ +1000 Ruby
+orOutput] [AS] I18N MISS Username or UserId
+orOutput] [AS] I18N MISS Ruby amount
+orOutput] [AS] I18N MISS 🎁 Send Ruby to this player
+orOutput] [AS] I18N MISS 🎁 Send to everyone in the server
+orOutput] [AS] I18N MISS 🌍 Free Create World ON/OFF (no Robux)
+orOutput] [AS] I18N MISS 🌍 +5 World credits
+orOutput] [AS] I18N MISS 🔓 Unlocked all classes
+orOutput] [AS] I18N MISS ⭐ Current class to level 3
+orOutput] [AS] I18N MISS 🔄 Reset daily reward + stock
+orOutput] [AS] I18N MISS ♻ Reset profile
+orOutput] [AS] I18N MISS 🌍 Worlds
+orOutput] [AS] I18N MISS + Create World
+orOutput] [AS] I18N MISS My Worlds
+orOutput] [AS] I18N MISS No worlds yet — press + Create World
+orOutput] [AS] I18N MISS Worlds in this server
+orOutput] [AS] I18N MISS No world rooms open right now
+orOutput] [AS] I18N MISS Password
+orOutput] [AS] I18N MISS Join
+orOutput] [AS] I18N MISS World name
+orOutput] [AS] I18N MISS e.g. Wolf Den
+orOutput] [AS] I18N MISS (empty = anyone can join)
+orOutput] [AS] I18N MISS Your world saves every dawn until the whole team falls. Friends with the password (or your invite) can join your room.
+orOutput] [AS] I18N MISS ▶ Enter World
+orOutput] [AS] I18N MISS 📨 Invite Players
+orOutput] [AS] I18N MISS Leave Room
+orOutput] [AS] I18N MISS Invite players in this server
+orOutput] [AS] I18N MISS No one else in this server yet
+orOutput] [AS] I18N MISS Decline
+orOutput] [AS] I18N MISS OK
+orOutput] [AS] I18N MISS English
+orOutput] [AS] I18N MISS Español
+orOutput] [AS] I18N MISS Português
+orOutput] [AS] I18N MISS Bahasa Indonesia
+orOutput] [AS] I18N MISS Tiếng Việt
+orOutput] [AS] I18N MISS Filipino
+orOutput] [AS] I18N MISS ✨ Season Pass
+orOutput] [AS] I18N MISS Find new codes on the game page and in the game's group
+orOutput] [AS] I18N MISS Remove = pick it up whole (back to your hotbar)
+orOutput] [AS] I18N MISS [ All Time ] · This Week  —  This server only (save system not connected yet)
+orOutput] [AS] I18N MISS 👑 VIP
+orOutput] [AS] I18N MISS Thanks for buying Save Run — you got 1 free world (press + Create World)
+orOutput] [AS] I18N MISS Chat '/?' or '/help' for a list of chat commands.
+orOutput] [AS] I18N MISS System
+orOutput] [AS] I18N MISS 5 Ruby
+orOutput] [AS] I18N MISS 8 Ruby
+orOutput] [AS] I18N MISS 10 Ruby
+orOutput] [AS] I18N MISS 12 Ruby
+orOutput] [AS] I18N MISS 15 Ruby
+orOutput] [AS] I18N MISS 20 Ruby
+orOutput] [AS] I18N MISS 60 Ruby
+orOutput] [AS] I18N MISS [Click] Hit   [Shift] Sprint   [C] Craft   [E] Pick up   [Tab] Sack   [M] Map
+orOutput] [AS] I18N MISS All Time · [ This Week ]  —  This server only (save system not connected yet)
+shot kr_gate
+orOutput] [AS] KRPROBE inside floating=26 villagers=6
+shot kr_realm_wide
+shot kr_river
+orOutput] [AS] KRSMOOTH frames=242 meanSpeed=3.53 jitter=0.13 stalledFrames=1
+orOutput] [AS] KRPROBE drift dz=19.1 dx=-3.4 yOff=0.40 (expect dz>0, floating on water)
+orOutput] [AS] KRPROBE collected=3
+shot kr_hud
+orOutput] [AS] KRPROBE final=20 extraStillThere=true
+orOutput] [AS] I18N MISS +1 Ruby (Loy Krathong)
+orOutput] [AS] I18N MISS +10 Ruby (Loy Krathong wish)
+shot kr_wish
+orOutput] [AS] KRPROBE ended active=false gate=false event=nil playerY=37
+orOutput] [TEST] DONE krprobe
+finished in 555s  done=True

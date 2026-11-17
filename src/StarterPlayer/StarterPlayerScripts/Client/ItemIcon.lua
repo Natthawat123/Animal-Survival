@@ -43,6 +43,12 @@ local function template(id)
 		end
 		c.Parent = m
 		ItemModels.Tint(m, id)
+	elseif Items.Structures[id] and not (Items.Data[id] and Items.Data[id].IconProp) then
+		-- สิ่งก่อสร้างที่ไม่มีโมเดลไอเทม (ประตู/กล่องเก็บของ) -> ใช้โมเดลสิ่งก่อสร้างจริง
+		local ok, sm = pcall(require(ReplicatedStorage.Shared.StructureModels).Build, id)
+		if ok and sm then
+			m = sm
+		end
 	end
 	cache[id] = m or false
 	return m
@@ -106,6 +112,11 @@ function ItemIcon.Make(parent, id, props)
 	local info0 = Items.Data[id]
 	-- เกราะ = เสื้อเลเยอร์จากแคตตาล็อก (ArmorModels.LAYERED) -> ใช้รูปของชิ้นจริงจาก Roblox
 	local t = not (info0 and info0.Category == "Armor") and template(id) or nil
+	-- ไม่มีโมเดลไอเทม แต่ระบุโมเดลฉาก (Items.Data[id].IconProp เช่น หินวาร์ป = หินรูน) -> ใช้รูปโมเดลฉากแทน
+	if not t and info0 and info0.IconProp then
+		vp:Destroy()
+		return ItemIcon.Prop(parent, info0.IconProp, props)
+	end
 	if info0 and info0.Category == "Armor" then
 		local img = Instance.new("ImageLabel")
 		img.Size = UDim2.fromScale(1, 1)

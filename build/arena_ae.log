@@ -1,0 +1,219 @@
+ERR: orError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+rOutput] [AS] ???????????????????...
+rOutput] [AS] seed=382219096 map=2048
+rOutput] [AS] client ready
+rOutput] [AS] terrain 5.7s
+rOutput] [AS] world ready 7.1s props=404
+rOutput] [AS] READY
+shot arena_Earth_wide
+shot arena_Earth_close
+rOutput] [AS] ARENA Earth boss=Terragon radius=22.7 leash=150 hp=3465
+shot arena_Earth_boss
+ERR: orError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+rOutput] [AS] ARENA trace Earth Quake t=0.6 pos=-544,62,-5 anch=false state=Running
+rOutput] [AS] ARENA trace Earth Quake t=1.2 pos=-544,62,-5 anch=false state=Running
+shot arena_Earth_Quake_1
+rOutput] [AS] ARENA trace Earth Quake t=1.8 pos=-544,62,-5 anch=false state=Running
+rOutput] [AS] ARENA trace Earth Quake t=2.4 pos=-544,62,-5 anch=false state=Running
+rOutput] [AS] ARENA trace Earth Quake t=3.0 pos=-544,62,-5 anch=false state=Running
+rOutput] [AS] ARENA trace Earth Quake t=3.6 pos=-544,62,-5 anch=false state=Running
+rOutput] [AS] ARENA trace Earth Quake t=4.2 pos=-543,62,-5 anch=false state=Running
+shot arena_Earth_Quake_2
+rOutput] [AS] ARENA trace Earth Quake t=4.8 pos=-537,62,-5 anch=false state=Running
+rOutput] [AS] ARENA trace Earth Quake t=5.4 pos=-530,62,-5 anch=false state=Running
+rOutput] [AS] ARENA trace Earth Quake t=6.0 pos=-530,62,-5 anch=false state=Running
+shot arena_Earth_Quake_3
+shot arena_Earth_Quake_4
+rOutput] [AS] ARENA Earth Quake done fromHome=17.4 moved=17.3
+rOutput] [AS] ARENA Earth chase moved=31.7 fromHome=14.3
+rOutput] [AS] ARENA trace Earth Fissure t=0.6 pos=-552,62,-5 anch=false state=Running
+rOutput] [AS] ARENA trace Earth Fissure t=1.2 pos=-552,62,-5 anch=false state=Running
+shot arena_Earth_Fissure_1
+rOutput] [AS] ARENA trace Earth Fissure t=1.8 pos=-552,62,-5 anch=false state=Running
+rOutput] [AS] ARENA trace Earth Fissure t=2.4 pos=-552,62,-5 anch=false state=Running
+rOutput] [AS] ARENA trace Earth Fissure t=3.0 pos=-552,62,-5 anch=false state=Running
+rOutput] [AS] ARENA trace Earth Fissure t=3.6 pos=-552,62,-5 anch=false state=Running
+rOutput] [AS] ARENA trace Earth Fissure t=4.2 pos=-545,62,-5 anch=false state=Running
+shot arena_Earth_Fissure_2
+rOutput] [AS] ARENA trace Earth Fissure t=4.8 pos=-537,62,-5 anch=false state=Running
+rOutput] [AS] ARENA trace Earth Fissure t=5.4 pos=-529,62,-5 anch=false state=Running
+rOutput] [AS] ARENA trace Earth Fissure t=6.0 pos=-530,62,-5 anch=false state=Running
+shot arena_Earth_Fissure_3
+shot arena_Earth_Fissure_4
+rOutput] [AS] ARENA Earth Fissure done fromHome=17.4 moved=24.4
+rOutput] [AS] ARENA Earth chase moved=33.6 fromHome=16.3
+rOutput] [AS] ARENA trace Earth BoulderRain t=0.6 pos=-554,62,-5 anch=false state=Running
+rOutput] [AS] ARENA trace Earth BoulderRain t=1.2 pos=-554,62,-5 anch=false state=Running
+shot arena_Earth_BoulderRain_1
+rOutput] [AS] ARENA trace Earth BoulderRain t=1.8 pos=-554,62,-5 anch=false state=Running
+rOutput] [AS] ARENA trace Earth BoulderRain t=2.4 pos=-554,62,-5 anch=false state=Running
+rOutput] [AS] ARENA trace Earth BoulderRain t=3.0 pos=-554,62,-5 anch=false state=Running
+rOutput] [AS] ARENA trace Earth BoulderRain t=3.6 pos=-554,62,-5 anch=false state=Running
+rOutput] [AS] ARENA trace Earth BoulderRain t=4.2 pos=-546,62,-5 anch=false state=Running
+shot arena_Earth_BoulderRain_2
+rOutput] [AS] ARENA trace Earth BoulderRain t=4.8 pos=-538,62,-5 anch=false state=Running
+rOutput] [AS] ARENA trace Earth BoulderRain t=5.4 pos=-531,62,-5 anch=false state=Running
+rOutput] [AS] ARENA trace Earth BoulderRain t=6.0 pos=-529,62,-5 anch=false state=Running
+shot arena_Earth_BoulderRain_3
+shot arena_Earth_BoulderRain_4
+rOutput] [AS] ARENA Earth BoulderRain done fromHome=18.1 moved=26.8
+rOutput] [AS] ARENA Earth chase moved=32.3 fromHome=14.2
+shot arena_Water_wide
+shot arena_Water_close
+orOutput] [AS] ARENA Water boss=Leviathan radius=45.6 leash=150 hp=5197
+shot arena_Water_boss
+orOutput] [AS] ARENA trace Water TidalWave t=0.6 pos=-37,16,-611 anch=false state=Running
+orOutput] [AS] ARENA trace Water TidalWave t=1.2 pos=-37,16,-611 anch=false state=GettingUp
+shot arena_Water_TidalWave_1
+orOutput] [AS] ARENA trace Water TidalWave t=1.8 pos=-37,16,-611 anch=false state=Running
+orOutput] [AS] ARENA trace Water TidalWave t=2.4 pos=-37,16,-611 anch=false state=Running
+orOutput] [AS] ARENA trace Water TidalWave t=3.0 pos=-37,16,-611 anch=false state=Swimming
+orOutput] [AS] ARENA trace Water TidalWave t=3.6 pos=-37,16,-611 anch=false state=Swimming
+orOutput] [AS] ARENA trace Water TidalWave t=4.2 pos=-37,16,-611 anch=false state=Swimming
+shot arena_Water_TidalWave_2
+orOutput] [AS] ARENA trace Water TidalWave t=4.8 pos=-37,16,-611 anch=false state=Swimming
+orOutput] [AS] ARENA trace Water TidalWave t=5.4 pos=-37,16,-611 anch=false state=Running
+orOutput] [AS] ARENA trace Water TidalWave t=6.0 pos=-37,16,-611 anch=false state=Swimming
+shot arena_Water_TidalWave_3
+shot arena_Water_TidalWave_4
+orOutput] [AS] ARENA Water TidalWave done fromHome=11.0 moved=0.0
+orOutput] [AS] ARENA Water chase moved=0.0 fromHome=11.0
+orOutput] [AS] ARENA trace Water WaterSpout t=0.6 pos=-37,16,-611 anch=false state=Running
+orOutput] [AS] ARENA trace Water WaterSpout t=1.2 pos=-37,16,-611 anch=false state=Swimming
+shot arena_Water_WaterSpout_1
+orOutput] [AS] ARENA trace Water WaterSpout t=1.8 pos=-37,16,-611 anch=false state=Swimming
+orOutput] [AS] ARENA trace Water WaterSpout t=2.4 pos=-37,16,-611 anch=false state=Running
+orOutput] [AS] ARENA trace Water WaterSpout t=3.0 pos=-37,16,-611 anch=false state=GettingUp
+orOutput] [AS] ARENA trace Water WaterSpout t=3.6 pos=-37,25,-609 anch=false state=Freefall
+orOutput] [AS] ARENA trace Water WaterSpout t=4.2 pos=-37,69,-603 anch=false state=Freefall
+shot arena_Water_WaterSpout_2
+orOutput] [AS] ARENA trace Water WaterSpout t=4.8 pos=-37,38,-593 anch=false state=Freefall
+orOutput] [AS] ARENA trace Water WaterSpout t=5.4 pos=-37,20,-592 anch=false state=Running
+orOutput] [AS] ARENA trace Water WaterSpout t=6.0 pos=-37,16,-592 anch=false state=Swimming
+shot arena_Water_WaterSpout_3
+shot arena_Water_WaterSpout_4
+orOutput] [AS] ARENA Water WaterSpout done fromHome=10.5 moved=18.8
+orOutput] [AS] ARENA Water chase moved=2.5 fromHome=8.2
+orOutput] [AS] ARENA trace Water AbyssCharge t=0.6 pos=-37,16,-595 anch=false state=Running
+orOutput] [AS] ARENA trace Water AbyssCharge t=1.2 pos=-37,16,-595 anch=false state=Swimming
+shot arena_Water_AbyssCharge_1
+orOutput] [AS] ARENA trace Water AbyssCharge t=1.8 pos=-37,16,-595 anch=false state=Swimming
+orOutput] [AS] ARENA trace Water AbyssCharge t=2.4 pos=-38,17,-538 anch=false state=Running
+orOutput] [AS] ARENA trace Water AbyssCharge t=3.0 pos=-36,54,-459 anch=false state=Freefall
+orOutput] [AS] ARENA trace Water AbyssCharge t=3.6 pos=-37,43,-458 anch=false state=Running
+orOutput] [AS] ARENA trace Water AbyssCharge t=4.2 pos=-28,32,-442 anch=false state=Freefall
+shot arena_Water_AbyssCharge_2
+orOutput] [AS] ARENA trace Water AbyssCharge t=4.8 pos=-37,38,-459 anch=false state=Running
+orOutput] [AS] ARENA trace Water AbyssCharge t=5.4 pos=-41,24,-578 anch=false state=Freefall
+orOutput] [AS] ARENA trace Water AbyssCharge t=6.0 pos=-41,13,-578 anch=false state=Swimming
+shot arena_Water_AbyssCharge_3
+shot arena_Water_AbyssCharge_4
+orOutput] [AS] ARENA Water AbyssCharge done fromHome=23.7 moved=17.5
+orOutput] [AS] ARENA Water chase moved=21.4 fromHome=2.3
+shot arena_Air_wide
+shot arena_Air_close
+orOutput] [AS] ARENA Air boss=TempestRoc radius=21.2 leash=150 hp=6930
+shot arena_Air_boss
+orOutput] [AS] ARENA trace Air Blizzard t=0.6 pos=597,73,-17 anch=false state=Running
+orOutput] [AS] ARENA trace Air Blizzard t=1.2 pos=597,73,-17 anch=false state=Running
+shot arena_Air_Blizzard_1
+orOutput] [AS] ARENA trace Air Blizzard t=1.8 pos=597,73,-17 anch=false state=Running
+orOutput] [AS] ARENA trace Air Blizzard t=2.4 pos=597,73,-17 anch=false state=Running
+orOutput] [AS] ARENA trace Air Blizzard t=3.0 pos=597,73,-17 anch=false state=Running
+orOutput] [AS] ARENA trace Air Blizzard t=3.6 pos=597,73,-17 anch=false state=Running
+orOutput] [AS] ARENA trace Air Blizzard t=4.2 pos=597,73,-17 anch=false state=Running
+shot arena_Air_Blizzard_2
+orOutput] [AS] ARENA trace Air Blizzard t=4.8 pos=597,73,-17 anch=false state=Running
+orOutput] [AS] ARENA trace Air Blizzard t=5.4 pos=589,73,-17 anch=false state=Running
+orOutput] [AS] ARENA trace Air Blizzard t=6.0 pos=581,73,-18 anch=false state=Running
+shot arena_Air_Blizzard_3
+shot arena_Air_Blizzard_4
+orOutput] [AS] ARENA Air Blizzard done fromHome=20.6 moved=18.1
+orOutput] [AS] ARENA Air chase moved=45.3 fromHome=25.1
+orOutput] [AS] ARENA trace Air IceSpikes t=0.6 pos=610,73,-21 anch=false state=Running
+orOutput] [AS] ARENA trace Air IceSpikes t=1.2 pos=602,73,-21 anch=false state=Running
+shot arena_Air_IceSpikes_1
+orOutput] [AS] ARENA trace Air IceSpikes t=1.8 pos=590,73,-21 anch=false state=Running
+orOutput] [AS] ARENA trace Air IceSpikes t=2.4 pos=577,73,-21 anch=false state=Running
+orOutput] [AS] ARENA trace Air IceSpikes t=3.0 pos=579,73,-21 anch=false state=Running
+orOutput] [AS] ARENA trace Air IceSpikes t=3.6 pos=579,73,-21 anch=false state=Running
+orOutput] [AS] ARENA trace Air IceSpikes t=4.2 pos=579,73,-21 anch=false state=Running
+shot arena_Air_IceSpikes_2
+orOutput] [AS] ARENA trace Air IceSpikes t=4.8 pos=579,73,-21 anch=false state=Running
+orOutput] [AS] ARENA trace Air IceSpikes t=5.4 pos=579,73,-21 anch=false state=Running
+orOutput] [AS] ARENA trace Air IceSpikes t=6.0 pos=579,73,-21 anch=false state=Running
+shot arena_Air_IceSpikes_3
+shot arena_Air_IceSpikes_4
+orOutput] [AS] ARENA Air IceSpikes done fromHome=22.1 moved=33.6
+orOutput] [AS] ARENA Air chase moved=48.0 fromHome=25.9
+orOutput] [AS] ARENA trace Air AvalancheLeap t=0.6 pos=609,73,-22 anch=false state=Running
+orOutput] [AS] ARENA trace Air AvalancheLeap t=1.2 pos=584,125,-21 anch=false state=Freefall
+shot arena_Air_AvalancheLeap_1
+orOutput] [AS] ARENA trace Air AvalancheLeap t=1.8 pos=557,105,-20 anch=false state=Freefall
+orOutput] [AS] ARENA trace Air AvalancheLeap t=2.4 pos=546,74,-20 anch=false state=Running
+orOutput] [AS] ARENA trace Air AvalancheLeap t=3.0 pos=546,74,-20 anch=false state=Running
+orOutput] [AS] ARENA trace Air AvalancheLeap t=3.6 pos=546,122,-20 anch=false state=Freefall
+orOutput] [AS] ARENA trace Air AvalancheLeap t=4.2 pos=546,97,-20 anch=false state=Freefall
+shot arena_Air_AvalancheLeap_2
+orOutput] [AS] ARENA trace Air AvalancheLeap t=4.8 pos=546,73,-20 anch=false state=Running
+orOutput] [AS] ARENA trace Air AvalancheLeap t=5.4 pos=546,73,-20 anch=false state=Running
+orOutput] [AS] ARENA trace Air AvalancheLeap t=6.0 pos=546,73,-20 anch=false state=Running
+shot arena_Air_AvalancheLeap_3
+shot arena_Air_AvalancheLeap_4
+orOutput] [AS] ARENA Air AvalancheLeap done fromHome=55.0 moved=66.8
+orOutput] [AS] ARENA Air chase moved=52.5 fromHome=2.5
+shot arena_Fire_wide
+shot arena_Fire_close
+ERR: torError] Error: MeshContentProvider failed to process https://assetdelivery.roblox.com/v1/asset?id=70559294799847 because 'could not fetch'
+orOutput] [AS] ARENA Fire boss=Solfang radius=49.3 leash=150 hp=8662
+shot arena_Fire_boss
+orOutput] [AS] ARENA trace Fire FireBreath t=0.6 pos=4,76,537 anch=false state=Running
+orOutput] [AS] ARENA trace Fire FireBreath t=1.2 pos=25,78,539 anch=false state=Running
+shot arena_Fire_FireBreath_1
+orOutput] [AS] ARENA trace Fire FireBreath t=1.8 pos=43,80,541 anch=false state=Running
+orOutput] [AS] ARENA trace Fire FireBreath t=2.4 pos=43,80,541 anch=false state=Running
+orOutput] [AS] ARENA trace Fire FireBreath t=3.0 pos=46,81,542 anch=false state=Running
+orOutput] [AS] ARENA trace Fire FireBreath t=3.6 pos=46,81,542 anch=false state=Running
+orOutput] [AS] ARENA trace Fire FireBreath t=4.2 pos=45,81,541 anch=false state=Running
+shot arena_Fire_FireBreath_2
+orOutput] [AS] ARENA trace Fire FireBreath t=4.8 pos=38,83,541 anch=false state=Running
+orOutput] [AS] ARENA trace Fire FireBreath t=5.4 pos=37,83,540 anch=false state=Running
+orOutput] [AS] ARENA trace Fire FireBreath t=6.0 pos=31,78,555 anch=false state=Running
+shot arena_Fire_FireBreath_3
+shot arena_Fire_FireBreath_4
+orOutput] [AS] ARENA Fire FireBreath done fromHome=6.1 moved=82.2
+orOutput] [AS] ARENA Fire chase moved=55.4 fromHome=54.3
+orOutput] [AS] ARENA trace Fire FlameNova t=0.6 pos=-9,65,621 anch=false state=Running
+orOutput] [AS] ARENA trace Fire FlameNova t=1.2 pos=-9,66,621 anch=false state=Running
+shot arena_Fire_FlameNova_1
+orOutput] [AS] ARENA trace Fire FlameNova t=1.8 pos=-9,66,621 anch=false state=Running
+orOutput] [AS] ARENA trace Fire FlameNova t=2.4 pos=-9,67,619 anch=false state=Running
+orOutput] [AS] ARENA trace Fire FlameNova t=3.0 pos=-10,67,618 anch=false state=Running
+orOutput] [AS] ARENA trace Fire FlameNova t=3.6 pos=-10,67,618 anch=false state=Running
+orOutput] [AS] ARENA trace Fire FlameNova t=4.2 pos=-10,67,618 anch=false state=Running
+shot arena_Fire_FlameNova_2
+orOutput] [AS] ARENA trace Fire FlameNova t=4.8 pos=-10,67,618 anch=false state=Running
+orOutput] [AS] ARENA trace Fire FlameNova t=5.4 pos=-10,67,618 anch=false state=Running
+orOutput] [AS] ARENA trace Fire FlameNova t=6.0 pos=-18,70,614 anch=false state=Running
+shot arena_Fire_FlameNova_3
+shot arena_Fire_FlameNova_4
+orOutput] [AS] ARENA Fire FlameNova done fromHome=67.4 moved=72.4
+orOutput] [AS] ARENA Fire chase moved=29.5 fromHome=38.3
+orOutput] [AS] ARENA trace Fire MeteorRoar t=0.6 pos=-17,83,545 anch=false state=Running
+orOutput] [AS] ARENA trace Fire MeteorRoar t=1.2 pos=-14,83,525 anch=false state=Running
+shot arena_Fire_MeteorRoar_1
+orOutput] [AS] ARENA trace Fire MeteorRoar t=1.8 pos=-5,83,506 anch=false state=Running
+orOutput] [AS] ARENA trace Fire MeteorRoar t=2.4 pos=11,83,492 anch=false state=Running
+orOutput] [AS] ARENA trace Fire MeteorRoar t=3.0 pos=31,83,484 anch=false state=Running
+orOutput] [AS] ARENA trace Fire MeteorRoar t=3.6 pos=38,80,487 anch=false state=Running
+orOutput] [AS] ARENA trace Fire MeteorRoar t=4.2 pos=38,80,488 anch=false state=Running
+shot arena_Fire_MeteorRoar_2
+orOutput] [AS] ARENA trace Fire MeteorRoar t=4.8 pos=38,80,489 anch=false state=Running
+orOutput] [AS] ARENA trace Fire MeteorRoar t=5.4 pos=38,80,489 anch=false state=Running
+orOutput] [AS] ARENA trace Fire MeteorRoar t=6.0 pos=38,80,489 anch=false state=Running
+shot arena_Fire_MeteorRoar_3
+shot arena_Fire_MeteorRoar_4
+orOutput] [AS] ARENA Fire MeteorRoar done fromHome=115.3 moved=96.7
+orOutput] [AS] ARENA Fire chase moved=53.4 fromHome=67.4
+orOutput] [TEST] DONE arenaprobe
+finished in 287s  done=True

@@ -232,7 +232,7 @@ function MedAnim.Init()
 		end
 		local item = Items.Data[player:GetAttribute("MedItem") or ""]
 		local what = item and item.Thai or "Bandage"
-		label.Text = player:GetAttribute("MedUse") == "Revive" and ("Reviving teammate with " .. what .. "…") or ("Using " .. what .. "… (stand still)")
+		label.Text = player:GetAttribute("MedUse") == "Revive" and ("Reviving teammate with " .. what .. "…") or ("Using " .. what .. "… (you walk slower)")
 		fill.Size = UDim2.fromScale(math.clamp((Workspace:GetServerTimeNow() - start) / time, 0, 1), 1)
 		holder.Visible = true
 	end)

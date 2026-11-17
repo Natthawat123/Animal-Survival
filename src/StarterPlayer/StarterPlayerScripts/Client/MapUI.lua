@@ -136,6 +136,60 @@ function MapUI.Init(state, hud, atmosphere)
 		return m
 	end
 
+	-- หมุดกล่องสมบัติ: รูปหีบ 3D จริงในเกม (หีบไม้ / หีบฟ้า / หีบทอง ตามระดับ) บนวงกลมพื้นเข้ม ขอบสีระดับ
+	--   เปิดแล้ว = หีบฝาเปิด + จาง · ไม่มีโมเดล = ตัวอักษร ▣ แบบเดิม
+	local ItemIcon = require(script.Parent.ItemIcon)
+	local function chestMarker(key, tier, opened)
+		local m = markers[key]
+		local color = CRATE_COLOR[tier] or CRATE_COLOR[1]
+		if not m then
+			local size = 15 * (UIKit.IsPhone() and 1.35 or 1.15) -- เล็กลง (เดิม 24 x 1.2-1.45 ใหญ่บังแมพ)
+			m = Instance.new("Frame")
+			m.Name = "ChestPin"
+			m.Size = UDim2.fromOffset(size, size)
+			m.AnchorPoint = Vector2.new(0.5, 0.5)
+			m.BackgroundColor3 = Color3.fromRGB(18, 16, 24)
+			m.BackgroundTransparency = 0.2
+			m.BorderSizePixel = 0
+			m.ZIndex = 5
+			m.Parent = mapFrame
+			UIKit.Corner(m, 999)
+			local st = Instance.new("UIStroke")
+			st.Name = "Ring"
+			st.Thickness = 1.5
+			st.Parent = m
+			m:SetAttribute("Key", key)
+			markers[key] = m
+		end
+		local look = tier .. (opened and "o" or "c")
+		if m:GetAttribute("Look") ~= look then
+			m:SetAttribute("Look", look)
+			for _, c in ipairs(m:GetChildren()) do
+				if c:IsA("ViewportFrame") or c:IsA("TextLabel") then
+					c:Destroy()
+				end
+			end
+			local name = "Chest" .. tier .. (opened and "Open" or "")
+			local assets = ReplicatedStorage:FindFirstChild("Assets")
+			local props = assets and assets:FindFirstChild("Props")
+			if props and not props:FindFirstChild(name) then
+				name = "Chest" .. tier
+			end
+			local vp = props and props:FindFirstChild(name) and ItemIcon.Prop(m, name, {
+				Size = UDim2.fromScale(1.25, 1.25), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.45), ZIndex = 6,
+			})
+			if vp then
+				vp.ImageTransparency = opened and 0.55 or 0
+			else
+				UIKit.Text(m, { Size = UDim2.fromScale(1, 1), TextXAlignment = Enum.TextXAlignment.Center, Text = "▣", TextScaled = true, TextColor3 = color, ZIndex = 6 })
+			end
+			m.Ring.Color = color
+			m.Ring.Transparency = opened and 0.6 or 0
+			m.BackgroundTransparency = opened and 0.6 or 0.2
+		end
+		return m
+	end
+
 	local function refreshMap()
 		buildGrid()
 		if not built then
@@ -212,12 +266,12 @@ function MapUI.Init(state, hud, atmosphere)
 		local count = 0
 		for i, pin in ipairs(pins and pins:GetChildren() or {}) do
 			count = i
-			local color = CRATE_COLOR[pin:GetAttribute("Tier") or 1] or CRATE_COLOR[1]
-			local m = marker("crate_" .. i, "▣", color, 14)
+			local tier = math.clamp(pin:GetAttribute("Tier") or 1, 1, 3)
+			local opened = pin:GetAttribute("Opened_" .. Players.LocalPlayer.UserId) == true
+			local m = chestMarker("crate_" .. i, tier, opened)
 			m.Visible = seen(pin.Value)
 			if m.Visible then
-				m.TextColor3 = color
-				m.TextTransparency = pin:GetAttribute("Opened_" .. Players.LocalPlayer.UserId) and 0.75 or 0
+				m.ZIndex = opened and 4 or 5 -- หีบที่ยังไม่เปิดอยู่บนสุด
 				place(m, pin.Value)
 			end
 		end
@@ -250,10 +304,17 @@ function MapUI.Init(state, hud, atmosphere)
 		panel.Visible = false
 	end
 	MapUI.Close = close
+	-- กลับล็อบบี้ตอนแผนที่เปิดค้าง = ปิด
+	player:GetAttributeChangedSignal("InRun"):Connect(function()
+		if not player:GetAttribute("InRun") then
+			close()
+		end
+	end)
 	UIKit.CloseButton(panel, close)
 	UIKit.RegisterWindow(panel, close)
 	UserInputService.InputBegan:Connect(function(input, processed)
-		if not processed and input.KeyCode == Enum.KeyCode.M then
+		-- ล็อบบี้ (นอกรอบ) กด M ไม่เปิดแผนที่ (แผนที่เป็นของในเกม)
+		if not processed and input.KeyCode == Enum.KeyCode.M and player:GetAttribute("InRun") then
 			toggle()
 		end
 	end)
@@ -292,6 +353,27 @@ function MapUI.Init(state, hud, atmosphere)
 	dotStroke.Parent = dot
 	local pinGlyph = UIKit.Text(wpPin, { Size = UDim2.fromOffset(30, 30), AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.fromOffset(1, 3), Text = "📍", TextSize = 26, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 9 })
 	pinGlyph:SetAttribute("NoTranslate", true)
+	local function thumb(uid)
+		return "rbxthumb://type=AvatarHeadShot&id=" .. uid .. "&w=48&h=48"
+	end
+	-- รูปโปรไฟล์คนปัก (ลอยเหนือหัวหมุด) -> ทั้งทีมรู้ว่าหมุดใคร
+	local function avatarBadge(parent, uid, color, z)
+		local av = Instance.new("ImageLabel")
+		av.Name = "Avatar"
+		av.Size = UDim2.fromOffset(22, 22)
+		av.AnchorPoint = Vector2.new(0.5, 1)
+		av.Position = UDim2.fromOffset(1, -24)
+		av.BackgroundColor3 = Color3.fromRGB(24, 22, 30)
+		av.Image = thumb(uid)
+		av.ZIndex = z
+		av.Parent = parent
+		UIKit.Corner(av, 11)
+		local s = Instance.new("UIStroke")
+		s.Color, s.Thickness = color, 2
+		s.Parent = av
+		return av
+	end
+	avatarBadge(wpPin, player.UserId, WP_COLOR, 10)
 	MapUI.WpPin = wpPin
 
 	local function ripple(u, v)
@@ -314,7 +396,13 @@ function MapUI.Init(state, hud, atmosphere)
 		end)
 	end
 
-	local function clearWaypoint()
+	local Remotes = require(ReplicatedStorage.Shared.Remotes)
+	local wpRemote = Remotes.Get("Waypoint")
+	-- silent = ไม่ต้องบอกเพื่อน (กำลังจะปักจุดใหม่แทนอยู่แล้ว)
+	local function clearWaypoint(silent)
+		if MapUI.Waypoint and not silent then
+			wpRemote:FireServer("Clear") -- ลบหมุดเราบนจอเพื่อนด้วย
+		end
 		MapUI.Waypoint = nil
 		for _, inst in ipairs(wpParts) do
 			inst:Destroy()
@@ -325,8 +413,9 @@ function MapUI.Init(state, hud, atmosphere)
 		wpPin.Visible = false
 	end
 	local function setWaypoint(pos)
-		clearWaypoint()
+		clearWaypoint(true)
 		MapUI.Waypoint = pos
+		wpRemote:FireServer("Set", pos) -- เพื่อนทั้งทีมเห็นหมุดเรา (PingService)
 		wpNear = false
 		local holder = workspace.CurrentCamera -- ของเฉพาะเครื่องเรา (ไม่โดน streaming ลบ)
 		local beam = Instance.new("Part")
@@ -375,6 +464,80 @@ function MapUI.Init(state, hud, atmosphere)
 	end
 	MapUI.SetWaypoint = setWaypoint
 	MapUI.ClearWaypoint = clearWaypoint
+
+	---------------------------------------------------------------- หมุดของเพื่อน (แชร์ทั้งทีม)
+	-- แผนที่: หมุด + รูปโปรไฟล์คนปัก · ในโลก: เสาแสงสีประจำคน + ป้ายนำทาง (รูปโปรไฟล์ + ชื่อ + ระยะ) + จุดบนเข็มทิศ
+	local MATE_COLORS = { Color3.fromRGB(120, 210, 255), Color3.fromRGB(255, 140, 200), Color3.fromRGB(150, 255, 140), Color3.fromRGB(255, 170, 90), Color3.fromRGB(200, 160, 255), Color3.fromRGB(255, 240, 120) }
+	local mates = {} -- [userId] = { Parts, Pin }
+	local function removeMate(uid)
+		local e = mates[uid]
+		if not e then
+			return
+		end
+		mates[uid] = nil
+		for _, inst in ipairs(e.Parts) do
+			inst:Destroy()
+		end
+		NavArrows.Remove("wp_" .. uid)
+		hud.ExtraPOI["wp_" .. uid] = nil
+	end
+	local function showMate(uid, name, pos)
+		removeMate(uid)
+		local color = MATE_COLORS[(uid % #MATE_COLORS) + 1]
+		local beam = Instance.new("Part")
+		beam.Name = "MateBeam"
+		beam.Anchored, beam.CanCollide, beam.CanQuery, beam.CanTouch, beam.CastShadow = true, false, false, false, false
+		beam.Material = Enum.Material.Neon
+		beam.Color = color
+		beam.Transparency = 0.55
+		beam.Shape = Enum.PartType.Cylinder
+		beam.Size = Vector3.new(140, 1.1, 1.1)
+		beam.CFrame = CFrame.new(pos + Vector3.new(0, 70, 0)) * CFrame.Angles(0, 0, math.pi / 2)
+		beam.Parent = workspace.CurrentCamera
+		-- หมุดบนแผนที่
+		local size = state:GetAttribute("MapSize") or 6144
+		local pin = Instance.new("Frame")
+		pin.Name = "MatePin"
+		pin.BackgroundTransparency = 1
+		pin.Size = UDim2.fromOffset(0, 0)
+		pin.AnchorPoint = Vector2.new(0.5, 0.5)
+		pin.Position = UDim2.fromScale(pos.X / size + 0.5, pos.Z / size + 0.5)
+		pin.ZIndex = 8
+		pin.Parent = mapFrame
+		local d = Instance.new("Frame")
+		d.Size = UDim2.fromOffset(8, 8)
+		d.AnchorPoint = Vector2.new(0.5, 0.5)
+		d.BackgroundColor3 = color
+		d.ZIndex = 8
+		d.Parent = pin
+		UIKit.Corner(d, 8)
+		local g = UIKit.Text(pin, { Size = UDim2.fromOffset(26, 26), AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.fromOffset(1, 3), Text = "📍", TextSize = 22, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 9 })
+		g:SetAttribute("NoTranslate", true)
+		avatarBadge(pin, uid, color, 10)
+		mates[uid] = { Parts = { beam, pin } }
+		NavArrows.Set("wp_" .. uid, {
+			Position = pos, Icon = "📍", Image = thumb(uid), Color = color, Order = 2, Lift = 5,
+			Label = function(studs)
+				return string.format("%s · %dm", name, math.floor(studs * 0.28))
+			end,
+		})
+		hud.ExtraPOI["wp_" .. uid] = { Position = pos, Icon = "📍", Color = color }
+		hud.Notify(string.format("📍 %s placed a marker", name), "Info")
+	end
+	wpRemote.OnClientEvent:Connect(function(action, uid, name, pos)
+		if action == "Set" and type(uid) == "number" and typeof(pos) == "Vector3" then
+			showMate(uid, tostring(name or "?"), pos)
+		elseif action == "Clear" and type(uid) == "number" then
+			removeMate(uid)
+		end
+	end)
+	player:GetAttributeChangedSignal("InRun"):Connect(function()
+		if not player:GetAttribute("InRun") then
+			for uid in pairs(mates) do
+				removeMate(uid)
+			end
+		end
+	end)
 
 	-- ตำแหน่งแตะ/คลิก (InputObject) -> พิกัดเดียวกับ AbsolutePosition
 	--   แถบบนของ Roblox (GuiInset) ทำให้สองระบบพิกัดต่างกันได้ ไม่เท่ากันแต่ละเครื่อง (คอม/มือถือ/แถบบนรุ่นใหม่)

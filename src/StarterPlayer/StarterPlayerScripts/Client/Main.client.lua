@@ -37,6 +37,7 @@ local ClientSettings = require(Client:WaitForChild("ClientSettings"))
 local SoundController = require(Client:WaitForChild("SoundController"))
 local SettingsUI = require(Client:WaitForChild("SettingsUI"))
 local Tutorial = require(Client:WaitForChild("Tutorial"))
+local Story = require(Client:WaitForChild("Story"))
 local MobileControls = require(Client:WaitForChild("MobileControls"))
 local ItemTooltip = require(Client:WaitForChild("ItemTooltip"))
 local AutoTool = require(Client:WaitForChild("AutoTool"))
@@ -82,6 +83,8 @@ safe("Combat", CombatClient.Init, state, HUD)
 safe("Menus", Menus.Init, state, HUD)
 safe("Map", MapUI.Init, state, HUD, AtmosphereController)
 safe("NavArrows", require(Client:WaitForChild("NavArrows")).Init, state) -- ไอคอนกองไฟ/หมุด เกาะขอบจอ + ลูกศรชี้ทาง
+safe("TeleportUI", require(Client:WaitForChild("TeleportUI")).Init, state, HUD, MapUI) -- หินวาร์ป: หน้าต่างเลือกปลายทาง + หมุดบนแผนที่
+safe("Krathong", require(Client:WaitForChild("KrathongClient")).Init, state, HUD) -- อีเวนต์ลอยกระทง: ตัวนับ/เอฟเฟกต์เก็บกระทง
 safe("FogWall", require(Client:WaitForChild("FogWall")).Init, state)
 safe("WorldEvents", require(Client:WaitForChild("WorldEventsClient")).Init, state, HUD, MapUI, CombatClient)
 safe("Dev", require(script.Parent:WaitForChild("DevPanel")).Init)
@@ -95,7 +98,10 @@ SoundController.Biome = function()
 	return AtmosphereController.Biome
 end
 safe("Tutorial", Tutorial.Init, UIKit.Screen("Tutorial", 60))
-safe("Settings", SettingsUI.Init, UIKit.Screen("Settings", 45), { Tutorial = Tutorial.Open, GearParent = HUD.RightCard })
+safe("Story", Story.Init)
+safe("Settings", SettingsUI.Init, UIKit.Screen("Settings", 45), { Tutorial = Tutorial.Open, Story = function()
+	Story.Play()
+end, GearParent = HUD.RightCard })
 Menus.OnSettings = SettingsUI.Toggle
 -- เมนูซ้ายในล็อบบี้เปิดได้ทีละหน้า (กดเมนูอื่น = ปิดหน้าตั้งค่า)
 require(Client:WaitForChild("LobbyUI")).Closers.Settings = SettingsUI.Close
@@ -112,6 +118,7 @@ end
 safe("AutoTool", AutoTool.Init, CombatClient.Swing)
 safe("TeamPing", TeamPing.Init, state, HUD, MapUI, SoundController)
 safe("Rejoin", RejoinUI.Init)
+safe("EscapeVote", require(Client:WaitForChild("EscapeUI")).Init) -- โหวตออกประตูกลับบ้านหลัง 99 คืน
 safe("ClassFX", function()
 	local fx = require(Client:WaitForChild("ClassFX"))
 	CombatClient.ClassFX = fx
@@ -510,7 +517,7 @@ do
 				return -- คลิกนี้ใช้เก็บลูกบนต้น (BerryPicker)
 			end
 			local target = mouse.Target
-			-- คลิกกองไฟ = โยนไม้/ถ่าน/เนื้อดิบจากกระสอบเข้าไป
+			-- คลิกกองไฟ = โยนไม้/เนื้อดิบจากกระสอบเข้าไป (ของอื่นเข้าไม่ได้)
 			local camp = Workspace:FindFirstChild("World") and Workspace.World:FindFirstChild("Sites") and Workspace.World.Sites:FindFirstChild("Camp")
 			local fireModel = camp and camp:FindFirstChild("Campfire")
 			if target and fireModel and (target:IsDescendantOf(fireModel) or (camp:FindFirstChild("CampfireRing") and target:IsDescendantOf(camp.CampfireRing))
@@ -830,10 +837,10 @@ Cinematics.OnLoaded = function()
 			if not ClientSettings.Loaded then
 				ClientSettings.Load(profile.Settings)
 			end
-			-- ครั้งแรก: หน้าสอนเล่นแบบช่องการ์ตูน
+			-- ครั้งแรก: ฉากเปิดเรื่อง (แอนิเมชัน) -> หน้าสอนเล่นแบบช่องการ์ตูน
 			if not profile.TutorialSeen and not ReplicatedStorage:FindFirstChild("ASAutoTest") then
 				task.wait(0.6)
-				Tutorial.Open()
+				Story.Play(Tutorial.Open)
 			end
 		end
 

@@ -72,7 +72,8 @@ local function itemDesc(id)
 			LogWall = "Blocks animal packs", StoneWall = "Very tough wall", SpikeTrap = "Stabs animals that step on it", Lantern = "Light scares off the Moonfang",
 			Ballista = "Shoots animals automatically", Bed = "Place to skip 1 day (+1 day)", Bed2 = "Place to skip 1 day (+1 day)", FarmPlot = "Grows berries", CookPot = "Makes stew",
 			TerraTotem = "Repairs nearby walls", TideTotem = "Slows animals in range", GaleTotem = "Knocks animals back", EmberTotem = "Burns nearby animals",
-			SunBeacon = "Massive light",
+			SunBeacon = "Massive light", Teleporter = "Warp between Waystones · Place anywhere",
+			WoodDoor = "Wall with a door · Open/close it", StorageBox = "Stores 20 items", BigStorageBox = "Stores 40 items",
 		}
 		return string.format("HP %d · %s", st.Health, extra[id] or "")
 	end
@@ -503,7 +504,32 @@ function craft.Refresh()
 	end
 end
 
-function Menus.OpenCraft()
+-- คราฟต์ได้เฉพาะตอนยืนที่โต๊ะคราฟต์ในแคมป์ (ปุ่ม C / ปุ่ม E ที่โต๊ะ) · เดินออกจากโต๊ะ = เมนูปิดเอง
+local BENCH_RANGE = 16
+function Menus.NearBench(range)
+	local char = player.Character
+	local camp = Workspace:FindFirstChild("World") and Workspace.World:FindFirstChild("Sites") and Workspace.World.Sites:FindFirstChild("Camp")
+	local bench = camp and camp:FindFirstChild("Workbench")
+	local top = bench and (bench.PrimaryPart or bench:FindFirstChildWhichIsA("BasePart", true))
+	if not (char and top) or not player:GetAttribute("InRun") then
+		return false
+	end
+	return (char:GetPivot().Position - top.Position).Magnitude <= (range or BENCH_RANGE)
+end
+
+function Menus.OpenCraft(fromBench)
+	if player:GetAttribute("Riding") then -- ขี่สัตว์อยู่ = เปิดเมนูคราฟต์ไม่ได้ (ลงจากหลังก่อน)
+		if Menus.Hud then
+			Menus.Hud.Notify("Get off your mount to craft", "Info")
+		end
+		return
+	end
+	if not fromBench and not Menus.NearBench() then
+		if Menus.Hud then
+			Menus.Hud.Notify("Go to the crafting bench to craft", "Info")
+		end
+		return
+	end
 	craft.Panel.Visible = true
 	craft.Refresh()
 end
@@ -582,6 +608,7 @@ function bag.Refresh()
 		UIKit.Corner(card, 8)
 		UIKit.Stroke(card, item.Color or C.GoldDim, 1, 0.5)
 		ItemIcon.Make(card, id, { Size = UDim2.fromOffset(40, 40), Position = UDim2.fromOffset(5, 12) })
+		ItemTooltip.Attach(card, id)
 		UIKit.Text(card, { Size = UDim2.new(1, -54, 0, 20), Position = UDim2.fromOffset(50, 6), Text = item.Thai, TextSize = 14, TextTruncate = Enum.TextTruncate.AtEnd })
 		UIKit.Text(card, { Size = UDim2.new(0, 34, 0, 18), Position = UDim2.fromOffset(50, 36), Text = "x" .. sack[id], TextSize = 14, TextColor3 = C.Gold })
 		if Items.Bulk(id) then
@@ -615,6 +642,7 @@ function bag.Refresh()
 		UIKit.Corner(card, 8)
 		UIKit.Stroke(card, Color3.fromRGB(120, 200, 140), 1, 0.6)
 		ItemIcon.Make(card, id, { Size = UDim2.fromOffset(40, 40), Position = UDim2.fromOffset(5, 12) })
+		ItemTooltip.Attach(card, id)
 		UIKit.Text(card, { Size = UDim2.new(1, -54, 0, 20), Position = UDim2.fromOffset(50, 6), Text = item.Thai, TextSize = 14, TextTruncate = Enum.TextTruncate.AtEnd })
 		UIKit.Text(card, { Size = UDim2.new(1, -54, 0, 18), Position = UDim2.fromOffset(50, 36), Text = "Camp storage x" .. campStock[id], TextSize = 12, TextColor3 = Color3.fromRGB(150, 230, 170), TextTruncate = Enum.TextTruncate.AtEnd })
 	end
@@ -627,6 +655,181 @@ function Menus.ToggleBag(force)
 		bag.Panel.Visible = force
 	end
 	bag.Refresh()
+end
+
+---------------------------------------------------------------- กล่องเก็บของ (StorageService)
+--   ซ้าย = ของในกล่อง (กด "Take" = หยิบ 1 · "All" = หยิบทั้งกอง) · ขวา = ของในกระสอบ (กด "Store" / "All" เก็บใส่กล่อง)
+local storage = {}
+local STORAGE_RANGE = 18
+
+local function storageCard(list, id, n, order, color, label, onOne, onAll)
+	local item = Items.Data[id]
+	local card = UIKit.Frame(list, { BackgroundColor3 = color, BackgroundTransparency = 0.1, LayoutOrder = order })
+	UIKit.Corner(card, 8)
+	UIKit.Stroke(card, item.Color or C.GoldDim, 1, 0.5)
+	ItemIcon.Make(card, id, { Size = UDim2.fromOffset(40, 40), Position = UDim2.fromOffset(5, 8) })
+	ItemTooltip.Attach(card, id)
+	UIKit.Text(card, { Size = UDim2.new(1, -54, 0, 20), Position = UDim2.fromOffset(50, 4), Text = Items.DisplayName(id), TextSize = 14, TextTruncate = Enum.TextTruncate.AtEnd })
+	UIKit.Text(card, { Size = UDim2.new(0, 46, 0, 18), Position = UDim2.fromOffset(50, 32), Text = "x" .. n, TextSize = 14, TextColor3 = C.Gold })
+	UIKit.Button(card, { Size = UDim2.fromOffset(56, 24), Position = UDim2.new(1, -114, 1, -30), Text = label, TextSize = 12 }, onOne)
+	UIKit.Button(card, { Size = UDim2.fromOffset(46, 24), Position = UDim2.new(1, -52, 1, -30), Text = "All", TextSize = 12 }, onAll)
+end
+
+local function storageList(panel, x, title)
+	UIKit.Text(panel, { Size = UDim2.new(0.5, -30, 0, 26), Position = UDim2.new(x, x == 0 and 20 or 10, 0, 50), Text = title, TextSize = 18, TextColor3 = C.Gold })
+	local scroll = Instance.new("ScrollingFrame")
+	scroll.Size = UDim2.new(0.5, -30, 1, -140)
+	scroll.Position = UDim2.new(x, x == 0 and 20 or 10, 0, 80)
+	scroll.BackgroundTransparency = 0.6
+	scroll.BackgroundColor3 = Color3.fromRGB(20, 22, 40)
+	scroll.BorderSizePixel = 0
+	scroll.ScrollBarThickness = 6
+	scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+	scroll.CanvasSize = UDim2.new()
+	scroll.Parent = panel
+	UIKit.Corner(scroll, 8)
+	local grid = Instance.new("UIGridLayout")
+	grid.CellSize = UDim2.new(1, -12, 0, 62)
+	grid.CellPadding = UDim2.fromOffset(6, 6)
+	grid.SortOrder = Enum.SortOrder.LayoutOrder
+	grid.Parent = scroll
+	local pad = Instance.new("UIPadding")
+	pad.PaddingTop, pad.PaddingLeft = UDim.new(0, 6), UDim.new(0, 6)
+	pad.Parent = scroll
+	return scroll
+end
+
+function storage.Build(gui)
+	local panel = UIKit.Frame(gui, { Size = UDim2.fromOffset(640, 460), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), BackgroundTransparency = 0.08, Visible = false })
+	UIKit.AutoScale(panel)
+	UIKit.Corner(panel, 14)
+	UIKit.Stroke(panel, C.Outline, 3, 0)
+	UIKit.Gradient(panel, Color3.fromRGB(92, 66, 44), Color3.fromRGB(44, 32, 24), 90)
+	storage.Title = UIKit.Text(panel, { Size = UDim2.new(1, -80, 0, 40), Position = UDim2.fromOffset(20, 6), Font = UIKit.Fonts.Title, TextSize = 26, TextColor3 = C.Gold, Text = "📦 Storage Box" })
+	UIKit.CloseButton(panel, function()
+		Menus.CloseStorage()
+	end)
+	storage.BoxList = storageList(panel, 0, "📦 In the box")
+	storage.SackList = storageList(panel, 0.5, "🎒 Your sack")
+	UIKit.Button(panel, { Size = UDim2.new(0.5, -30, 0, 40), Position = UDim2.new(0, 20, 1, -52), Text = "⬆ Take all", TextSize = 16 }, function()
+		if storage.Box then
+			Remotes.Get("Storage"):FireServer("TakeAll", storage.Box)
+		end
+	end)
+	UIKit.Button(panel, { Size = UDim2.new(0.5, -30, 0, 40), Position = UDim2.new(0.5, 10, 1, -52), Text = "⬇ Store all", TextSize = 16 }, function()
+		if storage.Box then
+			Remotes.Get("Storage"):FireServer("PutAll", storage.Box)
+		end
+	end)
+	storage.Panel = panel
+end
+
+local function boxContents(box)
+	local raw = box and box:GetAttribute("Contents")
+	if type(raw) ~= "string" or raw == "" then
+		return {}
+	end
+	local HttpService = game:GetService("HttpService")
+	local ok, t = pcall(HttpService.JSONDecode, HttpService, raw)
+	return ok and type(t) == "table" and t or {}
+end
+
+local function sortedIds(t, filter)
+	local ids = {}
+	for id, n in pairs(t) do
+		if n > 0 and Items.Data[id] and (not filter or filter(id)) then
+			table.insert(ids, id)
+		end
+	end
+	table.sort(ids, function(a, b)
+		local ca, cb = CAT_ORDER[Items.Data[a].Category] or 9, CAT_ORDER[Items.Data[b].Category] or 9
+		if ca ~= cb then
+			return ca < cb
+		end
+		return a < b
+	end)
+	return ids
+end
+
+function storage.Refresh()
+	if not (storage.Panel and storage.Panel.Visible and storage.Box) then
+		return
+	end
+	local box = storage.Box
+	local spec = Items.Structures[box:GetAttribute("Kind")]
+	local cap = spec and spec.Storage or 0
+	local t = boxContents(box)
+	local usedN = 0
+	for _, n in pairs(t) do
+		usedN += n
+	end
+	storage.Title.Text = string.format("📦 %s  %d/%d", Items.DisplayName(box:GetAttribute("Kind")), usedN, cap)
+	for _, list in ipairs({ storage.BoxList, storage.SackList }) do
+		for _, c in ipairs(list:GetChildren()) do
+			if c:IsA("Frame") then
+				c:Destroy()
+			end
+		end
+	end
+	for i, id in ipairs(sortedIds(t)) do
+		storageCard(storage.BoxList, id, t[id], i, Color3.fromRGB(96, 70, 46), "Take", function()
+			Remotes.Get("Storage"):FireServer("Take", box, id, 1)
+		end, function()
+			Remotes.Get("Storage"):FireServer("Take", box, id, t[id])
+		end)
+	end
+	local sackIds = sortedIds(sack, Items.Bulk)
+	for i, id in ipairs(sackIds) do
+		storageCard(storage.SackList, id, sack[id], i, Color3.fromRGB(50, 56, 94), "Put in", function()
+			Remotes.Get("Storage"):FireServer("Put", box, id, 1)
+		end, function()
+			Remotes.Get("Storage"):FireServer("Put", box, id, sack[id])
+		end)
+	end
+	if sackCap <= 0 and #sackIds == 0 then
+		local hint = UIKit.Frame(storage.SackList, { BackgroundTransparency = 1, LayoutOrder = 0 })
+		UIKit.Text(hint, { Size = UDim2.fromScale(1, 1), Text = "You need a sack to carry items", TextSize = 14, TextColor3 = C.GoldDim, TextWrapped = true })
+	end
+end
+
+function Menus.OpenStorage(box)
+	if not (box and box.Parent and storage.Panel) then
+		return
+	end
+	storage.Box = box
+	storage.Panel.Visible = true
+	if storage.Conn then
+		storage.Conn:Disconnect()
+	end
+	storage.Conn = box:GetAttributeChangedSignal("Contents"):Connect(storage.Refresh)
+	storage.Refresh()
+	-- เดินออกห่าง / กล่องถูกรื้อ = ปิดหน้าต่างเอง
+	task.spawn(function()
+		while storage.Panel.Visible and storage.Box == box do
+			local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+			if not box.Parent or box:GetAttribute("Broken") or not root or (root.Position - box:GetPivot().Position).Magnitude > STORAGE_RANGE then
+				Menus.CloseStorage()
+				break
+			end
+			task.wait(0.3)
+		end
+	end)
+end
+
+function Menus.StorageBox()
+	return storage.Panel and storage.Panel.Visible and storage.Box or nil
+end
+
+function Menus.CloseStorage()
+	if storage.Panel then
+		storage.Panel.Visible = false
+	end
+	storage.Box = nil
+	if storage.Conn then
+		storage.Conn:Disconnect()
+		storage.Conn = nil
+	end
+	ItemTooltip.Hide()
 end
 
 ---------------------------------------------------------------- โหมดสร้าง
@@ -876,6 +1079,9 @@ function Menus.PlaceBuild()
 end
 
 function Menus.ToggleCraft()
+	if not player:GetAttribute("InRun") and not craft.Panel.Visible then
+		return -- ล็อบบี้: ไม่มีคราฟต์
+	end
 	if craft.Panel.Visible then
 		Menus.CloseCraft()
 	else
@@ -982,6 +1188,7 @@ function trader.Refresh()
 		-- รูปของที่ได้ (ชิ้นแรก) + ชื่อ
 		local giveId = next(o.Give)
 		picBox(f, giveId, "🎁", 100, UDim2.fromOffset(12, 16))
+		ItemTooltip.Attach(f, giveId) -- ชี้/กดค้าง = การ์ดรายละเอียด + หาได้จากไหน
 		WoodKit.Ink(f, { Size = UDim2.new(1, -134, 0, 26), Position = UDim2.fromOffset(122, 12), Text = "Get: " .. listText(o.Give), TextSize = 19, TextTruncate = Enum.TextTruncate.AtEnd })
 		WoodKit.Ink(f, { Size = UDim2.new(1, -134, 0, 16), Position = UDim2.fromOffset(122, 40), Text = "Pay:", TextSize = 14, Font = UIKit.Fonts.Bold, TextColor3 = WoodKit.Colors.InkDim })
 		-- ป้ายของที่ต้องจ่าย (รูป + มี/ต้องใช้ จากกระสอบ)
@@ -1009,6 +1216,7 @@ function Menus.SetInventory(inv, bagOnly, camp, used, cap)
 	-- craft.Refresh อัปเดตแถบติดตามสูตรที่ปักหมุดด้วย (แม้เมนูปิดอยู่)
 	craft.Refresh()
 	bag.Refresh()
+	storage.Refresh()
 	trader.Refresh()
 	if build.Active and (inventory[build.Kind] or 0) <= 0 then
 		Menus.StopBuild()
@@ -1038,6 +1246,13 @@ function Menus.Init(state, hud)
 	player:GetAttributeChangedSignal("Armor"):Connect(craft.Refresh) -- สวมเกราะแล้ว ปุ่มเปลี่ยนเป็น "สวมอยู่"
 	bag.Build(gui)
 	trader.Build(gui)
+	storage.Build(gui)
+	UIKit.RegisterWindow(storage.Panel, Menus.CloseStorage, { Backdrop = false })
+	Remotes.Get("Storage").OnClientEvent:Connect(function(action, box)
+		if action == "Open" then
+			Menus.OpenStorage(box)
+		end
+	end)
 	-- Esc = ปิด (หน้าต่างระหว่างเล่น: ไม่ใส่พื้นหลังรับแตะ เพื่อให้ยังเดิน/โจมตี/ใช้จอยมือถือได้ตอนเปิดอยู่)
 	UIKit.RegisterWindow(craft.Panel, Menus.CloseCraft, { Backdrop = false })
 	UIKit.RegisterWindow(bag.Panel, function()
@@ -1121,6 +1336,11 @@ function Menus.Init(state, hud)
 			return
 		end
 		local k = input.KeyCode
+		-- ล็อบบี้ (นอกรอบ): ปุ่มในเกม (C คราฟต์ / B สิ่งก่อสร้าง / R Q หมุน-สลับ) ไม่ทำอะไรเลย ไม่ขึ้นข้อความ
+		local inRun = player:GetAttribute("InRun")
+		if not inRun and (k == Enum.KeyCode.C or k == Enum.KeyCode.B or k == Enum.KeyCode.R or k == Enum.KeyCode.Q) then
+			return
+		end
 		if k == Enum.KeyCode.C then
 			if craft.Panel.Visible then
 				Menus.CloseCraft()
@@ -1141,14 +1361,7 @@ function Menus.Init(state, hud)
 			ItemTooltip.Hide()
 			ClassShop.Close()
 			StoreUI.Close()
-		elseif k == Enum.KeyCode.K then
-			if not player:GetAttribute("InRun") then
-				if ClassShop.IsOpen() then
-					ClassShop.Close()
-				else
-					Menus.OpenShop("Classes")
-				end
-			end
+		-- (เดิม K = เปิดร้านคลาสในล็อบบี้ -> เอาออก: ล็อบบี้ไม่มีปุ่มลัด เดินไปเต็นท์ Classes เอง)
 		elseif k == Enum.KeyCode.Tab and player:GetAttribute("InRun") then
 			Menus.ToggleBag()
 		elseif input.UserInputType == Enum.UserInputType.MouseButton1 and build.Active and not Menus.TouchMode then
@@ -1186,6 +1399,15 @@ function Menus.Init(state, hud)
 		hookChar(player.Character)
 	end
 	player.CharacterAdded:Connect(hookChar)
+	-- เมนูคราฟต์เปิดค้างแล้วเดินออกห่างโต๊ะ -> ปิดเอง
+	task.spawn(function()
+		while true do
+			task.wait(0.3)
+			if craft.Panel and craft.Panel.Visible and (player:GetAttribute("Riding") or not Menus.NearBench(BENCH_RANGE + 6)) then
+				Menus.CloseCraft()
+			end
+		end
+	end)
 	RunService.RenderStepped:Connect(function()
 		if not build.Active or not build.Ghost then
 			return
@@ -1228,7 +1450,7 @@ function Menus.Init(state, hud)
 				end
 			end
 			local ok = d <= Config.BuildRange and res.Material ~= Enum.Material.Water and res.Material ~= Enum.Material.CrackedLava and (res.Position - camp).Magnitude > NO_BUILD_R
-				and fromCamp.Magnitude <= campR -- นอกเขตแคมป์ = วางไม่ได้ (แดง)
+				and (fromCamp.Magnitude <= campR or (Items.Structures[build.Kind] and Items.Structures[build.Kind].Anywhere)) -- นอกเขตแคมป์ = วางไม่ได้ (แดง) · หินวาร์ปวางได้ทุกที่
 				-- เตียงข้ามวันไม่ได้ช่วงคืนสุดท้าย (ตรงกับ DirectorService:CanSkipDay)
 				and ((build.Kind ~= "Bed" and build.Kind ~= "Bed2") or build.Move or (state:GetAttribute("Night") or 0) + 1 < Config.TotalNights)
 			-- ทับกับสิ่งก่อสร้างอื่น (เช็กเหมือนฝั่ง server) · ของที่กำลังย้ายไม่นับทับตัวเอง

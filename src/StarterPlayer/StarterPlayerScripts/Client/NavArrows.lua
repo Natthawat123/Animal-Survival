@@ -59,6 +59,22 @@ local function makeWidget(key, spec)
 	stroke.Parent = badge
 	local icon = UIKit.Text(badge, { Size = UDim2.fromScale(1, 1), Text = spec.Icon, TextSize = touch and 26 or 21, TextXAlignment = Enum.TextXAlignment.Center, TextColor3 = spec.Color })
 	icon:SetAttribute("NoTranslate", true)
+	-- spec.Image = รูปโปรไฟล์คนปักหมุด (rbxthumb) เต็มวง + ไอคอนเล็กมุมขวาล่าง
+	if spec.Image then
+		local img = Instance.new("ImageLabel")
+		img.Name = "Avatar"
+		img.BackgroundTransparency = 1
+		img.Size = UDim2.new(1, -4, 1, -4)
+		img.AnchorPoint = Vector2.new(0.5, 0.5)
+		img.Position = UDim2.fromScale(0.5, 0.5)
+		img.Image = spec.Image
+		img.Parent = badge
+		UIKit.Corner(img, badgeSize)
+		icon.Size = UDim2.fromScale(0.55, 0.55)
+		icon.Position = UDim2.fromScale(0.62, 0.6)
+		icon.TextSize = touch and 16 or 13
+		icon.ZIndex = img.ZIndex + 1
+	end
 	local label = UIKit.Text(root, {
 		Size = UDim2.fromOffset(150, touch and 22 or 18), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 1, 3),
 		TextSize = touch and 17 or 14, Font = UIKit.Fonts.Black, TextXAlignment = Enum.TextXAlignment.Center, TextColor3 = spec.Color, Text = "",

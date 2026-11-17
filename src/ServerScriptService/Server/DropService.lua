@@ -906,10 +906,24 @@ function DropService:DropFromPlayer(player, id, n)
 	local cf = char:GetPivot()
 	local fire = self.ctx.Services.CampService:FirePosition()
 	local toFire = fire and (fire - cf.Position) * Vector3.new(1, 0, 1)
-	if toFire and toFire.Magnitude < 10 and (toFire.Magnitude < 3 or cf.LookVector:Dot(toFire.Unit) > 0.5) then
+	local fireOk = self.ctx.Services.CampService.FireItems[id]
+	if fireOk and toFire and toFire.Magnitude < 10 and (toFire.Magnitude < 3 or cf.LookVector:Dot(toFire.Unit) > 0.5) then
 		self:Throw(player, id, n, fire + Vector3.new(0, 1, 0))
 	else
-		self:Spawn(id, n, cf.Position + cf.LookVector * 5, { Spread = 0.5, Place = true })
+		-- ของที่เข้ากองไฟไม่ได้: วางหน้าตัว แต่ถ้าตกในวงกองไฟ -> ดันออกไปวางนอกวง
+		local pos = cf.Position + cf.LookVector * 5
+		if fire then
+			local off = (pos - fire) * Vector3.new(1, 0, 1)
+			if off.Magnitude < 8 then
+				local away = (cf.Position - fire) * Vector3.new(1, 0, 1)
+				away = away.Magnitude > 0.5 and away.Unit or (off.Magnitude > 0.1 and off.Unit or Vector3.xAxis)
+				pos = Vector3.new(fire.X, pos.Y, fire.Z) + away * 8
+				if not fireOk and toFire and toFire.Magnitude < 10 then
+					self.ctx.Notify(player, "Only wood and raw meat can go into the fire", "Info")
+				end
+			end
+		end
+		self:Spawn(id, n, pos, { Spread = 0.5, Place = true })
 	end
 end
 

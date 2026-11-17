@@ -97,7 +97,7 @@ rf.OnServerInvoke = function(player, what)
 		local site = sanct.sites.Earth
 		task.wait(4)
 		local veil, prompt = sanct:PortalVeil(site)
-		return string.format("sealed=%s action=%s", tostring(veil and veil:GetAttribute("Sealed")), prompt and prompt.ActionText or "?")
+		return string.format("sealed=%s cleared=%s action=%s", tostring(veil and veil:GetAttribute("Sealed")), tostring(veil and veil:GetAttribute("Cleared")), prompt and prompt.ActionText or "?")
 	elseif what == "supply" or what == "meteor" then
 		-- เรียกอีเวนต์จริง รอจนกดได้ แล้ววาร์ปผู้เล่นไปข้างๆ (client กดค้าง prompt เอง)
 		local ev = svc("EventService")
@@ -236,9 +236,9 @@ rf.OnServerInvoke = function(player, what)
 		local data = sanct:Serialize()
 		sanct:ResetSite(site)
 		local veil = sanct:PortalVeil(site)
-		local afterReset = veil:GetAttribute("Sealed")
+		local afterReset = veil:GetAttribute("Cleared")
 		sanct:Restore(data)
-		return string.format("saved=%s afterReset=%s afterRestore=%s state=%s", tostring(data.Earth), tostring(afterReset), tostring(veil:GetAttribute("Sealed")), site.State)
+		return string.format("saved=%s afterReset=%s afterRestore=%s state=%s", tostring(data.Earth), tostring(afterReset), tostring(veil:GetAttribute("Cleared")), site.State)
 	elseif what == "hearts" then
 		local drops = svc("DropService")
 		local root = char.HumanoidRootPart

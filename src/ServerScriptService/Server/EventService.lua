@@ -22,7 +22,7 @@ local EventService = {}
 
 local ELEMENTS = { "Earth", "Water", "Air", "Fire" }
 -- กล่อง Airdrop: อาวุธพิเศษ 1 ชิ้น (น้ำหนัก = % รวม 100)
-local AIRDROP_WEAPONS = { { "Katana", 20 }, { "BattleAxe", 20 }, { "Crossbow", 15 }, { "WarHammer", 15 }, { "Scythe", 20 }, { "GiantSack", 10 } }
+local AIRDROP_WEAPONS = require(game:GetService("ReplicatedStorage").Shared.LootTables).Airdrop
 local THAI = { Earth = "Earth", Water = "Water", Air = "Frost", Fire = "Fire" }
 local COLOR = {
 	Earth = Color3.fromRGB(120, 245, 90), Water = Color3.fromRGB(70, 210, 255),
@@ -654,6 +654,26 @@ function EventService:Supply(token)
 	smoke.Color = ColorSequence.new(Color3.fromRGB(255, 70, 50), Color3.fromRGB(200, 120, 110))
 	smoke.Enabled = false
 	smoke.Parent = flare
+	-- เสียง 3D ที่ตัวกล่อง: ลมหวีดตอนร่มตก + เสียงกระแทกตอนถึงพื้น
+	local Audio = require(game:GetService("ReplicatedStorage").Shared.Audio)
+	local function crateSound(key, looped)
+		local a = Audio.Sfx[key]
+		if not a or a.Id == "" then
+			return nil
+		end
+		local s = Instance.new("Sound")
+		s.Name = key
+		s.SoundId = a.Id
+		s.Volume = a.Volume or 1
+		s.PlaybackSpeed = a.Pitch or 1
+		s.Looped = looped or false
+		s.RollOffMinDistance = 30
+		s.RollOffMaxDistance = 320
+		s.Parent = body
+		return s
+	end
+	local fallSound = crateSound("SupplyFall", true)
+	local landSound = crateSound("SupplyLand", false)
 	for _, d in ipairs(model:GetDescendants()) do
 		if d:IsA("BasePart") then
 			d.CanQuery = d == body
@@ -666,6 +686,9 @@ function EventService:Supply(token)
 	local fallH = 170
 	model:PivotTo(landCF + V(0, fallH, 0))
 	model.Parent = self:Folder()
+	if fallSound then
+		fallSound:Play()
+	end
 	local done = false
 	self:Register("Supply", function()
 		done = true
@@ -690,6 +713,15 @@ function EventService:Supply(token)
 			return
 		end
 		smoke.Enabled = true
+		if fallSound then
+			TweenService:Create(fallSound, TweenInfo.new(0.6), { Volume = 0 }):Play()
+			task.delay(0.7, function()
+				fallSound:Destroy()
+			end)
+		end
+		if landSound then
+			landSound:Play()
+		end
 		local cf0 = chute:GetPivot()
 		for _, d in ipairs(chute:GetDescendants()) do
 			if d:IsA("BasePart") then
@@ -743,8 +775,25 @@ function EventService:Supply(token)
 			ctx.Services.LootService:ChestFx(model, pos, 2, Color3.fromRGB(255, 120, 90))
 			ctx.Broadcast(string.format("%s opened the supply chest", player.DisplayName), "Good")
 			ctx.State:SetAttribute("Event_Supply", nil)
-			task.delay(6, function()
-				smoke.Enabled = false
+			-- เปิดแล้ว: กล่อง + พลุ/ควันแดง จางหายแล้วลบทิ้ง เหลือแค่ของที่ดรอปไว้บนพื้น
+			smoke.Enabled = false
+			task.delay(1.2, function()
+				if not model.Parent then
+					return
+				end
+				for _, d in ipairs(model:GetDescendants()) do
+					if d:IsA("BasePart") then
+						d.CanCollide = false
+						TweenService:Create(d, TweenInfo.new(0.8), { Transparency = 1 }):Play()
+					elseif d:IsA("Light") or d:IsA("ParticleEmitter") or d:IsA("Beam") or d:IsA("Trail") then
+						d.Enabled = false
+					end
+				end
+				task.delay(1, function()
+					if model.Parent then
+						model:Destroy()
+					end
+				end)
 			end)
 		end)
 	end)

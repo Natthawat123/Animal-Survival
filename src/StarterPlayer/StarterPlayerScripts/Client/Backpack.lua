@@ -11,6 +11,7 @@ local GuiService = game:GetService("GuiService")
 local UserInputService = game:GetService("UserInputService")
 
 local ItemIcon = require(script.Parent.ItemIcon)
+local ItemTooltip = require(script.Parent.ItemTooltip)
 local UIKit = require(script.Parent.UIKit)
 local Remotes = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Remotes"))
 
@@ -268,6 +269,11 @@ local function buildSlot(i)
 		end
 	end)
 	ui.Slots[i] = { Button = b, Stroke = stroke, Holder = holder, Count = count, Key = key }
+	-- ชี้เมาส์ / กดค้าง (มือถือ) = การ์ดรายละเอียด + หาได้จากไหน
+	ItemTooltip.Attach(b, function()
+		local t = slots[i]
+		return t and (t:GetAttribute("StructureKind") or t:GetAttribute("ItemId")) or nil
+	end)
 end
 
 function Backpack.Build()

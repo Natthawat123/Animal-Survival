@@ -26,6 +26,7 @@ Remotes.Events = {
 	"Trade", -- (offerId) พ่อค้าเร่
 	"Ping", -- เทสต์
 	"DropItem", -- (itemId, count) ทิ้งของจากกระสอบลงพื้น
+	"Storage", -- c->s (action "Put"/"Take"/"PutAll"/"TakeAll", box, itemId?, count?) · s->c ("Open", box) กล่องเก็บของ (StorageService)
 	"DropHeld", -- () [Backspace] ทิ้งของที่ถืออยู่ในมือ (อาวุธ/เครื่องมือ/สิ่งปลูกสร้าง/ยา · ถือกระสอบ = ทิ้งของชิ้นล่าสุดในกระสอบ)
 	"PickupDrop", -- (dropModel) เก็บของบนพื้น (คลิกตอนถือกระสอบ)
 	"ThrowFuel", -- () ถือกระสอบคลิกกองไฟ: โยนเชื้อเพลิง/เนื้อดิบเข้าไป
@@ -34,6 +35,7 @@ Remotes.Events = {
 	"PadSize", -- (padIndex, n) หัวหน้าแท่นเลือกจำนวนคน 1-8
 	"LeavePad", -- () กดออกจากกลุ่มแท่น (ขึ้นแท่นแล้วเดินออกเองไม่ได้)
 	"LeaveRun", -- () คนที่ตายแล้ว (ดูเพื่อน) กดกลับล็อบบี้
+	"EscapeVote", -- c->s (voteId, yes) โหวตออกประตูกลับบ้านหลัง 99 คืน · s->c payload โหวต (EscapeService)
 	"SaveSettings", -- (table) การตั้งค่าเสียง/กราฟิก/ปุ่ม
 	"TutorialDone", -- () ดูหน้าสอนเล่นจบแล้ว
 	"ClaimQuest", -- (scope "Daily"/"Weekly", index) รับรางวัลภารกิจ (QuestService)
@@ -41,6 +43,7 @@ Remotes.Events = {
 	"ClaimSeason", -- (track "Free"/"Prem"/"All", tier) รับรางวัล Season Pass
 	"EquipCosmetic", -- (kind "Title"/"Color", id) ใส่ฉายา/สีฉายา ("" = ถอด)
 	"TeamPing", -- c->s (position, target?) ปิงจุดที่เล็ง · s->c ({ From, Name, Position, Kind, Target })
+	"Waypoint", -- c->s ("Set", pos) / ("Clear") หมุดแผนที่ · s->c ("Set", userId, name, pos) / ("Clear", userId) หมุดของเพื่อน (PingService)
 	"RejoinAnswer", -- (accept: boolean) ตอบคำถาม "กลับเข้ารอบเดิม?"
 	"GiftTarget", -- (userId | nil) เลือกเพื่อนที่จะซื้อ Ruby เป็นของขวัญให้ (ก่อนกดซื้อแพ็ก)
 	"UseReviveToken", -- () ใช้ตั๋วคืนชีพตอนล้ม
@@ -48,6 +51,7 @@ Remotes.Events = {
 	"WipeSkip", -- () ทีมล้มหมด: ไม่ชุบ กลับล็อบบี้ (ทุกคนในทีมกดครบ = จบทันที ไม่ต้องรอ 30 วิ)
 	"ReviveAllMode", -- (on: boolean) ทีมล้มหมด: ซื้อคืนชีพแบบ "ชุบทั้งทีม" (ซื้อแต่ละครั้ง = ชุบคนถัดไป)
 	"PadResume", -- (padIndex, on) หัวหน้าแท่น (มี Save Run) เลือกเล่นต่อจากเซฟ
+	"Teleporter", -- c->s ("Go", fromId, toId) วาร์ปไปหินวาร์ปอื่น · s->c ("Menu", fromId) เปิดหน้าต่างเลือกปลายทาง (TeleporterService)
 	-- server -> client
 	"Notify", -- (text, kind)
 	"Inventory", -- (table)

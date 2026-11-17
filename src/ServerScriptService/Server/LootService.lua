@@ -12,27 +12,14 @@ local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 
 local LootService = {}
 
-local LOOT = {
-	Earth = { { "Iron", 1, 3 }, { "TerraCore", 0, 2 }, { "Bandage", 0, 1 }, { "Berries", 2, 4 } },
-	Water = { { "Fiber", 3, 5 }, { "Iron", 1, 2 }, { "TidePearl", 0, 2 }, { "Bandage", 0, 1 }, { "CookedMeat", 1, 2 } },
-	Air = { { "Stone", 3, 5 }, { "Iron", 1, 3 }, { "GaleFeather", 0, 2 }, { "Bandage", 0, 1 }, { "Pelt", 1, 2 } },
-	Fire = { { "Coal", 2, 4 }, { "Iron", 1, 3 }, { "EmberShard", 0, 2 }, { "Bandage", 0, 1 }, { "Stone", 2, 4 } },
-}
-
--- กล่อง 3 ระดับ (โมเดล Props/Chest1-3 · ไม่มี = กล่องไม้เดิม) กระจายทั่วแมพ Config.CrateCount ใบ
---   ระดับ 1 (ธรรมดา) / 2 (หายาก) / 3 (ตำนาน) : สุ่มตามน้ำหนัก Config.CrateTierWeight · ระดับสูง = อาวุธดีขึ้น ของมากขึ้น
-local TIER_TOOLS = {
-	-- น้ำหนัก = % (แต่ละระดับรวม 100)
-	{ { "StoneAxe", 18 }, { "Spear", 16 }, { "Dagger", 16 }, { "SpikedClub", 14 }, { "Pickaxe", 10 }, { "Torch", 9 }, { "Bow", 6 }, { "GoodSack", 11 } },
-	{ { "IronSword", 18 }, { "Mace", 18 }, { "IronAxe", 16 }, { "Bow", 12 }, { "Crossbow", 7 }, { "Katana", 6 }, { "GoodSack", 13 }, { "GiantSack", 10 } },
-	{ { "Katana", 20 }, { "BattleAxe", 21 }, { "Crossbow", 19 }, { "WarHammer", 14 }, { "Scythe", 14 }, { "GiantSack", 12 } },
-}
--- ของใช้ในกล่อง (ไม่มีไม้ — ไม้หาเองจากต้นไม้)
-local TIER_EXTRA = {
-	{ count = { 2, 3 }, pool = { { "Bandage", 1, 1 }, { "CookedMeat", 1, 2 }, { "Berries", 2, 4 }, { "Coal", 1, 3 }, { "Fiber", 2, 4 }, { "Pelt", 1, 2 } } },
-	{ count = { 3, 4 }, pool = { { "Bandage", 1, 2 }, { "CookedMeat", 2, 3 }, { "Iron", 2, 4 }, { "Coal", 2, 4 }, { "Pelt", 2, 3 }, { "Bone", 2, 3 }, { "AnyEssence", 1, 1 } } },
-	{ count = { 4, 5 }, pool = { { "Medkit", 1, 1 }, { "Iron", 4, 6 }, { "Coal", 3, 5 }, { "Pelt", 3, 4 }, { "AnyEssence", 1, 2 }, { "AnyEssence", 1, 2 }, { "Stew", 1, 2 } } },
-}
+-- ตารางของในกล่อง/หีบ อยู่ที่ Shared/LootTables (การ์ดไอเทมฝั่งผู้เล่นใช้บอก "หาได้จากไหน" ด้วย)
+local LootTables = require(game:GetService("ReplicatedStorage").Shared.LootTables)
+local LOOT = LootTables.Ancient
+local TIER_TOOLS = LootTables.TierTools
+local TIER_SACKS = LootTables.TierSacks
+LootService.TierSacks = TIER_SACKS
+local TIER_FIXED = LootTables.TierFixed
+local TIER_EXTRA = LootTables.TierExtra
 local TIER_NAME = { "Supply Crate", "Rare Chest", "Legendary Chest" }
 local TIER_LIGHT = { Color3.fromRGB(150, 255, 170), Color3.fromRGB(190, 140, 255), Color3.fromRGB(255, 214, 110) }
 local ESSENCES = { "TerraCore", "TidePearl", "GaleFeather", "EmberShard" }
@@ -189,13 +176,21 @@ function LootService:GiveTierLoot(tier, pos, rng)
 		end
 	end
 	give(weighted(rng, TIER_TOOLS[tier]), 1)
+	for _, e in ipairs(TIER_SACKS[tier]) do
+		if rng:NextNumber() < e[2] then
+			give(e[1], 1)
+		end
+	end
+	for _, e in ipairs(TIER_FIXED) do
+		give(e[1], e[2])
+	end
 	local ex = TIER_EXTRA[tier]
 	local pool = table.clone(ex.pool)
 	for _ = 1, rng:NextInteger(ex.count[1], ex.count[2]) do
 		local e = table.remove(pool, rng:NextInteger(1, #pool))
 		give(e[1], rng:NextInteger(e[2], e[3]))
 	end
-	if tier == 1 and rng:NextNumber() < 0.08 then
+	if tier == 1 and rng:NextNumber() < LootTables.GreenMedkitChance then
 		give("Medkit", 1)
 	end
 	return got

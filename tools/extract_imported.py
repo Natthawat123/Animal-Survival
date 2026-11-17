@@ -62,9 +62,17 @@ BY_NAME = {"CampWorkbench": "Props", "CampForge": "Props",
            # อนุสาวรีย์ลูกสัตว์ธาตุ: ถ้า Import 3D ตั้งชื่อตามไฟล์ก็ใช้ชื่อเลย (ไม่งั้นแยกด้วยขนาดใน TARGETS)
            "MonumentEarth": "Props", "MonumentFire": "Props", "MonumentAir": "Props", "MonumentWater": "Props"}  # โต๊ะคราฟต์ / เครื่องย่อย ที่แคมป์ — 3D Model/home/เครื่องย่อยเหล็กกับไม้/พร้อมอัป Roblox
 # ตัวละครคลาส + คนขายคลาส (Arbang) — 3D Model/for_studio/class/<ชื่อคลาส>.glb (ต้นฉบับ 3D Model/class, 3D Model/home/arbang.glb)
+# เสา 4 ธาตุ (สิ่งก่อสร้าง) — 3D Model/เสา/{heal,slow,push,lava}.glb -> blender/exports/import/<ชื่อ>.glb (prep_import 18k tris)
+for _n in ("TerraTotem", "TideTotem", "GaleTotem", "EmberTotem"):
+    BY_NAME[_n] = "Items"
 for _n in ("Survivor", "Forager", "Lumberjack", "Medic", "Hunter", "Builder", "Scout", "Elementalist", "Vampire", "Sage", "Arbang"):
     BY_NAME[_n] = "Characters"
+# ชื่อไฟล์ต้นฉบับ -> ชื่อในเกม (Import 3D ไฟล์ 3D Model/เสา/*.glb ตรงๆ)
+RENAME = {"heal": "TerraTotem", "slow": "TideTotem", "push": "GaleTotem", "lava": "EmberTotem"}
 ws = next(i for i in root.findall("Item") if i.get("class") == "Workspace")
+for i in ws.findall("Item"):
+    if name_of(i) in RENAME:
+        prop(i, "Name").text = RENAME[name_of(i)]
 scenes = [i for i in ws.findall("Item") if name_of(i) == "Scene" or name_of(i) in BY_NAME]
 done = set()
 for sc in scenes:

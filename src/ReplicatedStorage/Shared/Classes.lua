@@ -104,7 +104,7 @@ Classes.Data = {
 		Skills = {
 			{ Name = "Blood Bite", Text = "Heal 2% max HP after every monster kill", Perks = { KillHealPct = 0.02 } },
 			{ Name = "Blood Moon", Text = "Attack +30%", Perks = { KillHealPct = 0.02, DamageMult = 1.3 } },
-			{ Name = "Swarm", Text = "Skill: summon 5 bats (200 HP) that attack monsters (half damage to bosses) · Cooldown 120s · Using it again replaces the old swarm", Perks = { KillHealPct = 0.02, DamageMult = 1.3 },
+			{ Name = "Swarm", Text = "Skill: summon 5 bats (200 HP) that attack monsters (half damage to bosses) · Lasts 80s · Cooldown 120s · Using it again replaces the old swarm", Perks = { KillHealPct = 0.02, DamageMult = 1.3 },
 				Active = { Id = "Swarm", Cooldown = 120, Icon = "🦇" } },
 		},
 	},

@@ -57,6 +57,12 @@ end
 CombatService.EquippedTool = equippedTool
 
 -- ดาเมจใส่สัตว์ (a = ข้อมูลสัตว์จาก AnimalService)
+-- ตัวที่อาวุธ/สกิลผู้เล่นตีโดนได้: ไม่นับลูกสัตว์ธาตุ และจิ้งจอกจันทรา (อมตะ -> ห้ามดูดการตี ไม่งั้นตีมอน/ไม้/หินข้างๆ ไม่ได้)
+function CombatService.Hittable(a)
+	return a ~= nil and not a.Dead and a.Kind ~= "Spirit" and a.Kind ~= "Stalker"
+end
+local hittable = CombatService.Hittable
+
 function CombatService:DamageAnimal(a, amount, attacker, opts)
 	opts = opts or {}
 	self.ctx.Services.AnimalService:TakeDamage(a, amount, attacker, opts)
@@ -105,7 +111,7 @@ function CombatService:Melee(player, toolId, tool, root, aim)
 	local hits = {}
 	local threat = false -- มอนอยู่ตรงหน้าแต่ยังเอื้อมไม่ถึง: ห้ามไปตีต้นไม้/หินแทน (ฟันลม)
 	for _, a in ipairs(animals:InRadius(origin, tool.Range + 10, false)) do
-		if a.Kind ~= "Spirit" and not a.Dead then
+		if hittable(a) then
 			local offset = a.Root.Position - origin
 			local reach = tool.Range + a.Radius
 			local flat = offset * Vector3.new(1, 0.4, 1)
@@ -170,7 +176,11 @@ function CombatService:Shoot(player, toolId, tool, aim, char)
 		hitPos = res.Position
 		local model = res.Instance:FindFirstAncestorWhichIsA("Model")
 		local a = model and self.ctx.Services.AnimalService:Get(model)
-		if a and a.Kind ~= "Spirit" then
+		if a and not hittable(a) then
+			-- จิ้งจอก/ลูกสัตว์: ลูกธนูทะลุผ่านไปโดนตัวข้างหลัง
+			table.insert(exclude, model)
+			from = res.Position
+		elseif a then
 			local dmg, crit, mult = self:PlayerDamage(player, toolId, tool, a)
 			self:DamageAnimal(a, dmg, player, { Crit = crit, Mult = mult, Knock = aim })
 			hitCount += 1
@@ -367,7 +377,7 @@ function CombatService:StepProjectiles(dt)
 		-- ลูกไฟของผู้เล่น (คทา): ชนสัตว์
 		if not impact and spec.Owner == "Player" then
 			for _, a in ipairs(animals:InRadius(newPos, (spec.Radius or 1.5) + 12, false)) do
-				if a.Kind ~= "Spirit" and not a.Dead and (a.Root.Position - newPos).Magnitude < (spec.Radius or 1.5) + a.Radius then
+				if hittable(a) and (a.Root.Position - newPos).Magnitude < (spec.Radius or 1.5) + a.Radius then
 					impact = true
 					break
 				end
@@ -392,7 +402,7 @@ function CombatService:StepProjectiles(dt)
 			local blast = spec.Blast or 6
 			if spec.Owner == "Player" and spec.Player and spec.Player.Parent then
 				for _, a in ipairs(animals:InRadius(newPos, blast + 12, false)) do
-					if a.Kind ~= "Spirit" and not a.Dead and (a.Root.Position - newPos).Magnitude < blast + a.Radius then
+					if hittable(a) and (a.Root.Position - newPos).Magnitude < blast + a.Radius then
 						local dmg, crit, mult = self:PlayerDamage(spec.Player, spec.ToolId, spec.Tool, a)
 						self:DamageAnimal(a, dmg, spec.Player, { Burn = spec.Burn, BurnColor = spec.BurnColor, Crit = crit, Mult = mult, Knock = pr.Vel.Unit })
 					end

@@ -1375,3 +1375,120 @@
 1600	Ambil
 1601	Kebun Beri %d/%d
 1605	Kemah %dm
+1612	Pergi ke meja kerajinan untuk membuat
+1614	Tidak ada kayu di karung
+1615	Tidak ada kayu atau daging mentah di karung untuk dilempar ke api
+1616	Hanya kayu dan daging mentah yang bisa masuk ke api
+1617	Lempar kayu ke api unggun — kalau padam, zona aman hilang!
+1618	🔥 Api hampir padam! Sisa sekitar %s — cepat lempar kayu
+1619	🔒 Butuh api unggun Lv.%d
+1620	🔥 Tingkatkan api unggun ke Lv.%d untuk masuk kuil ini
+1621	Batu Warp
+1622	Batu Teleportasi
+1623	Batu teleportasi. Pasang di mana saja di peta, tidak harus di kemah · Berdiri di atasnya, tekan E lalu pilih batu lain untuk pindah · Maks 8 per server
+1624	Warp antar Batu Warp · Pasang di mana saja
+1625	🌀 Bangun Batu Warp lain di peta untuk warp di antaranya
+1626	Berdiri di atas Batu Warp untuk teleport
+1627	Teleport
+1628	Batu Warp %d
+1629	🌀 Batu Warp
+1630	Pilih tujuan warp
+1631	Kamu di Batu Warp %d
+1632	🌀 Batu Warp %d
+1633	Warp
+1634	Alam liar
+1635	🌀 Portal pulang terbuka di tepi kemah! Pergi ke sana dan voting untuk pergi — atau tetap bertahan hidup
+1636	Portal sedang mengisi ulang — bisa voting lagi dalam %d detik
+1637	🌀 %s ingin pulang lewat portal — voting sekarang!
+1638	🌀 Tim memilih pulang! (Ya %d · Tidak %d)
+1639	🌲 Tim memilih tetap tinggal — mode tanpa akhir berlanjut (Ya %d · Tidak %d)
+1640	Voting untuk pulang
+1641	Portal Pulang
+1642	🏆 Permainan terakhir: kamu kabur dari alam liar setelah %d malam!
+1643	🌀 Pulang?
+1644	✔ Pulang (Y)
+1645	✕ Main terus (N)
+1646	Pulang %d · Tinggal %d · Tim %d (suara terbanyak menang)
+1647	🏠 Tim akan pulang!
+1648	🌲 Tim tetap tinggal — mode tanpa akhir berlanjut
+1649	Pilihanmu: Pulang ✔
+1650	Pilihanmu: Main terus ✕
+1651	%s membuka voting portal · Jika sebagian besar tim setuju, permainan berakhir dengan cutscene dan semua kembali ke lobi
+1652	PORTAL PULANG
+1653	Terbuka di tepi kemah — voting di sana untuk pergi, atau terus bertahan
+1654	Malam ke-99 telah berlalu — jalan keluar dari alam liar terbuka
+1655	Berkumpul di portal dan voting — pergi bersama, atau tetap bertahan hidup
+1656	Malam ke-99 telah berlalu...
+1657	Untuk pertama kalinya, hutan menjadi sunyi
+1658	Api unggun yang menjagamu tetap hidup menyala terang untuk terakhir kali
+1659	Malam demi malam, ia menahan kegelapan
+1660	Anak roh yang kamu selamatkan berkumpul untuk berpamitan
+1661	Di suatu tempat dalam gelap, para buas melihatmu pergi
+1662	Mulai sekarang, mereka yang akan menjaga hutan
+1663	Tapi malam ini, tak satu pun berani mengikuti
+1664	JALAN PULANG
+1665	%d malam bertahan
+1666	Bersama, kalian melangkah ke dalam cahaya
+1667	Rumah menanti di seberang sana
+1668	Kamu bertahan %d malam di alam liar dan menemukan jalan pulang
+1669	Ke-4 anak roh telah bebas — hutan kembali damai
+1670	Anak roh diselamatkan: %d/4
+1671	Bara terakhir api unggun memudar... tapi kisahmu tetap hidup
+1672	Terima kasih sudah bermain!
+1673	Kembali ke lobi...
+1674	AKHIR YANG SEJATI
+1675	AKHIRNYA PULANG
+1676	🌀 Portal pulang akan terbuka di kemah — voting untuk pergi bersama, atau terus bermain tanpa akhir
+1677	Turun dari tunggangan untuk membuat
+1678	⛩ Kuil %s
+1679	💀 Sarang Bos %s
+1680	🏛 Candi %s
+1681	🔥 Butuh api unggun Lv.%d untuk masuk
+1682	Kalahkan gelombang penjaga dan bebaskan anak roh
+1683	Hadiah untuk seluruh tim:
+1684	📅 Hari terhitung +%d lebih cepat
+1685	♦️ +%d Ruby per orang
+1686	⏳ +2 menit siang saat pertama masuk
+1687	Tidak perlu level api unggun · masuk untuk membangunkan bos
+1688	Kalahkan untuk dapat:
+1689	❤ %s x1 · untuk membuat senjata elemen
+1690	✦ %s x5-7
+1691	♦️ +%d Ruby per orang (pemain di dekat)
+1692	⏱ Bos muncul lagi %d menit setelah kalah
+1693	Tidak perlu level api unggun
+1694	Bangunkan pilar rune sesuai urutan, lalu kalahkan penjaga
+1695	🎁 Peti suci: senjata legendaris + %s x4-6
+1696	♦️ +5-8 Ruby per orang
+1697	CANDI SELESAI
+1698	seluruh tim, sepanjang ronde
+1699	sepanjang ronde
+1700	Butuh api unggun Lv.%d
+1701	HADIAH UNTUK SELURUH TIM
+1702	Hari terhitung +%d lebih cepat
+1703	+%d Ruby per orang
+1704	+2 menit siang saat pertama masuk
+1705	Peti suci: senjata legendaris + %s x4-6
+1706	+5-8 Ruby per orang
+1707	🌀 Portal pulang telah memudar — terus bertahan di mode tanpa akhir
+1708	📍 %s memasang penanda
+1731	MEJA KERAJINAN LV.%d
+1732	Resep baru terbuka
+1802	Festival Loy Krathong
+1803	Masuk festival
+1804	Ambil
+1805	Krathong
+1806	🪷 Kamu sudah mengambil semua %d krathong
+1807	🪷 %s mengambil semua %d krathong — permohonan terkabul!
+1808	🪷 Festival Loy Krathong! Portal besar terbuka di hutan — hanya malam ini
+1809	🪷 Festival Loy Krathong telah berakhir
+1810	Hanya malam ini · sekali per ronde
+1811	Warga menghanyutkan krathong di sungai — ambil!
+1812	Ambil hingga %d krathong per orang
+1813	+1 Ruby per krathong
+1814	Semua %d: peti legendaris + 10 Ruby
+1815	Lampion, kembang api, dan lampu sungai
+1816	FESTIVAL LOY KRATHONG
+1817	Portal besar terbuka di hutan · Hanya malam ini
+1818	PERMOHONAN TERKABUL
+1819	Kamu mengambil semua krathong · Peti legendaris + 10 Ruby
+1820	Loy Krathong

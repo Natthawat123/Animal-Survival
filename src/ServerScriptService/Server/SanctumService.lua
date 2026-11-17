@@ -4,7 +4,7 @@
 	  ปริศนา: เข้าใกล้ -> เสารูน 3 ต้นกะพริบบอกลำดับ -> ปลุกเสา (ProximityPrompt) ให้ถูกลำดับภายใน 30 วินาที
 	         ผิด/หมดเวลา = เริ่มใหม่ · สำเร็จ = ประตูผนึกยุบลง + แสงพุ่ง -> หีบศักดิ์สิทธิ์ (ของหายาก) · รอบละครั้ง
 	  เปิดหีบ = คนที่ช่วยกัน (ปลุกเสา/ตีผู้พิทักษ์/เปิดหีบ) ได้ออร่าธาตุติดตัวทั้งรอบ (SurvivalService:GiveAura)
-	         แล้วประตูมิติข้างนอกปิดผนึก (veil attribute Sealed -> PortalService ไม่วาร์ป) เข้าวิหารนี้ไม่ได้อีกจนจบรอบ
+	         ประตูมิติยังเข้า-ออกได้ (veil attribute Cleared) แต่เวฟ/ปริศนา/หีบ ไม่เกิดซ้ำจนจบรอบ
 	  กลับล็อบบี้ (Phase = Lobby) = รีเซ็ตทุกวิหาร
 ]]
 
@@ -98,6 +98,7 @@ function SanctumService:Build(el, sp, src, parent)
 	m:PivotTo(cf)
 	-- ประตูมิติบนพื้น -> ห้องในปราสาทบนฟ้า: ปริศนาเสารูน + หีบ อยู่บนพื้นหินเรียบในห้อง (ไม่ลอย/ไม่จม)
 	local temple = PropBuilder.BuildRealm(cf, el, m, THAI[el] .. " Sanctum", "Enter Sanctum", "Sanctum")
+	PropBuilder.BuildSiteSign(cf * CFrame.new(-27, 0, -14) * CFrame.Angles(0, math.rad(-20), 0), "Sanctum", el, m) -- ป้ายเงื่อนไข/รางวัล ข้างประตู
 	local roomTop = temple:GetAttribute("FloorTop") or PropBuilder.RealmY + 0.5
 	-- กรอบในห้อง: แนวเดียวกับประตูข้างนอก (-Z = ฝั่งที่คนเข้ามา)
 	cf = CFrame.new(cf.Position.X, roomTop, cf.Position.Z) * (cf - cf.Position)
@@ -533,7 +534,6 @@ function SanctumService:TickWaves(site)
 	if not site.Wave then
 		if near then
 			GuardianWaves.Begin(site, spawn)
-			self.ctx.Services.DirectorService:AddFightTime("Sanctum" .. site.Element, "a Sanctum")
 			self:Tell(site, string.format("⚔ The %s Sanctum guardians awaken! Wave 1/%d — %d guardians", THAI[site.Element], #GuardianWaves.Counts, GuardianWaves.Counts[1]), "Warn", SHOW_RANGE + 20)
 		end
 		return
@@ -769,18 +769,19 @@ function SanctumService:OpenChest(site, player)
 	if rng:NextNumber() < 0.2 then
 		give(HEART[el], 1)
 	end
-	-- ออร่าธาตุ: เฉพาะคนที่ช่วยกัน (ปลุกเสา / ตีผู้พิทักษ์ / คนเปิดหีบ) ที่ยังอยู่ในรอบ
+	-- ออร่าธาตุ + Ruby: ทุกคนในทีม (ที่ยังอยู่ในรอบ) ได้หมด ไม่ต้องอยู่ในวิหาร · ทุกคนเห็นฉากได้บัพบนตัวเอง (TeamBuff)
+	--   ระหว่างฉาก 4 วิ สัตว์ไม่เล็ง + ไม่โดนดาเมจ
 	site.Helpers[player] = true
 	local surv = ctx.Services.SurvivalService
-	for p in pairs(site.Helpers) do
-		if p.Parent and p:GetAttribute("InRun") and surv:GiveAura(p, el) then
-			ctx.Notify(p, "✨ Gained " .. AURA_TEXT[el] .. " (lasts the whole run)", "Reward")
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p:GetAttribute("InRun") and surv:IsAlive(p) then
+			surv:GiveAura(p, el)
+			surv:Protect(p, 4)
+			ctx.Services.DataService:AddDiamonds(p, rng:NextInteger(5, 8), "Ancient Sanctum: " .. THAI[el])
 		end
 	end
+	ctx.FireRun("Cinematic", "TeamBuff", { Element = el, Title = "SANCTUM CLEARED", Text = "✨ " .. AURA_TEXT[el] .. " · whole team, whole run", By = player.DisplayName })
 	ctx.Broadcast(string.format("Cleared the %s Sanctum · Got %s", THAI[el], AURA_TEXT[el]), "Reward")
-	for _, p in ipairs(self:NearbyPlayers(site, 70)) do
-		ctx.Services.DataService:AddDiamonds(p, rng:NextInteger(5, 8), "Ancient Sanctum: " .. THAI[el])
-	end
 	task.spawn(self.SealAfterClear, self, site)
 	ctx.Remotes.Get("HitFx"):FireClient(player, "Loot", { Items = got, Position = pos, Chest = true })
 	ctx.Services.LootService:ChestFx(site.ChestBody and site.ChestBody.Parent, pos, 3)
@@ -802,12 +803,11 @@ function SanctumService:PortalVeil(site)
 	end
 end
 
+-- เคลียร์แล้ว = ทำเครื่องหมายไว้เฉยๆ ประตูยังเข้าได้ (WavesDone/State Solved/Opened กันกิจกรรมเกิดซ้ำ)
 function SanctumService:SealPortal(site)
-	local veil, prompt = self:PortalVeil(site)
+	local veil = self:PortalVeil(site)
 	if veil then
-		veil:SetAttribute("Sealed", true)
-		site.PortalAction = site.PortalAction or prompt.ActionText
-		prompt.ActionText = "Sealed"
+		veil:SetAttribute("Cleared", true)
 	end
 end
 
@@ -846,7 +846,7 @@ function SanctumService:SealAfterClear(site)
 		return
 	end
 	self:SealPortal(site)
-	self.ctx.Broadcast(string.format("The %s Sanctum is now sealed", THAI[site.Element]), "Info")
+	self.ctx.Broadcast(string.format("The %s Sanctum is cleared · you can still enter, but it won't reset this run", THAI[site.Element]), "Info")
 end
 
 ---------------------------------------------------------------- รีเซ็ต (รอบใหม่)
@@ -856,6 +856,7 @@ function SanctumService:ResetSite(site)
 	local veil, prompt = self:PortalVeil(site)
 	if veil then
 		veil:SetAttribute("Sealed", nil)
+		veil:SetAttribute("Cleared", nil)
 		if site.PortalAction then
 			prompt.ActionText = site.PortalAction
 		end

@@ -1375,3 +1375,120 @@
 1600	Pegar
 1601	Canteiro de frutas %d/%d
 1605	Acampamento %dm
+1612	Vá até a bancada para fabricar
+1614	Sem madeira no saco
+1615	Sem madeira ou carne crua no saco para jogar no fogo
+1616	Só madeira e carne crua podem ir para o fogo
+1617	Jogue madeira na fogueira — se apagar, a zona segura some!
+1618	🔥 O fogo está morrendo! Restam cerca de %s — jogue madeira, rápido
+1619	🔒 Requer fogueira Nv.%d
+1620	🔥 Melhore a fogueira para Nv.%d para entrar neste santuário
+1621	Pedra de viagem
+1622	Pedra de teleporte
+1623	Pedra de teleporte. Coloque em qualquer lugar do mapa, não só no acampamento · Fique em cima, aperte E e escolha outra pedra para viajar · Máx. 8 por servidor
+1624	Viaje entre pedras · Coloque onde quiser
+1625	🌀 Construa outra Pedra de viagem no mapa para viajar entre elas
+1626	Fique em cima da pedra para teleportar
+1627	Teleportar
+1628	Pedra %d
+1629	🌀 Pedras de viagem
+1630	Escolha para onde ir
+1631	Você está na pedra %d
+1632	🌀 Pedra %d
+1633	Viajar
+1634	Terras selvagens
+1635	🌀 Um portal para casa abriu na borda do acampamento! Vá lá votar para sair — ou fique e continue sobrevivendo
+1636	O portal está recarregando — você pode votar de novo em %d segundos
+1637	🌀 %s quer voltar para casa pelo portal — vote agora!
+1638	🌀 A equipe votou para voltar para casa! (Sim %d · Não %d)
+1639	🌲 A equipe decidiu ficar — o modo infinito continua (Sim %d · Não %d)
+1640	Votar para voltar para casa
+1641	Portal para casa
+1642	🏆 Última partida: você escapou da selva depois de %d noites!
+1643	🌀 Voltar para casa?
+1644	✔ Voltar (Y)
+1645	✕ Continuar (N)
+1646	Voltar %d · Ficar %d · Equipe %d (a maioria vence)
+1647	🏠 A equipe está voltando para casa!
+1648	🌲 A equipe fica — o modo infinito continua
+1649	Você votou: Voltar ✔
+1650	Você votou: Continuar ✕
+1651	%s abriu a votação do portal · Se a maioria concordar, a partida termina com uma cena e todos voltam ao lobby
+1652	UM PORTAL PARA CASA
+1653	Abriu na borda do acampamento — vote lá para sair, ou continue sobrevivendo
+1654	A 99ª noite acabou — uma saída da selva se abriu
+1655	Reúnam-se no portal e votem — saiam juntos, ou fiquem e continuem sobrevivendo
+1656	A noite 99 passou...
+1657	Pela primeira vez, a floresta está em silêncio
+1658	A fogueira que te manteve vivo brilha uma última vez
+1659	Noite após noite, ela segurou a escuridão
+1660	Os filhotes espirituais que você salvou se reúnem para se despedir
+1661	Em algum lugar no escuro, as feras observam você partir
+1662	De agora em diante, elas protegerão a floresta
+1663	Mas esta noite, nenhuma ousa seguir
+1664	O CAMINHO DE CASA
+1665	%d noites sobrevividas
+1666	Juntos, vocês entram na luz
+1667	O lar espera do outro lado
+1668	Você sobreviveu %d noites na selva e encontrou o caminho de casa
+1669	Os 4 filhotes espirituais estão livres — a floresta está em paz de novo
+1670	Filhotes espirituais salvos: %d/4
+1671	As últimas brasas da fogueira se apagam... mas sua história continua
+1672	Obrigado por jogar!
+1673	Voltando ao lobby...
+1674	O VERDADEIRO FINAL
+1675	FINALMENTE EM CASA
+1676	🌀 Um portal para casa vai abrir no acampamento — votem para sair juntos, ou continuem jogando sem fim
+1677	Desça da montaria para fabricar
+1678	⛩ Santuário de %s
+1679	💀 Covil do chefe de %s
+1680	🏛 Templo de %s
+1681	🔥 Requer fogueira Nv.%d para entrar
+1682	Vença as ondas de guardiões e liberte o filhote espiritual
+1683	Recompensas para o time todo:
+1684	📅 Os dias contam +%d mais rápido
+1685	♦️ +%d Ruby cada
+1686	⏳ +2 min de dia na primeira entrada
+1687	Não precisa de nível de fogueira · entre para acordar o chefe
+1688	Derrote-o para ganhar:
+1689	❤ %s x1 · cria armas elementais
+1690	✦ %s x5-7
+1691	♦️ +%d Ruby cada (jogadores perto)
+1692	⏱ O chefe volta %d min após morrer
+1693	Não precisa de nível de fogueira
+1694	Acorde os pilares rúnicos em ordem e vença os guardiões
+1695	🎁 Baú sagrado: arma lendária + %s x4-6
+1696	♦️ +5-8 Ruby cada
+1697	TEMPLO CONCLUÍDO
+1698	time todo, partida toda
+1699	partida toda
+1700	Requer fogueira Nv.%d
+1701	RECOMPENSAS PARA O TIME TODO
+1702	Os dias contam +%d mais rápido
+1703	+%d Ruby cada
+1704	+2 min de dia na primeira entrada
+1705	Baú sagrado: arma lendária + %s x4-6
+1706	+5-8 Ruby cada
+1707	🌀 O portal de volta sumiu — continue sobrevivendo no modo infinito
+1708	📍 %s colocou um marcador
+1731	BANCADA NV.%d
+1732	Novas receitas desbloqueadas
+1802	Festival Loy Krathong
+1803	Entrar no festival
+1804	Pegar
+1805	Krathong
+1806	🪷 Você já pegou os %d krathongs
+1807	🪷 %s pegou os %d krathongs — desejo realizado!
+1808	🪷 Festival Loy Krathong! Um grande portal abriu na floresta — só esta noite
+1809	🪷 O festival Loy Krathong acabou
+1810	Só esta noite · uma vez por partida
+1811	Aldeões soltam krathongs no rio — pegue-os!
+1812	Pegue até %d krathongs cada
+1813	+1 Ruby por krathong
+1814	Todos os %d: baú lendário + 10 Ruby
+1815	Lanternas, fogos e luzes do rio
+1816	FESTIVAL LOY KRATHONG
+1817	Um grande portal abriu na floresta · Só esta noite
+1818	DESEJO REALIZADO
+1819	Você pegou todos os krathongs · Baú lendário + 10 Ruby
+1820	Loy Krathong

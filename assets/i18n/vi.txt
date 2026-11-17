@@ -1375,3 +1375,120 @@
 1600	Nhặt
 1601	Luống dâu %d/%d
 1605	Trại %dm
+1612	Hãy đến bàn chế tạo để chế tạo
+1614	Không có gỗ trong bao
+1615	Không có gỗ hay thịt sống trong bao để ném vào lửa
+1616	Chỉ có gỗ và thịt sống mới bỏ vào lửa được
+1617	Ném gỗ vào lửa trại — nếu tắt, vùng an toàn sẽ biến mất!
+1618	🔥 Lửa sắp tắt! Còn khoảng %s — ném gỗ vào nhanh
+1619	🔒 Cần lửa trại Lv.%d
+1620	🔥 Nâng lửa trại lên Lv.%d để vào đền này
+1621	Đá dịch chuyển
+1622	Đá dịch chuyển
+1623	Đá dịch chuyển. Đặt ở bất cứ đâu trên bản đồ, không cần trong trại · Đứng lên, bấm E và chọn đá khác để dịch chuyển · Tối đa 8 mỗi máy chủ
+1624	Dịch chuyển giữa các đá · Đặt ở đâu cũng được
+1625	🌀 Xây thêm một Đá dịch chuyển trên bản đồ để đi lại giữa chúng
+1626	Đứng trên đá để dịch chuyển
+1627	Dịch chuyển
+1628	Đá %d
+1629	🌀 Đá dịch chuyển
+1630	Chọn nơi muốn đến
+1631	Bạn đang ở đá %d
+1632	🌀 Đá %d
+1633	Đi
+1634	Vùng hoang dã
+1635	🌀 Cổng về nhà đã mở ở rìa trại! Đến đó bỏ phiếu để rời đi — hoặc ở lại tiếp tục sinh tồn
+1636	Cổng đang nạp lại — có thể bỏ phiếu lại sau %d giây
+1637	🌀 %s muốn về nhà qua cổng — bỏ phiếu ngay!
+1638	🌀 Cả đội đã chọn về nhà! (Có %d · Không %d)
+1639	🌲 Cả đội chọn ở lại — chế độ vô tận tiếp tục (Có %d · Không %d)
+1640	Bỏ phiếu về nhà
+1641	Cổng về nhà
+1642	🏆 Lượt trước: bạn đã thoát khỏi vùng hoang dã sau %d đêm!
+1643	🌀 Về nhà?
+1644	✔ Về nhà (Y)
+1645	✕ Chơi tiếp (N)
+1646	Về %d · Ở lại %d · Cả đội %d (đa số thắng)
+1647	🏠 Cả đội sắp về nhà!
+1648	🌲 Cả đội ở lại — chế độ vô tận tiếp tục
+1649	Bạn chọn: Về nhà ✔
+1650	Bạn chọn: Chơi tiếp ✕
+1651	%s đã mở bỏ phiếu ở cổng · Nếu đa số đồng ý, lượt chơi kết thúc bằng đoạn phim và mọi người về sảnh
+1652	CỔNG VỀ NHÀ
+1653	Cổng mở ở rìa trại — bỏ phiếu ở đó để rời đi, hoặc tiếp tục sinh tồn
+1654	Đêm thứ 99 đã qua — lối thoát khỏi vùng hoang dã đã mở
+1655	Tập trung ở cổng và bỏ phiếu — cùng rời đi, hoặc ở lại sinh tồn
+1656	Đêm thứ 99 đã qua...
+1657	Lần đầu tiên, khu rừng im lặng
+1658	Đống lửa giữ bạn sống sót bừng sáng lần cuối
+1659	Đêm này qua đêm khác, nó đẩy lùi bóng tối
+1660	Những linh thú con bạn cứu tụ lại để chào tạm biệt
+1661	Đâu đó trong bóng tối, lũ thú dõi theo bạn rời đi
+1662	Từ nay, chúng sẽ canh giữ khu rừng
+1663	Nhưng đêm nay, không con nào dám theo
+1664	ĐƯỜNG VỀ NHÀ
+1665	Sống sót %d đêm
+1666	Cùng nhau, các bạn bước vào ánh sáng
+1667	Ngôi nhà đang chờ ở phía bên kia
+1668	Bạn đã sống sót %d đêm nơi hoang dã và tìm thấy đường về nhà
+1669	Cả 4 linh thú con đã tự do — khu rừng lại bình yên
+1670	Linh thú con đã cứu: %d/4
+1671	Những tàn lửa cuối cùng lụi dần... nhưng câu chuyện của bạn vẫn còn mãi
+1672	Cảm ơn bạn đã chơi!
+1673	Đang về sảnh...
+1674	KẾT THÚC THẬT SỰ
+1675	CUỐI CÙNG CŨNG VỀ NHÀ
+1676	🌀 Cổng về nhà sẽ mở ở trại — bỏ phiếu cùng rời đi, hoặc chơi tiếp vô tận
+1677	Xuống thú cưỡi để chế tạo
+1678	⛩ Đền %s
+1679	💀 Hang trùm %s
+1680	🏛 Thánh điện %s
+1681	🔥 Cần lửa trại Lv.%d để vào
+1682	Đánh bại các đợt hộ vệ và giải cứu linh thú con
+1683	Phần thưởng cho cả đội:
+1684	📅 Ngày tính nhanh hơn +%d
+1685	♦️ +%d Ruby mỗi người
+1686	⏳ +2 phút ban ngày khi vào lần đầu
+1687	Không cần cấp lửa trại · bước vào để đánh thức trùm
+1688	Hạ nó để nhận:
+1689	❤ %s x1 · chế tạo vũ khí nguyên tố
+1690	✦ %s x5-7
+1691	♦️ +%d Ruby mỗi người (người chơi gần đó)
+1692	⏱ Trùm hồi sinh %d phút sau khi bị hạ
+1693	Không cần cấp lửa trại
+1694	Đánh thức các trụ rune theo thứ tự rồi hạ hộ vệ
+1695	🎁 Rương thiêng: vũ khí huyền thoại + %s x4-6
+1696	♦️ +5-8 Ruby mỗi người
+1697	ĐÃ CHINH PHỤC THÁNH ĐIỆN
+1698	cả đội, cả màn
+1699	cả màn
+1700	Cần lửa trại Lv.%d
+1701	PHẦN THƯỞNG CHO CẢ ĐỘI
+1702	Ngày tính nhanh hơn +%d
+1703	+%d Ruby mỗi người
+1704	+2 phút ban ngày khi vào lần đầu
+1705	Rương thiêng: vũ khí huyền thoại + %s x4-6
+1706	+5-8 Ruby mỗi người
+1707	🌀 Cổng về nhà đã biến mất — tiếp tục sinh tồn ở chế độ vô tận
+1708	📍 %s đã đặt điểm đánh dấu
+1731	BÀN CHẾ TẠO CẤP %d
+1732	Đã mở khóa công thức mới
+1802	Lễ hội Loy Krathong
+1803	Vào lễ hội
+1804	Nhặt
+1805	Krathong
+1806	🪷 Bạn đã nhặt đủ %d krathong
+1807	🪷 %s đã nhặt đủ %d krathong — điều ước thành sự thật!
+1808	🪷 Lễ hội Loy Krathong! Một cổng lớn đã mở trong rừng — chỉ đêm nay
+1809	🪷 Lễ hội Loy Krathong đã kết thúc
+1810	Chỉ đêm nay · mỗi màn một lần
+1811	Dân làng thả krathong xuống sông — hãy nhặt chúng!
+1812	Mỗi người nhặt tối đa %d krathong
+1813	+1 Ruby mỗi krathong
+1814	Đủ %d: rương huyền thoại + 10 Ruby
+1815	Đèn lồng, pháo hoa và đèn ven sông
+1816	LỄ HỘI LOY KRATHONG
+1817	Một cổng lớn đã mở trong rừng · Chỉ đêm nay
+1818	ĐIỀU ƯỚC THÀNH SỰ THẬT
+1819	Bạn đã nhặt mọi krathong · Rương huyền thoại + 10 Ruby
+1820	Loy Krathong

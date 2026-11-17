@@ -9,7 +9,7 @@ if not ReplicatedStorage:FindFirstChild("ASPropProbe") then
 end
 local player = Players:GetPlayers()[1] or Players.PlayerAdded:Wait()
 player.CharacterAdded:Wait()
-local KINDS = { "BerryBush", "Mushrooms", "GlowShroom", "Bush", "Flowers", "Fern", "GiantPine", "Oak", "Boulder" }
+local KINDS = { "BerryBush", "Mushrooms", "GlowShroom", "Bush", "Flowers", "Fern", "GiantPine", "Oak", "Boulder", "MossRock", "SeaRock", "SkyStone", "IronRock" }
 local function collect()
 	local found = {}
 	for _, d in ipairs(workspace:GetDescendants()) do
@@ -53,7 +53,7 @@ for _, k in ipairs(KINDS) do
 end
 -- ยืนดูของทีละชนิด
 local char = player.Character
-for _, k in ipairs({ "BerryBush", "Mushrooms", "Bush" }) do
+for _, k in ipairs({ "Boulder", "IronRock", "MossRock", "SeaRock" }) do
 	local m = found[k] and found[k][1]
 	if m and char and char.PrimaryPart then
 		local p = m:GetPivot().Position

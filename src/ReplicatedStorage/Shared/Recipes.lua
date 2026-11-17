@@ -17,6 +17,8 @@ Recipes.List = {
 	{ Id = "HerbSalve", Bench = 1, Cost = { Berries = 3, Fiber = 2 } },
 	{ Id = "BerryJuice", Bench = 1, Cost = { Berries = 4 } },
 	{ Id = "LogWall", Bench = 1, Cost = { Wood = 6 } },
+	{ Id = "WoodDoor", Bench = 1, Cost = { Wood = 8 } },
+	{ Id = "StorageBox", Bench = 1, Cost = { Wood = 10 } },
 	{ Id = "SpikeTrap", Bench = 1, Cost = { Wood = 4, Stone = 2 } },
 	{ Id = "Lantern", Bench = 1, Cost = { Wood = 3, Fiber = 2, Stone = 1 } },
 	{ Id = "WoodArmor", Bench = 1, Cost = { Wood = 12, Fiber = 6 } },
@@ -28,6 +30,7 @@ Recipes.List = {
 	{ Id = "Bed", Bench = 2, Cost = { Wood = 10, Pelt = 3 } },
 	{ Id = "FarmPlot", Bench = 2, Cost = { Wood = 6, Berries = 3 } },
 	{ Id = "CookPot", Bench = 2, Cost = { Stone = 8, Iron = 2 } },
+	{ Id = "BigStorageBox", Bench = 2, Cost = { Wood = 18, Iron = 2 } },
 	{ Id = "IronSword", Bench = 2, Cost = { Iron = 8, Wood = 4, Pelt = 1 } },
 	{ Id = "Mace", Bench = 2, Cost = { Iron = 10, Stone = 8, Wood = 4 } },
 	-- เลเวล 3
@@ -39,6 +42,7 @@ Recipes.List = {
 	{ Id = "BattleAxe", Bench = 3, Cost = { Iron = 14, Wood = 8, Pelt = 2 } },
 	{ Id = "Crossbow", Bench = 3, Cost = { Wood = 12, Iron = 8, Fiber = 8 } },
 	{ Id = "Katana", Bench = 3, Cost = { Iron = 16, Pelt = 3, Bone = 4 } },
+	{ Id = "Teleporter", Bench = 3, Cost = { Stone = 12, Iron = 6, AnyEssence = 1 } }, -- หินวาร์ป (ทั้งเซิร์ฟ 8 อัน)
 	-- เลเวล 4 (ของธาตุ)
 	{ Id = "Bed2", Bench = 4, Cost = { Wood = 25, Pelt = 6, Iron = 6 } },
 	{ Id = "TerraHammer", Bench = 4, Cost = { TerraHeart = 1, TerraCore = 4 } },

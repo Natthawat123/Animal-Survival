@@ -12,7 +12,7 @@ Items.Data = {
 	Stone = { Name = "Stone", Thai = "Stone", Category = "Resource", Color = Color3.fromRGB(150, 150, 156) },
 	Fiber = { Name = "Fiber", Thai = "Fiber", Category = "Resource", Color = Color3.fromRGB(170, 200, 110) },
 	Iron = { Name = "Iron Ore", Thai = "Iron Ore", Category = "Resource", Color = Color3.fromRGB(196, 150, 120) },
-	Coal = { Name = "Coal", Thai = "Coal", Category = "Resource", Fuel = 40, Color = Color3.fromRGB(40, 40, 44) },
+	Coal = { Name = "Coal", Thai = "Coal", Category = "Resource", Color = Color3.fromRGB(40, 40, 44) },
 	Pelt = { Name = "Pelt", Thai = "Pelt", Category = "Resource", Color = Color3.fromRGB(160, 120, 84) },
 	Bone = { Name = "Bone", Thai = "Bone", Category = "Resource", Color = Color3.fromRGB(232, 226, 206) },
 
@@ -26,10 +26,10 @@ Items.Data = {
 	BerryPie = { Name = "Berry Pie", Thai = "Berry Pie", Category = "Food", Food = 40, Full = { Mult = 0.5, Time = 120 }, Color = Color3.fromRGB(80, 70, 190) },
 
 	-- พลังธาตุ (ได้จากคริสตัลและสัตว์ธาตุ)
-	TerraCore = { Name = "Terra Core", Thai = "Terra Core", Category = "Essence", Element = "Earth", Fuel = 60, Color = Color3.fromRGB(140, 220, 90) },
+	TerraCore = { Name = "Terra Core", Thai = "Terra Core", Category = "Essence", Element = "Earth", Color = Color3.fromRGB(140, 220, 90) },
 	TidePearl = { Name = "Tide Pearl", Thai = "Tide Pearl", Category = "Essence", Element = "Water", Color = Color3.fromRGB(110, 200, 255) },
 	GaleFeather = { Name = "Frost Feather", Thai = "Frost Feather", Category = "Essence", Element = "Air", Color = Color3.fromRGB(226, 238, 255) },
-	EmberShard = { Name = "Ember Shard", Thai = "Ember Shard", Category = "Essence", Element = "Fire", Fuel = 120, Color = Color3.fromRGB(255, 120, 40) },
+	EmberShard = { Name = "Ember Shard", Thai = "Ember Shard", Category = "Essence", Element = "Fire", Color = Color3.fromRGB(255, 120, 40) },
 	-- หัวใจอสูร 4 ธาตุ (ดรอปจากบอสธาตุนั้น ทั้งรังบอสและคืนบุก) · Model = ใช้โมเดลของไอเทมอื่น + Tint ย้อมสี
 	TerraHeart = { Name = "Terra Heart", Thai = "Earth Beast Heart", Category = "Relic", Element = "Earth", Model = "BeastHeart", Tint = Color3.fromRGB(120, 235, 90), Color = Color3.fromRGB(120, 235, 90) },
 	TideHeart = { Name = "Tide Heart", Thai = "Water Beast Heart", Category = "Relic", Element = "Water", Model = "BeastHeart", Tint = Color3.fromRGB(80, 190, 255), Color = Color3.fromRGB(80, 190, 255) },
@@ -76,13 +76,16 @@ Items.Data = {
 	VerdantStaff = { Name = "Verdant Staff", Thai = "Verdant Staff", Category = "Tool", Element = "Earth" },
 
 	-- เกราะ (คราฟต์แล้วสวมทันที ไม่กินที่กระสอบ · ArmorHP = เลือดสูงสุดเพิ่ม · Tier สูงกว่าเปลี่ยนทับได้)
-	WoodArmor = { Name = "Wood Armor", Thai = "Wood Armor", Category = "Armor", ArmorHP = 30, Tier = 1, Color = Color3.fromRGB(150, 104, 62) },
-	IronArmor = { Name = "Iron Armor", Thai = "Iron Armor", Category = "Armor", ArmorHP = 60, Tier = 2, Color = Color3.fromRGB(196, 200, 210) },
-	GoldArmor = { Name = "Gold Armor", Thai = "Gold Armor", Category = "Armor", ArmorHP = 100, Tier = 3, Color = Color3.fromRGB(240, 196, 70) },
+	WoodArmor = { Name = "Wood Armor", Thai = "Wood Armor", Category = "Armor", ArmorHP = 20, Tier = 1, Color = Color3.fromRGB(150, 104, 62) },
+	IronArmor = { Name = "Iron Armor", Thai = "Iron Armor", Category = "Armor", ArmorHP = 40, Tier = 2, Color = Color3.fromRGB(196, 200, 210) },
+	GoldArmor = { Name = "Gold Armor", Thai = "Gold Armor", Category = "Armor", ArmorHP = 60, Tier = 3, Color = Color3.fromRGB(240, 196, 70) },
 
 	-- สิ่งก่อสร้าง (เก็บเป็นชุด แล้วกด B เพื่อวาง)
 	LogWall = { Name = "Log Wall", Thai = "Wood Wall", Category = "Structure" },
 	StoneWall = { Name = "Stone Wall", Thai = "Stone Wall", Category = "Structure" },
+	WoodDoor = { Name = "Wood Door", Thai = "Wood Door", Category = "Structure" }, -- ผนังไม้มีประตู เปิด/ปิดได้ · ต่อกับกำแพงได้
+	StorageBox = { Name = "Storage Box", Thai = "Storage Box", Category = "Structure" }, -- เก็บของ 20 ชิ้น
+	BigStorageBox = { Name = "Big Storage Box", Thai = "Big Storage Box", Category = "Structure" }, -- เก็บของ 40 ชิ้น
 	SpikeTrap = { Name = "Spike Trap", Thai = "Spike Trap", Category = "Structure" },
 	Lantern = { Name = "Lantern", Thai = "Lantern", Category = "Structure" },
 	Ballista = { Name = "Ballista", Thai = "Ballista", Category = "Structure" },
@@ -95,6 +98,7 @@ Items.Data = {
 	GaleTotem = { Name = "Gale Totem", Thai = "Frost Pillar", Category = "Structure", Element = "Air" },
 	EmberTotem = { Name = "Ember Totem", Thai = "Fire Pillar", Category = "Structure", Element = "Fire" },
 	SunBeacon = { Name = "Sun Beacon", Thai = "Solar Beacon", Category = "Structure" },
+	Teleporter = { Name = "Waystone", Thai = "Waystone Teleporter", Category = "Structure", IconProp = "RuneStoneLP" }, -- วาร์ประหว่างหินวาร์ป (TeleporterService) · วางได้ทุกที่ในแมพ
 }
 
 -- ค่าคราฟต์แบบ "อะไรก็ได้ในกลุ่ม" (ใช้ใน Cost เหมือนไอเทม เช่น AnyEssence = 2 -> แก่นธาตุธาตุไหนก็ได้รวม 2)
@@ -164,19 +168,23 @@ end
 -- Breakable = true: สัตว์/บอสตีพังได้ (เฉพาะกำแพงไม้ + กำแพงหิน) · ที่เหลือ (เตียง หน้าไม้ กับดัก เสาธาตุ ฯลฯ) ไม่มีวันพัง
 Items.Structures = {
 	LogWall = { Health = 300, Breakable = true, Size = Vector3.new(12, 10, 2.5) },
-	StoneWall = { Health = 900, Breakable = true, Size = Vector3.new(12, 12, 3.5) },
-	SpikeTrap = { Health = 200, Size = Vector3.new(8, 2, 8), Damage = 18, Tick = 0.8 },
+	StoneWall = { Health = 600, Breakable = true, Size = Vector3.new(12, 12, 3.5) },
+	WoodDoor = { Health = 300, Breakable = true, Size = Vector3.new(12, 10, 2.5) }, -- ผนังไม้ + บานประตู (StorageService เปิด/ปิด)
+	StorageBox = { Health = 200, Size = Vector3.new(4.6, 4, 3.6), Storage = 20 }, -- Storage = เก็บได้กี่ชิ้น (ของในกระสอบ)
+	BigStorageBox = { Health = 300, Size = Vector3.new(8.8, 4, 3.6), Storage = 40 },
+	SpikeTrap = { Health = 200, Size = Vector3.new(8, 2, 8), Damage = 3, Tick = 0.8 },
 	Lantern = { Health = 120, Size = Vector3.new(2, 9, 2), Light = 45 },
-	Ballista = { Health = 400, Size = Vector3.new(6, 7, 6), Damage = 30, Range = 120, Cooldown = 1.6 },
+	Ballista = { Health = 400, Size = Vector3.new(6, 7, 6), Damage = 15, Range = 120, Cooldown = 1.6 },
 	Bed = { Health = 150, Size = Vector3.new(6.8, 5.2, 8) }, -- เตียงไม้ (3D Model/bad · Cozy Wooden Bed)
 	Bed2 = { Health = 250, Size = Vector3.new(7.6, 6, 8) }, -- เตียงม่านม่วง (3D Model/bad · Royal Violet Canopy)
 	FarmPlot = { Health = 150, Size = Vector3.new(10, 1.5, 10), GrowTime = 180, Yield = 12 }, -- ปลูก 3 นาที ลูกออก 12 ลูก (ต้นละ 2)
 	CookPot = { Health = 200, Size = Vector3.new(5, 5, 5) },
-	TerraTotem = { Health = 600, Size = Vector3.new(4, 14, 4), Radius = 70, Element = "Earth" }, -- ซ่อมกำแพงรอบๆ
-	TideTotem = { Health = 600, Size = Vector3.new(4, 14, 4), Radius = 70, Element = "Water" }, -- สัตว์ในรัศมีเดินช้า
-	GaleTotem = { Health = 600, Size = Vector3.new(4, 14, 4), Radius = 60, Element = "Air" }, -- ผลักสัตว์ออก
-	EmberTotem = { Health = 600, Size = Vector3.new(4, 14, 4), Radius = 55, Element = "Fire", Damage = 12 }, -- เผาสัตว์รอบๆ
+	TerraTotem = { Health = 600, Size = Vector3.new(5, 10, 5), GroundLow = 1.7, Radius = 70, Element = "Earth", Heal = 20, HealEvery = 2 }, -- ซ่อมสิ่งก่อสร้างรอบๆ ทุก 2 วิ ครั้งละ 20
+	TideTotem = { Health = 600, Size = Vector3.new(5, 10, 5), GroundLow = 1.7, Radius = 70, Element = "Water", Slow = 0.15 }, -- สัตว์ในรัศมีเดินช้าลง 15%
+	GaleTotem = { Health = 600, Size = Vector3.new(5, 10, 5), GroundLow = 1.7, Radius = 60, Element = "Air", GustEvery = 5 }, -- ผลักสัตว์ออกทุก 5 วิ
+	EmberTotem = { Health = 600, Size = Vector3.new(5, 10, 5), GroundLow = 1.7, Radius = 55, Element = "Fire", Damage = 2, Tick = 1 }, -- เผาสัตว์รอบๆ ทุก 1 วิ ครั้งละ 2 (มีเลขเด้ง)
 	SunBeacon = { Health = 2000, Size = Vector3.new(10, 40, 10), Light = 160 },
+	Teleporter = { Health = 500, Size = Vector3.new(10, 4, 10), Anywhere = true, GroundRadius = 4.6 }, -- GroundRadius = ลานกว้าง: วางที่ระดับพื้นต่ำสุดใต้ขอบลาน (ไม่ลอยบนพื้นเอียง) -- Anywhere = วางนอกเขตแคมป์ได้ (ทั่วแมพ)
 }
 
 -- คำอธิบายสั้น (ภาษาไทย) ใช้ในกล่องรายละเอียดไอเทม (ItemTooltip)
@@ -235,6 +243,9 @@ Items.Desc = {
 	VerdantStaff = "Wildwood Druid's signature staff · Fires thorn bolts that slow monsters · Can't chop trees or mine rocks",
 	EmberStaff = "The Elementalist's fire staff. Hits launch exploding fireballs at enemies · Can't chop trees or mine rocks",
 	LogWall = "Wood wall. Blocks animal packs",
+	WoodDoor = "Wood wall with a door you can open and close · Connects to walls · Animals can break it",
+	StorageBox = "Wooden box that stores 20 items from your sack",
+	BigStorageBox = "Big wooden box that stores 40 items from your sack",
 	StoneWall = "Stone wall. Very sturdy",
 	SpikeTrap = "Spike trap. Stabs animals that step on it",
 	Lantern = "Lantern. Lights the area and scares off the Moonfang",
@@ -251,6 +262,7 @@ Items.Desc = {
 	GaleTotem = "Frost pillar. Pushes animals away",
 	EmberTotem = "Fire pillar. Burns nearby animals",
 	SunBeacon = "Solar beacon. Gives off massive light",
+	Teleporter = "Waystone teleporter. Place it anywhere on the map, not just in camp · Stand on it, press E and pick any other Waystone to warp there · Max 8 per server",
 }
 
 -- ชื่อหมวดภาษาไทย

@@ -14,6 +14,7 @@ local V = Vector3.new
 local CF = CFrame.new
 local ANG = CFrame.Angles
 local C = Color3.fromRGB
+local TOTEM_GLOW = { TerraTotem = C(150, 255, 110), TideTotem = C(110, 230, 255), GaleTotem = C(225, 240, 255), EmberTotem = C(255, 130, 50) }
 
 local function P(model, size, cf, color, material, shape)
 	local p = Instance.new(shape == "Wedge" and "WedgePart" or "Part")
@@ -47,22 +48,6 @@ local function light(part, color, range, brightness, shadows)
 	return l
 end
 
-local function totem(m, color, glowColor)
-	local base = cylY(m, 2, 5, CF(0, 1, 0), C(80, 76, 72), Enum.Material.Slate)
-	local pole = P(m, V(2.6, 10, 2.6), CF(0, 7, 0), C(110, 90, 70), Enum.Material.Wood)
-	for i = 0, 3 do
-		P(m, V(2.8, 0.6, 2.8), CF(0, 4 + i * 2.4, 0) * ANG(0, i * 0.4, 0), color, Enum.Material.Neon)
-	end
-	local orb = P(m, V(3.2, 3.2, 3.2), CF(0, 13.4, 0), glowColor, Enum.Material.Neon, "Ball")
-	orb.Name = "Orb"
-	light(orb, glowColor, 30, 2)
-	for i = 0, 3 do
-		local a = i * math.pi / 2
-		P(m, V(0.5, 3, 1.4), CF(math.cos(a) * 1.8, 12.6, math.sin(a) * 1.8) * ANG(0, -a, 0.3), color, Enum.Material.Neon, "Wedge")
-	end
-	return base, pole
-end
-
 local Builders = {}
 
 Builders.LogWall = function(m)
@@ -84,6 +69,58 @@ Builders.StoneWall = function(m)
 	for i = 0, 3 do
 		P(m, V(1.6, 1.6, 1.6), CF(-4.5 + i * 3, 12.8, 0) * ANG(0.3, 0.6, 0), C(150, 146, 140), Enum.Material.Slate)
 	end
+end
+
+-- ประตูไม้: ผนังไม้ยาวเท่ากำแพง (ต่อกับกำแพงได้) + ช่องประตูกลาง + บาน "Leaf" (หมุนรอบ "Hinge" · StorageService เปิด/ปิด)
+Builders.WoodDoor = function(m)
+	local wood, dark, plank = C(120, 84, 54), C(84, 58, 38), C(146, 100, 60)
+	for _, sx in ipairs({ -1, 1 }) do
+		P(m, V(3.4, 10, 2), CF(sx * 4.3, 5, 0), wood, Enum.Material.WoodPlanks)
+		P(m, V(0.5, 10, 2.4), CF(sx * 2.6, 5, 0), dark, Enum.Material.Wood)
+		P(m, V(0.6, 10.4, 2.4), CF(sx * 5.8, 5.2, 0), dark, Enum.Material.Wood)
+	end
+	P(m, V(5.2, 2, 2), CF(0, 9, 0), wood, Enum.Material.WoodPlanks)
+	P(m, V(12.2, 0.6, 2.5), CF(0, 10.1, 0), dark, Enum.Material.Wood)
+	local leaf = Instance.new("Model")
+	leaf.Name = "Leaf"
+	leaf.Parent = m
+	P(leaf, V(4.6, 7.9, 0.5), CF(0, 3.98, 0), plank, Enum.Material.WoodPlanks).Name = "Panel"
+	for _, y in ipairs({ 1.6, 6.3 }) do
+		P(leaf, V(4.4, 0.45, 0.2), CF(0, y, -0.35), dark, Enum.Material.Wood)
+	end
+	P(leaf, V(0.35, 5, 0.2), CF(0, 3.95, -0.35) * ANG(0, 0, 0.9), dark, Enum.Material.Wood)
+	P(leaf, V(0.35, 0.35, 0.5), CF(1.8, 4, -0.5), C(60, 60, 64), Enum.Material.Metal)
+	local hinge = P(leaf, V(0.3, 7.9, 0.3), CF(-2.3, 3.98, 0), C(0, 0, 0))
+	hinge.Name, hinge.Transparency, hinge.CanCollide, hinge.CanQuery = "Hinge", 1, false, false
+	local anchor = P(m, V(1, 1, 1), CF(0, 4, 0), C(0, 0, 0))
+	anchor.Name, anchor.Transparency, anchor.CanCollide, anchor.CanQuery, anchor.CanTouch = "PromptAnchor", 1, false, false, false
+end
+
+-- กล่องเก็บของไม้ (กล่อง + ฝา + ขอบไม้มุม + แถบเหล็ก + กลอน) · กล่องใหญ่ = กล่องคู่ (กลอน 2 อัน)
+local function storageBox(m, w, double)
+	local d, h, lh = 3.2, 2.6, 1
+	local body = P(m, V(w, h, d), CF(0, h / 2, 0), C(156, 108, 62), Enum.Material.WoodPlanks)
+	body.Name = "Body"
+	P(m, V(w + 0.2, lh, d + 0.2), CF(0, h + lh / 2, 0), C(138, 94, 54), Enum.Material.WoodPlanks).Name = "Lid"
+	for _, sx in ipairs({ -1, 1 }) do
+		for _, sz in ipairs({ -1, 1 }) do
+			P(m, V(0.4, h + lh + 0.05, 0.4), CF(sx * w / 2, (h + lh) / 2, sz * d / 2), C(92, 64, 40), Enum.Material.Wood)
+		end
+	end
+	if double then
+		P(m, V(0.35, h + lh, d + 0.3), CF(0, (h + lh) / 2, 0), C(92, 64, 40), Enum.Material.Wood)
+	end
+	P(m, V(w + 0.26, 0.22, d + 0.26), CF(0, h, 0), C(78, 78, 84), Enum.Material.Metal)
+	P(m, V(w + 0.22, 0.18, d + 0.22), CF(0, 0.5, 0), C(78, 78, 84), Enum.Material.Metal)
+	for _, x in ipairs(double and { -w / 4, w / 4 } or { 0 }) do
+		P(m, V(0.7, 0.9, 0.2), CF(x, h - 0.05, -d / 2 - 0.2), C(196, 196, 204), Enum.Material.Metal)
+	end
+end
+Builders.StorageBox = function(m)
+	storageBox(m, 4.4, false)
+end
+Builders.BigStorageBox = function(m)
+	storageBox(m, 8.6, true)
 end
 
 Builders.SpikeTrap = function(m)
@@ -163,19 +200,6 @@ Builders.CookPot = function(m)
 	fire.Parent = P(m, V(1, 1, 1), CF(0, 0.5, 0), C(255, 140, 40), Enum.Material.Neon)
 end
 
-Builders.TerraTotem = function(m)
-	totem(m, C(110, 210, 80), C(150, 255, 110))
-end
-Builders.TideTotem = function(m)
-	totem(m, C(60, 170, 240), C(110, 230, 255))
-end
-Builders.GaleTotem = function(m)
-	totem(m, C(200, 214, 240), C(235, 245, 255))
-end
-Builders.EmberTotem = function(m)
-	totem(m, C(240, 100, 30), C(255, 160, 60))
-end
-
 Builders.SunBeacon = function(m)
 	cylY(m, 4, 10, CF(0, 2, 0), C(120, 116, 110), Enum.Material.Slate)
 	for i = 0, 3 do
@@ -184,18 +208,85 @@ Builders.SunBeacon = function(m)
 	end
 	local sun = P(m, V(7, 7, 7), CF(0, 38, 0), C(255, 236, 160), Enum.Material.Neon, "Ball")
 	sun.Name = "Sun"
-	light(sun, C(255, 230, 170), 60, 4, true)
+	sun.Transparency = 0.6 -- ลดความจ้า 60%
+	light(sun, C(255, 230, 170), 60, 1.6, true)
 	local l2 = Instance.new("SpotLight")
 	l2.Face = Enum.NormalId.Bottom
 	l2.Range = 60
 	l2.Angle = 120
-	l2.Brightness = 3
+	l2.Brightness = 1.2
 	l2.Color = C(255, 230, 170)
 	l2.Parent = sun
 end
 
+-- หินวาร์ป (Teleporter): ลานหินแกะลาย (Store: PlazaCircleLP) + หินรูน 3 ก้อนล้อม (Store: RuneStoneLP) + วงแสงฟ้า + ประกายลอยขึ้น
+--   "Pad" = จุดกด E (TeleporterService ใส่ปุ่ม) · ไม่มีโมเดล Store = จานหิน + แท่งหินปั้นแทน
+local TP_COLOR = C(110, 220, 255)
+Builders.Teleporter = function(m)
+	local PropBuilder = require(script.Parent.PropBuilder) -- โหลดตอนใช้ (PropBuilder ไม่ได้ require โมดูลนี้ -> ไม่วน)
+	local floor = PropBuilder.Imported("PlazaCircleLP", CF(0, 0.05, 0), 9.5, m, true)
+	local top = 0.6
+	if floor then
+		-- โมเดลลานถูกหมุนให้ตั้งขึ้นตอนนำเข้า -> Imported วัดก้นผิดแกน (ลานลอยเหนือพื้น ~4.7 stud · ผู้เล่นยืนลอยตาม)
+		--   วัดกล่องแนวโลกใหม่ แล้วเลื่อนลงให้ก้นลานแตะพื้นพอดี
+		local bcf, bs = floor:GetBoundingBox()
+		local bottom = bcf.Position.Y - bs.Y / 2
+		floor:PivotTo(floor:GetPivot() - V(0, bottom - 0.02, 0))
+		bcf, bs = floor:GetBoundingBox()
+		top = bcf.Position.Y + bs.Y / 2
+	else
+		cylY(m, 0.6, 9.5, CF(0, 0.3, 0), C(140, 136, 130), Enum.Material.Slate)
+	end
+	-- ฐานหินใต้ลาน (จมดิน): วางบนพื้นเอียง/ขอบเนิน ลานไม่ลอยเห็นช่องใต้ (ส่วนที่พื้นต่ำลงไปเห็นเป็นแท่นหินแทน)
+	local base = cylY(m, 8, 9.3, CF(0, top - 4.15, 0), C(118, 114, 108), Enum.Material.Slate)
+	base.Name = "Foundation"
+	for i = 0, 2 do
+		local a = i * math.pi * 2 / 3 + math.pi / 2
+		-- หินรูนตั้งบนขอบลาน (ฐานจมลงผิวลานนิดหน่อย ไม่ลอย)
+		local p = V(math.cos(a) * 3.9, top - 0.25, math.sin(a) * 3.9)
+		local st = PropBuilder.Imported("RuneStoneLP", CFrame.lookAt(p, V(0, p.Y, 0)), 2.3, m, true)
+		local stTop = p.Y + 4.2
+		if st then
+			local scf, ss = st:GetBoundingBox()
+			stTop = scf.Position.Y + ss.Y / 2
+		else
+			P(m, V(1.4, 4.2, 0.9), CFrame.lookAt(p + V(0, 2.1, 0), V(0, p.Y + 2.1, 0)), C(120, 118, 114), Enum.Material.Slate)
+		end
+		-- รูนเรืองแสงฝังบนยอดหิน (เดิมลอยเหนือหิน 0.6 = ดูเหมือนชิ้นส่วนหลุดลอย)
+		local rune = P(m, V(0.6, 0.6, 0.6), CF(p.X, stTop - 0.12, p.Z), TP_COLOR, Enum.Material.Neon, "Ball")
+		rune.Name = "Rune"
+		rune.CanCollide = false
+	end
+	local ring = cylY(m, 0.12, 7.2, CF(0, top + 0.06, 0), TP_COLOR, Enum.Material.Neon)
+	ring.Name = "Ring"
+	ring.Transparency = 0.35
+	ring.CanCollide = false
+	local inner = cylY(m, 0.13, 6.4, CF(0, top + 0.065, 0), C(30, 60, 80), Enum.Material.SmoothPlastic)
+	inner.Name = "RingInner"
+	inner.Transparency = 0.2
+	inner.CanCollide = false
+	-- จุดกด + แสง + ประกาย (ล่องหน ไม่ชน)
+	local pad = P(m, V(6, 0.4, 6), CF(0, top + 0.4, 0), C(0, 0, 0))
+	pad.Name, pad.Transparency, pad.CanCollide = "Pad", 1, false
+	light(pad, TP_COLOR, 16, 1.6, false)
+	local fx = Instance.new("ParticleEmitter")
+	fx.Name = "Motes"
+	fx.Rate = 14
+	fx.Lifetime = NumberRange.new(1.4, 2.4)
+	fx.Speed = NumberRange.new(2, 4)
+	fx.SpreadAngle = Vector2.new(8, 8)
+	fx.EmissionDirection = Enum.NormalId.Top
+	fx.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.35), NumberSequenceKeypoint.new(1, 0) })
+	fx.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.2), NumberSequenceKeypoint.new(1, 1) })
+	fx.Color = ColorSequence.new(TP_COLOR)
+	fx.LightEmission = 1
+	fx.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+	fx.Parent = pad
+end
+
 -- สิ่งก่อสร้างที่ใช้โมเดลจาก Creator Store (ด้านยาวสุด, stud)
-local STORE_STRUCT = { CookPot = 7, SpikeTrap = 8, FarmPlot = 10, EmberTotem = 9, Lantern = 9, Bed = 8, Bed2 = 8, TerraTotem = 14, TideTotem = 7, Ballista = 8, SunBeacon = 40, LogWall = 11, StoneWall = 12, GaleTotem = 14 }
+-- เสา 4 ธาตุ = โมเดลใหม่ 3D Model/เสา (Import 3D -> assets/rbxm/Items/<ชื่อ>.rbxmx) สูง 10 · โมเดลเก่าลบทิ้งแล้ว
+local STORE_STRUCT = { TerraTotem = 10, TideTotem = 10, GaleTotem = 10, EmberTotem = 10, CookPot = 7, SpikeTrap = 8, FarmPlot = 10, Lantern = 9, Bed = 8, Bed2 = 8, Ballista = 8, SunBeacon = 40, LogWall = 11, StoneWall = 12 }
 local STORE_YAW = { LogWall = 90 } -- เตียง (Meshy): หัวเตียงอยู่ +Z ตรงกับเกมอยู่แล้ว
 
 function StructureModels.Build(kind)
@@ -218,7 +309,13 @@ function StructureModels.Build(kind)
 			-- แสงสุริยะบนยอดหอ (ส่องไกล)
 			local glow = P(m, V(2, 2, 2), CF(0, box.Y * 0.82, 0), C(0, 0, 0))
 			glow.Name, glow.Transparency, glow.CanCollide = "Glow", 1, false
-			light(glow, C(255, 230, 160), Items.Structures.SunBeacon.Light, 3, false)
+			light(glow, C(255, 230, 160), Items.Structures.SunBeacon.Light, 1.2, false) -- เดิม 3 (แสบตา) -> ลด 60%
+			-- ลูกแก้วเรืองแสง (Neon) บนยอด: โปร่งขึ้น = เรืองน้อยลง ไม่จ้าแสบตา
+			for _, p in ipairs(m:GetDescendants()) do
+				if p:IsA("BasePart") and p.Material == Enum.Material.Neon then
+					p.Transparency = math.max(p.Transparency, 0.6)
+				end
+			end
 		elseif kind == "Lantern" then
 			-- ไฟในโคม (ส่วนบนของเสา)
 			local glow = P(m, V(1, 1, 1), CF(0, box.Y * 0.62, 0), C(0, 0, 0))
@@ -234,6 +331,11 @@ function StructureModels.Build(kind)
 			fire.Parent.Transparency, fire.Parent.CanCollide = 1, false
 		elseif kind == "FarmPlot" then
 			StructureModels.AddCrops(m, box)
+		elseif TOTEM_GLOW[kind] then
+			-- เสาธาตุ: แสงสีธาตุส่องพื้นรอบเสา (ช่องเรืองแสงบนตัวเสามาจากเท็กซ์เจอร์)
+			local orb = P(m, V(1, 1, 1), CF(0, box.Y * 0.75, 0), C(0, 0, 0))
+			orb.Name, orb.Transparency, orb.CanCollide, orb.CanQuery = "Orb", 1, false, false
+			light(orb, TOTEM_GLOW[kind], 24, 1.6)
 		end
 		return m
 	end

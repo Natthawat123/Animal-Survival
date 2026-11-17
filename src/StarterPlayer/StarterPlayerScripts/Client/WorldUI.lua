@@ -33,8 +33,12 @@ local function rgb(r, g, b)
 end
 local LIGHT, DIM = rgb(246, 232, 204), rgb(196, 182, 156)
 
-local function maxNight()
-	return (player:GetAttribute("BestNight") or 0) + (Config.WorldNightGate or 20)
+-- ประตูคืนของโลก: คืนที่รอดไกลสุดของเรา ห่างจากของหัวห้องได้ไม่เกิน ±gate
+local function myBest()
+	return player:GetAttribute("BestNight") or 0
+end
+local function gateOk(hostBest)
+	return math.abs(myBest() - (hostBest or 0)) <= (Config.WorldNightGate or 20)
 end
 
 local function act(...)
@@ -167,15 +171,17 @@ local function drawBrowse()
 			label(r, { Size = UDim2.new(1, -230, 0, 28), Position = UDim2.fromOffset(14, 4), TextSize = 20, Font = UIKit.Fonts.Title,
 				Text = (locked and "🔒 " or "🌍 ") .. (room:GetAttribute("WorldName") or "World") })
 			label(r, { Size = UDim2.new(1, -230, 0, 22), Position = UDim2.fromOffset(14, 31), TextSize = 15, Font = UIKit.Fonts.Bold, TextColor3 = DIM,
-				Text = string.format("Host %s  ·  %s  ·  %d/%d players", room:GetAttribute("HostName") or "?", room:GetAttribute("New") and "New world" or ("Night " .. night), count, size) })
+				Text = string.format("Host %s (best %d)  ·  %s  ·  %d/%d players", room:GetAttribute("HostName") or "?", room:GetAttribute("HostBest") or 0,
+					room:GetAttribute("New") and "New world" or ("Night " .. night), count, size) })
 			local mine = hostId == player.UserId
 			local txt, style, can
 			if mine then
 				txt, style = "Your Room", "Dark"
 			elseif count >= size then
 				txt, style = "Full", "Dark"
-			elseif night > maxNight() then
-				txt, style = "Need best Night " .. (night - (Config.WorldNightGate or 20)), "Dark"
+			elseif not gateOk(room:GetAttribute("HostBest")) then
+				local hb, g = room:GetAttribute("HostBest") or 0, Config.WorldNightGate or 20
+				txt, style = string.format("Need Night %d-%d", math.max(0, hb - g), hb + g), "Dark"
 			else
 				txt, style, can = locked and "🔒 Join" or "Join", "Green", true
 			end
@@ -187,6 +193,7 @@ local function drawBrowse()
 						joinTarget = { HostId = hostId, Name = room:GetAttribute("WorldName") or "World" }
 						ui.PwTitle.Text = "🔒 Password for " .. joinTarget.Name
 						ui.PwBox.Text = ""
+						ui.PwError.Text = ""
 						ui.PwPopup.Visible = true
 					else
 						act("Join", hostId, "")
@@ -196,7 +203,7 @@ local function drawBrowse()
 		end
 	end
 	ui.RoomEmpty.Visible = n == 0
-	ui.Gate.Text = string.format("You can join worlds up to Night %d (your best night + %d)", maxNight(), Config.WorldNightGate or 20)
+	ui.Gate.Text = string.format("Your best: Night %d · you can join hosts whose best is within ±%d nights", myBest(), Config.WorldNightGate or 20)
 	p.Visible = true
 end
 
@@ -223,8 +230,8 @@ local function drawRoom(roomId)
 	end
 	local night = room:GetAttribute("Night") or 1
 	ui.RoomTitle.Text = "🌍 " .. (room:GetAttribute("WorldName") or "World")
-	ui.RoomSub.Text = string.format("Host %s  ·  %s  ·  %s", room:GetAttribute("HostName") or "?", room:GetAttribute("New") and "New world" or ("Night " .. night),
-		room:GetAttribute("Locked") and "🔒 Password" or "Open to everyone")
+	local lock = room:GetAttribute("Locked") and (host and ui.MyPw and ui.MyPw ~= "" and ("🔒 Password: " .. ui.MyPw) or "🔒 Password") or "Open to everyone"
+	ui.RoomSub.Text = string.format("Host %s  ·  %s  ·  %s", room:GetAttribute("HostName") or "?", room:GetAttribute("New") and "New world" or ("Night " .. night), lock)
 	-- ช่องผู้เล่น
 	clear(ui.Slots)
 	local ids = {}
@@ -288,6 +295,9 @@ function WorldUI.Refresh()
 	end
 	ui.Browse.Visible, ui.Setup.Visible, ui.Room.Visible = false, false, false
 	local roomId = player:GetAttribute("WorldRoom")
+	if roomId and ui.HoldPw and os.clock() < ui.HoldPw then
+		return -- ค้างหน้าต่าง "รหัสถูก" ไว้แป๊บหนึ่งก่อนเปลี่ยนไปหน้าห้อง
+	end
 	if roomId then
 		ui.PwPopup.Visible = false
 		drawRoom(roomId)
@@ -350,11 +360,15 @@ local function buildBrowse(body)
 	ui.PwTitle = label(pop, { Size = UDim2.new(1, -20, 0, 34), Position = UDim2.fromOffset(10, 14), TextSize = 21, Font = UIKit.Fonts.Title, TextXAlignment = Enum.TextXAlignment.Center,
 		TextTruncate = Enum.TextTruncate.AtEnd, ZIndex = 21, Text = "" })
 	ui.PwBox = textBox(pop, { Size = UDim2.new(1, -60, 0, 44), Position = UDim2.fromOffset(30, 62), PlaceholderText = "Password", ZIndex = 22 })
+	ui.PwError = label(pop, { Size = UDim2.new(1, -20, 0, 22), Position = UDim2.fromOffset(10, 110), TextSize = 15, Font = UIKit.Fonts.Bold, ZIndex = 21,
+		TextXAlignment = Enum.TextXAlignment.Center, TextColor3 = rgb(255, 130, 110), Text = "" })
 	button(pop, "Green", { Size = UDim2.fromOffset(180, 46), Position = UDim2.new(0.5, -190, 1, -64), Text = "Join", TextSize = 21, ZIndex = 22 }, function()
 		if joinTarget then
+			-- ไม่ปิดเอง: เข้าได้ = หน้าห้องรอเปิดแทน · เข้าไม่ได้ = ขึ้นเหตุผลตรงนี้
+			ui.PwError.TextColor3 = rgb(230, 214, 180)
+			ui.PwError.Text = "Checking..."
 			act("Join", joinTarget.HostId, ui.PwBox.Text)
 		end
-		pop.Visible = false
 	end)
 	button(pop, "Red", { Size = UDim2.fromOffset(180, 46), Position = UDim2.new(0.5, 10, 1, -64), Text = "Cancel", TextSize = 20, ZIndex = 22 }, function()
 		pop.Visible = false
@@ -453,6 +467,58 @@ local function buildRoom(body)
 		TextXAlignment = Enum.TextXAlignment.Center, Text = "No one else in this server yet" })
 end
 
+-- ป้ายใหญ่กลางจอ: หัวห้องออก / ห้องปิด (ในโลก = นับถอยหลังก่อนกลับล็อบบี้ · ล็อบบี้ = ปุ่ม OK)
+local function buildHostLeft(gui)
+	local f = WoodKit.Board(gui, { Size = UDim2.fromOffset(620, 210), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.42), Visible = false, ZIndex = 80 },
+		rgb(50, 24, 18), rgb(255, 150, 110))
+	UIKit.AutoScale(f, { maxW = 0.92 })
+	ui.HL = f
+	ui.HLTitle = label(f, { Size = UDim2.new(1, -30, 0, 44), Position = UDim2.fromOffset(15, 16), TextSize = 30, Font = UIKit.Fonts.Title, TextXAlignment = Enum.TextXAlignment.Center,
+		TextColor3 = rgb(255, 210, 160), ZIndex = 81, Text = "" })
+	ui.HLText = label(f, { Size = UDim2.new(1, -30, 0, 60), Position = UDim2.fromOffset(15, 66), TextSize = 20, Font = UIKit.Fonts.Bold, TextWrapped = true,
+		TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 81, Text = "" })
+	ui.HLOk = button(f, "Green", { Size = UDim2.fromOffset(180, 48), AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -16), Text = "OK", TextSize = 22, ZIndex = 82 }, function()
+		f.Visible = false
+	end)
+end
+
+function WorldUI.ShowHostLeft(d)
+	local f = ui.HL
+	local token = {}
+	ui.HLToken = token
+	local name = tostring(d.Name or "The host")
+	if d.InWorld then
+		ui.HLTitle.Text = "👑 " .. name .. " (host) left the world"
+		ui.HLOk.Visible = false
+		f.Visible = true
+		UIKit.Pop(f)
+		local left = math.max(1, math.floor(tonumber(d.Seconds) or 6))
+		task.spawn(function()
+			for s = left, 1, -1 do
+				if ui.HLToken ~= token then
+					return
+				end
+				ui.HLText.Text = string.format("The world is saved. Returning to the lobby in %d...", s)
+				task.wait(1)
+			end
+			if ui.HLToken == token then
+				ui.HLText.Text = "Returning to the lobby..."
+			end
+		end)
+	else
+		ui.HLTitle.Text = "🌍 World room closed"
+		ui.HLText.Text = tostring(d.Text or (name .. " closed the room"))
+		ui.HLOk.Visible = true
+		f.Visible = true
+		UIKit.Pop(f)
+		task.delay(10, function()
+			if ui.HLToken == token then
+				f.Visible = false
+			end
+		end)
+	end
+end
+
 -- หน้าต่างคำเชิญ (ลอยกลางบน · หายเองใน 30 วิ)
 local function buildInvite(gui)
 	local f = WoodKit.Board(gui, { Size = UDim2.fromOffset(520, 150), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 120), Visible = false, ZIndex = 50 }, rgb(46, 32, 22))
@@ -483,6 +549,7 @@ function WorldUI.Init()
 	buildSetup(body)
 	buildRoom(body)
 	buildInvite(gui)
+	buildHostLeft(gui)
 	-- ปุ่มเปิดเมนู (มุมขวาบน ใต้แคปซูล Ruby) · เฉพาะในล็อบบี้
 	local btn = WoodKit.Button(gui, "Green", { Size = UDim2.fromOffset(190, 50), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -24, 0, 78), Text = "🌍 Worlds", TextSize = 24 }, function()
 		if ui.Win.Visible then
@@ -560,6 +627,26 @@ function WorldUI.Init()
 		if kind == "BuyWorld" and (Config.WorldProductId or 0) > 0 then
 			-- กดสร้างแต่ยังไม่มีสิทธิ์ -> เด้งซื้อ · ซื้อเสร็จเซิร์ฟเวอร์สร้างโลก + เปิดห้องรอให้เอง
 			MarketplaceService:PromptProductPurchase(player, Config.WorldProductId)
+		elseif kind == "HostLeft" and type(d) == "table" then
+			WorldUI.ShowHostLeft(d)
+		elseif kind == "WorldJoinOk" then
+			if ui.PwPopup.Visible then
+				ui.PwError.TextColor3 = rgb(120, 235, 120)
+				ui.PwError.Text = "✔ Correct password — joining..."
+				ui.HoldPw = os.clock() + 0.9
+				task.delay(0.95, function()
+					ui.HoldPw = nil
+					WorldUI.Refresh()
+				end)
+			end
+		elseif kind == "WorldJoinFail" and type(d) == "table" then
+			if ui.PwPopup.Visible then
+				ui.PwError.TextColor3 = rgb(255, 130, 110)
+				ui.PwError.Text = tostring(d.Reason or "Couldn't join")
+			end
+		elseif kind == "WorldRoomPw" and type(d) == "table" then
+			ui.MyPw = tostring(d.Pw or "") -- รหัสห้องของเรา (ส่งมาเฉพาะหัวห้อง) -> โชว์ในหน้าห้องรอ ให้บอกเพื่อนถูก
+			WorldUI.Refresh()
 		elseif kind == "WorldInvite" and type(d) == "table" and not player:GetAttribute("InRun") and not player:GetAttribute("WorldRoom") then
 			ui.InvFrom = d.HostId
 			ui.InvText.Text = string.format("📨 %s invited you to %s (%s)", tostring(d.HostName), tostring(d.WorldName), d.New and "new world" or ("Night " .. tostring(d.Night)))

@@ -168,6 +168,12 @@ end
 function RejoinService:OnRemoving(player)
 	local uid = player.UserId
 	-- (เจ้าของโลกออกเกม: WorldService:OnOwnerLeft เซฟโลกก่อนล้างสถานะ — ไม่เซฟซ้ำที่นี่)
+	-- โลกที่สร้าง: เจ้าของออก / โลกปิดแล้ว = ไม่มีให้ "กลับเข้ารอบเดิม" (โลกเซฟไว้แล้ว เปิดใหม่จากเมนู Worlds)
+	--   เดิมคนที่หลุด/ถูกส่งกลับ กดกลับเข้าเซิร์ฟเวอร์โลกได้ทั้งที่เจ้าของไม่อยู่ = ช่องโหว่
+	local st = self.ctx.State
+	if st:GetAttribute("WorldClosed") or (st:GetAttribute("WorldOwner") and st:GetAttribute("WorldOwner") == uid) then
+		return
+	end
 	-- ออกจากรอบตามปกติ (ตาย/รอบจบ/กลับล็อบบี้) ไม่ต้องเก็บ
 	if not player:GetAttribute("InRun") or player:GetAttribute("Dead") or not runActive(self) then
 		return

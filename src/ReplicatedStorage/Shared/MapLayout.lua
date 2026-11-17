@@ -6,7 +6,7 @@
 	  - 4 ธาตุ (Earth/Water/Air/Fire) วางรอบๆ แบบสุ่มมุม+ระยะ แล้วบิดขอบด้วย noise (domain warp)
 	  - ขอบแมพเป็นทะเลลึกวงกลม
 	  - แต่ละธาตุมีจุดพิเศษ: Lair (รังบอส), Shrine (กรงลูกสัตว์ธาตุ), Ruins (ซากปรักหักพัง มีหีบ)
-	  - ธาตุลมมีเกาะลอยฟ้า (FloatingIslands)
+	  - ธาตุลม: ไม่มีเกาะลอยฟ้าแล้ว (FloatingIslands ว่างเสมอ)
 ]]
 
 local SiteSpec = require(script.Parent.SiteSpec)
@@ -329,6 +329,9 @@ function MapLayout:_placeSpecials(rng)
 			end
 		end
 	end
+	-- เอาเกาะลอยฟ้า + ลมพัดขึ้นออกทั้งหมด (ยังสุ่มไว้ข้างบนเพื่อให้ RNG เดินเท่าเดิม แมพส่วนอื่นไม่เลื่อน)
+	self.FloatingIslands = {}
+	self.Updrafts = {}
 end
 
 -- วิหารโบราณศักดิ์สิทธิ์ (Sanctum) ธาตุละ 1 แห่ง: หาที่ราบ ห่างแคมป์/ศาลเจ้า/รังบอส/ซาก/น้ำ/ลาวา

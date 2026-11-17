@@ -24,6 +24,7 @@ local GuardianWaves = require(script.Parent.GuardianWaves)
 
 local SpiritService = {}
 
+local LAIR_LEAVE = 220 -- ห่างกลางรังเกินนี้ทุกคน = บอสรีเลือด (ลานรังรัศมี ~155)
 local LAIR_RESPAWN = 15 * 60 -- บอสในรังตายแล้วกลับมาใหม่หลังกี่วินาที
 local INTRO_TIME, INTRO_TURN = 12, 9 -- ฉากเปิดศาลเจ้า: ผู้เฝ้าถูกปล่อย / หันมาหาผู้เล่น (ตรงกับ Cinematics.ShrineIntro)
 local CLEAR_PILLAR, CLEAR_HOME = 3.6, 8.6 -- ฉากจบศาลเจ้า: เสาผุด / ลูกสัตว์ไปโผล่ที่แคมป์ (ตรงกับ Cinematics.ShrineCleared)
@@ -168,7 +169,6 @@ function SpiritService:SpawnGuardians(sh)
 		end
 	end
 	sh.GuardiansSpawned = true
-	self.ctx.Services.DirectorService:AddFightTime("Shrine" .. sh.Element, "a Shrine")
 	if not intro then
 		self.ctx.Broadcast(string.format("The %s Shrine guardians have awakened", sh.Element), "Warn")
 		return
@@ -228,18 +228,15 @@ function SpiritService:SpawnWave(sh, wave, count)
 	return list
 end
 
--- ช่วยแล้ว = ประตูข้างนอกปิดจนจบรอบ (คนที่อยู่ข้างในยังออกทางประตูกลับได้) · เริ่มรอบใหม่สร้างศาลเจ้าใหม่ ประตูเปิดเอง
+-- ช่วยแล้ว = ทำเครื่องหมายว่าเคลียร์แล้ว แต่ประตูยังเข้า-ออกได้ตามปกติ
+--   (ผู้เฝ้า/กรง/ฉากจบ เช็ก sh.Freed เอง -> เข้าไปซ้ำก็ไม่มีกิจกรรมรอบ 2) · เริ่มรอบใหม่สร้างศาลเจ้าใหม่
 function SpiritService:SealPortal(sh)
 	local veil = sh.OutVeil
 	if not veil then
 		warn("[AS] Shrine", sh.Element, "outer portal not found")
 		return
 	end
-	veil:SetAttribute("Sealed", true)
-	local prompt = veil:FindFirstChildOfClass("ProximityPrompt")
-	if prompt then
-		prompt.ActionText = "Sealed"
-	end
+	veil:SetAttribute("Cleared", true)
 end
 
 -- กองไฟถึงเลเวลที่ธาตุนี้ต้องการไหม (Config.SpiritFireLevel) -> ok, เลเวลที่ต้องการ
@@ -276,9 +273,27 @@ function SpiritService:Free(el, player)
 	local a = sh.Pup
 	local pillarPos = self:PillarPos(sh)
 	local home = self:PetSpot(el)
-	-- คนในห้องศาลเจ้าดูฉากจบเต็ม (ลูกสัตว์ดีใจ -> เสาผุดที่ไบโอม -> ไปโผล่ที่แคมป์) · โหลดพื้นรอบเสา/แคมป์ล่วงหน้า
+	-- ทุกคนในทีมดูฉากจบเต็ม (ลูกสัตว์ดีใจ -> เสาผุดที่ไบโอม -> ไปโผล่ที่แคมป์) · โหลดพื้นรอบกรง/เสา/แคมป์ล่วงหน้า
+	--   ระหว่างดูฉาก: สัตว์ไม่เล็ง + ไม่โดนดาเมจ (SurvivalService:Protect) · บัพลูกสัตว์เป็นของทั้งทีมอยู่แล้ว
 	local cin = self.ctx.Remotes.Get("Cinematic")
-	for _, p in ipairs(playersNear(sh.Base, 170)) do
+	local surv = self.ctx.Services.SurvivalService
+	local viewers = {}
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p:GetAttribute("InRun") and surv:IsAlive(p) then
+			table.insert(viewers, p)
+		end
+	end
+	for _, p in ipairs(viewers) do
+		surv:Protect(p, CLEAR_HOME + 4.5)
+		if (charRoot(p) and (charRoot(p).Position - sh.Base).Magnitude > 170) then
+			task.spawn(function()
+				pcall(function()
+					p:RequestStreamAroundAsync(sh.Base, 4)
+				end)
+			end)
+		end
+	end
+	for _, p in ipairs(viewers) do
 		cin:FireClient(p, "ShrineCleared", {
 			Element = el, Name = a.Info.Thai, Cage = sh.Base, Pillar = pillarPos, Home = home, Player = player.DisplayName,
 			PillarAt = CLEAR_PILLAR, HomeAt = CLEAR_HOME, Buff = BUFF_TEXT[el], PetId = Animals.Spirits[el],
@@ -604,7 +619,7 @@ function SpiritService:WakeLair(lair, player)
 	local info = Animals.Data[({ Earth = "Terragon", Water = "Leviathan", Air = "TempestRoc", Fire = "Solfang" })[lair.Element]]
 	local id = ({ Earth = "Terragon", Water = "Leviathan", Air = "TempestRoc", Fire = "Solfang" })[lair.Element]
 	local a = self.ctx.Services.AnimalService:Spawn(id, lair.Pos + Vector3.new(0, 2, 0), {
-		Kind = "Guardian", Home = lair.Pos, Leash = 60, HealthMult = Nights.BossHealthMult(self.ctx.Services.SurvivalService:RunPlayerCount(true)),
+		Kind = "Guardian", Home = lair.Pos, Leash = 150, -- (เดิม 60) สู้ได้ทั่วลาน HealthMult = Nights.BossHealthMult(self.ctx.Services.SurvivalService:RunPlayerCount(true)),
 		DamageMult = Nights.BossDamageMult(self.ctx.Services.SurvivalService:RunPlayerCount(true)), -- ตีธรรมดา + สกิล +25%/คน
 	})
 	if not a then
@@ -727,12 +742,31 @@ function SpiritService:Tick()
 			elseif lair.Boss then
 				if lair.Boss.Dead then
 					lair.Boss = nil
-				elseif nearestPlayer(lair.Pos, 320) then
-					lair.LastSeen = os.clock()
-				elseif os.clock() - (lair.LastSeen or 0) > 40 then
-					animals:Vanish(lair.Boss)
-					lair.Boss = nil
-					self.ctx.State:SetAttribute("BossId", "")
+				else
+					-- ทุกคนเดินออกห่างรังเกิน LAIR_LEAVE นาน 3 วิ = บอสฟื้นเลือดเต็ม (หนีไปตั้งหลักแล้วกลับมาตีต่อไม่ได้)
+					local b = lair.Boss
+					if nearestPlayer(lair.Pos, LAIR_LEAVE) then
+						lair.AwaySince = nil
+					else
+						lair.AwaySince = lair.AwaySince or os.clock()
+						if os.clock() - lair.AwaySince >= 3 and b.Hum and b.Hum.Health > 0 and b.Hum.Health < b.Hum.MaxHealth then
+							b.Hum.Health = b.Hum.MaxHealth
+							b.PoisonPct, b.PoisonBy = nil, nil
+							for _, pl in ipairs(Players:GetPlayers()) do
+								local r = charRoot(pl)
+								if r and (r.Position - lair.Pos).Magnitude < 700 then
+									self.ctx.Notify(pl, string.format("%s recovered to full HP — you left the arena", b.Info.Name), "Warn")
+								end
+							end
+						end
+					end
+					if nearestPlayer(lair.Pos, 320) then
+						lair.LastSeen = os.clock()
+					elseif os.clock() - (lair.LastSeen or 0) > 40 then
+						animals:Vanish(b)
+						lair.Boss = nil
+						self.ctx.State:SetAttribute("BossId", "")
+					end
 				end
 			end
 		end

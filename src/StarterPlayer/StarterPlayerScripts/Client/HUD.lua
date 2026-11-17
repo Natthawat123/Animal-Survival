@@ -24,6 +24,7 @@ local Remotes = require(Shared.Remotes)
 local UIKit = require(script.Parent.UIKit)
 local SoundController = require(script.Parent.SoundController)
 local ItemIcon = require(script.Parent.ItemIcon)
+local ItemTooltip = require(script.Parent.ItemTooltip)
 
 local HUD = {}
 local player = Players.LocalPlayer
@@ -228,7 +229,7 @@ function HUD.Init(state)
 	HUD.StockLabels = {}
 	for i, id in ipairs({ "Wood", "Stone", "Iron" }) do
 		local x = 78 + (i - 1) * 62
-		ItemIcon.Make(stock, id, { Size = UDim2.fromOffset(30, 30), Position = UDim2.fromOffset(x, 7), ZIndex = 3 })
+		ItemTooltip.Attach(ItemIcon.Make(stock, id, { Size = UDim2.fromOffset(30, 30), Position = UDim2.fromOffset(x, 7), ZIndex = 3 }), id)
 		HUD.StockLabels[id] = UIKit.Text(stock, { Size = UDim2.fromOffset(30, 44), Position = UDim2.fromOffset(x + 31, 0), Text = "0", TextSize = 17, Font = UIKit.Fonts.Black, TextColor3 = C.Text })
 	end
 
@@ -268,6 +269,7 @@ function HUD.Init(state)
 		local slot = UIKit.Frame(strip, { Size = UDim2.fromOffset(44, 32), BackgroundColor3 = Color3.fromRGB(30, 28, 32), BackgroundTransparency = 0.3, LayoutOrder = i })
 		UIKit.Corner(slot, 6)
 		ItemIcon.Make(slot, id, { Size = UDim2.fromOffset(24, 24), Position = UDim2.fromOffset(2, 4) })
+		ItemTooltip.Attach(slot, id)
 		local count = UIKit.Text(slot, { Size = UDim2.new(1, -4, 0, 14), Position = UDim2.fromOffset(0, 17), Text = "0", TextSize = 12, TextXAlignment = Enum.TextXAlignment.Right, TextColor3 = C.TextDim })
 		slot.Visible = false
 		HUD.Slots[id] = { Frame = slot, Count = count }
@@ -642,8 +644,7 @@ function HUD.Update()
 		else
 			HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("Team is on night %d · Step on a pad to join", s:GetAttribute("Night") or 1))
 		end
-		HUD.Hint.Text = HUD.Touch and "Tent = Classes · Green cauldron = Daily reward"
-			or "[K] Class Shop   ·   Green cauldron = Daily reward   ·   Step on a pad to start"
+		HUD.Hint.Text = "Tent = Classes · Green cauldron = Daily reward" -- ล็อบบี้ไม่มีปุ่มลัด (เอา [K] ออก)
 		HUD.TimeFill.Size = UDim2.fromScale(0, 1)
 	elseif phase == "Day" then
 		HUD.PhaseLabel.Text = UIKit.StripIcons(string.format("Day · Dusk in %s", fmtTime(remain)))
@@ -873,7 +874,7 @@ function HUD.UpdateFuel(fuel, maxFuel, inLobby, phase)
 	if low and active and HUD.FuelLowArmed then
 		HUD.FuelLowArmed = false
 		SoundController.Play("FireLow")
-		HUD.Notify(string.format("🔥 The fire is dying! About %s left — throw wood/coal in, quick", drain > 0 and fmtTime(fuel / drain) or "a few minutes"), "Warn")
+		HUD.Notify(string.format("🔥 The fire is dying! About %s left — throw wood in, quick", drain > 0 and fmtTime(fuel / drain) or "a few minutes"), "Warn")
 	elseif frac >= 0.25 or not active then
 		HUD.FuelLowArmed = true
 	end

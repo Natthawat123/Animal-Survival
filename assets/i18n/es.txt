@@ -1375,3 +1375,120 @@
 1600	Recoger
 1601	Huerto de bayas %d/%d
 1605	Campamento %dm
+1612	Ve a la mesa de fabricación para fabricar
+1614	No tienes madera en el saco
+1615	No tienes madera ni carne cruda en el saco para echar al fuego
+1616	Solo la madera y la carne cruda pueden ir al fuego
+1617	Echa madera a la fogata — ¡si se apaga, la zona segura desaparece!
+1618	🔥 ¡El fuego se apaga! Quedan unos %s — echa madera, rápido
+1619	🔒 Requiere fogata Nv.%d
+1620	🔥 Mejora la fogata a Nv.%d para entrar a este santuario
+1621	Piedra de viaje
+1622	Piedra de teletransporte
+1623	Piedra de teletransporte. Colócala en cualquier parte del mapa, no solo en el campamento · Párate encima, pulsa E y elige otra piedra para viajar · Máx. 8 por servidor
+1624	Viaja entre piedras · Colócala donde quieras
+1625	🌀 Construye otra Piedra de viaje en el mapa para viajar entre ellas
+1626	Párate sobre la piedra para teletransportarte
+1627	Teletransportar
+1628	Piedra %d
+1629	🌀 Piedras de viaje
+1630	Elige a dónde viajar
+1631	Estás en la piedra %d
+1632	🌀 Piedra %d
+1633	Viajar
+1634	Tierras salvajes
+1635	🌀 ¡Se abrió un portal a casa al borde del campamento! Ve a votar para salir — o quédate y sigue sobreviviendo
+1636	El portal se está recargando — puedes volver a votar en %d segundos
+1637	🌀 ¡%s quiere volver a casa por el portal — vota ahora!
+1638	🌀 ¡El equipo votó volver a casa! (Sí %d · No %d)
+1639	🌲 El equipo decidió quedarse — sigue el modo infinito (Sí %d · No %d)
+1640	Votar para volver a casa
+1641	Portal a casa
+1642	🏆 Última partida: ¡escapaste de la naturaleza tras %d noches!
+1643	🌀 ¿Volver a casa?
+1644	✔ Volver (Y)
+1645	✕ Seguir jugando (N)
+1646	Volver %d · Quedarse %d · Equipo %d (gana la mayoría)
+1647	🏠 ¡El equipo vuelve a casa!
+1648	🌲 El equipo se queda — sigue el modo infinito
+1649	Votaste: Volver ✔
+1650	Votaste: Seguir jugando ✕
+1651	%s abrió la votación del portal · Si la mayoría acepta, la partida termina con una escena y todos vuelven al lobby
+1652	UN PORTAL A CASA
+1653	Se abrió al borde del campamento — vota allí para salir, o sigue sobreviviendo
+1654	La noche 99 terminó — se abrió una salida de la naturaleza
+1655	Reúnanse en el portal y voten — salgan juntos, o quédense y sigan sobreviviendo
+1656	La noche 99 ha pasado...
+1657	Por primera vez, el bosque está en silencio
+1658	La fogata que te mantuvo con vida brilla una última vez
+1659	Noche tras noche, contuvo la oscuridad
+1660	Los cachorros espíritu que rescataste se reúnen para despedirse
+1661	En algún lugar de la oscuridad, las bestias te ven partir
+1662	De ahora en adelante, protegerán el bosque
+1663	Pero esta noche, ninguna se atreve a seguirte
+1664	EL CAMINO A CASA
+1665	%d noches sobrevividas
+1666	Juntos, entran en la luz
+1667	El hogar espera al otro lado
+1668	Sobreviviste %d noches en la naturaleza y encontraste el camino a casa
+1669	Los 4 cachorros espíritu son libres — el bosque vuelve a estar en paz
+1670	Cachorros espíritu rescatados: %d/4
+1671	Las últimas brasas de la fogata se apagan... pero tu historia continúa
+1672	¡Gracias por jugar!
+1673	Volviendo al lobby...
+1674	EL VERDADERO FINAL
+1675	POR FIN EN CASA
+1676	🌀 Se abrirá un portal a casa en el campamento — voten para salir juntos, o sigan jugando sin fin
+1677	Bájate de tu montura para fabricar
+1678	⛩ Santuario de %s
+1679	💀 Guarida del jefe de %s
+1680	🏛 Templo de %s
+1681	🔥 Requiere fogata Nv.%d para entrar
+1682	Vence las oleadas de guardianes y libera al cachorro espiritual
+1683	Recompensas para todo el equipo:
+1684	📅 Los días cuentan +%d más rápido
+1685	♦️ +%d Ruby cada uno
+1686	⏳ +2 min de día en la primera entrada
+1687	No requiere nivel de fogata · entra para despertar al jefe
+1688	Derrótalo para obtener:
+1689	❤ %s x1 · fabrica armas elementales
+1690	✦ %s x5-7
+1691	♦️ +%d Ruby cada uno (jugadores cerca)
+1692	⏱ El jefe vuelve %d min después de morir
+1693	No requiere nivel de fogata
+1694	Despierta los pilares rúnicos en orden y vence a los guardianes
+1695	🎁 Cofre sagrado: arma legendaria + %s x4-6
+1696	♦️ +5-8 Ruby cada uno
+1697	TEMPLO SUPERADO
+1698	todo el equipo, toda la partida
+1699	toda la partida
+1700	Requiere fogata Nv.%d
+1701	RECOMPENSAS PARA TODO EL EQUIPO
+1702	Los días cuentan +%d más rápido
+1703	+%d Ruby cada uno
+1704	+2 min de día en la primera entrada
+1705	Cofre sagrado: arma legendaria + %s x4-6
+1706	+5-8 Ruby cada uno
+1707	🌀 El portal a casa se desvaneció — sigue sobreviviendo en modo infinito
+1708	📍 %s colocó un marcador
+1731	MESA DE FABRICACIÓN NV.%d
+1732	Nuevas recetas desbloqueadas
+1802	Festival Loy Krathong
+1803	Entrar al festival
+1804	Recoger
+1805	Krathong
+1806	🪷 Ya recogiste los %d krathongs
+1807	🪷 ¡%s recogió los %d krathongs — deseo concedido!
+1808	🪷 ¡Festival Loy Krathong! Un gran portal se abrió en el bosque — solo esta noche
+1809	🪷 El festival Loy Krathong terminó
+1810	Solo esta noche · una vez por partida
+1811	Los aldeanos sueltan krathongs en el río — ¡recógelos!
+1812	Recoge hasta %d krathongs cada uno
+1813	+1 Ruby por krathong
+1814	Los %d: cofre legendario + 10 Ruby
+1815	Farolillos, fuegos artificiales y luces del río
+1816	FESTIVAL LOY KRATHONG
+1817	Un gran portal se abrió en el bosque · Solo esta noche
+1818	DESEO CONCEDIDO
+1819	Recogiste todos los krathongs · Cofre legendario + 10 Ruby
+1820	Loy Krathong

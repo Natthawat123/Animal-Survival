@@ -246,7 +246,7 @@ end
 local EVENT_SFX = {
 	NightStart = "NightStart", Dusk = "Dusk", Dawn = "Dawn", WaveIncoming = "WaveIncoming", BossIntro = "BossIntro",
 	BossFelled = "BossFelled", Downed = "Downed", Revived = "Revive", Died = "Death", FireOut = "FireOut",
-	CampUpgrade = "CampUpgrade", SpiritFreed = "Spirit", SpiritRescued = "Spirit", Purchased = "Purchase", GameOver = "GameOver",
+	CampUpgrade = "CampUpgrade", BenchUpgrade = "CampUpgrade", SpiritFreed = "Spirit", SpiritRescued = "Spirit", Purchased = "Purchase", GameOver = "GameOver",
 	StalkerWarning = "StalkerWarn",
 }
 function SoundController.OnCinematic(kind, d)
@@ -258,6 +258,8 @@ function SoundController.OnCinematic(kind, d)
 		SoundController.Sting("Defeat")
 	elseif kind == "Ending" or kind == "BossFelled" then
 		SoundController.Sting("Victory")
+	elseif kind == "Escape" then
+		SoundController.Sting("Lobby") -- ฉากจบ: กีตาร์โฟล์กรอบกองไฟ (ตอนเดินทะลุประตูค่อยเป็นเพลงชนะ)
 	end
 	local _ = d
 end

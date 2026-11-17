@@ -1,0 +1,22 @@
+﻿ERR: orError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+ERR: torError] Error: MeshContentProvider failed to process https://assetdelivery.roblox.com/v1/asset?id=70559294799847 because 'could not fetch'
+ERR: orError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+ERR: rError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+ERR: torError] Error: MeshContentProvider failed to process https://assetdelivery.roblox.com/v1/asset?id=70559294799847 because 'could not fetch'
+orOutput] [AS] rebuilt mesh collisions: 1240
+orOutput] [AS] เริ่มเทสต์อัตโนมัติ...
+orOutput] [AS] seed=338451681 map=2048
+orOutput] [AS] client ready
+orOutput] [AS] terrain 4.8s
+orOutput] [AS] world ready 5.5s props=325
+orOutput] [AS] READY
+orOutput] [AS] TREEPROBE fell tree1 t=0.0
+orOutput] [AS] TREEPROBE fell tree2 t=4.0
+orOutput] [AS] TREEPROBE fell tree3 t=8.0
+orOutput] [AS] TREEPROBE regrow tree1 t=12.0
+orOutput] [AS] TREEPROBE regrow tree2 t=14.1
+ERR: torError] Error: MeshContentProvider failed to process https://assetdelivery.roblox.com/v1/asset?id=70559294799847 because 'could not fetch'
+orOutput] [AS] TREEPROBE regrow tree3 t=18.1
+orOutput] [AS] TREEPROBE result gaps=2.1,4.0 (expect ~4,~4)
+orOutput] [TEST] DONE treeprobe
+finished in 517s  done=True

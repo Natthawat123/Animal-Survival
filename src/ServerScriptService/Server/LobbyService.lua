@@ -465,7 +465,8 @@ local function classesTent(self, parent, cf)
 	for _, x in ipairs({ -3.5, 3.5 }) do
 		P(tentFolder, { Size = V(0.3, 8, 0.3), CFrame = wbCf * CF(x, 4, 0.4) * ANG(math.rad(8), 0, 0), Color = C(200, 200, 206), Material = Enum.Material.Metal })
 	end
-	label(wb, Enum.NormalId.Front, "Today's plan:\n1. Pick a class\n2. Step on a start pad\n3. Conquer the final night!", C(40, 60, 160), Enum.Font.GothamBold)
+	-- กระดานเล่าเรื่อง (ตรงกับฉากเปิดเรื่อง Client/Story · ฉากจบ 99 คืน = ประตูกลับบ้าน)
+	label(wb, Enum.NormalId.Front, "Our story:\nOur time machine broke and threw us into the ancient past!\n1. Survive the Moonfang\n2. Rescue the 4 Spirit Pups\n3. Go home when the portal opens on night 99", C(40, 60, 160), Enum.Font.GothamBold)
 	-- ตอไม้มีไฟ (หลังเวที ขวา) + ลังไม้
 	fireStump(tentFolder, cf * CF(10, 1.5, D / 2 - 4), 0.7, 14) -- ไฟอ่อนๆ ไม่ให้หน้าตัวละครบนเวทีสว่างจ้า
 	crate(tentFolder, cf * CF(16, 1.5, D / 2 - 3))
@@ -938,13 +939,14 @@ function LobbyService:Build()
 	nt.RichText = true
 	-- TextScaled วัดความกว้างอักษรไทย/อีโมจิพลาด ทำให้ล้นขอบป้าย → ใช้ขนาดคงที่ + ตัดบรรทัดเอง
 	nt.TextScaled = false
-	nt.TextSize = 30
+	nt.TextSize = 25
 	nt.TextWrapped = true
 	nt.Font = Enum.Font.GothamBold
 	nt.TextColor3 = C(255, 240, 200)
 	local nst = Instance.new("UIStroke")
 	nst.Color, nst.Thickness, nst.Parent = C(70, 40, 20), 2, nt
-	nt.Text = '<font color="#FFE066" size="40">Camp News</font>\n\nDefeat a boss = ♦️3-7\nRescue a Spirit Pup = ♦️5\nSanctums, meteors, chests = ♦️\n\n<font color="#8CFF8C">Free Ruby at the green cauldron every day!</font>'
+	-- เนื้อเรื่อง (ตรงกับฉากเปิดเรื่อง Client/Story · ฉากจบ 99 คืน = ประตูกลับบ้าน)
+	nt.Text = '<font color="#FFE066" size="36">Our Story</font>\n\nA time machine test went wrong and threw us into the ancient past!\n\nSurvive the Moonfang · Rescue the 4 Spirit Pups\nClear the shrines, sanctums and bosses of the 4 lands\n\n<font color="#8CFF8C">The portal home opens on night 99!</font>'
 	nt.Parent = nbg
 	local nlamp = P(deco, { Size = V(0.9, 0.9, 0.9), CFrame = nbCf * CF(0, 12, -1.6), Color = C(255, 214, 150), Material = Enum.Material.Neon, CanCollide = false })
 	light(nlamp, C(255, 196, 130), 14, 1.6)
@@ -1799,6 +1801,8 @@ function LobbyService:Start(ctx)
 			task.delay(6, function()
 				if player.Parent and td.Result == "Defeat" then
 					ctx.Notify(player, string.format("🔥 Last run: the team reached night %d — try again!", tonumber(td.Night) or 0), "Info")
+				elseif player.Parent and td.Result == "Escape" then
+					ctx.Notify(player, string.format("🏆 Last run: you escaped the wilds after %d nights!", tonumber(td.Night) or 0), "Reward")
 				end
 			end)
 		end
@@ -1886,10 +1890,20 @@ function LobbyService:Start(ctx)
 				end
 				-- หลุดกลางรอบแล้วกลับมา: คืนสถานะเดิม (RejoinService) แทนการเริ่มใหม่
 				local rejoin = ctx.Services.RejoinService
-				if p.Parent and rejoin and rejoin:OnTeamArrive(p) then
+				local okR, back = pcall(function()
+					return p.Parent and rejoin and rejoin:OnTeamArrive(p)
+				end)
+				if not okR then
+					warn("[AS] team arrive (rejoin):", back)
+				elseif back then
 					return
 				end
-				self:Depart(p)
+				if p.Parent then
+					local okD, errD = pcall(self.Depart, self, p)
+					if not okD then
+						warn("[AS] team arrive (depart):", errD) -- ตัวเฝ้าการเกิดด้านล่างจะลองใหม่ให้
+					end
+				end
 			end)
 		end
 		Players.PlayerAdded:Connect(arrive)
@@ -1897,6 +1911,38 @@ function LobbyService:Start(ctx)
 			arrive(p)
 		end
 	end
+	-- ตัวเฝ้าการเกิด: ผู้เล่นไม่มีตัวละครนานเกิน 15 วิ (หลังโลกพร้อม) = พาลงแมพ/เกิดใหม่ให้เอง
+	--   (เดิมขั้นพาลงแมพพังเงียบ -> หน้าโหลดค้าง "กำลังเข้าแคมป์..." 97% จนต้องออกเข้าใหม่)
+	task.spawn(function()
+		local missing = setmetatable({}, { __mode = "k" })
+		while true do
+			task.wait(3)
+			if ctx.State:GetAttribute("Ready") then
+				for _, p in ipairs(Players:GetPlayers()) do
+					local c = p.Character
+					if c and c.Parent then
+						missing[p] = nil
+					else
+						missing[p] = (missing[p] or 0) + 3
+						if missing[p] >= 15 then
+							missing[p] = 0
+							warn("[AS] spawn watchdog: no character for " .. p.Name .. " -> respawn")
+							local okW, errW = pcall(function()
+								if self.IsTeamServer and not p:GetAttribute("InRun") then
+									self:Depart(p)
+								else
+									ctx.Services.SurvivalService:Spawn(p)
+								end
+							end)
+							if not okW then
+								warn("[AS] spawn watchdog:", errW)
+							end
+						end
+					end
+				end
+			end
+		end
+	end)
 	task.spawn(function()
 		local t, flip = 0, 0
 		while true do

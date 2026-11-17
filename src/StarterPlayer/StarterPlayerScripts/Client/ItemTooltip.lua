@@ -16,6 +16,10 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Items = require(Shared.Items)
 local Recipes = require(Shared.Recipes)
+local Animals = require(Shared.Animals)
+local LootTables = require(Shared.LootTables)
+local Shop = require(Shared.Shop)
+local Classes = require(Shared.Classes)
 local UIKit = require(script.Parent.UIKit)
 
 local ItemTooltip = {}
@@ -32,7 +36,141 @@ local function num(v)
 	return string.format("%.1f", v)
 end
 
--- คืน { Title, Sub, Category, Desc, Stats = { "..." }, Color }
+---------------------------------------------------------------- หาได้จากไหน
+-- ทรัพยากรในแมพ (ต้นไม้/หิน/คริสตัล/พุ่ม) — ตรงกับ PropBuilder Kinds.*.Node
+local NODE = {
+	Wood = { "🪓 Chop trees", "🪓 Charred trees in the Fire land (bonus)" },
+	Stone = { "⛏ Mine rocks", "⛏ Coal rocks (bonus)" },
+	Iron = { "⛏ Mine iron ore rocks (sparkly)" },
+	Coal = { "⛏ Mine coal rocks", "🪓 Chop charred trees (Fire land)" },
+	Berries = { "🫐 Pick berry bushes", "🌱 Grow them in a Berry Patch" },
+	Fiber = { "🫐 Berry bushes (bonus)" },
+	TerraCore = { "💎 Break green crystals (Earth land)", "☄ Earth meteors", "🏛 Earth Sanctum reward" },
+	TidePearl = { "💎 Break blue crystals (Water land)", "☄ Water meteors", "🏛 Water Sanctum reward" },
+	GaleFeather = { "💎 Break white crystals (Frost land)", "☄ Frost meteors", "🏛 Frost Sanctum reward" },
+	EmberShard = { "💎 Break red crystals (Fire land)", "☄ Fire meteors", "🏛 Fire Sanctum reward" },
+	TerraHeart = { "🏛 Earth Sanctum reward (sometimes)" },
+	TideHeart = { "🏛 Water Sanctum reward (sometimes)" },
+	FrostHeart = { "🏛 Frost Sanctum reward (sometimes)" },
+	EmberHeart = { "🏛 Fire Sanctum reward (sometimes)" },
+	Stew = { "🍲 Stew Pot: 2 meat + 2 berries" },
+	BerryPie = { "🍲 Stew Pot: 5 berries + 1 wood" },
+	OldSack = { "🎒 Everyone starts with one" },
+	OldAxe = { "🎒 Everyone starts with one (if the class has no axe)" },
+}
+local ELEMENT_NAME = { Earth = "Earth", Water = "Water", Air = "Frost", Fire = "Fire" }
+local MAX_ANIMALS = 4
+
+local function hasItem(list, id, key)
+	for _, e in ipairs(list or {}) do
+		if e[key or 1] == id then
+			return true
+		end
+	end
+	return false
+end
+
+-- รายการแหล่งที่หาได้ (ข้อความอังกฤษ · ระบบแปล Lang แปลทีละส่วนที่คั่นด้วย " · ")
+function ItemTooltip.Where(id)
+	local out = {}
+	for _, s in ipairs(NODE[id] or {}) do
+		table.insert(out, s)
+	end
+	-- ล่าสัตว์ / บอส
+	local hunt, boss = {}, {}
+	for _, key in ipairs((function()
+		local ks = {}
+		for k in pairs(Animals.Data) do
+			table.insert(ks, k)
+		end
+		table.sort(ks, function(a, b)
+			return (Animals.Data[a].Tier or 9) < (Animals.Data[b].Tier or 9) or ((Animals.Data[a].Tier or 9) == (Animals.Data[b].Tier or 9) and a < b)
+		end)
+		return ks
+	end)()) do
+		local a = Animals.Data[key]
+		if a.Behaviour ~= "Spirit" and a.Behaviour ~= "Stalker" then
+			for _, d in ipairs(a.Drops or {}) do
+				if d.Item == id then
+					table.insert(a.Behaviour == "Boss" and boss or hunt, a.Thai or a.Name)
+					break
+				end
+			end
+		end
+	end
+	if #hunt > 0 then
+		local shown = { table.unpack(hunt, 1, math.min(#hunt, MAX_ANIMALS)) }
+		local more = #hunt > MAX_ANIMALS and string.format(" · +%d more", #hunt - MAX_ANIMALS) or ""
+		table.insert(out, string.format("🐾 Hunt: %s", table.concat(shown, " · ")) .. more)
+	end
+	if #boss > 0 then
+		table.insert(out, string.format("👑 Boss: %s", table.concat(boss, " · ")))
+	end
+	-- ทำอาหาร
+	for src, d in pairs(Items.Data) do
+		if d.CooksInto == id then
+			table.insert(out, string.format("🔥 Cook %s at the campfire", Items.DisplayName(src)))
+		end
+	end
+	-- คราฟต์
+	local r = Recipes.ById[id]
+	if r then
+		table.insert(out, string.format("🔨 Craft at bench Lv.%d", r.Bench))
+	end
+	-- กล่อง 3 สีทั่วแมพ
+	if hasItem(LootTables.TierFixed, id) then
+		table.insert(out, "📦 Every chest (1 each)")
+	else
+		local tiers = {}
+		for t = 1, 3 do
+			local ex = LootTables.TierExtra[t]
+			if hasItem(LootTables.TierTools[t], id) or hasItem(LootTables.TierSacks[t], id) or hasItem(ex and ex.pool, id)
+				or (t == 1 and id == "Medkit") then
+				table.insert(tiers, LootTables.TierName[t])
+			end
+		end
+		if #tiers > 0 then
+			table.insert(out, string.format("📦 Chests: %s", table.concat(tiers, " · ")))
+		end
+	end
+	-- หีบโบราณตามไบโอม
+	local ancient = {}
+	for _, el in ipairs({ "Earth", "Water", "Air", "Fire" }) do
+		if hasItem(LootTables.Ancient[el], id) then
+			table.insert(ancient, ELEMENT_NAME[el])
+		end
+	end
+	if #ancient == 4 then
+		table.insert(out, "🗝 Ancient chests (every land)")
+	elseif #ancient > 0 then
+		table.insert(out, string.format("🗝 Ancient chests: %s", table.concat(ancient, " · ")))
+	end
+	if hasItem(LootTables.Airdrop, id) then
+		table.insert(out, "🪂 Airdrop crates")
+	end
+	for _, t in ipairs(Shop.Trader) do
+		if t.Give[id] then
+			table.insert(out, "🧳 Wandering trader")
+			break
+		end
+	end
+	for _, k in ipairs(Shop.Kits) do
+		if k.Items[id] then
+			table.insert(out, "🛒 Lobby shop kits")
+			break
+		end
+	end
+	for _, cid in ipairs(Classes.Order) do
+		local c = Classes.Data[cid]
+		if c and c.StartItems and c.StartItems[id] then
+			table.insert(out, "🎒 Starting item for some classes")
+			break
+		end
+	end
+	return out
+end
+
+-- คืน { Title, Sub, Category, Desc, Stats = { "..." }, Where = { "..." }, Color }
 function ItemTooltip.Info(id)
 	local d = Items.Data[id]
 	if not d then
@@ -105,16 +243,13 @@ function ItemTooltip.Info(id)
 	if el then
 		table.insert(stats, (UIKit.ElementIcon[el] or "") .. " Element: " .. (UIKit.ElementThai[el] or el))
 	end
-	local r = Recipes.ById[id]
-	if r then
-		table.insert(stats, "🔨 Craft at bench Lv." .. r.Bench)
-	end
 	return {
 		Title = d.Thai or d.Name or id,
 		Sub = d.Name,
 		Category = (Items.CategoryThai and Items.CategoryThai[d.Category]) or d.Category or "",
 		Desc = (Items.Desc and Items.Desc[id]) or "",
 		Stats = stats,
+		Where = ItemTooltip.Where(id),
 		Color = (el and C.Element[el]) or d.Color or C.Gold,
 	}
 end
@@ -155,6 +290,9 @@ local function build()
 	ui.Cat = line(3, 13, UIKit.Fonts.Bold, Color3.fromRGB(150, 210, 255))
 	ui.Desc = line(4, 14, UIKit.Fonts.Body, C.Text)
 	ui.Stats = line(5, 14, UIKit.Fonts.Bold, Color3.fromRGB(255, 226, 170))
+	ui.WhereHead = line(6, 14, UIKit.Fonts.Black, Color3.fromRGB(140, 235, 160))
+	ui.WhereHead.Text = "📍 Where to find"
+	ui.Where = line(7, 14, UIKit.Fonts.Body, Color3.fromRGB(205, 245, 210))
 	ui.Card = card
 	UIKit.AutoScale(card)
 end
@@ -209,6 +347,9 @@ function ItemTooltip.Show(id, mode)
 	ui.Desc.Visible = info.Desc ~= ""
 	ui.Stats.Text = table.concat(info.Stats, "\n")
 	ui.Stats.Visible = #info.Stats > 0
+	ui.Where.Text = table.concat(info.Where, "\n")
+	ui.Where.Visible = #info.Where > 0
+	ui.WhereHead.Visible = #info.Where > 0
 	ui.Card.Visible = true
 	place()
 	task.defer(place)
@@ -242,12 +383,21 @@ local function inside(obj, p)
 end
 
 -- ผูกการ์ดกับปุ่ม/การ์ดไอเทม
-function ItemTooltip.Attach(obj, id)
-	if not (obj and Items.Data[id]) then
+--   id = รหัสไอเทม หรือฟังก์ชันคืนรหัส (ช่องที่ของเปลี่ยนได้ เช่น แถบเครื่องมือ)
+function ItemTooltip.Attach(obj, idOrFn)
+	local getId = type(idOrFn) == "function" and idOrFn or function()
+		return idOrFn
+	end
+	if not (obj and (type(idOrFn) == "function" or Items.Data[idOrFn])) then
 		return
 	end
+	local id -- รหัสที่โชว์อยู่ของปุ่มนี้
 	obj.MouseEnter:Connect(function()
 		if UserInputService:GetLastInputType() == Enum.UserInputType.Touch then
+			return
+		end
+		id = getId()
+		if not (id and Items.Data[id]) then
 			return
 		end
 		owner = obj
@@ -288,7 +438,10 @@ function ItemTooltip.Attach(obj, id)
 		end)
 		task.delay(LONG_PRESS, function()
 			if alive and obj.Parent and obj.Visible then
-				ItemTooltip.Show(id, "Top")
+				id = getId()
+				if id and Items.Data[id] then
+					ItemTooltip.Show(id, "Top")
+				end
 			end
 		end)
 		task.delay(6, function()

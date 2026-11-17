@@ -15,7 +15,7 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SKIP = ("PropMeshData", "AnimalClips", "SkelClips", "PanelArt", "MenuArt", "LoadingArt", "ItemThumbs", "AssetIds", "Shared/Lang", "Shared\\Lang",
+SKIP = ("PropMeshData", "AnimalClips", "SkelClips", "PanelArt", "MenuArt", "TutorialArt", "LoadingArt", "ItemThumbs", "AssetIds", "Shared/Lang", "Shared\\Lang",
         "BossAnimator", "AnimalAnimator", "ClipAnimator", "SkelAnimator", "BossFX", "VFXLib", "MeshProps", "AnimalModels", "ClassAvatars",
         "SoundController", "Audio.lua", "PropBuilder", "MapGenerator", "MapLayout", "SiteSpec", "WoodKit", "UIKit.lua",
         "DevService", "DevPanel", "Lang.lua", "Localizer.lua")

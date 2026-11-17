@@ -328,6 +328,26 @@ if fox then
 		S.SkillService:BreakVeil(player)
 	until hum.Health < hp1 - 1 or os.clock() > firstAt + 8
 	local gap = os.clock() - firstAt
+	do -- วินิจฉัย: ทำไมจิ้งจอกหาย
+		local _, tl = S.CombatService.EquippedTool(player)
+		local lights = S.BuildingService:LightSources()
+		local near = 0
+		for _, l in ipairs(lights) do
+			if (l[1] - root.Position).Magnitude < l[2] then
+				near += 1
+			end
+		end
+		local claimedBy = 0
+		for _, o in ipairs(S.AnimalService.list or {}) do
+			if o ~= fox and o.Kind == "Stalker" and o.Prey == player then
+				claimedBy += 1
+			end
+		end
+		print(string.format("[AS] SKILLPROBE INFO foxdiag state=%s hidden=%s retreat=%s inrun=%s alive=%s invis=%s light=%s lit=%d campD=%.0f zone=%.0f stalkers=%d claimed=%d prey=%s why=%s",
+			tostring(fox.State), tostring(fox.Hidden), tostring(fox.Retreating), tostring(player:GetAttribute("InRun")), tostring(S.SurvivalService:IsAlive(player)),
+			tostring(player:GetAttribute("Invisible")), tostring(tl and tl.Light), near, S.AnimalService:CampDistance(root.Position), S.CampService:CampRadius(),
+			S.AnimalService:CountKind("Stalker"), claimedBy, tostring(fox.Prey), tostring(fox.Model:GetAttribute("DbgWhy"))))
+	end
 	check("fox-cooldown-4", gap > 3.6 and gap < 5, string.format("%.2f", gap))
 	check("fox-stays-close", maxGap < 20, string.format("%.1f", maxGap))
 	check("fox-chase-sound", fox.ChaseSound ~= nil and fox.ChaseSound.Playing, fox.State)
@@ -395,6 +415,29 @@ if fox then
 		return false
 	end, 4)
 	check("fox-no-double-chase", fox2 ~= nil and not both and fox2.Prey ~= player, string.format("fox1=%s fox2=%s", tostring(fox.State), tostring(fox2 and fox2.State)))
+	-- ตีไม่ติดจิ้งจอก: จิ้งจอกยืนขวางหน้า มอนอยู่ข้างหลัง -> ดาบ/ธนูต้องไปโดนมอน (ไม่ดูดการตีไว้ที่จิ้งจอก)
+	AS:ClearKind("Stalker", true)
+	task.wait(0.3)
+	local fwd = root.CFrame.LookVector * Vector3.new(1, 0, 1)
+	fwd = fwd.Magnitude > 0.1 and fwd.Unit or Vector3.new(0, 0, -1)
+	local fox3 = AS:Spawn("Moonfang", root.Position + fwd * 3, { Kind = "Stalker" })
+	local mob = AS:Spawn("MossWolf", root.Position + fwd * 7, { Kind = "Wild" })
+	if fox3 and mob then
+		fox3.Root.Anchored, mob.Root.Anchored = true, true
+		fox3.Model:PivotTo(CFrame.new(root.Position + fwd * 3))
+		mob.Model:PivotTo(CFrame.new(root.Position + fwd * 7))
+		task.wait(0.4)
+		local hp = mob.Hum.Health
+		S.CombatService:Melee(player, "IronSword", Items.Tools.IronSword, root, fwd)
+		task.wait(0.2)
+		local hp2 = mob.Hum.Health
+		S.CombatService:Shoot(player, "Bow", Items.Tools.Bow, (mob.Root.Position - (player.Character.Head.Position)).Unit, player.Character)
+		task.wait(0.2)
+		check("fox-not-hittable", hp2 < hp and mob.Hum.Health < hp2, string.format("mob %.0f -> melee %.0f -> bow %.0f", hp, hp2, mob.Hum.Health))
+		AS:Remove(mob)
+	else
+		check("fox-not-hittable", false, "spawn failed")
+	end
 	AS:ClearKind("Stalker", true)
 	player.Character:PivotTo(CFrame.new(spot + Vector3.new(0, 3, 0)))
 	task.wait(1)

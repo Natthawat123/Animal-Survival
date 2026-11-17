@@ -61,11 +61,14 @@ Audio.Sfx = {
 	BossIntro = { Id = id(9113980319), Volume = 0.8, Pitch = 0.8 }, -- คำรามสัตว์ยักษ์
 	BossFelled = { Id = id(134785366676981), Volume = 0.7 },
 	FireOut = { Id = id(9114439216), Volume = 0.6, Pitch = 0.6 },
-	CampUpgrade = { Id = id(9114440283), Volume = 0.55 },
+	CampUpgrade = { Id = id(125706237686412), Volume = 0.6 }, -- อัปกองไฟ: Glistening Harp - Sting (APM) พิณไล่เสียงวิ้งๆ (เดิม 9114440283 ไฟพุ่ง ฟังเหมือนเสียงบูสต์)
 	Spirit = { Id = id(9116395085), Volume = 0.5 },
 	GameOver = { Id = id(1836376248), Volume = 0.5, Pitch = 0.8 },
 	FireLow = { Id = id(17208353912), Volume = 0.5 }, -- เชื้อเพลิงกองไฟต่ำกว่า 20%
 	StalkerWarn = { Id = id(9113972051), Volume = 0.6, Pitch = 0.6 }, -- กวางกลวงกำลังจะออกล่า (เตือนก่อน 5 วินาที)
+	SupplyPlane = { Id = id(9113536542), Volume = 0.6 }, -- แอร์ดรอปกำลังมา: เครื่องบินใบพัด B-17 บินผ่าน (ProSoundEffects)
+	SupplyFall = { Id = id(9114057104), Volume = 0.7, Pitch = 1.3 }, -- ลมหวีดตอนกล่องร่มกำลังตก (3D ที่ตัวกล่อง)
+	SupplyLand = { Id = id(9113466745), Volume = 1 }, -- กล่องไม้กระแทกพื้น (ProSoundEffects)
 }
 
 return Audio

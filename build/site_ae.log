@@ -1,0 +1,219 @@
+ERR: orError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+ERR: torError] Error: MeshContentProvider failed to process https://assetdelivery.roblox.com/v1/asset?id=70559294799847 because 'could not fetch'
+ERR: orError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+ERR: torError] Error: MeshContentProvider failed to process https://assetdelivery.roblox.com/v1/asset?id=70559294799847 because 'could not fetch'
+orOutput] [AS] rebuilt mesh collisions: 1240
+orOutput] [AS] ???????????????????...
+orOutput] [AS] seed=974629205 map=6144
+orOutput] [AS] client ready
+orOutput] [AS] terrain 12.8s
+orOutput] [AS] world ready 17.5s props=12119
+orOutput] [AS] READY
+shot Shrine_Earth_front
+shot Shrine_Earth_side
+shot Shrine_Earth_top
+shot Shrine_Earth_play
+shot Shrine_Water_front
+shot Shrine_Water_side
+shot Shrine_Water_top
+shot Shrine_Water_play
+shot Shrine_Air_front
+ERR: orError] Error: Unable to load plugin icon: rbxasset://textures/TerrainTools/mt_clear.png
+rOutput] [AS] ???????????????????...
+rOutput] [AS] seed=602170908 map=2048
+rOutput] [AS] client ready
+rOutput] [AS] terrain 5.6s
+rOutput] [AS] world ready 6.5s props=405
+rOutput] [AS] READY
+skip arena_Earth_wide
+shot arena_Earth_wide
+skip arena_Earth_close
+shot arena_Earth_close
+rOutput] [AS] ARENA Earth boss=Terragon radius=22.7 leash=60 hp=3465
+skip arena_Earth_boss
+shot arena_Earth_boss
+skip arena_Earth_Quake_1
+shot arena_Earth_Quake_1
+skip arena_Earth_Quake_2
+shot arena_Earth_Quake_2
+skip arena_Earth_Quake_3
+shot arena_Earth_Quake_3
+skip arena_Earth_Quake_4
+shot arena_Earth_Quake_4
+rOutput] [AS] ARENA Earth Quake done fromHome=18.2 moved=17.6
+rOutput] [AS] ARENA Earth chase moved=33.4 fromHome=15.2
+skip arena_Earth_Fissure_1
+shot arena_Earth_Fissure_1
+skip arena_Earth_Fissure_2
+shot arena_Earth_Fissure_2
+skip arena_Earth_Fissure_3
+shot arena_Earth_Fissure_3
+skip arena_Earth_Fissure_4
+shot arena_Earth_Fissure_4
+rOutput] [AS] ARENA Earth Fissure done fromHome=17.8 moved=25.9
+rOutput] [AS] ARENA Earth chase moved=33.5 fromHome=15.8
+skip arena_Earth_BoulderRain_1
+shot arena_Earth_BoulderRain_1
+skip arena_Earth_BoulderRain_2
+shot arena_Earth_BoulderRain_2
+skip arena_Earth_BoulderRain_3
+shot arena_Earth_BoulderRain_3
+skip arena_Earth_BoulderRain_4
+shot arena_Earth_BoulderRain_4
+rOutput] [AS] ARENA Earth BoulderRain done fromHome=19.0 moved=29.3
+rOutput] [AS] ARENA Earth chase moved=32.7 fromHome=13.7
+skip arena_Water_wide
+shot arena_Water_wide
+skip arena_Water_close
+shot arena_Water_close
+orOutput] [AS] ARENA Water boss=Leviathan radius=45.6 leash=60 hp=5197
+skip arena_Water_boss
+shot arena_Water_boss
+skip arena_Water_TidalWave_1
+shot arena_Water_TidalWave_1
+skip arena_Water_TidalWave_2
+shot arena_Water_TidalWave_2
+skip arena_Water_TidalWave_3
+shot arena_Water_TidalWave_3
+skip arena_Water_TidalWave_4
+shot arena_Water_TidalWave_4
+orOutput] [AS] ARENA Water TidalWave done fromHome=7.6 moved=0.0
+orOutput] [AS] ARENA Water chase moved=0.0 fromHome=7.6
+skip arena_Water_WaterSpout_1
+shot arena_Water_WaterSpout_1
+skip arena_Water_WaterSpout_2
+shot arena_Water_WaterSpout_2
+skip arena_Water_WaterSpout_3
+shot arena_Water_WaterSpout_3
+skip arena_Water_WaterSpout_4
+shot arena_Water_WaterSpout_4
+orOutput] [AS] ARENA Water WaterSpout done fromHome=7.6 moved=0.1
+orOutput] [AS] ARENA Water chase moved=0.0 fromHome=7.6
+skip arena_Water_Quake_1
+shot arena_Water_Quake_1
+skip arena_Water_Quake_2
+shot arena_Water_Quake_2
+skip arena_Water_Quake_3
+shot arena_Water_Quake_3
+skip arena_Water_Quake_4
+shot arena_Water_Quake_4
+orOutput] [AS] ARENA Water Quake done fromHome=7.6 moved=0.1
+orOutput] [AS] ARENA Water chase moved=0.0 fromHome=7.6
+skip arena_Air_wide
+shot arena_Air_wide
+skip arena_Air_close
+shot arena_Air_close
+orOutput] [AS] rebuilt mesh collisions: 1240
+orOutput] [AS] ARENA Air boss=TempestRoc radius=21.2 leash=60 hp=6930
+skip arena_Air_boss
+shot arena_Air_boss
+orOutput] [AS] ???????????????????...
+orOutput] [AS] seed=520447562 map=2048
+orOutput] [AS] client ready
+skip arena_Air_Blizzard_1
+shot arena_Air_Blizzard_1
+skip arena_Air_Blizzard_2
+shot arena_Air_Blizzard_2
+orOutput] [AS] terrain 6.4s
+orOutput] [AS] world ready 7.6s props=277
+orOutput] [AS] READY
+skip arena_Air_Blizzard_3
+shot arena_Air_Blizzard_3
+skip arena_Air_Blizzard_4
+shot arena_Air_Blizzard_4
+orOutput] [AS] ARENA Air Blizzard done fromHome=18.2 moved=19.1
+orOutput] [AS] TPPROBE recipe=true
+orOutput] [AS] TPPROBE added=nil bag=8
+orOutput] [AS] ARENA Air chase moved=43.8 fromHome=25.7
+orOutput] [AS] TPPROBE place1 ok=true model=true tpId=1 num=1 fromCamp=50
+skip arena_Air_IceSpikes_1
+shot arena_Air_IceSpikes_1
+orOutput] [AS] TPPROBE place2 ok=true model=true tpId=2 num=2 fromCamp=380
+skip arena_Air_IceSpikes_2
+shot arena_Air_IceSpikes_2
+skip arena_Air_IceSpikes_3
+shot arena_Air_IceSpikes_3
+orOutput] [AS] TPPROBE place3 ok=true model=true tpId=3 num=3 fromCamp=380
+orOutput] [AS] TPPROBE pins=3 lim=8
+skip tp_model
+shot tp_model
+skip arena_Air_IceSpikes_4
+shot arena_Air_IceSpikes_4
+orOutput] [AS] ARENA Air IceSpikes done fromHome=21.3 moved=33.2
+orOutput] [AS] ARENA Air chase moved=46.0 fromHome=24.7
+skip arena_Air_Quake_1
+shot arena_Air_Quake_1
+skip tp_menu
+shot tp_menu
+skip arena_Air_Quake_2
+shot arena_Air_Quake_2
+skip arena_Air_Quake_3
+shot arena_Air_Quake_3
+skip arena_Air_Quake_4
+shot arena_Air_Quake_4
+orOutput] [AS] ARENA Air Quake done fromHome=5.7 moved=13.1
+orOutput] [AS] TPPROBE warp 2->3 distToDest=0.0 y=49.9 destY=41.9
+skip tp_arrived
+shot tp_arrived
+orOutput] [AS] ARENA Air chase moved=27.6 fromHome=24.3
+orOutput] [AS] TPPROBE notify Stand on the Waystone to teleport
+skip arena_Fire_wide
+shot arena_Fire_wide
+orOutput] [AS] TPPROBE farUse moved=0.0 (expect ~0)
+skip arena_Fire_close
+shot arena_Fire_close
+skip tp_map
+shot tp_map
+orOutput] [AS] ARENA Fire boss=Solfang radius=49.3 leash=60 hp=8662
+skip arena_Fire_boss
+shot arena_Fire_boss
+skip arena_Fire_FireBreath_1
+shot arena_Fire_FireBreath_1
+orOutput] [AS] TPPROBE PASS ride_warp riding=Earth Bear Cub petToDest=0.0 meToDest=0.0
+orOutput] [AS] TPPROBE ride_height petRootY=57.0 padY=50.0 meY=58.5
+orOutput] [AS] TPPROBE PASS pad_not_broken srcMaxMove=0.00
+skip tp_ride_arrived
+shot tp_ride_arrived
+skip arena_Fire_FireBreath_2
+shot arena_Fire_FireBreath_2
+skip arena_Fire_FireBreath_3
+shot arena_Fire_FireBreath_3
+skip arena_Fire_FireBreath_4
+shot arena_Fire_FireBreath_4
+orOutput] [AS] ARENA Fire FireBreath done fromHome=94.5 moved=104.0
+orOutput] [AS] ARENA Fire chase moved=20.5 fromHome=75.9
+orOutput] [AS] TPPROBE PASS foot_after_warp1 gap=-0.00 on=Workspace.Structures.Teleporter.PlazaCircleLP.Center Circle
+skip arena_Fire_FlameNova_1
+shot arena_Fire_FlameNova_1
+skip arena_Fire_FlameNova_2
+shot arena_Fire_FlameNova_2
+orOutput] [AS] TPPROBE PASS foot_after_warp2 gap=-0.00 on=Workspace.Structures.Teleporter.PlazaCircleLP.Center Circle
+skip arena_Fire_FlameNova_3
+shot arena_Fire_FlameNova_3
+skip arena_Fire_FlameNova_4
+shot arena_Fire_FlameNova_4
+orOutput] [AS] ARENA Fire FlameNova done fromHome=59.3 moved=19.4
+orOutput] [AS] TPPROBE PASS foot_after_warp3 gap=-0.00 on=Workspace.Structures.Teleporter.PlazaCircleLP.Center Circle
+orOutput] [AS] ARENA Fire chase moved=101.0 fromHome=51.9
+skip arena_Fire_MeteorRoar_1
+shot arena_Fire_MeteorRoar_1
+orOutput] [AS] TPPROBE PASS slope_rim plazaAboveGround=0.12 foundation=true baseBottomBelow=3.3
+skip tp_slope_side
+shot tp_slope_side
+skip tp_slope_side2
+shot tp_slope_side2
+skip arena_Fire_MeteorRoar_2
+shot arena_Fire_MeteorRoar_2
+skip arena_Fire_MeteorRoar_3
+shot arena_Fire_MeteorRoar_3
+orOutput] [AS] TPPROBE notify ?? The Moonfang's howl chills you - you slow down!
+skip arena_Fire_MeteorRoar_4
+shot arena_Fire_MeteorRoar_4
+orOutput] [AS] TPPROBE PASS foot_standing gap=-0.00 on=Workspace.Structures.Teleporter.PlazaCircleLP.Center Circle
+orOutput] [AS] ARENA Fire MeteorRoar done fromHome=60.6 moved=17.3
+skip tp_feet
+shot tp_feet
+orOutput] [AS] ARENA Fire chase moved=77.2 fromHome=15.5
+orOutput] [TEST] DONE tpprobe
+orOutput] [TEST] DONE arenaprobe
+finished in 902s  done=False

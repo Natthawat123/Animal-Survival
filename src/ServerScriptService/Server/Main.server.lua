@@ -95,10 +95,10 @@ end
 
 local order = {
 	"DataService", "DevService", "InventoryService", "DropService", "SurvivalService", "LobbyService", "MonetizationService", "ResourceService", "CampService", "BuildingService",
-	"CombatService", "AnimalService", "SkillService", "SpiritService", "MountService", "LootService", "TraderService", "DirectorService",
+	"CombatService", "AnimalService", "SkillService", "SpiritService", "MountService", "LootService", "TraderService", "TeleporterService", "KrathongService", "DirectorService",
 	"FriendService", "SeasonService", "QuestService",
 	"PingService", "RejoinService",
-	"EventService", "SanctumService", "PortalService", "WorldService",
+	"EventService", "SanctumService", "PortalService", "WorldService", "EscapeService", "StorageService",
 }
 for _, name in ipairs(order) do
 	ctx.Services[name] = require(Server:WaitForChild(name))
@@ -154,7 +154,7 @@ for _, site in ipairs(layout.SiteList) do
 end
 
 -- ช่วงที่ 2: ระบบในแมพ
-start({ "DropService", "ResourceService", "CampService", "BuildingService", "CombatService", "AnimalService", "SkillService", "SpiritService", "MountService", "LootService", "TraderService", "DirectorService", "PingService", "EventService", "SanctumService", "PortalService" })
+start({ "DropService", "ResourceService", "CampService", "BuildingService", "CombatService", "AnimalService", "SkillService", "SpiritService", "MountService", "LootService", "TraderService", "DirectorService", "PingService", "EventService", "SanctumService", "PortalService", "TeleporterService", "EscapeService", "StorageService", "KrathongService" })
 
 -- โหมดลองเล่น: ของเต็มกระเป๋า
 if ReplicatedStorage:FindFirstChild("ASSandbox") then

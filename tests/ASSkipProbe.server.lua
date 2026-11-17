@@ -92,8 +92,52 @@ do
 	check("night99-swarm+boss", swarm > 0 and p.Boss == "Solfang", swarm)
 	local cb = Nights.Plan(26, rng, "Earth", 1, { Boss = "Terragon", BossNight = 25, BigRaid = true })
 	check("carry-boss", cb.Boss == "Terragon" and cb.BigRaid and cb.OriginNight == 25)
-	local cm = Nights.Plan(11, rng, "Earth", 1, { BloodMoonNight = 10, BigRaid = true })
+	local cm = Nights.Plan(6, rng, "Earth", 1, { Played = 5 })
 	check("carry-bloodmoon", cm.BloodMoon and cm.Element == "All" and cm.Elements ~= nil)
+	-- ตารางบุก: ทุก 3 คืน · พระจันทร์เลือดทุก 5 คืน (เป็นคืนบุกด้วย) · จำนวน x3 / x5
+	local sched = {}
+	for n = 1, 15 do
+		if Nights.IsBigRaid(n) then
+			table.insert(sched, (Nights.IsBloodMoon(n) and "B" or "R") .. n)
+		end
+	end
+	local want = "R3 B5 R6 R9 B10 R12 B15"
+	check("raid-schedule", table.concat(sched, " ") == want, table.concat(sched, " "))
+	check("raid-count-x3-x5", Nights.MaxCount(30, 1) == math.floor((3 + 30 * 0.12) * 3) and Nights.MaxCount(30, 1, true) == math.floor((3 + 30 * 0.12) * 5),
+		string.format("raid %d blood %d", Nights.MaxCount(30, 1), Nights.MaxCount(30, 1, true)))
+end
+-- ฝูงบุกมุ่งตีกองไฟ (ไม่ไล่คน) จนไฟดับ · ตี 1 ครั้ง = -2% ของกองไฟ
+do
+	local Camp, AS = S.CampService, S.AnimalService
+	local max = Camp:Info().MaxFuel
+	Camp.fuel = max
+	local a = AS:Spawn("MossWolf", player.Character:GetPivot().Position + Vector3.new(6, 0, 0), { Kind = "Raid" })
+	if a then
+		-- เลือกเป้าที่ใกล้สุด: คนอยู่ใกล้กว่ากองไฟ -> ตีคน · กองไฟใกล้กว่า -> ตีกองไฟ
+		local campP = S.CampService.ctx and S.CampService.ctx.CampPosition or AS.ctx.CampPosition
+		a.Root.CFrame = CFrame.new(campP + Vector3.new(120, 4, 0))
+		a.RaidGoal = nil
+		local g1 = AS:RaidGoal(a, player, 6)
+		a.Root.CFrame = CFrame.new(campP + Vector3.new(16, 4, 0))
+		a.RaidGoal = nil
+		local g2 = AS:RaidGoal(a, player, 40)
+		local f0 = Camp.fuel
+		a.NextAttack = 0
+		AS:AttackFire(a, os.clock())
+		local f1 = Camp.fuel
+		check("raid-nearest-player", g1 == "Player", tostring(g1))
+		check("raid-nearest-fire", g2 == "Fire", tostring(g2))
+		check("raid-fire-hit-2pct", math.abs((f0 - f1) - max * 0.02) < 0.01, string.format("%.2f of %.0f", f0 - f1, max))
+		Camp.fuel = 0
+		local t2 = AS:PickTarget(a)
+		check("raid-hunts-player-when-out", t2 == player, tostring(t2))
+		Camp.fuel = max * 0.75
+		Camp:UpdateVisual()
+		Camp:Publish()
+		AS:Remove(a)
+	else
+		check("raid-spawn", false)
+	end
 end
 
 ---------------------------------------------------------------- ข้ามตอนกลางวัน = มีผลทันที + นับรอด

@@ -1375,3 +1375,120 @@
 1600	Pulutin
 1601	Taniman ng Berry %d/%d
 1605	Kampo %dm
+1612	Pumunta sa crafting bench para gumawa
+1614	Walang kahoy sa sako
+1615	Walang kahoy o hilaw na karne sa sako na maihahagis sa apoy
+1616	Kahoy at hilaw na karne lang ang puwede sa apoy
+1617	Maghagis ng kahoy sa siga — kapag namatay ito, mawawala ang ligtas na lugar!
+1618	🔥 Namamatay na ang apoy! Mga %s na lang — maghagis ng kahoy, bilis
+1619	🔒 Kailangan ng Campfire Lv.%d
+1620	🔥 I-upgrade ang campfire sa Lv.%d para makapasok sa dambanang ito
+1621	Waystone
+1622	Waystone Teleporter
+1623	Waystone teleporter. Ilagay kahit saan sa mapa, hindi lang sa kampo · Tumayo rito, pindutin ang E at pumili ng ibang Waystone para mag-warp · Hanggang 8 bawat server
+1624	Mag-warp sa pagitan ng Waystone · Ilagay kahit saan
+1625	🌀 Gumawa ng isa pang Waystone sa mapa para makapag-warp
+1626	Tumayo sa Waystone para mag-teleport
+1627	Teleport
+1628	Waystone %d
+1629	🌀 Mga Waystone
+1630	Piliin kung saan mag-warp
+1631	Nasa Waystone %d ka
+1632	🌀 Waystone %d
+1633	Warp
+1634	Kagubatan
+1635	🌀 May portal pauwi na bumukas sa gilid ng kampo! Pumunta roon at bumoto para umalis — o manatili at magpatuloy
+1636	Nagre-recharge ang portal — puwedeng bumoto ulit sa loob ng %d segundo
+1637	🌀 Gustong umuwi ni %s sa portal — bumoto na!
+1638	🌀 Bumoto ang team na umuwi! (Oo %d · Hindi %d)
+1639	🌲 Pinili ng team na manatili — tuloy ang endless mode (Oo %d · Hindi %d)
+1640	Bumoto para umuwi
+1641	Portal Pauwi
+1642	🏆 Huling laro: nakatakas ka sa gubat matapos ang %d gabi!
+1643	🌀 Uuwi na?
+1644	✔ Umuwi (Y)
+1645	✕ Maglaro pa (N)
+1646	Umuwi %d · Manatili %d · Team %d (mayorya ang panalo)
+1647	🏠 Uuwi na ang team!
+1648	🌲 Mananatili ang team — tuloy ang endless mode
+1649	Binoto mo: Umuwi ✔
+1650	Binoto mo: Maglaro pa ✕
+1651	Binuksan ni %s ang botohan sa portal · Kung papayag ang karamihan, tatapusin ang laro sa isang eksena at babalik lahat sa lobby
+1652	PORTAL PAUWI
+1653	Bumukas sa gilid ng kampo — bumoto roon para umalis, o magpatuloy
+1654	Tapos na ang ika-99 na gabi — bumukas ang daan palabas ng gubat
+1655	Magtipon sa portal at bumoto — umalis nang sabay, o manatili at magpatuloy
+1656	Lumipas na ang ika-99 na gabi...
+1657	Sa unang pagkakataon, tahimik ang gubat
+1658	Ang siga na nagligtas sa iyo ay nagliliyab sa huling pagkakataon
+1659	Gabi-gabi, pinigilan nito ang dilim
+1660	Nagtipon ang mga Spirit Pup na iniligtas mo para magpaalam
+1661	Sa dilim, pinapanood ka ng mga halimaw na umalis
+1662	Mula ngayon, sila ang magbabantay sa gubat
+1663	Pero ngayong gabi, walang naglakas-loob na sumunod
+1664	ANG DAAN PAUWI
+1665	%d gabing nakaligtas
+1666	Sabay-sabay kayong pumasok sa liwanag
+1667	Naghihintay ang tahanan sa kabilang panig
+1668	Nakaligtas ka ng %d gabi sa gubat at nahanap ang daan pauwi
+1669	Malaya na ang 4 na Spirit Pup — payapa na muli ang gubat
+1670	Mga Spirit Pup na nailigtas: %d/4
+1671	Unti-unting namamatay ang huling baga ng siga... pero buhay pa rin ang kuwento mo
+1672	Salamat sa paglalaro!
+1673	Bumabalik sa lobby...
+1674	ANG TUNAY NA WAKAS
+1675	SA WAKAS, NASA BAHAY NA
+1676	🌀 Magbubukas ang portal pauwi sa kampo — bumoto para umalis nang sabay, o maglaro nang walang katapusan
+1677	Bumaba muna sa sinasakyan para gumawa
+1678	⛩ Dambana ng %s
+1679	💀 Lungga ng Boss ng %s
+1680	🏛 Santuwaryo ng %s
+1681	🔥 Kailangan ng Campfire Lv.%d para pumasok
+1682	Talunin ang mga alon ng bantay at palayain ang Spirit Pup
+1683	Gantimpala para sa buong team:
+1684	📅 Mas mabilis ang bilang ng araw +%d
+1685	♦️ +%d Ruby bawat isa
+1686	⏳ +2 min ng araw sa unang pasok
+1687	Walang kailangang level ng campfire · pumasok para gisingin ang boss
+1688	Talunin ito para makuha:
+1689	❤ %s x1 · panggawa ng elemental na armas
+1690	✦ %s x5-7
+1691	♦️ +%d Ruby bawat isa (malapit na manlalaro)
+1692	⏱ Babalik ang boss %d min matapos matalo
+1693	Walang kailangang level ng campfire
+1694	Gisingin ang mga rune pillar nang sunod-sunod, saka talunin ang mga bantay
+1695	🎁 Sagradong kaban: alamat na armas + %s x4-6
+1696	♦️ +5-8 Ruby bawat isa
+1697	NATAPOS ANG SANTUWARYO
+1698	buong team, buong run
+1699	buong run
+1700	Kailangan ng Campfire Lv.%d
+1701	GANTIMPALA PARA SA BUONG TEAM
+1702	Mas mabilis ang bilang ng araw +%d
+1703	+%d Ruby bawat isa
+1704	+2 min ng araw sa unang pasok
+1705	Sagradong kaban: alamat na armas + %s x4-6
+1706	+5-8 Ruby bawat isa
+1707	🌀 Naglaho na ang portal pauwi — patuloy na mabuhay sa endless mode
+1708	📍 Naglagay ng marker si %s
+1731	CRAFTING BENCH LV.%d
+1732	May bagong recipe na
+1802	Pista ng Loy Krathong
+1803	Pumasok sa pista
+1804	Kunin
+1805	Krathong
+1806	🪷 Nakuha mo na ang lahat ng %d krathong
+1807	🪷 Nakuha ni %s ang lahat ng %d krathong — natupad ang hiling!
+1808	🪷 Pista ng Loy Krathong! May malaking portal na bumukas sa gubat — ngayong gabi lang
+1809	🪷 Tapos na ang Pista ng Loy Krathong
+1810	Ngayong gabi lang · isang beses bawat run
+1811	Nagpapalutang ng krathong ang mga taganayon — kunin sila!
+1812	Kumuha ng hanggang %d krathong bawat isa
+1813	+1 Ruby bawat krathong
+1814	Lahat ng %d: alamat na kaban + 10 Ruby
+1815	Mga parol, paputok at ilaw sa ilog
+1816	PISTA NG LOY KRATHONG
+1817	May malaking portal na bumukas sa gubat · Ngayong gabi lang
+1818	NATUPAD ANG HILING
+1819	Nakuha mo ang lahat ng krathong · Alamat na kaban + 10 Ruby
+1820	Loy Krathong

@@ -213,7 +213,7 @@ if wmode and wmode.Value == "world" then
 		player:SetAttribute("Downed", true)
 		state:SetAttribute("WipeAt", workspace:GetServerTimeNow() + 30)
 		print("[AS] WORLDPROBE wipe")
-		task.wait(6)
+		task.wait(22)
 		state:SetAttribute("WipeAt", nil)
 		player:SetAttribute("Downed", false)
 		player:SetAttribute("InRun", false)

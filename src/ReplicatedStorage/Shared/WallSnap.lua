@@ -12,7 +12,7 @@ local StructureModels = require(ReplicatedStorage.Shared.StructureModels)
 
 local WallSnap = {}
 
-local WALLS = { LogWall = true, StoneWall = true }
+local WALLS = { LogWall = true, StoneWall = true, WoodDoor = true }
 local SNAP_EXTRA = 4 -- เล็งห่างจากตำแหน่งที่จะต่อไม่เกิน (ครึ่งความยาวกำแพง + ค่านี้) ถึงดูด
 
 function WallSnap.IsWall(kind)

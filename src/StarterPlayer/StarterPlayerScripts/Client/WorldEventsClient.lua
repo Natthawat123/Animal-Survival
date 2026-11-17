@@ -15,6 +15,7 @@ local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("R
 local UIKit = require(script.Parent.UIKit)
 local Cinematics = require(script.Parent.Cinematics)
 local ItemIcon = require(script.Parent.ItemIcon)
+local Audio = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Audio"))
 
 local WorldEventsClient = {}
 local player = Players.LocalPlayer
@@ -25,6 +26,7 @@ local EVENTS = {
 	{ Kind = "Meteor", Icon = "☄", Color = Color3.fromRGB(255, 170, 80), Name = "Meteor" },
 	{ Kind = "Migration", Icon = "🦌", Color = Color3.fromRGB(230, 200, 140), Name = "Animal Migration" },
 	{ Kind = "Supply", Icon = "", Prop = "AirdropCrate", Color = Color3.fromRGB(255, 90, 70), Name = "Supply Chest" }, -- ไอคอน = โมเดลกล่องแอร์ดรอปจริง
+	{ Kind = "Krathong", Icon = "🪷", Color = Color3.fromRGB(255, 160, 210), Name = "Loy Krathong" }, -- ประตูเทศกาลลอยกระทง (KrathongService)
 }
 
 local fxFolder
@@ -316,6 +318,25 @@ function WorldEventsClient.Init(state, hud, mapUI, combat)
 				Cinematics.Banner("THE GREAT MIGRATION", "An animal herd is passing near camp", Color3.fromRGB(230, 200, 140), 3.5, { Size = 54, Y = 0.2 })
 			elseif kind == "Supply" then
 				Cinematics.Banner("SUPPLY DROP", "Look for the red smoke", Color3.fromRGB(255, 110, 80), 3.5, { Size = 58, Y = 0.2 })
+				-- เสียงเครื่องบินบินผ่าน (ได้ยินทั้งแมพ): ค่อยดังขึ้น -> ค้าง -> ค่อยเบาลงก่อนกล่องถึงพื้น
+				local a = Audio.Sfx.SupplyPlane
+				if a and a.Id ~= "" then
+					local s = Instance.new("Sound")
+					s.Name = "SupplyPlane"
+					s.SoundId = a.Id
+					s.Looped = true
+					s.Volume = 0
+					s.PlaybackSpeed = a.Pitch or 1
+					s.Parent = game:GetService("SoundService")
+					s:Play()
+					TweenService:Create(s, TweenInfo.new(2.5), { Volume = a.Volume }):Play()
+					task.delay(7, function()
+						TweenService:Create(s, TweenInfo.new(5), { Volume = 0 }):Play()
+						task.delay(5.2, function()
+							s:Destroy()
+						end)
+					end)
+				end
 			elseif kind == "SanctumOpened" then
 				local col = C.Element[d.Element] or C.Gold
 				Cinematics.Banner("SEAL BROKEN", string.format("The %s Sanctum is open", THAI[d.Element] or ""), col, 4, { Size = 64 })

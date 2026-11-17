@@ -130,10 +130,22 @@ function SurvivalService:IsDowned(player)
 end
 
 ---------------------------------------------------------------- ดาเมจ
+-- กันโดนตีระหว่างดูฉาก (ฉากจบศาลเจ้า / ได้บัพวิหาร): ไม่รับดาเมจ + สัตว์ไม่เล็ง (AnimalService:PickTarget) จนครบเวลา
+function SurvivalService:Protect(player, seconds)
+	local untilT = workspace:GetServerTimeNow() + seconds
+	if (player:GetAttribute("CineSafe") or 0) < untilT then
+		player:SetAttribute("CineSafe", untilT)
+	end
+end
+
+function SurvivalService:IsProtected(player)
+	return (player:GetAttribute("CineSafe") or 0) > workspace:GetServerTimeNow()
+end
+
 function SurvivalService:Damage(player, amount, source, opts)
 	local s = state[player]
 	local hum, char = humanoidOf(player)
-	if not (s and hum and char) or s.Dead or s.Downed or hum.Health <= 0 or player:GetAttribute("TestGod") then
+	if not (s and hum and char) or s.Dead or s.Downed or hum.Health <= 0 or player:GetAttribute("TestGod") or self:IsProtected(player) then
 		return
 	end
 	if char:FindFirstChildOfClass("ForceField") then
@@ -753,7 +765,8 @@ function SurvivalService:SetMedPose(player, pose, time, at, item)
 end
 
 -- ถือผ้าพันแผล/ชุดปฐมพยาบาลแล้วคลิก: มีเพื่อนล้มอยู่ใกล้ -> ช่วยชีวิตเพื่อน · ไม่มี -> ฟื้นเลือดตัวเอง
---   ต้องยืนพันแผลจนหลอดเต็ม (ท่าพันแผล) · ขยับตัว/โดนตี/เก็บของลง/เพื่อนหาย = ยกเลิก ไม่เสียของ
+--   พันแผลจนหลอดเต็ม (ท่าพันแผล) · เดินได้แต่ช้าลง (MedUse -> CombatClient ลดความเร็ว) · โดนตีไม่หลุด
+--   เก็บของลง/ล้ม/เพื่อนหาย/ห่างเพื่อนเกินระยะ = ยกเลิก ไม่เสียของ
 function SurvivalService:UseMedical(player, id)
 	local item = Items.Data[id]
 	local hum, char = humanoidOf(player)
@@ -788,8 +801,6 @@ function SurvivalService:UseMedical(player, id)
 	local bc = best and select(2, humanoidOf(best)) -- รักษาตัวเอง (ไม่มีเพื่อนล้ม) = best เป็น nil
 	medBusy[player] = true
 	self:SetMedPose(player, best and "Revive" or "Self", dur, bc and bc:GetPivot().Position, id)
-	local startPos = root.Position
-	local lastHp = hum.Health
 	local function stop(reason)
 		medBusy[player] = nil
 		if player:GetAttribute("MedUse") then
@@ -809,13 +820,6 @@ function SurvivalService:UseMedical(player, id)
 			local tool = char:FindFirstChildOfClass("Tool")
 			if not (tool and tool:GetAttribute("MedKind") == id) then
 				return stop("Put away " .. item.Thai .. "")
-			end
-			if hum.Health < lastHp - 0.5 then
-				return stop("Got hit")
-			end
-			lastHp = math.max(lastHp, hum.Health)
-			if ((root.Position - startPos) * Vector3.new(1, 0, 1)).Magnitude > 2.5 then
-				return stop("Moved (you must stand still while bandaging)")
 			end
 			if best then
 				local _, pc = humanoidOf(best)

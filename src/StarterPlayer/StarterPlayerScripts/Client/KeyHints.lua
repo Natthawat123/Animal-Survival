@@ -16,6 +16,15 @@ local ClassSkill = require(script.Parent.ClassSkill)
 local PromptUI = require(script.Parent.PromptUI)
 
 local KeyHints = {}
+
+local function nearBench()
+	local plr = game:GetService("Players").LocalPlayer
+	local char = plr.Character
+	local camp = workspace:FindFirstChild("World") and workspace.World:FindFirstChild("Sites") and workspace.World.Sites:FindFirstChild("Camp")
+	local bench = camp and camp:FindFirstChild("Workbench")
+	local top = bench and (bench.PrimaryPart or bench:FindFirstChildWhichIsA("BasePart", true))
+	return char ~= nil and top ~= nil and not plr:GetAttribute("Riding") and (char:GetPivot().Position - top.Position).Magnitude <= 16
+end
 local player = Players.LocalPlayer
 local ROW_W, ROW_H = 196, 30
 local MAX_ROWS = 13
@@ -198,7 +207,9 @@ function KeyHints.Init(deps)
 			end
 			table.insert(spec, { "Sprint", "SHIFT" })
 			table.insert(spec, { "Ping", "G" })
-			table.insert(spec, { "Craft", "C" })
+			if nearBench() then
+				table.insert(spec, { "Craft", "C" }) -- ปุ่ม C ใช้ได้เฉพาะที่โต๊ะคราฟต์
+			end
 			table.insert(spec, { "Map", "M" })
 		end
 		setRows(spec)

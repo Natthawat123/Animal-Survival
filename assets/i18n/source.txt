@@ -1609,3 +1609,243 @@
 1608	🔥 Upgrade the campfire to Lv.%d to free this pup
 1609	Needs Campfire Lv.%d
 1610	The %s Shrine seal has weakened · needs Campfire Lv.%d to free the pup
+1611	Reconnecting to camp...
+1612	Go to the crafting bench to craft
+1613	The %s Sanctum is cleared · you can still enter, but it won't reset this run
+1614	No wood in your sack
+1615	No wood or raw meat in your sack to throw into the fire
+1616	Only wood and raw meat can go into the fire
+1617	Throw wood into the campfire — if it goes out, the safe zone is gone!
+1618	🔥 The fire is dying! About %s left — throw wood in, quick
+1619	🔒 Needs Campfire Lv.%d
+1620	🔥 Upgrade the campfire to Lv.%d to enter this shrine
+1614	Every 5 nights a Blood Moon rises and every element's pack attacks at once
+1621	Waystone
+1622	Waystone Teleporter
+1623	Waystone teleporter. Place it anywhere on the map, not just in camp · Stand on it, press E and pick any other Waystone to warp there · Max 8 per server
+1624	Warp between Waystones · Place anywhere
+1625	🌀 Build another Waystone somewhere on the map to warp between them
+1626	Stand on the Waystone to teleport
+1627	Teleport
+1628	Waystone %d
+1629	🌀 Waystones
+1630	Pick where to warp
+1631	You are at Waystone %d
+1632	🌀 Waystone %d
+1633	Warp
+1634	Wilds
+1635	🌀 A portal home has opened at the edge of camp! Go there and vote to leave — or stay and keep surviving
+1636	The portal is recharging — you can vote again in %d seconds
+1637	🌀 %s wants to go home through the portal — vote now!
+1638	🌀 The team voted to go home! (Yes %d · No %d)
+1639	🌲 The team chose to stay — endless mode continues (Yes %d · No %d)
+1640	Vote to go home
+1641	Portal Home
+1642	🏆 Last run: you escaped the wilds after %d nights!
+1643	🌀 Go home?
+1644	✔ Go home (Y)
+1645	✕ Keep playing (N)
+1646	Go home %d · Stay %d · Team %d (majority wins)
+1647	🏠 The team is going home!
+1648	🌲 The team stays — endless mode continues
+1649	You voted: Go home ✔
+1650	You voted: Keep playing ✕
+1651	%s opened the portal vote · If most of the team agrees, the run ends with a cutscene and everyone returns to the lobby
+1652	A PORTAL HOME
+1653	It opened at the edge of camp — vote there to leave, or keep surviving
+1654	The 99th night is over — a way out of the wilds has opened
+1655	Gather at the portal and vote — leave together, or stay and keep surviving
+1656	Night 99 has passed...
+1657	For the first time, the forest is silent
+1658	The campfire that kept you alive burns bright one last time
+1659	Night after night, it held back the dark
+1660	The Spirit Pups you rescued gather to say goodbye
+1661	Somewhere in the dark, the beasts watch you leave
+1662	From now on, they will guard the forest
+1663	But tonight, none of them dare to follow
+1664	THE WAY HOME
+1665	%d nights survived
+1666	Together, you step into the light
+1667	Home is waiting on the other side
+1668	You survived %d nights in the wilds and found the way home
+1669	All 4 Spirit Pups are free — the forest is at peace again
+1670	Spirit Pups rescued: %d/4
+1671	The campfire's last embers fade... but your story lives on
+1672	Thank you for playing!
+1673	Returning to the lobby...
+1674	THE TRUE ENDING
+1675	HOME AT LAST
+1676	🌀 A portal home will open at camp — vote to leave together, or keep playing endlessly
+1677	Get off your mount to craft
+1678	⛩ %s Shrine
+1679	💀 %s Boss Lair
+1680	🏛 %s Sanctum
+1681	🔥 Needs Campfire Lv.%d to enter
+1682	Beat the guardian waves and free the Spirit Pup
+1683	Rewards for the whole team:
+1684	📅 Days count +%d faster
+1685	♦️ +%d Ruby each
+1686	⏳ +2 min of daylight on first entry
+1687	No campfire level needed · walk in to wake the boss
+1688	Defeat it to get:
+1689	❤ %s x1 · crafts elemental weapons
+1690	✦ %s x5-7
+1691	♦️ +%d Ruby each (players nearby)
+1692	⏱ The boss returns %d min after defeat
+1693	No campfire level needed
+1694	Wake the rune pillars in order, then beat the guardians
+1695	🎁 Sacred chest: legendary weapon + %s x4-6
+1696	♦️ +5-8 Ruby each
+1697	SANCTUM CLEARED
+1698	whole team, whole run
+1699	whole run
+1700	Campfire Lv.%d required
+1701	REWARDS FOR THE WHOLE TEAM
+1702	Days count +%d faster
+1703	+%d Ruby each
+1704	+2 min of daylight on first entry
+1705	Sacred chest: legendary weapon + %s x4-6
+1706	+5-8 Ruby each
+1707	🌀 The portal home has faded — keep surviving in endless mode
+1708	📍 %s placed a marker
+1709	+1 min of daylight on first entry
+1710	📦 This storage box is full
+1711	🎒 Sack is full
+1712	🎒 You need a sack to carry items
+1713	You need a sack to carry items
+1714	Wood Door
+1715	Storage Box
+1716	Big Storage Box
+1717	📦 Storage Box
+1718	📦 In the box
+1719	🎒 Your sack
+1720	⬆ Take all
+1721	⬇ Store all
+1722	Take
+1723	📦 %s  %d/%d
+1724	Wood wall with a door you can open and close · Connects to walls · Animals can break it
+1725	Wooden box that stores 20 items from your sack
+1726	Big wooden box that stores 40 items from your sack
+1727	Wall with a door · Open/close it
+1728	Stores 20 items
+1729	Stores 40 items
+1730	Put in
+1731	CRAFTING BENCH LV.%d
+1732	New recipes unlocked
+1733	📍 Where to find
+1734	🪓 Chop trees
+1735	🪓 Charred trees in the Fire land (bonus)
+1736	⛏ Mine rocks
+1737	⛏ Coal rocks (bonus)
+1738	⛏ Mine iron ore rocks (sparkly)
+1739	⛏ Mine coal rocks
+1740	🪓 Chop charred trees (Fire land)
+1741	🫐 Pick berry bushes
+1742	🌱 Grow them in a Berry Patch
+1743	🫐 Berry bushes (bonus)
+1744	💎 Break green crystals (Earth land)
+1745	💎 Break blue crystals (Water land)
+1746	💎 Break white crystals (Frost land)
+1747	💎 Break red crystals (Fire land)
+1748	☄ Earth meteors
+1749	☄ Water meteors
+1750	☄ Frost meteors
+1751	☄ Fire meteors
+1752	🏛 Earth Sanctum reward
+1753	🏛 Water Sanctum reward
+1754	🏛 Frost Sanctum reward
+1755	🏛 Fire Sanctum reward
+1756	🏛 Earth Sanctum reward (sometimes)
+1757	🏛 Water Sanctum reward (sometimes)
+1758	🏛 Frost Sanctum reward (sometimes)
+1759	🏛 Fire Sanctum reward (sometimes)
+1760	🍲 Stew Pot: 2 meat + 2 berries
+1761	🍲 Stew Pot: 5 berries + 1 wood
+1762	🐾 Hunt: %s
+1763	+%d more
+1764	👑 Boss: %s
+1765	🔥 Cook %s at the campfire
+1766	🔨 Craft at bench Lv.%d
+1767	📦 Every chest (1 each)
+1768	📦 Chests: %s
+1769	Green Chest
+1770	Purple Chest
+1771	Gold Chest
+1772	🗝 Ancient chests (every land)
+1773	🗝 Ancient chests: %s
+1774	🪂 Airdrop crates
+1775	🧳 Wandering trader
+1776	🛒 Lobby shop kits
+1777	🎒 Starting item for some classes
+1778	🎒 Everyone starts with one
+1779	🎒 Everyone starts with one (if the class has no axe)
+1780	THE EXPERIMENT
+1781	A team of young explorers built a machine that could travel through time.
+1782	SOMETHING WENT WRONG
+1783	But the first test went wrong — the portal pulled them deep into the ancient past!
+1784	A WILD, ANCIENT LAND
+1785	They woke up in a wild, ancient forest. The portal was gone — and night was falling.
+1786	When darkness falls, the Moonfang — a shadow fox — hunts anyone outside the firelight.
+1787	THE SPIRIT PUPS
+1788	Spirit pups of the four lands are lost here too. Rescue them all and take them home with you.
+1789	THE FOUR LANDS
+1790	Brave Earth, Water, Frost and Fire — clear the shrines and sanctums, and defeat each land's boss.
+1791	99 NIGHTS
+1792	Survive 99 nights until the portal opens again — and bring everyone home!
+1793	99 NIGHTS IN THE WILDS
+1794	Skip ⏭
+1795	Begin ▶
+1796	🎬 Story
+1797	Our story:\nOur time machine broke and threw us into the ancient past!\n1. Survive the Moonfang\n2. Rescue the 4 Spirit Pups\n3. Go home when the portal opens on night 99
+1798	Survive 99 nights until the portal home opens
+1799	Lost in time
+1800	Survive 99 nights in the ancient wilds of Earth, Water, Frost and Fire until the portal home opens
+1801	<font color="#FFE066" size="36">Our Story</font>\n\nA time machine test went wrong and threw us into the ancient past!\n\nSurvive the Moonfang · Rescue the 4 Spirit Pups\nClear the shrines, sanctums and bosses of the 4 lands\n\n<font color="#8CFF8C">The portal home opens on night 99!</font>
+1802	Loy Krathong Festival
+1803	Enter Festival
+1804	Collect
+1805	Krathong
+1806	🪷 You already collected all %d krathongs
+1807	🪷 %s collected all %d krathongs — wish granted!
+1808	🪷 Loy Krathong Festival! A big portal opened in the wilds — tonight only
+1809	🪷 The Loy Krathong Festival has ended
+1810	Tonight only · once per run
+1811	Villagers float krathongs down the river — collect them!
+1812	Collect up to %d krathongs each
+1813	+1 Ruby per krathong
+1814	All %d: legendary chest + 10 Ruby
+1815	Lanterns, fireworks and river lights
+1816	LOY KRATHONG FESTIVAL
+1817	A big portal opened in the wilds · Tonight only
+1818	WISH GRANTED
+1819	You collected every krathong · Legendary chest + 10 Ruby
+1820	Loy Krathong
+1821	Into the past
+1822	A time travel test went wrong — the portal pulled everyone into the ancient world
+1823	Gather resources
+1824	Chop wood, mine rocks, hunt animals — collect materials for tools, weapons and your camp
+1825	Build a strong camp
+1826	Keep the campfire burning, build walls, traps and defenses before night comes
+1827	Survive every night
+1828	Defend the camp from animal packs and the Moonfang shadow fox until morning
+1829	Beware the bosses
+1830	Explore the 4 lands
+1831	Earth, Water, Frost and Fire — clear the shrines and sanctums, defeat each land's boss
+1832	Rescue all 4 pups
+1833	Find the shrines where the spirit pups are caged, beat the guardians and bring them to camp
+1834	Survive 99 nights, go home
+1835	Survive all 99 nights with the 4 pups — the portal opens and takes everyone home!
+1836	Start the adventure! ▶
+1837	Beware the mysterious tribe
+1838	Explore the 4 biomes
+1839	Rescue all 4 animals
+1840	Survive 99 nights & go home
+1841	An experiment went wrong\nand everyone was pulled through the portal\ninto the ancient world
+1842	Chop trees, mine rocks, collect materials\nto craft tools, weapons\nand upgrade your camp
+1843	Build shelter, walls and defenses\nto get ready for the attacks at night
+1844	Defend the camp from wild beasts\nand the shadow wolf-fox that keeps attacking
+1845	Fight off attacks, set traps\nand stop the tribe\nthat gets in the way of your mission
+1846	Explore 4 lands: the primeval forest,\nthe forgotten desert, the ice kingdom and the volcano lands\nand face the boss of each biome
+1847	Find where the captured animals are held,\ndefeat the enemies and free them\nback to camp — all 4 of them
+1848	Survive all 99 nights,\nrescue all 4 animals\nand activate the portal\nto travel back to the present!
+1849	📖 Survival Guide

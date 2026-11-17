@@ -200,9 +200,9 @@ Animals.Data = {
 	------------------------------------------------------------ บอสธาตุ
 	Terragon = {
 		Name = "GOLGRAN, the Living Mountain", Thai = "Golgran, the Living Mountain", Element = "Earth", Behaviour = "Boss",
-		Health = 3000, Damage = 15, Speed = 12, AttackRange = 26, AttackCooldown = 3.0, Aggro = 160, StructureDamage = 10, Armor = 0.2,
-		SkillDamage = { Light = 10, Medium = 15, Heavy = 20 }, -- ดาเมจจริงที่ผู้เล่นโดน (ตีธรรมดา = Medium)
-		BossNight = 25, Scale = 1, CastMult = 1.4, -- ร่ายเร็วกว่าบอสตัวอื่นนิดนึง (เดิม 2.0 · เร็วขึ้น 30% เท่ากันทุกตัว)
+		Health = 3300, Damage = 15, Speed = 12, AttackRange = 26, AttackCooldown = 3.0, Aggro = 160, StructureDamage = 10, Armor = 0.2,
+		SkillDamage = { Light = 12, Medium = 18, Heavy = 24 }, -- ดาเมจจริงที่ผู้เล่นโดน (ตีธรรมดา = Medium)
+		BossNight = 25, Scale = 1, CastMult = 1.3, -- ร่ายเร็วกว่าบอสตัวอื่นนิดนึง (เดิม 2.0 · เร็วขึ้น 30% เท่ากันทุกตัว)
 		Abilities = { "Quake", "Fissure", "BoulderRain" },
 		Drops = { { Item = "TerraHeart", Min = 1, Max = 1 }, { Item = "TerraCore", Min = 5, Max = 7 } },
 		Model = {
@@ -214,10 +214,10 @@ Animals.Data = {
 	},
 	Leviathan = {
 		Name = "TYRANNOMOSA, Terror of the Deep", Thai = "Tyrannomosa, Terror of the Deep", Element = "Water", Behaviour = "Boss",
-		Health = 4500, Damage = 18, Speed = 18, AttackRange = 30, AttackCooldown = 2.6, Aggro = 180, StructureDamage = 8,
-		SkillDamage = { Light = 12, Medium = 18, Heavy = 25 },
+		Health = 4950, Damage = 18, Speed = 18, AttackRange = 30, AttackCooldown = 2.6, Aggro = 180, StructureDamage = 8,
+		SkillDamage = { Light = 14, Medium = 22, Heavy = 30 },
 		BossNight = 50,
-		Abilities = { "TidalWave", "WaterSpout", "Quake" },
+		Abilities = { "TidalWave", "WaterSpout", "WaterMissiles" }, -- มิสไซล์บอลน้ำเลี้ยวไล่ (เฉพาะตัว)
 		Drops = { { Item = "TideHeart", Min = 1, Max = 1 }, { Item = "TidePearl", Min = 5, Max = 7 } },
 		Model = {
 			Template = "Reptile", Body = V(10, 7, 26), Head = V(7, 4.6, 6), Snout = V(5, 3, 9), LegLen = 4, LegThick = 2.6,
@@ -228,10 +228,10 @@ Animals.Data = {
 	},
 	TempestRoc = {
 		Name = "FROSTMAW, the Glacier Yeti", Thai = "Frostmaw, the Glacier Yeti", Element = "Air", Behaviour = "Boss",
-		Health = 6000, Damage = 20, Speed = 20, AttackRange = 22, AttackCooldown = 2.4, Aggro = 220, StructureDamage = 8,
-		SkillDamage = { Light = 15, Medium = 20, Heavy = 30 }, SkillTier = { Quake = "Medium", IceSpikes = "Light" },
+		Health = 6600, Damage = 20, Speed = 20, AttackRange = 22, AttackCooldown = 2.4, Aggro = 220, StructureDamage = 8,
+		SkillDamage = { Light = 18, Medium = 24, Heavy = 36 }, SkillTier = { Quake = "Medium", IceSpikes = "Light" },
 		BossNight = 75,
-		Abilities = { "Blizzard", "IceSpikes", "Quake" },
+		Abilities = { "Blizzard", "IceSpikes", "AvalancheLeap" }, -- กระโดดทับ + ทำให้ตัวเย็น (เฉพาะตัว)
 		Drops = { { Item = "FrostHeart", Min = 1, Max = 1 }, { Item = "GaleFeather", Min = 5, Max = 7 } },
 		Model = {
 			Template = "Bird", Body = V(9, 9, 16), Head = V(5.4, 5, 5.6), Wing = V(30, 1.2, 12),
@@ -242,8 +242,8 @@ Animals.Data = {
 	},
 	Solfang = {
 		Name = "IGNARAX, the Molten Dragon", Thai = "Ignarax, the Molten Dragon", Element = "Fire", Behaviour = "Boss",
-		Health = 7500, Damage = 25, Speed = 34, AttackRange = 26, AttackCooldown = 2.2, Aggro = 200, StructureDamage = 10, Burn = 8, Flying = true,
-		SkillDamage = { Light = 18, Medium = 25, Heavy = 35 },
+		Health = 8250, Damage = 25, Speed = 34, AttackRange = 26, AttackCooldown = 2.2, Aggro = 200, StructureDamage = 10, Burn = 8, Flying = true,
+		SkillDamage = { Light = 22, Medium = 30, Heavy = 42 },
 		BossNight = 99,
 		Abilities = { "FireBreath", "FlameNova", "MeteorRoar" },
 		Drops = { { Item = "EmberHeart", Min = 1, Max = 1 }, { Item = "EmberShard", Min = 5, Max = 7 } },

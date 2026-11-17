@@ -15,11 +15,14 @@ Limits.Structures = {
 	Bed = { Max = 1, Scope = "Server" }, -- วางแล้วข้าม 1 วัน (นับที่ใช้ไปแล้ว ไม่ใช่ที่ตั้งอยู่)
 	FarmPlot = { Max = 10, Scope = "Player" },
 	CookPot = { Max = 1, Scope = "Player" },
+	StorageBox = { Max = 6, Scope = "Player" },
+	BigStorageBox = { Max = 4, Scope = "Player" },
 	TerraTotem = { Max = 1, Scope = "Server" },
 	TideTotem = { Max = 1, Scope = "Server" },
 	GaleTotem = { Max = 1, Scope = "Server" },
 	EmberTotem = { Max = 1, Scope = "Server" },
 	SunBeacon = { Max = 2, Scope = "Server" },
+	Teleporter = { Max = 8, Scope = "Server" }, -- หินวาร์ป: ทั้งเซิร์ฟรวมกัน 8 อัน
 }
 
 -- พ่อค้าเร่: แต่ละรายการแลกได้กี่ครั้งต่อคนต่อการมาเยือน 1 ครั้ง (มาตอนกลางวัน กลับตอนพลบค่ำ)
