@@ -1805,10 +1805,10 @@
 1803	Enter Festival
 1804	Collect
 1805	Krathong
-1806	🪷 You already collected all %d krathongs
-1807	🪷 %s collected all %d krathongs — wish granted!
-1808	🪷 Loy Krathong Festival! A big portal opened in the wilds — tonight only
-1809	🪷 The Loy Krathong Festival has ended
+1806	🌸 You already collected all %d krathongs
+1807	🌸 %s collected all %d krathongs — wish granted!
+1808	🌸 Loy Krathong Festival! A big portal opened in the wilds — tonight only
+1809	🌸 The Loy Krathong Festival has ended
 1810	Tonight only · once per run
 1811	Villagers float krathongs down the river — collect them!
 1812	Collect up to %d krathongs each
@@ -1849,3 +1849,38 @@
 1847	Find where the captured animals are held,\ndefeat the enemies and free them\nback to camp — all 4 of them
 1848	Survive all 99 nights,\nrescue all 4 animals\nand activate the portal\nto travel back to the present!
 1849	📖 Survival Guide
+1850	You must be at the festival shop
+1851	🌸 Not enough krathongs
+1852	🌸 Exchange complete!
+1853	🌸 Festival Shop
+1854	Festival Shop
+1855	🌸 Trade krathongs here
+1856	Trade krathongs for gifts at the festival shop
+1857	All %d: +%d bonus krathongs
+1858	"Krathongs for festival gifts, dear! The festival ends tonight"
+1859	Collected
+1860	You collected every krathong · +%d bonus krathongs for the festival shop
+1861	Skull Tribe Spearman
+1862	Skull Tribe Archer
+1863	Skull Tribe Shieldbearer
+1864	⛺ Village 
+1865	Earth Skull Stone
+1866	Water Skull Stone
+1867	Frost Skull Stone
+1868	From the chief's chest in the Earth tribe village · Bring all 3 Skull Stones to the Fire stronghold gate
+1869	From the chief's chest in the Water tribe village · Bring all 3 Skull Stones to the Fire stronghold gate
+1870	From the chief's chest in the Frost tribe village · Bring all 3 Skull Stones to the Fire stronghold gate
+1871	⛺ Chief's chest · Earth tribe village
+1872	⛺ Chief's chest · Water tribe village
+1873	⛺ Chief's chest · Frost tribe village
+1874	Place Stone
+1875	SKULL STRONGHOLD
+Place the 3 Skull Stones to break the seal
+(chief's chests of the Earth, Water and Frost tribe villages)
+1876	You need the %s — open the chief's chest in the %s tribe village
+1877	%s placed the %s (%d/%d)
+1878	🔥 The seal is broken — the Skull Stronghold gate is open!
+1879	Chieftain's Treasure
+1880	Chief's Chest
+1881	🏰 Stronghold 
+1882	You found a Skull Stone! Bring all 3 to the Fire stronghold gate

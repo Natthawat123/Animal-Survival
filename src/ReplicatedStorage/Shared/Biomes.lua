@@ -134,7 +134,7 @@ Biomes.Data = {
 			{ Kind = "TideCrystal", Weight = 0.6 },
 			{ Kind = "BerryBush", Weight = 0.6 },
 		},
-		Wild = { ReefCrab = 4, InkOctopus = 2, TideOrca = 1 },
+		Wild = { ReefCrab = 4, InkOctopus = 2 }, -- วาฬ (TideOrca) เกิดแยกในน้ำลึก: AnimalService:SpawnAquaticNear
 		Boss = "Leviathan",
 		Spirit = "TidePup",
 	},

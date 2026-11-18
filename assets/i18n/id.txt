@@ -1477,10 +1477,10 @@
 1803	Masuk festival
 1804	Ambil
 1805	Krathong
-1806	🪷 Kamu sudah mengambil semua %d krathong
-1807	🪷 %s mengambil semua %d krathong — permohonan terkabul!
-1808	🪷 Festival Loy Krathong! Portal besar terbuka di hutan — hanya malam ini
-1809	🪷 Festival Loy Krathong telah berakhir
+1806	🌸 Kamu sudah mengambil semua %d krathong
+1807	🌸 %s mengambil semua %d krathong — permohonan terkabul!
+1808	🌸 Festival Loy Krathong! Portal besar terbuka di hutan — hanya malam ini
+1809	🌸 Festival Loy Krathong telah berakhir
 1810	Hanya malam ini · sekali per ronde
 1811	Warga menghanyutkan krathong di sungai — ambil!
 1812	Ambil hingga %d krathong per orang

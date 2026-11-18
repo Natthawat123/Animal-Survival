@@ -36,6 +36,11 @@ Items.Data = {
 	FrostHeart = { Name = "Frost Heart", Thai = "Frost Beast Heart", Category = "Relic", Element = "Air", Model = "BeastHeart", Tint = Color3.fromRGB(205, 235, 255), Color = Color3.fromRGB(205, 235, 255) },
 	EmberHeart = { Name = "Ember Heart", Thai = "Fire Beast Heart", Category = "Relic", Element = "Fire", Model = "BeastHeart", Tint = Color3.fromRGB(255, 120, 40), Color = Color3.fromRGB(255, 120, 40) },
 
+	-- หินกะโหลกชนเผ่า (หีบหัวหน้าเผ่าในหมู่บ้านดิน/น้ำ/ลม) · ครบ 3 ก้อน = เปิดประตูป้อมชนเผ่าที่ไบโอมไฟ
+	SkullStoneEarth = { Name = "Earth Skull Stone", Thai = "Earth Skull Stone", Category = "Relic", Element = "Earth", Model = "Stone", Tint = Color3.fromRGB(120, 235, 90), Color = Color3.fromRGB(120, 235, 90) },
+	SkullStoneWater = { Name = "Water Skull Stone", Thai = "Water Skull Stone", Category = "Relic", Element = "Water", Model = "Stone", Tint = Color3.fromRGB(80, 190, 255), Color = Color3.fromRGB(80, 190, 255) },
+	SkullStoneAir = { Name = "Frost Skull Stone", Thai = "Frost Skull Stone", Category = "Relic", Element = "Air", Model = "Stone", Tint = Color3.fromRGB(215, 240, 255), Color = Color3.fromRGB(215, 240, 255) },
+
 	-- ยา
 	Bandage = { Name = "Bandage", Thai = "Bandage", Category = "Medical", Heal = 35, Revive = true, Color = Color3.fromRGB(240, 236, 220) },
 	Medkit = { Name = "Medkit", Thai = "First Aid Kit", Category = "Medical", Heal = 100, Revive = true, Color = Color3.fromRGB(230, 60, 60) },
@@ -174,7 +179,7 @@ Items.Structures = {
 	BigStorageBox = { Health = 300, Size = Vector3.new(8.8, 4, 3.6), Storage = 40 },
 	SpikeTrap = { Health = 200, Size = Vector3.new(8, 2, 8), Damage = 3, Tick = 0.8 },
 	Lantern = { Health = 120, Size = Vector3.new(2, 9, 2), Light = 45 },
-	Ballista = { Health = 400, Size = Vector3.new(6, 7, 6), Damage = 15, Range = 120, Cooldown = 1.6 },
+	Ballista = { Health = 400, Size = Vector3.new(9, 16, 9), Damage = 15, Range = 120, Cooldown = 1.6 },
 	Bed = { Health = 150, Size = Vector3.new(6.8, 5.2, 8) }, -- เตียงไม้ (3D Model/bad · Cozy Wooden Bed)
 	Bed2 = { Health = 250, Size = Vector3.new(7.6, 6, 8) }, -- เตียงม่านม่วง (3D Model/bad · Royal Violet Canopy)
 	FarmPlot = { Health = 150, Size = Vector3.new(10, 1.5, 10), GrowTime = 180, Yield = 12 }, -- ปลูก 3 นาที ลูกออก 12 ลูก (ต้นละ 2)
@@ -210,6 +215,9 @@ Items.Desc = {
 	TideHeart = "Heart of the Water boss (Tyrannomosa) · Used for the Tide Trident and the Four-Element Sword",
 	FrostHeart = "Heart of the Frost boss (Frostmaw) · Used for the Storm Bow and the Four-Element Sword",
 	EmberHeart = "Heart of the Fire boss (Ignarax) · Used for the Ember Greatsword and the Four-Element Sword",
+	SkullStoneEarth = "From the chief's chest in the Earth tribe village · Bring all 3 Skull Stones to the Fire stronghold gate",
+	SkullStoneWater = "From the chief's chest in the Water tribe village · Bring all 3 Skull Stones to the Fire stronghold gate",
+	SkullStoneAir = "From the chief's chest in the Frost tribe village · Bring all 3 Skull Stones to the Fire stronghold gate",
 	Bandage = "Bandage up to heal, and revive downed teammates",
 	Medkit = "Fully heals HP, and revives downed teammates",
 	HerbSalve = "Herbal medicine from berries. Heals a little (cannot revive teammates)",

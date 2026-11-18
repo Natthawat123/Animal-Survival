@@ -36,4 +36,22 @@ for _, t in ipairs(Shop.Trader) do
 end
 Shop.TraderEvery = 3 -- มาทุกกี่วัน (วันที่ 2, 5, 8, ...)
 
+-- ร้านงานวัดในมิติลอยกระทง (KrathongService): จ่ายด้วยกระทงที่เก็บได้ (Price = จำนวนกระทง) · Stock = แลกได้กี่ครั้งต่อคน
+--   Chest = ได้หีบสุ่มของระดับนั้นแทนของ (LootService:GiveTierLoot)
+Shop.Festival = {
+	{ Id = "F_Bandage", Give = { Bandage = 3 }, Price = 2, Stock = 3 },
+	{ Id = "F_Stew", Give = { Stew = 3 }, Price = 2, Stock = 3 },
+	{ Id = "F_Coal", Give = { Coal = 10 }, Price = 3, Stock = 2 },
+	{ Id = "F_Medkit", Give = { Medkit = 1 }, Price = 4, Stock = 2 },
+	{ Id = "F_Iron", Give = { Iron = 10 }, Price = 4, Stock = 2 },
+	{ Id = "F_Essence", Give = { TerraCore = 1, TidePearl = 1, GaleFeather = 1, EmberShard = 1 }, Price = 6, Stock = 2 },
+	{ Id = "F_Waystone", Give = { Teleporter = 1 }, Price = 8, Stock = 1 },
+	{ Id = "F_Chest", Chest = 3, Name = "Legendary Chest", Price = 12, Stock = 1 },
+}
+Shop.FestivalById = {}
+for _, t in ipairs(Shop.Festival) do
+	Shop.FestivalById[t.Id] = t
+end
+Shop.FestivalWishBonus = 5 -- เก็บครบทุกอัน = แถมกระทงเข้ากระเป๋าอีกเท่านี้
+
 return Shop

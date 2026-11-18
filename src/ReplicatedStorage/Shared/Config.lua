@@ -64,6 +64,8 @@ Config.BossFirstSkill = 2 -- วินาทีหลังเกิดก่อ
 Config.MaxWildAnimals = 70 -- สัตว์ป่ากลางวันทั้งแมพ
 Config.WildSpawnRadius = { Min = 140, Max = 420 } -- เกิดรอบตัวผู้เล่น
 Config.WildDespawnRadius = 900
+Config.MaxWaterAnimals = 6 -- สัตว์น้ำ (วาฬ) ว่ายในน้ำลึกพร้อมกันได้สูงสุด (กลางคืนครึ่งเดียว) · แยกโควตาจากสัตว์บก
+Config.WaterSpawnRadius = { Min = 50, Max = 260 } -- เกิดในน้ำลึกรอบตัวผู้เล่น (ใกล้พอให้เห็นจากริมน้ำ)
 -- กล่องทั่วแมพ: จำนวนทั้งหมด + จำนวนแต่ละระดับ (ธรรมดา / หายาก / ตำนาน) · วิหาร = ระดับ 3 เสมอ
 Config.CrateCount = 40
 Config.CrateTierWeight = { 18, 14, 8 }

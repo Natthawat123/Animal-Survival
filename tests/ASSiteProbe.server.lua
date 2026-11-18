@@ -26,9 +26,17 @@ repeat
 	task.wait(3)
 until (find("Lair_Fire") and find("Sanctum_Fire") and find("Shrine_Fire")) or os.clock() - t0 > 900
 task.wait(5)
-local DIST = { Shrine = 95, Lair = 120, Sanctum = 150, Ruins = 80 }
+-- ถ่ายตอนกลางวัน (กลางคืน+หมอกไบโอมไฟมองไม่เห็นอะไร)
+local Lighting = game:GetService("Lighting")
+task.spawn(function()
+	while true do
+		Lighting.ClockTime = 13
+		task.wait(0.2)
+	end
+end)
+local DIST = { Shrine = 95, Lair = 120, Sanctum = 150, Village = 150, Stronghold = 260 }
 -- build_rbxlx.py --siteprobe --sitekinds=Sanctum,Shrine -> ตรวจเฉพาะชนิดที่ระบุ (เร็วกว่า)
-local KINDS = { "Shrine", "Ruins", "Sanctum", "Lair" }
+local KINDS = { "Shrine", "Village", "Stronghold", "Sanctum", "Lair" }
 local only = ReplicatedStorage:FindFirstChild("ASSiteKinds")
 if only and only.Value ~= "" then
 	KINDS = string.split(only.Value, ",")
@@ -81,7 +89,7 @@ for _, kind in ipairs(KINDS) do
 			print(string.format("[SITE] %s_%s %s size=%.0f,%.0f,%.0f collide=%d | %s", kind, el, big[1].Name, sz.X, sz.Y, sz.Z, coll, table.concat(out, " ")))
 		end
 		-- ของเล่นอยู่บนอาคารไหม + มีทางขึ้นไหม
-		local play = m:FindFirstChild("Cage", true) or m:FindFirstChild("Obelisk1", true) or (kind == "Ruins" and m:FindFirstChild("Chest", true))
+		local play = m:FindFirstChild("Cage", true) or m:FindFirstChild("Obelisk1", true) or (kind == "Village" and m:FindFirstChild("Chest", true))
 		local playPos = play and play:GetPivot().Position
 		if playPos then
 			print(string.format("[PLAY] %s item=%s up=%.0f stairs=%s lift=%s", m.Name, play.Name, playPos.Y - c.Y, tostring(m:FindFirstChild("Stairs", true) ~= nil), tostring(m:FindFirstChild("LiftPad", true) ~= nil)))
@@ -108,5 +116,76 @@ for _, kind in ipairs(KINDS) do
 			task.wait(5)
 		end
 	end
+end
+-- ป้อมชนเผ่า: วางหินกะโหลก 3 ก้อน -> ประตูต้องเปิด
+local hold = find("Stronghold_Fire")
+if hold then
+	local SSS = game:GetService("ServerScriptService")
+	local VS = require(SSS.Server.VillageService)
+	local Inv = require(SSS.Server.InventoryService)
+	player:SetAttribute("InRun", true)
+	local gate = hold:FindFirstChild("StrongholdGate")
+	local sockets = {}
+	for _, d in ipairs(hold:GetDescendants()) do
+		if d:GetAttribute("Stone") and d:IsA("BasePart") then
+			table.insert(sockets, d)
+		end
+	end
+	print("[STRONGHOLD] sockets=" .. #sockets .. " gateOpen=" .. tostring(gate and gate:GetAttribute("Open")))
+	-- ไม่มีหิน: ต้องไม่ติด
+	if sockets[1] then
+		VS:PlaceStone(sockets[1], player)
+		print("[STRONGHOLD] no-stone filled=" .. tostring(sockets[1]:GetAttribute("Filled")))
+	end
+	for _, s in ipairs(sockets) do
+		Inv:Add(player, s:GetAttribute("Stone"), 1, true)
+		VS:PlaceStone(s, player)
+		print("[STRONGHOLD] placed " .. s:GetAttribute("Stone") .. " filled=" .. tostring(s:GetAttribute("Filled")))
+	end
+	task.wait(4)
+	print("[STRONGHOLD] gateOpen=" .. tostring(gate and gate:GetAttribute("Open")))
+	local c = hold:GetPivot().Position
+	local toCamp = Vector3.new(-c.X, 0, -c.Z).Unit
+	local gp = gate:GetPivot().Position
+	local cam = gp + toCamp * 70 + Vector3.new(0, 30, 0)
+	local hrp = char:FindFirstChild("HumanoidRootPart")
+	if hrp then
+		char:PivotTo(CFrame.new(cam + Vector3.new(0, 30, 0)))
+	end
+	task.wait(4)
+	shot.Value = string.format("Stronghold_gate_open|%f,%f,%f|%f,%f,%f", cam.X, cam.Y, cam.Z, gp.X, gp.Y + 8, gp.Z)
+	task.wait(5)
+	-- ข้างในป้อม: จากหลังประตูมองไปที่วิหาร · บนยอดวิหาร
+	local temple = c + (-toCamp) * 46
+	for _, v in ipairs({ { gp - toCamp * 25 + Vector3.new(0, 26, 0), temple + Vector3.new(0, 14, 0), "inside" },
+		{ c + toCamp * 30 + Vector3.new(0, 70, 0), temple, "aerial" }, { temple + toCamp * 20 + Vector3.new(0, 40, 0), temple + Vector3.new(0, 34, 0), "temple_top" } }) do
+		char:PivotTo(CFrame.new(v[1] + Vector3.new(0, 30, 0)))
+		task.wait(4)
+		shot.Value = string.format("Stronghold_%s|%f,%f,%f|%f,%f,%f", v[3], v[1].X, v[1].Y, v[1].Z, v[2].X, v[2].Y, v[2].Z)
+		task.wait(5)
+	end
+	-- หีบหัวหน้าเผ่า 3 หมู่บ้าน: เปิดแล้วต้องได้หินกะโหลกเข้ากระสอบ
+	local Loot = require(SSS.Server.LootService)
+	for _, vn in ipairs({ "Village_Earth", "Village_Water", "Village_Air" }) do
+		local vm = find(vn)
+		local chief
+		for _, d in ipairs(vm and vm:GetDescendants() or {}) do
+			if d:IsA("Model") and d:GetAttribute("KeyStone") then
+				chief = d
+			end
+		end
+		if chief then
+			local key = chief:GetAttribute("KeyStone")
+			local before = Inv:Count(player, key)
+			local pr = chief:FindFirstChildWhichIsA("ProximityPrompt", true)
+			Loot:Open(chief, player)
+			print(string.format("[STRONGHOLD] chest %s key=%s before=%d after=%d prompt=%s los=%s", vn, key, before, Inv:Count(player, key), tostring(pr ~= nil), tostring(pr and pr.RequiresLineOfSight)))
+		else
+			print("[STRONGHOLD] chest " .. vn .. " NO CHIEF CHEST")
+		end
+	end
+	VS:ResetStronghold()
+	task.wait(1)
+	print("[STRONGHOLD] after reset gateOpen=" .. tostring(gate:GetAttribute("Open")))
 end
 shot.Value = "DONE"

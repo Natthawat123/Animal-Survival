@@ -24,6 +24,7 @@ Remotes.Events = {
 	"SkipClassLevel", -- (classId) จ่าย Ruby ข้ามเลเวล
 	"ClaimDaily", -- () หม้อรางวัลประจำวัน
 	"Trade", -- (offerId) พ่อค้าเร่
+	"KrathongTrade", -- (offerId) ร้านงานวัดในมิติลอยกระทง (จ่ายด้วยกระทง)
 	"Ping", -- เทสต์
 	"DropItem", -- (itemId, count) ทิ้งของจากกระสอบลงพื้น
 	"Storage", -- c->s (action "Put"/"Take"/"PutAll"/"TakeAll", box, itemId?, count?) · s->c ("Open", box) กล่องเก็บของ (StorageService)

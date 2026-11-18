@@ -26,7 +26,7 @@ local EVENTS = {
 	{ Kind = "Meteor", Icon = "☄", Color = Color3.fromRGB(255, 170, 80), Name = "Meteor" },
 	{ Kind = "Migration", Icon = "🦌", Color = Color3.fromRGB(230, 200, 140), Name = "Animal Migration" },
 	{ Kind = "Supply", Icon = "", Prop = "AirdropCrate", Color = Color3.fromRGB(255, 90, 70), Name = "Supply Chest" }, -- ไอคอน = โมเดลกล่องแอร์ดรอปจริง
-	{ Kind = "Krathong", Icon = "🪷", Color = Color3.fromRGB(255, 160, 210), Name = "Loy Krathong" }, -- ประตูเทศกาลลอยกระทง (KrathongService)
+	{ Kind = "Krathong", Icon = "🌸", Color = Color3.fromRGB(255, 160, 210), Name = "Loy Krathong" }, -- ประตูเทศกาลลอยกระทง (KrathongService)
 }
 
 local fxFolder

@@ -521,7 +521,7 @@ function BuildingService:Tick(dt)
 						if turret then
 							turret:PivotTo(CFrame.lookAt(turret:GetPivot().Position, Vector3.new(tpos.X, turret:GetPivot().Position.Y, tpos.Z)))
 						end
-						local from = pos + Vector3.new(0, 5, 0)
+						local from = pos + Vector3.new(0, spec.Size.Y * 0.6, 0) -- ยิงจากหน้าไม้บนชั้นยอดหอธนู
 						self.ctx.Remotes.Get("HitFx"):FireAllClients("Bolt", { From = from, To = tpos })
 						task.delay((tpos - from).Magnitude / 260, function()
 							if target.Model.Parent then

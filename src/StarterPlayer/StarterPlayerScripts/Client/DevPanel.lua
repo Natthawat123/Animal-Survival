@@ -284,7 +284,7 @@ local TABS = {
 			btn(page, "🗺 Biome " .. ELEMENT_TH[el], nil, function() run("tp", "Site_" .. el) end)
 			btn(page, "⛩ Shrine " .. ELEMENT_TH[el], nil, function() run("tp", "Shrine_" .. el) end)
 			btn(page, "👑 Boss Lair " .. ELEMENT_TH[el], C(130, 50, 80), function() run("tp", "Lair_" .. el) end)
-			btn(page, "🏚 Ruins " .. ELEMENT_TH[el], nil, function() run("tp", "Ruins_" .. el) end)
+			btn(page, (el == "Fire" and "🏰 Stronghold " or "⛺ Village ") .. ELEMENT_TH[el], nil, function() run("tp", (el == "Fire" and "Stronghold_" or "Village_") .. el) end)
 			btn(page, "🏛 Sanctum " .. ELEMENT_TH[el], C(110, 90, 50), function() run("tp", "Sanctum_" .. el) end)
 		end
 	end },

@@ -98,7 +98,7 @@ local order = {
 	"CombatService", "AnimalService", "SkillService", "SpiritService", "MountService", "LootService", "TraderService", "TeleporterService", "KrathongService", "DirectorService",
 	"FriendService", "SeasonService", "QuestService",
 	"PingService", "RejoinService",
-	"EventService", "SanctumService", "PortalService", "WorldService", "EscapeService", "StorageService",
+	"EventService", "SanctumService", "PortalService", "WorldService", "EscapeService", "StorageService", "VillageService",
 }
 for _, name in ipairs(order) do
 	ctx.Services[name] = require(Server:WaitForChild(name))
@@ -145,7 +145,7 @@ end
 State:SetAttribute("LoadProgress", 1)
 print(string.format("[AS] world ready %.1fs props=%d", os.clock() - t0, world:GetAttribute("PropCount") or 0))
 for _, sp in ipairs(layout.Specials) do
-	if sp.Kind == "Shrine" or sp.Kind == "Lair" or sp.Kind == "Ruins" then
+	if sp.Kind == "Shrine" or sp.Kind == "Lair" or sp.Kind == "Village" or sp.Kind == "Stronghold" then
 		State:SetAttribute(sp.Kind .. "_" .. sp.Element, sp.Position)
 	end
 end
@@ -154,7 +154,7 @@ for _, site in ipairs(layout.SiteList) do
 end
 
 -- ช่วงที่ 2: ระบบในแมพ
-start({ "DropService", "ResourceService", "CampService", "BuildingService", "CombatService", "AnimalService", "SkillService", "SpiritService", "MountService", "LootService", "TraderService", "DirectorService", "PingService", "EventService", "SanctumService", "PortalService", "TeleporterService", "EscapeService", "StorageService", "KrathongService" })
+start({ "DropService", "ResourceService", "CampService", "BuildingService", "CombatService", "AnimalService", "SkillService", "SpiritService", "MountService", "LootService", "TraderService", "DirectorService", "PingService", "EventService", "SanctumService", "PortalService", "TeleporterService", "EscapeService", "StorageService", "KrathongService", "VillageService" })
 
 -- โหมดลองเล่น: ของเต็มกระเป๋า
 if ReplicatedStorage:FindFirstChild("ASSandbox") then

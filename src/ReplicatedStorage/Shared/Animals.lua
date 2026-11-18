@@ -197,6 +197,41 @@ Animals.Data = {
 		},
 	},
 
+	------------------------------------------------------------ ชนเผ่ากะโหลกแดง (เฝ้าหมู่บ้านโจร · VillageService)
+	--   โมเดล: 3D Model/ชนเผ่า -> blender/prep_boss.py -> assets/models/Tribe*.glb -> Import 3D -> assets/rbxm/Animals/Tribe*.rbxmx
+	--   ท่าเดิน/โจมตี: BossAnimator (ROLES ตามชื่อกระดูก Bone_xxx) · ยังไม่ Import = ยังไม่เกิด (AnimalModels คืน nil)
+	TribeWarrior = {
+		Name = "Skull Tribe Spearman", Thai = "Skull Tribe Spearman", Element = "None", Behaviour = "Hunter",
+		Health = 170, Damage = 14, Speed = 17, AttackRange = 7, AttackCooldown = 1.8, Aggro = 70, StructureDamage = 3,
+		Drops = { { Item = "Bone", Chance = 0.6, Min = 1, Max = 2, Exact = true }, { Item = "Iron", Chance = 0.35, Min = 1, Max = 2, Exact = true }, { Item = "Coal", Chance = 0.35, Min = 1, Max = 2, Exact = true } },
+		Model = {
+			Skin = { Size = 7.5, Rig = "Biped" },
+			Template = "Quadruped", Body = V(2.4, 3, 1.6), Head = V(1.8, 1.8, 1.8), LegLen = 2, LegThick = 0.8,
+			Colors = { Main = C(170, 120, 90), Belly = C(220, 200, 170), Dark = C(60, 20, 20), Eye = C(255, 60, 40) },
+		},
+	},
+	TribeArcher = {
+		Name = "Skull Tribe Archer", Thai = "Skull Tribe Archer", Element = "None", Behaviour = "Spitter", Arrow = true,
+		Health = 95, Damage = 10, Speed = 15, AttackRange = 80, AttackCooldown = 2.2, Aggro = 85, StructureDamage = 2,
+		Drops = { { Item = "Bone", Chance = 0.5, Min = 1, Max = 1, Exact = true }, { Item = "Fiber", Chance = 0.5, Min = 1, Max = 2, Exact = true }, { Item = "Iron", Chance = 0.25, Min = 1, Max = 1, Exact = true } },
+		Model = {
+			Skin = { Size = 6.5, Rig = "Biped" },
+			Template = "Quadruped", Body = V(2.2, 2.8, 1.5), Head = V(1.8, 1.8, 1.8), LegLen = 2, LegThick = 0.7,
+			Colors = { Main = C(170, 120, 90), Belly = C(220, 200, 170), Dark = C(60, 20, 20), Eye = C(255, 60, 40) },
+		},
+	},
+	TribeShield = {
+		Name = "Skull Tribe Shieldbearer", Thai = "Skull Tribe Shieldbearer", Element = "None", Behaviour = "Brute",
+		Health = 340, Damage = 17, Speed = 13, AttackRange = 7, AttackCooldown = 2.4, Aggro = 60, StructureDamage = 5,
+		Armor = 0.2, FrontBlock = 0.6, -- โล่: ตีจากด้านหน้าเข้าแค่ 40% · อ้อมหลังตีเต็ม
+		Drops = { { Item = "Bone", Chance = 0.7, Min = 1, Max = 2, Exact = true }, { Item = "Iron", Chance = 0.5, Min = 2, Max = 3, Exact = true }, { Item = "Pelt", Chance = 0.4, Min = 1, Max = 1, Exact = true } },
+		Model = {
+			Skin = { Size = 7.5, Rig = "Biped" },
+			Template = "Quadruped", Body = V(2.8, 3, 1.8), Head = V(1.8, 1.8, 1.8), LegLen = 2, LegThick = 0.9,
+			Colors = { Main = C(170, 120, 90), Belly = C(220, 200, 170), Dark = C(60, 20, 20), Eye = C(255, 60, 40) },
+		},
+	},
+
 	------------------------------------------------------------ บอสธาตุ
 	Terragon = {
 		Name = "GOLGRAN, the Living Mountain", Thai = "Golgran, the Living Mountain", Element = "Earth", Behaviour = "Boss",

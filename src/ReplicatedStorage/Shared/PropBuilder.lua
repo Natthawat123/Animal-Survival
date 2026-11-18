@@ -3585,104 +3585,25 @@ function PropBuilder.BuildLair(sp, parent)
 	return m
 end
 
--- ซากปรักหักพัง + หีบ
-function PropBuilder.BuildRuins(sp, parent, rng)
-	local el = sp.Element
-	local m = Instance.new("Model")
-	m.Name = "Ruins_" .. el
-	local base = faceCamp(sp.Position)
-	local stone = ({ Earth = C(130, 126, 116), Water = C(200, 214, 206), Air = C(170, 178, 200), Fire = C(110, 70, 56) })[el]
-	-- ซากวิหารโบราณจาก Creator Store (4 แบบ: เสาเรียงพังๆ / วิหารกรีก / ศาลาโดม / พีระมิด) สลับกันไม่ให้ซ้ำในไบโอมเดียว
-	--   ย้อมสีหินตามธาตุ (ตะไคร่/หินทราย/หินน้ำแข็ง/หินภูเขาไฟ) · ตั้งบนลานที่ MapGenerator ปรับเรียบ (SiteSpec Ruins) จมฐาน 1.5 กันลอย
-	local RUIN_MODELS = { { "RuinColonnade", 54 }, { "RuinTemple", 50 }, { "RuinRotunda", 34 }, { "RuinPyramid", 52 } }
-	local EL_IDX = { Earth = 0, Water = 1, Air = 2, Fire = 3 }
-	PropBuilder.RuinCount = PropBuilder.RuinCount or {}
-	PropBuilder.RuinCount[el] = (PropBuilder.RuinCount[el] or 0) + 1
-	local pick = RUIN_MODELS[((EL_IDX[el] or 0) + PropBuilder.RuinCount[el] - 1) % #RUIN_MODELS + 1]
-	local TINT = {
-		Earth = { C(150, 160, 130), Enum.Material.Cobblestone }, Water = { C(222, 206, 168), Enum.Material.Sandstone },
-		Air = { C(206, 218, 236), Enum.Material.Marble }, Fire = { C(84, 64, 60), Enum.Material.Basalt },
-	}
-	local gy0 = terrainY(base.Position, 12)
-	base = CF(base.Position.X, gy0, base.Position.Z) * (base - base.Position)
-	local storeRuins = PropBuilder.Imported(pick[1], base * CF(0, -1.5, 0), pick[2], m, true)
-	local chestY = gy0
-	if storeRuins then
-		storeRuins.Name = "RuinBuilding"
-		local tint = TINT[el]
-		for _, d in ipairs(storeRuins:GetDescendants()) do
-			if d:IsA("BasePart") and not d:IsA("MeshPart") then
-				local c = d.Color
-				local lum = (c.R + c.G + c.B) / 3
-				d.Color = Color3.new(tint[1].R * (0.55 + lum * 0.6), tint[1].G * (0.55 + lum * 0.6), tint[1].B * (0.55 + lum * 0.6))
-				if d.Material == Enum.Material.Plastic or d.Material == Enum.Material.SmoothPlastic then
-					d.Material = tint[2]
-				end
-			end
-		end
-		-- หีบตั้งบนพื้นจริงของซาก (ฐานยก/ขั้นบันได) ตรงกลาง
-		local home = m.Parent
-		m.Parent = workspace
-		local rpR = RaycastParams.new()
-		rpR.FilterType = Enum.RaycastFilterType.Include
-		rpR.FilterDescendantsInstances = { storeRuins, workspace.Terrain }
-		local hit = workspace:Raycast(base.Position + V(0, 8, 0), V(0, -40, 0), rpR)
-		if hit and hit.Position.Y < gy0 + 7 then
-			chestY = hit.Position.Y
-		end
-		m.Parent = home
-	end
-	base = CF(base.Position.X, chestY, base.Position.Z) * (base - base.Position)
-	-- พื้นจริงตรงจุดนั้น (ซาก/ดิน) — กระถางไฟ/ผลึกอยู่นอกแท่นกลาง ใช้ความสูงของหีบตรงๆ จะลอย
-	local function floorAt(p)
-		local home = m.Parent
-		m.Parent = workspace
-		local rp = RaycastParams.new()
-		rp.FilterType = Enum.RaycastFilterType.Include
-		rp.FilterDescendantsInstances = storeRuins and { storeRuins, workspace.Terrain } or { workspace.Terrain }
-		local hit = workspace:Raycast(V(p.X, chestY + 8, p.Z), V(0, -40, 0), rp)
-		m.Parent = home
-		return hit and hit.Position.Y or terrainY(p, 2)
-	end
-	-- กระถางไฟ 2 ใบหน้าซาก + ผลึกธาตุข้างหีบ
-	for _, x in ipairs({ -7, 7 }) do
-		local p = (base * CF(x, 0, -6)).Position
-		local br = PropBuilder.Imported("BrazierLP", CF(p.X, floorAt(p) - 0.2, p.Z), 4.5, m, true)
-		local host = br and br:FindFirstChildWhichIsA("BasePart", true)
-		if host then
-			light(host, ELEMENT_COLOR[el] or C(255, 170, 80), 24, 1.5)
-		end
-	end
-	local storeRuinsDone = storeRuins
-	local cr = REALM_CRYSTAL[el]
-	if cr then
-		local p = (base * CF(6.5, 0, 4.5)).Position -- (ห่างหีบใหม่ที่ใหญ่ขึ้น กว้าง 6.6)
-		local c = PropBuilder.Place(cr, V(p.X, floorAt(p) - 0.4, p.Z), 0, 0.7, m)
-		if c then
-			CollectionService:RemoveTag(c, "ResourceNode")
-		end
-	end
-	storeRuins = storeRuinsDone
-	-- หีบ
+-- หีบโบราณ (ของในหมู่บ้านโจร) — ตัวชน/จุดกดเป็นชิ้นปั้น ผิวเป็นหีบ Import 3D (Chest2Open)
+local function ancientChest(ccf, el, parent, look, lookWidth)
 	local chest = Instance.new("Model")
 	chest.Name = "Chest"
-	local ccf = base * CF(0, -0.2, 0)
 	local body = P("Part", { Name = "Body", Size = V(4, 2.6, 2.8), CFrame = ccf * CF(0, 1.3, 0), Color = C(110, 72, 40), Material = Enum.Material.WoodPlanks }, chest)
 	P("Part", { Name = "Lid", Size = V(4.1, 1, 2.9), CFrame = ccf * CF(0, 3.1, 0), Color = C(130, 86, 48), Material = Enum.Material.WoodPlanks }, chest)
 	P("Part", { Size = V(4.2, 0.4, 3), CFrame = ccf * CF(0, 2.6, 0), Color = C(210, 170, 70), Material = Enum.Material.Metal }, chest)
 	P("Part", { Size = V(0.6, 0.8, 0.2), CFrame = ccf * CF(0, 2.4, -1.5), Color = C(230, 190, 80), Material = Enum.Material.Neon }, chest)
 	chest.PrimaryPart = body
 	local assetsProps = ReplicatedStorage:FindFirstChild("Assets") and ReplicatedStorage.Assets:FindFirstChild("Props")
-	local chestLook = assetsProps and ((assetsProps:FindFirstChild("Chest2Open") and "Chest2Open") -- ฝาเปิดได้จริง
+	local chestLook = assetsProps and ((look and assetsProps:FindFirstChild(look) and look) or (assetsProps:FindFirstChild("Chest2Open") and "Chest2Open")
 		or (assetsProps:FindFirstChild("Chest2") and "Chest2") or (assetsProps:FindFirstChild("ChestLP") and "ChestLP"))
 	if chestLook then
-		-- หีบโบราณ = กล่องใหม่ (Import 3D: Props/Chest2) · ชิ้นปั้นเดิมซ่อนไว้เป็นตัวชน/จุดกด
 		for _, d in ipairs(chest:GetChildren()) do
 			if d:IsA("BasePart") then
 				d.Transparency = 1
 			end
 		end
-		PropBuilder.Imported(chestLook, ccf, chestLook == "ChestLP" and 4.6 or 6.6, chest, true)
+		PropBuilder.Imported(chestLook, ccf, (chestLook == look and lookWidth) or (chestLook == "ChestLP" and 4.6) or 6.6, chest, true)
 	elseif MeshProps.Has("Chest") then
 		for _, d in ipairs(chest:GetChildren()) do
 			if d:IsA("BasePart") then
@@ -3695,7 +3616,916 @@ function PropBuilder.BuildRuins(sp, parent, rng)
 	end
 	chest:SetAttribute("Element", el)
 	CollectionService:AddTag(chest, "Chest")
-	chest.Parent = m
+	chest.Parent = parent
+	return chest
+end
+
+---------------------------------------------------------------- หมู่บ้านโจร (ชนเผ่ากะโหลกแดง) — แทนซากปรักหักพัง 1 แห่ง/ไบโอม
+--   รั้วไม้แหลมล้อมวง + ประตูหัวกะโหลก (หันเข้าแคมป์) · หอคอย 4 หอ (นักธนูยืนเฝ้า) · โถงหัวหน้า (หีบ) · โรงเก็บของ 2 หลัง (หีบ)
+--   เต็นท์หนังสัตว์ · เสาโทเท็ม · กองไฟกลางลาน · หอกเสียบหัวกะโหลก · ธงแดง · ชั้นวางอาวุธ · กรง
+--   จุดเกิดทหาร: โฟลเดอร์ Spawns (Archer = บนหอ, Ground = ในลาน) -> VillageService
+local VILLAGE_R = 70 -- (เดิม 46 แคบไป) ลานกว้าง เดินสู้ได้สบาย
+PropBuilder.VillageRadius = VILLAGE_R
+local VILLAGE_TINT = {
+	Earth = { Wood = C(98, 68, 44), Dark = C(64, 44, 30), Thatch = C(156, 132, 74), Hide = C(190, 164, 122), Stone = C(120, 118, 108) },
+	Water = { Wood = C(158, 124, 86), Dark = C(112, 86, 58), Thatch = C(216, 188, 128), Hide = C(226, 204, 164), Stone = C(196, 176, 140) },
+	Air = { Wood = C(106, 82, 62), Dark = C(72, 56, 44), Thatch = C(234, 238, 246), Hide = C(212, 216, 226), Stone = C(176, 184, 198), Snow = true },
+	Fire = { Wood = C(60, 42, 34), Dark = C(34, 24, 20), Thatch = C(96, 54, 38), Hide = C(136, 94, 72), Stone = C(70, 60, 58), Ember = true },
+}
+local TRIBE_RED, TRIBE_RED_D, BONE = C(178, 28, 26), C(108, 16, 16), C(234, 224, 198)
+
+-- ชุดชิ้นส่วนหมู่บ้าน/ป้อมชนเผ่า (ใช้ร่วม BuildVillage + BuildStronghold)
+local function villageKit(m, base, tint)
+	local WOOD, PLANK, GRASS = Enum.Material.Wood, Enum.Material.WoodPlanks, Enum.Material.Grass
+	local roofMat = tint.Snow and Enum.Material.Snow or GRASS
+	local spawns = Instance.new("Folder")
+	spawns.Name = "Spawns"
+	spawns.Parent = m
+
+	local function box(size, cf, color, mat, extra)
+		local p = P("Part", { Size = size, CFrame = cf, Color = color, Material = mat or WOOD }, m)
+		if extra then
+			for k, v in pairs(extra) do
+				p[k] = v
+			end
+		end
+		return p
+	end
+	local function ball(d, cf, color, mat)
+		return P("Part", { Shape = Enum.PartType.Ball, Size = V(d, d, d), CFrame = cf, Color = color, Material = mat or Enum.Material.SmoothPlastic }, m)
+	end
+	local function wedge(size, cf, color, mat)
+		return P("WedgePart", { Size = size, CFrame = cf, Color = color, Material = mat or WOOD }, m)
+	end
+	-- ท่อนซุงตั้ง: cf = จุดโคน
+	local function log(h, d, cf, color)
+		return cylinderY(h, d, cf * CF(0, h / 2, 0), { Color = color or tint.Wood, Material = WOOD }, m)
+	end
+	-- ท่อนซุงนอน/เอียง ระหว่าง 2 จุด
+	local function beam(a, b, d, color)
+		local len = (b - a).Magnitude
+		return box(V(d, d, len), CFrame.lookAt((a + b) / 2, b), color or tint.Dark, WOOD)
+	end
+	-- หลังคาจั่ว: สันหลังคาตามแกน X · cf = กลางชายคา
+	local function gable(cf, w, d, h, color, ends)
+		local L = math.sqrt((d / 2) ^ 2 + h ^ 2) + 1.2
+		for _, s in ipairs({ -1, 1 }) do
+			box(V(w, 0.7, L), cf * CFrame.lookAt(V(0, h / 2, s * d / 4), V(0, h, 0)), color, roofMat)
+		end
+		box(V(w + 0.6, 0.9, 0.9), cf * CF(0, h + 0.15, 0), tint.Dark, WOOD)
+		if ends then
+			for _, x in ipairs({ -w / 2 + 0.6, w / 2 - 0.6 }) do
+				wedge(V(0.5, h, d / 2), cf * CF(x, h / 2, -d / 4), ends, PLANK)
+				wedge(V(0.5, h, d / 2), cf * CF(x, h / 2, d / 4) * ANG(0, math.pi, 0), ends, PLANK)
+			end
+		end
+	end
+	-- หัวกะโหลก (หน้า = -Z) · horns = เขาโค้ง
+	local function skull(cf, s, horns)
+		ball(1.7 * s, cf, BONE)
+		box(V(1.1 * s, 0.55 * s, 0.9 * s), cf * CF(0, -0.75 * s, -0.35 * s), BONE, Enum.Material.SmoothPlastic)
+		for _, x in ipairs({ -0.36, 0.36 }) do
+			ball(0.48 * s, cf * CF(x * s, 0.05 * s, -0.66 * s), C(18, 10, 10))
+		end
+		wedge(V(0.24 * s, 0.3 * s, 0.2 * s), cf * CF(0, -0.32 * s, -0.8 * s), C(18, 10, 10), Enum.Material.SmoothPlastic)
+		box(V(1.75 * s, 0.22 * s, 0.4 * s), cf * CF(0, 0.32 * s, -0.62 * s), TRIBE_RED, Enum.Material.SmoothPlastic) -- สีทาหน้าแดง
+		if horns then
+			for _, sx in ipairs({ -1, 1 }) do
+				local a = cf * CF(sx * 0.75 * s, 0.35 * s, 0)
+				local b = a * ANG(0, 0, -sx * 1.1) * CF(0, 0.9 * s, 0)
+				box(V(0.4 * s, 1.4 * s, 0.4 * s), a * ANG(0, 0, -sx * 1.1) * CF(0, 0.6 * s, 0), BONE, Enum.Material.SmoothPlastic)
+				box(V(0.3 * s, 1.1 * s, 0.3 * s), b * ANG(0, 0, sx * 0.9) * CF(0, 0.5 * s, 0), BONE, Enum.Material.SmoothPlastic)
+			end
+		end
+	end
+	-- คบไฟ: ชามเหล็ก + ไฟ + แสง
+	local function torch(cf, size)
+		size = size or 1
+		local bowl = cylinderY(0.8 * size, 1.6 * size, cf * CF(0, 0.4 * size, 0), { Color = C(46, 42, 40), Material = Enum.Material.Metal }, m)
+		local f = Instance.new("Fire")
+		f.Size = 3.5 * size
+		f.Heat = 9
+		f.Color = C(255, 140, 50)
+		f.SecondaryColor = C(255, 60, 20)
+		f.Parent = bowl
+		light(bowl, C(255, 160, 80), 26 * size, 1.6)
+		return bowl
+	end
+	-- ธงแดงชนเผ่า (เสา + ผืนผ้า + ลายข้าวหลามตัดขาว)
+	local function banner(cf, h)
+		log(h, 0.5, cf, tint.Dark)
+		local top = cf * CF(0, h - 0.6, 0)
+		box(V(3.2, 0.3, 0.3), top, tint.Dark, WOOD)
+		box(V(2.8, 5.2, 0.15), top * CF(0, -2.9, 0), TRIBE_RED, Enum.Material.Fabric)
+		box(V(2.8, 0.5, 0.17), top * CF(0, -5.3, 0), TRIBE_RED_D, Enum.Material.Fabric)
+		box(V(1.2, 1.2, 0.2), top * CF(0, -2.6, 0) * ANG(0, 0, math.pi / 4), BONE, Enum.Material.Fabric)
+		box(V(0.55, 0.55, 0.22), top * CF(0, -2.6, 0) * ANG(0, 0, math.pi / 4), TRIBE_RED, Enum.Material.Fabric)
+	end
+	local function marker(kind, pos)
+		P("Part", { Name = kind, Size = V(1, 1, 1), CFrame = CF(pos), Transparency = 1, CanCollide = false, CanQuery = false, CanTouch = false }, spawns)
+	end
+	local function at(x, z, y)
+		return base * CF(x, y or 0, z)
+	end
+	-- กรอบที่หันหน้า (-Z) เข้ากลางหมู่บ้าน
+	local function facingCenter(x, z)
+		local p = (base * CF(x, 0, z)).Position
+		local c = base.Position
+		if (p - c).Magnitude < 0.5 then
+			return base
+		end
+		return CFrame.lookAt(p, V(c.X, p.Y, c.Z))
+	end
+
+	local function tower(x, z, H)
+		local f = facingCenter(x, z)
+		H = H or 16
+		for _, cx in ipairs({ -3, 3 }) do
+			for _, cz in ipairs({ -3, 3 }) do
+				log(H + 6, 1.3, f * CF(cx, 0, cz), tint.Wood)
+			end
+		end
+		-- ค้ำกากบาท 4 ด้าน
+		for _, side in ipairs({ { V(-3, 0, -3), V(3, 0, -3) }, { V(-3, 0, 3), V(3, 0, 3) }, { V(-3, 0, -3), V(-3, 0, 3) }, { V(3, 0, -3), V(3, 0, 3) } }) do
+			local a, b = side[1], side[2]
+			beam((f * CF(a + V(0, 2, 0))).Position, (f * CF(b + V(0, 12, 0))).Position, 0.5, tint.Dark)
+			beam((f * CF(b + V(0, 2, 0))).Position, (f * CF(a + V(0, 12, 0))).Position, 0.5, tint.Dark)
+		end
+		box(V(8.6, 0.8, 8.6), f * CF(0, H - 0.4, 0), tint.Wood, PLANK)
+		-- ราวกันตก (เว้นช่องบันไดด้านหน้า)
+		box(V(8.6, 2.4, 0.4), f * CF(0, H + 1.2, 4.1), tint.Dark, WOOD)
+		box(V(0.4, 2.4, 8.6), f * CF(-4.1, H + 1.2, 0), tint.Dark, WOOD)
+		box(V(0.4, 2.4, 8.6), f * CF(4.1, H + 1.2, 0), tint.Dark, WOOD)
+		box(V(3, 2.4, 0.4), f * CF(-2.8, H + 1.2, -4.1), tint.Dark, WOOD)
+		box(V(3, 2.4, 0.4), f * CF(2.8, H + 1.2, -4.1), tint.Dark, WOOD)
+		box(V(8.8, 0.9, 0.2), f * CF(0, H + 1.9, 4.35), TRIBE_RED, Enum.Material.Fabric)
+		-- บันได (ปีนได้: TrussPart) ฝั่งที่หันเข้าหมู่บ้าน
+		P("TrussPart", { Size = V(2, H, 2), CFrame = f * CF(0, H / 2, -5.2), Color = tint.Dark, Material = WOOD, Style = Enum.Style.NoSupports }, m)
+		gable(f * CF(0, H + 5.8, 0), 10.4, 10.4, 3.4, tint.Thatch, TRIBE_RED_D)
+		box(V(0.3, 4, 0.3), f * CF(0, H + 10.8, 0), tint.Dark, WOOD)
+		box(V(2.4, 1.3, 0.12), f * CF(1.3, H + 12, 0), TRIBE_RED, Enum.Material.Fabric)
+		torch(f * CF(3.4, H + 0.2, -3.4), 0.8)
+		skull(f * CF(0, H - 1.6, -4.5), 1, false)
+		marker("Archer", (f * CF(0, H, 1)).Position)
+	end
+	local function teepee(x, z, r, h)
+		local f = facingCenter(x, z)
+		local apex = (f * CF(0, h, 0)).Position
+		local N = 10
+		for i = 0, N - 1 do
+			local a = (i + 0.5) / N * math.pi * 2
+			local foot = (f * CF(math.sin(a) * r, 0, -math.cos(a) * r)).Position
+			local mid = (foot + apex) / 2
+			local out = (foot - (f * CF(0, 0, 0)).Position)
+			local w = 2 * r * math.sin(math.pi / N) * 1.18
+			local color = (i == 0) and tint.Dark or ((i % 3 == 0) and TRIBE_RED or tint.Hide)
+			local p = box(V(w, 0.3, (apex - foot).Magnitude + 0.4), CFrame.lookAt(mid, apex, out.Unit), color, Enum.Material.Fabric)
+			if i == 0 then
+				p.CanCollide = false -- ประตูเต็นท์ (ผ้าเปิด)
+				p.Transparency = 0.2
+			end
+		end
+		for i = 0, 3 do
+			local a = i / 4 * math.pi * 2 + 0.4
+			local foot = (f * CF(math.sin(a) * r * 0.85, 0, -math.cos(a) * r * 0.85)).Position
+			beam(foot, apex + (apex - foot).Unit * 2.6, 0.35, tint.Dark)
+		end
+		box(V(r * 0.9, 0.12, 0.3), f * CF(0, h * 0.55, -r * 0.46), BONE, Enum.Material.Fabric)
+	end
+	local function totem(x, z)
+		local f = facingCenter(x, z)
+		local colors = { tint.Wood, TRIBE_RED, tint.Dark, BONE }
+		local y = 0
+		for i, hgt in ipairs({ 3.4, 3, 3, 2.6 }) do
+			local c = colors[i]
+			box(V(3, hgt, 3), f * CF(0, y + hgt / 2, 0), c, (c == BONE) and Enum.Material.SmoothPlastic or WOOD)
+			-- หน้า: ตา 2 ข้าง + ปาก
+			for _, ex in ipairs({ -0.7, 0.7 }) do
+				box(V(0.7, 0.5, 0.2), f * CF(ex, y + hgt * 0.62, -1.55), (c == BONE) and C(20, 12, 12) or BONE, Enum.Material.SmoothPlastic)
+			end
+			box(V(1.8, 0.35, 0.2), f * CF(0, y + hgt * 0.25, -1.55), (c == TRIBE_RED) and BONE or TRIBE_RED, Enum.Material.SmoothPlastic)
+			y += hgt
+		end
+		-- ปีกบนยอด + กะโหลก
+		for _, sx in ipairs({ -1, 1 }) do
+			box(V(4, 0.9, 0.5), f * CF(sx * 2.8, y - 1.2, 0) * ANG(0, 0, sx * 0.25), TRIBE_RED, WOOD)
+		end
+		skull(f * CF(0, y + 1.1, 0), 1.25, true)
+	end
+	return {
+		WOOD = WOOD, PLANK = PLANK, GRASS = GRASS, roofMat = roofMat, spawns = spawns,
+		box = box, ball = ball, wedge = wedge, log = log, beam = beam, gable = gable, skull = skull, torch = torch, banner = banner,
+		marker = marker, at = at, facingCenter = facingCenter, tower = tower, teepee = teepee, totem = totem,
+	}
+end
+
+function PropBuilder.BuildVillage(sp, parent)
+	local el = sp.Element
+	local tint = VILLAGE_TINT[el] or VILLAGE_TINT.Earth
+	local m = Instance.new("Model")
+	m.Name = "Village_" .. el
+	local base = faceCamp(sp.Position)
+	local gy0 = terrainY(base.Position, 14)
+	base = CF(base.Position.X, gy0, base.Position.Z) * (base - base.Position)
+	local K = villageKit(m, base, tint)
+	local WOOD, PLANK, roofMat = K.WOOD, K.PLANK, K.roofMat
+	local box, ball, wedge, log, beam, gable, skull, torch, banner, marker, at, facingCenter, tower, teepee, totem =
+		K.box, K.ball, K.wedge, K.log, K.beam, K.gable, K.skull, K.torch, K.banner, K.marker, K.at, K.facingCenter, K.tower, K.teepee, K.totem
+
+	---------------------------------------------------------------- 1) รั้วไม้แหลม (เว้นช่องประตูด้านหน้า)
+	local GATE_HALF = 10.4
+	local step = 1.85
+	local n = math.floor(2 * math.pi * VILLAGE_R / step)
+	local rng = Random.new(math.floor(sp.Position.X * 7 + sp.Position.Z * 13))
+	for i = 0, n - 1 do
+		local th = i / n * math.pi * 2
+		local x, z = math.sin(th) * VILLAGE_R, -math.cos(th) * VILLAGE_R
+		if not (z < 0 and math.abs(x) < GATE_HALF) then
+			local h = 9.5 + rng:NextNumber(0, 2.6)
+			local d = 1.75 + rng:NextNumber(-0.15, 0.15)
+			local cf = at(x, z) * ANG(0, -th, 0) * ANG(rng:NextNumber(-0.04, 0.04), 0, rng:NextNumber(-0.04, 0.04))
+			log(h, d, cf, (i % 5 == 0) and tint.Dark or tint.Wood)
+			-- ปลายเหลาแหลม (ท่อนเรียวซ้อน 2 ชั้น)
+			cylinderY(1.1, d * 0.66, cf * CF(0, h + 0.55, 0), { Color = tint.Wood, Material = Enum.Material.Wood }, m)
+			cylinderY(1, d * 0.3, cf * CF(0, h + 1.6, 0), { Color = tint.Hide, Material = Enum.Material.Wood }, m)
+		end
+	end
+	-- ไม้คาดรั้ว 2 ชั้น (ด้านใน)
+	local SEG = 40
+	for i = 0, SEG - 1 do
+		local t0, t1 = i / SEG * math.pi * 2, (i + 1) / SEG * math.pi * 2
+		local r = VILLAGE_R - 1.1
+		local a = V(math.sin(t0) * r, 0, -math.cos(t0) * r)
+		local b = V(math.sin(t1) * r, 0, -math.cos(t1) * r)
+		if not ((a.Z < 0 and math.abs(a.X) < GATE_HALF + 1.5) or (b.Z < 0 and math.abs(b.X) < GATE_HALF + 1.5)) then
+			for _, y in ipairs({ 2.6, 7.2 }) do
+				beam((base * CF(a.X, y, a.Z)).Position, (base * CF(b.X, y, b.Z)).Position, 0.7, tint.Dark)
+			end
+		end
+	end
+
+	---------------------------------------------------------------- 2) ประตูหัวกะโหลก
+	local gz = -VILLAGE_R
+	for _, sx in ipairs({ -1, 1 }) do
+		local x = sx * (GATE_HALF + 0.6)
+		log(19, 3, at(x, gz), tint.Dark)
+		torch(at(x, gz, 19))
+		-- บานประตูเปิดค้างเข้าด้านใน
+		for k = 0, 4 do
+			local lz = gz + 1.6 + k * 1.65
+			log(11.5 + (k % 2) * 0.6, 1.6, at(x - sx * 1.2, lz), tint.Wood)
+		end
+		for _, y in ipairs({ 2.5, 8.5 }) do
+			box(V(0.6, 0.8, 8.6), at(x - sx * 0.2, gz + 4.9, y), tint.Dark, WOOD)
+		end
+		-- หัวกะโหลกเสียบหอกหน้าประตู
+		log(7, 0.4, at(x + sx * 3.6, gz - 3), tint.Dark)
+		skull(at(x + sx * 3.6, gz - 3, 7.7), 1.2, false)
+	end
+	box(V(2 * GATE_HALF + 6, 2.2, 2.4), at(0, gz, 17), tint.Dark, WOOD)
+	box(V(2 * GATE_HALF + 3, 1.4, 1.6), at(0, gz, 13.4), tint.Wood, WOOD)
+	-- กะโหลกยักษ์มีเขา + ผ้าแดงห้อย
+	skull(at(0, gz - 0.8, 20.4), 2.6, true)
+	for _, x in ipairs({ -6.5, 6.5 }) do
+		box(V(3.6, 9, 0.18), at(x, gz - 1.25, 12.2), TRIBE_RED, Enum.Material.Fabric)
+		box(V(3.6, 0.7, 0.2), at(x, gz - 1.25, 7.9), TRIBE_RED_D, Enum.Material.Fabric)
+		box(V(1.5, 1.5, 0.22), at(x, gz - 1.27, 13), BONE, Enum.Material.Fabric).CFrame = at(x, gz - 1.27, 13) * ANG(0, 0, math.pi / 4)
+	end
+	-- ทางเดินดินหน้าประตูเข้าลาน
+	box(V(10, 0.3, VILLAGE_R - 14), at(0, (gz - 14) / 2, 0.05), C(110, 84, 58), Enum.Material.Ground, { CanCollide = false })
+
+	---------------------------------------------------------------- 3) หอคอย 4 หอ (นักธนูยืนเฝ้าบนหอ)
+	local tw = VILLAGE_R - 6
+	for _, th in ipairs({ -0.32, 0.32, -2.36, 2.36 }) do
+		tower(math.sin(th) * tw, -math.cos(th) * tw)
+	end
+
+	---------------------------------------------------------------- 4) โถงหัวหน้า (ด้านหลังสุด หันหน้าเข้าลาน) + หีบ
+	do
+		local f = at(0, 40) * ANG(0, 0, 0)
+		local W, D, WH = 28, 20, 10
+		local function wallLog(x, z)
+			log(WH + ((x + z) % 2 == 0 and 0.6 or 0), 1.55, f * CF(x, 0, z), tint.Wood)
+		end
+		for x = -W / 2, W / 2, 1.5 do
+			wallLog(x, D / 2)
+			if math.abs(x) > 3.2 then
+				wallLog(x, -D / 2)
+			end
+		end
+		for z = -D / 2 + 1.5, D / 2 - 1.5, 1.5 do
+			wallLog(-W / 2, z)
+			wallLog(W / 2, z)
+		end
+		box(V(W, 0.4, D), f * CF(0, 0.2, 0), tint.Dark, PLANK)
+		box(V(W + 1, 1, 1), f * CF(0, WH, -D / 2), tint.Dark, WOOD)
+		box(V(W + 1, 1, 1), f * CF(0, WH, D / 2), tint.Dark, WOOD)
+		gable(f * CF(0, WH + 0.4, 0) * ANG(0, math.pi / 2, 0), D + 5, W + 3, 10, tint.Thatch, tint.Hide) -- สันหลังคาตามแนวลึก: หน้าจั่วหันเข้าลาน
+		-- เขาไขว้ปลายสันหลังคา (ทรงบ้านชนเผ่า)
+		for _, z in ipairs({ -(D + 5) / 2, (D + 5) / 2 }) do
+			for _, sx in ipairs({ -1, 1 }) do
+				box(V(0.9, 7, 0.9), f * CF(sx * 1.6, WH + 11.8, z * 0.98) * ANG(0, 0, sx * 0.55), BONE, Enum.Material.SmoothPlastic)
+			end
+		end
+		skull(f * CF(0, WH + 5.4, -(D + 5) / 2 - 0.6), 2.4, true)
+		-- เสาหน้าโถง + ผ้าแดงประตู
+		for _, sx in ipairs({ -1, 1 }) do
+			log(11, 1.4, f * CF(sx * 4.6, 0, -D / 2 - 3), tint.Dark)
+			torch(f * CF(sx * 4.6, 0, -D / 2 - 3) * CF(0, 11, 0), 0.9)
+			box(V(2.4, 6.6, 0.15), f * CF(sx * 2.2, 4.8, -D / 2 - 0.5), TRIBE_RED, Enum.Material.Fabric)
+		end
+		box(V(11, 0.5, 4.5), f * CF(0, WH + 0.6, -D / 2 - 2.3), tint.Thatch, roofMat)
+		-- ข้างใน: พรมแดง + บัลลังก์กระดูก + หีบ
+		box(V(6, 0.15, 11), f * CF(0, 0.45, -1.5), TRIBE_RED_D, Enum.Material.Fabric)
+		box(V(4, 1.6, 3), f * CF(0, 1.2, 6), tint.Dark, WOOD)
+		box(V(4.4, 6, 0.8), f * CF(0, 4, 7.4), tint.Dark, WOOD)
+		skull(f * CF(0, 7.6, 7.2), 1.3, true)
+		local chief = ancientChest(f * CF(0, 0.4, 2.8) * ANG(0, math.pi, 0), el, m, "Chest3Open", 8.5)
+		for _, c in ipairs(chief:GetDescendants()) do
+			if c:IsA("BasePart") then
+				light(c, C(255, 210, 90), 16, 1.4) -- หีบทองเรืองแสง: ใบนี้มีหินกะโหลก
+				break
+			end
+		end
+		-- หีบหัวหน้าเผ่า: ดรอปหินกะโหลกของไบโอมนี้ (เอาไปเปิดป้อมชนเผ่าที่ไบโอมไฟ)
+		chief:SetAttribute("KeyStone", ({ Earth = "SkullStoneEarth", Water = "SkullStoneWater", Air = "SkullStoneAir" })[el])
+		for _, sx in ipairs({ -1, 1 }) do
+			marker("Ground", (f * CF(sx * 6, 0, -D / 2 - 6)).Position)
+		end
+	end
+
+	---------------------------------------------------------------- 5) โรงเก็บของ 2 หลัง (CampShack) + หีบหน้าโรง
+	for _, sx in ipairs({ -1, 1 }) do
+		local x, z = sx * 40, 30
+		local f = facingCenter(x, z)
+		local shack = PropBuilder.StoreModel("CampShack", f, m)
+		if not shack then
+			gable(f * CF(0, 6, 0), 10, 9, 4, tint.Thatch, tint.Hide)
+			for _, cx in ipairs({ -4.5, 4.5 }) do
+				for _, cz in ipairs({ -4, 4 }) do
+					log(6, 1, f * CF(cx, 0, cz), tint.Wood)
+				end
+			end
+		end
+		banner(f * CF(5.6, 0, -6.4), 11)
+		ancientChest(f * CF(0, 0, -7.6), el, m)
+	end
+
+	---------------------------------------------------------------- 6) เต็นท์หนังสัตว์ 4 หลัง
+	for _, t in ipairs({ { 0.62, 52, 5.5, 11 }, { 1.05, 44, 6, 12 }, { 1.55, 52, 6.5, 13 } }) do
+		for _, sg in ipairs({ -1, 1 }) do
+			teepee(math.sin(sg * t[1]) * t[2], -math.cos(sg * t[1]) * t[2], t[3], t[4])
+		end
+	end
+
+	---------------------------------------------------------------- 7) กองไฟกลางลาน + ม้านั่ง + ที่ย่างเนื้อ
+	do
+		local f = at(0, -4)
+		cylinderY(0.2, 36, f * CF(0, 0.08, 0), { Color = C(92, 70, 50), Material = Enum.Material.Ground, CanCollide = false }, m)
+		for i = 0, 11 do
+			local a = i / 12 * math.pi * 2
+			ball(1.8, f * CF(math.cos(a) * 3.6, 0.5, math.sin(a) * 3.6), tint.Stone, Enum.Material.Slate)
+		end
+		for i = 0, 5 do
+			local a = i / 6 * math.pi * 2
+			local foot = (f * CF(math.cos(a) * 2.4, 0.3, math.sin(a) * 2.4)).Position
+			beam(foot, (f * CF(0, 3.4, 0)).Position, 0.9, tint.Dark)
+		end
+		local core = P("Part", { Size = V(1, 1, 1), CFrame = f * CF(0, 1.4, 0), Transparency = 1, CanCollide = false, CanQuery = false }, m)
+		local fire = Instance.new("Fire")
+		fire.Size = 9
+		fire.Heat = 14
+		fire.Color = C(255, 150, 60)
+		fire.SecondaryColor = C(255, 70, 20)
+		fire.Parent = core
+		light(core, C(255, 150, 70), 48, 2.4, true)
+		local sparks = Instance.new("ParticleEmitter")
+		sparks.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+		sparks.Rate = 14
+		sparks.Lifetime = NumberRange.new(1.2, 2.2)
+		sparks.Speed = NumberRange.new(6, 12)
+		sparks.SpreadAngle = Vector2.new(25, 25)
+		sparks.Size = NumberSequence.new(0.35, 0)
+		sparks.Color = ColorSequence.new(C(255, 170, 60))
+		sparks.LightEmission = 1
+		sparks.Parent = core
+		-- ที่ย่างเนื้อ
+		for _, sx in ipairs({ -1, 1 }) do
+			log(4.6, 0.5, f * CF(sx * 5, 0, 0), tint.Dark)
+		end
+		box(V(10.4, 0.35, 0.35), f * CF(0, 4.4, 0), tint.Dark, WOOD)
+		ball(2.2, f * CF(0, 4.1, 0), C(140, 70, 40), Enum.Material.Sand)
+		for i = 0, 3 do
+			local a = i / 4 * math.pi * 2 + math.pi / 4
+			local bench = PropBuilder.StoreModel("LogBench", CFrame.lookAt((f * CF(math.cos(a) * 10, 0, math.sin(a) * 10)).Position, (f * CF(0, 0, 0)).Position), m)
+			if not bench then
+				box(V(5, 1.2, 1.4), CFrame.lookAt((f * CF(math.cos(a) * 9, 0.6, math.sin(a) * 9)).Position, (f * CF(0, 0.6, 0)).Position) * ANG(0, math.pi / 2, 0), tint.Wood, WOOD)
+			end
+		end
+	end
+
+	---------------------------------------------------------------- 8) เสาโทเท็ม 4 ต้น
+	for _, th in ipairs({ 0.55, -0.55, 2.0, -2.0 }) do
+		local r = (math.abs(th) < 1) and 26 or 24
+		totem(math.sin(th) * r, -math.cos(th) * r)
+	end
+
+	---------------------------------------------------------------- 9) ทางเดิน: หอกเสียบกะโหลก + ธง
+	for _, z in ipairs({ -62, -52, -42, -32 }) do
+		for _, sx in ipairs({ -1, 1 }) do
+			log(6.5, 0.38, at(sx * 6.5, z), tint.Dark)
+			skull(at(sx * 6.5, z, 7.2) * ANG(0, (sx > 0) and -0.3 or 0.3, 0), 0.95, false)
+		end
+	end
+	for _, z in ipairs({ -57, -37 }) do -- คบไฟส่องทางเดิน
+		for _, sx in ipairs({ -1, 1 }) do
+			log(7, 0.7, at(sx * 8, z), tint.Dark)
+			torch(at(sx * 8, z, 7), 0.75)
+		end
+	end
+	for _, pos in ipairs({ { -11, -62 }, { 11, -62 }, { -14, 30 }, { 14, 30 } }) do
+		banner(facingCenter(pos[1], pos[2]), 12)
+	end
+
+	---------------------------------------------------------------- 10) ชั้นวางอาวุธ · กรง · ลัง · กองไม้
+	for _, sx in ipairs({ -1, 1 }) do
+		local f = facingCenter(sx * 18, -40)
+		for _, cx in ipairs({ -2.2, 2.2 }) do
+			log(4.4, 0.4, f * CF(cx, 0, 0), tint.Dark)
+		end
+		box(V(5.2, 0.35, 0.35), f * CF(0, 3.8, 0), tint.Dark, WOOD)
+		for k = -1, 1 do
+			local p0 = (f * CF(k * 1.3, 0, 0.9)).Position
+			local p1 = (f * CF(k * 1.3, 6.4, -0.4)).Position
+			beam(p0, p1, 0.22, tint.Wood)
+			wedge(V(0.5, 0.9, 0.25), CFrame.lookAt(p1, p1 + (p1 - p0).Unit) * ANG(-math.pi / 2, 0, 0), C(200, 200, 206), Enum.Material.Metal)
+		end
+		local cage = PropBuilder.Imported("CageLP", facingCenter(sx * 58, 16), 6, m, true)
+		if cage then
+			for _, d in ipairs(cage:GetDescendants()) do
+				if d:IsA("BasePart") then
+					CollectionService:RemoveTag(d, "ResourceNode")
+				end
+			end
+		end
+		PropBuilder.StoreModel("Crate", facingCenter(sx * 22, 23), m)
+		PropBuilder.StoreModel("Crate", facingCenter(sx * 24, 25.5) * ANG(0, 0.5, 0), m)
+		PropBuilder.StoreModel("LogPileStore", facingCenter(sx * 55, 32), m)
+	end
+
+	---------------------------------------------------------------- จุดเกิดทหารในลาน
+	for _, pos in ipairs({ { -9, -20 }, { 9, -20 }, { -17, -2 }, { 17, -2 }, { -8, 14 }, { 8, 14 }, { -26, -30 }, { 26, -30 } }) do
+		marker("Ground", (at(pos[1], pos[2])).Position)
+	end
+
+	-- ธาตุไฟ: ถ่านคุแดงตามรั้ว · ธาตุลม: หิมะเกาะยอดรั้วทำจากหลังคา (Material Snow) แล้ว
+	if tint.Ember then
+		for i = 0, 7 do
+			local a = i / 8 * math.pi * 2
+			local p = P("Part", { Size = V(1, 1, 1), CFrame = at(math.sin(a) * (VILLAGE_R - 3), -math.cos(a) * (VILLAGE_R - 3), 0.5), Transparency = 1, CanCollide = false, CanQuery = false }, m)
+			light(p, C(255, 90, 30), 16, 1)
+		end
+	end
+
+	m:SetAttribute("Element", el)
+	m:SetAttribute("Center", base.Position)
+	CollectionService:AddTag(m, "Village")
+	m.Parent = parent
+	return m
+end
+
+---------------------------------------------------------------- ป้อมชนเผ่ากะโหลก (ไบโอมไฟ) — ใหญ่กว่าหมู่บ้านมาก
+--   กำแพงฐานหินบะซอลต์ + รั้วไม้แหลมสูง ปิดทั้งวง · ประตูยักษ์ปิดผนึกระหว่างหอประตูหิน 2 หอ
+--   แท่นหิน 3 แท่นหน้าประตู: วางหินกะโหลกดิน/น้ำ/ลม (หีบหัวหน้าเผ่าในหมู่บ้านไบโอมนั้น) ครบ 3 = ประตูเปิด (VillageService)
+--   ข้างใน: ถนนหลักเรียงหอก/คบไฟ · ลานกองไฟยักษ์ + โทเท็ม 8 ต้น · โถงหัวหน้าใหญ่ (หีบสมบัติทอง) · โถงข้าง 2 หลัง · หอคอยบนกำแพง 8 หอ
+local STRONGHOLD_R = 130
+PropBuilder.StrongholdRadius = STRONGHOLD_R
+local SOCKETS = {
+	{ Stone = "SkullStoneEarth", Element = "Earth", Color = C(120, 235, 90) },
+	{ Stone = "SkullStoneWater", Element = "Water", Color = C(80, 190, 255) },
+	{ Stone = "SkullStoneAir", Element = "Air", Color = C(215, 240, 255) },
+}
+PropBuilder.StrongholdSockets = SOCKETS
+
+function PropBuilder.BuildStronghold(sp, parent)
+	-- ป้อมปราการภูเขาไฟของชนเผ่ากะโหลก (ไม่ใช่หมู่บ้านไม้): กำแพงหินบะซอลต์สูง + หอกลม · คูลาวาล้อมรอบ + สะพาน
+	--   ประตูปากกะโหลกยักษ์ (เขางาโค้ง + เสาไฟ) · ถนนซุ้มกระดูก + รางลาวา · วิหารพีระมิดขั้นบันได 5 ชั้น (หีบสมบัติทอง + เทวรูปกะโหลกบนยอด)
+	--   บ้านหินทรงกลมหลังคาแดง · เสาโทเท็มยักษ์ · กระถางไฟใหญ่รอบวิหาร
+	local el = sp.Element
+	local tint = VILLAGE_TINT.Fire
+	local m = Instance.new("Model")
+	m.Name = "Stronghold_" .. el
+	local base = faceCamp(sp.Position)
+	local gy0 = terrainY(base.Position, 24)
+	base = CF(base.Position.X, gy0, base.Position.Z) * (base - base.Position)
+	local K = villageKit(m, base, tint)
+	local WOOD = K.WOOD
+	local box, ball, log, beam, skull, torch, banner, marker, at, facingCenter =
+		K.box, K.ball, K.log, K.beam, K.skull, K.torch, K.banner, K.marker, K.at, K.facingCenter
+	local R = STRONGHOLD_R
+	local BASALT, SLATE, FAB, NEON = Enum.Material.Basalt, Enum.Material.Slate, Enum.Material.Fabric, Enum.Material.Neon
+	local ROCK, ROCK_D, ROCK_L = C(58, 50, 50), C(36, 30, 30), C(88, 76, 72)
+	local LAVA = C(255, 110, 30)
+	local GATE_HALF = 14
+	local gz = -R
+
+	-- ชิ้นลาวา (ยืนแล้วโดนไฟ: LootService.HazardTick อ่านวัสดุ CrackedLava)
+	local function lava(size, cf)
+		local p = box(size, cf, LAVA, Enum.Material.CrackedLava)
+		return p
+	end
+	-- กระถางไฟใหญ่บนแท่นหิน
+	local function brazier(cf, s)
+		s = s or 1
+		cylinderY(3 * s, 3.2 * s, cf * CF(0, 1.5 * s, 0), { Color = ROCK, Material = BASALT }, m)
+		cylinderY(1.4 * s, 5.4 * s, cf * CF(0, 3.7 * s, 0), { Color = C(40, 34, 32), Material = Enum.Material.Metal }, m)
+		local core = P("Part", { Size = V(1, 1, 1), CFrame = cf * CF(0, 4.8 * s, 0), Transparency = 1, CanCollide = false, CanQuery = false }, m)
+		local f = Instance.new("Fire")
+		f.Size = 7 * s
+		f.Heat = 12
+		f.Color = C(255, 150, 60)
+		f.SecondaryColor = C(255, 60, 20)
+		f.Parent = core
+		light(core, C(255, 140, 60), 34 * s, 2)
+	end
+	-- เขางาโค้ง (ต่อท่อนเอียงทีละนิดจากโคนขึ้นไป) — dir = ทิศเอนเข้าหา (+1 = +X)
+	local function tusk(root, segs, len, thick, bend, dir)
+		local cf = root
+		for i = 1, segs do
+			local w = thick * (1 - (i - 1) / segs * 0.6)
+			local seg = cf * CF(0, len / 2, 0)
+			cylinderY(len + 0.4, w, seg, { Color = BONE, Material = Enum.Material.SmoothPlastic }, m)
+			cf = cf * CF(0, len, 0) * ANG(0, 0, -dir * bend)
+		end
+		return cf
+	end
+	-- หลังคากรวยแดง (กระบอกซ้อนเล็กลงเรื่อยๆ)
+	local function cone(cf, d, h, color, mat)
+		local tiers = 5
+		for i = 0, tiers - 1 do
+			local t = i / tiers
+			cylinderY(h / tiers + 0.05, d * (1 - t * 0.85), cf * CF(0, h * t + h / tiers / 2, 0), { Color = color, Material = mat or Enum.Material.Grass }, m)
+		end
+	end
+
+	---------------------------------------------------------------- 1) กำแพงหินบะซอลต์สูง 26 + ใบเสมา · หอกลม 8 หอ · ธงแดงด้านนอก
+	local WALL_H, WALL_T = 26, 7
+	local SEG = 72
+	for i = 0, SEG - 1 do
+		local t0, t1 = i / SEG * math.pi * 2, (i + 1) / SEG * math.pi * 2
+		local a = V(math.sin(t0) * R, 0, -math.cos(t0) * R)
+		local b = V(math.sin(t1) * R, 0, -math.cos(t1) * R)
+		local mid = (a + b) / 2
+		if not (mid.Z < 0 and math.abs(mid.X) < GATE_HALF + 6) then
+			local len = (b - a).Magnitude + 0.6
+			local cf = base * CFrame.lookAt(mid, b)
+			box(V(WALL_T, WALL_H, len), cf * CF(0, WALL_H / 2, 0), (i % 2 == 0) and ROCK or C(64, 55, 54), BASALT)
+			box(V(WALL_T + 1.2, 2, len), cf * CF(0, 3, 0), ROCK_D, BASALT)
+			box(V(WALL_T + 0.8, 1.4, len), cf * CF(0, WALL_H - 3, 0), ROCK_D, BASALT)
+			-- ใบเสมาบนสันกำแพง (ด้านนอก)
+			local out = (mid.Unit * Vector3.new(1, 0, 1))
+			for _, o in ipairs({ -0.25, 0.25 }) do
+				local p = mid + (b - a) * o + out * (WALL_T / 2 - 1)
+				box(V(2.6, 3.2, 2.6), base * CF(p.X, WALL_H + 1.6, p.Z) * CFrame.lookAt(Vector3.zero, b - a).Rotation, ROCK_L, BASALT)
+			end
+			if i % 9 == 4 then
+				local p = mid + out * (WALL_T / 2 + 0.3)
+				local f = base * CFrame.lookAt(V(p.X, 0, p.Z), V(p.X, 0, p.Z) + out)
+				box(V(5.5, 16, 0.2), f * CF(0, WALL_H - 10, -0.1), TRIBE_RED, FAB)
+				box(V(5.5, 1, 0.22), f * CF(0, WALL_H - 18.5, -0.12), TRIBE_RED_D, FAB)
+				box(V(2.8, 2.8, 0.24), f * CF(0, WALL_H - 8, -0.15) * ANG(0, 0, math.pi / 4), BONE, FAB)
+				skull(f * CF(0, WALL_H - 2, -1.4), 1.6, true)
+			end
+		end
+	end
+	for _, th in ipairs({ 0.55, -0.55, 1.3, -1.3, 2.05, -2.05, 2.75, -2.75 }) do
+		local x, z = math.sin(th) * R, -math.cos(th) * R
+		local f = facingCenter(x, z)
+		cylinderY(34, 15, f * CF(0, 17, 0), { Color = ROCK, Material = BASALT }, m)
+		cylinderY(2, 16.5, f * CF(0, 6, 0), { Color = ROCK_D, Material = BASALT }, m)
+		cylinderY(1.6, 16.2, f * CF(0, 33.2, 0), { Color = ROCK_D, Material = BASALT }, m)
+		for k = 0, 7 do
+			local a = k / 8 * math.pi * 2
+			box(V(2.4, 3, 2.4), f * CF(math.cos(a) * 7, 35.5, math.sin(a) * 7), ROCK_L, BASALT)
+		end
+		for _, cx in ipairs({ -5, 5 }) do
+			for _, cz in ipairs({ -5, 5 }) do
+				log(7, 0.8, f * CF(cx, 34, cz), tint.Dark)
+			end
+		end
+		cone(f * CF(0, 41, 0), 17, 9, TRIBE_RED_D)
+		box(V(0.4, 5, 0.4), f * CF(0, 52, 0), tint.Dark, WOOD)
+		box(V(3, 1.6, 0.15), f * CF(1.6, 53.4, 0), TRIBE_RED, FAB)
+		torch(f * CF(0, 34, -6.6), 1)
+		marker("Archer", (f * CF(0, 34, 2)).Position)
+	end
+
+	---------------------------------------------------------------- 2) คูลาวารอบกำแพง + สะพานหิน
+	local MOAT_IN, MOAT_OUT = R + WALL_T / 2 + 3, R + WALL_T / 2 + 15
+	for i = 0, SEG - 1 do
+		local t0, t1 = i / SEG * math.pi * 2, (i + 1) / SEG * math.pi * 2
+		local rm = (MOAT_IN + MOAT_OUT) / 2
+		local a = V(math.sin(t0) * rm, 0, -math.cos(t0) * rm)
+		local b = V(math.sin(t1) * rm, 0, -math.cos(t1) * rm)
+		local mid = (a + b) / 2
+		local cf = base * CFrame.lookAt(mid, b)
+		lava(V(MOAT_OUT - MOAT_IN, 1, (b - a).Magnitude + 0.8), cf * CF(0, -0.35, 0))
+		box(V(1.6, 1.4, (b - a).Magnitude + 0.8), cf * CF((MOAT_OUT - MOAT_IN) / 2 + 0.8, 0.2, 0), ROCK_D, BASALT)
+		if i % 6 == 0 then
+			local p = P("Part", { Size = V(1, 1, 1), CFrame = cf * CF(0, 1.5, 0), Transparency = 1, CanCollide = false, CanQuery = false }, m)
+			light(p, C(255, 100, 30), 30, 1.6)
+		end
+	end
+	do
+		local z0, z1 = gz - WALL_T / 2 - 1, -(MOAT_OUT + 4)
+		local mid, len = (z0 + z1) / 2, math.abs(z1 - z0)
+		box(V(2 * GATE_HALF + 4, 2, len), at(0, mid, 0), ROCK_L, SLATE)
+		box(V(2 * GATE_HALF + 4, 1.2, len), at(0, mid, -1.4), ROCK_D, BASALT)
+		for _, sx in ipairs({ -1, 1 }) do
+			box(V(1.6, 3, len), at(sx * (GATE_HALF + 1.2), mid, 2.4), ROCK, BASALT)
+			for _, zz in ipairs({ z0 - 2, z1 + 2 }) do
+				box(V(2.4, 6, 2.4), at(sx * (GATE_HALF + 1.2), zz, 3), ROCK_D, BASALT)
+				skull(at(sx * (GATE_HALF + 1.2), zz, 7), 1.1, false)
+			end
+		end
+	end
+
+	---------------------------------------------------------------- 3) ประตูปากกะโหลก: เสาหินยักษ์ 2 ต้น + เขางาโค้ง + กะโหลกยักษ์ + ประตู 2 บาน
+	for _, sx in ipairs({ -1, 1 }) do
+		local f = at(sx * (GATE_HALF + 7), gz)
+		box(V(14, 30, 14), f * CF(0, 15, 0), ROCK, BASALT)
+		box(V(11, 8, 11), f * CF(0, 34, 0), ROCK_D, BASALT)
+		box(V(8, 4, 8), f * CF(0, 40, 0), ROCK, BASALT)
+		for _, y in ipairs({ 5, 16, 27 }) do
+			box(V(14.8, 1.2, 14.8), f * CF(0, y, 0), ROCK_D, BASALT)
+		end
+		box(V(6, 22, 0.2), f * CF(0, 17, -7.15), TRIBE_RED, FAB)
+		box(V(3, 3, 0.24), f * CF(0, 20, -7.2) * ANG(0, 0, math.pi / 4), BONE, FAB)
+		brazier(f * CF(0, 42, 0), 1.3)
+		-- เขางาโค้งหน้าเสา โค้งเข้าหากลางประตู
+		local tip = tusk(f * CF(-sx * 4, 0, -5.2), 7, 6, 3.2, 0.2, -sx)
+		local _ = tip
+		marker("Archer", (f * CF(0, 38, 4.8)).Position)
+	end
+	box(V(2 * GATE_HALF + 4, 5, 8), at(0, gz, 32.5), ROCK_D, BASALT)
+	box(V(2 * GATE_HALF + 2, 2.4, 5), at(0, gz, 29), ROCK_L, BASALT)
+	local S = 7
+	local skullCf = at(0, gz - 4, 41)
+	skull(skullCf, S, true)
+	for _, ex in ipairs({ -0.36, 0.36 }) do
+		local eye = P("Part", { Shape = Enum.PartType.Ball, Size = V(1.8, 1.8, 1.8), CFrame = skullCf * CF(ex * S, 0.05 * S, -0.74 * S), Color = C(255, 40, 20), Material = NEON, CanCollide = false }, m)
+		light(eye, C(255, 50, 30), 40, 2.5)
+	end
+	local gate = Instance.new("Model")
+	gate.Name = "StrongholdGate"
+	for _, sx in ipairs({ -1, 1 }) do
+		local leaf = Instance.new("Model")
+		leaf.Name = (sx < 0) and "DoorL" or "DoorR"
+		local hingeX = sx * GATE_HALF
+		local hinge = P("Part", { Name = "Hinge", Size = V(1, 1, 1), CFrame = at(hingeX, gz, 14), Transparency = 1, CanCollide = false, CanQuery = false }, leaf)
+		leaf.PrimaryPart = hinge
+		for k = 0, 6 do
+			local x = hingeX - sx * (1 + k * 2)
+			cylinderY(28 + (k % 2), 2.15, at(x, gz, 14 + (k % 2) * 0.5), { Color = (k % 3 == 0) and tint.Dark or tint.Wood, Material = WOOD }, leaf)
+			cylinderY(1.3, 1.4, at(x, gz, 28.7 + (k % 2)), { Color = C(170, 170, 176), Material = Enum.Material.Metal }, leaf)
+		end
+		for _, y in ipairs({ 5, 14, 23 }) do
+			P("Part", { Size = V(14, 1.4, 0.8), CFrame = at(hingeX - sx * 7, gz - 1.25, y), Color = C(60, 56, 54), Material = Enum.Material.Metal }, leaf)
+		end
+		P("Part", { Size = V(4, 4, 0.4), CFrame = at(hingeX - sx * 7, gz - 1.6, 14) * ANG(0, 0, math.pi / 4), Color = BONE, Material = Enum.Material.SmoothPlastic }, leaf)
+		leaf:SetAttribute("Side", sx)
+		leaf.Parent = gate
+	end
+	for i, s in ipairs(SOCKETS) do
+		local gem = P("Part", {
+			Name = "Gem_" .. s.Element, Shape = Enum.PartType.Ball, Size = V(2.6, 2.6, 2.6), CFrame = at((i - 2) * 6, gz - 2.8, 29),
+			Color = C(40, 36, 36), Material = SLATE, CanCollide = false,
+		}, gate)
+		gem:SetAttribute("GlowColor", s.Color)
+	end
+	gate:SetAttribute("Open", false)
+	CollectionService:AddTag(gate, "StrongholdGate")
+	gate.Parent = m
+
+	---------------------------------------------------------------- 4) แท่นวางหินกะโหลก 3 แท่น (หลังสะพาน ฝั่งแคมป์) + ป้ายหิน
+	local af = at(0, -(MOAT_OUT + 26))
+	cylinderY(1.6, 32, af * CF(0, 0.8, 0), { Color = ROCK, Material = BASALT }, m)
+	cylinderY(1.2, 24, af * CF(0, 2.2, 0), { Color = ROCK_D, Material = BASALT }, m)
+	local tab = box(V(15, 8.5, 1.4), af * CF(0, 7.2, 8.5), ROCK, BASALT)
+	local sg = Instance.new("SurfaceGui")
+	sg.Face = Enum.NormalId.Front
+	sg.CanvasSize = Vector2.new(700, 400)
+	sg.LightInfluence = 0
+	sg.Parent = tab
+	local tl = Instance.new("TextLabel")
+	tl.Size = UDim2.fromScale(1, 1)
+	tl.BackgroundTransparency = 1
+	tl.TextScaled = true
+	tl.Font = Enum.Font.GothamBlack
+	tl.TextColor3 = C(255, 170, 70)
+	tl.TextStrokeTransparency = 0.2
+	tl.Text = "SKULL STRONGHOLD\nPlace the 3 Skull Stones to break the seal\n(chief's chests of the Earth, Water and Frost tribe villages)"
+	tl.Parent = sg
+	for i, s in ipairs(SOCKETS) do
+		local pf = af * CF((i - 2) * 7.5, 2.8, 0)
+		local ped = box(V(3.2, 4, 3.2), pf * CF(0, 2, 0), ROCK, BASALT)
+		ped.Name = "Socket_" .. s.Element
+		box(V(4, 0.8, 4), pf * CF(0, 4.4, 0), ROCK_D, BASALT)
+		box(V(3.3, 0.5, 3.3), pf * CF(0, 3.1, 0), s.Color, NEON)
+		local stone = P("Part", {
+			Name = "Stone", Size = V(1.8, 1.8, 1.8), CFrame = pf * CF(0, 6.2, 0) * ANG(0.6, 0.6, 0), Color = s.Color,
+			Material = NEON, Transparency = 1, CanCollide = false, CanQuery = false,
+		}, ped)
+		local glow = light(stone, s.Color, 22, 0)
+		glow.Name = "Glow"
+		local pr = Instance.new("ProximityPrompt")
+		pr.ActionText = "Place Stone"
+		pr.ObjectText = ({ Earth = "Earth Skull Stone", Water = "Water Skull Stone", Air = "Frost Skull Stone" })[s.Element]
+		pr.HoldDuration = 1
+		pr.MaxActivationDistance = 12
+		pr.RequiresLineOfSight = false
+		pr.Parent = ped
+		ped:SetAttribute("Stone", s.Stone)
+		ped:SetAttribute("Element", s.Element)
+		CollectionService:AddTag(ped, "StrongholdSocket")
+	end
+	for i = 0, 3 do
+		local a = i / 4 * math.pi * 2 + math.pi / 4
+		brazier(af * CF(math.cos(a) * 14, 0, math.sin(a) * 14), 0.8)
+	end
+
+	---------------------------------------------------------------- 5) ถนนหิน + รางลาวา 2 ข้าง + ซุ้มกระดูก 4 ซุ้ม
+	local TEMPLE_Z = 46
+	local roadEnd = TEMPLE_Z - 60
+	box(V(18, 0.4, roadEnd - gz), at(0, (gz + roadEnd) / 2, 0.1), ROCK_L, SLATE, { CanCollide = false })
+	for _, sx in ipairs({ -1, 1 }) do
+		lava(V(3.2, 0.8, roadEnd - gz - 16), at(sx * 12, (gz + roadEnd) / 2 + 4, -0.2))
+		box(V(1.2, 1.2, roadEnd - gz - 16), at(sx * 14.2, (gz + roadEnd) / 2 + 4, 0.3), ROCK_D, BASALT)
+	end
+	for _, z in ipairs({ -108, -84, -60, -36 }) do
+		for _, sx in ipairs({ -1, 1 }) do
+			box(V(3, 2.4, 3), at(sx * 16.5, z, 1.2), ROCK_D, BASALT)
+			tusk(at(sx * 16.5, z, 2.2), 6, 5.2, 2.4, 0.27, -sx)
+		end
+		skull(at(0, z, 25.5), 1.6, true)
+		box(V(3, 4.5, 0.2), at(0, z - 0.6, 21.8), TRIBE_RED, FAB)
+	end
+	for _, z in ipairs({ -96, -72, -48 }) do
+		for _, sx in ipairs({ -1, 1 }) do
+			brazier(at(sx * 20.5, z), 0.75)
+		end
+	end
+
+	---------------------------------------------------------------- 6) วิหารพีระมิดขั้นบันได 5 ชั้น + ทางลาดขึ้นยอด + เทวรูปกะโหลก + หีบสมบัติทอง
+	do
+		local f = at(0, TEMPLE_Z)
+		cylinderY(0.3, 128, f * CF(0, 0.12, 0), { Color = C(46, 40, 40), Material = SLATE, CanCollide = false }, m)
+		local TIERS = { 72, 58, 44, 30, 18 }
+		local TH = 6.4
+		for i, w in ipairs(TIERS) do
+			local y = (i - 1) * TH
+			box(V(w, TH, w), f * CF(0, y + TH / 2, 0), (i % 2 == 1) and ROCK or C(70, 60, 58), BASALT)
+			box(V(w + 0.6, 1, w + 0.6), f * CF(0, y + TH - 0.5, 0), ROCK_D, BASALT)
+			-- แถบลาวาเรืองรอบขอบชั้น (ตกแต่ง)
+			box(V(w + 0.2, 0.5, w + 0.2), f * CF(0, y + 1.2, 0), LAVA, NEON, { CanCollide = false })
+			-- กะโหลกเรียงหน้าชั้น
+			for k = -2, 2 do
+				if math.abs(k) >= 1 or i == 1 then
+					local x = k * w / 6
+					if math.abs(x) > 8 then
+						skull(f * CF(x, y + TH * 0.55, -w / 2 - 0.6), 0.9, false)
+					end
+				end
+			end
+			-- ธงแดงที่มุมชั้น
+			if i <= 3 then
+				for _, cx in ipairs({ -1, 1 }) do
+					banner(f * CF(cx * (w / 2 - 2), y + TH, -(w / 2 - 2)), 8)
+				end
+			end
+		end
+		local top = #TIERS * TH
+		-- ทางลาดหน้าวิหาร (ลิ่มเดียวยาวจากพื้นถึงยอด)
+		local z0, z1 = -TIERS[1] / 2 - 22, -TIERS[#TIERS] / 2
+		local L = z1 - z0
+		P("WedgePart", { Size = V(11, top, L), CFrame = f * CF(0, top / 2, (z0 + z1) / 2), Color = ROCK_L, Material = SLATE }, m)
+		for _, sx in ipairs({ -1, 1 }) do
+			P("WedgePart", { Size = V(1.4, top + 1.6, L), CFrame = f * CF(sx * 6.2, (top + 1.6) / 2, (z0 + z1) / 2), Color = ROCK_D, Material = BASALT }, m)
+		end
+		for k = 0, 3 do
+			local t = (k + 0.5) / 4
+			for _, sx in ipairs({ -1, 1 }) do
+				torch(f * CF(sx * 6.2, top * t + 1.6, z0 + L * t), 0.7)
+			end
+		end
+		-- ศาลบนยอด: เสา 4 ต้น + หลังคากรวย + เทวรูปกะโหลกยักษ์ + หีบสมบัติทอง
+		for _, cx in ipairs({ -7, 7 }) do
+			for _, cz in ipairs({ -7, 7 }) do
+				box(V(1.8, 10, 1.8), f * CF(cx, top + 5, cz), ROCK_D, BASALT)
+			end
+		end
+		box(V(17, 1.4, 17), f * CF(0, top + 10.7, 0), ROCK, BASALT)
+		cone(f * CF(0, top + 11.4, 0), 21, 10, TRIBE_RED_D)
+		skull(f * CF(0, top + 7.2, 5.5), 3.4, true)
+		for _, ex in ipairs({ -0.36, 0.36 }) do
+			local eye = P("Part", { Shape = Enum.PartType.Ball, Size = V(0.9, 0.9, 0.9), CFrame = f * CF(ex * 3.4, top + 7.2 + 0.17, 5.5 - 0.74 * 3.4), Color = C(255, 50, 20), Material = NEON, CanCollide = false }, m)
+			light(eye, C(255, 60, 30), 22, 1.5)
+		end
+		for _, sx in ipairs({ -1, 1 }) do
+			brazier(f * CF(sx * 6.5, top, -6.5), 0.7)
+		end
+		local treasure = ancientChest(f * CF(0, top, -1) * ANG(0, math.pi, 0), el, m, "Chest3Open", 9.5)
+		treasure:SetAttribute("Treasure", true)
+		for _, c in ipairs(treasure:GetDescendants()) do
+			if c:IsA("BasePart") then
+				light(c, C(255, 210, 90), 18, 1.4)
+				break
+			end
+		end
+		-- หีบโบราณ 2 ใบ ข้างตีนทางลาด
+		for _, sx in ipairs({ -1, 1 }) do
+			ancientChest(f * CF(sx * 13, 0, z0 + 4), el, m)
+		end
+		-- นักธนูบนมุมชั้น 3 · ทหารเฝ้าตีนวิหาร
+		for _, cx in ipairs({ -1, 1 }) do
+			for _, cz in ipairs({ -1, 1 }) do
+				marker("Archer", (f * CF(cx * (TIERS[3] / 2 - 3), TH * 3, cz * (TIERS[3] / 2 - 3))).Position)
+			end
+		end
+		for _, x in ipairs({ -22, 22 }) do
+			marker("Ground", (f * CF(x, 0, z0 + 2)).Position)
+		end
+		-- กระถางไฟรอบฐานวิหาร
+		for k = 0, 7 do
+			local a = k / 8 * math.pi * 2 + math.pi / 8
+			brazier(f * CF(math.sin(a) * 50, 0, -math.cos(a) * 50), 1.1)
+		end
+	end
+
+	---------------------------------------------------------------- 7) เสาโทเท็มยักษ์ 2 ต้นหน้าวิหาร
+	for _, sx in ipairs({ -1, 1 }) do
+		local f = facingCenter(sx * 30, -4)
+		local y = 0
+		local cols = { ROCK, TRIBE_RED, tint.Dark, BONE, TRIBE_RED, ROCK }
+		for i, hgt in ipairs({ 7, 6, 6, 5.5, 5, 4.5 }) do
+			local c = cols[i]
+			local w = 7 - i * 0.45
+			box(V(w, hgt, w), f * CF(0, y + hgt / 2, 0), c, (c == BONE) and Enum.Material.SmoothPlastic or BASALT)
+			for _, ex in ipairs({ -w * 0.22, w * 0.22 }) do
+				box(V(w * 0.22, hgt * 0.16, 0.3), f * CF(ex, y + hgt * 0.64, -w / 2 - 0.1), (c == BONE) and C(20, 12, 12) or BONE, NEON)
+			end
+			box(V(w * 0.6, hgt * 0.1, 0.3), f * CF(0, y + hgt * 0.26, -w / 2 - 0.1), (c == TRIBE_RED) and BONE or TRIBE_RED, Enum.Material.SmoothPlastic)
+			y += hgt
+		end
+		for _, wx in ipairs({ -1, 1 }) do
+			box(V(9, 1.6, 0.8), f * CF(wx * 6, y - 3, 0) * ANG(0, 0, wx * 0.3), TRIBE_RED, WOOD)
+			box(V(7, 1.2, 0.7), f * CF(wx * 5.5, y - 5, 0) * ANG(0, 0, wx * 0.3), TRIBE_RED_D, WOOD)
+		end
+		skull(f * CF(0, y + 2.6, 0), 2.6, true)
+		brazier(f * CF(0, 0, -8), 0.9)
+	end
+
+	---------------------------------------------------------------- 8) บ้านหินทรงกลมหลังคาแดง 12 หลัง + ค่ายรบ (ชั้นวางหอก/กรง/ลัง)
+	local function hut(x, z, d)
+		local f = facingCenter(x, z)
+		cylinderY(9, d, f * CF(0, 4.5, 0), { Color = C(80, 68, 64), Material = Enum.Material.Cobblestone }, m)
+		cylinderY(1.2, d + 0.8, f * CF(0, 9.2, 0), { Color = tint.Dark, Material = WOOD }, m)
+		cone(f * CF(0, 9.6, 0), d + 3, 8, TRIBE_RED_D)
+		box(V(3.4, 6, 0.4), f * CF(0, 3, -d / 2), C(20, 14, 12), WOOD, { CanCollide = false })
+		box(V(4.6, 0.8, 0.8), f * CF(0, 6.4, -d / 2 - 0.2), tint.Dark, WOOD)
+		skull(f * CF(0, 7.8, -d / 2 - 0.6), 0.8, false)
+		torch(f * CF(3.2, 4, -d / 2 - 0.8), 0.5)
+	end
+	for _, t in ipairs({ { 0.5, 96 }, { 0.92, 92 }, { 1.32, 100 }, { 1.72, 94 }, { 2.12, 100 }, { 2.55, 102 } }) do
+		for _, sg in ipairs({ -1, 1 }) do
+			hut(math.sin(sg * t[1]) * t[2], -math.cos(sg * t[1]) * t[2], 13)
+		end
+	end
+	for _, pos in ipairs({ { 40, -96 }, { -40, -96 }, { 62, -50 }, { -62, -50 } }) do
+		local f = facingCenter(pos[1], pos[2])
+		for _, cx in ipairs({ -2.6, 2.6 }) do
+			log(5, 0.5, f * CF(cx, 0, 0), tint.Dark)
+		end
+		box(V(6.2, 0.4, 0.4), f * CF(0, 4.3, 0), tint.Dark, WOOD)
+		for k = -1, 1 do
+			beam((f * CF(k * 1.5, 0, 1)).Position, (f * CF(k * 1.5, 7.2, -0.4)).Position, 0.26, tint.Wood)
+		end
+		PropBuilder.Imported("CageLP", f * CF(10, 0, 4), 7, m, true)
+		PropBuilder.StoreModel("Crate", f * CF(-8, 0, 3), m)
+		PropBuilder.StoreModel("LogPileStore", f * CF(-8, 0, 9), m)
+	end
+
+	---------------------------------------------------------------- จุดเกิดทหารในลาน
+	for _, pos in ipairs({ { -7, -118 }, { 7, -118 }, { -7, -92 }, { 7, -92 }, { -7, -64 }, { 7, -64 }, { -7, -36 }, { 7, -36 },
+		{ -40, -20 }, { 40, -20 }, { -58, 30 }, { 58, 30 }, { -46, 92 }, { 46, 92 } }) do
+		marker("Ground", (at(pos[1], pos[2])).Position)
+	end
+
+	m:SetAttribute("Element", el)
+	m:SetAttribute("Center", base.Position)
+	m:SetAttribute("Capital", true)
+	m:SetAttribute("Leash", R - 14)
+	CollectionService:AddTag(m, "Village")
 	m.Parent = parent
 	return m
 end
@@ -3782,8 +4612,10 @@ function PropBuilder.BuildWorld(layout, opts)
 			PropBuilder.BuildShrine(sp, sites)
 		elseif sp.Kind == "Lair" then
 			PropBuilder.BuildLair(sp, sites)
-		elseif sp.Kind == "Ruins" then
-			PropBuilder.BuildRuins(sp, sites, rng)
+		elseif sp.Kind == "Village" then
+			PropBuilder.BuildVillage(sp, sites)
+		elseif sp.Kind == "Stronghold" then
+			PropBuilder.BuildStronghold(sp, sites)
 		elseif sp.Kind == "Rift" then
 			PropBuilder.BuildRift(sp, sites, rng)
 		end

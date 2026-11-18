@@ -39,6 +39,9 @@ end
 ---------------------------------------------------------------- หาได้จากไหน
 -- ทรัพยากรในแมพ (ต้นไม้/หิน/คริสตัล/พุ่ม) — ตรงกับ PropBuilder Kinds.*.Node
 local NODE = {
+	SkullStoneEarth = { "⛺ Chief's chest · Earth tribe village" },
+	SkullStoneWater = { "⛺ Chief's chest · Water tribe village" },
+	SkullStoneAir = { "⛺ Chief's chest · Frost tribe village" },
 	Wood = { "🪓 Chop trees", "🪓 Charred trees in the Fire land (bonus)" },
 	Stone = { "⛏ Mine rocks", "⛏ Coal rocks (bonus)" },
 	Iron = { "⛏ Mine iron ore rocks (sparkly)" },
@@ -171,10 +174,37 @@ function ItemTooltip.Where(id)
 end
 
 -- คืน { Title, Sub, Category, Desc, Stats = { "..." }, Where = { "..." }, Color }
+-- ของแบบ "อะไรก็ได้ในกลุ่ม" (AnyEssence / AnyHeart): รวมแหล่งที่หาได้ของทุกชิ้นในกลุ่ม
+local function groupInfo(id)
+	local members = Items.AnyGroups and Items.AnyGroups[id]
+	if not members then
+		return nil
+	end
+	local names, where, seen = {}, {}, {}
+	for _, m in ipairs(members) do
+		table.insert(names, Items.DisplayName(m))
+		for _, w in ipairs(ItemTooltip.Where(m)) do
+			if not seen[w] then
+				seen[w] = true
+				table.insert(where, w)
+			end
+		end
+	end
+	return {
+		Title = (Items.AnyThai and Items.AnyThai[id]) or id,
+		Sub = nil,
+		Category = "Any one of these",
+		Desc = "Use any one: " .. table.concat(names, " · "),
+		Stats = {},
+		Where = where,
+		Color = C.Gold,
+	}
+end
+
 function ItemTooltip.Info(id)
 	local d = Items.Data[id]
 	if not d then
-		return nil
+		return groupInfo(id)
 	end
 	local stats = {}
 	local t = Items.Tools[id]
@@ -388,7 +418,7 @@ function ItemTooltip.Attach(obj, idOrFn)
 	local getId = type(idOrFn) == "function" and idOrFn or function()
 		return idOrFn
 	end
-	if not (obj and (type(idOrFn) == "function" or Items.Data[idOrFn])) then
+	if not (obj and (type(idOrFn) == "function" or Items.Data[idOrFn] or (Items.AnyGroups and Items.AnyGroups[idOrFn]))) then
 		return
 	end
 	local id -- รหัสที่โชว์อยู่ของปุ่มนี้
@@ -397,7 +427,7 @@ function ItemTooltip.Attach(obj, idOrFn)
 			return
 		end
 		id = getId()
-		if not (id and Items.Data[id]) then
+		if not (id and (Items.Data[id] or Items.AnyGroups[id])) then
 			return
 		end
 		owner = obj
@@ -439,7 +469,7 @@ function ItemTooltip.Attach(obj, idOrFn)
 		task.delay(LONG_PRESS, function()
 			if alive and obj.Parent and obj.Visible then
 				id = getId()
-				if id and Items.Data[id] then
+				if id and (Items.Data[id] or Items.AnyGroups[id]) then
 					ItemTooltip.Show(id, "Top")
 				end
 			end

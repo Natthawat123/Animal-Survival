@@ -286,14 +286,12 @@ end
 
 -- สิ่งก่อสร้างที่ใช้โมเดลจาก Creator Store (ด้านยาวสุด, stud)
 -- เสา 4 ธาตุ = โมเดลใหม่ 3D Model/เสา (Import 3D -> assets/rbxm/Items/<ชื่อ>.rbxmx) สูง 10 · โมเดลเก่าลบทิ้งแล้ว
-local STORE_STRUCT = { TerraTotem = 10, TideTotem = 10, GaleTotem = 10, EmberTotem = 10, CookPot = 7, SpikeTrap = 8, FarmPlot = 10, Lantern = 9, Bed = 8, Bed2 = 8, Ballista = 8, SunBeacon = 40, LogWall = 11, StoneWall = 12 }
+local STORE_STRUCT = { TerraTotem = 10, TideTotem = 10, GaleTotem = 10, EmberTotem = 10, CookPot = 7, SpikeTrap = 8, FarmPlot = 10, Lantern = 9, Bed = 8, Bed2 = 8, Ballista = 16, SunBeacon = 40, LogWall = 11, StoneWall = 12 }
 local STORE_YAW = { LogWall = 90 } -- เตียง (Meshy): หัวเตียงอยู่ +Z ตรงกับเกมอยู่แล้ว
 
 function StructureModels.Build(kind)
 	if STORE_STRUCT[kind] and ItemModels.Has(kind) then
-		if kind == "Ballista" then
-			return StructureModels.StoreBallista()
-		end
+		-- หอธนู (Ballista) = โมเดลหอคอยชิ้นเดียว 3D Model/Tanoo (หน้าไม้อยู่บนยอด) · ไม่มี Turret หมุนแล้ว
 		local m, box = ItemModels.Clone(kind, STORE_STRUCT[kind], { Ground = true, Yaw = STORE_YAW[kind] })
 		m.Name = kind
 		local walkThrough = kind == "SpikeTrap" or kind == "FarmPlot"

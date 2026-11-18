@@ -52,6 +52,7 @@ PADPROBE = "--padprobe" in sys.argv  # แท่นเริ่มเกม: เ
 WALLPROBE = "--wallprobe" in sys.argv
 ESCAPEPROBE = "--escapeprobe" in sys.argv
 TOTEMPROBE = "--totemprobe" in sys.argv
+WATERPROBE = "--waterprobe" in sys.argv  # วาฬว่ายในน้ำลึกรอบผู้เล่น (tests/ASWaterProbe.*.lua)
 ASSETPROBE = "--assetprobe" in sys.argv  # โมเดลนำเข้า (Import 3D) โหลดได้ในบัญชีนี้ไหม (tests/ASAssetProbe.client.lua)  # เสา 4 ธาตุโมเดลใหม่ (tests/ASTotemProbe.*.lua)  # ประตูกลับบ้านหลัง 99 คืน + โหวต + ฉากจบ (tests/ASEscapeProbe.server.lua)  # กำแพงไม้/หินดูดต่อกันอัตโนมัติ (tests/ASWallProbe.server.lua)
 COOKPROBE = "--cookprobe" in sys.argv  # ย่างเนื้อที่กองไฟ + ไม่ดูดของจากไกล (tests/ASCookProbe.*.lua)
 BERRYPROBE = "--berryprobe" in sys.argv  # พุ่มเบอร์รี่ เก็บ/กิน + ปุ่มกินบน HUD (tests/ASBerryProbe.*.lua)
@@ -89,7 +90,7 @@ VFXSHOW = next((a.split("=", 1)[1] if "=" in a else "*" for a in sys.argv if a.s
 
 if GALLERY or VFXSHOW:
     TEST = True
-if TEST or SHOTS or TOOLSPAM or BREAKPROBE or LOOTPROBE or DROPPROBE or LOBBYPROBE or SITEPROBE or CLASSPROBE or UIPROBE or UIAUDIT or PROPPROBE or BOSSPROBE or FOGPROBE or SACKPROBE or BOSSSKILL or REALMPROBE or MONPROBE or SHRINEPROBE or GATEPROBE or REJOINPROBE or SKIPPROBE or BERRYPROBE or COOKPROBE or WALLPROBE or ESCAPEPROBE or TOTEMPROBE or ASSETPROBE or PADPROBE or ARMORPROBE or MEDPROBE or CHESTPROBE or LIDPROBE or ELEPHPROBE or GRIPPROBE or HAMMERPROBE or SKILLPROBE or SWINGPROBE or TRADERPROBE or GEYSERPROBE or ARENAPROBE or CRATEPROBE or SIZEPROBE or TPPROBE or TREEPROBE or SIGNPROBE or KRPROBE or STORAGEPROBE or TOOLTIPPROBE or STORYPROBE:
+if TEST or SHOTS or TOOLSPAM or BREAKPROBE or LOOTPROBE or DROPPROBE or LOBBYPROBE or SITEPROBE or CLASSPROBE or UIPROBE or UIAUDIT or PROPPROBE or BOSSPROBE or FOGPROBE or SACKPROBE or BOSSSKILL or REALMPROBE or MONPROBE or SHRINEPROBE or GATEPROBE or REJOINPROBE or SKIPPROBE or BERRYPROBE or COOKPROBE or WALLPROBE or ESCAPEPROBE or TOTEMPROBE or WATERPROBE or ASSETPROBE or PADPROBE or ARMORPROBE or MEDPROBE or CHESTPROBE or LIDPROBE or ELEPHPROBE or GRIPPROBE or HAMMERPROBE or SKILLPROBE or SWINGPROBE or TRADERPROBE or GEYSERPROBE or ARENAPROBE or CRATEPROBE or SIZEPROBE or TPPROBE or TREEPROBE or SIGNPROBE or KRPROBE or STORAGEPROBE or TOOLTIPPROBE or STORYPROBE:
     OUT = os.path.join(OUT_DIR, "AnimalSurvival_TEST.rbxlx")
     if SIZEPROBE:
         OUT = os.path.join(OUT_DIR, "AnimalSurvival_SIZE.rbxlx")
@@ -309,6 +310,7 @@ def main():
     if PROPPROBE:
         rs += value_item("BoolValue", "ASPropProbe", "true")
         rs += value_item("BoolValue", "ASSiteProbe", "true")
+        rs += value_item("BoolValue", "ASSkipCollision", "true")
         rs += value_item("BoolValue", "ASAutoTest", "true")
         rs += value_item("BoolValue", "ASLobbyTest", "true")
     if UIAUDIT:
@@ -433,6 +435,10 @@ def main():
         rs += value_item("BoolValue", "ASEscapeProbe", "true")
     if TOTEMPROBE:
         rs += value_item("BoolValue", "ASTotemProbe", "true")
+    if WATERPROBE:
+        rs += value_item("BoolValue", "ASWaterProbe", "true")
+        rs += value_item("BoolValue", "ASAutoTest", "true")
+        rs += value_item("BoolValue", "ASSkipCollision", "true")
     if ASSETPROBE:
         rs += value_item("BoolValue", "ASAssetProbe", "true")
         rs += value_item("BoolValue", "ASAutoTest", "true")
@@ -600,6 +606,9 @@ def main():
     if TOTEMPROBE:
         sss += script_item(os.path.join(TESTS, "ASTotemProbe.server.lua"))
         sps += script_item(os.path.join(TESTS, "ASTotemProbe.client.lua"))
+    if WATERPROBE:
+        sss += script_item(os.path.join(TESTS, "ASWaterProbe.server.lua"))
+        sps += script_item(os.path.join(TESTS, "ASWaterProbe.client.lua"))
     if ASSETPROBE:
         sps += script_item(os.path.join(TESTS, "ASAssetProbe.client.lua"))
     if COOKPROBE:

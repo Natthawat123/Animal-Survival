@@ -66,6 +66,10 @@ JOBS = {
     "TempestRoc": ("เยติ/เยติ.glb", BIPED_YETI),
     "Solfang": ("มังกรไฟ/มังกร.glb", DRAGON),
     "ClassHut": ("กระท่อม class หน้า lobby/กระท่อม.blend", None),
+    # ชนเผ่าหมู่บ้านโจร (ชื่อกระดูกคงเดิม Bone_xxx — BossAnimator.ROLES จับคู่ตามนี้)
+    "TribeWarrior": ("ชนเผ่า/atk.glb", None),
+    "TribeArcher": ("ชนเผ่า/archer.glb", None),
+    "TribeShield": ("ชนเผ่า/shield.glb", None),
 }
 
 

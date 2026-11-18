@@ -1477,10 +1477,10 @@
 1803	Entrar al festival
 1804	Recoger
 1805	Krathong
-1806	🪷 Ya recogiste los %d krathongs
-1807	🪷 ¡%s recogió los %d krathongs — deseo concedido!
-1808	🪷 ¡Festival Loy Krathong! Un gran portal se abrió en el bosque — solo esta noche
-1809	🪷 El festival Loy Krathong terminó
+1806	🌸 Ya recogiste los %d krathongs
+1807	🌸 ¡%s recogió los %d krathongs — deseo concedido!
+1808	🌸 ¡Festival Loy Krathong! Un gran portal se abrió en el bosque — solo esta noche
+1809	🌸 El festival Loy Krathong terminó
 1810	Solo esta noche · una vez por partida
 1811	Los aldeanos sueltan krathongs en el río — ¡recógelos!
 1812	Recoge hasta %d krathongs cada uno

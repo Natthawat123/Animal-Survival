@@ -653,6 +653,9 @@ function DirectorService:ResetRun()
 	ctx.Services.CampService:Reset()
 	ctx.Services.SpiritService:Reset()
 	ctx.Services.LootService:Reset()
+	if ctx.Services.VillageService then
+		ctx.Services.VillageService:Reset() -- ทหารหมู่บ้านโจรกลับมาเต็มทุกหมู่บ้าน
+	end
 	for _, p in ipairs(Players:GetPlayers()) do
 		ctx.Services.SurvivalService:ResetPlayer(p)
 	end

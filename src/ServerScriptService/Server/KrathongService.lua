@@ -1,8 +1,10 @@
 --[[
 	KrathongService — อีเวนต์ "เทศกาลลอยกระทง" (คืนที่ Config.KrathongNight · รอบละครั้ง)
-	  ถึงคืนที่ 20 -> ประตูมิติใหญ่โผล่สุ่มในแมพ (หมุดบนแผนที่ 🪷 + ประกาศ) · อยู่ถึงคืนถัดไปเริ่มแล้วหายไป
+	  ถึงคืนที่ 20 -> ประตูมิติใหญ่โผล่สุ่มในแมพ (หมุดบนแผนที่ 🌸 + ประกาศ) · อยู่ถึงคืนถัดไปเริ่มแล้วหายไป
 	  เข้าประตู -> มิติแม่น้ำยามค่ำบนฟ้า: ไฟประดับ โคมกระดาษ โคมลอย พลุ พระจันทร์ · ชาวบ้าน (NPC) ยืนบนท่าน้ำลอยกระทงลงแม่น้ำเรื่อยๆ
-	  กระทงลอยตามน้ำ -> กด E เก็บ: คนละ Config.KrathongMax (20) อัน · อันละ +1 Ruby · ครบ 20 = หีบตำนาน + Ruby โบนัส
+	  กระทงลอยตามน้ำ -> กด E เก็บ: คนละ Config.KrathongMax (20) อัน · กระทงเข้ากระเป๋ากระทง (KrathongBank) ไม่ใช่ Ruby
+  ร้านงานวัดบนลานท่าน้ำ (Shop.Festival): เอากระทงแลกของ · ครบ 20 = แถมกระทงโบนัส
+  ประตูใหญ่: ปุ่มกดย้ายลงมาระดับพื้น + เดินทะลุม่านเข้าได้เลย (ม่านกว้าง 44 -> จุดกลางม่านสูงเกินระยะกด)
 	  โมเดลกระทง: Creator Store (Assets.Props.KrathongA/B/C) สุ่มแบบ · ไม่มีโมเดล = กระทงปั้นจากชิ้นส่วน
 ]]
 
@@ -13,6 +15,8 @@ local Workspace = game:GetService("Workspace")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local PropBuilder = require(ReplicatedStorage.Shared.PropBuilder)
+local Shop = require(ReplicatedStorage.Shared.Shop)
+local Items = require(ReplicatedStorage.Shared.Items)
 
 local KrathongService = {}
 
@@ -211,24 +215,110 @@ function KrathongService:Collect(player, m)
 	end
 	local n = player:GetAttribute("Krathongs") or 0
 	if n >= MAX then
-		self.ctx.Notify(player, string.format("🪷 You already collected all %d krathongs", MAX), "Info")
+		self.ctx.Notify(player, string.format("🌸 You already collected all %d krathongs", MAX), "Info")
 		return
 	end
 	local pos = m:GetPivot().Position
 	m:Destroy()
 	n += 1
 	player:SetAttribute("Krathongs", n)
-	local data = self.ctx.Services.DataService
-	data:AddDiamonds(player, 1, "Loy Krathong", { Silent = true })
+	-- กระทงเข้ากระเป๋ากระทง (ใช้แลกของที่ร้านงานวัด) · ครบ 20 = แถมโบนัส
+	local bank = (player:GetAttribute("KrathongBank") or 0) + 1
+	if n >= MAX then
+		bank += Shop.FestivalWishBonus
+	end
+	player:SetAttribute("KrathongBank", bank)
 	self.ctx.Remotes.Get("WorldEvent"):FireClient(player, "KrathongGot", { Position = pos, Count = n, Max = MAX })
 	if n >= MAX then
-		-- ครบ 20: หีบตำนานที่ลานท่าน้ำ + Ruby โบนัส
-		data:AddDiamonds(player, 10, "Loy Krathong wish")
-		local got = self.ctx.Services.LootService:GiveTierLoot(3, self.plaza + V(0, 3, 0))
-		self.ctx.Remotes.Get("HitFx"):FireClient(player, "Loot", { Items = got, Position = self.plaza, Chest = true })
-		self.ctx.Remotes.Get("WorldEvent"):FireClient(player, "KrathongWish", { Position = self.plaza })
-		self.ctx.Broadcast(string.format("🪷 %s collected all %d krathongs — wish granted!", player.DisplayName, MAX), "Reward")
+		self.ctx.Remotes.Get("WorldEvent"):FireClient(player, "KrathongWish", { Position = self.plaza, Bonus = Shop.FestivalWishBonus })
+		self.ctx.Broadcast(string.format("🌸 %s collected all %d krathongs — wish granted!", player.DisplayName, MAX), "Reward")
 	end
+end
+
+-- ร้านงานวัด: จ่ายกระทงแลกของ (ต้องยืนใกล้ร้าน · แลกได้ตาม Stock ต่อคน)
+function KrathongService:Trade(player, offerId)
+	local ctx = self.ctx
+	local o = Shop.FestivalById[offerId]
+	if not (o and self.active and self.stallPos and player:GetAttribute("InRun")) then
+		return
+	end
+	if ctx.Services.SurvivalService:IsIncapacitated(player) then
+		return
+	end
+	local char = player.Character
+	if not char or (char:GetPivot().Position - self.stallPos).Magnitude > 30 then
+		ctx.Notify(player, "You must be at the festival shop", "Error")
+		return
+	end
+	local key = "Fest_" .. o.Id
+	local used = player:GetAttribute(key) or 0
+	if used >= o.Stock then
+		ctx.Notify(player, "Sold out", "Error")
+		return
+	end
+	local bank = player:GetAttribute("KrathongBank") or 0
+	if bank < o.Price then
+		ctx.Notify(player, "🌸 Not enough krathongs", "Error")
+		return
+	end
+	local inv = ctx.Services.InventoryService
+	for id, n in pairs(o.Give or {}) do
+		if Items.Data[id] and Items.Data[id].Category == "Tool" and not Items.IsMulti(id) and inv:Count(player, id) > 0 then
+			ctx.Notify(player, "You already have " .. Items.DisplayName(id) .. "", "Info")
+			return
+		end
+		if inv:Room(player, id) < n then
+			ctx.Notify(player, inv:LimitText(id) .. " — maxed out", "Error")
+			return
+		end
+	end
+	player:SetAttribute("KrathongBank", bank - o.Price)
+	player:SetAttribute(key, used + 1)
+	for id, n in pairs(o.Give or {}) do
+		inv:Add(player, id, n)
+	end
+	if o.Chest then
+		local at = self.stallPos + self.frame.LookVector * -6 + V(0, 3, 0)
+		local got = ctx.Services.LootService:GiveTierLoot(o.Chest, at)
+		ctx.Remotes.Get("HitFx"):FireClient(player, "Loot", { Items = got, Position = at, Chest = true })
+	end
+	ctx.Remotes.Get("WorldEvent"):FireClient(player, "KrathongBought", { Id = o.Id, Position = self.stallPos })
+	ctx.Notify(player, "🌸 Exchange complete!", "Good")
+end
+
+-- ซุ้มใหญ่: ปุ่มกดอยู่กลางม่าน (สูงเกินระยะกด) -> ย้ายลงมาระดับพื้น + แผ่นล่องหนในช่องประตู เดินทะลุ = เข้าเลย
+function KrathongService:HookGate(veil, groundY, onEnter)
+	local last = {}
+	local function go(p)
+		if last[p] and os.clock() - last[p] < 3 then
+			return
+		end
+		last[p] = os.clock()
+		onEnter(p)
+	end
+	local att = Instance.new("Attachment")
+	att.Name = "PromptPoint"
+	att.Parent = veil
+	att.WorldPosition = V(veil.Position.X, groundY + 3.5, veil.Position.Z)
+	local prompt = veil:FindFirstChildOfClass("ProximityPrompt")
+	if prompt then
+		prompt.Parent = att
+		prompt.MaxActivationDistance = 16
+		prompt.Triggered:Connect(go)
+	end
+	local rot = veil.CFrame - veil.Position
+	local pad = part(veil.Parent, {
+		Name = "GateTouch", Size = V(math.max(6, veil.Size.X * 0.8), 9, 3),
+		CFrame = CF(veil.Position.X, groundY + 4.5, veil.Position.Z) * rot,
+		Transparency = 1, CanCollide = false, CanQuery = false, CanTouch = true,
+	})
+	pad.Touched:Connect(function(hit)
+		local p = Players:GetPlayerFromCharacter(hit.Parent)
+		if p and hit.Name == "HumanoidRootPart" then
+			go(p)
+		end
+	end)
+	return pad
 end
 
 ---------------------------------------------------------------- มิติแม่น้ำ
@@ -269,6 +359,7 @@ function KrathongService:BuildRealm(xz)
 	local backFrame = plazaCF * CF(-10, 0, 0) * CFrame.Angles(0, math.rad(90), 0)
 	local _, backVeil = PropBuilder.BuildPortal(backFrame, "Earth", m, { Name = "KrathongBack", Floor = REALM_Y + 1, Label = "Loy Krathong Festival", Action = "Go Back Outside", Model = "GateMystic", Width = 22, Color = PINK, NoTag = true })
 	self.backVeil = backVeil
+	self:BuildStall(plazaCF * CF(6, 1, -10), m)
 	-- ท่าน้ำ + ชาวบ้านลอยกระทง (ฝั่งละ 3)
 	self.docks = {}
 	for i, z in ipairs({ -LEN / 2 + 40, -LEN / 2 + 95, -LEN / 2 + 150 }) do
@@ -383,6 +474,85 @@ function KrathongService:BuildRealm(xz)
 	return F
 end
 
+-- ร้านงานวัด (ซุ้มไม้ หลังคาผ้าลายชมพู-ขาว + ไฟประดับ + แม่ค้า) หน้าร้าน = +Z ของ cf (หันหาจุดเกิด)
+function KrathongService:BuildStall(cf, parent)
+	local WOOD, DARK = Color3.fromRGB(150, 104, 66), Color3.fromRGB(96, 64, 40)
+	local counter = part(parent, { Name = "FestivalCounter", Size = V(12, 3.2, 3), CFrame = cf * CF(0, 1.6, 0), Color = WOOD, Material = Enum.Material.WoodPlanks })
+	part(parent, { Size = V(12.8, 0.4, 3.6), CFrame = cf * CF(0, 3.4, 0.1), Color = Color3.fromRGB(196, 150, 100), Material = Enum.Material.Wood })
+	part(parent, { Size = V(12.2, 1.2, 0.2), CFrame = cf * CF(0, 2.2, 1.55), Color = PINK, Material = Enum.Material.Fabric, CanCollide = false })
+	for _, px in ipairs({ -6, 6 }) do
+		for _, pz in ipairs({ -3.2, 1.6 }) do
+			part(parent, { Size = V(0.6, 9.4, 0.6), CFrame = cf * CF(px, 4.7, pz), Color = DARK, Material = Enum.Material.Wood })
+		end
+	end
+	-- หลังคาผ้าลาย (เอียงลงด้านหน้า)
+	for k = 0, 6 do
+		part(parent, { Size = V(2, 0.3, 6.6), CFrame = cf * CF(-6 + k * 2, 9.6, -0.8) * CFrame.Angles(math.rad(-10), 0, 0), Color = k % 2 == 0 and PINK or Color3.fromRGB(255, 246, 240), Material = Enum.Material.Fabric })
+	end
+	-- ชายผ้าหยักหน้าหลังคา + ไฟประดับ
+	for k = 0, 11 do
+		local x = -5.5 + k
+		part(parent, { Size = V(0.9, 0.9, 0.12), CFrame = cf * CF(x, 8.7, 2.4) * CFrame.Angles(0, 0, math.rad(45)), Color = k % 2 == 0 and Color3.fromRGB(255, 246, 240) or PINK, Material = Enum.Material.Fabric, CanCollide = false })
+		local bulb = part(parent, { Shape = Enum.PartType.Ball, Size = V(0.45, 0.45, 0.45), CFrame = cf * CF(x + 0.5, 8.1, 2.5), Color = BULBS[(k % #BULBS) + 1], Material = Enum.Material.Neon, CanCollide = false, CanQuery = false })
+		if k == 3 or k == 8 then
+			local pl = Instance.new("PointLight")
+			pl.Color, pl.Range, pl.Brightness = bulb.Color, 14, 1
+			pl.Parent = bulb
+		end
+	end
+	-- ป้ายร้าน
+	local sign = part(parent, { Name = "ShopSign", Size = V(9, 2, 0.3), CFrame = cf * CF(0, 11.2, 2.3), Color = Color3.fromRGB(110, 40, 70), Material = Enum.Material.Wood })
+	local sg = Instance.new("SurfaceGui")
+	sg.Face = Enum.NormalId.Back
+	sg.PixelsPerStud = 40
+	sg.LightInfluence = 0
+	sg.Parent = sign
+	local t = Instance.new("TextLabel")
+	t.Size = UDim2.fromScale(1, 1)
+	t.BackgroundTransparency = 1
+	t.Text = "🌸 Festival Shop"
+	t.TextScaled = true
+	t.Font = Enum.Font.FredokaOne
+	t.TextColor3 = Color3.fromRGB(255, 230, 160)
+	t.Parent = sg
+	-- ของบนโต๊ะ: กระทงจิ๋ว + โคม
+	for k, x in ipairs({ -4, -1.5, 1.5, 4 }) do
+		part(parent, { Shape = Enum.PartType.Cylinder, Size = V(0.5, 1.6, 1.6), CFrame = cf * CF(x, 3.85, 0) * CFrame.Angles(0, 0, math.pi / 2), Color = Color3.fromRGB(70, 140, 60), Material = Enum.Material.Grass, CanCollide = false })
+		part(parent, { Shape = Enum.PartType.Ball, Size = V(0.9, 0.9, 0.9), CFrame = cf * CF(x, 4.4, 0), Color = k % 2 == 0 and PINK or GOLD, Material = Enum.Material.Neon, CanCollide = false })
+	end
+	-- แม่ค้า (ยืนหลังโต๊ะ หันหน้าออกหน้าร้าน)
+	self:SpawnVillager(CFrame.lookAt((cf * CF(0, 2.9, -2)).Position, (cf * CF(0, 2.9, 6)).Position), 5)
+	-- ป้ายลอยเหนือร้าน + ปุ่มแลกของ
+	local bb = Instance.new("BillboardGui")
+	bb.Size = UDim2.fromOffset(240, 46)
+	bb.StudsOffset = V(0, 11.5, 0)
+	bb.MaxDistance = 140
+	bb.LightInfluence = 0
+	bb.Parent = counter
+	local bt = Instance.new("TextLabel")
+	bt.Size = UDim2.fromScale(1, 1)
+	bt.BackgroundTransparency = 1
+	bt.Text = "🌸 Trade krathongs here"
+	bt.TextScaled = true
+	bt.Font = Enum.Font.FredokaOne
+	bt.TextColor3 = Color3.fromRGB(255, 214, 236)
+	bt.TextStrokeTransparency = 0.3
+	bt.Parent = bb
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.ActionText = "Trade"
+	prompt.ObjectText = "Festival Shop"
+	prompt.HoldDuration = 0
+	prompt.MaxActivationDistance = 12
+	prompt.RequiresLineOfSight = false
+	prompt.Parent = counter
+	prompt.Triggered:Connect(function(p)
+		if self.active then
+			self.ctx.Remotes.Get("WorldEvent"):FireClient(p, "KrathongShop", {})
+		end
+	end)
+	self.stallPos = counter.Position
+end
+
 -- ชาวบ้าน (NPC): ตัว Roblox มาตรฐาน สีชุดสุ่มโทนงานวัด · ยืนนิ่งบนท่าน้ำ
 function KrathongService:SpawnVillager(cf, seed)
 	local SHIRTS = { Color3.fromRGB(230, 120, 160), Color3.fromRGB(250, 200, 90), Color3.fromRGB(120, 180, 230), Color3.fromRGB(150, 210, 140), Color3.fromRGB(240, 150, 90), Color3.fromRGB(200, 150, 230) }
@@ -426,8 +596,10 @@ function KrathongService:StartEvent()
 	local root = Instance.new("Model")
 	root.Name = "KrathongEvent"
 	-- ประตูใหญ่ (หน้าหันไปทางแคมป์) + ป้ายเงื่อนไข/รางวัล
-	local gate, veil = PropBuilder.BuildPortal(face, "Earth", root, { Name = "KrathongGate", Label = "Loy Krathong Festival", Action = "Enter Festival", Model = "GateMystic", Width = 44, Color = PINK, NoTag = true })
-	self.gateFront = (face * CF(0, 0, -16)).Position
+	local _, veil, gateBase = PropBuilder.BuildPortal(face, "Earth", root, { Name = "KrathongGate", Label = "Loy Krathong Festival", Action = "Enter Festival", Model = "GateMystic", Width = 44, Color = PINK, NoTag = true })
+	-- จุดยืนหน้าประตู (ตอนกลับออกมา) = ผิวดินจริง (HeightAt ของเลย์เอาต์บางจุดต่ำกว่าพื้นจริง -> เคยวาร์ปกลับจมดิน)
+	local front = (face * CF(0, 0, -16)).Position
+	self.gateFront = V(front.X, PropBuilder.TerrainY(front, 0), front.Z)
 	pcall(PropBuilder.BuildSiteSign, face * CF(-34, 0, -14) * CFrame.Angles(0, math.rad(-20), 0), "Krathong", "Krathong", root)
 	-- โคมกระดาษแขวนรอบซุ้ม
 	for k = -3, 3 do
@@ -440,27 +612,28 @@ function KrathongService:StartEvent()
 	root.Parent = Workspace
 	self.gate = root
 	self:BuildRealm(spot)
-	local enter = veil:FindFirstChildOfClass("ProximityPrompt")
-	if enter then
-		enter.Triggered:Connect(function(p)
-			if self.active and p:GetAttribute("InRun") then
-				local dest = self.plaza + V(6, 4, 0)
-				ctx.Services.PortalService:Teleport(p, dest, dest + (self.frame.LookVector * 20), PINK, false)
-			end
-		end)
-	end
-	local back = self.backVeil and self.backVeil:FindFirstChildOfClass("ProximityPrompt")
-	if back then
-		back.Triggered:Connect(function(p)
+	-- เข้า: กด E ที่ระดับพื้น หรือเดินทะลุม่านเลย
+	self.enterPad = self:HookGate(veil, gateBase.Position.Y + 1.5, function(p)
+		if self.active and p:GetAttribute("InRun") and not ctx.Services.SurvivalService:IsIncapacitated(p) then
+			local dest = self.plaza + V(6, 4, 0)
+			ctx.Services.PortalService:Teleport(p, dest, dest + (self.frame.LookVector * 20), PINK, false)
+		end
+	end)
+	if self.backVeil then
+		self:HookGate(self.backVeil, REALM_Y + 1, function(p)
 			ctx.Services.PortalService:Teleport(p, self.gateFront + V(0, 3, 0), spot, PINK, true)
 		end)
 	end
 	for _, p in ipairs(Players:GetPlayers()) do
 		p:SetAttribute("Krathongs", 0)
+		p:SetAttribute("KrathongBank", 0)
+		for _, o in ipairs(Shop.Festival) do
+			p:SetAttribute("Fest_" .. o.Id, nil)
+		end
 	end
 	ctx.State:SetAttribute("Event_Krathong", spot)
 	ctx.FireRun("WorldEvent", "Krathong", { Position = spot, Max = MAX })
-	ctx.Broadcast("🪷 Loy Krathong Festival! A big portal opened in the wilds — tonight only", "Good")
+	ctx.Broadcast("🌸 Loy Krathong Festival! A big portal opened in the wilds — tonight only", "Good")
 	-- ชาวบ้านลอยกระทงเรื่อยๆ + พลุเป็นจังหวะ
 	task.spawn(function()
 		while self.active do
@@ -525,12 +698,17 @@ function KrathongService:EndEvent(silent)
 	end)
 	ctx.State:SetAttribute("Event_Krathong", nil)
 	if not silent then
-		ctx.Broadcast("🪷 The Loy Krathong Festival has ended", "Info")
+		ctx.Broadcast("🌸 The Loy Krathong Festival has ended", "Info")
 	end
 end
 
 function KrathongService:Start(ctx)
 	local st = ctx.State
+	ctx.Remotes.Get("KrathongTrade").OnServerEvent:Connect(function(p, id)
+		if type(id) == "string" then
+			self:Trade(p, id)
+		end
+	end)
 	st:GetAttributeChangedSignal("Night"):Connect(function()
 		local night = st:GetAttribute("Night") or 0
 		if not self.done and night >= NIGHT and ctx.Services.DirectorService:IsRunning() then
@@ -548,6 +726,10 @@ function KrathongService:Start(ctx)
 			self.done = false
 			for _, p in ipairs(Players:GetPlayers()) do
 				p:SetAttribute("Krathongs", nil)
+				p:SetAttribute("KrathongBank", nil)
+				for _, o in ipairs(Shop.Festival) do
+					p:SetAttribute("Fest_" .. o.Id, nil)
+				end
 			end
 		elseif phase == "Night" and self.active and (st:GetAttribute("Night") or 0) > (self.startNight or NIGHT) then
 			self:EndEvent()

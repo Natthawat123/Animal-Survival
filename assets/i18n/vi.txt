@@ -1477,10 +1477,10 @@
 1803	Vào lễ hội
 1804	Nhặt
 1805	Krathong
-1806	🪷 Bạn đã nhặt đủ %d krathong
-1807	🪷 %s đã nhặt đủ %d krathong — điều ước thành sự thật!
-1808	🪷 Lễ hội Loy Krathong! Một cổng lớn đã mở trong rừng — chỉ đêm nay
-1809	🪷 Lễ hội Loy Krathong đã kết thúc
+1806	🌸 Bạn đã nhặt đủ %d krathong
+1807	🌸 %s đã nhặt đủ %d krathong — điều ước thành sự thật!
+1808	🌸 Lễ hội Loy Krathong! Một cổng lớn đã mở trong rừng — chỉ đêm nay
+1809	🌸 Lễ hội Loy Krathong đã kết thúc
 1810	Chỉ đêm nay · mỗi màn một lần
 1811	Dân làng thả krathong xuống sông — hãy nhặt chúng!
 1812	Mỗi người nhặt tối đa %d krathong

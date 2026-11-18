@@ -5,7 +5,7 @@
 	  - ทุ่งกลาง Heart ที่ (0,0) = ที่ตั้งกองไฟ
 	  - 4 ธาตุ (Earth/Water/Air/Fire) วางรอบๆ แบบสุ่มมุม+ระยะ แล้วบิดขอบด้วย noise (domain warp)
 	  - ขอบแมพเป็นทะเลลึกวงกลม
-	  - แต่ละธาตุมีจุดพิเศษ: Lair (รังบอส), Shrine (กรงลูกสัตว์ธาตุ), Ruins (ซากปรักหักพัง มีหีบ)
+	  - แต่ละธาตุมีจุดพิเศษ: Lair (รังบอส), Shrine (กรงลูกสัตว์ธาตุ), Village (หมู่บ้านโจรชนเผ่า มีหีบ 3 ใบ)
 	  - ธาตุลม: ไม่มีเกาะลอยฟ้าแล้ว (FloatingIslands ว่างเสมอ)
 ]]
 
@@ -287,9 +287,12 @@ function MapLayout:_placeSpecials(rng)
 		local shrine = { Kind = "Shrine", Element = el, Position = Vector3.new(sx, math.max(sh, self.WaterLevel + 4), sz) }
 		table.insert(self.Specials, lair)
 		table.insert(self.Specials, shrine)
-		for _ = 1, 3 do
-			local rx, rh, rz = self:_flatSiteIn(rng, el, "Ruins", s.Dist * 0.45, s.Dist * 1.35)
-			table.insert(self.Specials, { Kind = "Ruins", Element = el, Position = Vector3.new(rx, rh, rz) })
+		-- หมู่บ้านโจร 1 แห่ง/ไบโอม (แทนซากปรักหักพัง 3 จุด · หีบ 3 ใบอยู่ในหมู่บ้าน)
+		do
+			-- ไบโอมไฟ = ป้อมชนเผ่า (ใหญ่ ปิดผนึก ต้องใช้หินกะโหลก 3 ก้อนจากหมู่บ้านดิน/น้ำ/ลม)
+			local kind = (el == "Fire") and "Stronghold" or "Village"
+			local rx, rh, rz = self:_flatSiteIn(rng, el, kind, s.Dist * ((kind == "Stronghold") and 0.35 or 0.45), s.Dist * ((kind == "Stronghold") and 1.3 or 1.2))
+			table.insert(self.Specials, { Kind = kind, Element = el, Position = Vector3.new(rx, math.max(rh, self.WaterLevel + 3), rz) })
 		end
 		for _ = 1, 4 do
 			local cx, ch, cz = self:_randomPointIn(rng, el, s.Dist * 0.4, s.Dist * 1.4)

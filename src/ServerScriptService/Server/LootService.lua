@@ -106,7 +106,19 @@ function LootService:Open(chest, player)
 	local el = chest:GetAttribute("Element") or "Earth"
 	local rng = Random.new()
 	local got = {}
-	for _, entry in ipairs(LOOT[el]) do
+	local treasure = chest:GetAttribute("Treasure")
+	-- หีบหัวหน้าเผ่า: หินกะโหลก 1 ก้อน (ทุกคนที่เปิด)
+	local key = chest:GetAttribute("KeyStone")
+	if key then
+		-- เข้ากระเป๋าตรงๆ เสมอ (ไม่นับที่ว่างกระสอบ · เดิมตกพื้นแล้วหาไม่เจอ/กระสอบเต็มไม่ได้)
+		self.ctx.Services.InventoryService:Add(player, key, 1)
+		got[key] = 1
+		self.ctx.Notify(player, "You found a Skull Stone! Bring all 3 to the Fire stronghold gate", "Good")
+	end
+	if treasure then
+		self.ctx.Services.DataService:AddDiamonds(player, rng:NextInteger(5, 10), "Stronghold Treasure")
+	end
+	for _, entry in ipairs(treasure and LootTables.Stronghold or LOOT[el]) do
 		local n = rng:NextInteger(entry[2], entry[3])
 		if n > 0 then
 			n = self.ctx.Services.DropService:SpawnLoot(entry[1], n, chest:GetPivot().Position + Vector3.new(0, 1, 0))
@@ -127,9 +139,10 @@ function LootService:SetupChest(chest)
 	end
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.ActionText = "Open Chest"
-	prompt.ObjectText = "Ancient Chest"
+	prompt.ObjectText = chest:GetAttribute("Treasure") and "Chieftain's Treasure" or (chest:GetAttribute("KeyStone") and "Chief's Chest" or "Ancient Chest")
 	prompt.HoldDuration = 0.8
 	prompt.MaxActivationDistance = 12
+	prompt.RequiresLineOfSight = false -- ชิ้นปั้นล่องหนอยู่ในเมชหีบ 3D: ต้องมองเห็น = เมชบังปุ่มกด เปิดไม่ได้
 	prompt.Parent = body
 	prompt.Triggered:Connect(function(player)
 		self:Open(chest, player)

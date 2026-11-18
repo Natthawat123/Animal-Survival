@@ -286,8 +286,11 @@ function MapGenerator.BuildSpecialPads(layout, terrain)
 			local top = MapGenerator.TopMaterial(sp.Element)
 			MapGenerator.FlattenPad(terrain, pos, 34, top, 50) -- ลานพิธีรัศมี 24 + ขอบ
 			MapGenerator.FlattenBuildingPad(terrain, sp, nil)
-		elseif sp.Kind == "Ruins" then
-			MapGenerator.FlattenPad(terrain, sp.Position, 24, MapGenerator.TopMaterial(sp.Element), 40)
+		elseif sp.Kind == "Stronghold" then -- ป้อมชนเผ่า: ลานเรียบรัศมีเกินกำแพง (130) + แท่นหน้าประตู
+			MapGenerator.FlattenPad(terrain, sp.Position, 168, MapGenerator.TopMaterial(sp.Element), 140)
+			MapGenerator.FlattenBuildingPad(terrain, sp, nil)
+		elseif sp.Kind == "Village" then -- หมู่บ้านโจร: ลานเรียบกว้างพอรั้ว (รัศมี 70) + ขอบลาด
+			MapGenerator.FlattenPad(terrain, sp.Position, 78, MapGenerator.TopMaterial(sp.Element), 100)
 			MapGenerator.FlattenBuildingPad(terrain, sp, nil)
 		elseif sp.Kind == "Sanctum" then -- วิหารโบราณ (SanctumService วางพรีแฟบทับ)
 			local top = Biomes.Data[sp.Element] and Biomes.Data[sp.Element].Terrain.Top

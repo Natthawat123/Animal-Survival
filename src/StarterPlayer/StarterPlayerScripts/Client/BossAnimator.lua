@@ -22,6 +22,22 @@ local V = Vector3.new
 
 -- บทบาท -> ชื่อกระดูกในไฟล์ (ตรงกับ blender/prep_boss.py)
 local ROLES = {
+	-- ชนเผ่ากะโหลกแดง (หมู่บ้านโจร) — หัน -Y, -X = ขวาของตัว (ตามไฟล์ 3D Model/ชนเผ่า)
+	TribeWarrior = { -- หอกมือขวา
+		Hips = "Bone_000", Spine1 = "Bone_004", Spine2 = "Bone_003", Chest = "Bone_002", Neck = "Bone_014", Head = "Bone_013",
+		UpperArmR = "Bone_022", ForeArmR = "Bone_021", UpperArmL = "Bone_017", ForeArmL = "Bone_016",
+		ThighR = "Bone_012", ShinR = "Bone_011", FootR = "Bone_010", ThighL = "Bone_008", ShinL = "Bone_007", FootL = "Bone_006",
+	},
+	TribeArcher = { -- ธนูมือซ้าย ดึงสายมือขวา
+		Hips = "Bone_000", Spine1 = "Bone_001", Spine2 = "Bone_003", Chest = "Bone_002", Neck = "Bone_018", Head = "Bone_017",
+		UpperArmR = "Bone_014", ForeArmR = "Bone_013", UpperArmL = "Bone_021", ForeArmL = "Bone_020",
+		ThighR = "Bone_007", ShinR = "Bone_006", FootR = "Bone_005", ThighL = "Bone_011", ShinL = "Bone_010", FootL = "Bone_009",
+	},
+	TribeShield = { -- โล่มือซ้าย ตะบองหนามมือขวา
+		Hips = "Bone_000", Spine1 = "Bone_015", Spine2 = "Bone_014", Chest = "Bone_013", Neck = "Bone_018", Head = "Bone_017",
+		UpperArmR = "Bone_027", ForeArmR = "Bone_026", UpperArmL = "Bone_022", ForeArmL = "Bone_021",
+		ThighR = "Bone_006", ShinR = "Bone_005", FootR = "Bone_004", ThighL = "Bone_011", ShinL = "Bone_010", FootL = "Bone_009",
+	},
 	Terragon = {
 		Hips = "Bone_000", Spine1 = "Bone_014", Spine2 = "Bone_013", Chest = "Bone_011", Neck = "Bone_032", Head = "Bone_031",
 		UpperArmR = "Bone_036", ForeArmR = "Bone_035", UpperArmL = "Bone_041", ForeArmL = "Bone_040",
@@ -66,6 +82,9 @@ function BossAnimator.PlayIntro(model, wind)
 	return k
 end
 
+-- ท่าโจมตีธรรมดาของมอนที่ไม่ใช่บอส (อ่านจาก AttackAt ที่เซิร์ฟเวอร์ตั้ง)
+local ATTACK_POSE = { TribeWarrior = "Thrust", TribeArcher = "Shoot", TribeShield = "Bash" }
+
 function BossAnimator.Has(model)
 	return model:GetAttribute("Skinned") == true and ROLES[model:GetAttribute("AnimalId")] ~= nil
 end
@@ -92,11 +111,15 @@ function BossAnimator.Attach(rig)
 			bones[role] = { Bone = b, Rest = rest, RestInv = rest:Inverse(), Cur = { 0, 0, 0, 0, 0, 0 } }
 		end
 	end
+	local isBoss = model:GetAttribute("IsBoss") == true
 	rig.Boss = {
-		Bones = bones, Kind = model:GetAttribute("SkinRig") or "Biped", Phase = 0,
+		Bones = bones, Kind = model:GetAttribute("SkinRig") or "Biped", Phase = 0, IsBoss = isBoss,
 		H = mesh.Size.Y, L = math.max(mesh.Size.X, mesh.Size.Z), Look = { 0, 0 }, Element = model:GetAttribute("Element"),
+		Attack = ATTACK_POSE[rig.Id],
 	}
-	pcall(BossFX.Aura, model, model:GetAttribute("Element"))
+	if isBoss then
+		pcall(BossFX.Aura, model, model:GetAttribute("Element"))
+	end
 	return true
 end
 
@@ -153,7 +176,7 @@ local function biped(P, B, t, w, ph, cast, age, cw)
 		local step = math.floor(ph / math.pi)
 		if B.LastStep ~= step then
 			B.LastStep = step
-			if w > 0.25 then
+			if w > 0.25 and B.IsBoss then
 				local foot = B.Bones[(step % 2 == 0) and "FootL" or "FootR"]
 				if foot then
 					pcall(BossFX.Footstep, foot.Bone.WorldPosition, H / 50, B.Element)
@@ -165,6 +188,35 @@ local function biped(P, B, t, w, ph, cast, age, cw)
 		return
 	end
 	local A, Hh = castWeights(age, cw)
+	if cast == "Thrust" then
+		-- แทงหอก: ง้างหอกขึ้นข้างหัว บิดตัว -> พุ่งแทงไปข้างหน้า
+		add(P, "UpperArmR", 1.7 * A + 0.5 * Hh, 0, -0.35 * A)
+		add(P, "ForeArmR", 0.9 * A - 0.7 * Hh, 0, 0)
+		add(P, "UpperArmL", 0.6 * A, 0, 0.2 * A)
+		add(P, "Chest", -0.12 * A + 0.28 * Hh, 0.4 * A - 0.55 * Hh, 0)
+		add(P, "Spine1", 0.22 * Hh, 0, 0)
+		add(P, "ThighR", -0.35 * Hh, 0, 0)
+		add(P, "ThighL", 0.35 * Hh, 0, 0)
+		return
+	elseif cast == "Shoot" then
+		-- ยิงธนู: ยกคันธนู (แขนซ้าย) ไปข้างหน้า ดึงสายมาที่อก -> ปล่อย
+		add(P, "UpperArmL", 1.55 * A, 0, 0)
+		add(P, "ForeArmL", -0.25 * A, 0, 0)
+		add(P, "UpperArmR", 1.45 * A - 0.25 * Hh, 0, 0.25 * A)
+		add(P, "ForeArmR", 1.5 * A - 0.6 * Hh, 0, 0)
+		add(P, "Chest", 0, 0.3 * A, 0)
+		add(P, "Spine1", -0.06 * A, 0, 0)
+		return
+	elseif cast == "Bash" then
+		-- ตัวโล่: ยกโล่บัง (ซ้าย) + เงื้อตะบอง (ขวา) เหนือหัว -> ฟาดลง
+		add(P, "UpperArmL", 1.2 * A + 0.3 * Hh, 0, 0.3 * A)
+		add(P, "ForeArmL", 0.7 * A, 0, 0)
+		add(P, "UpperArmR", 2.5 * A - 1.0 * Hh, 0, -0.2 * A)
+		add(P, "ForeArmR", 0.6 * A, 0, 0)
+		add(P, "Spine1", 0.1 * A - 0.3 * Hh, 0, 0)
+		add(P, "Chest", -0.12 * A + 0.25 * Hh, 0, 0)
+		return
+	end
 	if cast == "Slam" then
 		-- ง้างแขนเหนือหัว เอนหลัง -> ทุบลงพื้น ย่อตัว
 		add(P, "UpperArmL", 2.7 * A + 0.7 * Hh, 0, 0.25 * A)
@@ -400,6 +452,14 @@ function BossAnimator.Animate(rig, ctx)
 		cw = model:GetAttribute("CastTime") or 1
 		if age > cw + 1.2 then
 			cast = nil
+		end
+	end
+	-- มอนธรรมดา (ชนเผ่า): ท่าตีจาก AttackAt ของเซิร์ฟเวอร์
+	if not cast and B.Attack then
+		local at = model:GetAttribute("AttackAt")
+		local ag = at and (Workspace:GetServerTimeNow() - at) or 99
+		if ag < 1.2 then
+			cast, age, cw = B.Attack, ag, 0.45
 		end
 	end
 	local it = intro[model]

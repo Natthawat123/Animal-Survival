@@ -33,9 +33,23 @@ task.wait(4)
 local camp = ctx.CampPosition
 local face = CFrame.lookAt(spot, Vector3.new(camp.X, spot.Y, camp.Z))
 shot("kr_gate", CFrame.lookAt((face * CFrame.new(18, 14, -70)).Position, spot + Vector3.new(0, 16, 0)))
--- เข้ามิติ
-S.PortalService:Teleport(player, K.plaza + Vector3.new(6, 4, 0), K.plaza + K.frame.LookVector * 20, nil, false)
-task.wait(12)
+-- เข้ามิติ: เดินทะลุประตูจริง (ไม่วาร์ปตรง) + เช็กว่าปุ่ม E อยู่ระดับเอื้อมถึง
+local veil = K.gate:FindFirstChild("PortalVeil", true)
+local pp = veil and veil:FindFirstChild("PromptPoint")
+print(string.format("[AS] KRPROBE veilH=%.1f promptAboveGround=%.1f veilCenterAboveGround=%.1f pad=%s", veil and veil.Size.Y or -1, pp and (pp.WorldPosition.Y - spot.Y) or -1, veil and (veil.Position.Y - spot.Y) or -1, tostring(K.enterPad ~= nil)))
+S.DevService:Teleport(player, K.gateFront + Vector3.new(0, 3, 0))
+task.wait(2)
+local hum = player.Character:FindFirstChildOfClass("Humanoid")
+local t0 = os.clock()
+while os.clock() - t0 < 14 and player.Character.HumanoidRootPart.Position.Y < 3200 do
+	hum:MoveTo(spot)
+	task.wait(0.3)
+end
+print(string.format("[AS] KRPROBE walkIn entered=%s after=%.1fs y=%.0f", tostring(player.Character.HumanoidRootPart.Position.Y > 3200), os.clock() - t0, player.Character.HumanoidRootPart.Position.Y))
+if player.Character.HumanoidRootPart.Position.Y < 3200 then
+	S.PortalService:Teleport(player, K.plaza + Vector3.new(6, 4, 0), K.plaza + K.frame.LookVector * 20, nil, false)
+end
+task.wait(10)
 local F = K.frame
 print(string.format("[AS] KRPROBE inside floating=%d villagers=%d", #K.floating, (function()
 	local n = 0
@@ -77,9 +91,23 @@ end
 local extra = K:MakeKrathong(F * CFrame.new(0, K.waterY - F.Y + 0.25, 0))
 extra.Parent = K.realm
 K:Collect(player, extra) -- เกิน 20 ต้องไม่นับ
-print("[AS] KRPROBE final=" .. tostring(player:GetAttribute("Krathongs")) .. " extraStillThere=" .. tostring(extra.Parent ~= nil))
+print("[AS] KRPROBE final=" .. tostring(player:GetAttribute("Krathongs")) .. " extraStillThere=" .. tostring(extra.Parent ~= nil) .. " bank=" .. tostring(player:GetAttribute("KrathongBank")))
 task.wait(1.5)
 shot("kr_wish", nil)
+-- ร้านงานวัด: ยืนหน้าร้าน -> เปิดหน้าร้าน -> แลกยา + หีบ
+S.DevService:Teleport(player, K.stallPos + Vector3.new(0, 2, 7))
+task.wait(2)
+shot("kr_stall", CFrame.lookAt(K.stallPos + Vector3.new(-6, 6, 18), K.stallPos + Vector3.new(0, 4, 0)))
+local inv = S.InventoryService
+local med0 = inv:Count(player, "Medkit")
+local b0 = player:GetAttribute("KrathongBank") or 0
+K:Trade(player, "F_Medkit")
+K:Trade(player, "F_Chest")
+K:Trade(player, "F_Chest") -- Stock 1 -> ต้องไม่ผ่าน
+print(string.format("[AS] KRPROBE shop bank %d->%d (expect -16) medkit %d->%d chestUsed=%s", b0, player:GetAttribute("KrathongBank") or 0, med0, inv:Count(player, "Medkit"), tostring(player:GetAttribute("Fest_F_Chest"))))
+ctx.Remotes.Get("WorldEvent"):FireClient(player, "KrathongShop", {})
+task.wait(1)
+shot("kr_shop", nil)
 -- คืนถัดไป -> ปิดงาน
 st:SetAttribute("Night", 21)
 st:SetAttribute("Phase", "Night")

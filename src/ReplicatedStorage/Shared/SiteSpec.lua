@@ -13,7 +13,8 @@ local SPEC = {
 	Shrine = { Center = true, Width = 120 }, -- เผื่อระยะห่างจากรังบอส (บอสเคยว่ายมาถึงหน้าประตู) + ลานโล่งรอบซุ้ม
 	Lair = { Center = true, Width = 380 }, -- (เดิม 300) ลานสู้บอสใหญ่ขึ้น: บอสตัวกว้าง 40-100 stud เดินได้ไม่ติด -- เยติ: ลานเปิดบนหิมะ (เอาพระราชวังน้ำแข็งออก — บอสตกพื้น/ฐานลอย)
 	Sanctum = { Center = true, Width = 120 },
-	Ruins = { Center = true, Width = 60 }, -- ซากวิหาร Store กว้าง ~34-54 (ลานเรียบรัศมี 38)
+	Stronghold = { Center = true, Width = 330 }, -- ป้อมชนเผ่า (ไบโอมไฟ): กำแพงรัศมี 130 + แท่นหินหน้าประตู
+	Village = { Center = true, Width = 164 }, -- หมู่บ้านโจร: รั้วรัศมี 70 (PropBuilder.BuildVillage) + ทางเข้าหน้า
 }
 
 function SiteSpec.Get(kind, el)

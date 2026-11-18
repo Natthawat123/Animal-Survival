@@ -1477,10 +1477,10 @@
 1803	Pumasok sa pista
 1804	Kunin
 1805	Krathong
-1806	🪷 Nakuha mo na ang lahat ng %d krathong
-1807	🪷 Nakuha ni %s ang lahat ng %d krathong — natupad ang hiling!
-1808	🪷 Pista ng Loy Krathong! May malaking portal na bumukas sa gubat — ngayong gabi lang
-1809	🪷 Tapos na ang Pista ng Loy Krathong
+1806	🌸 Nakuha mo na ang lahat ng %d krathong
+1807	🌸 Nakuha ni %s ang lahat ng %d krathong — natupad ang hiling!
+1808	🌸 Pista ng Loy Krathong! May malaking portal na bumukas sa gubat — ngayong gabi lang
+1809	🌸 Tapos na ang Pista ng Loy Krathong
 1810	Ngayong gabi lang · isang beses bawat run
 1811	Nagpapalutang ng krathong ang mga taganayon — kunin sila!
 1812	Kumuha ng hanggang %d krathong bawat isa

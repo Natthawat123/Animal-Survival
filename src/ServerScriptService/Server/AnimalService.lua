@@ -143,6 +143,7 @@ function AnimalService:Spawn(id, position, opts)
 		DamageMult = (opts.DamageMult or 1) * partyScale.Damage * (model:GetAttribute("IsBoss") and Config.BossDamageScale or Config.MonsterDamageScale),
 		NextAttack = 0, NextThink = 0, NextAbility = os.clock() + Config.BossFirstSkill, LastPos = position, StuckSince = nil,
 		Leash = opts.Leash or (kind == "Wild" and Config.WildLeash or nil), Night = opts.Night or 0,
+		Perch = opts.Perch, -- ยืนประจำจุด (นักธนูบนหอคอยหมู่บ้าน): ไม่เดิน ยิงอย่างเดียว
 	}
 	if info.Aquatic then
 		-- ลอยที่ผิวน้ำ (ครีบหลังโผล่) : ดันเฉพาะแกนตั้ง ไม่ให้ Humanoid ดำดิ่งลงก้นทะเล
@@ -267,6 +268,20 @@ function AnimalService:TakeDamage(a, amount, attacker, opts)
 		return
 	end
 	amount *= (1 - (a.Info.Armor or 0))
+	-- โล่ (ชนเผ่าถือโล่): โดนจากด้านหน้า = ลดดาเมจ · อ้อมไปตีข้างหลังได้เต็ม
+	if a.Info.FrontBlock and attacker and attacker.Character then
+		local ar = attacker.Character:FindFirstChild("HumanoidRootPart")
+		if ar then
+			local to = (ar.Position - a.Root.Position) * Vector3.new(1, 0, 1)
+			if to.Magnitude > 0.1 and a.Root.CFrame.LookVector:Dot(to.Unit) > 0.35 then
+				amount *= (1 - a.Info.FrontBlock)
+				if not opts.Silent and (not a.BlockFxAt or os.clock() - a.BlockFxAt > 0.5) then
+					a.BlockFxAt = os.clock()
+					self.ctx.Remotes.Get("HitFx"):FireAllClients("Immune", { Position = a.Root.Position + a.Root.CFrame.LookVector * 2 + Vector3.new(0, 2, 0) })
+				end
+			end
+		end
+	end
 	local hum = a.Hum
 	local hp = math.max(0, hum.Health - amount)
 	if attacker then
@@ -787,6 +802,18 @@ function AnimalService:Spit(a, target, now)
 	self:MarkAttack(a, "Spit")
 	local head = a.Model:FindFirstChild("Head") or a.Root
 	local from = head.Position + Vector3.new(0, 1, 0)
+	if a.Info.Arrow then
+		-- ลูกธนูชนเผ่า: พุ่งเร็ว โค้งน้อย โดนคนเดียว (ไม่ระเบิด)
+		local tA = math.clamp((r.Position - from).Magnitude / 95, 0.25, 1.2)
+		local gA = 24
+		local leadA = r.AssemblyLinearVelocity * Vector3.new(1, 0, 1) * tA * 0.5
+		local dA = (r.Position + leadA) - from
+		self.ctx.Services.CombatService:Projectile({
+			From = from, Velocity = dA / tA + Vector3.new(0, 0.5 * gA * tA, 0), Gravity = gA, Radius = 2.6, Blast = 2.6,
+			Damage = (a.Info.Damage or 10) * a.DamageMult, Owner = "Animal", Model = "Arrow", Source = a.Id, Life = 3,
+		})
+		return
+	end
 	local t = math.clamp((r.Position - from).Magnitude / 60, 0.5, 1.6)
 	local g = 60
 	local lead = r.AssemblyLinearVelocity * Vector3.new(1, 0, 1) * t * 0.6
@@ -1108,7 +1135,16 @@ function AnimalService:ThinkHostile(a, now)
 	if target then
 		local r = charRoot(target)
 		local reach = (info.AttackRange or 6) + a.Radius
-		if b == "Spitter" then
+		if b == "Spitter" and a.Perch then
+			-- นักธนูบนหอคอย: ยืนยิงอยู่กับที่
+			self:Stop(a)
+			if dist <= (info.AttackRange or 60) then
+				self:Spit(a, target, now)
+			else
+				self:Face(a, r.Position)
+			end
+			a.State = "Chase"
+		elseif b == "Spitter" then
 			if dist < 22 then
 				local away = (a.Root.Position - r.Position) * Vector3.new(1, 0, 1)
 				self:MoveTo(a, a.Root.Position + away.Unit * 20, 1)
@@ -1190,7 +1226,10 @@ function AnimalService:ThinkHostile(a, now)
 		end
 	else
 		-- เฝ้าถิ่น / เดินเล่น
-		if a.Leash and (a.Root.Position - a.Home).Magnitude > a.Leash then
+		if a.Perch then
+			self:Stop(a)
+			a.State = "Idle"
+		elseif a.Leash and (a.Root.Position - a.Home).Magnitude > a.Leash then
 			self:MoveTo(a, a.Home, 1)
 			a.State = "Return"
 			a.Hum.Health = math.min(a.Hum.MaxHealth, a.Hum.Health + a.Hum.MaxHealth * 0.05)
@@ -1752,6 +1791,60 @@ function AnimalService:WildTick()
 			self:SpawnWildNear(p)
 		elseif r and self.wildCount < cap * 0.3 then
 			self:SpawnWildNear(p)
+		end
+	end
+	-- สัตว์น้ำแยกโควตาจากสัตว์บก: มีวาฬว่ายในน้ำลึกรอบผู้เล่นตลอด
+	local wet = 0
+	for _, a in ipairs(list) do
+		if a.Kind == "Wild" and not a.Dead and a.Info.Aquatic then
+			wet += 1
+		end
+	end
+	if wet < Config.MaxWaterAnimals * (phase == "Night" and 0.5 or 1) then
+		self:SpawnAquaticNear(players[self.rng:NextInteger(1, #players)])
+	end
+end
+
+-- สัตว์น้ำ (Aquatic) เกิดในน้ำลึก (ทะเลสาบ/แม่น้ำ/ทะเลรอบแมพ) รอบผู้เล่น
+--   เดิมสุ่มร่วมกับสัตว์บกเฉพาะไบโอมน้ำ (โอกาส 1/7) แล้วต้องเจอน้ำลึกใกล้จุดนั้นอีก = แทบไม่เคยเกิด
+local AQUATIC
+function AnimalService:SpawnAquaticNear(player)
+	local r = charRoot(player)
+	if not r then
+		return
+	end
+	if not AQUATIC then
+		AQUATIC = {}
+		for id, info in pairs(Animals.Data) do
+			if info.Aquatic and info.Behaviour ~= "Boss" and info.Behaviour ~= "Spirit" then
+				table.insert(AQUATIC, id)
+			end
+		end
+		table.sort(AQUATIC)
+	end
+	if #AQUATIC == 0 then
+		return
+	end
+	local layout = self.ctx.Layout
+	for _ = 1, 16 do
+		local ang = self.rng:NextNumber(0, math.pi * 2)
+		local d = self.rng:NextNumber(Config.WaterSpawnRadius.Min, Config.WaterSpawnRadius.Max)
+		local x, z = r.Position.X + math.cos(ang) * d, r.Position.Z + math.sin(ang) * d
+		if math.abs(x) < layout.Half - 20 and math.abs(z) < layout.Half - 20 and math.sqrt(x * x + z * z) > 150 then
+			-- น้ำลึกพอให้ว่าย (ตัวใหญ่ ไม่ติดตื้น) + ไม่ซ้อนกับสัตว์น้ำตัวอื่น
+			if layout:HeightAt(x, z) < layout.WaterLevel - 6 and layout:HeightAt(x + 12, z) < layout.WaterLevel - 3 and layout:HeightAt(x, z + 12) < layout.WaterLevel - 3 then
+				local crowded = false
+				for _, o in ipairs(list) do
+					if o.Info.Aquatic and not o.Dead and o.Root and (o.Root.Position - Vector3.new(x, o.Root.Position.Y, z)).Magnitude < 80 then
+						crowded = true
+						break
+					end
+				end
+				if not crowded then
+					self:Spawn(AQUATIC[self.rng:NextInteger(1, #AQUATIC)], Vector3.new(x, layout.WaterLevel + 1, z), { Kind = "Wild" })
+					return true
+				end
+			end
 		end
 	end
 end

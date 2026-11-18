@@ -1384,6 +1384,28 @@ local function centroid(models, fallback)
 	return n > 0 and sum / n or fallback
 end
 
+-- อนุสาวรีย์ลูกสัตว์ธาตุ = เมช+เท็กซ์เจอร์ที่อัปโหลดไว้ (ต้องดาวน์โหลดจากเซิร์ฟ Roblox) ส่วนประกาย/ลำแสงเป็นไฟล์ในเครื่อง
+--   ยังโหลดไม่เสร็จตอนเสาผุด = เห็นแค่ประกายไม่มีรูปปั้น -> โหลดไว้ตั้งแต่เข้าเกม + โหลดซ้ำตอนเข้าศาลเจ้า (เครื่องแรมน้อยอาจล้างแคชทิ้ง)
+local function preloadMonument(el)
+	task.spawn(function()
+		local assets = ReplicatedStorage:FindFirstChild("Assets")
+		local props = assets and assets:FindFirstChild("Props")
+		if not props then
+			return
+		end
+		local list = {}
+		for _, e in ipairs(el and { el } or { "Earth", "Water", "Air", "Fire" }) do
+			local m = props:FindFirstChild("Monument" .. e)
+			if m then
+				table.insert(list, m)
+			end
+		end
+		pcall(function()
+			game:GetService("ContentProvider"):PreloadAsync(list)
+		end)
+	end)
+end
+
 local CLEAR_VIEW = { Guard = true, Run = true, Turn = true, Home = true }
 -- กล้องตามบท: shotFn(t) -> ตำแหน่ง, จุดมอง, fov, รหัสช็อต · เปลี่ยนรหัส = ตัดภาพ · กล้องสั่นเบาๆ แบบถือมือ + ระยะชัดตามจุดมอง
 local function runShots(dur, shotFn, onDone)
@@ -1465,6 +1487,7 @@ function Cinematics.ShrineIntro(d)
 	if Cinematics.ShrineCut then
 		return
 	end
+	preloadMonument(d.Element) -- สู้ผู้เฝ้าอีกนาน -> รูปปั้นโหลดเสร็จก่อนฉากเสาผุดแน่
 	local col = C.Element[d.Element] or C.Gold
 	local cage = d.Cage
 	local toEntry = ((d.Entry or (cage + Vector3.new(0, 0, -80))) - cage) * Vector3.new(1, 0, 1)
@@ -2539,20 +2562,10 @@ function Cinematics.Init(state)
 	-- โหลดอนุสาวรีย์ลูกสัตว์ธาตุไว้ล่วงหน้า (เมช/เท็กซ์เจอร์ใหญ่): ไม่งั้นช่วยลูกสัตว์ครั้งแรก เสาผุด 3 วิแต่โมเดลยังโหลดไม่เสร็จ = เห็นแค่ประกาย
 	task.spawn(function()
 		local assets = ReplicatedStorage:WaitForChild("Assets", 60)
-		local props = assets and assets:WaitForChild("Props", 60)
-		if not props then
-			return
+		if assets then
+			assets:WaitForChild("Props", 60)
 		end
-		local list = {}
-		for _, el in ipairs({ "Earth", "Water", "Air", "Fire" }) do
-			local m = props:FindFirstChild("Monument" .. el)
-			if m then
-				table.insert(list, m)
-			end
-		end
-		pcall(function()
-			game:GetService("ContentProvider"):PreloadAsync(list)
-		end)
+		preloadMonument()
 	end)
 	gui = UIKit.Screen("Cinematics", 40, true)
 	Cinematics.Gui = gui

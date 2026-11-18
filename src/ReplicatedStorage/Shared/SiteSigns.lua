@@ -7,6 +7,7 @@
 local Config = require(script.Parent.Config)
 local Classes = require(script.Parent.Classes)
 local Items = require(script.Parent.Items)
+local Shop = require(script.Parent.Shop)
 
 local SiteSigns = {}
 
@@ -57,13 +58,13 @@ function SiteSigns.Get(kind, el)
 	elseif kind == "Krathong" then
 		local max = Config.KrathongMax or 20
 		return {
-			Emblem = "🪷", Title = "Loy Krathong Festival",
+			Emblem = "🌸", Title = "Loy Krathong Festival",
 			Need = { Text = "Tonight only · once per run", Ok = true },
 			Info = "Villagers float krathongs down the river — collect them!",
 			Rewards = {
-				{ "🪷", string.format("Collect up to %d krathongs each", max) },
-				{ "♦️", "+1 Ruby per krathong" },
-				{ "🎁", string.format("All %d: legendary chest + 10 Ruby", max) },
+				{ "🌸", string.format("Collect up to %d krathongs each", max) },
+				{ "🏮", "Trade krathongs for gifts at the festival shop" },
+				{ "🎁", string.format("All %d: +%d bonus krathongs", max, Shop.FestivalWishBonus) },
 				{ "🎆", "Lanterns, fireworks and river lights" },
 			},
 		}

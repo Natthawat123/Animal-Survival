@@ -300,7 +300,45 @@ end
 
 function CombatService:Projectile(spec)
 	local p = spec.Model == "Rock" and rockPart(spec.Size or 2)
-	if p then
+	if spec.Model == "Arrow" then
+		-- ลูกธนู (ชนเผ่า): ก้านไม้ + หัวเหล็ก + ขนนกแดง ชี้ตามทิศที่พุ่ง
+		p = Instance.new("Part")
+		p.Size = Vector3.new(0.22, 0.22, 3.2)
+		p.Material = Enum.Material.Wood
+		p.Color = Color3.fromRGB(120, 82, 48)
+		local tip = Instance.new("Part")
+		tip.Size = Vector3.new(0.4, 0.4, 0.6)
+		tip.Color = Color3.fromRGB(200, 200, 205)
+		tip.Material = Enum.Material.Metal
+		tip.CanCollide, tip.CanQuery, tip.Massless = false, false, true
+		tip.CFrame = CFrame.new(0, 0, -1.8)
+		local fl = Instance.new("Part")
+		fl.Size = Vector3.new(0.05, 0.5, 0.8)
+		fl.Color = Color3.fromRGB(200, 30, 30)
+		fl.Material = Enum.Material.Fabric
+		fl.CanCollide, fl.CanQuery, fl.Massless = false, false, true
+		fl.CFrame = CFrame.new(0, 0, 1.3)
+		for _, c in ipairs({ tip, fl }) do
+			local w = Instance.new("WeldConstraint")
+			c.Anchored = false
+			c.Parent = p
+			w.Part0, w.Part1 = p, c
+			w.Parent = c
+		end
+		local att0, att1 = Instance.new("Attachment"), Instance.new("Attachment")
+		att0.Position, att1.Position = Vector3.new(0, 0, -1.5), Vector3.new(0, 0, 1.5)
+		att0.Parent, att1.Parent = p, p
+		local tr = Instance.new("Trail")
+		tr.Attachment0, tr.Attachment1 = att0, att1
+		tr.Lifetime = 0.18
+		tr.Color = ColorSequence.new(Color3.fromRGB(255, 240, 220))
+		tr.Transparency = NumberSequence.new(0.5, 1)
+		tr.Parent = p
+		p:SetAttribute("Arrow", true)
+	end
+	if p and spec.Model == "Arrow" then
+		-- (ไม่มีแสง/ไฟ/ประกาย)
+	elseif p then
 		p.Color = spec.Color or Color3.fromRGB(110, 100, 90)
 		p.Material = spec.Fire and Enum.Material.Basalt or Enum.Material.Slate
 		if spec.VFX then
@@ -320,12 +358,16 @@ function CombatService:Projectile(spec)
 			end
 		end
 	end
-	p.Color = spec.Model == "Rock" and p.Color or (spec.Color or Color3.fromRGB(255, 120, 30))
+	if spec.Model ~= "Rock" and spec.Model ~= "Arrow" then
+		p.Color = spec.Color or Color3.fromRGB(255, 120, 30)
+	end
 	p.Anchored = true
 	p.CanCollide = false
 	p.CanQuery = false
 	p.CFrame = faceAlong(spec.From, spec.Velocity)
+	local isArrow = spec.Model == "Arrow"
 	local l = Instance.new("PointLight")
+	l.Enabled = not isArrow
 	l.Color = p.Color
 	l.Range = 14
 	l.Brightness = 2
@@ -340,7 +382,7 @@ function CombatService:Projectile(spec)
 		f.Parent = p
 	end
 	local trail = Instance.new("ParticleEmitter")
-	trail.Enabled = spec.Model ~= "Rock" and spec.VFX ~= "StaffBolt" -- ก้อนหิน/ลูกไฟคทาใช้เอฟเฟกต์ฝั่ง client แทน
+	trail.Enabled = spec.Model ~= "Rock" and spec.VFX ~= "StaffBolt" and not isArrow -- ก้อนหิน/ลูกไฟคทาใช้เอฟเฟกต์ฝั่ง client แทน
 	trail.Texture = "rbxasset://textures/particles/sparkles_main.dds"
 	trail.Rate = 40
 	trail.Lifetime = NumberRange.new(0.4, 0.7)

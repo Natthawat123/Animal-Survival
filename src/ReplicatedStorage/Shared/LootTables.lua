@@ -36,6 +36,12 @@ LootTables.Ancient = {
 	Fire = { { "Coal", 2, 4 }, { "Iron", 1, 3 }, { "EmberShard", 0, 2 }, { "Bandage", 0, 1 }, { "Stone", 2, 4 } },
 }
 
+-- หีบสมบัติทองในโถงหัวหน้าป้อมชนเผ่า (ไบโอมไฟ) + Ruby 5-10 เสมอ (LootService)
+LootTables.Stronghold = {
+	{ "Iron", 8, 12 }, { "Coal", 6, 10 }, { "EmberShard", 4, 8 }, { "TerraCore", 2, 4 }, { "TidePearl", 2, 4 }, { "GaleFeather", 2, 4 },
+	{ "Medkit", 1, 2 }, { "Bandage", 2, 4 },
+}
+
 -- หีบร่อน (Airdrop): อาวุธพิเศษ 1 ชิ้น (น้ำหนัก = % รวม 100)
 LootTables.Airdrop = { { "Katana", 20 }, { "BattleAxe", 20 }, { "Crossbow", 15 }, { "WarHammer", 15 }, { "Scythe", 20 }, { "GiantSack", 10 } }
 
