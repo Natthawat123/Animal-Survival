@@ -101,8 +101,44 @@ function VillageService:Despawn(st)
 	st.Spawned = false
 end
 
+-- หมุดหมู่บ้านชนเผ่าบนแผนที่ (MapUI: รูปหน้ากาก) · ReplicatedStorage.MapVillages: Vector3Value ต่อหมู่บ้าน
+--   Capital = ป้อมชนเผ่า · Cleared = เพิ่งกวาดล้าง (ทหารชุดใหม่ยังไม่มา)
+function VillageService:PublishPins(now)
+	local folder = ReplicatedStorage:FindFirstChild("MapVillages")
+	if not folder then
+		folder = Instance.new("Folder")
+		folder.Name = "MapVillages"
+		folder.Parent = ReplicatedStorage
+	end
+	self.pins = self.pins or {}
+	local keep = {}
+	for _, v in ipairs(CollectionService:GetTagged("Village")) do
+		if v:IsDescendantOf(workspace) then
+			local pin = self.pins[v]
+			if not (pin and pin.Parent) then
+				pin = Instance.new("Vector3Value")
+				pin.Name = "Village"
+				pin.Parent = folder
+				self.pins[v] = pin
+			end
+			pin.Value = center(v)
+			pin:SetAttribute("Capital", v:GetAttribute("Capital") == true or nil)
+			local st = self.villages[v]
+			pin:SetAttribute("Cleared", (st and not st.Spawned and st.ClearedAt and now - st.ClearedAt <= RESPAWN) or nil)
+			keep[pin] = true
+		end
+	end
+	for v, pin in pairs(self.pins) do
+		if not keep[pin] then
+			pin:Destroy()
+			self.pins[v] = nil
+		end
+	end
+end
+
 function VillageService:Tick()
 	local now = os.clock()
+	self:PublishPins(now)
 	for _, v in ipairs(CollectionService:GetTagged("Village")) do
 		if v:IsDescendantOf(workspace) then
 			local st = self.villages[v]

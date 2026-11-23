@@ -89,7 +89,7 @@ Config.AnimalThinkRate = 0.25 -- วินาทีต่อรอบคิด�
 Config.DevUserIds = {}
 
 ---------------------------------------------------------------- อันดับ (ทั้งเกม ทุกเซิร์ฟเวอร์)
-Config.LeaderboardStore = "BestNight_v1" -- OrderedDataStore ของ "คืนที่รอดนานสุด"
+Config.LeaderboardStore = "BestNight_v2" -- OrderedDataStore ของ "คืนที่รอดนานสุด"
 Config.LeaderboardSize = 10
 
 ---------------------------------------------------------------- ร้านค้า Robux / Game Pass / Badge

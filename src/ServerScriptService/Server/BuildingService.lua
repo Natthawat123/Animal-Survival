@@ -48,7 +48,7 @@ function BuildingService:Damage(structure, amount)
 	if not structure.Parent or structure:GetAttribute("Broken") then
 		return
 	end
-	-- พังได้เฉพาะกำแพง (Items.Structures[kind].Breakable) · เตียง/หน้าไม้/กับดัก/เสาธาตุ ฯลฯ ไม่มีวันพัง
+	-- พังได้ทุกอย่างที่ Items.Structures[kind].Breakable (ทุกชนิด ยกเว้นเตียง)
 	local spec = Items.Structures[structure:GetAttribute("Kind")]
 	if not (spec and spec.Breakable) then
 		return
@@ -57,6 +57,9 @@ function BuildingService:Damage(structure, amount)
 	structure:SetAttribute("Health", hp)
 	self.ctx.Remotes.Get("HitFx"):FireAllClients("StructureHit", { Structure = structure, Amount = amount })
 	if hp <= 0 then
+		if spec.Storage then
+			self.ctx.Services.StorageService:Spill(structure) -- กล่องพัง = ของข้างในหล่นพื้น (ไม่หาย)
+		end
 		self:Vanish(structure)
 	end
 end
@@ -269,9 +272,10 @@ function BuildingService:Demolish(player, structure)
 	return true
 end
 
-function BuildingService:Spawn(kind, cf, hp, maxHp, owner, contents)
+function BuildingService:Spawn(kind, cf, hp, maxHp, owner, contents, level)
 	local model = StructureModels.Build(kind)
 	model:PivotTo(cf)
+	model:SetAttribute("Level", math.clamp(math.floor(tonumber(level) or 1), 1, Items.MaxStructLevel))
 	if type(contents) == "string" and contents ~= "" then
 		model:SetAttribute("Contents", contents)
 	end
@@ -295,7 +299,7 @@ function BuildingService:Serialize()
 			local _, yaw = cf:ToOrientation()
 			table.insert(out, { kind, math.floor(cf.X * 10) / 10, math.floor(cf.Y * 10) / 10, math.floor(cf.Z * 10) / 10, math.floor(yaw * 1000) / 1000,
 				math.floor(m:GetAttribute("Health")), math.floor(m:GetAttribute("MaxHealth") or 0), m:GetAttribute("Owner") or 0,
-				m:GetAttribute("Contents") or "" }) -- [9] ของในกล่องเก็บของ (JSON)
+				m:GetAttribute("Contents") or "", m:GetAttribute("Level") or 1 }) -- [9] ของในกล่องเก็บของ (JSON) · [10] เลเวลอัปเกรด
 		end
 	end
 	return out
@@ -311,7 +315,7 @@ function BuildingService:Restore(list)
 		end
 		local kind = r[1]
 		if Items.Structures[kind] then
-			local ok, err = pcall(self.Spawn, self, kind, CFrame.new(r[2], r[3], r[4]) * CFrame.Angles(0, r[5], 0), r[6], math.max(r[7], r[6]), r[8], r[9])
+			local ok, err = pcall(self.Spawn, self, kind, CFrame.new(r[2], r[3], r[4]) * CFrame.Angles(0, r[5], 0), r[6], math.max(r[7], r[6]), r[8], r[9], r[10])
 			if not ok then
 				warn("[AS] restore structure", kind, err)
 			end
@@ -452,7 +456,111 @@ function BuildingService:Cook(player, dish)
 end
 
 -- ปุ่มกดของแปลงผัก/หม้อ/กล่องเก็บของ/ประตู
+---------------------------------------------------------------- อัปเกรด (หอธนู + เสาธาตุ 3 เลเวล)
+local function costText(cost)
+	local parts = {}
+	for id, n in pairs(cost) do
+		table.insert(parts, { id, n })
+	end
+	table.sort(parts, function(a, b)
+		return a[1] < b[1]
+	end)
+	for i, x in ipairs(parts) do
+		parts[i] = string.format("%d %s", x[2], Items.DisplayName(x[1]))
+	end
+	return table.concat(parts, " · ")
+end
+
+-- ดาวเลเวลลอยเหนือสิ่งก่อสร้าง (★☆☆) + ข้อความปุ่มอัปเกรด (ของที่ต้องใช้)
+function BuildingService:RefreshUpgrade(model)
+	local kind = model:GetAttribute("Kind")
+	local ups = Items.StructUpgrades[kind]
+	if not ups then
+		return
+	end
+	local lv = model:GetAttribute("Level") or 1
+	local host = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+	if not host then
+		return
+	end
+	local tag = model:FindFirstChild("LevelTag")
+	if not tag then
+		tag = Instance.new("BillboardGui")
+		tag.Name = "LevelTag"
+		tag.Size = UDim2.fromOffset(110, 26)
+		tag.StudsOffsetWorldSpace = Vector3.new(0, model:GetExtentsSize().Y + 0.6, 0)
+		tag.MaxDistance = 70
+		tag.LightInfluence = 0
+		tag.Adornee = host
+		tag.Parent = model
+		local t = Instance.new("TextLabel")
+		t.Name = "Stars"
+		t.Size = UDim2.fromScale(1, 1)
+		t.BackgroundTransparency = 1
+		t.Font = Enum.Font.GothamBlack
+		t.TextSize = 22
+		t.TextColor3 = Color3.fromRGB(255, 214, 80)
+		t.TextStrokeTransparency = 0.1
+		t:SetAttribute("NoTranslate", true)
+		t.Parent = tag
+	end
+	tag.Stars.Text = string.rep("★", lv) .. string.rep("☆", Items.MaxStructLevel - lv)
+	local p = model:FindFirstChild("UpgradePrompt", true)
+	if not p then
+		p = Instance.new("ProximityPrompt")
+		p.Name = "UpgradePrompt"
+		p.HoldDuration = 1
+		p.MaxActivationDistance = 14
+		p.RequiresLineOfSight = false
+		p.KeyboardKeyCode = Enum.KeyCode.E
+		p.Parent = host
+		p.Triggered:Connect(function(player)
+			self:Upgrade(player, model)
+		end)
+	end
+	local nxt = ups[lv + 1]
+	p.Enabled = nxt ~= nil
+	if nxt then
+		p.ActionText = string.format("Upgrade to Lv.%d", lv + 1)
+		p.ObjectText = costText(nxt.Cost)
+	end
+end
+
+function BuildingService:Upgrade(player, model)
+	if not (model.Parent == self.folder and not model:GetAttribute("Broken") and (model:GetAttribute("Health") or 0) > 0) then
+		return
+	end
+	if not player:GetAttribute("InRun") or self.ctx.Services.SurvivalService:IsIncapacitated(player) then
+		return
+	end
+	local kind = model:GetAttribute("Kind")
+	local ups = Items.StructUpgrades[kind]
+	local lv = model:GetAttribute("Level") or 1
+	local nxt = ups and ups[lv + 1]
+	if not nxt then
+		self.ctx.Notify(player, "Already at max level", "Info")
+		return
+	end
+	local inv = self.ctx.Services.InventoryService
+	if not inv:Spend(player, nxt.Cost) then
+		self.ctx.Notify(player, "Not enough materials: " .. costText(nxt.Cost), "Error")
+		return
+	end
+	-- เลือดเต็มเพิ่มตามสัดส่วนเลเวล (คงโบนัสช่างสร้างเดิม) + เติมเลือดเท่าส่วนที่เพิ่ม
+	local before, after = Items.StructSpec(kind, lv), Items.StructSpec(kind, lv + 1)
+	local oldMax = model:GetAttribute("MaxHealth") or before.Health
+	local newMax = math.floor(oldMax * after.Health / math.max(before.Health, 1) + 0.5)
+	model:SetAttribute("Level", lv + 1)
+	model:SetAttribute("MaxHealth", newMax)
+	model:SetAttribute("Health", math.min(newMax, (model:GetAttribute("Health") or 0) + (newMax - oldMax)))
+	self.ctx.Remotes.Get("HitFx"):FireAllClients("Build", { Position = model:GetPivot().Position, Kind = kind, Structure = model })
+	self.ctx.Notify(player, string.format("⬆ %s upgraded to Lv.%d!", Items.DisplayName(kind), lv + 1), "Good")
+	inv:MarkDirty()
+	self:RefreshUpgrade(model)
+end
+
 function BuildingService:Setup(model, kind)
+	self:RefreshUpgrade(model)
 	local storage = self.ctx.Services.StorageService
 	if storage then
 		storage:Setup(model, kind)
@@ -498,7 +606,7 @@ function BuildingService:Tick(dt)
 	local earthBuff = self.ctx.State:GetAttribute("SpiritEarth")
 	for _, s in ipairs(self.folder:GetChildren()) do
 		local kind = s:GetAttribute("Kind")
-		local spec = Items.Structures[kind]
+		local spec = Items.StructSpec(kind, s:GetAttribute("Level")) -- ค่าตามเลเวลอัปเกรด (หอธนู/เสาธาตุ)
 		if spec and (s:GetAttribute("Health") or 0) > 0 then
 			local pos = s:GetPivot().Position
 			if earthBuff then

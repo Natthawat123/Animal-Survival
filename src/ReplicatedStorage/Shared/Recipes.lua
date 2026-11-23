@@ -39,7 +39,6 @@ Recipes.List = {
 	{ Id = "Ballista", Bench = 3, Cost = { Wood = 12, Iron = 6, Fiber = 6 } },
 	{ Id = "Medkit", Bench = 3, Cost = { Bandage = 2, Berries = 4 } },
 	{ Id = "IronArmor", Bench = 3, Cost = { Iron = 12, Pelt = 4, Fiber = 4 } },
-	{ Id = "BattleAxe", Bench = 3, Cost = { Iron = 14, Wood = 8, Pelt = 2 } },
 	{ Id = "Crossbow", Bench = 3, Cost = { Wood = 12, Iron = 8, Fiber = 8 } },
 	{ Id = "Katana", Bench = 3, Cost = { Iron = 16, Pelt = 3, Bone = 4 } },
 	{ Id = "Teleporter", Bench = 3, Cost = { Stone = 12, Iron = 6, AnyEssence = 1 } }, -- หินวาร์ป (ทั้งเซิร์ฟ 8 อัน)

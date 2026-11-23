@@ -1884,3 +1884,17 @@ Place the 3 Skull Stones to break the seal
 1880	Chief's Chest
 1881	🏰 Stronghold 
 1882	You found a Skull Stone! Bring all 3 to the Fire stronghold gate
+1883	💀 Skull Tribe Raid
+1884	ANIMAL RAID!
+1885	BLOOD MOON!
+1886	TRIBE RAID!
+1887	BOSS NIGHT!
+1888	Animals are attacking the camp
+1889	Crazed beasts are attacking the camp
+1890	The Skull Tribe is attacking the camp
+1891	🐺 ANIMAL RAID
+1892	🔴 BLOOD MOON
+1893	💀 TRIBE RAID
+1894	👹 BOSS NIGHT
+1895	Raid cleared!
+1896	%d left

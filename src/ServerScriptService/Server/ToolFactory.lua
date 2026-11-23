@@ -52,7 +52,6 @@ local STORE_WEAPONS = {
 	SpikedClub = { Length = 3.6, HeadUp = true },
 	IronSword = { Length = 4.2, Head = Vector3.new(0, 1, 0) },
 	Mace = { Length = 3.9, HeadUp = true },
-	BattleAxe = { Length = 4.4, Head = Vector3.new(0, 1, 0) },
 	-- หน้าไม้: ถือแนวนอนแบบปืน ด้ามในมือ คันธนูอยู่ปลายหน้า (ด้ามยาวแกน Z ของชิ้น · ลูกศรอยู่ +Y = ด้านบน) · Grip = ท่าจับตายตัว
 	Crossbow = { Length = 3.4, Grip = (CFrame.new(0, -0.25, -0.5) * CFrame.Angles(0, math.pi, 0)):Inverse() },
 	Katana = { Length = 4.8, HeadUp = true },

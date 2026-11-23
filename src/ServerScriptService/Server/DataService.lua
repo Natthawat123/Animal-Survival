@@ -36,7 +36,7 @@ end
 function DataService:Init(ctx)
 	self.ctx = ctx
 	local ok = pcall(function()
-		store = DataStoreService:GetDataStore("AnimalSurvival_v1")
+		store = DataStoreService:GetDataStore("AnimalSurvival_v2") -- v2 = ล้างข้อมูลช่วงทดสอบ (เปิดเกมจริง)
 		board = DataStoreService:GetOrderedDataStore(Config.LeaderboardStore)
 	end)
 	storeOk = ok and store ~= nil

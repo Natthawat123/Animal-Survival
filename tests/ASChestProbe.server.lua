@@ -49,7 +49,7 @@ print("[AS] CHESTPROBE sanctum tier3 ok=" .. tostring(okS) .. " got=[" .. table.
 -- อาวุธใหม่: ใส่กระเป๋า -> client ถือทีละชิ้นแล้วถ่ายภาพ + ตี
 S.DevService:Teleport(player, ctx.CampPosition + Vector3.new(40, 0, 40))
 task.wait(1)
-for _, id in ipairs({ "Dagger", "SpikedClub", "IronSword", "Mace", "BattleAxe", "Crossbow", "Katana", "WarHammer", "Scythe" }) do
+for _, id in ipairs({ "Dagger", "SpikedClub", "IronSword", "Mace", "Crossbow", "Katana", "WarHammer", "Scythe" }) do
 	S.InventoryService:Add(player, id, 1, true)
 end
 task.wait(1)

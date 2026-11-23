@@ -1,8 +1,10 @@
 --[[
 	Nights — ผู้กำกับฝูงบุก 99 คืน
 	- ทุกคืนสุ่ม "ธาตุประจำคืน" (สัตว์ธาตุนั้นบุก)
-	- ฝูงบุกทุก 5 "กลางคืนที่เล่นจริง" (ไม่ใช่เลขวัน — ตัวคูณ x วันไม่ทำให้บุกถี่) · คืนอื่นสงบ · ฝูงบุกไม่ดรอปของ
-	- ฝูงบุกครั้งที่ 2, 4, 6 … (กลางคืนที่ 10, 20 …) = พระจันทร์เลือด (ครั้งแรก: 2-3 ธาตุ งบ x1.25 · ต่อจากนั้น: ทุกธาตุ งบ x1.5)
+	- รอบละ 7 "กลางคืนที่เล่นจริง" (ไม่ใช่เลขวัน · ไม่คิดแบบตัวคูณ) วนซ้ำ:
+	    คืนที่ 3 ของรอบ = สัตว์ธรรมดาบุก · คืนที่ 5 = พระจันทร์เลือด · คืนที่ 7 = คนป่า (ชนเผ่ากะโหลก) บุก
+	    -> 3, 5, 7, 10, 12, 14, 17, 19, 21 … · คืนอื่นสงบ · ฝูงบุกไม่ดรอปของ
+	- พระจันทร์เลือดครั้งแรก (คืน 5): 2-3 ธาตุ · ต่อจากนั้น: ทุกธาตุ
 	- ดาเมจมอนไม่คูณตามคืน/จำนวนคน · บอสบุกแคมป์ปิดไว้ (Config.RaidBosses)
 	- Monster Balance: เลือด/ดาเมจมอน "คงที่" ไม่คูณตามคืนและจำนวนคน · ความยากมาจาก "จำนวน + ชนิดมอน" ที่เพิ่มตามคืน
 	- งบฝูงบุกคูณตามจำนวนคนที่ยังรอดในรอบ: x(1 + 0.15 × (คน − 1)) (1 คน = x1.0, 8 คน = x2.05) · เลือดบอส x(1 + 0.25 × (คน − 1))
@@ -48,14 +50,20 @@ Nights.Named = {
 }
 
 -- ฝูงบุก/พระจันทร์เลือดนับจาก "กลางคืนที่เล่นจริง" (played) ไม่ใช่เลขวัน
-Nights.RaidEvery = 3 -- ฝูงบุกทุก 3 กลางคืนที่เล่นจริง
-Nights.BloodMoonEvery = 5 -- พระจันทร์เลือดทุก 5 กลางคืนที่เล่นจริง (คืนพระจันทร์เลือด = คืนบุกด้วยเสมอ)
+Nights.Cycle = 7 -- รอบ 7 คืน (วนซ้ำ) · ตำแหน่งในรอบ = played % 7
+Nights.RaidAt = 3 -- คืนที่ 3 ของรอบ: สัตว์ธรรมดาบุก
+Nights.BloodMoonAt = 5 -- คืนที่ 5 ของรอบ: พระจันทร์เลือด
+Nights.TribeAt = 0 -- คืนที่ 7 ของรอบ (7, 14, 21 …): คนป่าบุก
+Nights.TribePool = { "TribeWarrior", "TribeWarrior", "TribeShield", "TribeArcher", "TribeArcher" } -- (ซ้ำ = โอกาสออกมากกว่า)
 Nights.RaidCountMult = 3 -- คืนบุก: จำนวนมอน x3
 Nights.BloodMoonCountMult = 5 -- คืนพระจันทร์เลือด: จำนวนมอน x5 (แทน x3 ไม่คูณซ้อน)
 Nights.RaidCapMult = 1.5 -- เพดานมอนบนแมพพร้อมกัน (Config.MaxRaidAnimals) คืนบุก
 Nights.BloodMoonCapMult = 2 -- ... คืนพระจันทร์เลือด (ที่เหลือทยอยเกิดเมื่อมีตัวตาย)
 function Nights.IsBloodMoon(played)
-	return played % Nights.BloodMoonEvery == 0
+	return played > 0 and played % Nights.Cycle == Nights.BloodMoonAt
+end
+function Nights.IsTribeRaid(played)
+	return played > 0 and played % Nights.Cycle == Nights.TribeAt
 end
 
 -- ตัวคูณความแรงของสัตว์ตามคืน (ดาเมจไม่คูณตามคืนแล้ว — ตีเท่าเดิมทุกคืน)
@@ -106,9 +114,9 @@ function Nights.MaxRaid(base, players)
 	return base + 3 * (party(players) - 1)
 end
 
--- คืนบุก: ทุก Nights.RaidEvery กลางคืนที่เล่นจริง
+-- คืนบุก: สัตว์ (คืนที่ 3 ของรอบ) / พระจันทร์เลือด (5) / คนป่า (7)
 function Nights.IsBigRaid(played)
-	return played % Nights.RaidEvery == 0 or Nights.IsBloodMoon(played)
+	return (played > 0 and played % Nights.Cycle == Nights.RaidAt) or Nights.IsBloodMoon(played) or Nights.IsTribeRaid(played)
 end
 
 -- กลางคืนที่บุกครั้งถัดไป (นับคืนนี้ด้วย) เป็นเลข played
@@ -169,6 +177,7 @@ function Nights.Plan(night, rng, element, players, carry)
 	local plan = {
 		Element = element,
 		BloodMoon = bloodMoonNight ~= nil,
+		Tribe = bloodMoonNight == nil and Nights.IsTribeRaid(played), -- คืนคนป่าบุก (ชนเผ่ากะโหลก)
 		Boss = ownBoss,
 		BigRaid = Nights.IsBigRaid(played) or ownBoss ~= nil,
 		OriginNight = nil,
@@ -193,6 +202,10 @@ function Nights.Plan(night, rng, element, players, carry)
 			for _, id in ipairs(Animals.RaidPool[e] or {}) do
 				table.insert(pools, id)
 			end
+		end
+	elseif plan.Tribe then
+		for _, id in ipairs(Nights.TribePool) do
+			table.insert(pools, id)
 		end
 	elseif plan.BloodMoon or night == 99 then
 		plan.Element = "All"

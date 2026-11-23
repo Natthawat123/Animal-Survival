@@ -41,7 +41,7 @@ local function shot(name)
 end
 
 -- อาวุธตัวแทนของแต่ละชุดท่า (ท่าที่ซ้ำกับอาวุธก่อนหน้า = ข้าม)
-local ORDER = { "OldAxe", "BattleAxe", "FourfoldBlade", "Pickaxe", "BuildHammer", "SpikedClub", "Mace", "WarHammer", "IronSword", "Katana", "Dagger",
+local ORDER = { "OldAxe", "FourfoldBlade", "Pickaxe", "BuildHammer", "SpikedClub", "Mace", "WarHammer", "IronSword", "Katana", "Dagger",
 	"Scythe", "Spear", "TidalTrident", "Torch", "EmberStaff", "ArcaneStaff", "VerdantStaff", "Bow", "Crossbow" }
 -- SwingOnly (attribute บน ReplicatedStorage, คั่นด้วย ,) = ถ่ายเฉพาะท่าเหล่านี้
 local only = ReplicatedStorage:GetAttribute("SwingOnly")

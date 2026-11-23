@@ -2304,6 +2304,12 @@ function Cinematics.StalkerWarning(d, combat)
 end
 
 -- ระหว่างฉากศาลเจ้า: งดป้ายใหญ่ของระบบ (ไม่ทับตัวหนังสือในฉาก / แถบดำไม่หดกลางฉาก)
+local RAID_BANNER = {
+	Animal = { "ANIMAL RAID!", "Animals are attacking the camp", Color3.fromRGB(255, 150, 60) },
+	Blood = { "BLOOD MOON!", "Crazed beasts are attacking the camp", Color3.fromRGB(235, 40, 40) },
+	Tribe = { "TRIBE RAID!", "The Skull Tribe is attacking the camp", Color3.fromRGB(240, 210, 150) },
+	Boss = { "BOSS NIGHT!", "The boss is coming", Color3.fromRGB(200, 110, 255) },
+}
 local QUIET_IN_CUT = { NightStart = true, DayStart = true, Dusk = true, Dawn = true, WaveIncoming = true, CampUpgrade = true, FireOut = true }
 function Cinematics.Handle(kind, d, menus, combat)
 	Cinematics.Combat = combat
@@ -2321,8 +2327,15 @@ function Cinematics.Handle(kind, d, menus, combat)
 		if d.Boss then
 			sub = "The boss is coming"
 		end
-		Cinematics.Banner(title, sub, color, 3)
-		combat.Shake(0.3, 1)
+		local raid = d.Raid and RAID_BANNER[d.Raid]
+		if raid then
+			-- คืนบุก: ตัวใหญ่กว่าปกติ + บอกว่าคืนที่เท่าไร
+			Cinematics.Banner(raid[1], "NIGHT " .. d.Night .. " · " .. (d.Boss and sub or raid[2]), raid[3], 4, { Size = 104, Y = 0.24 })
+			combat.Shake(0.5, 1.4)
+		else
+			Cinematics.Banner(title, sub, color, 3)
+			combat.Shake(0.3, 1)
+		end
 	elseif kind == "DayStart" then
 		if d.Day > 1 then
 			Cinematics.Banner("DAY " .. d.Day, "", C.Gold, 2, { Size = 54, Y = 0.22 })

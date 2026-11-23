@@ -920,36 +920,62 @@ function LobbyService:Build()
 	------------------------------------------------ กลาง: เต็นท์ Classes
 	classesTent(self, deco, base * CF(0, 0, -54) * ANG(0, math.pi, 0)) -- หน้าเต็นท์หันมาทางจุดเกิด
 
-	-- กระดานข่าว (ขวาของเต็นท์)
-	local nbCf = base * CF(30, 1, -30) * ANG(0, math.rad(162), 0) -- หน้าป้ายหันมาทางจุดเกิด
-	for _, x in ipairs({ -6, 6 }) do
-		P(deco, { Size = V(0.9, 12, 0.9), CFrame = nbCf * CF(x, 6, 0), Color = C(74, 52, 38), Material = Enum.Material.Wood })
+	-- ป้ายเรื่องราวใหญ่ (ซ้าย ข้างกระดานผู้รอดนานสุด ฝั่งจุดเกิด): เนื้อเรื่องเต็มจาก Shared/StoryText (คำแปลไทย LangData/th · Localizer แปลป้ายในโลกให้เอง)
+	local nbCf = base * CF(-82, 1, 50) * ANG(0, math.rad(-112), 0) -- หน้าป้ายหันมาทางจุดเกิด
+	local SW, SH = 30, 30 -- ขนาดป้าย (stud)
+	for _, x in ipairs({ -SW / 2 - 0.8, SW / 2 + 0.8 }) do
+		P(deco, { Size = V(1.4, SH + 6, 1.4), CFrame = nbCf * CF(x, (SH + 6) / 2, 0), Color = C(74, 52, 38), Material = Enum.Material.Wood })
+		P(deco, { Size = V(2.2, 1, 2.2), CFrame = nbCf * CF(x, 0.5, 0), Color = C(96, 92, 88), Material = Enum.Material.Slate })
 	end
-	local nb = P(deco, { Size = V(12.5, 8, 0.5), CFrame = nbCf * CF(0, 7.6, 0), Color = C(150, 96, 56), Material = Enum.Material.WoodPlanks })
-	P(deco, { ClassName = "WedgePart", Size = V(14, 1.5, 2), CFrame = nbCf * CF(0, 12.4, 0), Color = C(90, 60, 40), Material = Enum.Material.Wood })
+	local nb = P(deco, { Name = "StoryBoard", Size = V(SW, SH, 0.6), CFrame = nbCf * CF(0, 4 + SH / 2, 0), Color = C(46, 32, 24), Material = Enum.Material.WoodPlanks })
+	P(deco, { Size = V(SW + 1.6, SH + 1.6, 0.4), CFrame = nbCf * CF(0, 4 + SH / 2, 0.3), Color = C(96, 64, 40), Material = Enum.Material.Wood })
+	for _, y in ipairs({ 4 - 0.1, 4 + SH + 0.1 }) do
+		P(deco, { Size = V(SW + 0.4, 0.2, 0.9), CFrame = nbCf * CF(0, y, -0.1), Color = C(255, 196, 70), Material = Enum.Material.Neon })
+	end
+	P(deco, { ClassName = "WedgePart", Size = V(SW + 4, 2.4, 3.2), CFrame = nbCf * CF(0, 4 + SH + 1.4, 0), Color = C(120, 64, 40), Material = Enum.Material.WoodPlanks })
 	local nbg = Instance.new("SurfaceGui")
 	nbg.Face = Enum.NormalId.Front
 	nbg.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud -- ค่าเริ่มต้นคือ FixedSize 800x600 → ตัวหนังสือเล็กจิ๋ว
-	nbg.PixelsPerStud = 40 -- ป้าย 12.5x8 = 500x320 px
+	nbg.PixelsPerStud = 30 -- ป้าย 30x30 = 900x900 px
+	nbg.LightInfluence = 0.3
 	nbg.Parent = nb
-	local nt = Instance.new("TextLabel")
-	nt.Size = UDim2.fromScale(0.9, 0.9)
-	nt.Position = UDim2.fromScale(0.05, 0.05)
-	nt.BackgroundTransparency = 1
-	nt.RichText = true
-	-- TextScaled วัดความกว้างอักษรไทย/อีโมจิพลาด ทำให้ล้นขอบป้าย → ใช้ขนาดคงที่ + ตัดบรรทัดเอง
-	nt.TextScaled = false
-	nt.TextSize = 25
-	nt.TextWrapped = true
-	nt.Font = Enum.Font.GothamBold
-	nt.TextColor3 = C(255, 240, 200)
-	local nst = Instance.new("UIStroke")
-	nst.Color, nst.Thickness, nst.Parent = C(70, 40, 20), 2, nt
-	-- เนื้อเรื่อง (ตรงกับฉากเปิดเรื่อง Client/Story · ฉากจบ 99 คืน = ประตูกลับบ้าน)
-	nt.Text = '<font color="#FFE066" size="36">Our Story</font>\n\nA time machine test went wrong and threw us into the ancient past!\n\nSurvive the Moonfang · Rescue the 4 Spirit Pups\nClear the shrines, sanctums and bosses of the 4 lands\n\n<font color="#8CFF8C">The portal home opens on night 99!</font>'
-	nt.Parent = nbg
-	local nlamp = P(deco, { Size = V(0.9, 0.9, 0.9), CFrame = nbCf * CF(0, 12, -1.6), Color = C(255, 214, 150), Material = Enum.Material.Neon, CanCollide = false })
-	light(nlamp, C(255, 196, 130), 14, 1.6)
+	local body = Instance.new("Frame")
+	body.BackgroundTransparency = 1
+	body.Size = UDim2.new(1, -60, 1, -40)
+	body.Position = UDim2.fromOffset(30, 20)
+	body.Parent = nbg
+	local lay = Instance.new("UIListLayout")
+	lay.Padding = UDim.new(0, 16)
+	lay.SortOrder = Enum.SortOrder.LayoutOrder
+	lay.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	lay.Parent = body
+	local story = require(ReplicatedStorage.Shared.StoryText)
+	for i, text in ipairs(story) do
+		local t = Instance.new("TextLabel")
+		t.BackgroundTransparency = 1
+		t.LayoutOrder = i
+		t.Size = UDim2.new(1, 0, 0, 0)
+		t.AutomaticSize = Enum.AutomaticSize.Y
+		t.TextWrapped = true
+		t.Text = text
+		if i == 1 then -- ชื่อเรื่อง
+			t.Font, t.TextSize, t.TextColor3 = Enum.Font.FredokaOne, 66, C(255, 214, 90)
+		elseif i == 2 then -- รอง
+			t.Font, t.TextSize, t.TextColor3 = Enum.Font.FredokaOne, 36, C(140, 230, 255)
+		elseif i == #story then -- ปิดท้าย
+			t.Font, t.TextSize, t.TextColor3 = Enum.Font.GothamBold, 26, C(140, 255, 140)
+		else
+			t.Font, t.TextSize, t.TextColor3 = Enum.Font.GothamMedium, 23, C(255, 242, 214) -- ภาษาไทยยาวกว่า: ขนาดนี้ยังไม่ล้นป้าย
+			t.TextXAlignment = Enum.TextXAlignment.Left
+		end
+		local st = Instance.new("UIStroke")
+		st.Color, st.Thickness, st.Parent = C(30, 16, 8), i <= 2 and 3 or 1.4, t
+		t.Parent = body
+	end
+	for _, x in ipairs({ -SW / 2 + 2, SW / 2 - 2 }) do
+		local lamp = P(deco, { Size = V(0.9, 0.9, 0.9), CFrame = nbCf * CF(x, 4 + SH + 0.2, -1.6), Color = C(255, 214, 150), Material = Enum.Material.Neon, CanCollide = false })
+		light(lamp, C(255, 196, 130), 22, 1.4)
+	end
 
 	------------------------------------------------ ซ้าย: หม้อรางวัลประจำวัน + กระดานผู้รอดนานสุด + แคมป์ไฟ
 	dailyCauldron(self, deco, base * CF(-42, 1, -16))

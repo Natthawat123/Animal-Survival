@@ -811,33 +811,86 @@ Handlers.StructureHit = function(d)
 	if not (s and s.Parent) then
 		return
 	end
+	-- หลอดเลือดสิ่งก่อสร้าง: ป้ายชื่อ + หลอดใหญ่ขอบดำ สีตามเลือดที่เหลือ (เขียว -> เหลือง -> แดง) + ตัวเลข
+	--   โดนตี = โผล่ 6 วิ · เลือดเปลี่ยน (โดนตี/เสาดินซ่อม) อัปเดตทันที
 	local bb = s:FindFirstChild("HPBar")
 	if not bb then
 		bb = Instance.new("BillboardGui")
 		bb.Name = "HPBar"
-		bb.Size = UDim2.fromOffset(90, 8)
-		bb.StudsOffsetWorldSpace = Vector3.new(0, s:GetExtentsSize().Y + 2, 0)
+		bb.Size = UDim2.fromOffset(170, 44)
+		bb.StudsOffsetWorldSpace = Vector3.new(0, s:GetExtentsSize().Y + 2.5, 0)
 		bb.AlwaysOnTop = true
-		bb.MaxDistance = 140
+		bb.MaxDistance = 160
+		bb.LightInfluence = 0
 		bb.Adornee = s.PrimaryPart or s:FindFirstChildWhichIsA("BasePart")
 		bb.Parent = s
+		local name = Instance.new("TextLabel")
+		name.Name = "Title"
+		name.Size = UDim2.new(1, 0, 0, 18)
+		name.BackgroundTransparency = 1
+		name.Font = Enum.Font.GothamBlack
+		name.TextSize = 15
+		name.TextColor3 = Color3.new(1, 1, 1)
+		name.TextStrokeTransparency = 0.2
+		name.Text = Items.DisplayName(s:GetAttribute("Kind") or "")
+		name.Parent = bb
 		local back = Instance.new("Frame")
-		back.Size = UDim2.fromScale(1, 1)
-		back.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+		back.Name = "Back"
+		back.Position = UDim2.fromOffset(0, 20)
+		back.Size = UDim2.new(1, 0, 0, 20)
+		back.BackgroundColor3 = Color3.fromRGB(25, 22, 20)
+		back.BackgroundTransparency = 0.1
 		back.BorderSizePixel = 0
+		back.ClipsDescendants = true
 		back.Parent = bb
+		local corner = Instance.new("UICorner")
+		corner.CornerRadius = UDim.new(0, 6)
+		corner.Parent = back
+		local stroke = Instance.new("UIStroke")
+		stroke.Color = Color3.new(0, 0, 0)
+		stroke.Thickness = 2
+		stroke.Parent = back
 		local fill = Instance.new("Frame")
 		fill.Name = "Fill"
 		fill.Size = UDim2.fromScale(1, 1)
-		fill.BackgroundColor3 = Color3.fromRGB(230, 170, 60)
 		fill.BorderSizePixel = 0
 		fill.Parent = back
+		local fc = Instance.new("UICorner")
+		fc.CornerRadius = UDim.new(0, 6)
+		fc.Parent = fill
+		local shine = Instance.new("UIGradient")
+		shine.Color = ColorSequence.new(Color3.new(1, 1, 1), Color3.fromRGB(170, 170, 170))
+		shine.Rotation = 90
+		shine.Parent = fill
+		local txt = Instance.new("TextLabel")
+		txt.Name = "Num"
+		txt.Size = UDim2.fromScale(1, 1)
+		txt.BackgroundTransparency = 1
+		txt.Font = Enum.Font.GothamBold
+		txt.TextSize = 14
+		txt.TextColor3 = Color3.new(1, 1, 1)
+		txt.TextStrokeTransparency = 0
+		txt.ZIndex = 3
+		txt.Parent = back
+		local function update()
+			local hp = math.max(0, s:GetAttribute("Health") or 0)
+			local mx = math.max(s:GetAttribute("MaxHealth") or 1, 1)
+			local frac = math.clamp(hp / mx, 0, 1)
+			fill.Size = UDim2.fromScale(frac, 1)
+			fill.BackgroundColor3 = frac > 0.6 and Color3.fromRGB(80, 210, 90) or frac > 0.3 and Color3.fromRGB(240, 200, 60) or Color3.fromRGB(230, 60, 50)
+			txt.Text = string.format("%d / %d", math.ceil(hp), math.floor(mx + 0.5))
+			local lv = s:GetAttribute("Level") or 1
+			name.Text = Items.DisplayName(s:GetAttribute("Kind") or "") .. (Items.StructUpgrades[s:GetAttribute("Kind") or ""] and (" Lv." .. lv) or "")
+		end
+		s:GetAttributeChangedSignal("Health"):Connect(update)
+		s:GetAttributeChangedSignal("Level"):Connect(update)
+		update()
 	end
-	local frac = math.clamp((s:GetAttribute("Health") or 0) / math.max(s:GetAttribute("MaxHealth") or 1, 1), 0, 1)
-	bb.Frame.Fill.Size = UDim2.fromScale(frac, 1)
 	bb.Enabled = true
-	task.delay(4, function()
-		if bb.Parent then
+	local token = (bb:GetAttribute("Shown") or 0) + 1
+	bb:SetAttribute("Shown", token)
+	task.delay(6, function()
+		if bb.Parent and bb:GetAttribute("Shown") == token then
 			bb.Enabled = false
 		end
 	end)

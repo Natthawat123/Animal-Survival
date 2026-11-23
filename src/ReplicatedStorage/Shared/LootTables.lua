@@ -10,7 +10,7 @@ LootTables.TierName = { "Green Chest", "Purple Chest", "Gold Chest" }
 LootTables.TierTools = {
 	{ { "StoneAxe", 18 }, { "Spear", 16 }, { "Dagger", 16 }, { "SpikedClub", 14 }, { "Pickaxe", 10 }, { "Torch", 9 }, { "Bow", 6 } },
 	{ { "IronSword", 18 }, { "Mace", 18 }, { "IronAxe", 16 }, { "Bow", 12 }, { "Crossbow", 7 }, { "Katana", 6 } },
-	{ { "Katana", 20 }, { "BattleAxe", 21 }, { "Crossbow", 19 }, { "WarHammer", 14 }, { "Scythe", 14 } },
+	{ { "Katana", 20 }, { "Crossbow", 19 }, { "WarHammer", 14 }, { "Scythe", 14 } },
 }
 -- กระเป๋า: สุ่มแยกแต่ละใบ (โอกาสได้ต่อกล่อง · ได้ทั้ง 2 ใบในกล่องเดียวก็ได้)
 LootTables.TierSacks = {
@@ -43,6 +43,6 @@ LootTables.Stronghold = {
 }
 
 -- หีบร่อน (Airdrop): อาวุธพิเศษ 1 ชิ้น (น้ำหนัก = % รวม 100)
-LootTables.Airdrop = { { "Katana", 20 }, { "BattleAxe", 20 }, { "Crossbow", 15 }, { "WarHammer", 15 }, { "Scythe", 20 }, { "GiantSack", 10 } }
+LootTables.Airdrop = { { "Katana", 20 }, { "Crossbow", 15 }, { "WarHammer", 15 }, { "Scythe", 20 }, { "GiantSack", 10 } }
 
 return LootTables

@@ -41,7 +41,7 @@ function MapUI.Init(state, hud, atmosphere)
 	mapFrame.Active = true -- คลิกบนแผนที่ (ปักหมุด) ไม่ทะลุไปฟันอาวุธในโลก
 	local legend = UIKit.Text(panel, {
 		Size = UDim2.new(1, -20, 0, 40), Position = UDim2.new(0, 10, 1, -46), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 13, TextWrapped = true,
-		TextColor3 = C.TextDim, Text = "🔥 Camp   ⛩ Spirit Pup Shrine   💀 Boss Lair   🏛 Ancient Sanctum   ▣ Chest   ☄ Events   ▲ You   ● Teammates   (places show up once the campfire light reaches them or you visit) · 📍 Click the map to place a marker",
+		TextColor3 = C.TextDim, Text = "🔥 Camp   ⛩ Spirit Pup Shrine   💀 Boss Lair   🏛 Ancient Sanctum   👹 Tribe Village   ▣ Chest   ☄ Events   ▲ You   ● Teammates   (places show up once the campfire light reaches them or you visit) · 📍 Click the map to place a marker",
 	})
 	local legendText = legend.Text
 	local function layoutMap()
@@ -190,6 +190,41 @@ function MapUI.Init(state, hud, atmosphere)
 		return m
 	end
 
+	-- หมุดหมู่บ้านชนเผ่า: หน้ากากชนเผ่าบนวงกลมพื้นเข้ม ขอบแดง · ป้อมชนเผ่า (Capital) ใหญ่กว่า ขอบทอง · เพิ่งกวาดล้าง = จาง
+	local function villageMarker(key, capital, cleared)
+		local m = markers[key]
+		if not m then
+			local size = (capital and 21 or 17) * (UIKit.IsPhone() and 1.35 or 1.15)
+			m = Instance.new("Frame")
+			m.Name = "VillagePin"
+			m.Size = UDim2.fromOffset(size, size)
+			m.AnchorPoint = Vector2.new(0.5, 0.5)
+			m.BackgroundColor3 = Color3.fromRGB(28, 12, 12)
+			m.BorderSizePixel = 0
+			m.ZIndex = 5
+			m.Parent = mapFrame
+			UIKit.Corner(m, 999)
+			local st = Instance.new("UIStroke")
+			st.Name = "Ring"
+			st.Thickness = capital and 2 or 1.5
+			st.Color = capital and Color3.fromRGB(255, 200, 70) or Color3.fromRGB(220, 60, 50)
+			st.Parent = m
+			local t = UIKit.Text(m, { Size = UDim2.fromScale(0.86, 0.86), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.52), TextXAlignment = Enum.TextXAlignment.Center, Text = "👹", ZIndex = 6 })
+			t.Name = "Mask"
+			t.TextScaled = true
+			local fit = t:FindFirstChildOfClass("UITextSizeConstraint")
+			if fit then
+				fit.MinTextSize = 4
+			end
+			m:SetAttribute("Key", key)
+			markers[key] = m
+		end
+		m.BackgroundTransparency = cleared and 0.6 or 0.15
+		m.Ring.Transparency = cleared and 0.6 or 0
+		m.Mask.TextTransparency = cleared and 0.55 or 0
+		return m
+	end
+
 	local function refreshMap()
 		buildGrid()
 		if not built then
@@ -259,6 +294,24 @@ function MapUI.Init(state, hud, atmosphere)
 			if lm.Visible then
 				lm.Text = state:GetAttribute("Lair" .. el .. "Cleared") and "☠" or "💀"
 				place(lm, lair)
+			end
+		end
+		-- หมู่บ้านชนเผ่า (หน้ากาก) · เห็นเมื่ออยู่ในเขตที่เปิดหมอกแล้ว เหมือนศาลเจ้า/รัง
+		local vfolder = ReplicatedStorage:FindFirstChild("MapVillages")
+		local vcount = 0
+		for i, pin in ipairs(vfolder and vfolder:GetChildren() or {}) do
+			vcount = i
+			local capital = pin:GetAttribute("Capital") == true
+			local m = villageMarker("village_" .. i, capital, pin:GetAttribute("Cleared") == true)
+			m.Visible = seen(pin.Value, "Village_" .. i)
+			if m.Visible then
+				m.ZIndex = capital and 6 or 5
+				place(m, pin.Value)
+			end
+		end
+		for key, m in pairs(markers) do
+			if key:sub(1, 8) == "village_" and tonumber(key:sub(9)) > vcount then
+				m.Visible = false
 			end
 		end
 		-- กล่องสมบัติ (เปิดแล้ว = จาง) · สีตามระดับ
@@ -707,6 +760,14 @@ function MapUI.Init(state, hud, atmosphere)
 							discovered[key] = true
 							hud.Notify(string.format("🗺 Discovered: %s%s", SITE_NAMES[kind], UIKit.ElementThai[el]), "Reward")
 						end
+					end
+				end
+				-- หมู่บ้านชนเผ่าที่เดินเข้าใกล้ = ค้นพบ (หมุดหน้ากากค้างบนแผนที่)
+				local vfolder = ReplicatedStorage:FindFirstChild("MapVillages")
+				for i, pin in ipairs(vfolder and vfolder:GetChildren() or {}) do
+					local key = "Village_" .. i
+					if not discovered[key] and ((pin.Value - pos) * Vector3.new(1, 0, 1)).Magnitude < 280 then
+						discovered[key] = true
 					end
 				end
 				-- ชื่อเขต

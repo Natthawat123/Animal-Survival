@@ -658,7 +658,7 @@ function AnimalService:CheckStuck(a, now)
 		local best, bestD
 		for _, s in ipairs(self.ctx.Services.BuildingService:All()) do
 			local spec = Items.Structures[s:GetAttribute("Kind")]
-			if spec and spec.Breakable and (s:GetAttribute("Health") or 0) > 0 then -- ตีเฉพาะกำแพง (ของอื่นพังไม่ได้ -> กระโดดข้ามแทน)
+			if spec and spec.Breakable and (s:GetAttribute("Health") or 0) > 0 then -- ตีสิ่งก่อสร้างที่พังได้ (เตียงพังไม่ได้ -> กระโดดข้ามแทน)
 				local d = (s:GetPivot().Position - a.Root.Position).Magnitude
 				if d < 18 + a.Radius and (not bestD or d < bestD) then
 					best, bestD = s, d
@@ -1343,6 +1343,7 @@ function AnimalService:StalkerWarp(a, ground, prey, now)
 	self.ctx.Remotes.Get("HitFx"):FireAllClients("StalkerWarp", { Position = ground, Prey = prey })
 end
 
+local FESTIVAL_Y = 3200 -- มิติเทศกาลลอยกระทงอยู่สูงกว่านี้ (KrathongService REALM_Y = 3400) = เขตปลอดจิ้งจอก
 function AnimalService:ThinkStalker(a, now)
 	local camp = self.ctx.CampPosition
 	local cs = self.ctx.Services.CampService
@@ -1375,11 +1376,14 @@ function AnimalService:ThinkStalker(a, now)
 			a.Model:SetAttribute("State", st)
 		end
 	end
-	-- เหยื่อที่ไล่ได้: ในรอบ · ยังรอด · ไม่ล่องหน · ไม่อยู่ใต้แสง/ในแคมป์ · ไม่ถือไฟ
+	-- เหยื่อที่ไล่ได้: ในรอบ · ยังรอด · ไม่ล่องหน · ไม่อยู่ใต้แสง/ในแคมป์ · ไม่ถือไฟ · ไม่อยู่ในมิติเทศกาลลอยกระทง
 	local function huntable(p)
 		local r = charRoot(p)
 		if not (r and p:GetAttribute("InRun") and surv:IsAlive(p) and not p:GetAttribute("Invisible") and not lit(r.Position)) then
 			return nil
+		end
+		if r.Position.Y > FESTIVAL_Y then
+			return nil -- อยู่ในมิติลอยกระทง (บนฟ้า): จิ้งจอกเข้าไม่ได้ (เดิมวาปตามเข้าไปกัดได้)
 		end
 		local _, tool = self.ctx.Services.CombatService.EquippedTool(p)
 		if tool and tool.Light then
@@ -1414,6 +1418,12 @@ function AnimalService:ThinkStalker(a, now)
 		return best
 	end
 
+	-- หลุดเข้าไปในมิติลอยกระทงแล้ว (ตามเหยื่อเข้าไปก่อนหน้า) = หายตัวทันที
+	if not a.Hidden and a.Root.Position.Y > FESTIVAL_Y then
+		a.Prey = nil
+		self:StalkerHide(a, now)
+		return
+	end
 	-- 1) ซ่อนตัวอยู่: ครบเวลาพัก + มีเหยื่อนอกแสง = วาปไปข้างหลังเหยื่อ
 	if a.Hidden then
 		if now < (a.ReappearAt or 0) then

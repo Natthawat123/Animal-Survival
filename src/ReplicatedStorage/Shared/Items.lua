@@ -70,7 +70,6 @@ Items.Data = {
 	SpikedClub = { Name = "Spiked Club", Thai = "Spiked Club", Category = "Tool" },
 	IronSword = { Name = "Iron Sword", Thai = "Iron Sword", Category = "Tool" },
 	Mace = { Name = "Morning Star", Thai = "Morning Star", Category = "Tool" },
-	BattleAxe = { Name = "Battle Axe", Thai = "Battle Axe", Category = "Tool" },
 	Crossbow = { Name = "Crossbow", Thai = "Crossbow", Category = "Tool" },
 	Katana = { Name = "Katana", Thai = "Katana", Category = "Tool" },
 	WarHammer = { Name = "War Hammer", Thai = "War Hammer", Category = "Tool" },
@@ -138,22 +137,21 @@ Items.Tools = {
 	Spear = { Damage = 30, Chop = 0.3, Mine = 0.2, Range = 13, Cooldown = 0.7, Kind = "Spear" },
 	Torch = { Damage = 8, Chop = 0, Mine = 0, Range = 8, Cooldown = 0.5, Kind = "Torch", Light = 28, Burn = 4 },
 	Bow = { Damage = 28, Chop = 0, Mine = 0, Range = 160, Cooldown = 0.9, Kind = "Bow", Projectile = "Arrow" },
-	TerraHammer = { Damage = 52, Chop = 2, Mine = 4, Range = 11, Cooldown = 1.0, Kind = "Hammer", Aoe = 12, Element = "Earth" },
-	TidalTrident = { Damage = 42, Chop = 0.5, Mine = 0.5, Range = 15, Cooldown = 0.6, Kind = "Spear", Slow = 0.5, Element = "Water" },
-	GaleBow = { Damage = 38, Chop = 0, Mine = 0, Range = 220, Cooldown = 0.55, Kind = "Bow", Projectile = "GaleArrow", Pierce = 3, Element = "Air" },
-	EmberBlade = { Damage = 56, Chop = 2.5, Mine = 1, Range = 12, Cooldown = 0.75, Kind = "Sword", Burn = 10, Light = 20, Element = "Fire" },
-	FourfoldBlade = { Damage = 65, Chop = 4, Mine = 4, Range = 14, Cooldown = 0.6, Kind = "Sword", Aoe = 10, Burn = 12, Slow = 0.6, Light = 30, Element = "All" },
+	TerraHammer = { Fx = "Terra", Damage = 95, Chop = 2, Mine = 4, Range = 11, Cooldown = 1.0, Kind = "Hammer", Aoe = 12, Element = "Earth" },
+	TidalTrident = { Fx = "Tide", Damage = 60, Chop = 0.5, Mine = 0.5, Range = 15, Cooldown = 0.6, Kind = "Spear", Slow = 0.5, Element = "Water" },
+	GaleBow = { Fx = "Gale", Damage = 55, Chop = 0, Mine = 0, Range = 220, Cooldown = 0.55, Kind = "Bow", Projectile = "GaleArrow", Pierce = 3, Element = "Air" },
+	EmberBlade = { Fx = "Ember", Damage = 78, Chop = 2.5, Mine = 1, Range = 12, Cooldown = 0.75, Kind = "Sword", Burn = 10, Light = 20, Element = "Fire" },
+	FourfoldBlade = { Fx = "Prism", Damage = 100, Chop = 4, Mine = 4, Range = 14, Cooldown = 0.6, Kind = "Sword", Aoe = 10, Burn = 12, Slow = 0.6, Light = 30, Element = "All" },
 	-- คทา: ตีแล้วปล่อยลูกไฟพุ่งไปทางที่เล็ง (ระเบิดวงเล็ก + ติดไฟ) · ยืนชิดต้นไม้/หิน = ฟาดตัด/ทุบได้ (แทนขวาน)
 	EmberStaff = { Damage = 20, Chop = 0, Mine = 0, Range = 9, Cooldown = 0.7, Kind = "Staff", Bolt = { Speed = 150, Range = 140, Blast = 7, Size = 1.6, FxScale = 0.08, ImpactScale = 0.22 }, Burn = 4, Light = 16, Element = "Fire" },
 	Dagger = { Damage = 15, Chop = 0.3, Mine = 0.2, Range = 7, Cooldown = 0.32, Kind = "Sword" },
 	SpikedClub = { Damage = 26, Chop = 0.5, Mine = 0.8, Range = 9, Cooldown = 0.75, Kind = "Hammer" },
 	IronSword = { Damage = 34, Chop = 0.8, Mine = 0.3, Range = 11, Cooldown = 0.55, Kind = "Sword" },
 	Mace = { Damage = 40, Chop = 0.5, Mine = 1.5, Range = 10, Cooldown = 0.85, Kind = "Hammer", Aoe = 6 },
-	BattleAxe = { Damage = 48, Chop = 3.5, Mine = 1, Range = 11, Cooldown = 0.8, Kind = "Axe" },
 	Crossbow = { Damage = 44, Chop = 0, Mine = 0, Range = 200, Cooldown = 1.1, Kind = "Bow", Projectile = "Arrow" },
 	Katana = { Damage = 38, Chop = 1, Mine = 0.3, Range = 12, Cooldown = 0.45, Kind = "Sword" },
 	WarHammer = { Damage = 68, Chop = 1.5, Mine = 4.5, Range = 12, Cooldown = 1.1, Kind = "Hammer", Aoe = 11 },
-	Scythe = { Damage = 58, Chop = 2, Mine = 0.5, Range = 15, Cooldown = 0.8, Kind = "Sword", Aoe = 8 },
+	Scythe = { Damage = 44, Chop = 2, Mine = 0.5, Range = 15, Cooldown = 0.8, Kind = "Sword", Aoe = 8 },
 	ArcaneStaff = { Fx = "Arcane", Damage = 34, Chop = 0, Mine = 0, Range = 9, Cooldown = 0.6, Kind = "Staff", Bolt = { Speed = 170, Range = 150, Blast = 9, Size = 1.8, FxScale = 0.03, ImpactScale = 0.08 }, Burn = 4, Light = 16, Element = "All" },
 	BloodScythe = { Fx = "Blood", Damage = 46, Chop = 1.5, Mine = 0.5, Range = 14, Cooldown = 0.72, Kind = "Sword", Aoe = 8 }, -- ดาเมจเดิม 54 · แวมไพร์ Lv.2+ (+30%) = ตีละ 60
 	VerdantStaff = { Fx = "Verdant", Damage = 30, Chop = 0, Mine = 0, Range = 9, Cooldown = 0.6, Kind = "Staff", Bolt = { Speed = 150, Range = 140, Blast = 8, Size = 1.6, FxScale = 0.03, ImpactScale = 0.07 }, Slow = 0.5, Light = 12, Element = "Earth" },
@@ -161,7 +159,7 @@ Items.Tools = {
 
 -- อาวุธที่เก็บซ้ำได้หลายชิ้น: แต่ละชิ้นเป็น Tool แยกช่องในแถบ (ไม่รวมกอง) · เครื่องมือ/กระสอบ/อาวุธอาชีพ = ชนิดละ 1 เหมือนเดิม
 Items.MultiTools = {
-	Spear = true, Bow = true, Dagger = true, SpikedClub = true, IronSword = true, Mace = true, BattleAxe = true,
+	Spear = true, Bow = true, Dagger = true, SpikedClub = true, IronSword = true, Mace = true,
 	Crossbow = true, Katana = true, WarHammer = true, Scythe = true,
 	TerraHammer = true, TidalTrident = true, GaleBow = true, EmberBlade = true, FourfoldBlade = true,
 }
@@ -170,27 +168,79 @@ function Items.IsMulti(id)
 end
 
 -- ค่าของสิ่งก่อสร้าง
--- Breakable = true: สัตว์/บอสตีพังได้ (เฉพาะกำแพงไม้ + กำแพงหิน) · ที่เหลือ (เตียง หน้าไม้ กับดัก เสาธาตุ ฯลฯ) ไม่มีวันพัง
+-- Breakable = true: สัตว์/บอสตีพังได้ (ทุกอย่าง ยกเว้นเตียง 2 แบบ ที่ไม่มีวันพัง)
 Items.Structures = {
 	LogWall = { Health = 300, Breakable = true, Size = Vector3.new(12, 10, 2.5) },
 	StoneWall = { Health = 600, Breakable = true, Size = Vector3.new(12, 12, 3.5) },
 	WoodDoor = { Health = 300, Breakable = true, Size = Vector3.new(12, 10, 2.5) }, -- ผนังไม้ + บานประตู (StorageService เปิด/ปิด)
-	StorageBox = { Health = 200, Size = Vector3.new(4.6, 4, 3.6), Storage = 20 }, -- Storage = เก็บได้กี่ชิ้น (ของในกระสอบ)
-	BigStorageBox = { Health = 300, Size = Vector3.new(8.8, 4, 3.6), Storage = 40 },
-	SpikeTrap = { Health = 200, Size = Vector3.new(8, 2, 8), Damage = 3, Tick = 0.8 },
-	Lantern = { Health = 120, Size = Vector3.new(2, 9, 2), Light = 45 },
-	Ballista = { Health = 400, Size = Vector3.new(9, 16, 9), Damage = 15, Range = 120, Cooldown = 1.6 },
+	StorageBox = { Health = 200, Breakable = true, Size = Vector3.new(4.6, 4, 3.6), Storage = 20 }, -- Storage = เก็บได้กี่ชิ้น (ของในกระสอบ)
+	BigStorageBox = { Health = 300, Breakable = true, Size = Vector3.new(8.8, 4, 3.6), Storage = 40 },
+	SpikeTrap = { Health = 200, Breakable = true, Size = Vector3.new(8, 2, 8), Damage = 3, Tick = 0.8 },
+	Lantern = { Health = 120, Breakable = true, Size = Vector3.new(2, 9, 2), Light = 45 },
+	Ballista = { Health = 400, Breakable = true, Size = Vector3.new(9, 16, 9), Damage = 15, Range = 120, Cooldown = 1.6 },
 	Bed = { Health = 150, Size = Vector3.new(6.8, 5.2, 8) }, -- เตียงไม้ (3D Model/bad · Cozy Wooden Bed)
 	Bed2 = { Health = 250, Size = Vector3.new(7.6, 6, 8) }, -- เตียงม่านม่วง (3D Model/bad · Royal Violet Canopy)
-	FarmPlot = { Health = 150, Size = Vector3.new(10, 1.5, 10), GrowTime = 180, Yield = 12 }, -- ปลูก 3 นาที ลูกออก 12 ลูก (ต้นละ 2)
-	CookPot = { Health = 200, Size = Vector3.new(5, 5, 5) },
-	TerraTotem = { Health = 600, Size = Vector3.new(5, 10, 5), GroundLow = 1.7, Radius = 70, Element = "Earth", Heal = 20, HealEvery = 2 }, -- ซ่อมสิ่งก่อสร้างรอบๆ ทุก 2 วิ ครั้งละ 20
-	TideTotem = { Health = 600, Size = Vector3.new(5, 10, 5), GroundLow = 1.7, Radius = 70, Element = "Water", Slow = 0.15 }, -- สัตว์ในรัศมีเดินช้าลง 15%
-	GaleTotem = { Health = 600, Size = Vector3.new(5, 10, 5), GroundLow = 1.7, Radius = 60, Element = "Air", GustEvery = 5 }, -- ผลักสัตว์ออกทุก 5 วิ
-	EmberTotem = { Health = 600, Size = Vector3.new(5, 10, 5), GroundLow = 1.7, Radius = 55, Element = "Fire", Damage = 2, Tick = 1 }, -- เผาสัตว์รอบๆ ทุก 1 วิ ครั้งละ 2 (มีเลขเด้ง)
-	SunBeacon = { Health = 2000, Size = Vector3.new(10, 40, 10), Light = 160 },
-	Teleporter = { Health = 500, Size = Vector3.new(10, 4, 10), Anywhere = true, GroundRadius = 4.6 }, -- GroundRadius = ลานกว้าง: วางที่ระดับพื้นต่ำสุดใต้ขอบลาน (ไม่ลอยบนพื้นเอียง) -- Anywhere = วางนอกเขตแคมป์ได้ (ทั่วแมพ)
+	FarmPlot = { Health = 150, Breakable = true, Size = Vector3.new(10, 1.5, 10), GrowTime = 180, Yield = 12 }, -- ปลูก 3 นาที ลูกออก 12 ลูก (ต้นละ 2)
+	CookPot = { Health = 200, Breakable = true, Size = Vector3.new(5, 5, 5) },
+	TerraTotem = { Health = 600, Breakable = true, Size = Vector3.new(5, 10, 5), GroundLow = 1.7, Radius = 70, Element = "Earth", Heal = 20, HealEvery = 2 }, -- ซ่อมสิ่งก่อสร้างรอบๆ ทุก 2 วิ ครั้งละ 20
+	TideTotem = { Health = 600, Breakable = true, Size = Vector3.new(5, 10, 5), GroundLow = 1.7, Radius = 70, Element = "Water", Slow = 0.15 }, -- สัตว์ในรัศมีเดินช้าลง 15%
+	GaleTotem = { Health = 600, Breakable = true, Size = Vector3.new(5, 10, 5), GroundLow = 1.7, Radius = 60, Element = "Air", GustEvery = 5 }, -- ผลักสัตว์ออกทุก 5 วิ
+	EmberTotem = { Health = 600, Breakable = true, Size = Vector3.new(5, 10, 5), GroundLow = 1.7, Radius = 55, Element = "Fire", Damage = 6, Tick = 1 }, -- เผาสัตว์รอบๆ ทุก 1 วิ ครั้งละ 6 (มีเลขเด้ง)
+	SunBeacon = { Health = 2000, Breakable = true, Size = Vector3.new(10, 40, 10), Light = 160 },
+	Teleporter = { Health = 500, Breakable = true, Size = Vector3.new(10, 4, 10), Anywhere = true, GroundRadius = 4.6 }, -- GroundRadius = ลานกว้าง: วางที่ระดับพื้นต่ำสุดใต้ขอบลาน (ไม่ลอยบนพื้นเอียง) -- Anywhere = วางนอกเขตแคมป์ได้ (ทั่วแมพ)
 }
+
+-- อัปเกรดสิ่งก่อสร้าง 3 เลเวล (กด E ค้างที่ตัวสิ่งก่อสร้าง · BuildingService:Upgrade)
+--   [lv] = Cost (ของที่ใช้อัปขึ้นเลเวลนั้น) + ค่าที่ทับ Items.Structures เดิม (Health = เลือดเต็มที่เลเวลนั้น)
+--   หอธนู: เส้นใย + ไม้ + หิน · เสาธาตุ: หิน + เหล็ก + แก่นธาตุของเสานั้น
+Items.MaxStructLevel = 3
+Items.StructUpgrades = {
+	Ballista = {
+		[2] = { Cost = { Wood = 15, Stone = 10, Fiber = 8 }, Health = 550, Damage = 22, Cooldown = 1.4, Range = 135 },
+		[3] = { Cost = { Wood = 25, Stone = 20, Fiber = 15 }, Health = 700, Damage = 30, Cooldown = 1.2, Range = 150 },
+	},
+	TerraTotem = {
+		[2] = { Cost = { Stone = 12, Iron = 6, TerraCore = 2 }, Health = 750, Heal = 30, Radius = 78 },
+		[3] = { Cost = { Stone = 20, Iron = 12, TerraCore = 4 }, Health = 900, Heal = 40, Radius = 86 },
+	},
+	TideTotem = {
+		[2] = { Cost = { Stone = 12, Iron = 6, TidePearl = 2 }, Health = 750, Slow = 0.22, Radius = 78 },
+		[3] = { Cost = { Stone = 20, Iron = 12, TidePearl = 4 }, Health = 900, Slow = 0.3, Radius = 86 },
+	},
+	GaleTotem = {
+		[2] = { Cost = { Stone = 12, Iron = 6, GaleFeather = 2 }, Health = 750, GustEvery = 4.2, Radius = 68 },
+		[3] = { Cost = { Stone = 20, Iron = 12, GaleFeather = 4 }, Health = 900, GustEvery = 3.5, Radius = 76 },
+	},
+	EmberTotem = {
+		[2] = { Cost = { Stone = 12, Iron = 6, EmberShard = 2 }, Health = 750, Damage = 9, Radius = 62 },
+		[3] = { Cost = { Stone = 20, Iron = 12, EmberShard = 4 }, Health = 900, Damage = 12, Radius = 70 },
+	},
+}
+
+-- ค่าสิ่งก่อสร้างตามเลเวล (เลเวล 1 = Items.Structures เดิม) · แคชไว้ ไม่สร้างตารางใหม่ทุกครั้ง
+local specCache = {}
+function Items.StructSpec(kind, level)
+	local base = Items.Structures[kind]
+	local ups = Items.StructUpgrades[kind]
+	level = math.clamp(math.floor(level or 1), 1, Items.MaxStructLevel)
+	if not (base and ups and level > 1) then
+		return base
+	end
+	local key = kind .. level
+	if specCache[key] then
+		return specCache[key]
+	end
+	local out = table.clone(base)
+	for lv = 2, level do
+		for k, v in pairs(ups[lv] or {}) do
+			if k ~= "Cost" then
+				out[k] = v
+			end
+		end
+	end
+	specCache[key] = out
+	return out
+end
 
 -- คำอธิบายสั้น (ภาษาไทย) ใช้ในกล่องรายละเอียดไอเทม (ItemTooltip)
 Items.Desc = {
@@ -241,7 +291,6 @@ Items.Desc = {
 	SpikedClub = "Heavy wooden club with iron spikes · Cracks rocks too",
 	IronSword = "Balanced iron sword · Fast, solid damage",
 	Mace = "Spiked morning star · Hits everything around the target",
-	BattleAxe = "Double-bladed battle axe · Hits hard and fells trees fastest",
 	Crossbow = "Heavy crossbow · Slow to reload, powerful long-range bolts",
 	Katana = "Sharp katana · Very fast, high-damage slashes",
 	WarHammer = "Huge war hammer · Crushing area damage, smashes ore rocks",

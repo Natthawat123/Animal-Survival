@@ -9,6 +9,54 @@ local dm = ReplicatedStorage:FindFirstChild("ASDropMode")
 if dm and dm.Value == "overlap" then
 	return -- โหมดวัดของทับกัน: เซิร์ฟเวอร์ทำเองทั้งหมด
 end
+if dm and dm.Value == "story" then
+	local board = Workspace:WaitForChild("Lobby", 120) and Workspace.Lobby:FindFirstChild("StoryBoard", true)
+	for _ = 1, 60 do
+		board = board or Workspace:FindFirstChild("StoryBoard", true)
+		if board then
+			break
+		end
+		task.wait(1)
+	end
+	task.wait(8)
+	local cam = Workspace.CurrentCamera
+	local Loc = require(Players.LocalPlayer.PlayerScripts:WaitForChild("Client"):WaitForChild("Localizer"))
+	local function shoot(name)
+		-- ซ่อนหน้าจอทั้งหมด (ล็อกอินรายวันเด้งบังป้าย)
+		for _, g in ipairs(Players.LocalPlayer.PlayerGui:GetChildren()) do
+			if g:IsA("ScreenGui") then
+				g.Enabled = false
+			end
+		end
+		cam.CameraType = Enum.CameraType.Scriptable
+		cam.CFrame = CFrame.lookAt((board.CFrame * CFrame.new(0, 0, -34)).Position, board.Position)
+		task.wait(2)
+		print("[SHOT] " .. name)
+		task.wait(2.5)
+	end
+	if board then
+		Loc.Set("en")
+		shoot("story_en")
+		Loc.Set("th")
+		task.wait(1)
+		shoot("story_th")
+		cam.CFrame = CFrame.lookAt((board.CFrame * CFrame.new(-20, 4, -60)).Position, board.Position - Vector3.new(0, 8, 0))
+		task.wait(2)
+		print("[SHOT] story_wide")
+		task.wait(2.5)
+		local hrp = Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+		if hrp then
+			cam.CFrame = CFrame.lookAt(hrp.Position + Vector3.new(0, 14, 10), board.Position - Vector3.new(0, 6, 0))
+			task.wait(2)
+			print("[SHOT] story_fromspawn")
+		end
+		task.wait(2.5)
+	else
+		print("[AS] STORY missing board")
+	end
+	print("[AS] STORY FINISHED")
+	return
+end
 if dm and (dm.Value == "worldsave" or dm.Value == "worldresume") then
 	return -- เทสต์เซฟ/โหลดโลก: เซิร์ฟเวอร์ทำเองทั้งหมด
 end

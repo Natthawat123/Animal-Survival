@@ -20,7 +20,7 @@ repeat
 until ReplicatedStorage:GetAttribute("ChestStep") == "weapons"
 local hum = player.Character:FindFirstChildOfClass("Humanoid")
 view = CFrame.new(7, 1.5, -3) -- ฝั่งขวา (มือที่ถือของ)
-for _, id in ipairs({ "Dagger", "SpikedClub", "IronSword", "Mace", "BattleAxe", "Crossbow", "Katana", "WarHammer", "Scythe" }) do
+for _, id in ipairs({ "Dagger", "SpikedClub", "IronSword", "Mace", "Crossbow", "Katana", "WarHammer", "Scythe" }) do
 	local tool
 	for _, t in ipairs(player.Backpack:GetChildren()) do
 		if t:IsA("Tool") and t:GetAttribute("ItemId") == id then

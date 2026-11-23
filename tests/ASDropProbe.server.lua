@@ -6,6 +6,9 @@ end
 local Server = game:GetService("ServerScriptService"):WaitForChild("Server")
 
 -- --dropprobe=worldsave / --resumejson: เซฟโลกตอนเจ้าของออก -> เปิดใหม่จากเซฟ ได้ของเดิมไหม
+if ReplicatedStorage:FindFirstChild("ASDropMode") and ReplicatedStorage.ASDropMode.Value == "story" then
+	return -- ป้ายเรื่องราว: เครื่องผู้เล่นถ่ายเอง
+end
 local wsMode = ReplicatedStorage:FindFirstChild("ASDropMode")
 if wsMode and (wsMode.Value == "worldsave" or wsMode.Value == "worldresume") then
 	task.spawn(function()

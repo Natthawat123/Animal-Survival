@@ -183,6 +183,9 @@ function CombatService:Shoot(player, toolId, tool, aim, char)
 		elseif a then
 			local dmg, crit, mult = self:PlayerDamage(player, toolId, tool, a)
 			self:DamageAnimal(a, dmg, player, { Crit = crit, Mult = mult, Knock = aim })
+			if tool.Fx then
+				self.ctx.Remotes.Get("HitFx"):FireAllClients("ClassHit", { Fx = tool.Fx, Position = a.Root.Position, Dir = aim, Crit = crit })
+			end
 			hitCount += 1
 			table.insert(exclude, model)
 			from = res.Position

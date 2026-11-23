@@ -12,6 +12,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
+local GuiService = game:GetService("GuiService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Items = require(Shared.Items)
@@ -407,6 +408,15 @@ local function hideLater(delay)
 	end)
 end
 
+-- ตำแหน่งเมาส์ในพิกัดเดียวกับ AbsolutePosition / GetGuiObjectsAtPosition
+--   GetMouseLocation นับจากขอบจอบนสุด แต่ AbsolutePosition นับจากใต้แถบบนของ Roblox (แม้ IgnoreGuiInset)
+--   เดิมเทียบตรงๆ -> คลาด 58 px: ป้ายวัตถุดิบในโต๊ะคราฟต์ (สูง 30 px) ถูกมองว่า "เมาส์ออกแล้ว" -> การ์ดหายทันทีทุกเฟรม
+local function mouseGui()
+	return UserInputService:GetMouseLocation() - GuiService:GetGuiInset()
+end
+
+local attached = setmetatable({}, { __mode = "k" }) -- GuiObject -> ฟังก์ชันคืนรหัสไอเทม
+
 local function inside(obj, p)
 	local a, s = obj.AbsolutePosition, obj.AbsoluteSize
 	return p.X >= a.X and p.X <= a.X + s.X and p.Y >= a.Y and p.Y <= a.Y + s.Y
@@ -422,6 +432,7 @@ function ItemTooltip.Attach(obj, idOrFn)
 		return
 	end
 	local id -- รหัสที่โชว์อยู่ของปุ่มนี้
+	attached[obj] = getId
 	obj.MouseEnter:Connect(function()
 		if UserInputService:GetLastInputType() == Enum.UserInputType.Touch then
 			return
@@ -435,8 +446,7 @@ function ItemTooltip.Attach(obj, idOrFn)
 	end)
 	obj.MouseLeave:Connect(function()
 		-- ยังอยู่ในกรอบ (เมาส์ไปชี้ปุ่มลูก) ไม่ต้องซ่อน — RenderStepped จะเช็กเอง
-		local m = UserInputService:GetMouseLocation()
-		if owner == obj and not inside(obj, m) then
+		if owner == obj and not inside(obj, mouseGui()) then
 			ItemTooltip.Hide(id)
 		end
 	end)
@@ -484,9 +494,34 @@ end
 ---------------------------------------------------------------- แถบเครื่องมือ: หยิบของขึ้นมือ -> การ์ดสั้นๆ
 function ItemTooltip.Init()
 	build()
-	RunService.RenderStepped:Connect(function()
+	-- PC: ไล่หาไอเทมใต้เมาส์ทุก 0.08 วิ (ไม่พึ่ง MouseEnter อย่างเดียว: เมนูคราฟต์สร้างการ์ดใหม่ตอนของในกระสอบเปลี่ยน
+	--   เมาส์ค้างอยู่ที่เดิมจะไม่มี MouseEnter ใหม่ -> การ์ดเคยหายแล้วไม่ขึ้นอีก) · ชิ้นบนสุดที่ผูกไว้ชนะ (ป้ายวัตถุดิบ > การ์ดสูตร)
+	local acc = 0
+	RunService.RenderStepped:Connect(function(dt)
+		local touch = UserInputService:GetLastInputType() == Enum.UserInputType.Touch
+		acc += dt
+		if not touch and acc >= 0.08 then
+			acc = 0
+			local m = mouseGui()
+			local hit
+			for _, g in ipairs(player.PlayerGui:GetGuiObjectsAtPosition(m.X, m.Y)) do
+				if attached[g] then
+					hit = g
+					break
+				end
+			end
+			if hit and hit ~= owner then
+				local id = attached[hit]()
+				if id and (Items.Data[id] or (Items.AnyGroups and Items.AnyGroups[id])) then
+					owner = hit
+					ItemTooltip.Show(id, "Mouse")
+				end
+			elseif not hit and owner then
+				ItemTooltip.Hide()
+			end
+		end
 		if owner then
-			if not (owner.Parent and owner.Visible and inside(owner, UserInputService:GetMouseLocation())) then
+			if not (owner.Parent and owner.Visible and inside(owner, mouseGui())) then
 				ItemTooltip.Hide()
 			else
 				place()

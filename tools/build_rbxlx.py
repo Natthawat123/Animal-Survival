@@ -44,6 +44,7 @@ SWINGPROBE = "--swingprobe" in sys.argv  # ท่าตีหอก/ตรีศ
 GRIPPROBE = "--gripprobe" in sys.argv  # หมุนท่าจับหน้าไม้/เคียวหลายทิศ (tests/ASGripProbe.*.lua)
 ELEPHPROBE = "--elephprobe" in sys.argv  # ช้างวารีเดินจริง (tests/ASElephProbe.*.lua) -> AnimalSurvival_ELEPH.rbxlx
 LIDPROBE = "--lidprobe" in sys.argv  # หีบฝาเปิดได้จริง (tests/ASLidProbe.*.lua) -> build/AnimalSurvival_LID.rbxlx
+RAIDPROBE = "--raidprobe" in sys.argv  # ตารางคืนบุก + คนป่าบุก (tests/ASRaidProbe.server.lua)
 STORYPROBE = "--storyprobe" in sys.argv  # ฉากเปิดเรื่อง (tests/ASStoryProbe.client.lua)
 TOOLTIPPROBE = "--tooltipprobe" in sys.argv  # การ์ดไอเทม "หาได้จากไหน" (tests/ASTooltipProbe.client.lua)
 STORAGEPROBE = "--storageprobe" in sys.argv  # กล่องเก็บของ 20/40 + ประตูไม้ (tests/ASStorageProbe.server.lua)
@@ -52,6 +53,8 @@ PADPROBE = "--padprobe" in sys.argv  # แท่นเริ่มเกม: เ
 WALLPROBE = "--wallprobe" in sys.argv
 ESCAPEPROBE = "--escapeprobe" in sys.argv
 TOTEMPROBE = "--totemprobe" in sys.argv
+HITFXPROBE = "--hitfxprobe" in sys.argv  # เอฟเฟกต์ตีธรรมดาอาวุธธาตุ (tests/ASHitFxProbe.*.lua)
+VMAPPROBE = "--villagemapprobe" in sys.argv  # หมุดหน้ากากหมู่บ้านชนเผ่าบนแผนที่ (tests/ASVillageMapProbe.*.lua)
 WATERPROBE = "--waterprobe" in sys.argv  # วาฬว่ายในน้ำลึกรอบผู้เล่น (tests/ASWaterProbe.*.lua)
 ASSETPROBE = "--assetprobe" in sys.argv  # โมเดลนำเข้า (Import 3D) โหลดได้ในบัญชีนี้ไหม (tests/ASAssetProbe.client.lua)  # เสา 4 ธาตุโมเดลใหม่ (tests/ASTotemProbe.*.lua)  # ประตูกลับบ้านหลัง 99 คืน + โหวต + ฉากจบ (tests/ASEscapeProbe.server.lua)  # กำแพงไม้/หินดูดต่อกันอัตโนมัติ (tests/ASWallProbe.server.lua)
 COOKPROBE = "--cookprobe" in sys.argv  # ย่างเนื้อที่กองไฟ + ไม่ดูดของจากไกล (tests/ASCookProbe.*.lua)
@@ -90,7 +93,7 @@ VFXSHOW = next((a.split("=", 1)[1] if "=" in a else "*" for a in sys.argv if a.s
 
 if GALLERY or VFXSHOW:
     TEST = True
-if TEST or SHOTS or TOOLSPAM or BREAKPROBE or LOOTPROBE or DROPPROBE or LOBBYPROBE or SITEPROBE or CLASSPROBE or UIPROBE or UIAUDIT or PROPPROBE or BOSSPROBE or FOGPROBE or SACKPROBE or BOSSSKILL or REALMPROBE or MONPROBE or SHRINEPROBE or GATEPROBE or REJOINPROBE or SKIPPROBE or BERRYPROBE or COOKPROBE or WALLPROBE or ESCAPEPROBE or TOTEMPROBE or WATERPROBE or ASSETPROBE or PADPROBE or ARMORPROBE or MEDPROBE or CHESTPROBE or LIDPROBE or ELEPHPROBE or GRIPPROBE or HAMMERPROBE or SKILLPROBE or SWINGPROBE or TRADERPROBE or GEYSERPROBE or ARENAPROBE or CRATEPROBE or SIZEPROBE or TPPROBE or TREEPROBE or SIGNPROBE or KRPROBE or STORAGEPROBE or TOOLTIPPROBE or STORYPROBE:
+if TEST or SHOTS or TOOLSPAM or BREAKPROBE or LOOTPROBE or DROPPROBE or LOBBYPROBE or SITEPROBE or CLASSPROBE or UIPROBE or UIAUDIT or PROPPROBE or BOSSPROBE or FOGPROBE or SACKPROBE or BOSSSKILL or REALMPROBE or MONPROBE or SHRINEPROBE or GATEPROBE or REJOINPROBE or SKIPPROBE or BERRYPROBE or COOKPROBE or WALLPROBE or ESCAPEPROBE or TOTEMPROBE or WATERPROBE or VMAPPROBE or HITFXPROBE or ASSETPROBE or PADPROBE or ARMORPROBE or MEDPROBE or CHESTPROBE or LIDPROBE or ELEPHPROBE or GRIPPROBE or HAMMERPROBE or SKILLPROBE or SWINGPROBE or TRADERPROBE or GEYSERPROBE or ARENAPROBE or CRATEPROBE or SIZEPROBE or TPPROBE or TREEPROBE or SIGNPROBE or KRPROBE or STORAGEPROBE or TOOLTIPPROBE or STORYPROBE or RAIDPROBE:
     OUT = os.path.join(OUT_DIR, "AnimalSurvival_TEST.rbxlx")
     if SIZEPROBE:
         OUT = os.path.join(OUT_DIR, "AnimalSurvival_SIZE.rbxlx")
@@ -138,6 +141,8 @@ if "--dropprobe=overlap" in sys.argv:  # ไฟล์แยก
     OUT = os.path.join(OUT_DIR, "AnimalSurvival_DROPOV.rbxlx")
 if "--dropprobe=world" in sys.argv:
     OUT = os.path.join(OUT_DIR, "AnimalSurvival_WORLD.rbxlx")
+if "--dropprobe=story" in sys.argv:
+    OUT = os.path.join(OUT_DIR, "AnimalSurvival_STORYSIGN.rbxlx")
 if "--dropprobe=worldsave" in sys.argv:
     OUT = os.path.join(OUT_DIR, "AnimalSurvival_WSAVE.rbxlx")
 if any(a.startswith("--resumejson=") for a in sys.argv):
@@ -353,6 +358,9 @@ def main():
             rs += value_item("StringValue", "ASDropMode", "overlap")
         if "--dropprobe=ride" in sys.argv:  # ขี่สัตว์เลี้ยงลงน้ำลึก วัดว่าหัวพ้นน้ำไหม
             rs += value_item("StringValue", "ASDropMode", "ride")
+        if "--dropprobe=story" in sys.argv:  # ป้ายเรื่องราวหน้าล็อบบี้ (ภาพอังกฤษ + ไทย)
+            rs += value_item("StringValue", "ASDropMode", "story")
+            rs += value_item("BoolValue", "ASSkipCollision", "true")
         if "--dropprobe=worldsave" in sys.argv:  # เล่นในโลก -> เจ้าของออก -> จับข้อมูลเซฟโลกพิมพ์ออก log
             rs += value_item("StringValue", "ASDropMode", "worldsave")
         _rj = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--resumejson=")), None)
@@ -389,6 +397,10 @@ def main():
         rs += value_item("BoolValue", "ASSkipCollision", "true")
     if LIDPROBE:
         rs += value_item("BoolValue", "ASLidProbe", "true")
+        rs += value_item("BoolValue", "ASAutoTest", "true")
+        rs += value_item("BoolValue", "ASSkipCollision", "true")
+    if RAIDPROBE:
+        rs += value_item("BoolValue", "ASRaidProbe", "true")
         rs += value_item("BoolValue", "ASAutoTest", "true")
         rs += value_item("BoolValue", "ASSkipCollision", "true")
     if STORYPROBE:
@@ -435,6 +447,14 @@ def main():
         rs += value_item("BoolValue", "ASEscapeProbe", "true")
     if TOTEMPROBE:
         rs += value_item("BoolValue", "ASTotemProbe", "true")
+    if HITFXPROBE:
+        rs += value_item("BoolValue", "ASHitFxProbe", "true")
+        rs += value_item("BoolValue", "ASAutoTest", "true")
+        rs += value_item("BoolValue", "ASSkipCollision", "true")
+    if VMAPPROBE:
+        rs += value_item("BoolValue", "ASVillageMapProbe", "true")
+        rs += value_item("BoolValue", "ASAutoTest", "true")
+        rs += value_item("BoolValue", "ASSkipCollision", "true")
     if WATERPROBE:
         rs += value_item("BoolValue", "ASWaterProbe", "true")
         rs += value_item("BoolValue", "ASAutoTest", "true")
@@ -568,6 +588,8 @@ def main():
     if LIDPROBE:
         sss += script_item(os.path.join(TESTS, "ASLidProbe.server.lua"))
         sps += script_item(os.path.join(TESTS, "ASLidProbe.client.lua"))
+    if RAIDPROBE:
+        sss += script_item(os.path.join(TESTS, "ASRaidProbe.server.lua"))
     if STORYPROBE:
         sps += script_item(os.path.join(TESTS, "ASStoryProbe.client.lua"))
     if TOOLTIPPROBE:
@@ -606,6 +628,12 @@ def main():
     if TOTEMPROBE:
         sss += script_item(os.path.join(TESTS, "ASTotemProbe.server.lua"))
         sps += script_item(os.path.join(TESTS, "ASTotemProbe.client.lua"))
+    if HITFXPROBE:
+        sss += script_item(os.path.join(TESTS, "ASHitFxProbe.server.lua"))
+        sps += script_item(os.path.join(TESTS, "ASHitFxProbe.client.lua"))
+    if VMAPPROBE:
+        sss += script_item(os.path.join(TESTS, "ASVillageMapProbe.server.lua"))
+        sps += script_item(os.path.join(TESTS, "ASVillageMapProbe.client.lua"))
     if WATERPROBE:
         sss += script_item(os.path.join(TESTS, "ASWaterProbe.server.lua"))
         sps += script_item(os.path.join(TESTS, "ASWaterProbe.client.lua"))

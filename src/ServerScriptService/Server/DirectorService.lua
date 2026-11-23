@@ -160,15 +160,24 @@ function DirectorService:RunNight(night, runId)
 	s:SetAttribute("NightElement", plan.Element)
 	s:SetAttribute("BloodMoon", plan.BloodMoon)
 	self:SetPhase("Night", Config.NightLength)
-	local title = Nights.Named[plan.OriginNight or night] or ((plan.BigRaid and "Big Raid Night · " or "") .. "Night of " .. (ELEMENT_THAI[plan.Element] or ""))
+	local title = Nights.Named[plan.OriginNight or night] or ((plan.Tribe and "💀 Skull Tribe Raid · " or plan.BigRaid and "Big Raid Night · " or "") .. "Night of " .. (ELEMENT_THAI[plan.Element] or ""))
 	if Nights.IsEndless(night) then
 		title = "♾ Endless · " .. title
 	end
+	local total = 0
+	for _, w in ipairs(plan.Waves) do
+		total += #w.Spawns
+	end
+	-- คืนบุก: ป้ายใหญ่บอกประเภท (สัตว์บุก / จันทร์เลือด / คนป่าบุก / คืนบอส) + ตัวนับที่เหลือบน HUD
+	local raidKind = plan.Tribe and "Tribe" or plan.BloodMoon and "Blood" or plan.BigRaid and "Animal" or plan.Boss and "Boss" or nil
+	if total == 0 then
+		raidKind = nil
+	end
 	ctx.FireRun("Cinematic", "NightStart", {
-		Night = night, Element = plan.Element, BloodMoon = plan.BloodMoon, Boss = plan.Boss, Title = title, Endless = Nights.IsEndless(night),
-		Elements = plan.Elements,
+		Night = night, Element = plan.Element, BloodMoon = plan.BloodMoon, Boss = plan.Boss, Title = title, Endless = Nights.IsEndless(night), Tribe = plan.Tribe,
+		Elements = plan.Elements, Raid = raidKind,
 	})
-	-- ฝูงบุกเฉพาะคืนบุกใหญ่ (ทุก 3 คืน x3 · พระจันทร์เลือดทุก 5 คืน x5) · คืนอื่นสงบ: บอกว่าอีกกี่คืนฝูงจะมา
+	-- ฝูงบุกเฉพาะคืนบุก (รอบ 7 คืน: 3 สัตว์ · 5 พระจันทร์เลือด · 7 คนป่า) · คืนอื่นสงบ: บอกว่าอีกกี่คืนฝูงจะมา
 	local played = self.played or night
 	if not plan.BigRaid then
 		local left = Nights.NextBigRaid(played) - played
@@ -179,11 +188,20 @@ function DirectorService:RunNight(night, runId)
 		end)
 	end
 	s:SetAttribute("NextRaidNight", night + (Nights.NextBigRaid(played + (plan.BigRaid and 1 or 0)) - played)) -- (โดยประมาณ ถ้าไม่มีตัวคูณวัน)
-	local total = 0
-	for _, w in ipairs(plan.Waves) do
-		total += #w.Spawns
-	end
 	s:SetAttribute("RaidTotal", total)
+	-- จำนวนที่เหลือ = ยังไม่เกิด + ยังไม่ตาย (ฝูงบุก + บอส) · ลดลงทั้งคืนจนเคลียร์หมด · เช้าแล้วป้ายหาย (Dawn)
+	self.raidPending = total
+	s:SetAttribute("RaidKind", raidKind or "")
+	s:SetAttribute("RaidLeft", raidKind and total or 0)
+	if raidKind then
+		task.spawn(function()
+			local animals = ctx.Services.AnimalService
+			while runId == self.runId and s:GetAttribute("Phase") == "Night" and s:GetAttribute("RaidKind") == raidKind do
+				s:SetAttribute("RaidLeft", math.max(0, self.raidPending) + animals.raidCount + animals:CountKind("Boss"))
+				task.wait(0.3)
+			end
+		end)
+	end
 
 	-- จิ้งจอกจันทราออกล่า (เตือนทุกคนในรอบล่วงหน้า 5 วินาที: ขอบจอแดง + ป้าย + เสียง)
 	local stalkerAt = Config.NightLength * 0.12
@@ -240,6 +258,7 @@ function DirectorService:RunNight(night, runId)
 					end
 				end
 				local a = self:SpawnRaid(id, plan, night)
+				self.raidPending = (self.raidPending or 1) - 1
 				if wave.Boss then
 					self.nightBoss = a
 				end
@@ -332,6 +351,8 @@ function DirectorService:Dawn(night)
 		ctx.State:SetAttribute("BossId", "")
 	end
 	ctx.State:SetAttribute("BloodMoon", false)
+	ctx.State:SetAttribute("RaidKind", "") -- เช้าแล้ว: ป้ายนับฝูงบุกหาย
+	ctx.State:SetAttribute("RaidLeft", 0)
 	ctx.FireRun("Cinematic", "Dawn", { Night = night })
 	self:RewardNight(night)
 	local left = animals.raidCount + animals:CountKind("Boss")

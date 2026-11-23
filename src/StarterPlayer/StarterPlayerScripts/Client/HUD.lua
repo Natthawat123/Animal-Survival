@@ -44,6 +44,60 @@ local function fmtTime(sec)
 	return string.format("%d:%02d", sec // 60, sec % 60)
 end
 
+local RAID_KIND = {
+	Animal = { "🐺 ANIMAL RAID", Color3.fromRGB(255, 150, 60) },
+	Blood = { "🔴 BLOOD MOON", Color3.fromRGB(255, 70, 70) },
+	Tribe = { "💀 TRIBE RAID", Color3.fromRGB(240, 210, 150) },
+	Boss = { "👹 BOSS NIGHT", Color3.fromRGB(200, 110, 255) },
+}
+function HUD.SetRaidUp(up)
+	if HUD.RaidUp == up then
+		return
+	end
+	HUD.RaidUp = up
+	HUD.RaidFrame.Visible = up
+	HUD.BossFrame.Position = UDim2.new(0.5, -360, 0, HUD.BossTopY + (up and 44 or 0))
+	if HUD.LayoutTop then
+		HUD.LayoutTop()
+	end
+end
+function HUD.UpdateRaid()
+	if not HUD.RaidFrame then
+		return
+	end
+	local s = HUD.State
+	local kind = RAID_KIND[s:GetAttribute("RaidKind") or ""]
+	local left = s:GetAttribute("RaidLeft") or 0
+	HUD.RaidSerial = (HUD.RaidSerial or 0) + 1
+	if not kind then
+		HUD.LastRaidLeft = nil
+		HUD.SetRaidUp(false)
+		return
+	end
+	HUD.RaidKindLabel.Text = kind[1]
+	HUD.RaidKindLabel.TextColor3 = kind[2]
+	HUD.RaidStroke.Color = kind[2]
+	HUD.SetRaidUp(true)
+	if left <= 0 then
+		HUD.RaidCountLabel.Text = "Raid cleared!"
+		HUD.RaidCountLabel.TextColor3 = C.Good
+		local serial = HUD.RaidSerial
+		task.delay(4, function()
+			if HUD.RaidSerial == serial then
+				HUD.SetRaidUp(false) -- เคลียร์หมดแล้ว: ป้ายหายเอง
+			end
+		end)
+	else
+		HUD.RaidCountLabel.Text = string.format("%d left", left)
+		HUD.RaidCountLabel.TextColor3 = C.Text
+		if HUD.LastRaidLeft and left < HUD.LastRaidLeft then
+			HUD.RaidPop.Scale = 1.3 -- ลดลง 1 ตัว: เลขเด้ง
+			TweenService:Create(HUD.RaidPop, TweenInfo.new(0.3, Enum.EasingStyle.Back), { Scale = 1 }):Play()
+		end
+	end
+	HUD.LastRaidLeft = left
+end
+
 function HUD.Init(state)
 	HUD.State = state
 	HUD.Touch = UIKit.IsTouch
@@ -148,6 +202,16 @@ function HUD.Init(state)
 	end
 	HUD.CompassPOI = {}
 
+	-- ตัวนับฝูงบุก: โผล่เฉพาะคืนบุก ใต้เข็มทิศ · ลดลงทุกตัวที่ตาย · เคลียร์หมด = "Raid cleared!" แล้วหาย · เช้าหาย
+	local raid = UIKit.Frame(top, { Name = "RaidCounter", Size = UDim2.fromOffset(400, 40), Position = UDim2.new(0.5, -200, 0, 124), BackgroundColor3 = Color3.fromRGB(26, 10, 12), BackgroundTransparency = 0.15, Visible = false })
+	UIKit.Corner(raid, 12)
+	HUD.RaidStroke = UIKit.Stroke(raid, C.Red, 2, 0)
+	HUD.RaidKindLabel = UIKit.Text(raid, { Size = UDim2.new(0.56, -14, 1, 0), Position = UDim2.fromOffset(14, 0), Text = "", Font = UIKit.Fonts.Title, TextSize = 22, TextColor3 = C.Red, TextXAlignment = Enum.TextXAlignment.Left })
+	HUD.RaidCountLabel = UIKit.Text(raid, { Size = UDim2.new(0.44, -14, 1, 0), Position = UDim2.new(0.56, 0, 0, 0), Text = "", Font = UIKit.Fonts.Title, TextSize = 26, TextColor3 = C.Text, TextXAlignment = Enum.TextXAlignment.Right })
+	HUD.RaidPop = Instance.new("UIScale")
+	HUD.RaidPop.Parent = HUD.RaidCountLabel
+	HUD.RaidFrame = raid
+
 	---------------------------------------------------------------- ขวาบน: กองไฟ / วิญญาณ / Ruby
 	-- ใต้แถวปุ่มบนสุด (ปุ่มกระเป๋ามุมขวาบนอยู่แถวเดียวกับเมนู Roblox) -> ไม่ซ้อนกัน
 	local right = UIKit.Card(gui, { Size = UDim2.fromOffset(270, 116), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -16, 0, 12), BackgroundTransparency = 0.12 })
@@ -209,11 +273,13 @@ function HUD.Init(state)
 		UIKit.AutoScale(top, topOpts)
 		if HUD.Feed then
 			-- มือถือ: กรอบบนถูกย่อ -> แจ้งเตือนเริ่มใต้แถบเลือดบอสพอดี (เดิม 178 px ตายตัว = กลางจอเตี้ย ชนการ์ดกด E/ฟีดเก็บของ)
-			HUD.Feed.Position = UIKit.IsPhone() and UDim2.new(0.5, 0, 0, math.floor(16 + 196 * UIKit.GetScale(top)))
-				or UDim2.new(0.5, 0, 0, (HUD.Touch and 178 or 198) * UIKit.BigScale())
+			local extra = HUD.RaidUp and 44 or 0 -- ตัวนับฝูงบุก + หลอดบอสเลื่อนลง -> แจ้งเตือนเลื่อนตาม
+			HUD.Feed.Position = UIKit.IsPhone() and UDim2.new(0.5, 0, 0, math.floor(16 + (196 + extra) * UIKit.GetScale(top)))
+				or UDim2.new(0.5, 0, 0, (HUD.Touch and 178 or 198) * UIKit.BigScale() + extra * UIKit.GetScale(top))
 		end
 	end
 	layoutTop()
+	HUD.LayoutTop = layoutTop
 	UIKit.OnResize(layoutTop)
 	player:GetAttributeChangedSignal("InRun"):Connect(layoutTop)
 	GuiService:GetPropertyChangedSignal("TopbarInset"):Connect(layoutTop)
@@ -282,6 +348,7 @@ function HUD.Init(state)
 
 	---------------------------------------------------------------- แถบเลือดบอส (สไตล์ Souls)
 	local boss = UIKit.Frame(top, { Size = UDim2.new(0, 720, 0, 62), Position = UDim2.new(0.5, -360, 0, 128), BackgroundTransparency = 1, Visible = false })
+	HUD.BossTopY = 128 -- คืนที่มีตัวนับฝูงบุก: หลอดบอสเลื่อนลงไปใต้ตัวนับ
 	HUD.BossName = UIKit.Text(boss, { Size = UDim2.new(1, 0, 0, 30), Font = UIKit.Fonts.Title, TextSize = 30, Text = "", TextColor3 = Color3.fromRGB(255, 120, 110), TextXAlignment = Enum.TextXAlignment.Center })
 	HUD.BossBar = UIKit.Bar(boss, { Size = UDim2.new(1, 0, 0, 22), Position = UDim2.fromOffset(0, 34), Color = Color3.fromRGB(230, 40, 56), Label = "" })
 	HUD.BossFrame = boss
@@ -450,6 +517,9 @@ function HUD.Init(state)
 	end)
 	state:GetAttributeChangedSignal("Phase"):Connect(HUD.UpdateNightLabel)
 	state:GetAttributeChangedSignal("Night"):Connect(HUD.UpdateNightLabel)
+	state:GetAttributeChangedSignal("RaidKind"):Connect(HUD.UpdateRaid)
+	state:GetAttributeChangedSignal("RaidLeft"):Connect(HUD.UpdateRaid)
+	HUD.UpdateRaid()
 	-- วันโบนัสเพิ่ม: "xN" เด้งข้างเลขวัน แล้วพุ่งเข้าไปบวก · ได้ตอนกลางคืนก็บวกที่ตัวนับ xN ทันที
 	-- (เลขวันจริงขยับตอนเช้า หลังบ้านนับเอง) · ตอนเช้าที่ของค้างถูกนับ (BonusSource = "Pending") ไม่เด้งซ้ำ
 	local lastBonus = state:GetAttribute("BonusDays") or 0
@@ -994,6 +1064,13 @@ function HUD.RefreshPOI()
 		local lair = s:GetAttribute("Lair_" .. el)
 		if lair and not s:GetAttribute("Lair" .. el .. "Cleared") and (HUD.Discovered and HUD.Discovered["Lair_" .. el]) then
 			wanted["Lair_" .. el] = { Position = lair, Icon = "💀", Color = C.Element[el] }
+		end
+	end
+	-- หมู่บ้านชนเผ่าที่ค้นพบแล้ว (MapUI) และยังมีทหารเฝ้า = หน้ากากบนเข็มทิศ
+	local vfolder = game:GetService("ReplicatedStorage"):FindFirstChild("MapVillages")
+	for i, pin in ipairs(vfolder and vfolder:GetChildren() or {}) do
+		if not pin:GetAttribute("Cleared") and HUD.Discovered and HUD.Discovered["Village_" .. i] then
+			wanted["Village_" .. i] = { Position = pin.Value, Icon = "👹", Color = Color3.fromRGB(220, 60, 50) }
 		end
 	end
 	-- จุดชั่วคราวจากระบบอื่น (เช่น ปิงของเพื่อน): HUD.ExtraPOI[key] = { Position, Icon, Color, Expire = os.clock() }

@@ -25,7 +25,6 @@ local ItemThumbs = {
 	SpikedClub = 16429519575,
 	IronSword = 15667340738,
 	Mace = 72061510071841,
-	BattleAxe = 79861846456340,
 	Crossbow = 14282275880,
 	Katana = 8579151891,
 	WarHammer = 13106821277,

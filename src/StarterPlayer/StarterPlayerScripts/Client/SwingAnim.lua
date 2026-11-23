@@ -209,7 +209,6 @@ S.Crossbow = { Len = 0.8, Keys = { -- หน้าไม้: ประทับ�
 -- อาวุธ -> ชุดคอมโบ
 local SETS = {
 	OldAxe = { "ChopA", "ChopX" }, StoneAxe = { "ChopA", "ChopX" }, IronAxe = { "ChopA", "ChopX" },
-	BattleAxe = { "Cleave", "Rise", "Leap" },
 	Pickaxe = { "Pick" }, BuildHammer = { "Tap" },
 	SpikedClub = { "ClubA", "ClubB" }, Mace = { "Mace" },
 	WarHammer = { "Slam", "Sweep" }, TerraHammer = { "Slam", "ClubA" },

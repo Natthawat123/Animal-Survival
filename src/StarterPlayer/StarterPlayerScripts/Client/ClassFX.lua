@@ -59,7 +59,14 @@ local COL = {
 	Blood = { Main = C(230, 30, 50), Core = C(255, 150, 160), Dark = C(90, 0, 15) },
 	Arcane = { Main = C(170, 70, 255), Core = C(235, 200, 255), Dark = C(45, 10, 80) },
 	Verdant = { Main = C(110, 235, 90), Core = C(220, 255, 200), Dark = C(30, 80, 25) },
+	-- อาวุธธาตุจากบอส (ตีธรรมดา)
+	Terra = { Main = C(235, 165, 60), Core = C(255, 235, 170), Dark = C(95, 62, 30) }, -- ค้อนปฐพี: ทองอำพัน + หินแตก
+	Tide = { Main = C(50, 170, 255), Core = C(210, 245, 255), Dark = C(15, 60, 130) }, -- ตรีศูลวารี: น้ำกระเซ็น
+	Gale = { Main = C(150, 225, 255), Core = C(245, 252, 255), Dark = C(70, 120, 170) }, -- ธนูวายุ: ลมหมุน + เกล็ดน้ำแข็ง
+	Ember = { Main = C(255, 110, 30), Core = C(255, 230, 140), Dark = C(130, 25, 5) }, -- ดาบเพลิง: ใบไฟ + ถ่านลุก
+	Prism = { Main = C(255, 220, 120), Core = C(255, 255, 240), Dark = C(120, 80, 30) }, -- ดาบ 4 ธาตุ: ทอง + ประกาย 4 สี
 }
+local PRISM_COLORS = { C(130, 220, 90), C(60, 170, 255), C(170, 235, 255), C(255, 110, 40) }
 
 ---------------------------------------------------------------- เครื่องมือพื้นฐาน
 local function folder()
@@ -345,6 +352,153 @@ function ClassFX.Impact(d)
 	return true
 end
 
+-- แทงตรง (ตรีศูล): ลำแสงพุ่งไปข้างหน้า + วงน้ำรอบปลาย
+local function thrust(origin, dir, col, len)
+	local flat = V(dir.X, 0, dir.Z)
+	flat = flat.Magnitude > 0.01 and flat.Unit or V(0, 0, -1)
+	local from = origin + flat * 1.5
+	local outer = part({ Size = V(0.9, 0.9, 1), Color = col.Main, Transparency = 0.15 })
+	outer.CFrame = CFrame.lookAt(from, from + flat) * CF(0, 0, -0.5)
+	local inner = part({ Size = V(0.35, 0.35, 1), Color = col.Core, Transparency = 0 })
+	inner.CFrame = outer.CFrame
+	for _, p in ipairs({ outer, inner }) do
+		tween(p, 0.12, { Size = V(p.Size.X, p.Size.Y, len), CFrame = CFrame.lookAt(from, from + flat) * CF(0, 0, -len / 2) })
+		task.delay(0.16, function()
+			tween(p, 0.45, { Transparency = 1, Size = V(0.05, 0.05, len * 1.1) })
+		end)
+		Debris:AddItem(p, 0.7)
+	end
+	for k = 1, 3 do
+		task.delay(k * 0.04, function()
+			local c = from + flat * (len * k / 3.5)
+			local ring = part({ Shape = Enum.PartType.Cylinder, Size = V(0.12, 0.6, 0.6), Color = k == 3 and col.Core or col.Main, Transparency = 0.1 })
+			ring.CFrame = CFrame.lookAt(c, c + flat) * ANG(0, math.rad(90), 0)
+			tween(ring, 0.45, { Size = V(0.04, 3.2 + k * 0.8, 3.2 + k * 0.8), Transparency = 1 })
+			Debris:AddItem(ring, 0.55)
+		end)
+	end
+end
+
+-- ประกายชาร์จปลายอาวุธ (คทา/ธนู)
+local function tipCharge(char, origin, dir, col)
+	local tool = char and char:FindFirstChildOfClass("Tool")
+	local handle = tool and tool:FindFirstChild("Handle")
+	local tip = handle and (handle.CFrame * CF(0, handle.Size.Y * 0.45, 0)).Position or (origin + V(0, 3, 0) + dir * 2)
+	local orb = part({ Shape = Enum.PartType.Ball, Size = V(0.6, 0.6, 0.6), Color = col.Core, Position = tip, Transparency = 0 })
+	tween(orb, 0.25, { Size = V(1.3, 1.3, 1.3), Transparency = 1 })
+	Debris:AddItem(orb, 0.4)
+	local ring = part({ Shape = Enum.PartType.Cylinder, Size = V(0.15, 1, 1), Color = col.Main, Transparency = 0.1 })
+	ring.CFrame = CFrame.lookAt(tip, tip + dir) * ANG(0, math.rad(90), 0)
+	tween(ring, 0.25, { Size = V(0.05, 1.8, 1.8), Transparency = 1 })
+	Debris:AddItem(ring, 0.4)
+	burst(tip, { Texture = TEX.Spark, Color = ColorSequence.new(col.Core, col.Main), Speed = NumberRange.new(3, 6), Lifetime = NumberRange.new(0.15, 0.3), Size = NS({ NSK(0, 0.4), NSK(1, 0) }), LightEmission = 1 }, 6)
+	flash(tip, col.Main, 7, 0.2, 3)
+	return tip
+end
+
+-- เหวี่ยงอาวุธธาตุ (ตีธรรมดา)
+local function elementSwing(d, col, char, origin, dir)
+	local front = origin + dir * 4 + V(0, 1.5, 0)
+	if d.Fx == "Tide" then
+		thrust(origin + V(0, 1.4, 0), dir, col, 13)
+		crescent(origin + V(0, 1.4, 0) + dir * 3, dir, col.Main, col.Core, 5)
+		burst(front, { Texture = TEX.Spark, Color = ColorSequence.new(col.Core, col.Main), Speed = NumberRange.new(5, 11), Lifetime = NumberRange.new(0.3, 0.55), Size = NS({ NSK(0, 0.5), NSK(1, 0.1) }), Acceleration = V(0, -30, 0), LightEmission = 0.6 }, 12)
+		flash(front, col.Main, 14, 0.25, 3)
+	elseif d.Fx == "Gale" then
+		local tip = tipCharge(char, origin, dir, col)
+		thrust(origin + V(0, 1.6, 0), dir, col, 22)
+		-- ลมหมุนรอบปลายธนู
+		burst(tip, { Texture = TEX.Smoke, Color = ColorSequence.new(col.Core), Transparency = NS({ NSK(0, 0.55), NSK(1, 1) }), Speed = NumberRange.new(4, 9), Lifetime = NumberRange.new(0.25, 0.45), Size = NS({ NSK(0, 0.8), NSK(1, 2.2) }), RotSpeed = NumberRange.new(-400, 400), Drag = 3 }, 6)
+	elseif d.Fx == "Terra" then
+		-- ค้อน: ฟันโค้งแนวตั้งหนักๆ สีอำพัน
+		crescent(origin + V(0, 1.6, 0) + dir * 1.5, dir, col.Main, col.Core, 8.5)
+		task.delay(0.05, crescent, origin + V(0, 1, 0) + dir * 1.2, dir, col.Dark, col.Main, 6.5)
+		burst(front - V(0, 1, 0), { Texture = TEX.Spark, Color = ColorSequence.new(col.Core, col.Main), Speed = NumberRange.new(6, 12), Lifetime = NumberRange.new(0.3, 0.6), Size = NS({ NSK(0, 0.6), NSK(1, 0) }), LightEmission = 1, Acceleration = V(0, -20, 0) }, 12)
+		flash(front, col.Main, 16, 0.3, 4)
+	elseif d.Fx == "Ember" then
+		crescent(origin + V(0, 1.2, 0) + dir * 2, dir, col.Main, col.Core, 8)
+		task.delay(0.06, crescent, origin + V(0, 0.6, 0) + dir * 1.5, dir, col.Dark, col.Main, 6)
+		burst(front, { Texture = TEX.Fire, Color = ColorSequence.new(col.Core, col.Main), Speed = NumberRange.new(4, 10), Lifetime = NumberRange.new(0.25, 0.5), Size = NS({ NSK(0, 1.4), NSK(1, 0) }), LightEmission = 1, Acceleration = V(0, 12, 0) }, 14)
+		burst(front, { Texture = TEX.Spark, Color = ColorSequence.new(C(255, 220, 120), C(255, 90, 20)), Speed = NumberRange.new(8, 16), Lifetime = NumberRange.new(0.4, 0.8), Size = NS({ NSK(0, 0.35), NSK(1, 0) }), LightEmission = 1, Acceleration = V(0, -14, 0) }, 16)
+		flash(front, col.Main, 18, 0.3, 5)
+	else -- Prism: ฟันทองใหญ่ + ฟันรอง 4 สีธาตุไล่กัน
+		crescent(origin + V(0, 1.2, 0) + dir * 2, dir, col.Main, col.Core, 9)
+		for i, c in ipairs(PRISM_COLORS) do
+			task.delay(0.03 * i, crescent, origin + V(0, 1.2 - i * 0.22, 0) + dir * 1.6, dir, c, col.Core, 7.5 - i * 0.35)
+		end
+		for _, c in ipairs(PRISM_COLORS) do
+			burst(front, { Texture = TEX.Spark, Color = ColorSequence.new(col.Core, c), Speed = NumberRange.new(7, 15), Lifetime = NumberRange.new(0.25, 0.5), Size = NS({ NSK(0, 0.55), NSK(1, 0) }), LightEmission = 1 }, 5)
+		end
+		flash(front, col.Main, 20, 0.35, 5)
+	end
+end
+
+-- ดาวกระแทก: ลูกแสงแกนขาวขยายแล้วจาง + แฉกแสง 4 ทิศหันหากล้อง
+local function impactStar(pos, col, size)
+	local orb = part({ Shape = Enum.PartType.Ball, Size = V(1, 1, 1) * size * 0.4, Color = col.Core, Position = pos, Transparency = 0 })
+	tween(orb, 0.35, { Size = V(1, 1, 1) * size * 1.6, Transparency = 1 })
+	Debris:AddItem(orb, 0.45)
+	local glow = part({ Shape = Enum.PartType.Ball, Size = V(1, 1, 1) * size, Color = col.Main, Transparency = 0.35, Position = pos, Material = Enum.Material.ForceField })
+	tween(glow, 0.45, { Size = V(1, 1, 1) * size * 2.6, Transparency = 1 })
+	Debris:AddItem(glow, 0.55)
+	local camPos = Workspace.CurrentCamera.CFrame.Position
+	local face = CFrame.lookAt(pos, camPos)
+	for k = 0, 3 do
+		local ray = part({ Size = V(0.25, 0.25, size * 2.2), Color = k % 2 == 0 and col.Core or col.Main, Transparency = 0 })
+		ray.CFrame = face * ANG(0, 0, k * math.pi / 4) * ANG(0, math.rad(90), 0)
+		tween(ray, 0.3, { Size = V(0.02, 0.02, size * 4.5), Transparency = 1 })
+		Debris:AddItem(ray, 0.4)
+	end
+end
+
+-- ตีโดนด้วยอาวุธธาตุ
+local function elementHit(d, col)
+	local pos = d.Position
+	local crit = d.Crit
+	impactStar(pos + V(0, 0.5, 0), col, crit and 3.2 or 2.3)
+	if d.Fx == "Terra" then
+		vfx("Crack", pos - V(0, 2.2, 0), { Scale = crit and 0.9 or 0.65, Duration = 0.4, Burst = 1, Tint = col.Main })
+		debris(pos - V(0, 1.5, 0), col.Dark, crit and 9 or 6, 32, 0.9)
+		burst(pos - V(0, 1.5, 0), { Texture = TEX.Smoke, Color = ColorSequence.new(C(190, 160, 120)), Transparency = NS({ NSK(0, 0.3), NSK(1, 1) }), Speed = NumberRange.new(6, 12), Lifetime = NumberRange.new(0.5, 0.9), Size = NS({ NSK(0, 2), NSK(1, 5) }), Drag = 3 }, 8)
+		shockwave(pos - V(0, 2, 0), crit and 9 or 6, col.Main, 0.35)
+		flash(pos, col.Main, 16, 0.25)
+	elseif d.Fx == "Tide" then
+		vfx("SlashImpact", pos, { Scale = 0.6, Duration = 0.2, Burst = 1, Tint = col.Main })
+		-- น้ำกระเซ็น: หยดน้ำพุ่งขึ้นแล้วตก + ระลอกวงน้ำ
+		burst(pos, { Texture = TEX.Spark, Color = ColorSequence.new(col.Core, col.Main), Speed = NumberRange.new(10, 20), Lifetime = NumberRange.new(0.5, 0.9), Size = NS({ NSK(0, 0.8), NSK(1, 0.2) }), Acceleration = V(0, -45, 0), LightEmission = 0.5 }, crit and 30 or 18)
+		burst(pos, { Texture = TEX.Smoke, Color = ColorSequence.new(C(220, 245, 255)), Transparency = NS({ NSK(0, 0.4), NSK(1, 1) }), Speed = NumberRange.new(3, 7), Lifetime = NumberRange.new(0.3, 0.6), Size = NS({ NSK(0, 1.5), NSK(1, 3.5) }) }, 6)
+		shockwave(pos - V(0, 2, 0), crit and 8 or 5, col.Main, 0.4)
+		flash(pos, col.Main, 14, 0.25)
+	elseif d.Fx == "Gale" then
+		vfx("Shiny", pos, { Scale = 0.3, Duration = 0.2, Burst = 1, Tint = col.Main })
+		-- ลมหมุน: ห่วงลมเอียง 3 วงขยายออก + เกล็ดน้ำแข็ง
+		for k = 1, 3 do
+			local ring = part({ Shape = Enum.PartType.Cylinder, Size = V(0.1, 1, 1), Color = k == 2 and col.Core or col.Main, Transparency = 0.15 })
+			ring.CFrame = CF(pos + V(0, k * 0.7 - 1, 0)) * ANG(0, k, math.rad(90 + (k - 2) * 20))
+			tween(ring, 0.35, { Size = V(0.03, 4 + k * 1.4, 4 + k * 1.4), Transparency = 1 })
+			Debris:AddItem(ring, 0.45)
+		end
+		burst(pos, { Texture = TEX.Spark, Color = ColorSequence.new(col.Core, col.Main), Speed = NumberRange.new(8, 16), Lifetime = NumberRange.new(0.3, 0.6), Size = NS({ NSK(0, 0.5), NSK(1, 0) }), Rotation = NumberRange.new(0, 360), RotSpeed = NumberRange.new(-300, 300), LightEmission = 1, Drag = 3 }, crit and 22 or 12)
+		flash(pos, col.Main, 12, 0.2)
+	elseif d.Fx == "Ember" then
+		vfx("SlashImpact", pos, { Scale = crit and 0.9 or 0.7, Duration = 0.2, Burst = 1, Tint = col.Main })
+		burst(pos, { Texture = TEX.Fire, Color = ColorSequence.new(col.Core, col.Main, col.Dark), Speed = NumberRange.new(6, 14), Lifetime = NumberRange.new(0.3, 0.6), Size = NS({ NSK(0, 2), NSK(1, 0) }), LightEmission = 1, Acceleration = V(0, 15, 0) }, crit and 22 or 14)
+		burst(pos, { Texture = TEX.Spark, Color = ColorSequence.new(C(255, 230, 140), C(255, 80, 10)), Speed = NumberRange.new(12, 24), Lifetime = NumberRange.new(0.4, 0.9), Size = NS({ NSK(0, 0.4), NSK(1, 0) }), LightEmission = 1, Acceleration = V(0, -20, 0) }, crit and 26 or 14)
+		flash(pos, col.Main, 18, 0.3, 6)
+		if crit then
+			shockwave(pos - V(0, 2, 0), 7, col.Main, 0.35)
+		end
+	else -- Prism
+		vfx("SlashImpact", pos, { Scale = crit and 1 or 0.8, Duration = 0.2, Burst = 1, Tint = col.Main })
+		vfx("Shiny", pos, { Scale = 0.35, Duration = 0.2, Burst = 1, Tint = col.Core })
+		for _, c in ipairs(PRISM_COLORS) do
+			burst(pos, { Texture = TEX.Spark, Color = ColorSequence.new(col.Core, c), Speed = NumberRange.new(10, 20), Lifetime = NumberRange.new(0.3, 0.6), Size = NS({ NSK(0, 0.6), NSK(1, 0) }), LightEmission = 1, Drag = 2 }, crit and 9 or 5)
+		end
+		shockwave(pos - V(0, 2, 0), crit and 9 or 6, col.Main, 0.35)
+		flash(pos, col.Main, 20, 0.3, 6)
+	end
+end
+
 -- ตอนเหวี่ยง/ยิง
 local function onSwing(d)
 	local col = COL[d.Fx]
@@ -355,7 +509,9 @@ local function onSwing(d)
 	local root = char and char:FindFirstChild("HumanoidRootPart")
 	local origin = root and root.Position or d.Position
 	local dir = d.Dir or V(0, 0, -1)
-	if d.Fx == "Blood" then
+	if d.Fx == "Terra" or d.Fx == "Tide" or d.Fx == "Gale" or d.Fx == "Ember" or d.Fx == "Prism" then
+		elementSwing(d, col, char, origin, dir)
+	elseif d.Fx == "Blood" then
 		crescent(origin + V(0, 1.2, 0) + dir * 2, dir, col.Main, col.Core, 8)
 		task.delay(0.06, crescent, origin + V(0, 0.6, 0) + dir * 1.5, dir, C(120, 0, 20), col.Main, 6)
 		flash(origin + dir * 4 + V(0, 1.5, 0), col.Main, 18, 0.3, 4)
@@ -384,7 +540,12 @@ local function onHit(d)
 		return
 	end
 	local pos = d.Position
-	if d.Fx == "Blood" then
+	if d.Fx == "Terra" or d.Fx == "Tide" or d.Fx == "Gale" or d.Fx == "Ember" or d.Fx == "Prism" then
+		elementHit(d, col)
+		-- เสียงเสริมตามธาตุ (เสียงโดนเนื้อปกติเล่นอยู่แล้ว): หินแตก / น้ำกระเซ็น / ลมวูบ / ไฟระเบิด / คริสตัล
+		local snd = ({ Terra = { "Mine", 0.35, 0.8 }, Tide = { "Splash", 0.3, 1.2 }, Gale = { "Warp", 0.25, 1.6 }, Ember = { "Boom", 0.18, 1.5 }, Prism = { "Crystal", 0.35, 1.2 } })[d.Fx]
+		sound(snd[1], pos, snd[2], snd[3])
+	elseif d.Fx == "Blood" then
 		vfx("BloodPunch", pos, { Scale = d.Crit and 1.1 or 0.8, Duration = 0.2, Burst = 1, Tint = col.Main })
 		vfx("SlashImpact", pos, { Scale = 0.7, Duration = 0.2, Burst = 1, Tint = col.Main })
 		burst(pos, { Texture = TEX.Spark, Color = ColorSequence.new(C(200, 0, 20), C(90, 0, 10)), Speed = NumberRange.new(8, 18), Lifetime = NumberRange.new(0.4, 0.8), Size = NS({ NSK(0, 0.9), NSK(1, 0.2) }), Acceleration = V(0, -40, 0) }, d.Crit and 30 or 16)
