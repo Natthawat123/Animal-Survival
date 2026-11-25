@@ -1492,3 +1492,5 @@
 1818	DESEJO REALIZADO
 1819	Você pegou todos os krathongs · Baú lendário + 10 Ruby
 1820	Loy Krathong
+1906	Derrote todos os guardas da tribo primeiro! (restam %d)
+1907	Derrote todos os guardas da tribo primeiro!

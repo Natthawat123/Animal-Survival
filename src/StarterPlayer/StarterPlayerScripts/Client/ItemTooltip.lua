@@ -40,9 +40,9 @@ end
 ---------------------------------------------------------------- หาได้จากไหน
 -- ทรัพยากรในแมพ (ต้นไม้/หิน/คริสตัล/พุ่ม) — ตรงกับ PropBuilder Kinds.*.Node
 local NODE = {
-	SkullStoneEarth = { "⛺ Chief's chest · Earth tribe village" },
-	SkullStoneWater = { "⛺ Chief's chest · Water tribe village" },
-	SkullStoneAir = { "⛺ Chief's chest · Frost tribe village" },
+	SkullStoneEarth = { "⛺ Glowing altar in the center of the Earth tribe village" },
+	SkullStoneWater = { "⛺ Glowing altar in the center of the Water tribe village" },
+	SkullStoneAir = { "⛺ Glowing altar in the center of the Frost tribe village" },
 	Wood = { "🪓 Chop trees", "🪓 Charred trees in the Fire land (bonus)" },
 	Stone = { "⛏ Mine rocks", "⛏ Coal rocks (bonus)" },
 	Iron = { "⛏ Mine iron ore rocks (sparkly)" },

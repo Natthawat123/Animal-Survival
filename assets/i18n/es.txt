@@ -1492,3 +1492,5 @@
 1818	DESEO CONCEDIDO
 1819	Recogiste todos los krathongs · Cofre legendario + 10 Ruby
 1820	Loy Krathong
+1906	¡Primero derrota a todos los guardias de la tribu! (quedan %d)
+1907	¡Primero derrota a todos los guardias de la tribu!

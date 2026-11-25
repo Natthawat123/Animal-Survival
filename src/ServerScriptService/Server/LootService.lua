@@ -14,6 +14,7 @@ local LootService = {}
 
 -- ตารางของในกล่อง/หีบ อยู่ที่ Shared/LootTables (การ์ดไอเทมฝั่งผู้เล่นใช้บอก "หาได้จากไหน" ด้วย)
 local LootTables = require(game:GetService("ReplicatedStorage").Shared.LootTables)
+local Items = require(game:GetService("ReplicatedStorage").Shared.Items)
 local LOOT = LootTables.Ancient
 local TIER_TOOLS = LootTables.TierTools
 local TIER_SACKS = LootTables.TierSacks
@@ -97,9 +98,34 @@ local function clearOpened(inst)
 	end
 end
 
+-- หีบ/แท่นหินกะโหลกในหมู่บ้าน/ป้อมชนเผ่า: ล็อกจนกว่าจะกวาดล้างทหารเฝ้าหมด (VillageService: ClearedAt + GuardsLeft)
+--   คืน true = ยังล็อก (แจ้งผู้เล่นแล้ว)
+function LootService:TribeLocked(inst, player)
+	local v = inst.Parent
+	while v and v ~= workspace do
+		if CollectionService:HasTag(v, "Village") then
+			local left = v:GetAttribute("GuardsLeft")
+			if v:GetAttribute("ClearedAt") and (left or 0) == 0 then
+				return false
+			end
+			if left and left > 0 then
+				self.ctx.Notify(player, string.format("Defeat all the tribe guards first! (%d left)", left), "Error")
+			else
+				self.ctx.Notify(player, "Defeat all the tribe guards first!", "Error")
+			end
+			return true
+		end
+		v = v.Parent
+	end
+	return false
+end
+
 function LootService:Open(chest, player)
 	local key = openKey(player)
 	if chest:GetAttribute(key) or not player:GetAttribute("InRun") then
+		return
+	end
+	if self:TribeLocked(chest, player) then
 		return
 	end
 	chest:SetAttribute(key, true)
@@ -149,6 +175,42 @@ function LootService:SetupChest(chest)
 	end)
 	chest:SetAttribute("LidCF", chest.Lid.CFrame)
 	table.insert(self.chests, chest)
+end
+
+-- แท่นหินกะโหลกกลางหมู่บ้านชนเผ่า: กด E เก็บเข้ากระเป๋าตรงๆ (คนละ 1 ก้อนต่อรอบ)
+function LootService:SetupAltar(altar)
+	local stone = altar.PrimaryPart or altar:FindFirstChildWhichIsA("BasePart")
+	local id = altar:GetAttribute("KeyStone")
+	if not (stone and id) then
+		return
+	end
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.ActionText = "Take"
+	prompt.ObjectText = Items.DisplayName and Items.DisplayName(id) or id
+	prompt.HoldDuration = 0.3
+	prompt.MaxActivationDistance = 14
+	prompt.RequiresLineOfSight = false
+	prompt.Parent = stone
+	prompt.Triggered:Connect(function(player)
+		self:TakeAltar(altar, player)
+	end)
+	table.insert(self.altars, altar)
+end
+
+function LootService:TakeAltar(altar, player)
+	local key = openKey(player)
+	local id = altar:GetAttribute("KeyStone")
+	if not id or altar:GetAttribute(key) or not player:GetAttribute("InRun") then
+		return
+	end
+	if self:TribeLocked(altar, player) then
+		return
+	end
+	altar:SetAttribute(key, true)
+	-- เข้ากระเป๋าตรงๆ เสมอ (ไม่นับที่ว่างกระสอบ)
+	self.ctx.Services.InventoryService:Add(player, id, 1)
+	self.ctx.Notify(player, "You found a Skull Stone! Bring all 3 to the Fire stronghold gate", "Good")
+	self.ctx.Remotes.Get("HitFx"):FireClient(player, "Loot", { Items = { [id] = 1 }, Position = altar:GetPivot().Position })
 end
 
 ---------------------------------------------------------------- กล่องเสบียง (กระจายทั่วแมพ)
@@ -364,6 +426,9 @@ function LootService:Reset()
 			end
 		end
 	end
+	for _, altar in ipairs(self.altars or {}) do
+		clearOpened(altar)
+	end
 	for _, chest in ipairs(self.chests) do
 		clearOpened(chest)
 		LootService.CloseLid(chest)
@@ -402,6 +467,10 @@ end
 function LootService:Start(ctx)
 	for _, chest in ipairs(CollectionService:GetTagged("Chest")) do
 		self:SetupChest(chest)
+	end
+	self.altars = {}
+	for _, altar in ipairs(CollectionService:GetTagged("SkullAltar")) do
+		self:SetupAltar(altar)
 	end
 	local ok, err = pcall(self.SpawnCrates, self)
 	if not ok then

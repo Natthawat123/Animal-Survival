@@ -1898,3 +1898,14 @@ Place the 3 Skull Stones to break the seal
 1894	👹 BOSS NIGHT
 1895	Raid cleared!
 1896	%d left
+1897	⛺ Glowing altar in the center of the Earth tribe village
+1898	On the glowing altar in the center of the Earth tribe village
+1899	On the glowing altar in the center of the Earth tribe village · Bring all 3 Skull Stones to the Fire stronghold gate
+1900	⛺ Glowing altar in the center of the Water tribe village
+1901	On the glowing altar in the center of the Water tribe village
+1902	On the glowing altar in the center of the Water tribe village · Bring all 3 Skull Stones to the Fire stronghold gate
+1903	⛺ Glowing altar in the center of the Frost tribe village
+1904	On the glowing altar in the center of the Frost tribe village
+1905	On the glowing altar in the center of the Frost tribe village · Bring all 3 Skull Stones to the Fire stronghold gate
+1906	Defeat all the tribe guards first! (%d left)
+1907	Defeat all the tribe guards first!

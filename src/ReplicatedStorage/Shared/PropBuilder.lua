@@ -3947,8 +3947,7 @@ function PropBuilder.BuildVillage(sp, parent)
 				break
 			end
 		end
-		-- หีบหัวหน้าเผ่า: ดรอปหินกะโหลกของไบโอมนี้ (เอาไปเปิดป้อมชนเผ่าที่ไบโอมไฟ)
-		chief:SetAttribute("KeyStone", ({ Earth = "SkullStoneEarth", Water = "SkullStoneWater", Air = "SkullStoneAir" })[el])
+		-- หินกะโหลกย้ายไปแท่นกลางลานแล้ว (หมวด 7b) · เดิมอยู่ในหีบหัวหน้าในโถงมืด: หายาก มองยาก
 		for _, sx in ipairs({ -1, 1 }) do
 			marker("Ground", (f * CF(sx * 6, 0, -D / 2 - 6)).Position)
 		end
@@ -4021,6 +4020,46 @@ function PropBuilder.BuildVillage(sp, parent)
 			if not bench then
 				box(V(5, 1.2, 1.4), CFrame.lookAt((f * CF(math.cos(a) * 9, 0.6, math.sin(a) * 9)).Position, (f * CF(0, 0.6, 0)).Position) * ANG(0, math.pi / 2, 0), tint.Wood, WOOD)
 			end
+		end
+	end
+
+	---------------------------------------------------------------- 7b) แท่นหินกะโหลก กลางลาน (ระหว่างกองไฟกับโถงหัวหน้า)
+	--   หินลอยเรืองแสงสีธาตุ + ลำแสงพุ่งฟ้า (เห็นจากไกล) · กด E เก็บได้เลย คนละ 1 ก้อน (LootService.SetupAltar)
+	--   เก็บแล้ว: หิน/แสงจางหายเฉพาะเครื่องคนเก็บ (CombatClient) · คนอื่นยังเก็บของตัวเองได้
+	do
+		local key = ({ Earth = "SkullStoneEarth", Water = "SkullStoneWater", Air = "SkullStoneAir" })[el]
+		if key then
+			local col = ({ Earth = C(120, 235, 90), Water = C(80, 190, 255), Air = C(215, 240, 255) })[el] -- = สีใน Items
+			local f = at(0, 15)
+			cylinderY(0.6, 7, f * CF(0, 0.3, 0), { Color = tint.Stone, Material = Enum.Material.Slate }, m)
+			cylinderY(3.2, 3.6, f * CF(0, 2.2, 0), { Color = tint.Stone, Material = Enum.Material.Cobblestone }, m)
+			cylinderY(0.5, 4.6, f * CF(0, 4, 0), { Color = tint.Dark, Material = Enum.Material.Slate }, m)
+			for i = 0, 3 do
+				local a = i / 4 * math.pi * 2 + math.pi / 4
+				log(5, 0.6, f * CF(math.cos(a) * 4.4, 0, math.sin(a) * 4.4), tint.Dark)
+				torch(f * CF(math.cos(a) * 4.4, 5, math.sin(a) * 4.4), 0.6)
+			end
+			local altar = Instance.new("Model")
+			altar.Name = "SkullAltar"
+			local stone = P("Part", { Name = "Stone", Shape = Enum.PartType.Ball, Size = V(2.6, 2.6, 2.6), CFrame = f * CF(0, 6.4, 0), Color = col, Material = Enum.Material.Neon, CanCollide = false }, altar)
+			P("Part", { Name = "Core", Shape = Enum.PartType.Ball, Size = V(3.6, 3.6, 3.6), CFrame = f * CF(0, 6.4, 0), Color = col, Material = Enum.Material.ForceField, Transparency = 0.3, CanCollide = false, CanQuery = false }, altar)
+			P("Part", { Name = "Beam", Shape = Enum.PartType.Cylinder, Size = V(90, 1.4, 1.4), CFrame = f * CF(0, 52, 0) * ANG(0, 0, math.pi / 2), Color = col, Material = Enum.Material.Neon, Transparency = 0.55, CanCollide = false, CanQuery = false, CastShadow = false }, altar)
+			light(stone, col, 30, 2.2)
+			local e = Instance.new("ParticleEmitter")
+			e.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+			e.Rate = 16
+			e.Lifetime = NumberRange.new(1, 2)
+			e.Speed = NumberRange.new(1, 3)
+			e.SpreadAngle = Vector2.new(180, 180)
+			e.Size = NumberSequence.new(0.5, 0)
+			e.Color = ColorSequence.new(col)
+			e.LightEmission = 1
+			e.Parent = stone
+			altar.PrimaryPart = stone
+			altar:SetAttribute("KeyStone", key)
+			altar:SetAttribute("Element", el)
+			CollectionService:AddTag(altar, "SkullAltar")
+			altar.Parent = m
 		end
 	end
 
@@ -4218,6 +4257,12 @@ function PropBuilder.BuildStronghold(sp, parent)
 		box(V(3, 1.6, 0.15), f * CF(1.6, 53.4, 0), TRIBE_RED, FAB)
 		torch(f * CF(0, 34, -6.6), 1)
 		marker("Archer", (f * CF(0, 34, 2)).Position)
+		-- บันไดปีน (TrussPart) ฝั่งในป้อม ตรงช่องว่างระหว่างใบเสมา -> ขึ้นไปสู้นักธนูบนหอได้
+		do
+			local la = math.rad(247.5)
+			local lp = V(math.cos(la) * 8.6, 17, math.sin(la) * 8.6)
+			P("TrussPart", { Name = "Ladder", Size = V(2, 34, 2), CFrame = f * CFrame.lookAt(lp, V(0, 17, 0)), Color = tint.Dark, Material = WOOD, Style = Enum.Style.NoSupports }, m)
+		end
 	end
 
 	---------------------------------------------------------------- 2) คูลาวารอบกำแพง + สะพานหิน
@@ -4266,6 +4311,9 @@ function PropBuilder.BuildStronghold(sp, parent)
 		local tip = tusk(f * CF(-sx * 4, 0, -5.2), 7, 6, 3.2, 0.2, -sx)
 		local _ = tip
 		marker("Archer", (f * CF(0, 38, 4.8)).Position)
+		-- บันไดปีนด้านในเสาประตู + ชานพักบนยอด (ขึ้นไปสู้นักธนูบนเสาได้)
+		P("TrussPart", { Name = "Ladder", Size = V(2, 38, 2), CFrame = f * CF(0, 19, 8), Color = tint.Dark, Material = WOOD, Style = Enum.Style.NoSupports }, m)
+		box(V(4, 1, 4), f * CF(0, 37.5, 7), ROCK_D, BASALT)
 	end
 	box(V(2 * GATE_HALF + 4, 5, 8), at(0, gz, 32.5), ROCK_D, BASALT)
 	box(V(2 * GATE_HALF + 2, 2.4, 5), at(0, gz, 29), ROCK_L, BASALT)

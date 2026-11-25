@@ -11239,6 +11239,7 @@ Config.SpiritBonusDays = { Earth = 1, Water = 2, Air = 3, Fire = 4 } -- ช่�
 Config.SpiritFireLevel = { Earth = 2, Water = 3, Air = 4, Fire = 5 } -- ปลดผนึกกรงลูกสัตว์ได้เมื่อกองไฟถึงเลเวลนี้ (ดิน 2 · น้ำ 3 · น้ำแข็ง 4 · ไฟ 5)
 Config.FightDayBonus = 60 -- เริ่มสู้บอสในรังตอนกลางวัน = กลางวัน +1 นาที (รังละครั้งต่อวัน · บอสเกิดใหม่ทุก 15 นาที) · ศาลเจ้า/วิหาร +1 นาทีตอนเข้าครั้งแรกเท่านั้น
 Config.ShrineGuardianMult = 1.53 -- มอนในดันช่วยลูกสัตว์ (ผู้เฝ้าศาล ทุกเวฟ): เลือด + ดาเมจ x1.53 (เดิม 1.5 เพิ่มอีก 2%)
+Config.WildHunterAggro = 70 -- สัตว์ป่าสายล่า (Behaviour Hunter) เห็นคนอย่างน้อยเท่านี้ (กลางคืน x1.3)
 Config.WildLeash = 70 -- รัศมีถิ่นจากจุดเกิด (stud) · ผู้เล่นออกนอกถิ่น +40 = เลิกไล่ แล้วเดินกลับถิ่น
 Config.WildChaseTime = 14 -- ไล่ไม่ถึงตัวนานเกินนี้ (วินาที) = เลิกไล่
 Config.WildGiveUpTime = 10 -- เลิกไล่แล้ว ไม่สนใจคนนั้นอีกกี่วินาที
@@ -11761,9 +11762,9 @@ Items.Desc = {
 	TideHeart = "Heart of the Water boss (Tyrannomosa) · Used for the Tide Trident and the Four-Element Sword",
 	FrostHeart = "Heart of the Frost boss (Frostmaw) · Used for the Storm Bow and the Four-Element Sword",
 	EmberHeart = "Heart of the Fire boss (Ignarax) · Used for the Ember Greatsword and the Four-Element Sword",
-	SkullStoneEarth = "From the chief's chest in the Earth tribe village · Bring all 3 Skull Stones to the Fire stronghold gate",
-	SkullStoneWater = "From the chief's chest in the Water tribe village · Bring all 3 Skull Stones to the Fire stronghold gate",
-	SkullStoneAir = "From the chief's chest in the Frost tribe village · Bring all 3 Skull Stones to the Fire stronghold gate",
+	SkullStoneEarth = "On the glowing altar in the center of the Earth tribe village · Bring all 3 Skull Stones to the Fire stronghold gate",
+	SkullStoneWater = "On the glowing altar in the center of the Water tribe village · Bring all 3 Skull Stones to the Fire stronghold gate",
+	SkullStoneAir = "On the glowing altar in the center of the Frost tribe village · Bring all 3 Skull Stones to the Fire stronghold gate",
 	Bandage = "Bandage up to heal, and revive downed teammates",
 	Medkit = "Fully heals HP, and revives downed teammates",
 	HerbSalve = "Herbal medicine from berries. Heals a little (cannot revive teammates)",
@@ -13590,17 +13591,8 @@ return {
 	["A big portal opened in the wilds · Tonight only"] = "Un gran portal se abrió en el bosque · Solo esta noche",
 	["WISH GRANTED"] = "DESEO CONCEDIDO",
 	["You collected every krathong · Legendary chest + 10 Ruby"] = "Recogiste todos los krathongs · Cofre legendario + 10 Ruby",
-	["You must be at the festival shop"] = "Debes estar en la tienda del festival",
-	["🌸 Not enough krathongs"] = "🌸 No tienes suficientes krathongs",
-	["🌸 Exchange complete!"] = "🌸 ¡Intercambio completado!",
-	["🌸 Festival Shop"] = "🌸 Tienda del festival",
-	["Festival Shop"] = "Tienda del festival",
-	["🌸 Trade krathongs here"] = "🌸 Cambia tus krathongs aquí",
-	["Trade krathongs for gifts at the festival shop"] = "Cambia krathongs por regalos en la tienda del festival",
-	["All %d: +%d bonus krathongs"] = "Los %d: +%d krathongs extra",
-	["\"Krathongs for festival gifts, dear! The festival ends tonight\""] = "\"¡Krathongs por regalos del festival! La fiesta termina esta noche\"",
-	["Collected"] = "Recogidos",
-	["You collected every krathong · +%d bonus krathongs for the festival shop"] = "Recogiste todos los krathongs · +%d krathongs extra para la tienda",
+	["Defeat all the tribe guards first! (%d left)"] = "¡Primero derrota a todos los guardias de la tribu! (quedan %d)",
+	["Defeat all the tribe guards first!"] = "¡Primero derrota a todos los guardias de la tribu!",
 }
 ]]></ProtectedString></Properties></Item>
 <Item class="ModuleScript" referent="RBX00000036"><Properties><string name="Name">fil</string><ProtectedString name="Source"><![CDATA[-- คำแปลภาษา fil (สร้างโดย tools/i18n_build.py จาก assets/i18n/fil.txt — อย่าแก้มือ)
@@ -14917,17 +14909,8 @@ return {
 	["A big portal opened in the wilds · Tonight only"] = "May malaking portal na bumukas sa gubat · Ngayong gabi lang",
 	["WISH GRANTED"] = "NATUPAD ANG HILING",
 	["You collected every krathong · Legendary chest + 10 Ruby"] = "Nakuha mo ang lahat ng krathong · Alamat na kaban + 10 Ruby",
-	["You must be at the festival shop"] = "Kailangan mong nasa tindahan ng pista",
-	["🌸 Not enough krathongs"] = "🌸 Kulang ang krathong",
-	["🌸 Exchange complete!"] = "🌸 Tapos na ang palitan!",
-	["🌸 Festival Shop"] = "🌸 Tindahan ng Pista",
-	["Festival Shop"] = "Tindahan ng Pista",
-	["🌸 Trade krathongs here"] = "🌸 Ipagpalit ang krathong dito",
-	["Trade krathongs for gifts at the festival shop"] = "Ipagpalit ang krathong sa regalo sa tindahan ng pista",
-	["All %d: +%d bonus krathongs"] = "Lahat ng %d: +%d bonus na krathong",
-	["\"Krathongs for festival gifts, dear! The festival ends tonight\""] = "\"Krathong kapalit ng regalo ng pista! Matatapos ang pista ngayong gabi\"",
-	["Collected"] = "Nakolekta",
-	["You collected every krathong · +%d bonus krathongs for the festival shop"] = "Nakolekta mo lahat ng krathong · +%d bonus na krathong para sa tindahan",
+	["Defeat all the tribe guards first! (%d left)"] = "Talunin muna lahat ng bantay ng tribo! (%d pa)",
+	["Defeat all the tribe guards first!"] = "Talunin muna lahat ng bantay ng tribo!",
 }
 ]]></ProtectedString></Properties></Item>
 <Item class="ModuleScript" referent="RBX00000037"><Properties><string name="Name">id</string><ProtectedString name="Source"><![CDATA[-- คำแปลภาษา id (สร้างโดย tools/i18n_build.py จาก assets/i18n/id.txt — อย่าแก้มือ)
@@ -16397,17 +16380,8 @@ return {
 	["A big portal opened in the wilds · Tonight only"] = "Portal besar terbuka di hutan · Hanya malam ini",
 	["WISH GRANTED"] = "PERMOHONAN TERKABUL",
 	["You collected every krathong · Legendary chest + 10 Ruby"] = "Kamu mengambil semua krathong · Peti legendaris + 10 Ruby",
-	["You must be at the festival shop"] = "Kamu harus berada di toko festival",
-	["🌸 Not enough krathongs"] = "🌸 Krathong tidak cukup",
-	["🌸 Exchange complete!"] = "🌸 Penukaran berhasil!",
-	["🌸 Festival Shop"] = "🌸 Toko Festival",
-	["Festival Shop"] = "Toko Festival",
-	["🌸 Trade krathongs here"] = "🌸 Tukar krathong di sini",
-	["Trade krathongs for gifts at the festival shop"] = "Tukar krathong dengan hadiah di toko festival",
-	["All %d: +%d bonus krathongs"] = "Semua %d: bonus +%d krathong",
-	["\"Krathongs for festival gifts, dear! The festival ends tonight\""] = "\"Tukar krathong dengan hadiah festival! Festival berakhir malam ini\"",
-	["Collected"] = "Terkumpul",
-	["You collected every krathong · +%d bonus krathongs for the festival shop"] = "Kamu mengumpulkan semua krathong · bonus +%d krathong untuk toko festival",
+	["Defeat all the tribe guards first! (%d left)"] = "Kalahkan semua penjaga suku dulu! (sisa %d)",
+	["Defeat all the tribe guards first!"] = "Kalahkan semua penjaga suku dulu!",
 }
 ]]></ProtectedString></Properties></Item>
 <Item class="ModuleScript" referent="RBX00000038"><Properties><string name="Name">ja</string><ProtectedString name="Source"><![CDATA[-- คำแปลภาษา ja (สร้างโดย tools/i18n_build.py จาก assets/i18n/ja.txt — อย่าแก้มือ)
@@ -17904,17 +17878,8 @@ return {
 	["WISH GRANTED"] = "願いが叶った",
 	["You collected every krathong · Legendary chest + 10 Ruby"] = "すべてのクラトンを集めた · 伝説の宝箱 + 10 Ruby",
 	["Loy Krathong"] = "ロイクラトン",
-	["You must be at the festival shop"] = "祭りの店の近くにいる必要があります",
-	["🌸 Not enough krathongs"] = "🌸 クラトンが足りません",
-	["🌸 Exchange complete!"] = "🌸 交換完了！",
-	["🌸 Festival Shop"] = "🌸 祭りの店",
-	["Festival Shop"] = "祭りの店",
-	["🌸 Trade krathongs here"] = "🌸 ここでクラトンを交換",
-	["Trade krathongs for gifts at the festival shop"] = "祭りの店でクラトンを景品と交換",
-	["All %d: +%d bonus krathongs"] = "%d個全部: ボーナスクラトン+%d",
-	["\"Krathongs for festival gifts, dear! The festival ends tonight\""] = "「クラトンをお祭りの景品と交換しよう！お祭りは今夜まで」",
-	["Collected"] = "収集",
-	["You collected every krathong · +%d bonus krathongs for the festival shop"] = "クラトンを全部集めた · 祭りの店で使えるボーナス+%d",
+	["Defeat all the tribe guards first! (%d left)"] = "先に部族の見張りを全員倒そう！(残り%d)",
+	["Defeat all the tribe guards first!"] = "先に部族の見張りを全員倒そう！",
 }
 ]]></ProtectedString></Properties></Item>
 <Item class="ModuleScript" referent="RBX00000039"><Properties><string name="Name">ko</string><ProtectedString name="Source"><![CDATA[-- คำแปลภาษา ko (สร้างโดย tools/i18n_build.py จาก assets/i18n/ko.txt — อย่าแก้มือ)
@@ -19412,17 +19377,8 @@ return {
 	["WISH GRANTED"] = "소원 성취",
 	["You collected every krathong · Legendary chest + 10 Ruby"] = "모든 끄라통을 모았어요 · 전설 상자 + 10 Ruby",
 	["Loy Krathong"] = "로이끄라통",
-	["You must be at the festival shop"] = "축제 상점에 있어야 해요",
-	["🌸 Not enough krathongs"] = "🌸 끄라통이 부족해요",
-	["🌸 Exchange complete!"] = "🌸 교환 완료!",
-	["🌸 Festival Shop"] = "🌸 축제 상점",
-	["Festival Shop"] = "축제 상점",
-	["🌸 Trade krathongs here"] = "🌸 여기서 끄라통 교환",
-	["Trade krathongs for gifts at the festival shop"] = "축제 상점에서 끄라통을 선물로 교환",
-	["All %d: +%d bonus krathongs"] = "%d개 모두: 보너스 끄라통 +%d",
-	["\"Krathongs for festival gifts, dear! The festival ends tonight\""] = "\"끄라통을 축제 선물로 바꿔 가세요! 축제는 오늘 밤까지예요\"",
-	["Collected"] = "수집",
-	["You collected every krathong · +%d bonus krathongs for the festival shop"] = "끄라통을 모두 모았어요 · 축제 상점용 보너스 끄라통 +%d",
+	["Defeat all the tribe guards first! (%d left)"] = "먼저 부족 경비병을 모두 처치하세요! (남은 수 %d)",
+	["Defeat all the tribe guards first!"] = "먼저 부족 경비병을 모두 처치하세요!",
 }
 ]]></ProtectedString></Properties></Item>
 <Item class="ModuleScript" referent="RBX0000003A"><Properties><string name="Name">pt</string><ProtectedString name="Source"><![CDATA[-- คำแปลภาษา pt (สร้างโดย tools/i18n_build.py จาก assets/i18n/pt.txt — อย่าแก้มือ)
@@ -20896,17 +20852,8 @@ return {
 	["A big portal opened in the wilds · Tonight only"] = "Um grande portal abriu na floresta · Só esta noite",
 	["WISH GRANTED"] = "DESEJO REALIZADO",
 	["You collected every krathong · Legendary chest + 10 Ruby"] = "Você pegou todos os krathongs · Baú lendário + 10 Ruby",
-	["You must be at the festival shop"] = "Você precisa estar na loja do festival",
-	["🌸 Not enough krathongs"] = "🌸 Krathongs insuficientes",
-	["🌸 Exchange complete!"] = "🌸 Troca concluída!",
-	["🌸 Festival Shop"] = "🌸 Loja do festival",
-	["Festival Shop"] = "Loja do festival",
-	["🌸 Trade krathongs here"] = "🌸 Troque krathongs aqui",
-	["Trade krathongs for gifts at the festival shop"] = "Troque krathongs por presentes na loja do festival",
-	["All %d: +%d bonus krathongs"] = "Todos os %d: +%d krathongs bônus",
-	["\"Krathongs for festival gifts, dear! The festival ends tonight\""] = "\"Krathongs por presentes do festival! A festa acaba hoje à noite\"",
-	["Collected"] = "Coletados",
-	["You collected every krathong · +%d bonus krathongs for the festival shop"] = "Você coletou todos os krathongs · +%d krathongs bônus para a loja",
+	["Defeat all the tribe guards first! (%d left)"] = "Derrote todos os guardas da tribo primeiro! (restam %d)",
+	["Defeat all the tribe guards first!"] = "Derrote todos os guardas da tribo primeiro!",
 }
 ]]></ProtectedString></Properties></Item>
 <Item class="ModuleScript" referent="RBX0000003B"><Properties><string name="Name">th</string><ProtectedString name="Source"><![CDATA[-- คำแปลภาษา th (สร้างโดย tools/i18n_build.py จาก assets/i18n/th.txt — อย่าแก้มือ)
@@ -22585,6 +22532,17 @@ return {
 	["👹 BOSS NIGHT"] = "👹 คืนบอส",
 	["Raid cleared!"] = "เคลียร์หมดแล้ว!",
 	["%d left"] = "เหลือ %d ตัว",
+	["⛺ Glowing altar in the center of the Earth tribe village"] = "⛺ แท่นเรืองแสงกลางหมู่บ้านชนเผ่าดิน",
+	["On the glowing altar in the center of the Earth tribe village"] = "แท่นเรืองแสงกลางหมู่บ้านชนเผ่าดิน",
+	["On the glowing altar in the center of the Earth tribe village · Bring all 3 Skull Stones to the Fire stronghold gate"] = "แท่นเรืองแสงกลางหมู่บ้านชนเผ่าดิน · นำหินกะโหลกครบ 3 ก้อนไปวางที่ประตูป้อมชนเผ่าไบโอมไฟ",
+	["⛺ Glowing altar in the center of the Water tribe village"] = "⛺ แท่นเรืองแสงกลางหมู่บ้านชนเผ่าน้ำ",
+	["On the glowing altar in the center of the Water tribe village"] = "แท่นเรืองแสงกลางหมู่บ้านชนเผ่าน้ำ",
+	["On the glowing altar in the center of the Water tribe village · Bring all 3 Skull Stones to the Fire stronghold gate"] = "แท่นเรืองแสงกลางหมู่บ้านชนเผ่าน้ำ · นำหินกะโหลกครบ 3 ก้อนไปวางที่ประตูป้อมชนเผ่าไบโอมไฟ",
+	["⛺ Glowing altar in the center of the Frost tribe village"] = "⛺ แท่นเรืองแสงกลางหมู่บ้านชนเผ่าน้ำแข็ง",
+	["On the glowing altar in the center of the Frost tribe village"] = "แท่นเรืองแสงกลางหมู่บ้านชนเผ่าน้ำแข็ง",
+	["On the glowing altar in the center of the Frost tribe village · Bring all 3 Skull Stones to the Fire stronghold gate"] = "แท่นเรืองแสงกลางหมู่บ้านชนเผ่าน้ำแข็ง · นำหินกะโหลกครบ 3 ก้อนไปวางที่ประตูป้อมชนเผ่าไบโอมไฟ",
+	["Defeat all the tribe guards first! (%d left)"] = "ต้องกำจัดทหารชนเผ่าให้หมดก่อน! (เหลือ %d)",
+	["Defeat all the tribe guards first!"] = "ต้องกำจัดทหารชนเผ่าให้หมดก่อน!",
 }
 ]]></ProtectedString></Properties></Item>
 <Item class="ModuleScript" referent="RBX0000003C"><Properties><string name="Name">vi</string><ProtectedString name="Source"><![CDATA[-- คำแปลภาษา vi (สร้างโดย tools/i18n_build.py จาก assets/i18n/vi.txt — อย่าแก้มือ)
@@ -24074,17 +24032,8 @@ return {
 	["A big portal opened in the wilds · Tonight only"] = "Một cổng lớn đã mở trong rừng · Chỉ đêm nay",
 	["WISH GRANTED"] = "ĐIỀU ƯỚC THÀNH SỰ THẬT",
 	["You collected every krathong · Legendary chest + 10 Ruby"] = "Bạn đã nhặt mọi krathong · Rương huyền thoại + 10 Ruby",
-	["You must be at the festival shop"] = "Bạn phải ở cửa hàng lễ hội",
-	["🌸 Not enough krathongs"] = "🌸 Không đủ krathong",
-	["🌸 Exchange complete!"] = "🌸 Đổi thành công!",
-	["🌸 Festival Shop"] = "🌸 Cửa hàng lễ hội",
-	["Festival Shop"] = "Cửa hàng lễ hội",
-	["🌸 Trade krathongs here"] = "🌸 Đổi krathong tại đây",
-	["Trade krathongs for gifts at the festival shop"] = "Đổi krathong lấy quà ở cửa hàng lễ hội",
-	["All %d: +%d bonus krathongs"] = "Đủ %d: thưởng +%d krathong",
-	["\"Krathongs for festival gifts, dear! The festival ends tonight\""] = "\"Đổi krathong lấy quà lễ hội nào! Lễ hội kết thúc đêm nay\"",
-	["Collected"] = "Đã nhặt",
-	["You collected every krathong · +%d bonus krathongs for the festival shop"] = "Bạn đã nhặt đủ krathong · thưởng +%d krathong cho cửa hàng lễ hội",
+	["Defeat all the tribe guards first! (%d left)"] = "Hãy hạ hết lính canh bộ tộc trước! (còn %d)",
+	["Defeat all the tribe guards first!"] = "Hãy hạ hết lính canh bộ tộc trước!",
 }
 ]]></ProtectedString></Properties></Item>
 <Item class="ModuleScript" referent="RBX0000003D"><Properties><string name="Name">zh</string><ProtectedString name="Source"><![CDATA[-- คำแปลภาษา zh (สร้างโดย tools/i18n_build.py จาก assets/i18n/zh.txt — อย่าแก้มือ)
@@ -25582,17 +25531,8 @@ return {
 	["WISH GRANTED"] = "愿望成真",
 	["You collected every krathong · Legendary chest + 10 Ruby"] = "你收集了所有水灯 · 传说宝箱 + 10 Ruby",
 	["Loy Krathong"] = "水灯节",
-	["You must be at the festival shop"] = "你必须在节日商店旁边",
-	["🌸 Not enough krathongs"] = "🌸 水灯不够",
-	["🌸 Exchange complete!"] = "🌸 兑换成功！",
-	["🌸 Festival Shop"] = "🌸 节日商店",
-	["Festival Shop"] = "节日商店",
-	["🌸 Trade krathongs here"] = "🌸 在这里兑换水灯",
-	["Trade krathongs for gifts at the festival shop"] = "在节日商店用水灯兑换礼物",
-	["All %d: +%d bonus krathongs"] = "集齐%d个：额外+%d水灯",
-	["\"Krathongs for festival gifts, dear! The festival ends tonight\""] = "“用水灯换节日礼物吧！节日今晚结束”",
-	["Collected"] = "已收集",
-	["You collected every krathong · +%d bonus krathongs for the festival shop"] = "收集了全部水灯 · 额外+%d水灯可在节日商店使用",
+	["Defeat all the tribe guards first! (%d left)"] = "先击败所有部落守卫！(剩余 %d)",
+	["Defeat all the tribe guards first!"] = "先击败所有部落守卫！",
 }
 ]]></ProtectedString></Properties></Item>
 </Item>
@@ -31192,8 +31132,7 @@ function PropBuilder.BuildVillage(sp, parent)
 				break
 			end
 		end
-		-- หีบหัวหน้าเผ่า: ดรอปหินกะโหลกของไบโอมนี้ (เอาไปเปิดป้อมชนเผ่าที่ไบโอมไฟ)
-		chief:SetAttribute("KeyStone", ({ Earth = "SkullStoneEarth", Water = "SkullStoneWater", Air = "SkullStoneAir" })[el])
+		-- หินกะโหลกย้ายไปแท่นกลางลานแล้ว (หมวด 7b) · เดิมอยู่ในหีบหัวหน้าในโถงมืด: หายาก มองยาก
 		for _, sx in ipairs({ -1, 1 }) do
 			marker("Ground", (f * CF(sx * 6, 0, -D / 2 - 6)).Position)
 		end
@@ -31266,6 +31205,46 @@ function PropBuilder.BuildVillage(sp, parent)
 			if not bench then
 				box(V(5, 1.2, 1.4), CFrame.lookAt((f * CF(math.cos(a) * 9, 0.6, math.sin(a) * 9)).Position, (f * CF(0, 0.6, 0)).Position) * ANG(0, math.pi / 2, 0), tint.Wood, WOOD)
 			end
+		end
+	end
+
+	---------------------------------------------------------------- 7b) แท่นหินกะโหลก กลางลาน (ระหว่างกองไฟกับโถงหัวหน้า)
+	--   หินลอยเรืองแสงสีธาตุ + ลำแสงพุ่งฟ้า (เห็นจากไกล) · กด E เก็บได้เลย คนละ 1 ก้อน (LootService.SetupAltar)
+	--   เก็บแล้ว: หิน/แสงจางหายเฉพาะเครื่องคนเก็บ (CombatClient) · คนอื่นยังเก็บของตัวเองได้
+	do
+		local key = ({ Earth = "SkullStoneEarth", Water = "SkullStoneWater", Air = "SkullStoneAir" })[el]
+		if key then
+			local col = ({ Earth = C(120, 235, 90), Water = C(80, 190, 255), Air = C(215, 240, 255) })[el] -- = สีใน Items
+			local f = at(0, 15)
+			cylinderY(0.6, 7, f * CF(0, 0.3, 0), { Color = tint.Stone, Material = Enum.Material.Slate }, m)
+			cylinderY(3.2, 3.6, f * CF(0, 2.2, 0), { Color = tint.Stone, Material = Enum.Material.Cobblestone }, m)
+			cylinderY(0.5, 4.6, f * CF(0, 4, 0), { Color = tint.Dark, Material = Enum.Material.Slate }, m)
+			for i = 0, 3 do
+				local a = i / 4 * math.pi * 2 + math.pi / 4
+				log(5, 0.6, f * CF(math.cos(a) * 4.4, 0, math.sin(a) * 4.4), tint.Dark)
+				torch(f * CF(math.cos(a) * 4.4, 5, math.sin(a) * 4.4), 0.6)
+			end
+			local altar = Instance.new("Model")
+			altar.Name = "SkullAltar"
+			local stone = P("Part", { Name = "Stone", Shape = Enum.PartType.Ball, Size = V(2.6, 2.6, 2.6), CFrame = f * CF(0, 6.4, 0), Color = col, Material = Enum.Material.Neon, CanCollide = false }, altar)
+			P("Part", { Name = "Core", Shape = Enum.PartType.Ball, Size = V(3.6, 3.6, 3.6), CFrame = f * CF(0, 6.4, 0), Color = col, Material = Enum.Material.ForceField, Transparency = 0.3, CanCollide = false, CanQuery = false }, altar)
+			P("Part", { Name = "Beam", Shape = Enum.PartType.Cylinder, Size = V(90, 1.4, 1.4), CFrame = f * CF(0, 52, 0) * ANG(0, 0, math.pi / 2), Color = col, Material = Enum.Material.Neon, Transparency = 0.55, CanCollide = false, CanQuery = false, CastShadow = false }, altar)
+			light(stone, col, 30, 2.2)
+			local e = Instance.new("ParticleEmitter")
+			e.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+			e.Rate = 16
+			e.Lifetime = NumberRange.new(1, 2)
+			e.Speed = NumberRange.new(1, 3)
+			e.SpreadAngle = Vector2.new(180, 180)
+			e.Size = NumberSequence.new(0.5, 0)
+			e.Color = ColorSequence.new(col)
+			e.LightEmission = 1
+			e.Parent = stone
+			altar.PrimaryPart = stone
+			altar:SetAttribute("KeyStone", key)
+			altar:SetAttribute("Element", el)
+			CollectionService:AddTag(altar, "SkullAltar")
+			altar.Parent = m
 		end
 	end
 
@@ -31463,6 +31442,12 @@ function PropBuilder.BuildStronghold(sp, parent)
 		box(V(3, 1.6, 0.15), f * CF(1.6, 53.4, 0), TRIBE_RED, FAB)
 		torch(f * CF(0, 34, -6.6), 1)
 		marker("Archer", (f * CF(0, 34, 2)).Position)
+		-- บันไดปีน (TrussPart) ฝั่งในป้อม ตรงช่องว่างระหว่างใบเสมา -> ขึ้นไปสู้นักธนูบนหอได้
+		do
+			local la = math.rad(247.5)
+			local lp = V(math.cos(la) * 8.6, 17, math.sin(la) * 8.6)
+			P("TrussPart", { Name = "Ladder", Size = V(2, 34, 2), CFrame = f * CFrame.lookAt(lp, V(0, 17, 0)), Color = tint.Dark, Material = WOOD, Style = Enum.Style.NoSupports }, m)
+		end
 	end
 
 	---------------------------------------------------------------- 2) คูลาวารอบกำแพง + สะพานหิน
@@ -31511,6 +31496,9 @@ function PropBuilder.BuildStronghold(sp, parent)
 		local tip = tusk(f * CF(-sx * 4, 0, -5.2), 7, 6, 3.2, 0.2, -sx)
 		local _ = tip
 		marker("Archer", (f * CF(0, 38, 4.8)).Position)
+		-- บันไดปีนด้านในเสาประตู + ชานพักบนยอด (ขึ้นไปสู้นักธนูบนเสาได้)
+		P("TrussPart", { Name = "Ladder", Size = V(2, 38, 2), CFrame = f * CF(0, 19, 8), Color = tint.Dark, Material = WOOD, Style = Enum.Style.NoSupports }, m)
+		box(V(4, 1, 4), f * CF(0, 37.5, 7), ROCK_D, BASALT)
 	end
 	box(V(2 * GATE_HALF + 4, 5, 8), at(0, gz, 32.5), ROCK_D, BASALT)
 	box(V(2 * GATE_HALF + 2, 2.4, 5), at(0, gz, 29), ROCK_L, BASALT)
@@ -116472,7 +116460,13 @@ function AnimalService:PickTarget(a)
 	local info = a.Info
 	local surv = self.ctx.Services.SurvivalService
 	local night = self.ctx.State:GetAttribute("Phase") == "Night"
-	local aggro = (info.Aggro or 60) * ((night and a.Kind ~= "Wild") and 1.3 or 1) -- สัตว์ป่าไม่ตาไวขึ้นตอนกลางคืน
+	local wildHunter = a.Kind == "Wild" and info.Behaviour == "Hunter"
+	local aggro = info.Aggro or 60
+	if wildHunter then
+		-- สัตว์ป่าสายล่า (หมาป่า/เสือ/กวางคริสตัล): เห็นคนไกลขึ้น + กลางคืนตาไวขึ้น (เดิม 42 stud = เดินผ่านไม่ไล่ ดูเหมือนบัค)
+		aggro = math.max(aggro, Config.WildHunterAggro or 70)
+	end
+	aggro *= (night and (a.Kind ~= "Wild" or wildHunter)) and 1.3 or 1 -- สัตว์ป่าทั่วไปไม่ตาไวขึ้นตอนกลางคืน
 	if a.Kind == "Boss" or a.Kind == "Guardian" then
 		aggro = math.max(aggro, 120)
 	end
@@ -128665,6 +128659,7 @@ local LootService = {}
 
 -- ตารางของในกล่อง/หีบ อยู่ที่ Shared/LootTables (การ์ดไอเทมฝั่งผู้เล่นใช้บอก "หาได้จากไหน" ด้วย)
 local LootTables = require(game:GetService("ReplicatedStorage").Shared.LootTables)
+local Items = require(game:GetService("ReplicatedStorage").Shared.Items)
 local LOOT = LootTables.Ancient
 local TIER_TOOLS = LootTables.TierTools
 local TIER_SACKS = LootTables.TierSacks
@@ -128748,9 +128743,34 @@ local function clearOpened(inst)
 	end
 end
 
+-- หีบ/แท่นหินกะโหลกในหมู่บ้าน/ป้อมชนเผ่า: ล็อกจนกว่าจะกวาดล้างทหารเฝ้าหมด (VillageService: ClearedAt + GuardsLeft)
+--   คืน true = ยังล็อก (แจ้งผู้เล่นแล้ว)
+function LootService:TribeLocked(inst, player)
+	local v = inst.Parent
+	while v and v ~= workspace do
+		if CollectionService:HasTag(v, "Village") then
+			local left = v:GetAttribute("GuardsLeft")
+			if v:GetAttribute("ClearedAt") and (left or 0) == 0 then
+				return false
+			end
+			if left and left > 0 then
+				self.ctx.Notify(player, string.format("Defeat all the tribe guards first! (%d left)", left), "Error")
+			else
+				self.ctx.Notify(player, "Defeat all the tribe guards first!", "Error")
+			end
+			return true
+		end
+		v = v.Parent
+	end
+	return false
+end
+
 function LootService:Open(chest, player)
 	local key = openKey(player)
 	if chest:GetAttribute(key) or not player:GetAttribute("InRun") then
+		return
+	end
+	if self:TribeLocked(chest, player) then
 		return
 	end
 	chest:SetAttribute(key, true)
@@ -128800,6 +128820,42 @@ function LootService:SetupChest(chest)
 	end)
 	chest:SetAttribute("LidCF", chest.Lid.CFrame)
 	table.insert(self.chests, chest)
+end
+
+-- แท่นหินกะโหลกกลางหมู่บ้านชนเผ่า: กด E เก็บเข้ากระเป๋าตรงๆ (คนละ 1 ก้อนต่อรอบ)
+function LootService:SetupAltar(altar)
+	local stone = altar.PrimaryPart or altar:FindFirstChildWhichIsA("BasePart")
+	local id = altar:GetAttribute("KeyStone")
+	if not (stone and id) then
+		return
+	end
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.ActionText = "Take"
+	prompt.ObjectText = Items.DisplayName and Items.DisplayName(id) or id
+	prompt.HoldDuration = 0.3
+	prompt.MaxActivationDistance = 14
+	prompt.RequiresLineOfSight = false
+	prompt.Parent = stone
+	prompt.Triggered:Connect(function(player)
+		self:TakeAltar(altar, player)
+	end)
+	table.insert(self.altars, altar)
+end
+
+function LootService:TakeAltar(altar, player)
+	local key = openKey(player)
+	local id = altar:GetAttribute("KeyStone")
+	if not id or altar:GetAttribute(key) or not player:GetAttribute("InRun") then
+		return
+	end
+	if self:TribeLocked(altar, player) then
+		return
+	end
+	altar:SetAttribute(key, true)
+	-- เข้ากระเป๋าตรงๆ เสมอ (ไม่นับที่ว่างกระสอบ)
+	self.ctx.Services.InventoryService:Add(player, id, 1)
+	self.ctx.Notify(player, "You found a Skull Stone! Bring all 3 to the Fire stronghold gate", "Good")
+	self.ctx.Remotes.Get("HitFx"):FireClient(player, "Loot", { Items = { [id] = 1 }, Position = altar:GetPivot().Position })
 end
 
 ---------------------------------------------------------------- กล่องเสบียง (กระจายทั่วแมพ)
@@ -129015,6 +129071,9 @@ function LootService:Reset()
 			end
 		end
 	end
+	for _, altar in ipairs(self.altars or {}) do
+		clearOpened(altar)
+	end
 	for _, chest in ipairs(self.chests) do
 		clearOpened(chest)
 		LootService.CloseLid(chest)
@@ -129053,6 +129112,10 @@ end
 function LootService:Start(ctx)
 	for _, chest in ipairs(CollectionService:GetTagged("Chest")) do
 		self:SetupChest(chest)
+	end
+	self.altars = {}
+	for _, altar in ipairs(CollectionService:GetTagged("SkullAltar")) do
+		self:SetupAltar(altar)
 	end
 	local ok, err = pcall(self.SpawnCrates, self)
 	if not ok then
@@ -137230,7 +137293,7 @@ return TraderService
 	VillageService — ทหารชนเผ่ากะโหลกแดงเฝ้าหมู่บ้านโจร (1 หมู่บ้าน/ไบโอม · PropBuilder.BuildVillage)
 	  ผู้เล่นเข้าใกล้ WAKE = ทหารออกเฝ้า: นักธนูยืนบนหอคอย 4 หอ + นักรบหอก/ตัวโล่/นักธนูในลาน
 	  กวาดล้างหมด = หมู่บ้านว่าง RESPAWN วินาทีแล้วชุดใหม่มา · ไม่มีใครใกล้นานๆ = เก็บทหาร (ไม่นับว่าล้าง)
-	  ทหารเก่งขึ้นตามคืน (เลือด/ดาเมจ) · หีบโบราณ 3 ใบในหมู่บ้านเปิดได้ตลอด (LootService)
+	  ทหารเก่งขึ้นตามคืน (เลือด/ดาเมจ) · หีบ + แท่นหินกะโหลกล็อกจนกว่าทหารตายหมด (GuardsLeft/ClearedAt -> LootService:TribeLocked)
 	  โมเดล Tribe* ยังไม่ Import = AnimalService:Spawn คืน nil -> หมู่บ้านว่าง (ไม่ error)
 	ป้อมชนเผ่า (ไบโอมไฟ · Capital): ทหารชุดใหญ่ แข็งกว่า · ประตูปิดผนึก -> วางหินกะโหลก 3 ก้อนที่แท่นหน้าประตู = ประตูเปิด
 	  (หินดรอปจากหีบหัวหน้าเผ่าในหมู่บ้านดิน/น้ำ/ลม · จบรอบ = ประตูปิด แท่นว่างใหม่)
@@ -137316,6 +137379,12 @@ function VillageService:SpawnGarrison(v, st)
 	end
 	st.Spawned = #st.Members > 0
 	st.FarSince = nil
+	st.Village = v
+	v:SetAttribute("GuardsLeft", #st.Members)
+	if #st.Members == 0 then
+		-- ไม่มีทหาร (โมเดลไม่ครบ) = ถือว่าเคลียร์แล้ว ไม่งั้นหีบ/หินกะโหลกล็อกตลอด
+		v:SetAttribute("ClearedAt", workspace:GetServerTimeNow())
+	end
 end
 
 function VillageService:Despawn(st)
@@ -137327,6 +137396,9 @@ function VillageService:Despawn(st)
 	end
 	st.Members = {}
 	st.Spawned = false
+	if st.Village and st.Village.Parent then
+		st.Village:SetAttribute("GuardsLeft", nil)
+	end
 end
 
 -- หมุดหมู่บ้านชนเผ่าบนแผนที่ (MapUI: รูปหน้ากาก) · ReplicatedStorage.MapVillages: Vector3Value ต่อหมู่บ้าน
@@ -137388,6 +137460,7 @@ function VillageService:Tick()
 						alive += 1
 					end
 				end
+				v:SetAttribute("GuardsLeft", alive)
 				if alive == 0 then
 					-- ทหารหมด: โดนฆ่า = หมู่บ้านถูกกวาดล้าง (รอชุดใหม่) · หายไปเฉยๆ (จบรอบ/ล้างแมพ) = ยังไม่ล้าง
 					st.Spawned = false
@@ -137544,6 +137617,7 @@ function VillageService:Reset()
 		self:Despawn(st)
 		if v.Parent then
 			v:SetAttribute("ClearedAt", nil)
+			v:SetAttribute("GuardsLeft", nil)
 		end
 	end
 	self.villages = {}
@@ -157857,7 +157931,7 @@ do
 	local CollectionService = game:GetService("CollectionService")
 	local KEY = "Opened_" .. player.UserId
 	local function setShown(model, shown, instant)
-		local fade = CollectionService:HasTag(model, "SupplyCrate")
+		local fade = CollectionService:HasTag(model, "SupplyCrate") or CollectionService:HasTag(model, "SkullAltar")
 		local lid, hinge = ChestLid.Find(model)
 		for _, d in ipairs(model:GetDescendants()) do
 			if d:IsA("ProximityPrompt") then
@@ -157919,7 +157993,7 @@ do
 			setShown(model, not model:GetAttribute(KEY), false)
 		end)
 	end
-	for _, tag in ipairs({ "SupplyCrate", "Chest" }) do
+	for _, tag in ipairs({ "SupplyCrate", "Chest", "SkullAltar" }) do
 		for _, m in ipairs(CollectionService:GetTagged(tag)) do
 			watch(m)
 		end
@@ -160486,9 +160560,9 @@ end
 ---------------------------------------------------------------- หาได้จากไหน
 -- ทรัพยากรในแมพ (ต้นไม้/หิน/คริสตัล/พุ่ม) — ตรงกับ PropBuilder Kinds.*.Node
 local NODE = {
-	SkullStoneEarth = { "⛺ Chief's chest · Earth tribe village" },
-	SkullStoneWater = { "⛺ Chief's chest · Water tribe village" },
-	SkullStoneAir = { "⛺ Chief's chest · Frost tribe village" },
+	SkullStoneEarth = { "⛺ Glowing altar in the center of the Earth tribe village" },
+	SkullStoneWater = { "⛺ Glowing altar in the center of the Water tribe village" },
+	SkullStoneAir = { "⛺ Glowing altar in the center of the Frost tribe village" },
 	Wood = { "🪓 Chop trees", "🪓 Charred trees in the Fire land (bonus)" },
 	Stone = { "⛏ Mine rocks", "⛏ Coal rocks (bonus)" },
 	Iron = { "⛏ Mine iron ore rocks (sparkly)" },

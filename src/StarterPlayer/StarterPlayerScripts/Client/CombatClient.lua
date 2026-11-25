@@ -1183,7 +1183,7 @@ do
 	local CollectionService = game:GetService("CollectionService")
 	local KEY = "Opened_" .. player.UserId
 	local function setShown(model, shown, instant)
-		local fade = CollectionService:HasTag(model, "SupplyCrate")
+		local fade = CollectionService:HasTag(model, "SupplyCrate") or CollectionService:HasTag(model, "SkullAltar")
 		local lid, hinge = ChestLid.Find(model)
 		for _, d in ipairs(model:GetDescendants()) do
 			if d:IsA("ProximityPrompt") then
@@ -1245,7 +1245,7 @@ do
 			setShown(model, not model:GetAttribute(KEY), false)
 		end)
 	end
-	for _, tag in ipairs({ "SupplyCrate", "Chest" }) do
+	for _, tag in ipairs({ "SupplyCrate", "Chest", "SkullAltar" }) do
 		for _, m in ipairs(CollectionService:GetTagged(tag)) do
 			watch(m)
 		end

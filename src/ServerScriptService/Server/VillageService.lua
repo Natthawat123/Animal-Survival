@@ -2,7 +2,7 @@
 	VillageService — ทหารชนเผ่ากะโหลกแดงเฝ้าหมู่บ้านโจร (1 หมู่บ้าน/ไบโอม · PropBuilder.BuildVillage)
 	  ผู้เล่นเข้าใกล้ WAKE = ทหารออกเฝ้า: นักธนูยืนบนหอคอย 4 หอ + นักรบหอก/ตัวโล่/นักธนูในลาน
 	  กวาดล้างหมด = หมู่บ้านว่าง RESPAWN วินาทีแล้วชุดใหม่มา · ไม่มีใครใกล้นานๆ = เก็บทหาร (ไม่นับว่าล้าง)
-	  ทหารเก่งขึ้นตามคืน (เลือด/ดาเมจ) · หีบโบราณ 3 ใบในหมู่บ้านเปิดได้ตลอด (LootService)
+	  ทหารเก่งขึ้นตามคืน (เลือด/ดาเมจ) · หีบ + แท่นหินกะโหลกล็อกจนกว่าทหารตายหมด (GuardsLeft/ClearedAt -> LootService:TribeLocked)
 	  โมเดล Tribe* ยังไม่ Import = AnimalService:Spawn คืน nil -> หมู่บ้านว่าง (ไม่ error)
 	ป้อมชนเผ่า (ไบโอมไฟ · Capital): ทหารชุดใหญ่ แข็งกว่า · ประตูปิดผนึก -> วางหินกะโหลก 3 ก้อนที่แท่นหน้าประตู = ประตูเปิด
 	  (หินดรอปจากหีบหัวหน้าเผ่าในหมู่บ้านดิน/น้ำ/ลม · จบรอบ = ประตูปิด แท่นว่างใหม่)
@@ -88,6 +88,12 @@ function VillageService:SpawnGarrison(v, st)
 	end
 	st.Spawned = #st.Members > 0
 	st.FarSince = nil
+	st.Village = v
+	v:SetAttribute("GuardsLeft", #st.Members)
+	if #st.Members == 0 then
+		-- ไม่มีทหาร (โมเดลไม่ครบ) = ถือว่าเคลียร์แล้ว ไม่งั้นหีบ/หินกะโหลกล็อกตลอด
+		v:SetAttribute("ClearedAt", workspace:GetServerTimeNow())
+	end
 end
 
 function VillageService:Despawn(st)
@@ -99,6 +105,9 @@ function VillageService:Despawn(st)
 	end
 	st.Members = {}
 	st.Spawned = false
+	if st.Village and st.Village.Parent then
+		st.Village:SetAttribute("GuardsLeft", nil)
+	end
 end
 
 -- หมุดหมู่บ้านชนเผ่าบนแผนที่ (MapUI: รูปหน้ากาก) · ReplicatedStorage.MapVillages: Vector3Value ต่อหมู่บ้าน
@@ -160,6 +169,7 @@ function VillageService:Tick()
 						alive += 1
 					end
 				end
+				v:SetAttribute("GuardsLeft", alive)
 				if alive == 0 then
 					-- ทหารหมด: โดนฆ่า = หมู่บ้านถูกกวาดล้าง (รอชุดใหม่) · หายไปเฉยๆ (จบรอบ/ล้างแมพ) = ยังไม่ล้าง
 					st.Spawned = false
@@ -316,6 +326,7 @@ function VillageService:Reset()
 		self:Despawn(st)
 		if v.Parent then
 			v:SetAttribute("ClearedAt", nil)
+			v:SetAttribute("GuardsLeft", nil)
 		end
 	end
 	self.villages = {}

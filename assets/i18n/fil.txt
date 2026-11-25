@@ -1492,3 +1492,5 @@
 1818	NATUPAD ANG HILING
 1819	Nakuha mo ang lahat ng krathong · Alamat na kaban + 10 Ruby
 1820	Loy Krathong
+1906	Talunin muna lahat ng bantay ng tribo! (%d pa)
+1907	Talunin muna lahat ng bantay ng tribo!
